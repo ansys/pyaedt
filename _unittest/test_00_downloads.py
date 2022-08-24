@@ -58,3 +58,7 @@ class TestClass(BasisTest, object):
     def test_download_twin_builder_data(self):
         example_folder = self.examples.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
         assert os.path.exists(example_folder)
+
+    def test_download_folder(self):
+        example_folder = self.examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+        assert os.path.exists(example_folder)

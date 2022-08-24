@@ -592,6 +592,41 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     return os.path.join(destination, "twin_builder")
 
 
+def download_file(directory, filename, destination=None):
+    """
+    Download file from directory.
+
+    Files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    directory : str
+        Directory name
+    filename : str
+        File name to download.
+    destination : str, optional
+        Path where files will be downloaded. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+    >>> path
+    'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad'
+    """
+    local_path = _download_file(directory, filename, destination)
+
+    return local_path
+
+
 def unzip(source_filename, dest_dir):
     with zipfile.ZipFile(source_filename) as zf:
         zf.extractall(dest_dir)
