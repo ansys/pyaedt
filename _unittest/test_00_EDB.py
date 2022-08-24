@@ -192,6 +192,11 @@ if not config["skip_edb"]:
             assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
             assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
             assert layers.add_layer("NewLayer3", None, "copper", "air", "0um", 0, negative_layer=True)
+            top = layers.layers["TOP"]
+            top.roughness_enabled = True
+            assert top.assign_roughness_model_top(huray_radius="1um")
+            assert top.assign_roughness_model_bottom(model_type="groisse")
+            assert top.assign_roughness_model_side(huray_surface_ratio=5)
 
         def test_11_add_dielectric(self):
             diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -1806,6 +1811,7 @@ if not config["skip_edb"]:
                 negative_node_net="HV_DC+",
             )
             sim_setup.add_current_source(
+                name="I25",
                 positive_node_component="Q5",
                 positive_node_net="SOURCE_HBB_PHASEB",
                 negative_node_component="Q5",
