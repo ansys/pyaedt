@@ -957,7 +957,7 @@ class Edb(object):
         extent_type : str, optional
             Type of the extension. Options are ``"Conforming"`` and
             ``"Bounding"``. The default is ``"Conforming"``.
-        expansion_size : float, optional
+        expansion_size : float, str, optional
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
