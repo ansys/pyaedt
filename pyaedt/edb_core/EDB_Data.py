@@ -983,7 +983,7 @@ class EDBLayer(object):
                 self._edb.Cell.RoughnessModel.Region.Side,
                 self._edb.Cell.RoughnessModel.Region.Bottom,
             ]
-            for mdl, rgn in zip(models, regions):
+            for mdl, region in zip(models, regions):
                 if not mdl:
                     continue
                 model_type = mdl[0]
