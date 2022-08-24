@@ -976,6 +976,7 @@ class Edb(object):
 
         """
 
+        expansion_size = self.edb_value(expansion_size).ToDouble()
         if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
             signal_list = simulation_setup.signal_nets
             reference_list = simulation_setup.power_nets
@@ -995,11 +996,11 @@ class Edb(object):
 
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, True, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, True, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
 
         # Create new cutout cell/design
