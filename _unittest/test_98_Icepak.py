@@ -240,8 +240,8 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.assign_point_monitor_in_object(["box"])
 
     def test_17_analyze_and_export_summary(self):
-        self.aedtapp.analyze_nominal()
         assert self.aedtapp.export_summary()
+        self.aedtapp.analyze_nominal()
 
     def test_17_post_processing(self):
         rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
