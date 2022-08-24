@@ -14,6 +14,7 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+test_subfolder = "TMaxwell"
 test_project_name = "eddy"
 
 

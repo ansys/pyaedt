@@ -14,6 +14,7 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
@@ -22,10 +23,16 @@ test_rigid_flex = "demo_flex"
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
-        self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
-        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
-        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=test_project_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        self.hfss3dl = BasisTest.add_app(
+            self, project_name="differential_pairs", application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        self.flex = BasisTest.add_app(
+            self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
 

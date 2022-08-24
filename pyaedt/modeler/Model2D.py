@@ -96,7 +96,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         radius = 0
         oVertexIDs = self[object_name].vertices
         if oVertexIDs:
-            vert_id_int = [oVertexIDs.id for x in oVertexIDs]
+            vert_id_int = [x.id for x in oVertexIDs]
             if inner:
                 radius = 0
             else:

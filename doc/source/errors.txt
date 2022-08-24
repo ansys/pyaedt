@@ -1,0 +1,12 @@
+ERROR: In C:\glr\builds\vtk\vtk-ci-ext\0\Common\Core\vtkAOSDataArrayTemplate.txx, line 351
+vtkIntArray (000002155541CF40): Source array too small, requested tuple at index 0, but there are only 0 tuples in the array.
+
+
+ERROR: In C:\glr\builds\vtk\vtk-ci-ext\0\Common\Core\vtkAOSDataArrayTemplate.txx, line 351
+vtkIntArray (0000021553CBCDD0): Source array too small, requested tuple at index 0, but there are only 0 tuples in the array.
+
+
+ERROR: In C:\glr\builds\vtk\vtk-ci-ext\0\Common\Core\vtkAOSDataArrayTemplate.txx, line 351
+vtkIntArray (0000021553CBEC00): Source array too small, requested tuple at index 0, but there are only 0 tuples in the array.
+
+

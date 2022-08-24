@@ -9,11 +9,13 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T02"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS")
+        self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS", subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

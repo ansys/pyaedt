@@ -30,16 +30,19 @@ try:
 except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
+test_subfolder = "TEDB"
+
+
 if not config["skip_edb"]:
 
     class TestClass(BasisTest, object):
         def setup_class(self):
             BasisTest.my_setup(self)
-            self.edbapp = BasisTest.add_edb(self, test_project_name)
-            example_project = os.path.join(local_path, "example_models", "Package.aedb")
+            self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
             self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
-            example_project2 = os.path.join(local_path, "example_models", "simple.aedb")
+            example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
             self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
             self.local_scratch.copyfolder(example_project2, self.target_path2)
 
@@ -520,7 +523,7 @@ if not config["skip_edb"]:
 
         def test_53_import_bom(self):
             assert self.edbapp.core_components.update_rlc_from_bom(
-                os.path.join(local_path, "example_models", bom_example),
+                os.path.join(local_path, "example_models", test_subfolder, bom_example),
                 delimiter=",",
                 valuefield="Value",
                 comptype="Prod name",
@@ -629,7 +632,7 @@ if not config["skip_edb"]:
         @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_62_export_to_hfss(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "simple.aedb"),
+                edbpath=os.path.join(local_path, "example_models", test_subfolder, "simple.aedb"),
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
@@ -642,7 +645,7 @@ if not config["skip_edb"]:
         @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_63_export_to_q3d(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "simple.aedb"),
+                edbpath=os.path.join(local_path, "example_models", test_subfolder, "simple.aedb"),
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
@@ -655,7 +658,7 @@ if not config["skip_edb"]:
         @pytest.mark.skipif(config["build_machine"], reason="Not running in non-graphical mode")
         def test_64_export_to_maxwell(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "simple.aedb"),
+                edbpath=os.path.join(local_path, "example_models", test_subfolder, "simple.aedb"),
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
@@ -846,7 +849,7 @@ if not config["skip_edb"]:
             del edbapp_without_path
 
         def test_80_create_rectangle_in_pad(self):
-            example_model = os.path.join(local_path, "example_models", "padstacks.aedb")
+            example_model = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
             self.local_scratch.copyfolder(
                 example_model,
                 os.path.join(self.local_scratch.path, "padstacks2.aedb"),
@@ -863,7 +866,7 @@ if not config["skip_edb"]:
             edb_padstacks.close_edb()
 
         def test_81_edb_with_dxf(self):
-            src = os.path.join(local_path, "example_models", "edb_test_82.dxf")
+            src = os.path.join(local_path, "example_models", test_subfolder, "edb_test_82.dxf")
             dxf_path = self.local_scratch.copyfile(src)
             edb3 = Edb(dxf_path, edbversion=desktop_version)
             edb3.close_edb()
@@ -871,11 +874,11 @@ if not config["skip_edb"]:
 
         def test_82_place_on_lam_with_mold(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -933,11 +936,11 @@ if not config["skip_edb"]:
 
         def test_82b_place_on_bottom_of_lam_with_mold(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_flipped_stackup.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_flipped_stackup.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -995,11 +998,11 @@ if not config["skip_edb"]:
 
         def test_82c_place_on_lam_with_mold_solder(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_solder.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_solder.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -1057,11 +1060,11 @@ if not config["skip_edb"]:
 
         def test_82d_place_on_bottom_of_lam_with_mold_solder(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_solder.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_solder.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -1119,11 +1122,11 @@ if not config["skip_edb"]:
 
         def test_82e_place_zoffset_chip(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_zoffset.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_zoffset.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -1181,11 +1184,11 @@ if not config["skip_edb"]:
 
         def test_82f_place_on_bottom_zoffset_chip(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_zoffset.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_zoffset.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -1243,11 +1246,11 @@ if not config["skip_edb"]:
 
         def test_82g_place_zoffset_solder_chip(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_zoffset_solder.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_zoffset_solder.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -1305,11 +1308,11 @@ if not config["skip_edb"]:
 
         def test_82h_place_on_bottom_zoffset_solder_chip(self):
             laminateEdb = Edb(
-                os.path.join(local_path, "example_models", "lam_with_mold.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "lam_with_mold.aedb"),
                 edbversion=desktop_version,
             )
             chipEdb = Edb(
-                os.path.join(local_path, "example_models", "chip_zoffset_solder.aedb"),
+                os.path.join(local_path, "example_models", test_subfolder, "chip_zoffset_solder.aedb"),
                 edbversion=desktop_version,
             )
             try:
@@ -1366,7 +1369,7 @@ if not config["skip_edb"]:
                 laminateEdb.close_edb()
 
         def test_83_build_siwave_project_from_config_file(self):
-            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             self.target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             cfg_file = os.path.join(self.target_path, "test.cfg")
@@ -1642,7 +1645,7 @@ if not config["skip_edb"]:
             self.edbapp.core_nets.classify_nets(sim_setup)
 
         def test_A102_place_a3dcomp_3d_placement(self):
-            source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             laminate_edb = Edb(target_path, edbversion=desktop_version)
@@ -1697,11 +1700,11 @@ if not config["skip_edb"]:
                 laminate_edb.close_edb()
 
         def test_A02b_place_a3dcomp_3d_placement_on_bottom(self):
-            source_path = os.path.join(local_path, "example_models", "lam_for_bottom_place.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             laminate_edb = Edb(target_path, edbversion=desktop_version)
-            chip_a3dcomp = os.path.join(local_path, "example_models", "chip.a3dcomp")
+            chip_a3dcomp = os.path.join(local_path, "example_models", test_subfolder, "chip.a3dcomp")
             try:
                 layout = laminate_edb.active_layout
                 cell_instances = list(layout.CellInstances)
@@ -1760,7 +1763,7 @@ if not config["skip_edb"]:
 
         def test_A103_create_edge_ports(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "edge_ports.aedb"),
+                edbpath=os.path.join(local_path, "example_models", test_subfolder, "edge_ports.aedb"),
                 edbversion=desktop_version,
             )
             poly_list = [poly for poly in list(edb.active_layout.Primitives) if int(poly.GetPrimitiveType()) == 2]
@@ -1793,7 +1796,7 @@ if not config["skip_edb"]:
 
         def test_A104_create_dc_simulation(self):
             edb = Edb(
-                edbpath=os.path.join(local_path, "example_models", "dc_flow.aedb"),
+                edbpath=os.path.join(local_path, "example_models", test_subfolder, "dc_flow.aedb"),
                 edbversion=desktop_version,
             )
             sim_setup = SimulationConfiguration()
@@ -1816,7 +1819,7 @@ if not config["skip_edb"]:
             edb.close_edb()
 
         def test_A105_add_soure(self):
-            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             sim_config = SimulationConfiguration()
@@ -1841,7 +1844,7 @@ if not config["skip_edb"]:
             assert self.edbapp.get_statistics()
 
         def test_110_edb_stats(self):
-            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
             self.local_scratch.copyfolder(example_project, target_path)
             edb = Edb(target_path, edbversion=desktop_version)
@@ -1862,7 +1865,7 @@ if not config["skip_edb"]:
             assert edb_stats.num_resistors
 
         def test_111_set_bounding_box_extent(self):
-            source_path = os.path.join(local_path, "example_models", "test_107.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_111.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
@@ -1904,7 +1907,7 @@ if not config["skip_edb"]:
             assert sim_config.sources[0].c_value == 1e-13
 
         def test_114_create_rlc_component(self):
-            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_114.aedb")
             self.local_scratch.copyfolder(example_project, target_path)
             edb = Edb(target_path, edbversion=desktop_version)
@@ -1916,7 +1919,7 @@ if not config["skip_edb"]:
             edb.close_edb()
 
         def test_115_create_rlc_boundary(self):
-            example_project = os.path.join(local_path, "example_models", "Galileo.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_115.aedb")
             self.local_scratch.copyfolder(example_project, target_path)
             edb = Edb(target_path, edbversion=desktop_version)

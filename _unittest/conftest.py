@@ -82,9 +82,11 @@ else:
         "skip_debug": False,
         "local": False,
         "use_grpc": False,
+        "disable_sat_bounding_box": False,
     }
 settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
+settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 
 class BasisTest(object):
@@ -113,13 +115,13 @@ class BasisTest(object):
                 pass
         del self.aedtapps
 
-    def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
+    def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
             desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             desktop.disable_autosave()
         if project_name:
-            example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
-            example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
+            example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
+            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_project):
                 self.test_project = self.local_scratch.copyfile(example_project)
             elif os.path.exists(example_project + "z"):
@@ -144,9 +146,9 @@ class BasisTest(object):
         )
         return self.aedtapps[-1]
 
-    def add_edb(self, project_name=None):
+    def add_edb(self, project_name=None, subfolder=""):
         if project_name:
-            example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
+            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_folder):
                 target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
                 self.local_scratch.copyfolder(example_folder, target_folder)

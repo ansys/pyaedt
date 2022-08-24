@@ -2649,7 +2649,7 @@ class Primitives(object):
         elif len(vertices) == 1:
             return list(self.get_vertex_position(vertices[0]))
         else:
-            return []
+            return
 
     @pyaedt_function_handler()
     def get_bodynames_from_position(self, position, units=None):

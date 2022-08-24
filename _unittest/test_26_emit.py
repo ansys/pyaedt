@@ -11,6 +11,8 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+test_subfolder = "T26"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -77,7 +79,9 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2021.2"
     )
     def test_couplings(self):
-        self.aedtapp = BasisTest.add_app(self, project_name="Cell Phone RFI Desense", application=Emit)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name="Cell Phone RFI Desense", application=Emit, subfolder=test_subfolder
+        )
         links = self.aedtapp.couplings.linkable_design_names
         assert len(links) == 0
         for link in self.aedtapp.couplings.coupling_names:

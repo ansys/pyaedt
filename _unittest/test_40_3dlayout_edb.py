@@ -15,6 +15,7 @@ from _unittest.conftest import local_path
 # Import required modules
 from pyaedt import Hfss3dLayout
 
+test_subfolder = "T40"
 test_project_name = "Galileo_t23"
 original_project_name = "Galileo_t23"
 
@@ -198,7 +199,7 @@ class TestClass(BasisTest, object):
     def test_09_3dplacement(self):  # pragma: no cover
         assert len(self.aedtapp.modeler.components_3d) == 2
         tol = 1e-12
-        encrypted_model_path = os.path.join(local_path, "example_models", "connector.a3dcomp")
+        encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "connector.a3dcomp")
         comp = self.aedtapp.modeler.place_3d_component(
             encrypted_model_path, 4, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
         )

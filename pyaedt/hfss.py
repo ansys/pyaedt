@@ -3150,7 +3150,10 @@ class Hfss(FieldAnalysis3D, object):
             oname = ""
         if "Modal" in self.solution_type:
             if axisdir:
-                _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
+                try:
+                    _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
+                except (IndexError, TypeError):
+                    int_start = int_stop = None
             else:
                 int_start = int_stop = None
             portname = self._get_unique_source_name(portname, "Port")

@@ -17,7 +17,8 @@ from _unittest.conftest import settings
 from pyaedt import Hfss
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
-test_project_name = "coax_HFSS"
+test_project_name = "Coax_HFSS"
+test_subfolder = "T20"
 
 
 class TestClass(BasisTest, object):
@@ -981,8 +982,10 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
-        dict_in = json_to_dict(os.path.join(local_path, "example_models", "array_simple.json"))
-        dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", "Circ_Patch_5GHz.a3dcomp")
+        dict_in = json_to_dict(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
+        dict_in["Circ_Patch_5GHz1"] = os.path.join(
+            local_path, "example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
+        )
         dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
         dict_in["cells"][(3, 3)]["rotation"] = 90

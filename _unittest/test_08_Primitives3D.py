@@ -25,19 +25,20 @@ test = sys.modules.keys()
 scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
+test_subfolder = "T08"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
-        scdoc_file = os.path.join(local_path, "example_models", scdoc)
+        scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
         self.local_scratch.copyfile(scdoc_file)
-        self.step_file = os.path.join(local_path, "example_models", step)
+        self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
         self.component3d_file = os.path.join(self.local_scratch.path, component3d)
-        test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
+        test_98_project = os.path.join(local_path, "example_models", test_subfolder, "assembly2" + ".aedt")
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
-        test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
+        test_99_project = os.path.join(local_path, "example_models", test_subfolder, "assembly" + ".aedt")
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
 
     def teardown_class(self):
@@ -492,9 +493,9 @@ class TestClass(BasisTest, object):
         assert center == [4.5, 8.5, 3.0]
 
     def test_37_get_edge_midpoint(self):
-        listedges = self.aedtapp.modeler.get_object_edges("rect_for_get")
-        point = self.aedtapp.modeler.get_edge_midpoint(listedges[0])
-        assert point == [4.5, 2.0, 3.0]
+        p = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
+        point = self.aedtapp.modeler.get_edge_midpoint(p.id)
+        assert point == [5.0, 2.5, 1.5]
 
     def test_38_get_bodynames_from_position(self):
         center = [20, 20, 0]

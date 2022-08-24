@@ -148,7 +148,7 @@ class TestClass(BasisTest, object):
         planar_face.move_with_offset(1)
         assert planar_face.center == [5.0, 5.0, 6.0]
         assert planar_face.normal == [0, 0, 1]
-        assert planar_face.area == 100
+        assert isclose(planar_face.area, 100)
         non_planar_face = o_sphere.faces[0]
         assert isclose(non_planar_face.area, 201.06192982974676)
         assert non_planar_face.move_with_offset(1)
@@ -409,7 +409,7 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], matname="MyMaterial")
         assert box2.mass == 0.0
         new_material.mass_density = 1
-        assert box2.mass == 1000.0
+        assert isclose(box2.mass, 1000.0)
         box2.model = False
         assert box2.mass == 0.0
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
@@ -417,7 +417,7 @@ class TestClass(BasisTest, object):
 
     def test_23_volume(self):
         box3 = self.aedtapp.modeler.create_box([10, 10, 10], [5, 10, 2], matname="Copper")
-        assert box3.volume == 100
+        assert isclose(box3.volume, 100)
         rec = self.aedtapp.modeler.create_rectangle(0, [0, 0, 0], [5, 10])
         assert rec.volume == 0.0
 

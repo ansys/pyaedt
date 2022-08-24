@@ -15,6 +15,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Access the desktop
+test_subfolder = "T98"
 
 non_graphical_test = False
 test_project_name = "Filter_Board_Icepak"
@@ -27,11 +28,10 @@ link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_Prese
 solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
-
 src_project_name = "USB_Connector_IPK"
-source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
-source_project_path = os.path.join(local_path, "example_models", src_project_name)
-source_fluent = os.path.join(local_path, "example_models", "ColdPlateExample.aedt")
+source_project = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
+source_project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name)
+source_fluent = os.path.join(local_path, "example_models", test_subfolder, "ColdPlateExample.aedt")
 
 
 class TestClass(BasisTest, object):
