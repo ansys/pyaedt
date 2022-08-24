@@ -1531,7 +1531,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 if material_name is None:
                     self.logger.warning(
                         """The name of the material must be specified when adding an impedance boundary
-                        and choosing to use existing material."""
+                           and choosing to use existing material."""
                     )
                     return False
                 props["MaterialName"] = material_name
