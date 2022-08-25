@@ -276,7 +276,7 @@ SteadyTemperatureAndFlow = [
     ("Sequential Solve of Flow and Energy Equations", False),
     ("Convergence Criteria - Max Iterations", 100),
 ]
-"""Icepack steady temperature and steady flow setup properties and default values."""
+"""Icepak steady temperature and steady flow setup properties and default values."""
 
 SteadyTemperatureOnly = [
     ("Enabled", True),
@@ -335,7 +335,7 @@ SteadyTemperatureOnly = [
     ("Sequential Solve of Flow and Energy Equations", False),
     ("Convergence Criteria - Max Iterations", 100),
 ]
-"""Icepack steady temperature setup properties and default values."""
+"""Icepak steady temperature setup properties and default values."""
 
 SteadyFlowOnly = [
     ("Enabled", True),
@@ -395,7 +395,7 @@ SteadyFlowOnly = [
     ("Sequential Solve of Flow and Energy Equations", False),
     ("Convergence Criteria - Max Iterations", 100),
 ]
-"""Icepack steady flow setup properties and default values."""
+"""Icepak steady flow setup properties and default values."""
 
 Q3DCond = [("MaxPass", 10), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
 Q3DMult = [("MaxPass", 1), ("MinPass", 1), ("MinConvPass", 1), ("PerError", 1), ("PerRefine", 30)]
