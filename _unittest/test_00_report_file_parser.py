@@ -3,10 +3,11 @@ import os
 from pyaedt.generic.report_file_parser import parse_rdat_file
 
 local_path = os.path.dirname(os.path.realpath(__file__))
+test_subfolder = "TReport"
 
 
 def test_report_file_parser():
-    data = parse_rdat_file(os.path.join(local_path, "example_models", "test_report.rdat"))
+    data = parse_rdat_file(os.path.join(local_path, "example_models", test_subfolder, "test_report.rdat"))
     assert data == {
         "Calculator Expressions Plot 1": {
             "Mag_H": {
@@ -2943,5 +2944,5 @@ def test_report_file_parser():
             },
         }
     }
-    data1 = parse_rdat_file(os.path.join(local_path, "example_models", "test_report_smith.rdat"))
+    data1 = parse_rdat_file(os.path.join(local_path, "example_models", test_subfolder, "test_report_smith.rdat"))
     assert len(data1["S Parameter Chart 1"]["S(1,1)"]["curves"]) == 8
