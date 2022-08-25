@@ -192,6 +192,11 @@ if not config["skip_edb"]:
             assert layers.add_layer("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
             assert layers.add_layer("NewLayer2", None, "pec", "air", "0um", 0)
             assert layers.add_layer("NewLayer3", None, "copper", "air", "0um", 0, negative_layer=True)
+            top = layers.layers["TOP"]
+            top.roughness_enabled = True
+            assert top.assign_roughness_model_top(huray_radius="1um")
+            assert top.assign_roughness_model_bottom(model_type="groisse")
+            assert top.assign_roughness_model_side(huray_surface_ratio=5)
 
         def test_11_add_dielectric(self):
             diel = self.edbapp.core_stackup.create_dielectric("MyDiel", 3.3, 0.02)
@@ -1806,6 +1811,7 @@ if not config["skip_edb"]:
                 negative_node_net="HV_DC+",
             )
             sim_setup.add_current_source(
+                name="I25",
                 positive_node_component="Q5",
                 positive_node_net="SOURCE_HBB_PHASEB",
                 negative_node_component="Q5",
@@ -1971,6 +1977,20 @@ if not config["skip_edb"]:
                     .get_MeshSizefactor()
                 )
             assert mesh_size_factor == 1.9
+
+        def test_118_edb_create_port(self):
+            edb = Edb(
+                edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
+                edbversion=desktop_version,
+            )
+            prim_1_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_2"][0]
+            assert edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+
+            prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
+            assert edb.core_hfss.create_edge_port_horizontal(
+                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
+            )
+            edb.close_edb()
 
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
