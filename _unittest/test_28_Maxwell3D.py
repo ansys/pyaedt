@@ -498,3 +498,55 @@ class TestClass(BasisTest, object):
         assert insulating_assignment.name == "InsulatingExample"
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
+
+    def test_38_assign_current_density(self):
+        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
+        self.aedtapp.set_active_design(design_to_activate[0])
+        assert self.aedtapp.assign_current_density("Inductor", "CurrentDensity_1")
+        assert self.aedtapp.assign_current_density(
+            "Inductor", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
+        )
+        assert self.aedtapp.assign_current_density(["Inductor", "Paddle"], "CurrentDensity_3")
+        assert not self.aedtapp.assign_current_density(
+            "Inductor", "CurrentDensity_4", coordinate_system_cartesian="test"
+        )
+        assert not self.aedtapp.assign_current_density("Inductor", "CurrentDensity_5", phase="5ang")
+        for bound in self.aedtapp.boundaries:
+            if bound.type == "CurrentDensity":
+                if bound.name == "CurrentDensity_1":
+                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["CurrentDensityX"] == "0"
+                    assert bound.props["CurrentDensityY"] == "0"
+                    assert bound.props["CurrentDensityZ"] == "0"
+                    assert bound.props["CoordinateSystem Name"] == "Global"
+                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+                if bound.name == "CurrentDensity_2":
+                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Phase"] == "40deg"
+                    assert bound.props["CurrentDensityX"] == "3"
+                    assert bound.props["CurrentDensityY"] == "4"
+                    assert bound.props["CurrentDensityZ"] == "0"
+                    assert bound.props["CoordinateSystem Name"] == "Global"
+                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+                if bound.name == "CurrentDensity_3":
+                    assert bound.props["Objects"] == ["Inductor", "Paddle"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["CurrentDensityX"] == "0"
+                    assert bound.props["CurrentDensityY"] == "0"
+                    assert bound.props["CurrentDensityZ"] == "0"
+                    assert bound.props["CoordinateSystem Name"] == "Global"
+                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+        self.aedtapp.set_active_design("Motion")
+        assert not self.aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+
+    def test_39_assign_current_density_terminal(self):
+        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
+        self.aedtapp.set_active_design(design_to_activate[0])
+        assert self.aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
+        assert not self.aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
+        self.aedtapp.set_active_design("Matrix2")
+        assert self.aedtapp.assign_current_density_terminal(["Sheet1", "Sheet2"], "CurrentDensityTerminalGroup_1")
+        assert not self.aedtapp.assign_current_density_terminal(["Coil_1", "Coil_2"], "CurrentDensityTerminalGroup_2")
+        self.aedtapp.set_active_design("Motion")
+        assert not self.aedtapp.assign_current_density_terminal("Inner_Box", "CurrentDensityTerminal_1")

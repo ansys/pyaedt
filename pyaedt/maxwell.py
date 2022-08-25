@@ -5,6 +5,7 @@ from __future__ import absolute_import  # noreorder
 import io
 import json
 import os
+import re
 from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
@@ -1299,6 +1300,151 @@ class Maxwell(object):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def assign_current_density(
+        self,
+        entities,
+        current_density_name=None,
+        phase="0deg",
+        current_density_x="0",
+        current_density_y="0",
+        current_density_z="0",
+        current_density_2d="0",
+        coordinate_system_name="Global",
+        coordinate_system_cartesian="Cartesian",
+    ):
+        """Assign current density to a single or list of entities.
+
+        Parameters
+        ----------
+        entities : list
+            Objects to assign the current to.
+        current_density_name : str, optional
+            Current density name.
+            If no name is provided a random name is generated.
+        phase : str, optional
+            Current density phase.
+            Available units are 'deg', 'degmin', 'degsec' and 'rad'.
+            Default value is 0deg.
+        current_density_x : str, optional
+            Current density X coordinate value.
+            Default value is 0 A/m2.
+        current_density_y : str, optional
+            Current density Y coordinate value.
+            Default value is 0 A/m2.
+        current_density_z : str, optional
+            Current density Z coordinate value.
+            Default value is 0 A/m2.
+        current_density_2d : str, optional
+            Current density 2D value.
+            Default value is 0 A/m2.
+        coordinate_system_name : str, optional
+            Coordinate system name.
+            Default value is 'Global'.
+        coordinate_system_cartesian : str, optional
+            Coordinate system cartesian.
+            Possible values can be 'Cartesian', 'Cylindrical', 'Spherical'.
+            Default value is 'Cartesian'.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            if current_density_name is None:
+                current_density_name = generate_unique_name("CurrentDensity")
+            if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
+                self.logger.error("Invalid phase unit.")
+                return False
+            if coordinate_system_cartesian not in ["Cartesian", "Cylindrical", "Spherical"]:
+                self.logger.error("Invalid coordinate system.")
+                return False
+
+            objects_list = self.modeler.convert_to_selections(entities, True)
+
+            try:
+                if self.modeler._is3d:
+                    if len(objects_list) > 1:
+                        current_density_group_names = []
+                        for x in range(0, len(objects_list)):
+                            current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                        current_density_array = [
+                            "Name:{}".format(current_density_name[0]),
+                            "Objects:=",
+                            objects_list,
+                            "Phase:=",
+                            phase,
+                            "CurrentDensityX:=",
+                            current_density_x,
+                            "CurrentDensityY:=",
+                            current_density_y,
+                            "CurrentDensityZ:=",
+                            current_density_z,
+                            "CoordinateSystem Name:=",
+                            coordinate_system_name,
+                            "CoordinateSystem Type:=",
+                            coordinate_system_cartesian,
+                        ]
+                        self.oboundary.AssignCurrentDensityGroup(current_density_group_names, current_density_array)
+                    else:
+                        current_density_array = [
+                            "Name:{}".format(current_density_name),
+                            "Objects:=",
+                            objects_list,
+                            "Phase:=",
+                            phase,
+                            "CurrentDensityX:=",
+                            current_density_x,
+                            "CurrentDensityY:=",
+                            current_density_y,
+                            "CurrentDensityZ:=",
+                            current_density_z,
+                            "CoordinateSystem Name:=",
+                            coordinate_system_name,
+                            "CoordinateSystem Type:=",
+                            coordinate_system_cartesian,
+                        ]
+                        self.oboundary.AssignCurrentDensity(current_density_array)
+                    return True
+                else:
+                    if len(objects_list) > 1:
+                        current_density_group_names = []
+                        for x in range(0, len(objects_list)):
+                            current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                        current_density_array = [
+                            "Name:{}".format(current_density_name[0]),
+                            "Objects:=",
+                            objects_list,
+                            "Phase:=",
+                            phase,
+                            "Value:=",
+                            current_density_2d,
+                            "CoordinateSystem:=",
+                            "",
+                        ]
+                        self.oboundary.AssignCurrentDensityGroup(current_density_group_names, current_density_array)
+                    else:
+                        current_density_array = [
+                            "Name:{}".format(current_density_name),
+                            "Objects:=",
+                            objects_list,
+                            "Phase:=",
+                            phase,
+                            "Value:=",
+                            current_density_2d,
+                            "CoordinateSystem:=",
+                            "",
+                        ]
+                        self.oboundary.AssignCurrentDensity(current_density_array)
+                    return True
+            except:
+                self.logger.error("Couldn't assign current density to desired list of objects.")
+                return False
+        else:
+            self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
+            return False
+
     def __enter__(self):
         return self
 
@@ -1470,6 +1616,51 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
             return self._create_boundary(insulation, props, "Insulating")
         return False
+
+    @pyaedt_function_handler()
+    def assign_current_density_terminal(self, entities, current_density_name=None):
+        """Assign current density terminal to a single or list of entities.
+
+        Parameters
+        ----------
+        entities : list
+            Objects to assign the current to.
+        current_density_name : str, optional
+            Current density name.
+            If no name is provided a random name is generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            if current_density_name is None:
+                current_density_name = generate_unique_name("CurrentDensity")
+
+            objects_list = self.modeler.convert_to_selections(entities, True)
+
+            existing_2d_objects_list = [x.name for x in self.modeler.object_list if not x.is3d]
+            if [x for x in objects_list if x not in existing_2d_objects_list]:
+                self.logger.error("Entity provided not a planar entity.")
+                return False
+
+            try:
+                if len(objects_list) > 1:
+                    current_density_group_names = []
+                    for x in range(0, len(objects_list)):
+                        current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                    current_density_array = ["Name:{}".format(current_density_name[0]), "Objects:=", objects_list]
+                    self.oboundary.AssignCurrentDensityTerminalGroup(current_density_group_names, current_density_array)
+                else:
+                    current_density_array = ["Name:{}".format(current_density_name), "Objects:=", objects_list]
+                    self.oboundary.AssignCurrentDensityTerminal(current_density_array)
+                return True
+            except:
+                pass
+        else:
+            self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
+            return False
 
     @pyaedt_function_handler()
     def _create_boundary(self, name, props, boundary_type):

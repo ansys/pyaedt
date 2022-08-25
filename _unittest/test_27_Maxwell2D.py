@@ -319,3 +319,29 @@ class TestClass(BasisTest, object):
         export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
         assert self.aedtapp.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
         assert os.path.exists(export_path_2)
+
+    def test_26_assign_current_density(self):
+        self.aedtapp.set_active_design("Y_Connections")
+        assert self.aedtapp.assign_current_density("Coil", "CurrentDensity_1")
+        assert self.aedtapp.assign_current_density("Coil", "CurrentDensity_2", "40deg", current_density_2d="2")
+        assert self.aedtapp.assign_current_density(["Coil", "Coil_1"])
+        assert self.aedtapp.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
+        for bound in self.aedtapp.boundaries:
+            if bound.type == "CurrentDensity":
+                if bound.name == "CurrentDensity_1":
+                    assert bound.props["Objects"] == ["Coil"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["Value"] == "0"
+                    assert bound.props["CoordinateSystem"] == ""
+                if bound.name == "CurrentDensity_2":
+                    assert bound.props["Objects"] == ["Coil"]
+                    assert bound.props["Phase"] == "40deg"
+                    assert bound.props["Value"] == "2"
+                    assert bound.props["CoordinateSystem"] == ""
+                if bound.name == "CurrentDensityGroup_1":
+                    assert bound.props["Objects"] == ["Coil", "Coil_1"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["Value"] == "0"
+                    assert bound.props["CoordinateSystem"] == ""
+        self.aedtapp.set_active_design("Motion")
+        assert not self.aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
