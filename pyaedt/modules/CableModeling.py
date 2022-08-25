@@ -12,7 +12,7 @@ class Cable:
     Parameters
     ----------
     app : :class:`pyaedt.hfss.Hfss`
-    json_file_name : str , optional
+    json_file_name : str, optional
         Path of the json file where the cable information are saved.
     working_dir : str, optional
         Working directory.
