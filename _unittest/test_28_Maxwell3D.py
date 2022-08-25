@@ -513,7 +513,7 @@ class TestClass(BasisTest, object):
             impedance_name="ImpedanceExample",
         )
         assert impedance_assignment.name == "ImpedanceExample"
-        impedance_assignment.name = "InsulatingExampleModified"
+        impedance_assignment.name = "ImpedanceExampleModified"
         assert impedance_assignment.update()
 
         # Add an impedance using an existing material.
@@ -531,8 +531,8 @@ class TestClass(BasisTest, object):
 
         # Add an impedance using an existing material with non-linear permeability and
         # modifying its conductivity.
-        impedance_box_copper = self.aedtapp.modeler.create_box(
-            [-50, -600, -50], [294, 294, 19], name="impedance_box_copper"
+        impedance_box_copper_non_liear = self.aedtapp.modeler.create_box(
+            [-50, -600, -50], [294, 294, 19], name="impedance_box_copper_non_liear"
         )
         impedance_assignment_copper = self.aedtapp.assign_impedance(
             impedance_box_copper.name,
