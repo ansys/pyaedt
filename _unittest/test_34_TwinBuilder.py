@@ -5,6 +5,8 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import local_path
 from pyaedt import TwinBuilder
 
+test_subfolder = "T21"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -14,7 +16,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(
             self, project_name=project_name, design_name=design_name, application=TwinBuilder
         )
-        netlist1 = os.path.join(local_path, "example_models", "netlist_small.cir")
+        netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
         self.netlist_file1 = self.local_scratch.copyfile(netlist1)
 
     def teardown_class(self):

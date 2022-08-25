@@ -7,15 +7,18 @@ from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d"
+test_subfolder = "T31"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Q3d)
-        example_project = os.path.join(local_path, "example_models", bondwire_project_name + ".aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name + ".aedt")
         self.test_project = self.local_scratch.copyfile(example_project)
-        self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        self.test_matrix = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "q2d_q3d.aedt")
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
