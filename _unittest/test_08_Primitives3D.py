@@ -499,8 +499,8 @@ class TestClass(BasisTest, object):
         assert center == [4.5, 8.5, 3.0]
 
     def test_37_get_edge_midpoint(self):
-        p = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
-        point = self.aedtapp.modeler.get_edge_midpoint(p.id)
+        polyline = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
+        point = self.aedtapp.modeler.get_edge_midpoint(polyline.id)
         assert point == [5.0, 2.5, 1.5]
 
     def test_38_get_bodynames_from_position(self):
