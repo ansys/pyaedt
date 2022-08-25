@@ -382,9 +382,10 @@ def _load_entire_aedt_file(filename):
         if m:
             _walk_through_structure(m.group(1), main_dict)
         _count += 1
-    if settings.aedt_version > "2022.2":
+    if settings.aedt_version and settings.aedt_version > "2022.2":
         project_preview = load_keyword_in_aedt_file(filename, "ProjectPreview")
-        main_dict["ProjectPreview"] = project_preview["ProjectPreview"]
+        if project_preview and "ProjectPreview" in project_preview:
+            main_dict["ProjectPreview"] = project_preview["ProjectPreview"]
     return main_dict
 
 

@@ -645,13 +645,13 @@ class TestClass(BasisTest, object):
         self.aedtapp["p2"] = "71mm"
         test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
         P = self.aedtapp.modeler.create_polyline(
-            position_list=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment"
+            position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_segment"
         )
         assert P
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
         insert_point2 = ["95mm", "20mm", "0mm"]
-        assert P.insert_segment(position_list=[insert_point, start_point])
+        assert P.insert_segment(position_list=[start_point, insert_point])
         assert P.insert_segment(position_list=[insert_point, insert_point2])
 
     def test_48_insert_polylines_segments_test2(self):
