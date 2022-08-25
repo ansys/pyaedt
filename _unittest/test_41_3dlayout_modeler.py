@@ -391,7 +391,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
-        with Scratch(scratch_path) as local_scratch:
+        with Scratch(self.local_scratch.path) as local_scratch:
             filename = "export_to_hfss_test"
             file_fullname = os.path.join(local_scratch.path, filename)
             setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
