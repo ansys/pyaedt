@@ -955,7 +955,7 @@ class Edb(object):
         reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
         extent_type : str, optional
-            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"`` and
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
             ``"Bounding"``. The default is ``"Conforming"``.
         expansion_size : float, str, optional
             Expansion size ratio in meters. The default is ``0.002``.
