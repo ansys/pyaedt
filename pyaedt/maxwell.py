@@ -1479,6 +1479,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         permeability=0.0,
         conductivity=0.0,
         material_name=None,
+        non_linear_permeability=False,
         impedance_name=None,
     ):
         """Create an impedance boundary condition.
@@ -1487,6 +1488,20 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ----------
         geometry_selection : str
             Objects to apply the impedance boundary to.
+
+        use_material : bool, optional
+            Whether to use properties from an existing material in the list of material.
+            The default value is ``False``.
+        permeability : float, optional
+            Permeability of the material.The default value is ``0.0``.
+        conductivity : float, optional
+            Conductivity of the material.The default value is ``0.0``.
+        material_name : str, optional
+            If the option ``use_material`` is activated, name of the existing material to be used
+            to extract property values from. The default value is ``None``.
+        non_linear_permeability : bool, optional
+            If the option ``use_material`` is activated, the permeability can either be linear or not.
+            The default value is ``False``.
         impedance_name : str, optional
             Name of the impedance. The default is ``None`` in which case a unique name is chosen.
 
@@ -1535,6 +1550,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     )
                     return False
                 props["MaterialName"] = material_name
+                props["IsPermeabilityNonlinear"] = non_linear_permeability
+                props["Conductivity"] = conductivity
             else:
                 props["Permeability"] = permeability
                 props["Conductivity"] = conductivity
