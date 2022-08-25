@@ -65,6 +65,9 @@ jobs:
           pip install -r requirements_docs.txt
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
+      - name: "Check licences of packages"
+        uses: pyansys/pydpf-actions/check-licenses@v2.0
+
         #if: startsWith(github.event.ref, 'refs/heads/main') != true
 
       - name: 'Create Documentations'
