@@ -1550,14 +1550,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_3d_model(self, file_name=None):
-        """Export the Ecad model to an ACIS 3D file.
+        """Export the Ecad model to an 3D file.
 
         Parameters
         ----------
         file_name : str, optional
             Full name of the file to export. The default is None, in which case the file name is
             set to the design name and saved as a SAT file in the working directory.
-            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"``.
+            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022R2 and
+            Parasolid format `"x_t"` from AEDT 2023R1.
 
         Returns
         -------
@@ -1565,9 +1566,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             File name if successful.
         """
         if not file_name:
-            file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+            if settings.aedt_version > "2022.2":
+                file_name = os.path.join(self.working_directory, self.design_name + ".x_t")
+                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", file_name])
 
-        self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+            else:
+                file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+
         return file_name
 
     @pyaedt_function_handler()

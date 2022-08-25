@@ -19,15 +19,18 @@ test_subfolder = "T41"
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 
+if config["desktopVersion"] > "2022.2":
+    diff_proj_name = "differential_pairs_231"
+else:
+    diff_proj_name = "differential_pairs"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(
-            self, project_name=test_project_name, application=Hfss3dLayout, subfolder=test_subfolder
-        )
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
         self.hfss3dl = BasisTest.add_app(
-            self, project_name="differential_pairs", application=Hfss3dLayout, subfolder=test_subfolder
+            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
         )
         self.flex = BasisTest.add_app(
             self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder

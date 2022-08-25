@@ -33,7 +33,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
-        self.circuitprj = BasisTest.add_app(self, "differential_pairs", application=Circuit, subfolder=test_subfolder)
+        self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
         netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
         netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
         touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)

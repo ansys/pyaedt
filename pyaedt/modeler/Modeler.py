@@ -22,6 +22,7 @@ from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
@@ -4185,6 +4186,9 @@ class GeometryModeler(Modeler, object):
 
         # Get all vertices in the line
         vertices_on_line = self.oeditor.GetVertexIDsFromObject(sLineName)
+
+        if settings.aedt_version > "2022.2":
+            vertices_on_line = vertices_on_line[::-1]
 
         for x in vertices_on_line:
             pos = self.oeditor.GetVertexPosition(x)

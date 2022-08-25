@@ -2,6 +2,7 @@
 import os
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Desktop
@@ -15,8 +16,11 @@ except ImportError:
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.generic.general_methods import is_ironpython
 
-test_project_name = "Coax_HFSS"
 test_subfolder = "T01"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Coax_HFSS_231"
+else:
+    test_project_name = "Coax_HFSS"
 
 
 class TestClass(BasisTest, object):

@@ -26,6 +26,12 @@ scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
 test_subfolder = "T08"
+if config["desktopVersion"] > "2022.2":
+    assembly = "assembly_231"
+    assembly2 = "assembly2_231"
+else:
+    assembly = "assembly"
+    assembly2 = "assembly2"
 
 
 class TestClass(BasisTest, object):
@@ -36,9 +42,9 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfile(scdoc_file)
         self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
         self.component3d_file = os.path.join(self.local_scratch.path, component3d)
-        test_98_project = os.path.join(local_path, "example_models", test_subfolder, "assembly2" + ".aedt")
+        test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
-        test_99_project = os.path.join(local_path, "example_models", test_subfolder, "assembly" + ".aedt")
+        test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
 
     def teardown_class(self):
@@ -645,7 +651,7 @@ class TestClass(BasisTest, object):
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
         insert_point2 = ["95mm", "20mm", "0mm"]
-        assert P.insert_segment(position_list=[start_point, insert_point])
+        assert P.insert_segment(position_list=[insert_point, start_point])
         assert P.insert_segment(position_list=[insert_point, insert_point2])
 
     def test_48_insert_polylines_segments_test2(self):
@@ -1158,7 +1164,10 @@ class TestClass(BasisTest, object):
         assert box2.name in box1.touching_objects
         assert box1.name in box2.touching_objects
         assert box2.name in box1.faces[0].touching_objects
-        assert box2.name not in box1.faces[1].touching_objects
+        if config["desktopVersion"] > "2022.2":
+            assert box2.name not in box1.faces[3].touching_objects
+        else:
+            assert box2.name not in box1.faces[1].touching_objects
 
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"
@@ -1179,7 +1188,6 @@ class TestClass(BasisTest, object):
         assert obj_3dcomp.mesh_assembly
         obj_3dcomp.name = "Dipole_pyaedt"
         assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
-        obj_3dcomp.name = "MyTorus"
         assert obj_3dcomp.name == "Dipole_pyaedt"
         assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
         self.aedtapp["l_dipole2"] = "15.5cm"

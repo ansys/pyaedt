@@ -2110,7 +2110,7 @@ class Hfss(FieldAnalysis3D, object):
                 startobj, endobject, axisdir, port_on_plane
             )
             if add_pec_cap:
-                dist = GeometryOperators.points_distance(point0, point1)
+                dist = math.sqrt(self.modeler[sheet_name].faces[0].area)
                 self._create_pec_cap(sheet_name, startobj, dist / 10)
             portname = self._get_unique_source_name(portname, "Port")
 

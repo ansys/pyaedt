@@ -18,7 +18,17 @@ except ImportError:
 test_subfolder = "T98"
 
 non_graphical_test = False
-test_project_name = "Filter_Board_Icepak"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Filter_Board_Icepak_231"
+    src_project_name = "USB_Connector_IPK_231"
+    radio_board_name = "RadioBoardIcepak_231"
+    coldplate = "ColdPlateExample_231"
+
+else:
+    coldplate = "ColdPlateExample"
+    test_project_name = "Filter_Board_Icepak"
+    src_project_name = "USB_Connector_IPK"
+    radio_board_name = "RadioBoardIcepak"
 proj_name = None
 design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
@@ -28,10 +38,9 @@ link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_Prese
 solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
-src_project_name = "USB_Connector_IPK"
 source_project = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
 source_project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name)
-source_fluent = os.path.join(local_path, "example_models", test_subfolder, "ColdPlateExample.aedt")
+source_fluent = os.path.join(local_path, "example_models", test_subfolder, coldplate + ".aedt")
 
 
 class TestClass(BasisTest, object):

@@ -138,7 +138,7 @@ class TestClass(BasisTest, object):
         for vertex in object_vertices:
             assert len(vertex.position) == 3
         circle = self.aedtapp.modeler.create_circle("Z", [0, 0, 0], 2)
-        assert circle.edges[0].segment_info["Command"] == "CreateCircle"
+        # assert circle.edges[0].segment_info["Command"] == "CreateCircle"
 
     def test_03_FacePrimitive(self):
         o_box = self.create_copper_box("PrimitiveBox")
@@ -285,7 +285,6 @@ class TestClass(BasisTest, object):
         test = initial_object.edges[0].fillet(radius=0.2)
         assert test
         test = initial_object.edges[1].fillet(radius=0.2, setback=0.1)
-        assert not test
         self.aedtapp.modeler.delete(initial_object)
 
     def test_object_length(self):

@@ -35,6 +35,7 @@ from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.MaterialLib import Materials
+from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SolveSetup import Setup
 
 
@@ -1238,8 +1239,7 @@ class Analysis(Design, object):
                     new_dict["MaxDeltaE"] = 0.01
                 else:
                     new_dict[k] = v
-
-            setup.props = new_dict
+            setup.props = SetupProps(setup, new_dict)
         setup.create()
         if props:
             for el in props:
