@@ -630,7 +630,7 @@ class Cable:
                         raise ValueError(msg)
                     else:
                         msg = (
-                            "cable provided doesn't exist in the current project. Please provide an existing cable id."
+                            "Cable provided doesn't exist in the current project. Please provide an existing cable id."
                         )
                         raise ValueError(msg)
                         # Set default values if one or more keys are empty
