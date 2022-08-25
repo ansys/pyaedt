@@ -1003,3 +1003,8 @@ class TestClass(BasisTest, object):
         o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
         o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
         self.aedtapp.hybrid = True
+        assert self.aedtapp.assign_hybrid_region(["inner"])
+        bound = self.aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
+        assert bound.props["Type"] == "IE"
+        bound.props["Type"] = "PO"
+        assert bound.props["Type"] == "PO"
