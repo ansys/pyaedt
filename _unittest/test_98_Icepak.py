@@ -233,11 +233,6 @@ class TestClass(BasisTest, object):
     def test_16_check_priorities(self):
         self.aedtapp.assign_priority_on_intersections("box")
 
-    def test_16_create_output_variable(self):
-        self.aedtapp["Variable1"] = "0.5"
-        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
-        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
-
     def test_16_surface_monitor(self):
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1", monitor_name="monitor_surf") == "monitor_surf"
@@ -250,24 +245,34 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.assign_point_monitor_in_object("box1")
         assert not self.aedtapp.assign_point_monitor_in_object(["box"])
 
-    def test_17_analyze_and_export_summary(self):
-        self.aedtapp.analyze_nominal()
-
     def test_17_post_processing(self):
         rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    def test_18_get_output_variable(self):
-        value = self.aedtapp.get_output_variable("OutputVariable1")
-        tol = 1e-9
-        assert abs(value - 0.5235987755982988) < tol
-
-    def test_19_eval_htc(self):
+    def test_19A_analyze_and_export_summary(self):
+        self.aedtapp.insert_design("SolveTest")
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyFlowOnly
+        self.aedtapp.problem_type = "TemperatureAndFlow"
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
+        self.aedtapp.create_source_block("box", "1W", False)
+        setup = self.aedtapp.create_setup("SetupIPK")
+        new_props = {"Convergence Criteria - Max Iterations": 3}
+        setup.update(update_dictionary=new_props)
+        airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
+        self.aedtapp.assign_openings(airfaces)
+        self.aedtapp["Variable1"] = "0.5"
+        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
+        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
         self.aedtapp.analyze_nominal()
         self.aedtapp.export_summary()
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
+
+    def test_19B_get_output_variable(self):
+        value = self.aedtapp.get_output_variable("OutputVariable1")
+        tol = 1e-9
+        assert abs(value - 0.5235987755982988) < tol
 
     def test_20_eval_tempc(self):
         assert os.path.exists(
@@ -283,6 +288,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(fld_file)
 
     def test_22_create_source_blocks_from_list(self):
+        self.aedtapp.set_active_design("Solve")
         self.aedtapp.modeler.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
         result = self.aedtapp.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
         assert result[1].props["Total Power"] == "2W"
