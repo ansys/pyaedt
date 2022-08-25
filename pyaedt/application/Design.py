@@ -184,6 +184,8 @@ class Design(AedtObjects):
             self.release_on_exit = False
 
         self.student_version = main_module.student_version
+        if self.student_version:
+            settings.disable_bounding_box_sat = True
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop

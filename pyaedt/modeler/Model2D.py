@@ -93,22 +93,26 @@ class Modeler2D(GeometryModeler, Primitives2D):
                 the minimum is returned.
 
         """
-        oVertexIDs = self.oeditor.GetVertexIDsFromObject(object_name)
-        vert_id_int = [int(x) for x in oVertexIDs]
-        if inner:
-            radius = 0
-        else:
-            radius = 1e9
-
-        for vertex in vert_id_int:
-            pos = self.oeditor.GetVertexPosition(vertex)
-            vertex_radius = math.sqrt(float(pos[0]) ** 2 + float(pos[1]) ** 2)
+        radius = 0
+        oVertexIDs = self[object_name].vertices
+        if oVertexIDs:
+            vert_id_int = [x.id for x in oVertexIDs]
             if inner:
-                if vertex_radius > radius:
-                    radius = vertex_radius
+                radius = 0
             else:
-                if vertex_radius < radius:
-                    radius = vertex_radius
+                radius = 1e9
+
+            for vertex in vert_id_int:
+                pos = self.oeditor.GetVertexPosition(vertex)
+                vertex_radius = math.sqrt(float(pos[0]) ** 2 + float(pos[1]) ** 2)
+                if inner:
+                    if vertex_radius > radius:
+                        radius = vertex_radius
+                else:
+                    if vertex_radius < radius:
+                        radius = vertex_radius
+        elif self[object_name].edges:
+            radius = self[object_name].edges[0].length / (2 * math.pi)
 
         return radius
 

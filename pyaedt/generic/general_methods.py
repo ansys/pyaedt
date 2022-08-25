@@ -1084,6 +1084,21 @@ class Settings(object):
         self.remote_rpc_service_manager_port = 17878
         self._project_properties = {}
         self._project_time_stamp = 0
+        self._disable_bounding_box_sat = False
+
+    @property
+    def disable_bounding_box_sat(self):
+        """Set/Get Bounding Box Sat enablement.
+
+        Returns
+        -------
+        bool
+        """
+        return self._disable_bounding_box_sat
+
+    @disable_bounding_box_sat.setter
+    def disable_bounding_box_sat(self, val):
+        self._disable_bounding_box_sat = val
 
     @property
     def use_grpc_api(self):

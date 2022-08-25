@@ -1084,8 +1084,9 @@ class Edb(object):
             Edb.Cell.Primitive.Polygon object
 
         """
-        shutil.copytree(self.edbpath, os.path.join(self.edbpath, "_temp_aedb"))
-        temp_edb = Edb(os.path.join(self.edbpath, "_temp_aedb"))
+        temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
+        shutil.copytree(self.edbpath, temp_edb_path)
+        temp_edb = Edb(temp_edb_path)
         for via in list(temp_edb.core_padstack.padstack_instances.values()):
             via.pin.Delete()
         if netlist:

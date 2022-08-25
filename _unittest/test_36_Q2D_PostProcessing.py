@@ -1,10 +1,20 @@
 import os
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import local_path
 from _unittest.conftest import new_thread
 from pyaedt import Q2d
 from pyaedt import settings
+
+test_subfolder = "T36"
+
+if config["desktopVersion"] > "2022.2":
+    q2d_solved_sweep = "q2d_solved_sweep_231"
+    q2d_solved_nominal = "q2d_solved_nominal_231"
+else:
+    q2d_solved_sweep = "q2d_solved_sweep"
+    q2d_solved_nominal = "q2d_solved_nominal"
 
 
 class TestClass(BasisTest, object):
@@ -15,7 +25,9 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01_export_w_elements_from_sweep(self):
-        test_project = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_solved_sweep.aedtz"))
+        test_project = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, q2d_solved_sweep + ".aedtz")
+        )
         with Q2d(test_project, non_graphical=settings.non_graphical, new_desktop_session=new_thread) as q2d:
             try:
                 export_folder = os.path.join(self.local_scratch.path, "export_folder")
@@ -30,7 +42,7 @@ class TestClass(BasisTest, object):
 
     def test_02_export_w_elements_from_nominal(self):
         test_project = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", "q2d_solved_nominal.aedtz")
+            os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         )
         with Q2d(test_project, non_graphical=settings.non_graphical, new_desktop_session=new_thread) as q2d:
             try:
@@ -46,7 +58,7 @@ class TestClass(BasisTest, object):
 
     def test_03_export_w_elements_to_working_directory(self):
         test_project = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", "q2d_solved_nominal.aedtz")
+            os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         )
         with Q2d(test_project, non_graphical=settings.non_graphical, new_desktop_session=new_thread) as q2d:
             try:
