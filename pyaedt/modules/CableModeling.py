@@ -576,7 +576,7 @@ class Cable:
                             insulation_type_options = ["Thick Wall"]
                     else:
                         msg = (
-                            "wire type not valid. Available options are: 0.13, 0.22, 0.35, 0.5, 0.75, 1, 1.5, 2, 2.5, "
+                            "Wire type not valid. Available options are: 0.13, 0.22, 0.35, 0.5, 0.75, 1, 1.5, 2, 2.5, "
                             "3, 4, 5, 6, 10, 16, 25, 35, 50, 70, 95, 120."
                         )
                         raise ValueError(msg)
