@@ -250,7 +250,7 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.assign_point_monitor_in_object("box1")
         assert not self.aedtapp.assign_point_monitor_in_object(["box"])
 
-    def test_17_analyze(self):
+    def test_17_analyze_and_export_summary(self):
         self.aedtapp.analyze_nominal()
 
     def test_17_post_processing(self):
@@ -258,15 +258,14 @@ class TestClass(BasisTest, object):
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    def test_17_get_output_variable(self):
+    def test_18_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_18_export_summary(self):
-        assert self.aedtapp.export_summary()
-
     def test_19_eval_htc(self):
+        self.aedtapp.analyze_nominal()
+        self.aedtapp.export_summary()
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
 

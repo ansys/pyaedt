@@ -71,6 +71,14 @@ shutil.copyfile(os.path.join(source_data_folder ,source_props_conf_file), os.pat
 
 tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
+# Switch the current desktop configuration and the schematic environment to "Twin Builder".
+# The Static ROM feature is only available with a twin builder license.
+# This and the restoring section at the end are not needed if the desktop is already configured as "Twin Builder".
+current_desktop_config = tb._odesktop.GetDesktopConfiguration()
+current_schematic_environment = tb._odesktop.GetSchematicEnvironment()
+tb._odesktop.SetDesktopConfiguration("Twin Builder")
+tb._odesktop.SetSchematicEnvironment(1)
+
 # Get the static ROM builder object
 rom_manager = tb._odesign.GetROMManager()
 static_rom_builder = rom_manager.GetStaticROMBuilder()
@@ -82,9 +90,9 @@ static_rom_builder.Build(confpath.replace('\\', '/'))
 # Test if ROM was created sucessfully
 static_rom_path = os.path.join(data_folder,'StaticRom.rom')
 if os.path.exists(static_rom_path):
-	tb.logger.info("path exists: {}".format(static_rom_path.replace('\\', '/')), "")
+	tb.logger.info("Built intermediate rom file sucessfully at: %s", static_rom_path)
 else:
-	tb.logger.error("path does not exist: {}".format(static_rom_path), "")
+	tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 
 #Create the ROM component definition in Twin Builder
 rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'),'staticrom') 
@@ -173,6 +181,10 @@ plt.show()
 
 # Clean up the downloaded data
 shutil.rmtree(source_data_folder)
+
+# Restore earlier desktop configuration and schematic environment
+tb._odesktop.SetDesktopConfiguration(current_desktop_config)
+tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
 if os.name != "posix":
     tb.release_desktop()
