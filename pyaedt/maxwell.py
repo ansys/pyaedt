@@ -1343,7 +1343,7 @@ class Maxwell(object):
             Default value is 'Global'.
         coordinate_system_cartesian : str, optional
             Coordinate system cartesian.
-            Possible values can be 'Cartesian', 'Cylindrical', 'Spherical'.
+            Possible values can be 'Cartesian', 'Cylindrical', and 'Spherical'.
             Default value is 'Cartesian'.
 
         Returns
