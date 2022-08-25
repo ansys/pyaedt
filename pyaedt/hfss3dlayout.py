@@ -1637,7 +1637,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_3d_model(self, file_name=None):
-        """Export the Ecad model to an 3D file.
+        """Export the Ecad model to a 3D file.
 
         Parameters
         ----------
