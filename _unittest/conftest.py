@@ -86,10 +86,8 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 class BasisTest(object):
     def my_setup(self):
-        self.scratch_path = tempfile.gettempdir()
-        if not os.path.isdir(self.scratch_path):
-            os.mkdir(self.scratch_path)
-        self.local_scratch = Scratch(self.scratch_path)
+        scratch_path = tempfile.gettempdir()
+        self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
 
@@ -112,7 +110,7 @@ class BasisTest(object):
             except:
                 pass
         del self.aedtapps
-        p = [x[0] for x in os.walk(self.scratch_path) if "scratch" in x[0]]
+        p = [x[0] for x in os.walk(self.local_scratch) if "scratch" in x[0]]
         for folder in p:
             shutil.rmtree(folder, ignore_errors=True)
 

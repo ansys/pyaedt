@@ -640,9 +640,9 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
-            out = edb.write_export3d_option_config_file(self.scratch_path, options_config)
+            out = edb.write_export3d_option_config_file(self.local_scratch, options_config)
             assert os.path.exists(out)
-            out = edb.export_hfss(self.scratch_path)
+            out = edb.export_hfss(self.local_scratch)
             assert os.path.exists(out)
             edb.close_edb()
 
@@ -653,9 +653,9 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
-            out = edb.write_export3d_option_config_file(self.scratch_path, options_config)
+            out = edb.write_export3d_option_config_file(self.local_scratch, options_config)
             assert os.path.exists(out)
-            out = edb.export_q3d(self.scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"], hidden=True)
+            out = edb.export_q3d(self.local_scratch, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"], hidden=True)
             assert os.path.exists(out)
             edb.close_edb()
 
@@ -666,9 +666,9 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
-            out = edb.write_export3d_option_config_file(self.scratch_path, options_config)
+            out = edb.write_export3d_option_config_file(self.local_scratch, options_config)
             assert os.path.exists(out)
-            out = edb.export_maxwell(self.scratch_path, num_cores=6)
+            out = edb.export_maxwell(self.local_scratch, num_cores=6)
             assert os.path.exists(out)
             edb.close_edb()
 
