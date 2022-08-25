@@ -56,11 +56,6 @@ test_project_name = "test_primitives"
 sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
 
-# set scratch path and create it if necessary
-scratch_path = tempfile.gettempdir()
-if not os.path.isdir(scratch_path):
-    os.mkdir(scratch_path)
-
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
 if os.path.exists(local_config_file):
@@ -91,7 +86,10 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 class BasisTest(object):
     def my_setup(self):
-        self.local_scratch = Scratch(scratch_path)
+        self.scratch_path = tempfile.gettempdir()
+        if not os.path.isdir(self.scratch_path):
+            os.mkdir(self.scratch_path)
+        self.local_scratch = Scratch(self.scratch_path)
         self.aedtapps = []
         self.edbapps = []
 
@@ -114,6 +112,9 @@ class BasisTest(object):
             except:
                 pass
         del self.aedtapps
+        p = [x[0] for x in os.walk(self.scratch_path) if "scratch" in x[0]]
+        for folder in p:
+            shutil.rmtree(folder, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
@@ -193,9 +194,6 @@ def desktop_init():
             os.kill(pid, 9)
         except:
             pass
-    p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-    for folder in p:
-        shutil.rmtree(folder, ignore_errors=True)
 
     if config["test_desktops"]:
         run_desktop_tests()

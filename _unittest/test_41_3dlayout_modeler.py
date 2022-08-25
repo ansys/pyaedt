@@ -5,7 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
@@ -382,7 +381,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
-        filename = os.path.join(scratch_path, "touchstone.s2p")
+        filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
         solution_name = "RFBoardSetup3"
         sweep_name = "Last Adaptive"
         assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)

@@ -20,7 +20,6 @@ from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
 from _unittest.conftest import settings
 
 try:
@@ -641,9 +640,9 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
-            out = edb.write_export3d_option_config_file(scratch_path, options_config)
+            out = edb.write_export3d_option_config_file(self.scratch_path, options_config)
             assert os.path.exists(out)
-            out = edb.export_hfss(scratch_path)
+            out = edb.export_hfss(self.scratch_path)
             assert os.path.exists(out)
             edb.close_edb()
 
@@ -654,9 +653,9 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
-            out = edb.write_export3d_option_config_file(scratch_path, options_config)
+            out = edb.write_export3d_option_config_file(self.scratch_path, options_config)
             assert os.path.exists(out)
-            out = edb.export_q3d(scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"], hidden=True)
+            out = edb.export_q3d(self.scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"], hidden=True)
             assert os.path.exists(out)
             edb.close_edb()
 
@@ -667,9 +666,9 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
             )
             options_config = {"UNITE_NETS": 1, "LAUNCH_MAXWELL": 0}
-            out = edb.write_export3d_option_config_file(scratch_path, options_config)
+            out = edb.write_export3d_option_config_file(self.scratch_path, options_config)
             assert os.path.exists(out)
-            out = edb.export_maxwell(scratch_path, num_cores=6)
+            out = edb.export_maxwell(self.scratch_path, num_cores=6)
             assert os.path.exists(out)
             edb.close_edb()
 
@@ -1927,6 +1926,8 @@ if not config["skip_edb"]:
         def test_115_create_rlc_boundary(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_115.aedb")
+            if not os.path.exists(self.local_scratch.path):
+                os.mkdir(self.local_scratch.path)
             self.local_scratch.copyfolder(example_project, target_path)
             edb = Edb(target_path, edbversion=desktop_version)
             pins = edb.core_components.get_pin_from_component("U2A5", "V1P5_S0")
@@ -1938,7 +1939,9 @@ if not config["skip_edb"]:
 
         def test_116_configure_hfss_analysis_setup_enforce_causality(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_top_place_no_setups.aedb")
-            target_path = os.path.join(self.local_scratch.path, "lam_for_top_place_no_setups.aedb")
+            target_path = os.path.join(self.local_scratch.path, "lam_for_top_place_no_setups_t116.aedb")
+            if not os.path.exists(self.local_scratch.path):
+                os.mkdir(self.local_scratch.path)
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             assert len(list(edb.active_cell.SimulationSetups)) == 0
@@ -1997,8 +2000,6 @@ if not config["skip_edb"]:
 
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
-            if not os.path.exists(self.edbapp.edbpath):
-                os.mkdir(self.edbapp.edbpath)
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
                 f.writelines("PowerNets = ['GND']\n")

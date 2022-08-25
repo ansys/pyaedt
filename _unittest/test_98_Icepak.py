@@ -5,7 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
 from pyaedt import Hfss
 from pyaedt import Icepak
 
@@ -266,9 +265,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
         self.aedtapp.analyze_setup("SetupIPK")
         self.aedtapp.save_project()
-        self.aedtapp.export_summary()
+        self.aedtapp.export_summary(self.aedtapp.working_directory)
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
-        assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
+        assert os.path.exists(
+            self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=self.aedtapp.working_directory)
+        )
 
     def test_19B_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
@@ -277,12 +278,14 @@ class TestClass(BasisTest, object):
 
     def test_20_eval_tempc(self):
         assert os.path.exists(
-            self.aedtapp.eval_volume_quantity_from_field_summary(["box"], "Temperature", savedir=scratch_path)
+            self.aedtapp.eval_volume_quantity_from_field_summary(
+                ["box"], "Temperature", savedir=self.aedtapp.working_directory
+            )
         )
 
     def test_21_ExportFLDFil(self):
         object_list = "box"
-        fld_file = os.path.join(scratch_path, "test_fld.fld")
+        fld_file = os.path.join(self.aedtapp.working_directory, "test_fld.fld")
         self.aedtapp.post.export_field_file(
             "Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list
         )
