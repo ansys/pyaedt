@@ -110,7 +110,10 @@ class BasisTest(object):
             except:
                 pass
         del self.aedtapps
-        shutil.rmtree(self.local_scratch, ignore_errors=True)
+        try:
+            shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        except:
+            pass
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
