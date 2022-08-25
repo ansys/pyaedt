@@ -1477,7 +1477,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         geometry_selection,
         use_material=False,
         permeability=0.0,
-        conductivity=0.0,
+        conductivity=None,
         material_name=None,
         non_linear_permeability=False,
         impedance_name=None,
@@ -1495,7 +1495,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         permeability : float, optional
             Permeability of the material.The default value is ``0.0``.
         conductivity : float, optional
-            Conductivity of the material.The default value is ``0.0``.
+            Conductivity of the material. The default value is ``None``.
         material_name : str, optional
             If the option ``use_material`` is activated, name of the existing material to be used
             to extract property values from. The default value is ``None``.
@@ -1551,7 +1551,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     return False
                 props["MaterialName"] = material_name
                 props["IsPermeabilityNonlinear"] = non_linear_permeability
-                props["Conductivity"] = conductivity
+                if conductivity is not None:
+                    props["Conductivity"] = conductivity
             else:
                 props["Permeability"] = permeability
                 props["Conductivity"] = conductivity
