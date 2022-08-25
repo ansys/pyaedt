@@ -98,6 +98,17 @@ class BoundaryCommon(PropsManager):
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
 
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
     Examples
     --------
     in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
@@ -272,6 +283,17 @@ class NativeComponentObject(BoundaryCommon, object):
 
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
@@ -634,7 +656,18 @@ class BoundaryObject(BoundaryCommon, object):
 
 
 class MaxwellParameters(BoundaryCommon, object):
-    """Manages parameter data and execution.
+    """Manages parameters data and execution.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.maxwell.Maxwell3d`, :class:`pyaedt.maxwell.Maxwell2d`
+        Either ``Maxwell3d`` or ``Maxwell2d`` application.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
@@ -728,6 +761,69 @@ class MaxwellParameters(BoundaryCommon, object):
             return False
         self._boundary_name = self.name
         return True
+
+    @pyaedt_function_handler()
+    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if not matrix_name:
+            matrix_name = generate_unique_name("ReducedMatrix", n=3)
+        if not join_name:
+            join_name = generate_unique_name("Join" + red_type, n=3)
+        try:
+            self._app.o_maxwell_parameters.AddReduceOp(
+                self.name,
+                matrix_name,
+                ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
+            )
+            return matrix_name, join_name
+        except:
+            self._app.logger.error("Failed to create Matrix Reduction")
+            return False, False
+
+    @pyaedt_function_handler()
+    def join_series(self, sources, matrix_name=None, join_name=None):
+        """
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
+
+    @pyaedt_function_handler()
+    def join_parallel(self, sources, matrix_name=None, join_name=None):
+        """
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
 
 
 class FieldSetup(BoundaryCommon, object):

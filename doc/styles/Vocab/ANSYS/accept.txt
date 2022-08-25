@@ -1,0 +1,69 @@
+ANSYS
+Ansys
+ansys
+AEDB
+2D Extractor
+airbox
+airgap
+autosave
+busbar
+busbars
+Bz
+Circuit
+CPython
+DesignXploration
+docstring
+Docstrings
+docstrings
+doppler
+EDB
+efields
+getters
+globals
+HFSS 3D Layout
+Huray
+Icepak
+IronPython
+limitilines
+matplotlib
+Maxwell 2D
+Maxwell 3D
+Mechanical
+multiphysics
+multiplot
+namespaces
+netlist
+Nexxim
+numpy
+numpydoc
+optimetrics
+Optimetrics
+padstack
+padstacks
+parametrics
+polyline
+polylines
+Polyline
+Postprocessing
+PMs
+pyaedt
+PyAEDT
+PyPI
+Python
+pyvista
+Q2D Extractor
+Q3D Extractor
+RC
+RF
+RMXprt
+scipy
+Siwave
+setters
+Spyder
+stackups
+stripline
+subcircuit
+Twin Builder
+Uncomment
+vias
+_static

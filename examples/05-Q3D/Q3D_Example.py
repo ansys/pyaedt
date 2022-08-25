@@ -4,23 +4,22 @@ Q3D Extractor: busbar analysis
 This example shows how you can use PyAEDT to create a busbar design in
 Q3D Extractor and run a simulation.
 """
-##########################################################
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
-
-# sphinx_gallery_thumbnail_path = 'Resources/busbar.png'
 
 import os
 
 from pyaedt import Q3d
 from pyaedt import generate_unique_project_name
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -156,7 +155,7 @@ a.plot()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
 if os.name != "posix":

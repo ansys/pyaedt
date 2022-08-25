@@ -1,8 +1,12 @@
 """
 EDB: Siwave analysis from EDB setup
 -----------------------------------
-Use EDB to interact with a layout.
+This example shows how you can use EDB to interact with a layout.
 """
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import shutil
 
@@ -18,9 +22,6 @@ targetfile = os.path.dirname(example_path)
 siwave_file = os.path.join(os.path.dirname(targetfile), "Galileo.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
-
-
-###############################################################################
 
 from pyaedt import Edb
 
@@ -74,7 +75,7 @@ rats = edb.core_components.get_rats()
 # Get all DC-connected net lists through inductance
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get all DC-connected net lists through inductance.
-# The inputs needed are ground net lists. The returned list is of all nets
+# The inputs needed are ground net lists. The returned list contains all nets
 # connected to a ground through an inductor.
 
 GROUND_NETS = ["GND", "PGND"]
@@ -117,7 +118,7 @@ edb.core_nets.delete_nets("A0_N")
 ###############################################################################
 # Get stackup limits
 # ~~~~~~~~~~~~~~~~~~
-# Get the stackup limits, top and bottom layers, and elevations.
+# Get the stackup limits (top and bottom layers and elevations).
 
 print(edb.core_stackup.stackup_limits())
 
@@ -129,10 +130,10 @@ print(edb.core_stackup.stackup_limits())
 edb.core_hfss.create_coax_port_on_component("U2A5", "V1P0_S0")
 
 ###############################################################################
-# Edit stackup and material
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Edit the stackup and the material. You can change stackup
-# properties with assignment and create materials and assign to layers.
+# Edit stackup layers and material
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Edit the stackup layers and material. You can change stackup layer
+# properties with assignment and create materials and assign them to layers.
 
 edb.core_stackup.stackup_layers.layers["TOP"].thickness = "75um"
 # edb.core_stackup.stackup_layers.layers["Diel1"].material_name = "Fr4_epoxy"
@@ -170,7 +171,7 @@ edb.solve_siwave()
 ###############################################################################
 # Close EDB
 # ~~~~~~~~~
-# Closes EDB. After EDB is closed, it can be opened by AEDT.
+# Close EDB. After EDB is closed, it can be opened by AEDT.
 
 edb.close_edb()
 

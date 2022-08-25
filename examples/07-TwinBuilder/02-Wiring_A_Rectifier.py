@@ -8,7 +8,7 @@ and run a Twin Builder time-domain simulation.
 ###############################################################################
 # Perform required imputs
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Perform the required imports.
+# Perform required imports.
 
 import os
 import math
@@ -19,7 +19,7 @@ from pyaedt import generate_unique_project_name
 ###############################################################################
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Select the Twin Builder version and set launch options. The following code
+# Select the Twin Builder version and set the launch options. The following code
 # launches Twin Builder 2022 R2 in graphical mode.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
@@ -40,8 +40,8 @@ new_thread = True
 tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
 
 ###############################################################################
-# Create components for bridge rectifier with capacitor filter
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create components for bridge rectifier
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create components for a bridge rectifier with a capacitor filter.
  
 # Define the grid distance for ease in calculations.
@@ -140,7 +140,7 @@ plt.show()
 ###############################################################################
 # Close Twin Builder
 # ~~~~~~~~~~~~~~~~~~
-# After the simulaton is completed, you can close Twin Builder or release it.
+# After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
 if os.name != "posix":

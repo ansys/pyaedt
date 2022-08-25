@@ -651,7 +651,7 @@ if not config["skip_edb"]:
             options_config = {"UNITE_NETS": 1, "LAUNCH_Q3D": 0}
             out = edb.write_export3d_option_config_file(scratch_path, options_config)
             assert os.path.exists(out)
-            out = edb.export_q3d(scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"])
+            out = edb.export_q3d(scratch_path, net_list=["ANALOG_A0", "ANALOG_A1", "ANALOG_A2"], hidden=True)
             assert os.path.exists(out)
             edb.close_edb()
 
@@ -1809,6 +1809,7 @@ if not config["skip_edb"]:
                 negative_node_net="HV_DC+",
             )
             sim_setup.add_current_source(
+                name="I25",
                 positive_node_component="Q5",
                 positive_node_net="SOURCE_HBB_PHASEB",
                 negative_node_component="Q5",
@@ -1927,6 +1928,65 @@ if not config["skip_edb"]:
             ref_pins = edb.core_components.get_pin_from_component("U2A5", "GND")
             assert edb.core_hfss.create_rlc_boundary_on_pins(
                 pins[0], ref_pins[0], rvalue=1.05, lvalue=1.05e-12, cvalue=1.78e-13
+            )
+            edb.close_edb()
+
+        def test_116_configure_hfss_analysis_setup_enforce_causality(self):
+            source_path = os.path.join(local_path, "example_models", "lam_for_top_place_no_setups.aedb")
+            target_path = os.path.join(self.local_scratch.path, "lam_for_top_place_no_setups.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            assert len(list(edb.active_cell.SimulationSetups)) == 0
+            sim_config = SimulationConfiguration()
+            sim_config.enforce_causality = False
+            assert sim_config.do_lambda_refinement
+            sim_config.mesh_sizefactor = 0.1
+            assert sim_config.mesh_sizefactor == 0.1
+            assert not sim_config.do_lambda_refinement
+            edb.core_hfss.configure_hfss_analysis_setup(sim_config)
+            assert len(list(edb.active_cell.SimulationSetups)) == 1
+            setup = list(edb.active_cell.SimulationSetups)[0]
+            ssi = setup.GetSimSetupInfo()
+            assert len(list(ssi.SweepDataList)) == 1
+            sweep = list(ssi.SweepDataList)[0]
+            assert not sweep.EnforceCausality
+
+        def test_117_add_hfss_config(self):
+            source_path = os.path.join(local_path, "example_models", "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edb = Edb(target_path)
+            sim_setup = SimulationConfiguration()
+            sim_setup.mesh_sizefactor = 1.9
+            assert not sim_setup.do_lambda_refinement
+            edb.core_hfss.configure_hfss_analysis_setup(sim_setup)
+            if is_ironpython:
+                mesh_size_factor = (
+                    list(edb.active_cell.SimulationSetups)[1]
+                    .GetSimSetupInfo()
+                    .SimulationSettings.InitialMeshSettings.MeshSizefactor
+                )
+            else:
+                mesh_size_factor = (
+                    list(edb.active_cell.SimulationSetups)[1]
+                    .GetSimSetupInfo()
+                    .get_SimulationSettings()
+                    .get_InitialMeshSettings()
+                    .get_MeshSizefactor()
+                )
+            assert mesh_size_factor == 1.9
+
+        def test_118_edb_create_port(self):
+            edb = Edb(
+                edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
+                edbversion=desktop_version,
+            )
+            prim_1_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_2"][0]
+            assert edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+
+            prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
+            assert edb.core_hfss.create_edge_port_horizontal(
+                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
             )
             edb.close_edb()
 

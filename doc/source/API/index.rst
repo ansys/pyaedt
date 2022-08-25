@@ -1,9 +1,10 @@
-=================
-API documentation
-=================
+=============
+API reference
+=============
 
-Welcome to PyAEDT API documentation.
-Use the search feature or click links to view API documentation.
+This section describes PyAEDT core classes, methods, and functions
+for AEDT apps and modules. Use the search feature or click links
+to view API documentation.
 
 .. toctree::
    :maxdepth: 2

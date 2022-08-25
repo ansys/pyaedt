@@ -47,7 +47,7 @@ The ``Modeler`` module contains all properties and methods needed to edit a
 modeler, including all primitives methods and properties:
 
 * ``Modeler2D`` for Maxwell 2D and Q2D Extractor
-* ``Modeler3D`` for HFSS, Maxwell 3D, Q3D Extactor, and Icepak
+* ``Modeler3D`` for HFSS, Maxwell 3D, Q3D Extractor, and Icepak
 * ``Modeler3DLayout`` for HFSS 3D Layout
 * ``ModelerNexxim`` for Circuit
 * ``ModelerTwinBuilder`` for Twin Builder
@@ -81,8 +81,8 @@ The ``Primitives`` module includes these classes:
 * ``TwinBuilderComponents`` for Twin Builder
 * ``CircuitComponents`` for Emit
 
-Primives objects are accessible through the ``modeler`` property for
-EM Solver and ``modeler.components`` for circuit solvers.
+Primitive objects are accessible through the ``modeler`` property for
+EM Solver and ``modeler.components`` for Circuit solvers.
 
 
 .. currentmodule:: pyaedt.modeler
@@ -157,9 +157,9 @@ They contain all getters and setters to simplify object manipulation.
 
     ...
 
-Objects in circuit tools
+Objects in Circuit tools
 ~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the objects properties for circuit tools.
+The following classes define the objects properties for Circuit tools.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler

@@ -943,7 +943,7 @@ class Padstack(object):
 
     @plating_ratio.setter
     def plating_ratio(self, val):
-        if isinstance(val, (float, int)) and val > 0 and val <= 1:
+        if isinstance(val, (float, int)) and 0 < val <= 1:
             self._plating_ratio = val
         elif isinstance(val, str):
             self._plating_ratio = val
@@ -1021,9 +1021,11 @@ class Padstack(object):
             if k == layer:
                 found = True
             if found and layer not in self._padstacks_by_layer:
-                new_stackup[k] = PadstackLayer(self, k, v.elevation)
+                new_stackup[k] = PadstackLayer(self, k, v.elevation, v.thickness)
             elif found:
                 new_stackup[k] = self._padstacks_by_layer[k]
+        if not found:
+            raise ValueError("The layer named: '{}' does not exist".format(layer))
         self._padstacks_by_layer = new_stackup
         return True
 
@@ -1050,6 +1052,7 @@ class Padstack(object):
             if not found and k in list(self._padstacks_by_layer.keys()):
                 new_stackup[k] = self._padstacks_by_layer[k]
         self._padstacks_by_layer = new_stackup
+        return True
 
     @pyaedt_function_handler()
     def add_via(self, position_x=0, position_y=0, instance_name=None, reference_system=None):

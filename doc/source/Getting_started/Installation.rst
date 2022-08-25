@@ -1,24 +1,23 @@
 Installation
 ============
-
-PyAEDT consolidates and extends all existing capital around scripting for Ansys Electronics Desktop (AEDT),
+PyAEDT consolidates and extends all existing capital around scripting for AEDT,
 allowing re-use of existing code, sharing of best practices, and collaboration.
 
-This PyAnsys library has been tested on HFSS, Icepak, and Maxwell 3D. It also provides basic support for
-EDB and Circuit (Nexxim).
+This PyAnsys library has been tested on HFSS, Icepak, and Maxwell 3D. It also provides
+basic support for EDB and Circuit (Nexxim).
 
 Requirements
 ~~~~~~~~~~~~
-In addition to the runtime dependencies listed in the installation information, PyAEDT requires ANSYS Electronics Desktop
-2021 R1 or later.
+In addition to the runtime dependencies listed in the installation information, PyAEDT
+requires AEDT 2021 R1 or later.
 
 .. todo::
    Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
 
 
-Installing on CPython from PyPI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install PyAEDT on CPython 3.7 through 3.10 from PyPi. Install the prerequisite packages ``pythonnet``
+Install on CPython from PyPI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can install PyAEDT on CPython 3.7 through 3.10 from PyPI. Install the prerequisite packages ``pythonnet``
 and ``pywin32`` with:
 
 .. code:: python
@@ -34,13 +33,13 @@ variables:
     export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
 
 
-Installing offline from a wheelhouse
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install offline from a wheelhouse
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can install PyAEDT from a wheelhouse in a release's assets. Wheelhouses for CPython 3.7, 3.8, and 3.9
 are available in the releases for PyAEDT v0.4.70 and later.
 
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
-You can install PyAEDT and all its dependencies from one single entry point that can be shared internally,
+You can install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
 
 For example, here is a command for installing the PyAEDT package and all its dependencies from a wheelhouse:
@@ -50,8 +49,8 @@ For example, here is a command for installing the PyAEDT package and all its dep
     pip install --no-cache-dir --no-index --find-links=file:///<path_to_wheelhouse>/PyAEDT-v<release_version>-wheelhouse-Windows-3.7 pyaedt
 
 
-Installing from a batch file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Install from a batch file
+~~~~~~~~~~~~~~~~~~~~~~~~~
 AEDT already includes CPython 3.7, which can be used to run PyAEDT.
 If you are running on Windows, you can download
 :download:`PyAEDT Environment with IDE bat file <pyaedt_with_IDE.bat>`
@@ -107,8 +106,8 @@ Otherwise, you must download and use the correct wheelhouse:
     pyaedt_with_IDE.bat -p <path-to-python3.9-root-folder> -w <path_to_wheelhouse>PyAEDT-v<release_version>-wheelhouse-Windows-3.9
 
 
-Using IronPython in AEDT
-~~~~~~~~~~~~~~~~~~~~~~~~
+Use IronPython in AEDT
+~~~~~~~~~~~~~~~~~~~~~~
 To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``.
