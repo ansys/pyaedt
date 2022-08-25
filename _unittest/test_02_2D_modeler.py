@@ -99,19 +99,19 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.radial_split_2D(radius, circle1.name)
 
     def test_07_create_ellipse(self):
-        ellipse1 = self.aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 0.2)
+        ellipse1 = self.aedtapp.modeler.create_ellipse([0, -2, 0], 4.0, 3)
         ellipse2 = self.aedtapp.modeler.create_ellipse(
-            position=[0, -2, 0], major_radius=4.0, ratio=0.2, name="MyEllipse", matname="Copper"
+            position=[0, -2, 0], major_radius=4.0, ratio=3, name="MyEllipse", matname="Copper"
         )
         assert ellipse1.solve_inside
         assert ellipse1.model
         assert ellipse1.material_name == "vacuum"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, rel_tol=0.1)
 
         assert ellipse2.solve_inside
         assert ellipse2.model
         assert ellipse2.material_name == "copper"
-        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 0.2)
+        assert isclose(ellipse2.faces[0].area, math.pi * 4.0 * 4.0 * 3, rel_tol=0.1)
 
     def test_08_create_regular_polygon(self):
         pg1 = self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])

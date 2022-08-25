@@ -437,6 +437,13 @@ solutions_types = {
             "default_setup": 32,
             "default_adaptive": None,
         },
+        "Steady-State Thermal": {
+            "name": "Steady-State Thermal",
+            "options": None,
+            "report_type": None,
+            "default_setup": 32,
+            "default_adaptive": None,
+        },
         "Modal": {"name": "Modal", "options": None, "report_type": None, "default_setup": 33, "default_adaptive": None},
         "Structural": {
             "name": "Structural",
