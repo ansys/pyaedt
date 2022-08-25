@@ -219,7 +219,8 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.user_lists[4].update()
         assert self.aedtapp.modeler.user_lists[2].rename("new_list")
         assert self.aedtapp.modeler.user_lists[2].delete()
-        assert not self.aedtapp.modeler.create_object_list(["Core2", "outer"])
+        assert self.aedtapp.modeler.create_object_list(["Core2", "outer"])
+        assert not self.aedtapp.modeler.create_object_list(["Core2", "Core3"])
 
     def test_29_create_outer_face_list(self):
         assert self.aedtapp.modeler.create_outer_facelist(["Second_airbox"])
