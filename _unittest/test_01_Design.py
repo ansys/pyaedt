@@ -13,8 +13,10 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+from pyaedt import Hfss
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import settings
 
 test_subfolder = "T01"
 if config["desktopVersion"] > "2022.2":
@@ -312,3 +314,15 @@ class TestClass(BasisTest, object):
         assert aedt_obj.oproject
         aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
+
+    def test_34_force_project_path_disable(self):
+        settings.force_error_on_missing_project = True
+        assert settings.force_error_on_missing_project == True
+        e = None
+        try:
+            h = Hfss("c:/dummy/test.aedt")
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "Project doesn't exists. Check it and retry."
+        assert exception_raised
+        settings.force_error_on_missing_project = False
