@@ -1,5 +1,6 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.Primitives import PolylineSegment
@@ -9,11 +10,17 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T02"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Coax_HFSS_231"
+else:
+    test_project_name = "Coax_HFSS"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS")
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -331,7 +338,7 @@ class TestClass(BasisTest, object):
         assert fcs2
         assert fcs2.delete()
         fcs2 = self.aedtapp.modeler.create_face_coordinate_system(
-            face, face.edges[0].vertices[0], face.edges[1].vertices[0]
+            face, face.edges[0].vertices[0], face.edges[1].vertices[1]
         )
         assert fcs2
         assert fcs2.delete()
