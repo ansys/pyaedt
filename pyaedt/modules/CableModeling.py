@@ -602,8 +602,7 @@ class Cable:
                     ):
                         self.insulation_material = cable_st_wire_properties["StWireParams"]["InsMaterial"]
                     else:
-                        msg = "material provided doesn't exist."
-                        raise ValueError(msg)
+                        raise ValueError("Material provided doesn't exist.")
             else:
                 cable_twisted_pair_properties = values["CableManager"]["Definitions"]["TwistedPairCable"]
                 if cable_twisted_pair_properties["TwistedPairAttribs"]["Name"] is None:
