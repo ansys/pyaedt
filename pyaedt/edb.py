@@ -955,7 +955,7 @@ class Edb(object):
         reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
         extent_type : str, optional
-            Type of the extension. Options are ``"Conforming"`` and
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
             ``"Bounding"``. The default is ``"Conforming"``.
         expansion_size : float, str, optional
             Expansion size ratio in meters. The default is ``0.002``.
@@ -998,10 +998,16 @@ class Edb(object):
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
-        else:
+        elif extent_type == "Bounding":
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
+        else:
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+            _poly_list = convert_py_list_to_net_list([_poly])
+            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
 
         # Create new cutout cell/design
         included_nets = convert_py_list_to_net_list(
