@@ -242,10 +242,10 @@ $begin 'AnsoftProject'
 				Ver=2
 			$end 'Editor3D Doc Preferences'
 			SnapMode=31
-			WorkingCS=1
+			WorkingCS=40
 			$begin 'GeometryCore'
 				BlockVersionID=3
-				DataVersion=5
+				DataVersion=6
 				NativeKernel='PARASOLID'
 				NativeKernelVersionID=23
 				Units='mm'
@@ -264,7 +264,7 @@ $begin 'AnsoftProject'
 							IDServerObjectTypeID=0
 							IDServerRangeMin=0
 							IDServerRangeMax=2146483647
-							NextUniqueID=39
+							NextUniqueID=44
 							MoveBackwards=false
 						$end 'AnsoftRangedIDServer'
 						$begin 'AnsoftRangedIDServer'
@@ -277,6 +277,23 @@ $begin 'AnsoftProject'
 					$end 'AnsoftRangedIDServerManager'
 					StartBackGroundFaceID=2146483648
 					$begin 'CoordinateSystems'
+						$begin 'Operation'
+							OperationType='CreateFaceCoordinateSystem'
+							ID=40
+							$begin 'FaceCSFromParameters'
+								KernelVersion=23
+							$end 'FaceCSFromParameters'
+							ParentPartID=6
+							ReferenceUDMID=-1
+							$begin 'Attributes'
+								Name='FaceCS1'
+								UDMId=-1
+							$end 'Attributes'
+							$begin 'Operations'
+							$end 'Operations'
+							XYPlaneID=41
+							PlaceHolderOperationID=39
+						$end 'Operation'
 					$end 'CoordinateSystems'
 					$begin 'OperandCSs'
 					$end 'OperandCSs'
@@ -348,6 +365,54 @@ $begin 'AnsoftProject'
 										BodyFileNamesVec[1: '0000006.x_b']
 									$end 'BodyBlock'
 								$end 'Operation'
+								$begin 'FaceCSHolderOperation'
+									OperationType='FaceCSPlaceHolder'
+									ID=39
+									$begin 'FaceCSParameters'
+										KernelVersion=23
+										PartID=6
+										$begin 'Origin'
+											IsAttachedToEntity=true
+											EntityID=30
+											ParentIDs(22, 18, 17)
+											FacetedBodyTriangleIndex=-1
+											TriangleVertexIndex=-1
+											hasXYZ=true
+											PositionType='OnVertex'
+											UParam=0
+											VParam=0
+											XPosition='0.6'
+											YPosition='0'
+											ZPosition='0'
+										$end 'Origin'
+										MoveToEnd=false
+										FaceID=12
+										$begin 'AxisPosn'
+											IsAttachedToEntity=true
+											EntityID=29
+											ParentIDs(24, 20, 17)
+											FacetedBodyTriangleIndex=-1
+											TriangleVertexIndex=-1
+											hasXYZ=true
+											PositionType='OnVertex'
+											UParam=0
+											VParam=0
+											XPosition='0.6'
+											YPosition='0.6'
+											ZPosition='0'
+										$end 'AxisPosn'
+										WhichAxis='X'
+										ZRotationAngle='0deg'
+										XOffset='0mm'
+										YOffset='0mm'
+										AutoAxis=false
+										HaveFaceNormal=true
+										FaceNormal(1, -0, -0)
+										FlipFaceNormal=false
+									$end 'FaceCSParameters'
+									ParentPartID=6
+									ReferenceUDMID=-1
+								$end 'FaceCSHolderOperation'
 							$end 'Operations'
 						$end 'GeometryPart'
 					$end 'ToplevelParts'
@@ -366,6 +431,9 @@ $begin 'AnsoftProject'
 						$begin 'box'
 							box(1)
 						$end 'box'
+						$begin 'facecs'
+							facecs(1)
+						$end 'facecs'
 						$begin 'global'
 							global(-1)
 						$end 'global'
@@ -379,6 +447,17 @@ $begin 'AnsoftProject'
 						NumParents=1
 						DependencyObject('GeometryBodyOperation', 38)
 						DependencyObject('CoordinateSystem', 1)
+					$end 'DependencyInformation'
+					$begin 'DependencyInformation'
+						NumParents=1
+						DependencyObject('GeometryOperation', 39)
+						DependencyObject('CoordinateSystem', 1)
+					$end 'DependencyInformation'
+					$begin 'DependencyInformation'
+						NumParents=2
+						DependencyObject('CoordinateSystem', 40)
+						DependencyObject('GeometryBodyOperation', 38)
+						DependencyObject('GeometryOperation', 39)
 					$end 'DependencyInformation'
 				$end 'GeometryDependencies'
 			$end 'GeometryCore'
@@ -548,7 +627,7 @@ $begin 'AnsoftProject'
 					FirstCellPosX='0mm'
 					FirstCellPosY='0mm'
 					FirstCellPosZ='0mm'
-					Behavior='UseSlaveSettings'
+					Behavior='UseScanAngle'
 					ScanAnglePhi='45deg'
 					ScanAngleTheta='45deg'
 					UDirnPhaseShift='0deg'
@@ -620,7 +699,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDR39ED1626416613535023.tmp'
+		CacheHeaderFile='HDR60591638816614167203.tmp'
 	$end 'HFSSModel'
 	$begin 'DataInstances'
 		DesignEditor='TopLevel'
@@ -647,7 +726,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=1
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -8, -31, 130, 130, 1151, 486), OrientationMatrix(-0.187082901597023, -0.300000011920929, 0.474341750144958, 0, 0.561248660087585, -0.100000001490116, 0.158113896846771, 0, 4.62877292051189e-09, 0.499999970197678, 0.316227793693542, 0, 1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -1.92415726184845, 1.92415726184845, -1, 1, 4.21164131164551, 7.28572654724121), Drawings[1: 'Box1'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.2, dYForGrid=0.2, dZForGrid=0.2, dRForGrid=0.2, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -8, -31, 130, 130, 1151, 486), OrientationMatrix(-0.187082901597023, -0.300000011920929, 0.474341750144958, 0, 0.561248660087585, -0.100000001490116, 0.158113896846771, 0, 4.62877292051189e-09, 0.499999970197678, 0.316227793693542, 0, 1.19209289550781e-07, 2.38418579101562e-07, -5.7486834526062, 1, 0, -2.03854155540466, 2.03854155540466, -1, 1, 4.21164131164551, 7.28572654724121), Drawings[1: 'Box1'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=0.2, dYForGrid=0.2, dZForGrid=0.2, dRForGrid=0.2, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'
@@ -704,7 +783,7 @@ $begin 'Design_0.setup/NativeGeometryFiles'
 NumFiles= 1
 $begin 'x_b'
 Design_0.setup/NativeGeometryFiles/0000006.x_b
-BIN000000008549
+BIN000000008426
 **ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz**************************
 **PARASOLID !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~0123456789**************************
 **PART1;
@@ -719,8 +798,8 @@ SITE=unknown;
 USER=unknown;
 FORMAT=binary;
 GUISE=transmit;
-KEY=C:/Users/mcapodif/AppData/Local/Temp/Coo3A663663216613535394.setup/Design_0.setup/NativeGeometryFiles/0000006.x_b;
-FILE=C:/Users/mcapodif/AppData/Local/Temp/Coo3A663663216613535394.setup/Design_0.setup/NativeGeometryFiles/0000006.x_b;
+KEY=C:/Users/mcapodif/AppData/Local/Temp/Coo60591638816614167202.setup/Design_0.setup/NativeGeometryFiles/0000006.x_b;
+FILE=C:/Users/mcapodif/AppData/Local/Temp/Coo60591638816614167202.setup/Design_0.setup/NativeGeometryFiles/0000006.x_b;
 DATE=unknown;
 **PART2;
 SCH=SCH_3401241_34101;
@@ -729,15 +808,12 @@ USFLD_SIZE=0;
 **END_OF_HEADER*****************************************************************
 B3   : TRANSMIT FILE created by modeller version 3401241   SCH_3401241_34101_13006Á     ∞ PART_XMT_BLOCK	Part list	n_entries   dindex_map_offset   d	index_mapR  schema_embedding_mapR  mesh_offset_dataŒ  entriesÌ                  $CCCIlatticeﬁ  CCCImeshÓ Ipolyline CCCCCCCDIowner CCCIboundary_latticeﬁ  CCCIboundary_meshÓ Iboundary_polyline CCCAindex_map_offset   dA	index_mapR  Anode_id_index_mapR  Aschema_embedding_mapR  Achild  Alowest_node_id   dAmesh_offset_dataŒ  Z ç                @è@:å0‚éyE>       	 
                                      @è@:å0‚éyE>                           Q ˇ               F CI	list_type   uI
-notransmit   lCCCDCCDIfinger_index   dIfinger_blockÙ CZ                    ˇ             ˇ                                 	CCCCCCIframeÊ  CAowner  Z          V  ˇ           nôèíº¬ J CIindex_map_offset   dCCZ                                Q                Q                P CCCCCDIlegal_owners   lCZ      D                        S ˇ         @è@O ˇ    SDL/TYSA_DENSITYP        (#                     T ˇ    UNIT=mmO      AEDT_EntityName_V1P     ! " (#                     S     {ÆG·zÑ?O    " AEDT_ExtentScale_V1Q     ç   #  $     % F         	         & &   $      '   (  2 ˇ *    ) *   +˙~jºtìh?˙~jºtìh?                              ?      ?                 ˇ	 >    + ,   +˙~jºtìh?                      ø                 
+notransmit   lCCCDCCDIfinger_index   dIfinger_blockÙ CZ                    ˇ             ˇ                                 	CCCCCCIframeÊ  CAowner  Z          V  ˇ           nôèíº¬ J CIindex_map_offset   dCCZ                                Q                Q                P CCCCCDIlegal_owners   lCZ      D                        S ˇ         @è@O ˇ    SDL/TYSA_DENSITYP        (#                     T ˇ    UNIT=mmO      AEDT_EntityName_V1P     ! " (#                     S     {ÆG·zÑ?O    " AEDT_ExtentScale_V1Q     ç   #  $     % F                  & &   $      '   (  2 ˇ *    ) *   +˙~jºtìh?˙~jºtìh?                              ?      ?                 ˇ	 >    + ,   +˙~jºtìh?                      ø                 
  2     -          ˙~jºtìx?               (  .  V  ˇ     /   nôèíº¬0  1 2         3 4  5 
    nôèíº¬ Q    3 É   6    7 8  9  ˇ4  : ; <  = 1  > + 5    8 ?  @ A   nôèíº¬ Q    8 Ñ   6 5   3 B  C  ?  D E F 5 G H  ; + @    B I 5 J K   nôèíº¬  A 0    5 L -                          L /    M N A                 ˙~jºtìx? - 1    O A 
          ˙~jºtìx?˙~jºtìx? O 	   P = M Q -   nôèíº¬ Q    P à   6 O   R S  T  =  U V > O 4 1  < - M    R G J O L   nôèíº¬  Q    S W O X N   nôèíº¬ Q    S â   6 Q   P Y  Z  W  [ \ ] Q 0   V - X    Y ^ Q  _   nôèíº¬  N .    Q K L ˙~jºtìx?˙~jºtìx?˙~jºtìx? K -    @ ` N ˙~jºtìx?                 ` ,    J _ K ˙~jºtìx?˙~jºtìx?         J    a 0 @ M `   nôèíº¬  _ +    X  ` ˙~jºtìx?        ˙~jºtìx?Q    a Ü   6 J   B R  b  0  U > V J W   c + ˇU     0 d   >  U = 0  c e  f - V  U 0 = Q g h  i - c  j k f J > e  ] + j     k )   k  j l c @ ] m   + f  j c l  ; n   + e    o   nôèíº¬c H n p     ]  [ W I J k m   - [ "    I '   I  [ ] \ @ ^ q  E + m    r   nôèíº¬k + s t    Q    r ~   6 m u  v w  x  +    v   nôèíº¬l n m 	     s    w   nôèíº¬y m z {     t :    m { p  +˙~jºtìx?˙~jºtìh?                      ø         { 9    s 2 t  +˙~jºtìh?        ˙~jºtìx?      ?                 p ;    e t |  +˙~jºtìh?˙~jºtìx?              ?                 | <    1 p ,  +        ˙~jºtìx?˙~jºtìh?                      ø 1    }   nôèíº¬4  q |     , =    z | 	  +        ˙~jºtìh?˙~jºtìx?              ø         z 
-   ~   nôèíº¬ s h ,    Q    ~ Ä   6 z Ä  w Å  Ç    É y g M < z   + h    Å   nôèíº¬g z Ñ Ö    Q    Å Å   6 h Ü  ~ 7  á  g  É  i O V h   + Ñ    7   nôèíº¬i h  à     Ö 6    h â ä  +˙~jºtìh?˙~jºtìx?˙~jºtìx?      ø                 â 5    n à Ö  +        ˙~jºtìh?                      ?         ä 7    q Ö 2  +˙~jºtìx?        ˙~jºtìh?                      ø q    ã   nôèíº¬I 1 H ä     2 8     ä {  +˙~jºtìx?˙~jºtìx?˙~jºtìh?                      øQ    ã y   6 q å  } ç  é  H    ç   nôèíº¬? q e è    Q    ç z   6 H ê  ã o  ë  è 3    H  à  +                ˙~jºtìh?                      ø à 4    Ñ è â  +˙~jºtìx?˙~jºtìh?˙~jºtìx?              ?        P    6 í ì (#                     Q    ê c   î H  ç å ï ñ Q    o {   6 e ï  ç ó  ò R ˇ   ë    Q    ï d   î e  o ê ô ö Q    ó |   6 n ô  o v  õ R    ò     n    ó   nôèíº¬f e + â    Q    ô e   î n  ó ï ú ù Q    v }   6 + ú  ó r  û R    õ    Q    ú f   î +  v ô u ü R    û    P    î  † A                       Q    u g   î m  r ú ° ¢ S    ü ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    ° h   î s  w u Ä £ S    ¢ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    w    6 s °  r ~  § Q    Ä i   î z  ~ ° Ü • S    £ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    Ü j   î h  Å Ä ¶ ß S    • ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    ¶ k   î Ñ  7 Ü  ® S    ß ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    7 Ç   6 Ñ ¶  Å 3  © S    ® ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?R    ©    R    §    O    † SDL/TYSA_COLOURS    ù ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?S    ö ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    å b   î q  ã ™ ê ´ S    ñ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    ™ a   î 1  } ¨ å ≠ S    ´ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    } x   6 1 ™  / ã  Æ Q    ¨ `   î   / Ø ™ ∞ S    ≠ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    / w   6  ¨  ± }  ≤ Q    Ø _   î ≥  ± ¥ ¨ µ S    ∞ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ˇ≥    ±   nôèíº¬ ) É  ∂ +   ) . Q    ± v   6 ≥ Ø  ∑ /  ∏ Q    ¥ ^   î )  ∑ π Ø ∫ S    µ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? )    ∑   nôèíº¬≥ ª j   -  ≥ ª . Q    ∑ u   6 ) ¥  º ±  Ω Q    π ]   î ª  º æ ¥ ø S    ∫ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ª    º   nôèíº¬) ¿ D  * -  ) ¿ . Q    º t   6 ª π  ¡ ∑  ¬ Q    æ \   î ¿  ¡ √ π ƒ S    ø ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ¿    ¡   nôèíº¬ª d :  ≈ -  ª d . Q    ¡ s   6 ¿ æ  ∆ º  « Q    √ [   î d  ∆ » æ … S    ƒ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? d    ∆   nôèíº¬¿ ' U    -  ¿ ' . Q    ∆ r   6 d √  À ¡  Ã Q    » Z   î '  À  √ Õ S    … ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ' !   À   nôèíº¬d  [  Œ -  d  . Q    À q   6 ' »  œ ∆  – S    Õ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    œ p   6  — “  À  ” R    –    Q    — n   ‘  ’ œ   ÷ Q    “ ã   í  œ $    ◊ R    ”    P    í  ÿ (#                     Q    $ å     “     Ÿ R    ◊     ˇˇˇˇèØèÄ   T    Ÿ Box1O    ÿ AEDT_BODYFlagGroupColor_V1P    ‘ ⁄ € Q             Q    ’ m   ‹  › —   ﬁ T    ÷ Box1P    ‹ ﬂ ‡ (#            Q    › l   ⁄  · ’   ‚   „ R    ﬁ     P    ⁄ ‰ Â j           
-
-
-Q    · Y   Ê   ›   Á b ˇ   ‚ 0 R    „     P    Ê î Ë h                      S    Á ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?O    Ë SDL/TYSA_COLOUR_2O    Â SDL/TYSA_LAYERO    ‡ AttGS_PS_LayerO    € SDL/TYSA_NAME2 Œ (    '   *  +˙~jºtìx?˙~jºtìh?˙~jºtìh?      ø                                      ? .           ' 2   '    d ≈ Œ  +˙~jºtìh?˙~jºtìx?˙~jºtìh?              ø                              ø2 * )    ª Œ   +˙~jºtìh?        ˙~jºtìh?              ?                              ?2 ≈ &    ¿ ∂    +        ˙~jºtìh?˙~jºtìh?      ?                                      ø2 ∂ %    ≥  ≈  +˙~jºtìh?˙~jºtìh?˙~jºtìx?                      ?      ?                R    Ã    R    « 
-    :     4 ¿  R    ¬ 	    D     ? ª  R    Ω    R    ∏     É     i ≥   i  É g y Q \ Ñ   + y  É i  X F s  \ + \  [ I W X i Ñ   - F  D ? ^ M y s   - ^  D F E X I q  y - E  D ^ ? @ l +  k - l  j f k 5 E +   +R    ≤    R    Æ    O    ì AEDT_EntityID_V1R    é    R    á     <  : 4 G O  z  g - G  : < ; M ? H  F - ;  : G 4 5 f n  l -R    Ç    R    x    Q    B Ö   6 @   8 a  È Q    R á   6 M   a P  Í R    b    R    Í    R    È    Q    Y ä   6 X   S   Î R    Î    R    Z    R    T    R    C    R    9      ( #         S J    & 	        · ¶ › ’ — Y “ $             P    # 6 Ï (#                        T    % vacuumO    Ï AEDT_MaterialName_V1  $end 'x_b'
+   ~   nôèíº¬ s h ,    Q    ~ Ä   6 z Ä  w Å  Ç    É y g M < z   + h    Å   nôèíº¬g z Ñ Ö    Q    Å Å   6 h Ü  ~ 7  á  g  É  i O V h   + Ñ    7   nôèíº¬i h  à     Ö 6    h â ä  +˙~jºtìh?˙~jºtìx?˙~jºtìx?      ø                 â 5    n à Ö  +        ˙~jºtìh?                      ?         ä 7    q Ö 2  +˙~jºtìx?        ˙~jºtìh?                      ø q    ã   nôèíº¬I 1 H ä     2 8     ä {  +˙~jºtìx?˙~jºtìx?˙~jºtìh?                      øQ    ã y   6 q å  } ç  é  H    ç   nôèíº¬? q e è    Q    ç z   6 H ê  ã o  ë  è 3    H  à  +                ˙~jºtìh?                      ø à 4    Ñ è â  +˙~jºtìx?˙~jºtìh?˙~jºtìx?              ?        P    6 í ì (#                     Q    ê c   î H  ç å ï ñ Q    o {   6 e ï  ç ó  ò R ˇ   ë    Q    ï d   î e  o ê ô ö Q    ó |   6 n ô  o v  õ R    ò     n    ó   nôèíº¬f e + â    Q    ô e   î n  ó ï ú ù Q    v }   6 + ú  ó r  û R    õ    Q    ú f   î +  v ô u ü R    û    P    î  † A                       Q    u g   î m  r ú ° ¢ S    ü ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    ° h   î s  w u Ä £ S    ¢ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    w    6 s °  r ~  § Q    Ä i   î z  ~ ° Ü • S    £ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    Ü j   î h  Å Ä ¶ ß S    • ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    ¶ k   î Ñ  7 Ü  ® S    ß ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    7 Ç   6 Ñ ¶  Å 3  © S    ® ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?R    ©    R    §    O    † SDL/TYSA_COLOURS    ù ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?S    ö ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    å b   î q  ã ™ ê ´ S    ñ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    ™ a   î 1  } ¨ å ≠ S    ´ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    } x   6 1 ™  / ã  Æ Q    ¨ `   î   / Ø ™ ∞ S    ≠ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    / w   6  ¨  ± }  ≤ Q    Ø _   î ≥  ± ¥ ¨ µ S    ∞ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ˇ≥    ±   nôèíº¬ ) É  ∂ +   ) . Q    ± v   6 ≥ Ø  ∑ /  ∏ Q    ¥ ^   î )  ∑ π Ø ∫ S    µ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? )    ∑   nôèíº¬≥ ª j   -  ≥ ª . Q    ∑ u   6 ) ¥  º ±  Ω Q    π ]   î ª  º æ ¥ ø S    ∫ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ª    º   nôèíº¬) ¿ D  * -  ) ¿ . Q    º t   6 ª π  ¡ ∑  ¬ Q    æ \   î ¿  ¡ √ π ƒ S    ø ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ¿    ¡   nôèíº¬ª d :  ≈ -  ª d . Q    ¡ s   6 ¿ æ  ∆ º  « Q    √ [   î d  ∆ » æ … S    ƒ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? d    ∆   nôèíº¬¿ ' U    -  ¿ ' . Q    ∆ r   6 d √  À ¡  Ã Q    » Z   î '  À  √ Õ S    … ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·? ' !   À   nôèíº¬d  [  Œ -  d  . Q    À q   6 ' »  œ ∆  – S    Õ ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?Q    œ p   6  — “  À  ” R    –    Q    — n   ‘  ’ œ   ÷ Q    “ ã   í  œ $    ◊ R    ”    P    í  ÿ (#                     Q    $ å     “     Ÿ R    ◊     ˇˇˇˇèØèÄ   T    Ÿ Box1O    ÿ AEDT_BODYFlagGroupColor_V1P    ‘ ⁄ € Q             Q    ’ m   ‹  › —   ﬁ T    ÷ Box1P    ‹  ﬂ (#            Q    › Y   ‡   ’   · R    ﬁ     P    ‡ î ‚ h                      S    · ÚÒÒÒÒÒ·?ˆıııııÂ?ÚÒÒÒÒÒ·?O    ‚ SDL/TYSA_COLOUR_2O    ﬂ AttGS_PS_LayerO    € SDL/TYSA_NAME2 Œ (    '   *  +˙~jºtìx?˙~jºtìh?˙~jºtìh?      ø                                      ? .           ' 2   '    d ≈ Œ  +˙~jºtìh?˙~jºtìx?˙~jºtìh?              ø                              ø2 * )    ª Œ   +˙~jºtìh?        ˙~jºtìh?              ?                              ?2 ≈ &    ¿ ∂    +        ˙~jºtìh?˙~jºtìh?      ?                                      ø2 ∂ %    ≥  ≈  +˙~jºtìh?˙~jºtìh?˙~jºtìx?                      ?      ?                R    Ã    R    « 
+    :     4 ¿  R    ¬ 	    D     ? ª  R    Ω    R    ∏     É     i ≥   i  É g y Q \ Ñ   + y  É i  X F s  \ + \  [ I W X i Ñ   - F  D ? ^ M y s   - ^  D F E X I q  y - E  D ^ ? @ l +  k - l  j f k 5 E +   +R    ≤    R    Æ    O    ì AEDT_EntityID_V1R    é    R    á     <  : 4 G O  z  g - G  : < ; M ? H  F - ;  : G 4 5 f n  l -R    Ç    R    x    Q    B Ö   6 @   8 a  „ Q    R á   6 M   a P  ‰ R    b    R    ‰    R    „    Q    Y ä   6 X   S   Â R    Â    R    Z    R    T    R    C    R    9      ( #         S J    &         › ¶ ’ — Y “ $              P    # 6 Ê (#                        T    % vacuumO    Ê AEDT_MaterialName_V1  $end 'x_b'
 $end 'Design_0.setup/NativeGeometryFiles'
 $end 'AllReferencedFilesForProject'
 $begin 'ProjectPreview'

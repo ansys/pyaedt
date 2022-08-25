@@ -16,8 +16,12 @@ from _unittest.conftest import local_path
 from pyaedt import Hfss3dLayout
 
 test_subfolder = "T40"
-test_project_name = "Galileo_t23"
-original_project_name = "Galileo_t23"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Galileo_t23_231"
+    original_project_name = "Galileo_t23_231"
+else:
+    test_project_name = "Galileo_t23"
+    original_project_name = "Galileo_t23"
 
 
 class TestClass(BasisTest, object):
@@ -47,7 +51,11 @@ class TestClass(BasisTest, object):
         comp["L3A1"].angle = "0deg"
         assert comp["L3A1"].location[0] == 0.0
         comp["L3A1"].location = [1.0, 0.0]
-        assert comp["L3A1"].location[0] == 1.0
+        if config["desktopVersion"] > "2022.2":
+
+            assert comp["L3A1"].location[0] == 1000.0
+        else:
+            assert comp["L3A1"].location[0] == 1.0  # bug in component location
         comp["L3A1"].location = [0.0, 0.0]
         assert comp["L3A1"].placement_layer == "TOP"
         assert comp["L3A1"].part == "A32422-019"
@@ -193,11 +201,18 @@ class TestClass(BasisTest, object):
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
         comp.location = [0.1, 0.2]
-        assert (comp.location[0] - 0.1) < tol
-        assert (comp.location[1] - 0.2) < tol
+        if config["desktopVersion"] > "2022.2":
+            assert (comp.location[0] - 100.0) < tol
+            assert (comp.location[1] - 200.0) < tol
+        else:
+            assert (comp.location[0] - 0.1) < tol
+            assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
 
-    @pytest.mark.skipif(os.name != "posix", reason="Not running in non graphical mode. Tested only in Linux machine")
+    @pytest.mark.skipif(
+        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
+        reason="Not running in non graphical mode. Tested only in Linux machine",
+    )
     def test_09_3dplacement(self):  # pragma: no cover
         assert len(self.aedtapp.modeler.components_3d) == 2
         tol = 1e-12
@@ -205,8 +220,12 @@ class TestClass(BasisTest, object):
         comp = self.aedtapp.modeler.place_3d_component(
             encrypted_model_path, 4, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
         )
-        assert (comp.location[0] - 0.001) < tol
-        assert (comp.location[1] - 0.002) < tol
+        if config["desktopVersion"] > "2022.2":
+            assert (comp.location[0] - 1) < tol
+            assert (comp.location[1] - 2) < tol
+        else:
+            assert (comp.location[0] - 0.001) < tol
+            assert (comp.location[1] - 0.002) < tol
         assert comp.angle == "0deg"
         assert comp.placement_layer == "TOP"
         comp.placement_layer = "bottom"

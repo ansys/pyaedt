@@ -2,6 +2,7 @@
 import re
 
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import settings
 
 # --------------------------------------------------------------------
 # public interface
@@ -381,6 +382,9 @@ def _load_entire_aedt_file(filename):
         if m:
             _walk_through_structure(m.group(1), main_dict)
         _count += 1
+    if settings.aedt_version > "2022.2":
+        project_preview = load_keyword_in_aedt_file(filename, "ProjectPreview")
+        main_dict["ProjectPreview"] = project_preview["ProjectPreview"]
     return main_dict
 
 
