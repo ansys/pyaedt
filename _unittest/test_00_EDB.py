@@ -1958,7 +1958,7 @@ if not config["skip_edb"]:
 
         def test_117_add_hfss_config(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_117.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             sim_setup = SimulationConfiguration()
@@ -1997,6 +1997,8 @@ if not config["skip_edb"]:
 
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            if not os.path.exists(self.edbapp.edbpath):
+                os.mkdir(self.edbapp.edbpath)
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
                 f.writelines("PowerNets = ['GND']\n")

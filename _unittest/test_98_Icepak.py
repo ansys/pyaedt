@@ -264,8 +264,8 @@ class TestClass(BasisTest, object):
         self.aedtapp["Variable1"] = "0.5"
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
+        self.aedtapp.analyze_setup("SetupIPK")
         self.aedtapp.save_project()
-        self.aedtapp.analyze_nominal()
         self.aedtapp.export_summary()
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
         assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
