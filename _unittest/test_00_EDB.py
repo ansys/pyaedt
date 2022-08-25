@@ -1932,7 +1932,7 @@ if not config["skip_edb"]:
             edb.close_edb()
 
         def test_116_configure_hfss_analysis_setup_enforce_causality(self):
-            source_path = os.path.join(local_path, "example_models", "lam_for_top_place_no_setups.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_top_place_no_setups.aedb")
             target_path = os.path.join(self.local_scratch.path, "lam_for_top_place_no_setups.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
@@ -1952,7 +1952,7 @@ if not config["skip_edb"]:
             assert not sweep.EnforceCausality
 
         def test_117_add_hfss_config(self):
-            source_path = os.path.join(local_path, "example_models", "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
