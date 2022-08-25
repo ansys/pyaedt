@@ -858,7 +858,7 @@ class Polyline(Object3d):
         assert segment_index < num_vertices, "Vertex for the insert is not found."
         type = segment.type
 
-        varg1 = ["NAME:Insert Polyline Segment="]
+        varg1 = ["NAME:Insert Polyline Segment"]
         varg1.append("Selections:=")
         varg1.append(self._m_name + ":CreatePolyline:1")
         varg1.append("Segment Indices:=")
@@ -1949,7 +1949,7 @@ class Primitives(object):
         new_object_dict = {}
         new_object_id_dict = {}
         all_objects = self.object_names
-        all_unclassified = self.unclassified_objects
+        all_unclassified = self.unclassified_names
         for old_id, obj in self.objects.items():
             if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id  # By calling the object property we get the new id
@@ -2141,6 +2141,13 @@ class Primitives(object):
         is_parallel = False
         for el in edge_start_list:
             vertices_i = el.vertices
+            if not vertices_i:
+                for f in start_obj.faces:
+                    if len(f.edges) == 1:
+                        edges_ids = [i.id for i in f.edges]
+                        if el.id in edges_ids:
+                            vertices_i.append(f.center)
+                            break
             vertex1_i = None
             vertex2_i = None
             if len(vertices_i) == 2:  # normal segment edge
@@ -2148,12 +2155,21 @@ class Primitives(object):
                 vertex2_i = vertices_i[1].position
                 start_midpoint = el.midpoint
             elif len(vertices_i) == 1:
-                # TODO why do we need this ?
-                start_midpoint = vertices_i[0].position
+                if isinstance(vertices_i[0], list):
+                    start_midpoint = vertices_i[0]
+                else:
+                    start_midpoint = vertices_i[0].position
             else:
                 continue
             for el1 in edge_stop_list:
                 vertices_j = el1.vertices
+                if not vertices_j:
+                    for f in end_obj.faces:
+                        if len(f.edges) == 1:
+                            edges_ids = [i.id for i in f.edges]
+                            if el1.id in edges_ids:
+                                vertices_j.append(f.center)
+                                break
                 vertex1_j = None
                 vertex2_j = None
                 if len(vertices_j) == 2:  # normal segment edge
@@ -2161,7 +2177,10 @@ class Primitives(object):
                     vertex2_j = vertices_j[1].position
                     end_midpoint = el1.midpoint
                 elif len(vertices_j) == 1:
-                    end_midpoint = vertices_j[0].position
+                    if isinstance(vertices_j[0], list):
+                        end_midpoint = vertices_j[0]
+                    else:
+                        end_midpoint = vertices_j[0].position
                 else:
                     continue
 
@@ -2649,7 +2668,7 @@ class Primitives(object):
         elif len(vertices) == 1:
             return list(self.get_vertex_position(vertices[0]))
         else:
-            return []
+            return
 
     @pyaedt_function_handler()
     def get_bodynames_from_position(self, position, units=None):

@@ -5,6 +5,8 @@ from _unittest.conftest import local_path
 from pyaedt import Circuit
 from pyaedt.generic import ibis_reader
 
+test_subfolder = "T15"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -16,7 +18,7 @@ class TestClass(BasisTest, object):
 
     def test_01_read_ibis(self):
         reader = ibis_reader.IbisReader(
-            os.path.join(local_path, "example_models", "u26a_800_modified.ibs"), self.aedtapp
+            os.path.join(local_path, "example_models", test_subfolder, "u26a_800_modified.ibs"), self.aedtapp
         )
         reader.parse_ibis_file()
         ibis = reader.ibis_model
@@ -61,7 +63,7 @@ class TestClass(BasisTest, object):
 
     def test_02_read_ibis_from_circuit(self):
         ibis_model = self.aedtapp.get_ibis_model_from_file(
-            os.path.join(local_path, "example_models", "u26a_800_modified.ibs")
+            os.path.join(local_path, "example_models", test_subfolder, "u26a_800_modified.ibs")
         )
         assert len(ibis_model.components) == 6
         assert len(ibis_model.models) == 17

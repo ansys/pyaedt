@@ -14,6 +14,8 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T03"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -110,7 +112,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form()
         assert self.aedtapp.materials["new_copper2"].permeability.add_thermal_modifier_closed_form(auto_calc=False)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_closed_form(auto_calc=False)
-        filename = os.path.join(local_path, "example_models", "ds_1d.tab")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "ds_1d.tab")
         ds1 = self.aedtapp.import_dataset1d(filename)
         assert self.aedtapp.materials["new_copper2"].permittivity.add_thermal_modifier_dataset(ds1.name)
 
@@ -124,7 +126,7 @@ class TestClass(BasisTest, object):
         assert exp == "X+1"
         exp = self.aedtapp.materials["new_copper2"].mass_density.spatialmodifier = ["Y+1"]
         assert exp == ["Y+1"]
-        filename = os.path.join(local_path, "example_models", "ds_3d.tab")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "ds_3d.tab")
         ds2 = self.aedtapp.import_dataset3d(filename)
         assert self.aedtapp.materials["new_copper2"].permeability.add_spatial_modifier_dataset(ds2.name)
         mat1 = self.aedtapp.materials.add_material("new_mat")
@@ -179,7 +181,7 @@ class TestClass(BasisTest, object):
 
     def test_08_import_materials(self):
         assert self.aedtapp.materials.import_materials_from_file(
-            os.path.join(local_path, "example_models", "mats.json")
+            os.path.join(local_path, "example_models", test_subfolder, "mats.json")
         )
         assert "$copper_ds1" in self.aedtapp.project_datasets.keys()
         assert "copper_5540" in self.aedtapp.materials.material_keys.keys()

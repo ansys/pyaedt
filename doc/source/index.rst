@@ -9,14 +9,11 @@ PyAEDT documentation  |version|
 .. toctree::
    :hidden:
 
-   Resources/Installation
-   Resources/User_Guide
-   Resources/ClientServer
+   Getting_started/index
+   User_guide/index
    API/index
    examples/index
-   Resources/Code_Guidelines
-   Resources/Contributing
-
+   Contributing
 
 
 Indices and tables

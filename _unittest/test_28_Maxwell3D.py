@@ -3,6 +3,7 @@ import os
 import tempfile
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
@@ -14,15 +15,19 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+test_subfolder = "TMaxwell"
 test_project_name = "eddy"
+if config["desktopVersion"] > "2022.2":
+    core_loss_file = "PlanarTransformer_231"
+else:
+    core_loss_file = "PlanarTransformer"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
-        core_loss_file = "PlanarTransformer.aedt"
-        example_project = os.path.join(local_path, "example_models", core_loss_file)
+        example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
         self.file_path = self.local_scratch.copyfile(example_project)
 
     def teardown_class(self):
@@ -491,3 +496,10 @@ class TestClass(BasisTest, object):
             frequency=50,
             thickness="0.5mm",
         )
+
+    def test_37_assign_insulating(self):
+        insulated_box = self.aedtapp.modeler.create_box([50, 0, 50], [294, 294, 19], name="insulated_box")
+        insulating_assignment = self.aedtapp.assign_insulating(insulated_box.name, "InsulatingExample")
+        assert insulating_assignment.name == "InsulatingExample"
+        insulating_assignment.name = "InsulatingExampleModified"
+        assert insulating_assignment.update()

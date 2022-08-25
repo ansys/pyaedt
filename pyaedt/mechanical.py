@@ -173,7 +173,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignEMLoss
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical Structural analysis."
+        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         self.logger.info("Mapping HFSS EM Lossess")
         oName = self.project_name
@@ -346,7 +346,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignConvection
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical Structural analysis."
+        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)
@@ -395,7 +395,7 @@ class Mechanical(FieldAnalysis3D, object):
 
         >>> oModule.AssignTemperature
         """
-        assert self.solution_type == "Thermal", "This method works only in a Mechanical Structural analysis."
+        assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
 
         props = {}
         objects_list = self.modeler.convert_to_selections(objects_list, True)

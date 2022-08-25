@@ -5,7 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
@@ -14,18 +13,28 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
+
+if config["desktopVersion"] > "2022.2":
+    diff_proj_name = "differential_pairs_231"
+else:
+    diff_proj_name = "differential_pairs"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
-        self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
-        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
-        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.hfss3dl = BasisTest.add_app(
+            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        self.flex = BasisTest.add_app(
+            self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
 
@@ -175,12 +184,15 @@ class TestClass(BasisTest, object):
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
-            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", netname="VCC"
+            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
         )
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave)
+        port_wave = self.aedtapp.create_wave_port("line1", 3, 6, 4, "2mm")
         assert port_wave
         assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
@@ -369,7 +381,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
-        filename = os.path.join(scratch_path, "touchstone.s2p")
+        filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
         solution_name = "RFBoardSetup3"
         sweep_name = "Last Adaptive"
         assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
@@ -379,7 +391,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
-        with Scratch(scratch_path) as local_scratch:
+        with Scratch(self.local_scratch.path) as local_scratch:
             filename = "export_to_hfss_test"
             file_fullname = os.path.join(local_scratch.path, filename)
             setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
@@ -522,7 +534,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
-        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
 
@@ -548,3 +560,6 @@ class TestClass(BasisTest, object):
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
         )
+
+    def test_95_create_text(self):
+        assert self.aedtapp.modeler.create_text("test", [0, 0])

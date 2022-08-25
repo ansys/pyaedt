@@ -4,14 +4,14 @@ from _unittest.conftest import BasisTest
 from pyaedt import Circuit
 
 # Import required modules
-
+test_subfolder = "T11"
 test_project_name = "coax_setup"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

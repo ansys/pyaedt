@@ -955,9 +955,9 @@ class Edb(object):
         reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
         extent_type : str, optional
-            Type of the extension. Options are ``"Conforming"`` and
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
             ``"Bounding"``. The default is ``"Conforming"``.
-        expansion_size : float, optional
+        expansion_size : float, str, optional
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
@@ -976,6 +976,7 @@ class Edb(object):
 
         """
 
+        expansion_size = self.edb_value(expansion_size).ToDouble()
         if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
             signal_list = simulation_setup.signal_nets
             reference_list = simulation_setup.power_nets
@@ -995,12 +996,18 @@ class Edb(object):
 
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, True, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+        elif extent_type == "Bounding":
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, True, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
+            _poly_list = convert_py_list_to_net_list([_poly])
+            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
 
         # Create new cutout cell/design
         included_nets = convert_py_list_to_net_list(
@@ -1077,8 +1084,9 @@ class Edb(object):
             Edb.Cell.Primitive.Polygon object
 
         """
-        shutil.copytree(self.edbpath, os.path.join(self.edbpath, "_temp_aedb"))
-        temp_edb = Edb(os.path.join(self.edbpath, "_temp_aedb"))
+        temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
+        shutil.copytree(self.edbpath, temp_edb_path)
+        temp_edb = Edb(temp_edb_path)
         for via in list(temp_edb.core_padstack.padstack_instances.values()):
             via.pin.Delete()
         if netlist:
