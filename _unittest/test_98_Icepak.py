@@ -264,6 +264,7 @@ class TestClass(BasisTest, object):
         self.aedtapp["Variable1"] = "0.5"
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
+        self.aedtapp.save_project()
         self.aedtapp.analyze_nominal()
         self.aedtapp.export_summary()
         box = [i.id for i in self.aedtapp.modeler["box"].faces]
