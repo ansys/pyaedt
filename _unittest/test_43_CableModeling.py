@@ -1,6 +1,7 @@
 import os
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt.modules.CableModeling import Cable
 
@@ -9,28 +10,45 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
-project_name = "cable_modeling"
+if config["desktopVersion"] > "2022.2":
+    project_name = "cable_modeling_231"
+else:
+    project_name = "cable_modeling"
+
+test_subfloder = "T43"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        cable_modeling_aedt_file = os.path.join(local_path, "example_models", "cable_modeling" + ".aedt")
-        self.test_cable_modeling = self.local_scratch.copyfile(cable_modeling_aedt_file)
-        self.aedtapp = BasisTest.add_app(self, project_name=self.test_cable_modeling, design_name="HFSSDesign1")
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=project_name, design_name="HFSSDesign1", subfolder=test_subfloder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
 
     def test_01_create_cables_bundle_check_definitions(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_bundle_cable_properties_insulation.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_properties_insulation.json",
         )
         cable_file2 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_bundle_cable_properties_no_jacket.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_properties_no_jacket.json",
         )
         cable_file3 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_bundle_cable_properties_shielding.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_properties_shielding.json",
         )
         Cable(self.aedtapp, cable_file1).create_cable()
         cable = Cable(self.aedtapp, cable_file2)
@@ -94,7 +112,11 @@ class TestClass(BasisTest, object):
 
     def test_02_create_cables_straight_wire_check_definitions(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_straight_wire_cable_properties.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_straight_wire_cable_properties.json",
         )
         Cable(self.aedtapp, cable_file1).create_cable()
         cable = Cable(self.aedtapp)
@@ -110,7 +132,11 @@ class TestClass(BasisTest, object):
 
     def test_03_create_cables_twisted_pair_check_definitions(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_twisted_pair_cable_properties.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_twisted_pair_cable_properties.json",
         )
         Cable(self.aedtapp, cable_file1).create_cable()
         cable = Cable(self.aedtapp)
@@ -128,18 +154,21 @@ class TestClass(BasisTest, object):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "set_bundle_cable_missing_properties_insulation.json",
         )
         cable_file2 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "set_bundle_cable_missing_properties_shielding.json",
         )
         cable_file3 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "set_bundle_cable_missing_properties_no_jacket.json",
         )
@@ -212,7 +241,11 @@ class TestClass(BasisTest, object):
 
     def test_05_jacket_types(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_bundle_cable_jacket_types_exception.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_jacket_types_exception.json",
         )
         assert not Cable(self.aedtapp, cable_file1).create_cable()
 
@@ -220,6 +253,7 @@ class TestClass(BasisTest, object):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "set_bundle_cable_invalid_material_insulation.json",
         )
@@ -229,6 +263,7 @@ class TestClass(BasisTest, object):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "set_bundle_cable_invalid_material_shielding.json",
         )
@@ -236,7 +271,11 @@ class TestClass(BasisTest, object):
 
     def test_08_working_dir(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "set_bundle_cable_properties_insulation.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_properties_insulation.json",
         )
         Cable(self.aedtapp, cable_file1)
         assert os.path.exists(self.aedtapp.toolkit_directory)
@@ -245,7 +284,11 @@ class TestClass(BasisTest, object):
 
     def test_09_update_cables_bundle_insulation(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "update_bundle_cable_properties_insulation.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_bundle_cable_properties_insulation.json",
         )
         Cable(self.aedtapp, cable_file1).update_cable_properties()
         cable = Cable(self.aedtapp, cable_file1)
@@ -268,7 +311,11 @@ class TestClass(BasisTest, object):
 
     def test_10_update_cables_bundle_no_jacket(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "update_bundle_cable_properties_no_jacket.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_bundle_cable_properties_no_jacket.json",
         )
         Cable(self.aedtapp, cable_file1).update_cable_properties()
         cable = Cable(self.aedtapp, cable_file1)
@@ -286,7 +333,11 @@ class TestClass(BasisTest, object):
 
     def test_11_update_cables_bundle_shielding(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "update_bundle_cable_properties_shielding.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_bundle_cable_properties_shielding.json",
         )
         Cable(self.aedtapp, cable_file1).update_shielding()
         cable = Cable(self.aedtapp, cable_file1)
@@ -323,6 +374,7 @@ class TestClass(BasisTest, object):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "update_bundle_cable_invalid_material_insulation.json",
         )
@@ -332,6 +384,7 @@ class TestClass(BasisTest, object):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "update_bundle_cable_invalid_material_shielding.json",
         )
@@ -340,13 +393,21 @@ class TestClass(BasisTest, object):
     @pytest.mark.skip(reason="Unable to update if it's not done before manually.")
     def test_14_update_cables_straight_wire_definitions(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "update_straight_wire_cable_properties.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_straight_wire_cable_properties.json",
         )
         assert Cable(self.aedtapp, cable_file1).update_cable_properties()
 
     def test_15_create_cables_twisted_pair_check_definitions(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "update_twisted_pair_cable_properties.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_twisted_pair_cable_properties.json",
         )
         Cable(self.aedtapp, cable_file1).update_cable_properties()
         cable = Cable(self.aedtapp)
@@ -364,16 +425,18 @@ class TestClass(BasisTest, object):
         assert len(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) == 2
 
     def test_16_remove_cables(self):
-        cable_file1 = os.path.join(local_path, "example_models", "cable_modeling_json_files", "cables_to_remove.json")
+        cable_file1 = os.path.join(
+            local_path, "example_models", test_subfloder, "cable_modeling_json_files", "cables_to_remove.json"
+        )
         assert Cable(self.aedtapp, cable_file1).remove_cables()
         cable_file2 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "cables_to_remove_invalid.json"
+            local_path, "example_models", test_subfloder, "cable_modeling_json_files", "cables_to_remove_invalid.json"
         )
         assert not Cable(self.aedtapp, cable_file2).remove_cables()
 
     def test_17_add_cables_to_bundle(self):
         cable_file1 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "add_cables_to_bundle.json"
+            local_path, "example_models", test_subfloder, "cable_modeling_json_files", "add_cables_to_bundle.json"
         )
         assert Cable(self.aedtapp, cable_file1).add_cable_to_bundle()
 
@@ -381,11 +444,16 @@ class TestClass(BasisTest, object):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
+            test_subfloder,
             "cable_modeling_json_files",
             "cables_to_remove_add_for_cables_to_add_to_bundle.json",
         )
         Cable(self.aedtapp, cable_file1).remove_cables()
         cable_file2 = os.path.join(
-            local_path, "example_models", "cable_modeling_json_files", "add_cables_to_bundle_invalid.json"
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_cables_to_bundle_invalid.json",
         )
         assert not Cable(self.aedtapp, cable_file2).add_cable_to_bundle()
