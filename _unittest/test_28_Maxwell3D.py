@@ -555,3 +555,44 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.assign_current_density_terminal(["Coil_1", "Coil_2"], "CurrentDensityTerminalGroup_2")
         self.aedtapp.set_active_design("Motion")
         assert not self.aedtapp.assign_current_density_terminal("Inner_Box", "CurrentDensityTerminal_1")
+
+    def test_40_assign_impedance(self):
+        impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        impedance_assignment = self.aedtapp.assign_impedance(
+            impedance_box.name,
+            permeability=1.3,
+            conductivity=42000000,
+            impedance_name="ImpedanceExample",
+        )
+        assert impedance_assignment.name == "ImpedanceExample"
+        impedance_assignment.name = "ImpedanceExampleModified"
+        assert impedance_assignment.update()
+
+        # Add an impedance using an existing material.
+        impedance_box_copper = self.aedtapp.modeler.create_box(
+            [-50, -300, -50], [294, 294, 19], name="impedance_box_copper"
+        )
+        impedance_assignment_copper = self.aedtapp.assign_impedance(
+            impedance_box_copper.name,
+            material_name="copper",
+            impedance_name="ImpedanceExampleCopper",
+        )
+        assert impedance_assignment_copper.name == "ImpedanceExampleCopper"
+        impedance_assignment_copper.name = "ImpedanceExampleCopperModified"
+        assert impedance_assignment_copper.update()
+
+        # Add an impedance using an existing material with non-linear permeability and
+        # modifying its conductivity.
+        impedance_box_copper_non_liear = self.aedtapp.modeler.create_box(
+            [-50, -600, -50], [294, 294, 19], name="impedance_box_copper_non_liear"
+        )
+        impedance_assignment_copper = self.aedtapp.assign_impedance(
+            impedance_box_copper.name,
+            material_name="copper",
+            non_linear_permeability=True,
+            conductivity=47000000,
+            impedance_name="ImpedanceExampleCopperNonLinear",
+        )
+        assert impedance_assignment_copper.name == "ImpedanceExampleCopperNonLinear"
+        impedance_assignment_copper.name = "ImpedanceExampleCopperNonLinearModified"
+        assert impedance_assignment_copper.update()
