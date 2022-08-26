@@ -1,8 +1,11 @@
 import argparse
 import os
 import sys
+import time
 import unittest
 import tempfile
+import string
+import random
 from datetime import datetime
 from pyaedt import settings
 
@@ -40,13 +43,18 @@ def discover_and_run(start_dir, pattern=None):
     """Discover and run tests cases. Return the tests result."""
     # use the default shared TestLoader instance
     test_loader = unittest.defaultTestLoader
-
+    log_file = os.path.join(start_dir, "runner_unittest.log")
+    if not os.path.exists(log_file):
+        with open(log_file, "w") as f:
+            f.write("Ironpython Unit Tests Started\n\n")
     # automatically discover all tests
     test_suite = test_loader.discover(start_dir, pattern=pattern)
-
+    char_set = string.ascii_uppercase + string.digits
+    uName = "".join(random.choice(char_set) for _ in range(3))
+    unique_name = "runner_unittest" + "_" + uName +".log"
+    temp_log = os.path.join(start_dir, unique_name)
     # run the test suite
-    log_file = os.path.join(start_dir, "runner_unittest.log")
-    with open(log_file, "w+") as f:
+    with open(temp_log, "w") as f:
         f.write("Test filter: {}\n".format(test_filter))
         f.write("Test started {}\n\n".format(datetime.now()))
         runner = unittest.TextTestRunner(f, verbosity=2)
@@ -70,10 +78,29 @@ def discover_and_run(start_dir, pattern=None):
                 # try again
                 f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
         f.write(
-            "\n<unittest.runner.TextTestResult run={} errors={} failures={}>\n".format(
-                total_runs, total_errors, total_failures
+            "\n<unittest.runner.TextTestResult Total Test run={}>\n".format(
+                total_runs
             )
         )
+        if total_errors > 0 or total_failures > 0:
+            f.write(
+                "\n<unittest.runner.TextTestResult errors={}>\n".format(
+                    total_errors+total_failures
+                )
+            )
+    timeout = 10
+    while timeout>0:
+        try:
+            with open(temp_log, 'r') as f:
+                lines = f.readlines()
+                with open(log_file, 'a') as log:
+                    for line in lines:
+                        log.write(line)
+            os.unlink(temp_log)
+            timeout = 0
+        except:
+            timeout -=1
+            time.sleep(5)
     return result
 
 

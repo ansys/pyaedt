@@ -30,23 +30,28 @@ class EdbHfss(object):
 
     @property
     def _hfss_terminals(self):
-        return self._pedb.edblib.HFSS3DLayout.HFSSTerminalMethods
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.HFSSTerminalMethods
 
     @property
     def _hfss_ic_methods(self):
-        return self._pedb.edblib.HFSS3DLayout.ICMethods
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.ICMethods
 
     @property
     def _hfss_setup(self):
-        return self._pedb.edblib.HFSS3DLayout.HFSSSetup
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.HFSSSetup
 
     @property
     def _hfss_mesh_setup(self):
-        return self._pedb.edblib.HFSS3DLayout.Meshing
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.Meshing
 
     @property
     def _sweep_methods(self):
-        return self._pedb.edblib.SimulationSetup.SweepMethods
+        edblib = self._pedb.edblib
+        return edblib.SimulationSetup.SweepMethods
 
     @property
     def _logger(self):

@@ -1,5 +1,5 @@
 """
-Multiphysics: HFSS-Icepack multiphysics analysis
+Multiphysics: HFSS-Icepak multiphysics analysis
 ------------------------------------------------
 This example shows how you can create a project from scratch in HFSS and Icepak (linked to HFSS).
 This includes creating a setup, solving it, and creating postprocessing outputs.
