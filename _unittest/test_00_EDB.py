@@ -160,6 +160,8 @@ if not config["skip_edb"]:
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
             assert isinstance(padstack_instance.rotation, float)
+            self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
+            assert "mycircularvia" in list(self.edbapp.core_padstack.padstacks.keys())
 
         def test_08_nets_query(self):
             signalnets = self.edbapp.core_nets.signal_nets
@@ -327,6 +329,7 @@ if not config["skip_edb"]:
             pin_name = self.edbapp.core_components.get_aedt_pin_name(cmp_pinlist[0])
             assert type(pin_name) is str
             assert len(pin_name) > 0
+            assert len(cmp_pinlist[0].position) == 2
             assert len(self.edbapp.core_components.get_pin_position(cmp_pinlist[0])) == 2
 
         def test_31_get_pins_name_from_net(self):

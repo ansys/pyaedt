@@ -9,6 +9,7 @@ import warnings
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
 from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
@@ -1600,6 +1601,8 @@ class Components(object):
         >>> edbapp.core_components.get_aedt_pin_name(pin)
 
         """
+        if isinstance(pin, EDBPadstackInstance):
+            pin = pin._edb_padstackinstance
         if is_ironpython:
             name = clr.Reference[String]()
             pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
