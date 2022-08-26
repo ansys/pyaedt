@@ -1090,8 +1090,8 @@ class Settings(object):
     @property
     def force_error_on_missing_project(self):
         """Set/Get a flag to check project path.
-        If `True` when passing a project path, the project has to exist otherwise it will raise and error.
-        Default is `False`.
+        If ``True`` when passing a project path, the project has to exist otherwise it will raise an error.
+        Default is ``False``.
 
         Returns
         -------
