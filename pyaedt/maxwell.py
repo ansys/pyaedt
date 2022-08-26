@@ -1420,7 +1420,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Maxwell.__init__(self)
 
     @pyaedt_function_handler()
-    def assign_insulating(self, geometry_selection, insulation=None):
+    def assign_insulating(self, geometry_selection, insulation_name=None):
         """Create an insulating boundary condition.
 
         Parameters
@@ -1460,15 +1460,93 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             "ElectroDCConduction",
         ]:
 
-            if not insulation:
-                insulation = generate_unique_name("Insulation")
-            elif insulation in self.modeler.get_boundaries_name():
-                insulation = generate_unique_name(insulation)
+            if not insulation_name:
+                insulation_name = generate_unique_name("Insulation")
+            elif insulation_name in self.modeler.get_boundaries_name():
+                insulation_name = generate_unique_name(insulation_name)
 
             listobj = self.modeler.convert_to_selections(geometry_selection, True)
             props = {"Objects": listobj}
 
-            return self._create_boundary(insulation, props, "Insulating")
+            return self._create_boundary(insulation_name, props, "Insulating")
+        return False
+
+    @pyaedt_function_handler()
+    def assign_impedance(
+        self,
+        geometry_selection,
+        material_name=None,
+        permeability=0.0,
+        conductivity=None,
+        non_linear_permeability=False,
+        impedance_name=None,
+    ):
+        """Create an impedance boundary condition.
+
+        Parameters
+        ----------
+        geometry_selection : str
+            Objects to apply the impedance boundary to.
+        material_name : str, optional
+            If it is different from ``None``, then material properties values will be extracted from
+            the named material in the list of materials available. The default value is ``None``.
+        permeability : float, optional
+            Permeability of the material.The default value is ``0.0``.
+        conductivity : float, optional
+            Conductivity of the material. The default value is ``None``.
+        non_linear_permeability : bool, optional
+            If the option ``material_name`` is activated, the permeability can either be linear or not.
+            The default value is ``False``.
+        impedance_name : str, optional
+            Name of the impedance. The default is ``None`` in which case a unique name is chosen.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
+
+        Examples
+        --------
+
+        Create a box and assign impedance boundary to it.
+
+        >>> impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        >>> impedance_assignment = self.aedtapp.assign_impedance(impedance_box.name, "InsulatingExample")
+        >>> type(impedance_assignment)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in [
+            "EddyCurrent",
+            "Transient",
+        ]:
+
+            if not impedance_name:
+                impedance_name = generate_unique_name("Impedance")
+            elif impedance_name in self.modeler.get_boundaries_name():
+                impedance_name = generate_unique_name(impedance_name)
+
+            listobj = self.modeler.convert_to_selections(geometry_selection, True)
+            props = {"Objects": listobj}
+
+            if material_name is not None:
+                props["UseMaterial"] = True
+                props["MaterialName"] = material_name
+                props["IsPermeabilityNonlinear"] = non_linear_permeability
+                if conductivity is not None:
+                    props["Conductivity"] = conductivity
+            else:
+                props["UseMaterial"] = False
+                props["Permeability"] = permeability
+                props["Conductivity"] = conductivity
+
+            return self._create_boundary(impedance_name, props, "Impedance")
         return False
 
     @pyaedt_function_handler()

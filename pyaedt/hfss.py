@@ -197,7 +197,7 @@ class Hfss(FieldAnalysis3D, object):
     class BoundaryType(object):
         """Creates and manages boundaries."""
 
-        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond) = range(0, 8)
+        (PerfectE, PerfectH, Aperture, Radiation, Impedance, LayeredImp, LumpedRLC, FiniteCond, Hybrid) = range(0, 9)
 
     @property
     def hybrid(self):
@@ -3031,6 +3031,10 @@ class Hfss(FieldAnalysis3D, object):
             props["IsFssReference"] = False
             props["IsForPML"] = False
             boundary_type = "Radiation"
+        elif boundary_type == self.BoundaryType.Hybrid:
+            props["IsLinkedRegion"] = False
+            props["Type"] = "SBR+"
+            boundary_type = "Hybrid"
         else:
             return None
         return self._create_boundary(boundary_name, props, boundary_type)
@@ -4313,6 +4317,52 @@ class Hfss(FieldAnalysis3D, object):
         else:
             rad_name = generate_unique_name("Rad_")
         return self.create_boundary(self.BoundaryType.Radiation, object_list, rad_name)
+
+    @pyaedt_function_handler()
+    def assign_hybrid_region(self, obj_names, boundary_name="", hybrid_region="SBR+"):
+        """Assign a hybrid region to one or more objects.
+
+        Parameters
+        ----------
+        obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
+            One or more object names or IDs.
+        boundary_name : str, optional
+            Name of the boundary. The default is ``""``.
+        hybrid_region : str, optional
+            Hybrid region to assign. Options are ``"SBR+"``, ``"IE"``, ``"PO"``. The default is `"SBR+"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignHybridRegion
+
+        Examples
+        --------
+
+        Create a box and assign a hybrid boundary to it.
+
+        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200],
+        ...                                         name="Radiation_box")
+        >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
+        >>> type(sbr_box)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        object_list = self.modeler.convert_to_selections(obj_names, return_list=True)
+        if boundary_name:
+            region_name = boundary_name
+        else:
+            region_name = generate_unique_name("Hybrid_")
+        bound = self.create_boundary(self.BoundaryType.Hybrid, object_list, region_name)
+        if hybrid_region != "SBR+":
+            bound.props["Type"] = hybrid_region
+        return bound
 
     @pyaedt_function_handler()
     def assign_radiation_boundary_to_faces(self, faces_id, boundary_name=""):
