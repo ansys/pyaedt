@@ -175,7 +175,6 @@ class TestClass(BasisTest, object):
         Cable(self.aedtapp, cable_file1).create_cable()
         cable = Cable(self.aedtapp, cable_file2)
         assert len(cable.cable_definitions["CableBundle"]) == 4
-        assert list(cable.cable_definitions.keys())[0] == "CableBundle"
         assert (
             cable.cable_definitions["CableBundle"][3]["BundleAttribs"]["Name"]
             == "Bundle_Cable_Insulation_Default_Properties"
