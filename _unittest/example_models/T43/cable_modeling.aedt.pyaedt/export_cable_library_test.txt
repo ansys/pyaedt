@@ -1,0 +1,29 @@
+$begin 'CableManager'
+	CableNextUniqueID=1001
+	MoveBackwards=false
+	Version(1, 0)
+	$begin 'TDSources'
+	$end 'TDSources'
+	$begin 'Definitions'
+		$begin 'CableBundle'
+			VersionID=0
+			ID=1000
+			$begin 'BundleParams'
+				AutoPack=true
+				$begin 'InsulationJacketParams'
+					InsThickness='0.25mm'
+					JacketMaterial='PVC plastic'
+					InnerDiameter='2.5mm'
+				$end 'InsulationJacketParams'
+			$end 'BundleParams'
+			$begin 'BundleAttribs'
+				Name='Bundle_Cable_Insulation_Default_Properties'
+			$end 'BundleAttribs'
+			$begin 'ConcreteInstanceIDs'
+				NumConcInstIDs=0
+			$end 'ConcreteInstanceIDs'
+			$begin 'Instances'
+			$end 'Instances'
+		$end 'CableBundle'
+	$end 'Definitions'
+$end 'CableManager'
