@@ -1,0 +1,67 @@
+{
+	"CableType":"bundle",
+	"IsJacketTypeInsulation": "False",
+	"IsJacketTypeBraidShield": "True",
+	"IsJacketTypeNoJacket": "False",
+	"UpdatedName": "New_test_updated_name_cable_bundle_shielding",
+	"CablesToRemove": "",
+	"CablesToBundle": {
+		"CablesToAdd": "",
+		"BundleCable": "",
+		"NumberOfCableToAdd": 1
+	},
+	"CableManager": {
+		"Definitions": {
+			"CableBundle":{
+				"BundleParams": {
+					"AutoPack": "True",
+					"InsulationJacketParams": {
+						"InsThickness": "3.66mm",
+						"JacketMaterial": "pec",
+						"InnerDiameter": "2.88mm"
+					},
+					"BraidShieldJacketParams": {
+						"JacketMaterial": "pec",
+						"InnerDiameter": "10mm",
+						"NumCarriers": "22",
+						"NumWiresInCarrier": "23",
+						"WireDiameter": "0.212mm",
+						"WeaveAngle": "35deg"
+					},
+					"VirtualJacketParams": {
+						"JacketMaterial": "copper",
+						"InnerDiameter": "2.5mm"
+					}
+				},
+				"BundleAttribs": {
+					"Name": "Bundle_Cable_Shielding"
+				}
+			},
+			"StWireCable": {
+					"StWireParams": {
+						"WireStandard": "ISO",
+						"WireGauge": "2.5",
+						"CondDiameter": "10mm",
+						"CondMaterial": "pec",
+						"InsThickness": "0.9mm",
+						"InsMaterial": "copper",
+						"InsType": "Thin Wall"
+					},
+					"StWireAttribs": {
+						"Name": "stwire_Test_ISO_70"
+					}
+			},
+			"TwistedPairCable": {
+				"TwistedPairParams": {
+					"StraightWireCableID": 1003,
+					"IsLayLengthSpecified": "False",
+					"LayLength": "34mm",
+					"TurnsPerMeter": "99"
+				},
+				"TwistedPairAttribs": {
+					"Name": "twisted_pair_test_1003_1"
+				}
+			}
+		}
+	}
+}

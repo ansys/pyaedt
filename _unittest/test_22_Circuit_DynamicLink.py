@@ -178,15 +178,15 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_08_assign_excitations(self):
-        filepath = os.path.join(local_path, "example_models", "frequency_dependent_source.fds")
+        filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_2"]
         assert self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
-        filepath = os.path.join(local_path, "example_models", "frequency_dependent_source1.fds")
+        filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source1.fds")
         ports_list = ["Excitation_1", "Excitation_2"]
         assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
-        filepath = os.path.join(local_path, "example_models", "frequency_dependent_source.fds")
+        filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_3"]
         assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
