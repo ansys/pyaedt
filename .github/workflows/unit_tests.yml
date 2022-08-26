@@ -63,6 +63,9 @@ jobs:
           cd tmp
           python -c "import pyaedt; print('Imported pyaedt')"
 
+      - name: "Check licences of packages"
+        uses: pyansys/pydpf-actions/check-licenses@v2.0
+
       - name: 'Unit testing'
         run: |
           testenv\Scripts\Activate.ps1
