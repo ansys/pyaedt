@@ -278,12 +278,10 @@ class Edb(object):
             if is_ironpython:
                 clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
                 clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-                clr.AddReferenceToFile("EdbLib.dll")
                 clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
                 clr.AddReference("Ansys.Ansoft.Edb")
                 clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-                clr.AddReference("EdbLib")
                 clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
@@ -293,7 +291,6 @@ class Edb(object):
             sys.path.append(self.base_path)
             clr.AddReference("Ansys.Ansoft.Edb")
             clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-            clr.AddReference("EdbLib")
             clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, "common", "oa")
