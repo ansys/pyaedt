@@ -449,6 +449,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignVoltageDrop(self._get_args())
         elif self.type == "Current":
             self._app.oboundary.AssignCurrent(self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Balloon":
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
@@ -589,6 +597,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
         elif self.type == "Current":
             self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Vector Potential":

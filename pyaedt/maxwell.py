@@ -1369,75 +1369,65 @@ class Maxwell(object):
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
                             current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
-                        current_density_array = [
-                            "Name:{}".format(current_density_name[0]),
-                            "Objects:=",
-                            objects_list,
-                            "Phase:=",
-                            phase,
-                            "CurrentDensityX:=",
-                            current_density_x,
-                            "CurrentDensityY:=",
-                            current_density_y,
-                            "CurrentDensityZ:=",
-                            current_density_z,
-                            "CoordinateSystem Name:=",
-                            coordinate_system_name,
-                            "CoordinateSystem Type:=",
-                            coordinate_system_cartesian,
-                        ]
-                        self.oboundary.AssignCurrentDensityGroup(current_density_group_names, current_density_array)
+                        props = OrderedDict({})
+                        props["items"] = current_density_group_names
+                        props[current_density_group_names[0]] = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "CurrentDensityX": current_density_x,
+                                "CurrentDensityY": current_density_y,
+                                "CurrentDensityZ": current_density_z,
+                                "CoordinateSystem Name": coordinate_system_name,
+                                "CoordinateSystem Type": coordinate_system_cartesian,
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
                     else:
-                        current_density_array = [
-                            "Name:{}".format(current_density_name),
-                            "Objects:=",
-                            objects_list,
-                            "Phase:=",
-                            phase,
-                            "CurrentDensityX:=",
-                            current_density_x,
-                            "CurrentDensityY:=",
-                            current_density_y,
-                            "CurrentDensityZ:=",
-                            current_density_z,
-                            "CoordinateSystem Name:=",
-                            coordinate_system_name,
-                            "CoordinateSystem Type:=",
-                            coordinate_system_cartesian,
-                        ]
-                        self.oboundary.AssignCurrentDensity(current_density_array)
+                        props = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "CurrentDensityX": current_density_x,
+                                "CurrentDensityY": current_density_y,
+                                "CurrentDensityZ": current_density_z,
+                                "CoordinateSystem Name": coordinate_system_name,
+                                "CoordinateSystem Type": coordinate_system_cartesian,
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
                     return True
                 else:
                     if len(objects_list) > 1:
                         current_density_group_names = []
                         for x in range(0, len(objects_list)):
                             current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
-                        current_density_array = [
-                            "Name:{}".format(current_density_name[0]),
-                            "Objects:=",
-                            objects_list,
-                            "Phase:=",
-                            phase,
-                            "Value:=",
-                            current_density_2d,
-                            "CoordinateSystem:=",
-                            "",
-                        ]
-                        self.oboundary.AssignCurrentDensityGroup(current_density_group_names, current_density_array)
+                        props = OrderedDict({})
+                        props["items"] = current_density_group_names
+                        props[current_density_group_names[0]] = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "Value": current_density_2d,
+                                "CoordinateSystem": "",
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
                     else:
-                        current_density_array = [
-                            "Name:{}".format(current_density_name),
-                            "Objects:=",
-                            objects_list,
-                            "Phase:=",
-                            phase,
-                            "Value:=",
-                            current_density_2d,
-                            "CoordinateSystem:=",
-                            "",
-                        ]
-                        self.oboundary.AssignCurrentDensity(current_density_array)
-                    return True
+                        props = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "Value": current_density_2d,
+                                "CoordinateSystem": "",
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
+
+                if bound.create():
+                    self.boundaries.append(bound)
+                    return bound
+                return True
             except:
                 self.logger.error("Couldn't assign current density to desired list of objects.")
                 return False
@@ -1650,11 +1640,17 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                     current_density_group_names = []
                     for x in range(0, len(objects_list)):
                         current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
-                    current_density_array = ["Name:{}".format(current_density_name[0]), "Objects:=", objects_list]
-                    self.oboundary.AssignCurrentDensityTerminalGroup(current_density_group_names, current_density_array)
+                    props = OrderedDict({})
+                    props["items"] = current_density_group_names
+                    props[current_density_group_names[0]] = OrderedDict({"Objects": objects_list})
+                    bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityTerminalGroup")
                 else:
-                    current_density_array = ["Name:{}".format(current_density_name), "Objects:=", objects_list]
-                    self.oboundary.AssignCurrentDensityTerminal(current_density_array)
+                    props = OrderedDict({"Objects": objects_list})
+                    bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
+
+                if bound.create():
+                    self.boundaries.append(bound)
+                    return bound
                 return True
             except:
                 pass

@@ -349,6 +349,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["Phase"] == "40deg"
                     assert bound.props["Value"] == "2"
                     assert bound.props["CoordinateSystem"] == ""
+            if bound.type == "CurrentDensityGroup":
                 if bound.name == "CurrentDensityGroup_1":
                     assert bound.props["Objects"] == ["Coil", "Coil_1"]
                     assert bound.props["Phase"] == "0deg"
