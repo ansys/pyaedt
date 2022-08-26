@@ -1,24 +1,24 @@
 """
 HFSS 3D Layout: parametric via analysis
 ---------------------------------------
-This example shows how to use HFSS 3D Layout to create and solve a parametric via analysis.
+This example shows how you can use HFSS 3D Layout to create and solve a
+parametric via analysis.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/3dlayout.png'
 
 ###############################################################################
-# Import object
-# ~~~~~~~~~~~~~
-# Import the ``Hfss3dlayout`` object and initialize it on version
-# 2022 R2.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required inports.
 
 from pyaedt import Hfss3dLayout
 import os
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -30,8 +30,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 h3d = Hfss3dLayout(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
-# Set up parametric variables
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Set up variables
+# ~~~~~~~~~~~~~~~~
 # Set up all parametric variables to use in the layout.
 
 h3d["viatotrace"] = "5mm"
@@ -110,7 +110,7 @@ h3d.post.create_report(traces, families_dict=h3d.available_variations.nominal_w_
 ###############################################################################
 # Create report outside AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create report using Matplotlib.
+# Create a report using Matplotlib.
 
 traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
 
@@ -121,7 +121,7 @@ solutions.plot(math_formula="db20")
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 

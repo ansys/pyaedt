@@ -140,6 +140,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_horizontal_extension=5,
         wave_vertical_extension=3,
         wave_launcher="1mm",
+        ref_primitive_name=None,
+        ref_edge_number=0,
     ):
         """Create an edge port.
 
@@ -160,6 +162,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_launcher : str, optional
             PEC (perfect electrical conductor) launcher size with units. The
             default is `"1mm"`.
+        ref_primitive_name : str, optional
+            Name of the reference primitive to place negative edge port terminal.
+            The default is ``None``.
+        ref_edge_number : str, int
+            Edge number of reference primitive. The default is ``0``.
 
         Returns
         -------
@@ -183,8 +190,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 0,
             ]
         )
+
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
+
+        if ref_primitive_name:
+            self.modeler.oeditor.AddRefPort(
+                [a[0]],
+                ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", ref_primitive_name, "edge:=", ref_edge_number]],
+            )
+
         if len(a) > 0:
             if iswave:
                 self.modeler.change_property(
@@ -215,6 +230,78 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     property_tab="EM Design",
                 )
             return a[0]
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def create_wave_port(
+        self,
+        primivitive_name,
+        edge_number,
+        wave_horizontal_extension=5,
+        wave_vertical_extension=3,
+        wave_launcher="1mm",
+    ):
+        """Create a single-ended wave port.
+
+        Parameters
+        ----------
+        primivitive_name : str
+            Name of the primitive to create the edge port on.
+        edge_number : int
+            Edge number to create the edge port on.
+        wave_horizontal_extension : float, optional
+            Horizontal port extension factor. The default is ``5``.
+        wave_vertical_extension : float, optional
+            Vertical port extension factor. The default is ``5``.
+        wave_launcher : str, optional
+            PEC (perfect electrical conductor) launcher size with units. The
+            default is ``"1mm"``.
+
+        Returns
+        -------
+        str
+            Name of the port when successful, ``False`` when failed.
+
+        References
+        ----------
+        """
+        port_name = self.create_edge_port(
+            primivitive_name,
+            edge_number,
+            wave_horizontal_extension=wave_horizontal_extension,
+            wave_vertical_extension=wave_vertical_extension,
+            wave_launcher=wave_launcher,
+        )
+        if port_name:
+            self.modeler.change_property(
+                property_object="Excitations:{}".format(port_name),
+                property_name="HFSS Type",
+                property_value="Wave",
+                property_tab="EM Design",
+            )
+            self.modeler.change_property(
+                property_object="Excitations:{}".format(port_name),
+                property_name="Horizontal Extent Factor",
+                property_value=str(wave_horizontal_extension),
+                property_tab="EM Design",
+            )
+            if "Vertical Extent Factor" in list(
+                self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(port_name))
+            ):
+                self.modeler.change_property(
+                    property_object="Excitations:{}".format(port_name),
+                    property_name="Vertical Extent Factor",
+                    property_value=str(wave_vertical_extension),
+                    property_tab="EM Design",
+                )
+            self.modeler.change_property(
+                property_object="Excitations:{}".format(port_name),
+                property_name="PEC Launch Width",
+                property_value=str(wave_launcher),
+                property_tab="EM Design",
+            )
+            return port_name
         else:
             return False
 
@@ -1550,14 +1637,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_3d_model(self, file_name=None):
-        """Export the Ecad model to an ACIS 3D file.
+        """Export the Ecad model to a 3D file.
 
         Parameters
         ----------
         file_name : str, optional
             Full name of the file to export. The default is None, in which case the file name is
             set to the design name and saved as a SAT file in the working directory.
-            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"``.
+            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022R2 and
+            Parasolid format `"x_t"` from AEDT 2023R1.
 
         Returns
         -------
@@ -1565,9 +1653,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             File name if successful.
         """
         if not file_name:
-            file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+            if settings.aedt_version > "2022.2":
+                file_name = os.path.join(self.working_directory, self.design_name + ".x_t")
+                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", file_name])
 
-        self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+            else:
+                file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+
         return file_name
 
     @pyaedt_function_handler()

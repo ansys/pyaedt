@@ -1,10 +1,10 @@
 """
 Maxwell 3D: asymmetric conductor analysis
 -----------------------------------------
-This example uses PyAEDT to set up the TEAM 7 problem for an assymetric
+This example uses PyAEDT to set up the TEAM 7 problem for an asymetric
 conductor with a hole and solve it using the Maxwell 3D Eddy Current solver.
 """
-##########################################################
+###########################################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -15,11 +15,12 @@ import numpy as np
 import csv
 import os
 
-##########################################################
+###########################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -93,6 +94,7 @@ P4 = [dim2, dim1, 0]
 
 M3D.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY", name="Coil_CS")
 
+###########################################################################################
 # Create polyline
 # ~~~~~~~~~~~~~~~
 # Create a polyline. One quarter of the coil is modeled by sweeping a 2D sheet along a polyline.
@@ -100,6 +102,7 @@ M3D.modeler.create_coordinate_system(origin=coil_centre, mode="view", view="XY",
 test = M3D.modeler.create_polyline(position_list=[P1, P2, P3, P4], segment_type=["Line", "Arc"], name="Coil")
 test.set_crosssection_properties(type="Rectangle", width=coil_thk, height=coil_height)
 
+###########################################################################################
 # Duplicate and unite polyline to create full coil
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Duplicate and unit the polyline to create a full coil.
@@ -111,6 +114,7 @@ M3D.modeler.unite("Coil,Coil_1,Coil_2")
 M3D.modeler.unite("Coil,Coil_3")
 M3D.modeler.fit_all()
 
+###########################################################################################
 # Assign material and if solution is allowed inside coil
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign the material ``Cooper`` from the Maxwell internal library to the coil and
@@ -119,6 +123,7 @@ M3D.modeler.fit_all()
 M3D.assign_material("Coil", "Copper")
 M3D.solve_inside("Coil")
 
+###########################################################################################
 # Create terminal
 # ~~~~~~~~~~~~~~~
 # Create a terminal for the coil from a cross section that is split and one half deleted.
@@ -136,6 +141,7 @@ M3D["Coil_Excitation"] = str(Coil_Excitation) + "A"
 M3D.assign_current("Coil_Section1", amplitude="Coil_Excitation", solid=False)
 M3D.modeler.set_working_coordinate_system("Global")
 
+###########################################################################################
 # Add a material
 # ~~~~~~~~~~~~~~
 # Add a material named ``team3_aluminium``.
@@ -143,6 +149,7 @@ M3D.modeler.set_working_coordinate_system("Global")
 mat = M3D.materials.add_material("team7_aluminium")
 mat.conductivity = 3.526e7
 
+###########################################################################################
 # Model aluminium plate with a hole
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
@@ -152,6 +159,7 @@ M3D.modeler.fit_all()
 hole = M3D.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
 M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
 
+###########################################################################################
 # Draw a background region
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw a background region that uses the default properties for an air region.
@@ -425,7 +433,7 @@ M3D.analyze_all()
 ####################################################################################################
 # Release AEDT from PyAEDT scripting
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Release AEDT from PyAEDT scripting. To leave AEDT and the project open after running
-# the above script, in the following command, you would set ``(False, False)``.
+# Release AEDT from PyAEDT scripting. If you wanted to leave AEDT and the project open
+# after running the above script, in the following command, you would set ``(False, False)``.
 
 M3D.release_desktop(True, True)

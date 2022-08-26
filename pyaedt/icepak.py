@@ -30,7 +30,7 @@ from pyaedt.modules.Boundary import NativeComponentObject
 class Icepak(FieldAnalysis3D):
     """Provides the Icepak application interface.
 
-    This class allows you to connect to an existing Icepack design or create a
+    This class allows you to connect to an existing Icepak design or create a
     new Icepak design if one does not exist.
 
     Parameters
@@ -1178,7 +1178,7 @@ class Icepak(FieldAnalysis3D):
         all_names = self.modeler.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
-
+        self.modeler.set_working_coordinate_system("TopRight")
         self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
 
         if symmetric:

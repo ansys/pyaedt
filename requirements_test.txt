@@ -1,6 +1,7 @@
-pyvista==0.35.1
-matplotlib==3.5.2
-numpy==1.23.1
+pyvista==0.36.1
+matplotlib==3.5.3
+numpy==1.21.6; python_version <= '3.7'
+numpy==1.23.2; python_version > '3.7'
 pytest==7.1.2
 pytest-cov==3.0.0
 codecov==2.1.12
@@ -8,4 +9,5 @@ joblib==1.1.0
 sklearn==0.0
 pandas==1.4.3
 openpyxl==3.0.10
-scikit-learn==1.1.1
+scikit-learn==1.1.2
+pytest-xdist==2.5.0

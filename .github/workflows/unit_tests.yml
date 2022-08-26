@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -63,22 +63,25 @@ jobs:
           cd tmp
           python -c "import pyaedt; print('Imported pyaedt')"
 
+      - name: "Check licences of packages"
+        uses: pyansys/pydpf-actions/check-licenses@v2.0
+
       - name: 'Unit testing'
         run: |
           testenv\Scripts\Activate.ps1
-          pytest -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc -cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest -p no:faulthandler
+          pytest -n 4 --dist loadfile -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest -p no:faulthandler
 
       - name: 'Print Coverage'
         run: |
           testenv\Scripts\Activate.ps1
           coverage xml
 
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.8'
         name: 'Upload coverage to Codecov'
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pytest-results
           path: junit/test-results.xml
@@ -86,7 +89,7 @@ jobs:
         if: ${{ always() }}
 
       - name: Upload pytest coverage results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage-results
           path: coverage.xml

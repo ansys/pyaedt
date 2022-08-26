@@ -57,11 +57,6 @@ class EdbPadstacks(object):
         return self._pedb.db
 
     @property
-    def _padstack_methods(self):
-        """ """
-        return self._pedb.edblib.Layout.PadStackMethods
-
-    @property
     def _logger(self):
         """ """
         return self._pedb.logger
@@ -248,15 +243,73 @@ class EdbPadstacks(object):
         str
             Name of the padstack if the operation is successful.
         """
-        pad = self._padstack_methods.CreateCircularPadStackDef(
-            self._builder,
-            padstackname,
-            holediam,
-            paddiam,
-            antipaddiam,
-            startlayer,
-            endlayer,
+
+        PadStack = self._edb.Definition.PadstackDef.Create(self._active_layout.GetCell().GetDatabase(), padstackname)
+        new_PadStackData = self._edb.Definition.PadstackDefData.Create()
+        list_values = convert_py_list_to_net_list(
+            [self._get_edb_value(holediam), self._get_edb_value(paddiam), self._get_edb_value(antipaddiam)]
         )
+        value0 = self._get_edb_value(0.0)
+        new_PadStackData.SetHoleParameters(
+            self._edb.Definition.PadGeometryType.Circle,
+            list_values,
+            value0,
+            value0,
+            value0,
+        )
+        new_PadStackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
+        layers = list(self._pedb.core_stackup.signal_layers.keys())
+        if not startlayer:
+            startlayer = layers[0]
+        if not endlayer:
+            endlayer = layers[len(layers) - 1]
+
+        antipad_shape = self._edb.Definition.PadGeometryType.Circle
+        started = False
+        new_PadStackData.SetPadParameters(
+            "Default",
+            self._edb.Definition.PadType.RegularPad,
+            self._edb.Definition.PadGeometryType.Circle,
+            convert_py_list_to_net_list([self._get_edb_value(paddiam)]),
+            value0,
+            value0,
+            value0,
+        )
+
+        new_PadStackData.SetPadParameters(
+            "Default",
+            self._edb.Definition.PadType.AntiPad,
+            antipad_shape,
+            convert_py_list_to_net_list([self._get_edb_value(antipaddiam)]),
+            value0,
+            value0,
+            value0,
+        )
+        for layer in layers:
+            if layer == startlayer:
+                started = True
+            if layer == endlayer:
+                started = False
+            if started:
+                new_PadStackData.SetPadParameters(
+                    layer,
+                    self._edb.Definition.PadType.RegularPad,
+                    self._edb.Definition.PadGeometryType.Circle,
+                    convert_py_list_to_net_list([self._get_edb_value(paddiam)]),
+                    value0,
+                    value0,
+                    value0,
+                )
+                new_PadStackData.SetPadParameters(
+                    layer,
+                    self._edb.Definition.PadType.AntiPad,
+                    antipad_shape,
+                    convert_py_list_to_net_list([self._get_edb_value(antipaddiam)]),
+                    value0,
+                    value0,
+                    value0,
+                )
+        PadStack.SetData(new_PadStackData)
         self.update_padstacks()
 
     @pyaedt_function_handler()
@@ -366,10 +419,24 @@ class EdbPadstacks(object):
             ``False`` is returned if the net does not belong to the component.
 
         """
-        if self._builder:
-            pinlist = self._padstack_methods.GetPinsFromComponentAndNets(self._active_layout, refdes, netname)
-            if pinlist.Item1:
-                return pinlist.Item2
+        pinlist = []
+        if refdes:
+            if refdes in self._pedb.core_components.components:
+                if netname:
+                    for pin, val in self._pedb.core_components.components[refdes].pins.items():
+                        if val.net_name == netname:
+                            pinlist.append(val)
+                else:
+                    for pin in self._pedb.core_components.components[refdes].pins.values():
+                        pinlist.append(pin)
+            elif netname:
+                for pin in self._pedb.pins:
+                    if pin.net_name == netname:
+                        pinlist.append(pin)
+            else:
+                self._logger.error("At least a component or a net name has to be provided")
+
+        return pinlist
 
     @pyaedt_function_handler()
     def get_pad_parameters(self, pin, layername, pad_type=0):

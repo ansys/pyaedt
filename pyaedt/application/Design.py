@@ -184,6 +184,8 @@ class Design(AedtObjects):
             self.release_on_exit = False
 
         self.student_version = main_module.student_version
+        if self.student_version:
+            settings.disable_bounding_box_sat = True
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop
@@ -875,6 +877,8 @@ class Design(AedtObjects):
                     self.logger.info("Project %s has been opened.", proj.GetName())
                     time.sleep(0.5)
                 self._oproject = proj
+            elif settings.force_error_on_missing_project and ".aedt" in proj_name:
+                raise Exception("Project doesn't exists. Check it and retry.")
             else:
                 self._oproject = self.odesktop.NewProject()
                 if ".aedt" in proj_name:

@@ -1,5 +1,6 @@
 import os
 import sys
+import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -736,7 +737,7 @@ class Primitives3DLayout(object):
         return name
 
     @pyaedt_function_handler()
-    def create_circle(self, layername, x, y, radius, name=None, netname=None):
+    def create_circle(self, layername, x, y, radius, name=None, net_name=None, **kwargs):
         """Create a circle on a layer.
 
         Parameters
@@ -752,7 +753,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name of the circle. The default is ``None``, in which case the
             default name is assigned.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -766,6 +767,12 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateCircle
         """
+        if "netname" in kwargs:
+            warnings.warn(
+                "`netname` is deprecated. Use `net_name` instead.",
+                DeprecationWarning,
+            )
+            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -783,11 +790,18 @@ class Primitives3DLayout(object):
         vArg2.append("r:="), vArg2.append(self.arg_with_dim(radius))
         vArg1.append(vArg2)
         self.oeditor.CreateCircle(vArg1)
-        self._circles[name] = Circle3dLayout(self, name, False)
+        primitive = Circle3dLayout(self, name, False)
+        self._circles[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+
         return name
 
     @pyaedt_function_handler()
-    def create_rectangle(self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, netname=None):
+    def create_rectangle(
+        self, layername, origin, dimensions, corner_radius=0, angle=0, name=None, net_name=None, **kwargs
+    ):
         """Create a rectangle on a layer.
 
         Parameters
@@ -795,16 +809,16 @@ class Primitives3DLayout(object):
         layername : str
             Name of the layer.
         origin : list
-            Origin of the coordinate system in a list of ``[x, y, z]`` coordinates.
+            Origin of the coordinate system in a list of ``[x, y]`` coordinates.
         dimensions : list
-            Dimensions for the box in a list of ``[x, y, z]`` coordinates.
+            Dimensions for the box in a list of ``[x, y]`` coordinates.
         corner_radius : float, optional
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the
             default name is assigned.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -818,7 +832,12 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateRectangle
         """
-
+        if "netname" in kwargs:
+            warnings.warn(
+                "`netname` is deprecated. Use `net_name` instead.",
+                DeprecationWarning,
+            )
+            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -839,11 +858,18 @@ class Primitives3DLayout(object):
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
         self.oeditor.CreateRectangle(vArg1)
-        self._rectangles[name] = Rect3dLayout(self, name, False)
+        primitive = Rect3dLayout(self, name, False)
+        self._rectangles[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+
         return name
 
     @pyaedt_function_handler()
-    def create_line(self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, netname=None):
+    def create_line(
+        self, layername, center_line_list, lw=1, start_style=0, end_style=0, name=None, net_name=None, **kwargs
+    ):
         """Create a line based on a list of points.
 
         Parameters
@@ -851,7 +877,7 @@ class Primitives3DLayout(object):
         layername : str
             Name of the layer to create the line on.
         center_line_list : list
-            List of centerline coordinates in the form of ``[x, y, z]``.
+            List of centerline coordinates in the form of ``[x, y]``.
         lw : float, optional
             Line width. The default is ``1``.
         start_style :
@@ -868,7 +894,7 @@ class Primitives3DLayout(object):
         name : str, optional
             Name  of the line. The default is ``None``, in which case the
             default name is assigned.
-        netname : str, optional
+        net_name : str, optional
             Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
@@ -882,6 +908,12 @@ class Primitives3DLayout(object):
 
         >>> oEditor.CreateLine
         """
+        if "netname" in kwargs:
+            warnings.warn(
+                "`netname` is deprecated. Use `net_name` instead.",
+                DeprecationWarning,
+            )
+            net_name = kwargs["netname"]
         if not name:
             name = _uname()
         else:
@@ -912,7 +944,12 @@ class Primitives3DLayout(object):
             arg2.append(a[1])
         arg.append(arg2)
         self.oeditor.CreateLine(arg)
-        self._lines[name] = Line3dLayout(self, name, False)
+        primitive = Line3dLayout(self, name, False)
+        self._lines[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+
         return name
 
     @pyaedt_function_handler()
@@ -1043,3 +1080,55 @@ class Primitives3DLayout(object):
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
         return comp  #
+
+    def create_text(self, text, position, angle=0, font_size=12):
+        """Create a text primitive object.
+
+        Parameters
+        ----------
+        text : str
+            Name for the text primitive object.
+        position : list
+            Position of the text.
+        angle : float, optional
+            Angle of the text. The default value is ``0``.
+        font_size : int, optional
+            Font size. The default value is ``12``.
+
+        Returns
+        -------
+        str
+            Name of the text primitive.
+        """
+        name = _uname("text_")
+        args = [
+            "NAME:Contents",
+            "textGeometry:=",
+            [
+                "Name:=",
+                name,
+                "LayerName:=",
+                "Postprocessing",
+                "x:=",
+                position[0],
+                "y:=",
+                position[1],
+                "ang:=",
+                angle,
+                "isPlot:=",
+                False,
+                "font:=",
+                "Arial",
+                "size:=",
+                font_size,
+                "weight:=",
+                3,
+                "just:=",
+                4,
+                "mirror:=",
+                False,
+                "text:=",
+                text,
+            ],
+        ]
+        return self.modeler.oeditor.CreateText(args)

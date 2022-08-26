@@ -15,17 +15,24 @@ from _unittest.conftest import local_path
 # Import required modules
 from pyaedt import Hfss3dLayout
 
-test_project_name = "Galileo_t23"
-original_project_name = "Galileo_t23"
+test_subfolder = "T40"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Galileo_t23_231"
+    original_project_name = "Galileo_t23_231"
+else:
+    test_project_name = "Galileo_t23"
+    original_project_name = "Galileo_t23"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=original_project_name, application=Hfss3dLayout)
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
         self.tmp = self.aedtapp.modeler.geometries
-        example_project = os.path.join(local_path, "example_models", "Package.aedb")
-        src_file = os.path.join(local_path, "example_models", "Package.aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+        src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
         dest_file = os.path.join(self.local_scratch.path, "Package_test_40.aedt")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
@@ -44,7 +51,11 @@ class TestClass(BasisTest, object):
         comp["L3A1"].angle = "0deg"
         assert comp["L3A1"].location[0] == 0.0
         comp["L3A1"].location = [1.0, 0.0]
-        assert comp["L3A1"].location[0] == 1.0
+        if config["desktopVersion"] > "2022.2":
+
+            assert comp["L3A1"].location[0] == 1000.0
+        else:
+            assert comp["L3A1"].location[0] == 1.0  # bug in component location
         comp["L3A1"].location = [0.0, 0.0]
         assert comp["L3A1"].placement_layer == "TOP"
         assert comp["L3A1"].part == "A32422-019"
@@ -190,20 +201,31 @@ class TestClass(BasisTest, object):
         assert comp.location[1] == 0.0
         assert comp.angle == "90deg"
         comp.location = [0.1, 0.2]
-        assert (comp.location[0] - 0.1) < tol
-        assert (comp.location[1] - 0.2) < tol
+        if config["desktopVersion"] > "2022.2":
+            assert (comp.location[0] - 100.0) < tol
+            assert (comp.location[1] - 200.0) < tol
+        else:
+            assert (comp.location[0] - 0.1) < tol
+            assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
 
-    @pytest.mark.skipif(os.name != "posix", reason="Not running in non graphical mode. Tested only in Linux machine")
+    @pytest.mark.skipif(
+        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
+        reason="Not running in non graphical mode. Tested only in Linux machine",
+    )
     def test_09_3dplacement(self):  # pragma: no cover
         assert len(self.aedtapp.modeler.components_3d) == 2
         tol = 1e-12
-        encrypted_model_path = os.path.join(local_path, "example_models", "connector.a3dcomp")
+        encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "connector.a3dcomp")
         comp = self.aedtapp.modeler.place_3d_component(
             encrypted_model_path, 4, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
         )
-        assert (comp.location[0] - 0.001) < tol
-        assert (comp.location[1] - 0.002) < tol
+        if config["desktopVersion"] > "2022.2":
+            assert (comp.location[0] - 1) < tol
+            assert (comp.location[1] - 2) < tol
+        else:
+            assert (comp.location[0] - 0.001) < tol
+            assert (comp.location[1] - 0.002) < tol
         assert comp.angle == "0deg"
         assert comp.placement_layer == "TOP"
         comp.placement_layer = "bottom"

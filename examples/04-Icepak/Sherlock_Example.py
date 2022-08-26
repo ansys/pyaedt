@@ -1,7 +1,7 @@
 """
-Icepack: setup from Sherlock inputs
+Icepak: setup from Sherlock inputs
 -----------------------------------
-This example shows how to create an Icepak project starting from Sherlock
+This example shows how you can create an Icepak project from Sherlock
 files (STEP and CSV) and an AEDB board.
 """
 ###############################################################################
@@ -20,18 +20,19 @@ from pyaedt import examples, generate_unique_folder_name
 project_folder = generate_unique_folder_name()
 input_dir = examples.download_sherlock()
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` value either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Input variables
+# Define variables
 # ~~~~~~~~~~~~~~~
-# Input variables. The following code creates all input variables that are needed
+# Define input variables. The following code creates all input variables that are needed
 # to run this example.
 
 material_name = "MaterialExport.csv"

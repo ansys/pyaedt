@@ -98,6 +98,17 @@ class BoundaryCommon(PropsManager):
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
 
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
     Examples
     --------
     in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
@@ -272,6 +283,17 @@ class NativeComponentObject(BoundaryCommon, object):
 
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
@@ -471,6 +493,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
         elif self.type == "EndConnection":
             self._app.oboundary.AssignEndConnection(self._get_args())
+        elif self.type == "Hybrid":
+            self._app.oboundary.AssignHybridRegion(self._get_args())
         else:
             return False
         return True
@@ -593,6 +617,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "End Connection":
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
+        elif self.type == "Hybrid":
+            self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
@@ -634,7 +660,18 @@ class BoundaryObject(BoundaryCommon, object):
 
 
 class MaxwellParameters(BoundaryCommon, object):
-    """Manages parameter data and execution.
+    """Manages parameters data and execution.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.maxwell.Maxwell3d`, :class:`pyaedt.maxwell.Maxwell2d`
+        Either ``Maxwell3d`` or ``Maxwell2d`` application.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------

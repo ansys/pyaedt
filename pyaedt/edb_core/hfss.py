@@ -30,23 +30,28 @@ class EdbHfss(object):
 
     @property
     def _hfss_terminals(self):
-        return self._pedb.edblib.HFSS3DLayout.HFSSTerminalMethods
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.HFSSTerminalMethods
 
     @property
     def _hfss_ic_methods(self):
-        return self._pedb.edblib.HFSS3DLayout.ICMethods
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.ICMethods
 
     @property
     def _hfss_setup(self):
-        return self._pedb.edblib.HFSS3DLayout.HFSSSetup
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.HFSSSetup
 
     @property
     def _hfss_mesh_setup(self):
-        return self._pedb.edblib.HFSS3DLayout.Meshing
+        edblib = self._pedb.edblib
+        return edblib.HFSS3DLayout.Meshing
 
     @property
     def _sweep_methods(self):
-        return self._pedb.edblib.SimulationSetup.SweepMethods
+        edblib = self._pedb.edblib
+        return edblib.SimulationSetup.SweepMethods
 
     @property
     def _logger(self):
@@ -74,6 +79,40 @@ class EdbHfss(object):
 
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
+
+    @pyaedt_function_handler()
+    def _create_edge_terminal(self, prim_id, point_on_edge, terminal_name=None, is_ref=False):
+        """Create an edge terminal.
+
+        Parameters
+        ----------
+        prim_id : int
+            Primitive ID.
+        point_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be on the target edge but not on the two
+            ends of the edge.
+        terminal_name : str, optional
+            Name of the terminal. The default is ``None``, in which case the
+            default name is assigned.
+        is_ref : bool, optional
+            Whether it is a reference terminal. The default is ``False``.
+        Returns
+        -------
+        Edb.Cell.Terminal.EdgeTerminal
+        """
+        if not terminal_name:
+            terminal_name = generate_unique_name("Terminal_")
+
+        point_on_edge = self._edb.Geometry.PointData(
+            self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
+        )
+        prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
+        pos_edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(prim, point_on_edge)
+        pos_edge = convert_py_list_to_net_list(pos_edge, self._edb.Cell.Terminal.Edge)
+        return self._edb.Cell.Terminal.EdgeTerminal.Create(
+            prim.GetLayout(), prim.GetNet(), terminal_name, pos_edge, isRef=is_ref
+        )
 
     @pyaedt_function_handler()
     def get_trace_width_for_traces_with_ports(self):
@@ -553,6 +592,92 @@ class EdbHfss(object):
                 ref_edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
             edge_term.SetReferenceTerminal(ref_edge_term)
         return True
+
+    @pyaedt_function_handler()
+    def create_edge_port_vertical(
+        self,
+        prim_id,
+        point_on_edge,
+        port_name=None,
+        impedance=50,
+        reference_layer=None,
+    ):
+        """Create a vertical edge port.
+
+        Parameters
+        ----------
+        prim_id : int
+            Primitive ID.
+        point_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be on the target edge but not on the two
+            ends of the edge.
+        port_name : str, optional
+            Name of the port. The default is ``None``.
+        impedance : int, float, optional
+            Impedance of the port. The default value is ``50``.
+        reference_layer : str, optional
+            Reference layer of the port. The default is ``None``.
+        Returns
+        -------
+        str
+            Port name.
+        """
+        pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
+        pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
+        if reference_layer:
+            reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            pos_edge_term.SetReferenceLayer(reference_layer)
+        if pos_edge_term:
+            return port_name
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def create_edge_port_horizontal(
+        self,
+        prim_id,
+        point_on_edge,
+        ref_prim_id=None,
+        point_on_ref_edge=None,
+        port_name=None,
+        impedance=50,
+    ):
+        """Create a horizontal edge port.
+
+        Parameters
+        ----------
+        prim_id : int
+            Primitive ID.
+        point_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be on the target edge but not on the two
+            ends of the edge.
+        ref_prim_id : int, optional
+            Reference primitive ID. The default is ``None``.
+        point_on_ref_edge : list, optional
+            Coordinate of the point to define the reference edge
+            terminal. The point must be on the target edge but not
+            on the two ends of the edge. The default is ``None``.
+        port_name : str, optional
+            Name of the port. The default is ``None``.
+        impedance : int, float, optional
+            Impedance of the port. The default value is ``50``.
+
+        Returns
+        -------
+        str
+            Name of the port.
+        """
+        pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
+        neg_edge_term = self._create_edge_terminal(ref_prim_id, point_on_ref_edge, port_name + "_ref", is_ref=True)
+
+        pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
+        pos_edge_term.SetReferenceTerminal(neg_edge_term)
+        if pos_edge_term:
+            return port_name
+        else:
+            return False
 
     @pyaedt_function_handler()
     def create_lumped_port_on_net(

@@ -14,8 +14,14 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-original_project_name = "Galileo_t21"
-test_project_name = "Galileo_t21"
+test_subfolder = "T21"
+
+if config["desktopVersion"] > "2022.2":
+    original_project_name = "Galileo_t21_231"
+    diff_proj_name = "differential_pairs_231"
+else:
+    original_project_name = "Galileo_t21"
+    diff_proj_name = "differential_pairs"
 netlist1 = "netlist_small.cir"
 netlist2 = "Schematic1.qcv"
 touchstone = "SSN_ssn.s6p"
@@ -26,12 +32,12 @@ ami_project = "AMI_Example"
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit)
-        self.circuitprj = BasisTest.add_app(self, "differential_pairs", application=Circuit)
-        netlist_file1 = os.path.join(local_path, "example_models", netlist1)
-        netlist_file2 = os.path.join(local_path, "example_models", netlist2)
-        touchstone_file = os.path.join(local_path, "example_models", touchstone)
-        touchstone_file2 = os.path.join(local_path, "example_models", touchstone2)
+        self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
+        self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
+        netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
+        netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
+        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
+        touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
         self.local_scratch.copyfile(netlist_file1)
         self.local_scratch.copyfile(netlist_file2)
         self.local_scratch.copyfile(touchstone_file)
@@ -242,7 +248,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_setup(setup_name, "NexximAMI")
 
     def test_20_create_AMI_plots(self):
-        ami_design = BasisTest.add_app(self, ami_project, design_name="Models Init Only", application=Circuit)
+        ami_design = BasisTest.add_app(
+            self, ami_project, design_name="Models Init Only", application=Circuit, subfolder=test_subfolder
+        )
         report_name = "MyReport"
         assert (
             ami_design.post.create_ami_initial_response_plot(
@@ -317,7 +325,7 @@ class TestClass(BasisTest, object):
 
     def test_25_import_model(self):
         self.aedtapp.insert_design("Touch_import")
-        touch = os.path.join(local_path, "example_models", "SSN_ssn.s6p")
+        touch = os.path.join(local_path, "example_models", test_subfolder, "SSN_ssn.s6p")
         t1 = self.aedtapp.modeler.schematic.create_touchsthone_component(touch)
         assert t1
         assert len(t1.pins) == 6
@@ -358,7 +366,7 @@ class TestClass(BasisTest, object):
         assert self.circuitprj.set_differential_pair(positive_terminal="Port3", negative_terminal="Port5")
 
     def test_28_load_and_save_diff_pair_file(self):
-        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.circuitprj.load_diff_pairs_from_file(diff_file)
 
@@ -369,7 +377,7 @@ class TestClass(BasisTest, object):
         assert len(lines) == 3
 
     def test_29_create_circuit_from_spice(self):
-        model = os.path.join(local_path, "example_models", "test.lib")
+        model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")

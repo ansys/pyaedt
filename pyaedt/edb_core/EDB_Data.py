@@ -209,6 +209,16 @@ class EDBPrimitives(object):
             return False
         return self.primitive_object.IsVoid()
 
+    @property
+    def id(self):
+        """Primitive ID.
+
+        Returns
+        -------
+        int
+        """
+        return self.GetId()
+
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
         """Get the points of the arc
@@ -472,7 +482,6 @@ class EDBLayer(object):
         self._material_name = None
         self._filling_material_name = None
         self._negative_layer = False
-        self._roughness_enabled = False
         self._lower_elevation = None
         self._upper_elevation = None
         self._top_bottom_association = None
@@ -480,6 +489,10 @@ class EDBLayer(object):
         self._edb = app._edb
         self._active_layout = app._active_layout
         self._pedblayers = app
+        self._roughness_enabled = False
+        self._roughness_model_top = None
+        self._roughness_model_bottom = None
+        self._roughness_model_side = None
         self.init_vals()
 
     @property
@@ -673,6 +686,93 @@ class EDBLayer(object):
         ):
             self._roughness_enabled = value
             self.update_layers()
+
+    @pyaedt_function_handler()
+    def assign_roughness_model_top(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
+        """Assign roughness model on conductor top.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if model_type == "huray":
+            self._roughness_model_top = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_top = [model_type, groisse_roughness]
+        else:
+            self._roughness_model_top = None
+        return self.update_layers()
+
+    @pyaedt_function_handler()
+    def assign_roughness_model_bottom(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
+        """Assign roughness model on conductor bottom.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if model_type == "huray":
+            self._roughness_model_bottom = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_bottom = [model_type, groisse_roughness]
+        else:
+            self._roughness_model_bottom = None
+        return self.update_layers()
+
+    @pyaedt_function_handler()
+    def assign_roughness_model_side(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
+        """Assign roughness model on conductor side.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if model_type == "huray":
+            self._roughness_model_side = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_side = [model_type, groisse_roughness]
+        else:
+            self._roughness_model_side = None
+        return self.update_layers()
 
     @property
     def top_bottom_association(self):
@@ -877,6 +977,24 @@ class EDBLayer(object):
             newLayer.SetNegative(negativeMap)
         if roughnessMap:
             newLayer.SetRoughnessEnabled(roughnessMap)
+            models = [self._roughness_model_top, self._roughness_model_bottom, self._roughness_model_side]
+            regions = [
+                self._edb.Cell.RoughnessModel.Region.Top,
+                self._edb.Cell.RoughnessModel.Region.Side,
+                self._edb.Cell.RoughnessModel.Region.Bottom,
+            ]
+            for mdl, region in zip(models, regions):
+                if not mdl:
+                    continue
+                model_type = mdl[0]
+                if model_type == "huray":
+                    radius = self._get_edb_value(mdl[1])
+                    surface_ratio = self._get_edb_value(mdl[2])
+                    model = self._edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
+                else:
+                    roughness = self._get_edb_value(mdl[1])
+                    model = self._edb.Cell.GroisseRoughnessModel(roughness)
+                newLayer.SetRoughnessModel(region, model)
         if isinstance(etchMap, float) and int(layerTypeMap) in [0, 2]:
             etchVal = float(etchMap)
         else:
@@ -2042,6 +2160,15 @@ class EDBPadstackInstance(object):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
     """
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except:
+            try:
+                return getattr(self._edb_padstackinstance, key)
+            except AttributeError:
+                raise AttributeError("Attribute not present")
 
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance

@@ -476,7 +476,10 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         vertices = []
-        for vertex in self.oeditor.GetVertexIDsFromEdge(self.id):
+        v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, vertex))
         return vertices
@@ -516,7 +519,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         References
         ----------
 
-        >>> oEditor.GetVertexPosition
+        >>> oEditor.GetEdgeLength
 
         """
         try:
@@ -669,7 +672,10 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        for vertex in list(self.oeditor.GetVertexIDsFromFace(self.id)):
+        v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, int(vertex)))
         return vertices
@@ -1220,7 +1226,7 @@ class Object3d(object):
         """
         if self.object_type == "Unclassified":
             return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        if not self._primitives._app.student_version:
+        if not settings.disable_bounding_box_sat:
             bounding = self._bounding_box_sat()
             if bounding:
                 return bounding
@@ -1730,7 +1736,10 @@ class Object3d(object):
         if self.object_type == "Unclassified":
             return []
         vertices = []
-        for vertex in self._primitives.get_object_vertices(self.name):
+        v = [i for i in self._primitives.get_object_vertices(self.name)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self, vertex))
         return vertices

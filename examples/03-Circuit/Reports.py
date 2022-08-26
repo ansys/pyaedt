@@ -1,7 +1,7 @@
 """
 Circuit: automatic report creation
 ----------------------------------
-This example shows how to use PyAEDT to create reports automatically using a JSON file.
+This example shows how you can use PyAEDT to create reports automatically using a JSON file.
 """
 
 ###############################################################################
@@ -41,8 +41,11 @@ desktopVersion = "2022.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The Boolean parameter ``new_thread`` defines whether to create a new instance
+# of AEDT or try to connect to an existing instance of it.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
@@ -51,9 +54,7 @@ NewThread = True
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
-# and starts the specified version in the specified mode. The Boolean
-# parameter ``NewThread`` defines whether to create a new instance of AEDT or try
-# to connect to an existing instance of it.
+# and starts the specified version in the specified mode.
 
 cir = Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example22R1.aedtz'), non_graphical=non_graphical,
               specified_version=desktopVersion)
