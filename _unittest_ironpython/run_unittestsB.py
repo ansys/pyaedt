@@ -35,7 +35,6 @@ test_filter = args.test_filter
 
 max_attempts = 2
 
-
 def discover_and_run(start_dir, pattern=None):
     """Discover and run tests cases. Return the tests result."""
     # use the default shared TestLoader instance
@@ -45,37 +44,39 @@ def discover_and_run(start_dir, pattern=None):
     test_suite = test_loader.discover(start_dir, pattern=pattern)
 
     # run the test suite
+    write_log_list = []
     log_file = os.path.join(start_dir, "runner_unittest.log")
-    with open(log_file, "w+") as f:
-        f.write("Test filter: {}\n".format(test_filter))
-        f.write("Test started {}\n\n".format(datetime.now()))
-        runner = unittest.TextTestRunner(f, verbosity=2)
-        total_runs = 0
-        total_errors = 0
-        total_failures = 0
-        for sub_suite in test_suite:
-            attempts = 0
-            while True:
-                attempts += 1
-                f.write("\n")
-                result = runner.run(sub_suite)
-                if attempts == max_attempts:
-                    total_runs += result.testsRun
-                    total_errors += len(result.errors)
-                    total_failures += len(result.failures)
-                    break
-                if result.wasSuccessful():
-                    total_runs += result.testsRun
-                    break
-                # try again
-                f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
-        f.write(
-            "\n<unittest.runner.TextTestResult run={} errors={} failures={}>\n".format(
-                total_runs, total_errors, total_failures
-            )
+    write_log_list.append("Test filter: {}\n".format(test_filter))
+    write_log_list.append("Test started {}\n\n".format(datetime.now()))
+    runner = unittest.TextTestRunner(f, verbosity=2)
+    total_runs = 0
+    total_errors = 0
+    total_failures = 0
+    for sub_suite in test_suite:
+        attempts = 0
+        while True:
+            attempts += 1
+            write_log_list.append("\n")
+            result = runner.run(sub_suite)
+            if attempts == max_attempts:
+                total_runs += result.testsRun
+                total_errors += len(result.errors)
+                total_failures += len(result.failures)
+                break
+            if result.wasSuccessful():
+                total_runs += result.testsRun
+                break
+            # try again
+            write_log_list.append("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
+    write_log_list.append(
+        "\n<unittest.runner.TextTestResult run={} errors={} failures={}>\n".format(
+            total_runs, total_errors, total_failures
         )
+    )
+    with open(log_file, "w+") as f:
+        for el in write_log_list:
+            f.write(el)
     return result
-
 
 tests_result = discover_and_run(run_dir, pattern=test_filter)
 
