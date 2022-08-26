@@ -375,6 +375,11 @@ class EdbSiwave(object):
         self._pedb = p_edb
 
     @property
+    def _siwave_setup(self):
+        """SIwave setup."""
+        return self._pedb.edblib.SIwave.SiwaveSimulationSetupMethods
+
+    @property
     def _builder(self):
         """Builder."""
         return self._pedb.builder
