@@ -26,9 +26,19 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 45
         run: |
-          $process = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeA.cmd' -PassThru
+          $processB = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeB.cmd' -PassThru
+          $processC = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeC.cmd' -PassThru
+          $processD = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeD.cmd' -PassThru
+          $processE = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeE.cmd' -PassThru
+          $processF = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeF.cmd' -PassThru
 
-          $process.WaitForExit()
+          $processC.WaitForExit()
+          $processD.WaitForExit()
+          $processE.WaitForExit()
+          $processA.WaitForExit()
+          $processB.WaitForExit()
+          $processF.WaitForExit()
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
