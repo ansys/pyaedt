@@ -26,12 +26,12 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 45
         run: |
-          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeA.cmd' -PassThru
-          $processB = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeB.cmd' -PassThru
-          $processC = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeC.cmd' -PassThru
-          $processD = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeD.cmd' -PassThru
-          $processE = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeE.cmd' -PassThru
-          $processF = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmodeF.cmd' -PassThru
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_0*.py' -PassThru
+          $processB = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_1*.py' -PassThru
+          $processC = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_2*.py' -PassThru
+          $processD = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_3*.py' -PassThru
+          $processE = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_4*.py' -PassThru
+          $processF = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_9*.py' -PassThru
 
           $processC.WaitForExit()
           $processD.WaitForExit()
