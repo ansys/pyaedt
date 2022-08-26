@@ -77,6 +77,11 @@ def discover_and_run(start_dir, pattern=None):
                     break
                 # try again
                 f.write("\nAttempt n.{} FAILED. Re-running test suite.\n".format(attempts))
+        f.write(
+            "\n<unittest.runner.TextTestResult Total Test run={}>\n".format(
+                total_runs
+            )
+        )
         if total_errors > 0 or total_failures > 0:
             f.write(
                 "\n<unittest.runner.TextTestResult errors={}>\n".format(
