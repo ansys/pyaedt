@@ -42,13 +42,13 @@ jobs:
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
-          $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "errors=0 failures=0"
+          $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "TextTestResult errors="
 
           if ($test_errors_failures -ne $null)
           {
-          exit 0
+          exit 1
           }
           else
           {
-          exit 1
+          exit 0
           }
