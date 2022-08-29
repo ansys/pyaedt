@@ -62,15 +62,14 @@ class TestClass(BasisTest, object):
         assert s1.usp is False
         s1.material = "copper"
         s1.fillmaterial = "glass"
-        s1.update_stackup_layer()
         assert s1.material == "copper"
         assert s1.fillmaterial == "glass"
         s1.useetch = True
         s1.etch = 1.2
         s1.user = True
         s1.usp = True
-        s1.hfssSp["dt"] = 1
-        s1.planaremSp["ifg"] = True
+        s1.hfss_solver_settings["dt"] = 1
+        s1.planar_em_solver_settings["ifg"] = True
         s1.update_stackup_layer()
         assert s1.useetch is True
         assert s1.etch == 1.2
@@ -78,6 +77,23 @@ class TestClass(BasisTest, object):
         assert s1.usp is True
         assert s1.hfssSp["dt"] == 1
         assert s1.planaremSp["ifg"] is True
+        s1.side_model = "Huray"
+        s1.top_model = "Huray"
+        s1.bottom_model = "Huray"
+        s1.side_nodule_radius = 0.3
+        s1.top_nodule_radius = 0.2
+        s1.bottom_nodule_radius = 0.1
+        s1.side_huray_ratio = 3
+        s1.top_huray_ratio = 2.2
+        s1.bottom_huray_ratio = 2.5
+        assert s1.SHRatio == 3
+        assert s1.SNR == 0.3
+        assert s1.SRMdl == "Huray"
+        assert s1.BRMdl == "Huray"
+        assert s1.RMdl == "Huray"
+        assert s1.NR == 0.2
+        assert s1.BNR == 0.1
+
         d1 = self.aedtapp.modeler.layers.add_layer(
             layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
         )
@@ -86,7 +102,7 @@ class TestClass(BasisTest, object):
         assert d1.transparency == 60
         d1.material = "fr4_epoxy"
         d1.transparency = 23
-        d1.update_stackup_layer()
+
         assert d1.material == "fr4_epoxy"
         assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.add_layer(
@@ -102,8 +118,7 @@ class TestClass(BasisTest, object):
         assert s2.material == "copper"
         assert s2.thickness == 3.5e-5
         assert s2.IsNegative is True
-        s2.IsNegative = False
-        s2.update_stackup_layer()
+        s2.is_negative = False
         assert s2.IsNegative is False
 
         self.aedtapp.modeler.layers.refresh_all_layers()
@@ -131,7 +146,6 @@ class TestClass(BasisTest, object):
         s1.useetch = False
         s1.user = False
         s1.usp = False
-        s1.update_stackup_layer()
 
     def test_03_create_circle(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
