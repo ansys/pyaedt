@@ -3525,7 +3525,9 @@ class Hfss(FieldAnalysis3D, object):
 
         """
 
-        if self.solution_type in ["Eigenmode", "Modal", "Terminal", "Transient Network", "SBR+"] and (Rvalue or Lvalue or Cvalue):
+        if self.solution_type in ["Eigenmode", "Modal", "Terminal", "Transient Network", "SBR+"] and (
+            Rvalue or Lvalue or Cvalue
+        ):
             point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
 
             if not sourcename:
