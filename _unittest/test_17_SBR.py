@@ -10,14 +10,23 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-test_project_name = "Cassegrain"
+if desktop_version > "2022.2":
+    test_project_name = "Cassegrain_231"
+else:
+    test_project_name = "Cassegrain"
+
+test_subfolder = "T17"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(
-            self, project_name=test_project_name, design_name="Cassegrain_reflectors", solution_type="SBR+"
+            self,
+            project_name=test_project_name,
+            design_name="Cassegrain_reflectors",
+            solution_type="SBR+",
+            subfolder=test_subfolder,
         )
         self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
 
@@ -75,7 +84,7 @@ class TestClass(BasisTest, object):
 
     def test_03_add_ffd_antenna(self):
         assert self.aedtapp.create_sbr_file_based_antenna(
-            ffd_full_path=os.path.join(local_path, "example_models", "test.ffd")
+            ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
 
     def test_04_add_environment(self):
@@ -142,5 +151,5 @@ class TestClass(BasisTest, object):
 
         # sbr file based antenna should only work for SBR+ solution.
         assert not hfss_terminal.create_sbr_file_based_antenna(
-            ffd_full_path=os.path.join(local_path, "example_models", "test.ffd")
+            ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )

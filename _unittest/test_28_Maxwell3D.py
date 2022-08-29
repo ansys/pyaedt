@@ -3,6 +3,7 @@ import os
 import tempfile
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
@@ -14,15 +15,19 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+test_subfolder = "TMaxwell"
 test_project_name = "eddy"
+if config["desktopVersion"] > "2022.2":
+    core_loss_file = "PlanarTransformer_231"
+else:
+    core_loss_file = "PlanarTransformer"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
-        core_loss_file = "PlanarTransformer.aedt"
-        example_project = os.path.join(local_path, "example_models", core_loss_file)
+        example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
         self.file_path = self.local_scratch.copyfile(example_project)
 
     def teardown_class(self):
@@ -498,3 +503,44 @@ class TestClass(BasisTest, object):
         assert insulating_assignment.name == "InsulatingExample"
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
+
+    def test_38_assign_impedance(self):
+        impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        impedance_assignment = self.aedtapp.assign_impedance(
+            impedance_box.name,
+            permeability=1.3,
+            conductivity=42000000,
+            impedance_name="ImpedanceExample",
+        )
+        assert impedance_assignment.name == "ImpedanceExample"
+        impedance_assignment.name = "ImpedanceExampleModified"
+        assert impedance_assignment.update()
+
+        # Add an impedance using an existing material.
+        impedance_box_copper = self.aedtapp.modeler.create_box(
+            [-50, -300, -50], [294, 294, 19], name="impedance_box_copper"
+        )
+        impedance_assignment_copper = self.aedtapp.assign_impedance(
+            impedance_box_copper.name,
+            material_name="copper",
+            impedance_name="ImpedanceExampleCopper",
+        )
+        assert impedance_assignment_copper.name == "ImpedanceExampleCopper"
+        impedance_assignment_copper.name = "ImpedanceExampleCopperModified"
+        assert impedance_assignment_copper.update()
+
+        # Add an impedance using an existing material with non-linear permeability and
+        # modifying its conductivity.
+        impedance_box_copper_non_liear = self.aedtapp.modeler.create_box(
+            [-50, -600, -50], [294, 294, 19], name="impedance_box_copper_non_liear"
+        )
+        impedance_assignment_copper = self.aedtapp.assign_impedance(
+            impedance_box_copper.name,
+            material_name="copper",
+            non_linear_permeability=True,
+            conductivity=47000000,
+            impedance_name="ImpedanceExampleCopperNonLinear",
+        )
+        assert impedance_assignment_copper.name == "ImpedanceExampleCopperNonLinear"
+        impedance_assignment_copper.name = "ImpedanceExampleCopperNonLinearModified"
+        assert impedance_assignment_copper.update()

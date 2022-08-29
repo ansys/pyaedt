@@ -1084,6 +1084,38 @@ class Settings(object):
         self.remote_rpc_service_manager_port = 17878
         self._project_properties = {}
         self._project_time_stamp = 0
+        self._disable_bounding_box_sat = False
+        self._force_error_on_missing_project = False
+
+    @property
+    def force_error_on_missing_project(self):
+        """Set/Get a flag to check project path.
+        If ``True`` when passing a project path, the project has to exist otherwise it will raise an error.
+        Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._force_error_on_missing_project
+
+    @force_error_on_missing_project.setter
+    def force_error_on_missing_project(self, val):
+        self._force_error_on_missing_project = val
+
+    @property
+    def disable_bounding_box_sat(self):
+        """Set/Get Bounding Box Sat enablement.
+
+        Returns
+        -------
+        bool
+        """
+        return self._disable_bounding_box_sat
+
+    @disable_bounding_box_sat.setter
+    def disable_bounding_box_sat(self, val):
+        self._disable_bounding_box_sat = val
 
     @property
     def use_grpc_api(self):

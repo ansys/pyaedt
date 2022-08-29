@@ -6,13 +6,21 @@ from _unittest.conftest import local_path
 from pyaedt import Q2d
 
 test_project_name = "coax_Q2D"
+test_subfolder = "T30"
+if desktop_version > "2022.2":
+    q2d_q3d = "q2d_q3d_231.aedt"
+
+else:
+    q2d_q3d = "q2d_q3d.aedt"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Q2d)
-        self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        self.test_matrix = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d)
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

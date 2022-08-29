@@ -2,6 +2,7 @@
 import os
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Desktop
@@ -12,16 +13,22 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+from pyaedt import Hfss
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import settings
 
-test_project_name = "Coax_HFSS"
+test_subfolder = "T01"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Coax_HFSS_231"
+else:
+    test_project_name = "Coax_HFSS"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, test_project_name)
+        self.aedtapp = BasisTest.add_app(self, test_project_name, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -195,7 +202,7 @@ class TestClass(BasisTest, object):
         assert len(ds.x) == xl + 1
 
     def test_19_import_dataset1d(self):
-        filename = os.path.join(local_path, "example_models", "ds_1d.tab")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "ds_1d.tab")
         ds4 = self.aedtapp.import_dataset1d(filename)
         assert ds4.name == "$ds_1d"
         ds5 = self.aedtapp.import_dataset1d(filename, dsname="dataset_test", is_project_dataset=False)
@@ -208,22 +215,22 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.import_dataset1d(filename)
 
     def test_19a_import_dataset3d(self):
-        filename = os.path.join(local_path, "example_models", "Dataset_3D.tab")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.tab")
         ds8 = self.aedtapp.import_dataset3d(filename)
         assert ds8.name == "$Dataset_3D"
-        filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.csv")
         ds8 = self.aedtapp.import_dataset3d(filename, dsname="dataset_csv")
         assert ds8.name == "$dataset_csv"
         assert ds8.delete()
         ds10 = self.aedtapp.import_dataset3d(filename, dsname="$dataset_test")
         assert ds10.zunit == "mm"
-        filename = os.path.join(local_path, "example_models", "Dataset_3D.csv")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.csv")
         ds8 = self.aedtapp.import_dataset3d(filename, encoding="utf-8-sig", dsname="dataset_csv")
         assert ds8.name == "$dataset_csv"
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_19b_import_dataset3d_xlsx(self):
-        filename = os.path.join(local_path, "example_models", "Dataset_3D.xlsx")
+        filename = os.path.join(local_path, "example_models", test_subfolder, "Dataset_3D.xlsx")
         ds9 = self.aedtapp.import_dataset3d(filename, dsname="myExcel")
         assert ds9.name == "$myExcel"
 
@@ -255,7 +262,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.set_license_type("Pool")
 
     def test_25_change_registry_from_file(self):
-        assert self.aedtapp.set_registry_from_file(os.path.join(local_path, "example_models", "Test.acf"))
+        assert self.aedtapp.set_registry_from_file(
+            os.path.join(local_path, "example_models", test_subfolder, "Test.acf")
+        )
 
     def test_26_odefinition_manager(self):
         assert self.aedtapp.odefinition_manager
@@ -305,3 +314,15 @@ class TestClass(BasisTest, object):
         assert aedt_obj.oproject
         aedt_obj = AedtObjects(self.aedtapp.oproject, self.aedtapp.odesign)
         assert aedt_obj.odesign == self.aedtapp.odesign
+
+    def test_34_force_project_path_disable(self):
+        settings.force_error_on_missing_project = True
+        assert settings.force_error_on_missing_project == True
+        e = None
+        try:
+            h = Hfss("c:/dummy/test.aedt")
+        except Exception as e:
+            exception_raised = True
+            assert e.args[0] == "Project doesn't exists. Check it and retry."
+        assert exception_raised
+        settings.force_error_on_missing_project = False

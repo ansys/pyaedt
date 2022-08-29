@@ -53,11 +53,6 @@ class EdbNets(object):
         return self._pedb.db
 
     @property
-    def _padstack_methods(self):
-        """ """
-        return self._pedb.edblib.Layout.PadStackMethods
-
-    @property
     def _logger(self):
         """Edb logger."""
         return self._pedb.logger

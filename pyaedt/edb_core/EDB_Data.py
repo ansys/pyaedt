@@ -2161,6 +2161,15 @@ class EDBPadstackInstance(object):
     >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
     """
 
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except:
+            try:
+                return getattr(self._edb_padstackinstance, key)
+            except AttributeError:
+                raise AttributeError("Attribute not present")
+
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
         self._pedb = _pedb

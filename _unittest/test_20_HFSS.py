@@ -17,7 +17,12 @@ from _unittest.conftest import settings
 from pyaedt import Hfss
 from pyaedt.generic.near_field_import import convert_nearfield_data
 
-test_project_name = "coax_HFSS"
+test_subfolder = "T20"
+
+if config["desktopVersion"] > "2022.2":
+    diff_proj_name = "differential_pairs_231"
+else:
+    diff_proj_name = "differential_pairs"
 
 
 class TestClass(BasisTest, object):
@@ -387,6 +392,7 @@ class TestClass(BasisTest, object):
             ).name
             == "port11"
         )
+        assert self.aedtapp.set_source_context(["port10", "port11"])
 
         self.aedtapp.solution_type = "Terminal"
         assert (
@@ -709,6 +715,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
     def test_31_create_microstrip_port(self):
+        self.aedtapp.insert_design("Microstrip")
+        self.aedtapp.solution_type = "Modal"
         ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", matname="copper")
         sub = self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", matname="FR4_epoxy")
         gnd = self.aedtapp.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", matname="FR4_epoxy")
@@ -720,15 +728,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_wave_port_microstrip_between_objects(
             gnd.name, ms.name, portname="MS3", axisdir=1, deembed_dist=1, impedance=77
         )
-        self.aedtapp.solution_type = "Modal"
 
     def test_32_get_property_value(self):
         rect = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectBound", matname="Copper"
+            self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectProp", matname="Copper"
         )
         pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
+        setup = self.aedtapp.create_setup("MySetup2")
+        setup.props["Frequency"] = "1GHz"
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
-        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup", "Solution Freq", "Setup") == "1GHz"
+        assert self.aedtapp.get_property_value("AnalysisSetup:MySetup2", "Solution Freq", "Setup") == "1GHz"
 
     def test_33_copy_solid_bodies(self):
         project_name = "HfssCopiedProject"
@@ -741,6 +750,9 @@ class TestClass(BasisTest, object):
         new_design.close_project(project_name)
 
     def test_34_object_material_properties(self):
+        self.aedtapp.insert_design("ObjMat")
+        self.aedtapp.solution_type = "Modal"
+        ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", matname="copper")
         props = self.aedtapp.get_object_material_properties("MS1", "conductivity")
         assert props
 
@@ -762,9 +774,6 @@ class TestClass(BasisTest, object):
     def test_38_get_all_sources(self):
         sources = self.aedtapp.get_all_sources()
         assert isinstance(sources, list)
-
-    def test_39_set_source_contexts(self):
-        assert self.aedtapp.set_source_context(["port10", "port11"])
 
     def test_40_assign_current_source_to_sheet(self):
         sheet = self.aedtapp.modeler.create_rectangle(
@@ -804,8 +813,13 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.auto_assign_lattice_pairs(box1)) == 2
         box1.delete()
         box1 = self.aedtapp.modeler.create_box([-100, -100, -100], [200, 200, 200], name="Rad_box2")
-        assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
-        primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
+        if config["desktopVersion"] > "2022.2":
+            assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[5]])
+            primary = self.aedtapp.assign_primary(box1.faces[4], [100, -100, -100], [100, 100, -100])
+
+        else:
+            assert self.aedtapp.assign_lattice_pair([box1.faces[2], box1.faces[4]])
+            primary = self.aedtapp.assign_primary(box1.faces[1], [100, -100, -100], [100, 100, -100])
         assert primary
         primary.name = "Prim1"
         assert primary.update()
@@ -885,11 +899,17 @@ class TestClass(BasisTest, object):
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
 
+    @pytest.mark.skipif(desktop_version > "2022.2", reason="To Be fixed in 23R1.")
+    def test_45B_terminal_port(self):
+        self.aedtapp.insert_design("Design_Terminal_2")
+        self.aedtapp.solution_type = "Terminal"
+        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2", matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2", matname="copper")
         box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", matname="copper")
         box4 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="box4", matname="copper")
         boundaries = len(self.aedtapp.boundaries)
+
         assert self.aedtapp.create_spiral_lumped_port(box1, box2)
-        assert len(self.aedtapp.boundaries) - boundaries == 3
 
         # Rotate box2 so that, box3 and box4 are not collinear anymore.
         # Spiral lumped port can only be created based on 2 collinear objects.
@@ -941,11 +961,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.create_sbr_chirp_iq_doppler_setup(sweep_time_duration=10) == (False, False)
 
     def test_50_set_differential_pair(self):
-        example_project = os.path.join(local_path, "example_models", "differential_pairs.aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
         test_project = self.local_scratch.copyfile(example_project)
         self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", "differential_pairs.aedb"),
-            os.path.join(self.local_scratch.path, "differential_pairs.aedb"),
+            os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedb"),
+            os.path.join(self.local_scratch.path, diff_proj_name + ".aedb"),
         )
         hfss1 = Hfss(projectname=test_project, designname="Hfss_Terminal", specified_version=desktop_version)
         assert hfss1.set_differential_pair(
@@ -981,8 +1001,10 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
-        dict_in = json_to_dict(os.path.join(local_path, "example_models", "array_simple.json"))
-        dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", "Circ_Patch_5GHz.a3dcomp")
+        dict_in = json_to_dict(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
+        dict_in["Circ_Patch_5GHz1"] = os.path.join(
+            local_path, "example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
+        )
         dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
         dict_in["cells"][(3, 3)]["rotation"] = 90
@@ -995,3 +1017,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.set_material_threshold(threshold)
         assert self.aedtapp.set_material_threshold(str(threshold))
         assert not self.aedtapp.set_material_threshold("e")
+
+    def test_53_crate_setup_hybrid_sbr(self):
+        hfss1 = self.aedtapp.insert_design()
+        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 200
+        o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        self.aedtapp.hybrid = True
+        assert self.aedtapp.assign_hybrid_region(["inner"])
+        bound = self.aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
+        assert bound.props["Type"] == "IE"
+        bound.props["Type"] = "PO"
+        assert bound.props["Type"] == "PO"
