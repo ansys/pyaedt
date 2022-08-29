@@ -1189,10 +1189,11 @@ class TestClass(BasisTest, object):
         obj_3dcomp.name = "Dipole_pyaedt"
         assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
         assert obj_3dcomp.name == "Dipole_pyaedt"
-        assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
-        self.aedtapp["l_dipole2"] = "15.5cm"
-        obj_3dcomp.parameters["dipole_length"] = "l_dipole2"
-        assert obj_3dcomp.parameters["dipole_length"] == "l_dipole2"
+        if config["desktopVersion"] < "2023.1":
+            assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
+            self.aedtapp["l_dipole2"] = "15.5cm"
+            obj_3dcomp.parameters["dipole_length"] = "l_dipole2"
+            assert obj_3dcomp.parameters["dipole_length"] == "l_dipole2"
         cs = self.aedtapp.modeler.create_coordinate_system()
         obj_3dcomp.target_coordinate_system = cs.name
         assert obj_3dcomp.target_coordinate_system == cs.name
