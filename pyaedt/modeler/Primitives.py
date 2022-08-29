@@ -1661,7 +1661,7 @@ class Primitives(object):
         <class 'pyaedt.modeler.Object3d.Object3d'>
 
         """
-        if ".dll" not in udp_dll_name:
+        if ".dll" not in udp_dll_name or ".py" not in udp_dll_name:
             vArg1 = [
                 "NAME:UserDefinedPrimitiveParameters",
                 "DllName:=",
