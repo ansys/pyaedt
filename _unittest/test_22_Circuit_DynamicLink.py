@@ -59,8 +59,8 @@ class TestClass(BasisTest, object):
             for line in temp:
                 if not found:
                     if "Filter_Board.aedt" in line.decode("utf-8"):
-                        line = "\t\t\t\tfilename='{}/Filter_Board.aedt'\n".format(
-                            self.local_scratch.path.replace("\\", "/")
+                        line = "\t\t\t\tfilename='{}/{}.aedt'\n".format(
+                            self.local_scratch.path.replace("\\", "/"), linked_project_name
                         ).encode()
                         found = True
                 outf.write(line + b"\n")

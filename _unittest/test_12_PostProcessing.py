@@ -33,17 +33,17 @@ if config["desktopVersion"] > "2022.2":
     test_project_name = "coax_setup_solved_231"
     array = "array_simple_231"
     sbr_file = "poc_scat_small_231"
+    q3d_file = "via_gsg_231"
 
 else:
     test_field_name = "Potter_Horn"
     test_project_name = "coax_setup_solved"
     array = "array_simple"
     sbr_file = "poc_scat_small"
+    q3d_file = "via_gsg"
 
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-sbr_file = "poc_scat_small"
-q3d_file = "via_gsg"
 eye_diagram = "SimpleChannel"
 test_subfolder = "T12"
 
