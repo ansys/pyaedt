@@ -1626,7 +1626,7 @@ class Primitives(object):
         return Polyline(self, src_object=object)
 
     @pyaedt_function_handler()
-    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None, udp_type="Solid"):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None):
         """Create a user-defined primitive (UDP).
 
         Parameters
@@ -1639,8 +1639,6 @@ class Primitives(object):
             Name of the UDP library. The default is ``"syslib"``.
         name : str, optional
             Name of the component. The default is ``None``.
-        udp_type : str, optional
-            Type of the UDP. The default is ``"Solid"``.
 
         Returns
         -------
@@ -1656,8 +1654,7 @@ class Primitives(object):
         --------
         >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
         ...                                          udp_parameters_list=my_udpPairs,
-        ...                                          upd_library="syslib",
-        ...                                          udp_type="Solid")
+        ...                                          upd_library="syslib")
         <class 'pyaedt.modeler.Object3d.Object3d'>
 
         """

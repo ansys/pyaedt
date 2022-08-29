@@ -264,7 +264,6 @@ class TestClass(BasisTest, object):
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
             name=my_udpName,
-            udp_type="Solid",
         )
 
         assert udp
@@ -288,7 +287,6 @@ class TestClass(BasisTest, object):
             udp_dll_name="RMxprt/ClawPoleCore",
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
-            udp_type="Solid",
         )
 
         assert second_udp

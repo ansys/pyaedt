@@ -236,7 +236,7 @@ udp_par_list_stator = [["DiaGap", "DiaGap"], ["DiaYoke", "DiaStatorYoke"], ["Len
 
 stator_id = mod2D.create_udp(udp_dll_name="RMxprt/VentSlotCore.dll",
                              udp_parameters_list=udp_par_list_stator, upd_library='syslib',
-                             name='my_stator', udp_type='Solid')  # name not taken
+                             name='my_stator')  # name not taken
 
 ##########################################################
 # Assign properties to stator
