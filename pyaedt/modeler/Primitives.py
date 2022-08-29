@@ -1632,7 +1632,8 @@ class Primitives(object):
         Parameters
         ----------
         udp_dll_name : str
-            Name of the UDP DLL or Python. The default format is ``".dll"``.
+            Name of the UDP DLL or Python file. The default for the file format
+            is ``".dll"``.
         udp_parameters_list :
             List of the UDP parameters.
         upd_library : str, optional
