@@ -1157,7 +1157,6 @@ class Icepak(FieldAnalysis3D):
         num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
         self.modeler.move("Fin", self.Position(0, "-FinSeparation-FinThickness", 0))
         self.modeler.duplicate_along_line("Fin", self.Position(0, "FinSeparation+FinThickness", 0), num, True)
-
         all_names = self.modeler.object_names
         list = [i for i in all_names if "Fin" in i]
         if numcolumn_perside > 0:
