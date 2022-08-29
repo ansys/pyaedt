@@ -901,6 +901,8 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(desktop_version > "2022.2", reason="To Be fixed in 23R1.")
     def test_45B_terminal_port(self):
+        self.aedtapp.insert_design("Design_Terminal_2")
+        self.aedtapp.solution_type = "Terminal"
         box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2", matname="copper")
         box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2", matname="copper")
         box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", matname="copper")
