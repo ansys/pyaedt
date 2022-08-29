@@ -10,7 +10,11 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-test_project_name = "Cassegrain"
+if desktop_version > "2022.2":
+    test_project_name = "Cassegrain_231"
+else:
+    test_project_name = "Cassegrain"
+
 test_subfolder = "T17"
 
 
