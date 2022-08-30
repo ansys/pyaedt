@@ -77,6 +77,25 @@ def _getIfromRGB(rgb):
     return RGBint
 
 
+@pyaedt_function_handler()
+def _getRGBfromI(value):
+    """Retrieve the Integer from a specific layer color.
+
+    Parameters
+    ----------
+    value : int
+
+
+    Returns
+    -------
+    list
+    """
+    r = (value >> 16) & 0xFF
+    g = (value >> 8) & 0xFF
+    b = (value >> 0) & 0xFF
+    return [r, g, b]
+
+
 class Layer(object):
     """Manages the stackup layer.
 
@@ -1016,7 +1035,7 @@ class Layer(object):
                     "Thickness:=",
                     self.thickness,
                     "LowerElevation:=",
-                    self.lowerelevation,
+                    self._arg_with_dim(self.lowerelevation, self.LengthUnit),
                     "Roughness:=",
                     self._arg_with_dim(self.roughness, self.LengthUnitRough),
                     "BotRoughness:=",
@@ -1362,7 +1381,7 @@ class Layers(object):
                 o.IsVisibleComponent = infosdict["IsVisibleComponent"]
                 o.IsVisibleShape = infosdict["IsVisibleShape"]
                 o.IsVisibleHole = infosdict["IsVisibleHole"]
-            o._color = int(infosdict["Color"][:-1])
+            o._color = _getRGBfromI(int(infosdict["Color"][:-1]))
             if o.type in ["signal", "dielectric", "via"]:
                 o._index = int(infosdict["Index"])
                 o._thickness = _conv_number(infosdict["LayerThickness"])

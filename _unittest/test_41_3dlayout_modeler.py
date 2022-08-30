@@ -96,12 +96,12 @@ class TestClass(BasisTest, object):
         assert s1.drawoverride == 1
         s1.drawoverride = 0
 
-        assert s1.pattern == 0
-        s1.pattern = 1
         assert s1.pattern == 1
         s1.pattern = 0
+        assert s1.pattern == 0
+        s1.pattern = 1
 
-        assert s1.lowerelevation == 0
+        assert s1.lowerelevation == "0mm"
         s1.lowerelevation = 1
         assert s1.lowerelevation == 1
         s1.lowerelevation = 0
