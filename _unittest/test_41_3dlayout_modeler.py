@@ -55,6 +55,62 @@ class TestClass(BasisTest, object):
         s1 = self.aedtapp.modeler.layers.add_layer(
             layername="Bottom", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
         )
+        s1.color([220, 10, 10])
+        s1.is_visible = False
+        assert not s1.IsVisible
+        s1.is_visible = True
+        assert s1.IsVisible
+
+        s1.is_visible_shape = False
+        assert not s1.IsVisibleShape
+        s1.is_visible_shape = True
+        assert s1.IsVisibleShape
+
+        s1.is_visible_component = False
+        assert not s1.IsVisibleComponent
+        s1.is_visible_component = True
+        assert s1.IsVisibleComponent
+
+        s1.is_visible_hole = False
+        assert not s1.IsVisibleHole
+        s1.is_visible_hole = True
+        assert s1.IsVisibleHole
+
+        s1.is_mesh_background = False
+        assert not s1.IsMeshBackgroundMaterial
+        s1.is_mesh_background = True
+        assert s1.IsMeshBackgroundMaterial
+
+        s1.is_mesh_overlay = False
+        assert not s1.IsMeshOverlay
+        s1.is_mesh_overlay = True
+        assert s1.IsMeshOverlay
+
+        assert not s1.locked
+        s1.locked = True
+        assert s1.locked
+        s1.locked = False
+
+        assert s1.drawoverride == 0
+        s1.drawoverride = 1
+        assert s1.drawoverride == 1
+        s1.drawoverride = 0
+
+        assert s1.pattern == 0
+        s1.pattern = 1
+        assert s1.pattern == 1
+        s1.pattern = 0
+
+        assert s1.lowerelevation == 0
+        s1.lowerelevation = 1
+        assert s1.lowerelevation == 1
+        s1.lowerelevation = 0
+
+        assert s1.topbottom == "neither"
+        s1.topbottom = "top"
+        assert s1.topbottom == "top"
+        s1.topbottom = "neither"
+
         assert s1.thickness == "0.035mm"
         assert s1.material == "iron"
         assert s1.useetch is False

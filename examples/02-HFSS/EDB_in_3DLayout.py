@@ -94,8 +94,7 @@ edb.core_nets.plot(["A0_GPIO", "A0_MUX"])
 layers = h3d.modeler.layers.all_signal_layers
 for lay in layers:
     layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(lay)]
-    layer.IsVisible = True
-    layer.update_stackup_layer()
+    layer.is_visible = True
 
 ###############################################################################
 # Change layer color
@@ -114,12 +113,10 @@ h3d.modeler.fit_all()
 # applies modifications to the layout.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
-top.IsVisibleComponent = False
-top.update_stackup_layer()
+top.is_visible_component = False
 
 bot = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("BOTTOM")]
-bot.IsVisibleComponent = False
-bot.update_stackup_layer()
+bot.is_visible_component = False
 
 ###############################################################################
 # Fit all
