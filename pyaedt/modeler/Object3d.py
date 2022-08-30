@@ -2952,13 +2952,15 @@ class Padstack(object):
         ]
         arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
         arg3 = ["NAME:pds"]
+        id = 0
         for el in self.layers:
             arg4 = []
+            id += 1
             arg4.append("NAME:lgm")
             arg4.append("lay:=")
             arg4.append(self.layers[el].layername)
             arg4.append("id:=")
-            arg4.append(el)
+            arg4.append(id)
             arg4.append("pad:=")
             arg4.append(
                 [

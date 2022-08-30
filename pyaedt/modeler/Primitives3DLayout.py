@@ -525,7 +525,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.modeler.Object3d.Padstack`
             Padstack object if a padstack with this name does not already exist.
 
         """
