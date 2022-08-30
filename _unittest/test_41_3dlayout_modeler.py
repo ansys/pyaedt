@@ -91,43 +91,43 @@ class TestClass(BasisTest, object):
         assert s1.locked
         s1.locked = False
 
-        assert s1.drawoverride == 0
-        s1.drawoverride = 1
-        assert s1.drawoverride == 1
-        s1.drawoverride = 0
+        assert s1.draw_override == 0
+        s1.draw_override = 1
+        assert s1.draw_override == 1
+        s1.draw_override = 0
 
         assert s1.pattern == 1
         s1.pattern = 0
         assert s1.pattern == 0
         s1.pattern = 1
 
-        assert s1.lowerelevation == "0mm"
-        s1.lowerelevation = 1
-        assert s1.lowerelevation == 1
-        s1.lowerelevation = 0
+        assert s1.lower_elevation == "0mm"
+        s1.lower_elevation = 1
+        assert s1.lower_elevation == 1
+        s1.lower_elevation = 0
 
-        assert s1.topbottom == "neither"
-        s1.topbottom = "top"
-        assert s1.topbottom == "top"
-        s1.topbottom = "neither"
+        assert s1.top_bottom == "neither"
+        s1.top_bottom = "top"
+        assert s1.top_bottom == "top"
+        s1.top_bottom = "neither"
 
         assert s1.thickness == "0.035mm"
         assert s1.material == "iron"
-        assert s1.useetch is False
+        assert s1.use_etch is False
         assert s1.user is False
         assert s1.usp is False
         s1.material = "copper"
-        s1.fillmaterial = "glass"
+        s1.fill_material = "glass"
         assert s1.material == "copper"
-        assert s1.fillmaterial == "glass"
-        s1.useetch = True
+        assert s1.fill_material == "glass"
+        s1.use_etch = True
         s1.etch = 1.2
         s1.user = True
         s1.usp = True
         s1.hfss_solver_settings["dt"] = 1
         s1.planar_em_solver_settings["ifg"] = True
         s1.update_stackup_layer()
-        assert s1.useetch is True
+        assert s1.use_etch is True
         assert s1.etch == 1.2
         assert s1.user is True
         assert s1.usp is True
@@ -181,8 +181,8 @@ class TestClass(BasisTest, object):
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "copper"
-        assert s1.fillmaterial == "glass"
-        assert s1.useetch is True
+        assert s1.fill_material == "glass"
+        assert s1.use_etch is True
         assert s1.etch == 1.2
         assert s1.user is True
         assert s1.usp is True
@@ -199,7 +199,7 @@ class TestClass(BasisTest, object):
         assert s2.thickness == 3.5e-5
         assert s2.IsNegative is False
 
-        s1.useetch = False
+        s1.use_etch = False
         s1.user = False
         s1.usp = False
 
