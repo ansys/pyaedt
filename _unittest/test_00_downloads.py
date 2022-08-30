@@ -37,15 +37,21 @@ class TestClass(BasisTest, object):
         assert self.examples.download_multiparts(destination=os.path.join(tempfile.gettempdir(), "multi"))
 
     def test_download_wfp(self):
-        assert self.examples.download_edb_merge_utility()
         assert self.examples.download_edb_merge_utility(True)
-        out = self.examples.download_edb_merge_utility(True, destination=tempfile.gettempdir())
+        assert self.examples.download_edb_merge_utility(True, destination=tempfile.gettempdir())
+        out = self.examples.download_edb_merge_utility()
         assert os.path.exists(out)
+        new_path = os.path.split(out)[0] + "_old"
+        os.rename(os.path.split(out)[0], new_path)
+        assert os.path.exists(new_path)
 
     def test_download_leaf(self):
         out = self.examples.download_leaf()
         assert os.path.exists(out[0])
         assert os.path.exists(out[1])
+        new_path = os.path.split(out[0])[0] + "_old"
+        os.rename(os.path.split(out[0])[0], new_path)
+        assert os.path.exists(new_path)
 
     def test_download_custom_report(self):
         out = self.examples.download_custom_reports()
@@ -59,6 +65,12 @@ class TestClass(BasisTest, object):
         example_folder = self.examples.download_twin_builder_data("Ex1_Mechanical_DynamicRom.zip", True)
         assert os.path.exists(example_folder)
 
-    def test_download_folder(self):
+    def test_download_specific_file(self):
         example_folder = self.examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+        assert os.path.exists(example_folder)
+
+    def test_download_specific_folder(self):
+        example_folder = self.examples.download_file(directory="nissan")
+        assert os.path.exists(example_folder)
+        example_folder = self.examples.download_file(directory="wpf_edb_merge")
         assert os.path.exists(example_folder)

@@ -22,7 +22,7 @@ def delete_downloads():
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
-def _get_file_url(directory, filename):
+def _get_file_url(directory, filename=None):
     if not filename:
         return EXAMPLE_REPO + "/".join([directory])
     else:
@@ -89,9 +89,46 @@ def _retrieve_file(url, filename, directory, destination=None):
     return local_path
 
 
-def _download_file(directory, filename, destination=None):
-    url = _get_file_url(directory, filename)
-    local_path = _retrieve_file(url, filename, directory, destination)
+def _retrieve_folder(url, directory, destination=None):
+    """Download a folder from a url"""
+    # First check if folder exists
+    if not destination:
+        destination = EXAMPLES_PATH
+    local_path = os.path.join(destination, directory)
+    if os.path.isdir(local_path):
+        return local_path
+
+    # grab the correct url opener
+    if is_ironpython:
+        data = urllib.urlopen(url).read().decode("utf-8").split("\n")
+    else:
+        data = urllib.request.urlopen(url).read().decode("utf-8").split("\n")
+
+    if not os.path.isdir(destination):
+        os.mkdir(destination)
+    if not os.path.isdir(local_path):
+        os.makedirs(local_path)
+
+    for line in data:
+        if "js-navigation-open Link--primary" in line:
+            filename = eval(line[line.find("title=") + len("title=") : line.rfind(" data-pjax")])
+            local_file_path = os.path.join(destination, directory, os.path.basename(filename))
+            local_file_path_no_zip = local_file_path.replace(".zip", "")
+            if not os.path.isfile(local_file_path_no_zip) and not os.path.isdir(local_file_path_no_zip):
+                if ".aedb" in filename:
+                    _download_file(directory + "/" + filename, "edb.def", destination)
+                else:
+                    _download_file(directory, filename, destination)
+    return local_path
+
+
+def _download_file(directory, filename=None, destination=None):
+    if not filename:
+        url = _get_file_url(directory)
+        local_path = _retrieve_folder(url, directory, destination)
+    else:
+        url = _get_file_url(directory, filename)
+        local_path = _retrieve_file(url, filename, directory, destination)
 
     return local_path
 
@@ -592,19 +629,18 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
     return os.path.join(destination, "twin_builder")
 
 
-def download_file(directory, filename, destination=None):
+def download_file(directory, filename=None, destination=None):
     """
     Download file from directory.
 
-    Files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
+    Files are downloaded to a destination. If filename is not specified, the full directory will be downloaded.
 
     Parameters
     ----------
     directory : str
-        Directory name
-    filename : str
-        File name to download.
+        Directory name.
+    filename : str, optional
+        File name to download. The default is all files inside directory.
     destination : str, optional
         Path where files will be downloaded. Default is user temp folder.
 
