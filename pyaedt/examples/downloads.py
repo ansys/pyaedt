@@ -102,10 +102,10 @@ def _retrieve_folder(url, directory, destination=None):
     # grab the correct url opener
     if is_ironpython:
         with urllib.urlopen(url) as response:
-            data = response.read().decode("utf-8").split("\n")
+            data = response.read().decode("utf-8").split("\n")  # nosec
     else:
         with urllib.request.urlopen(url) as response:
-            data = response.read().decode("utf-8").split("\n")
+            data = response.read().decode("utf-8").split("\n")  # nosec
 
     if not os.path.isdir(destination):
         os.mkdir(destination)
