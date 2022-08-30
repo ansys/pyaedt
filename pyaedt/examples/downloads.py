@@ -1,4 +1,5 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
+import ast
 import os
 import shutil
 import tempfile
@@ -100,9 +101,11 @@ def _retrieve_folder(url, directory, destination=None):
 
     # grab the correct url opener
     if is_ironpython:
-        data = urllib.urlopen(url).read().decode("utf-8").split("\n")
+        with urllib.urlopen(url) as response:
+            data = response.read().decode("utf-8").split("\n")
     else:
-        data = urllib.request.urlopen(url).read().decode("utf-8").split("\n")
+        with urllib.request.urlopen(url) as response:
+            data = response.read().decode("utf-8").split("\n")
 
     if not os.path.isdir(destination):
         os.mkdir(destination)
@@ -111,7 +114,7 @@ def _retrieve_folder(url, directory, destination=None):
 
     for line in data:
         if "js-navigation-open Link--primary" in line:
-            filename = eval(line[line.find("title=") + len("title=") : line.rfind(" data-pjax")])
+            filename = ast.literal_eval(line[line.find("title=") + len("title=") : line.rfind(" data-pjax")])
             local_file_path = os.path.join(destination, directory, os.path.basename(filename))
             local_file_path_no_zip = local_file_path.replace(".zip", "")
             if not os.path.isfile(local_file_path_no_zip) and not os.path.isdir(local_file_path_no_zip):
