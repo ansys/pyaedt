@@ -41,9 +41,7 @@ def _retrieve_file(url, filename, directory, destination=None):
         return local_path_no_zip
 
     # grab the correct url retriever
-    if is_ironpython:
-        urlretrieve = urllib.urlretrieve
-    else:
+    if not is_ironpython:
         urlretrieve = urllib.request.urlretrieve
 
     dirpath = os.path.dirname(local_path)
@@ -99,13 +97,11 @@ def _retrieve_folder(url, directory, destination=None):
     if os.path.isdir(local_path):
         return local_path
 
-    # grab the correct url opener
     if is_ironpython:
-        with urllib.request.urlopen(url) as response:  # nosec
-            data = response.read().decode("utf-8").split("\n")
-    else:
-        with urllib.request.urlopen(url) as response:  # nosec
-            data = response.read().decode("utf-8").split("\n")
+        return False
+
+    with urllib.request.urlopen(url) as response:  # nosec
+        data = response.read().decode("utf-8").split("\n")
 
     if not os.path.isdir(destination):
         os.mkdir(destination)
