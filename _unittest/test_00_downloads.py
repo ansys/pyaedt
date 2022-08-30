@@ -4,6 +4,7 @@ import tempfile
 
 from _unittest.conftest import BasisTest
 from pyaedt.examples import downloads
+from pyaedt.generic.general_methods import generate_unique_name
 
 
 class TestClass(BasisTest, object):
@@ -41,7 +42,8 @@ class TestClass(BasisTest, object):
         assert self.examples.download_edb_merge_utility(True, destination=tempfile.gettempdir())
         out = self.examples.download_edb_merge_utility()
         assert os.path.exists(out)
-        new_path = os.path.split(out)[0] + "_old"
+        new_name = generate_unique_name("test")
+        new_path = os.path.split(out)[0] + new_name
         os.rename(os.path.split(out)[0], new_path)
         assert os.path.exists(new_path)
 
@@ -49,7 +51,8 @@ class TestClass(BasisTest, object):
         out = self.examples.download_leaf()
         assert os.path.exists(out[0])
         assert os.path.exists(out[1])
-        new_path = os.path.split(out[0])[0] + "_old"
+        new_name = generate_unique_name("test")
+        new_path = os.path.split(out[0])[0] + new_name
         os.rename(os.path.split(out[0])[0], new_path)
         assert os.path.exists(new_path)
 
