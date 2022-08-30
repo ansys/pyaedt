@@ -115,13 +115,10 @@ def _retrieve_folder(url, directory, destination=None):
     for line in data:
         if "js-navigation-open Link--primary" in line:
             filename = ast.literal_eval(line[line.find("title=") + len("title=") : line.rfind(" data-pjax")])
-            local_file_path = os.path.join(destination, directory, os.path.basename(filename))
-            local_file_path_no_zip = local_file_path.replace(".zip", "")
-            if not os.path.isfile(local_file_path_no_zip) and not os.path.isdir(local_file_path_no_zip):
-                if ".aedb" in filename:
-                    _download_file(directory + "/" + filename, "edb.def", destination)
-                else:
-                    _download_file(directory, filename, destination)
+            if ".aedb" in filename:
+                _download_file(directory + "/" + filename, "edb.def", destination)
+            else:
+                _download_file(directory, filename, destination)
     return local_path
 
 
