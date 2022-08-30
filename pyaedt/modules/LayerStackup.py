@@ -150,7 +150,7 @@ class Layer(object):
 
     @property
     def color(self):
-        """Get/Set the property to the active layer. Color can be an integer or a list of rgb values (0,255).
+        """Get/Set the property of the active layer. Color can be an integer or a list of rgb values (0,255).
 
         Returns
         -------
