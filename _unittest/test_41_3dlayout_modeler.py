@@ -55,7 +55,7 @@ class TestClass(BasisTest, object):
         s1 = self.aedtapp.modeler.layers.add_layer(
             layername="Bottom", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
         )
-        s1.color([220, 10, 10])
+        s1.color = [220, 10, 10]
         s1.is_visible = False
         assert not s1.IsVisible
         s1.is_visible = True

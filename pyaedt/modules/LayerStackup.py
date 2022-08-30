@@ -104,7 +104,7 @@ class Layer(object):
         self.name = None
         self.type = layertype
         self.id = 0
-        self._color = 8026109
+        self._color = [255, 0, 0]
         self._transparency = 60
         self.IsVisible = True
         self.IsVisibleShape = True
@@ -150,7 +150,7 @@ class Layer(object):
 
     @property
     def color(self):
-        """Get/Set the property of the active layer. Color can be an integer or a list of rgb values (0,255).
+        """Get/Set the property of the active layer. Color it is list of rgb values (0,255).
 
         Returns
         -------
@@ -160,8 +160,6 @@ class Layer(object):
 
     @color.setter
     def color(self, val):
-        if isinstance(val, list):
-            self.color = _getIfromRGB(val)
         self._color = val
 
         self.update_stackup_layer()
@@ -1000,7 +998,7 @@ class Layer(object):
                 "Top Bottom:=",
                 self.topbottom,
                 "Color:=",
-                self.color,
+                _getIfromRGB(self.color),
                 "Transparency:=",
                 self.transparency,
                 "Pattern:=",
