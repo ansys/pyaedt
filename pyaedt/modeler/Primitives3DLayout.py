@@ -594,8 +594,7 @@ class Primitives3DLayout(object):
                             lay = prop[i]
                             lay_name = lay[2]
                             lay_id = int(lay[4])
-                            if i != 1:
-                                self._padstacks[name].add_layer(lay_name)
+                            self._padstacks[name].add_layer(layername=lay_name, layer_id=lay_id)
                             self._padstacks[name].layers[lay_name].layername = lay_name
                             self._padstacks[name].layers[lay_name].pad = self._padstacks[name].add_hole(
                                 lay[6][1], list(lay[6][3]), lay[6][5], lay[6][7], lay[6][9]
