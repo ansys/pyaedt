@@ -1019,11 +1019,11 @@ class EdbStackup(object):
             self.stackup_layers.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
 
         for layer in range(layer_count - 1, 1, -1):
-            new_layer_name = "D" + str(layer - 1)
+            """new_layer_name = "D" + str(layer - 1)
             self.stackup_layers.add_layer(
                 new_layer_name, layer_name, dielectric_material, thickness=dielectric_thickness, layerType=1
-            )
-            layer_name = new_layer_name
+            )"""
+            #layer_name = new_layer_name
             new_layer_name = "L" + str(layer - 1)
             self.stackup_layers.add_layer(
                 new_layer_name, layer_name, "copper", dielectric_material, inner_layer_thickness
