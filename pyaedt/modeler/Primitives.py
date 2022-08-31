@@ -15,7 +15,6 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import UserDefinedComponent
@@ -1304,77 +1303,105 @@ class Primitives(object):
         return self._create_object("Region")
 
     @pyaedt_function_handler()
-    def create_object_from_edge(self, edge):
-        """Create a line object from an edge ID or from an
-        :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
+    def create_object_from_edge(self, edge, non_model=False):
+
+        """Create an object from one or multiple edges.
 
         Parameters
         ----------
-        edge : int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
-            Edge ID or :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
+        edge : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. The default is `False`.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object.
-
-        References
-        ----------
-
-        >>> oEditor.CreateObjectFromEdges
-        """
-        if isinstance(edge, EdgePrimitive):
-            edge_id = edge.id
-        else:
-            edge_id = edge
-
-        obj = self._find_object_from_edge_id(edge_id)
-
-        if obj is not None:
-
-            varg1 = ["NAME:Selections"]
-            varg1.append("Selections:="), varg1.append(obj)
-            varg1.append("NewPartsModelFlag:="), varg1.append("Model")
-
-            varg2 = ["NAME:BodyFromEdgeToParameters"]
-            varg2.append("Edges:="), varg2.append([edge_id])
-
-            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, ["NAME:Parameters", varg2])[0]
-            return self._create_object(new_object_name)
-
-    @pyaedt_function_handler()
-    def create_object_from_face(self, face):
-        """Create an object from a face.
-
-        Parameters
-        ----------
-        face : int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
-            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object.
+        :class:`pyaedt.modeler.Object3d.Object3d` or list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D objects.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromFaces
         """
-        face_id = face
-        if isinstance(face, FacePrimitive):
-            face_id = face.id
-        obj = self._find_object_from_face_id(face_id)
-        if obj is not None:
+        edge_ids = self.convert_to_selections(edge, True)
+        objs = OrderedDict()
+        for edge_id in edge_ids:
+            obj_name = self._find_object_from_edge_id(edge_id)
+            if obj_name not in objs:
+                objs[obj_name] = [edge_id]
+            else:
+                objs[obj_name].append(edge_id)
 
+        if objs:
             varg1 = ["NAME:Selections"]
-            varg1.append("Selections:="), varg1.append(obj)
-            varg1.append("NewPartsModelFlag:="), varg1.append("Model")
+            varg1.append("Selections:="), varg1.append(self.convert_to_selections(list(objs.keys()), False))
+            varg1.append("NewPartsModelFlag:="), varg1.append("Model" if not non_model else "NonModel")
+            varg3 = ["NAME:Parameters"]
+            for val in list(objs.values()):
+                varg2 = ["NAME:BodyFromEdgeToParameters"]
+                varg2.append("Edges:="), varg2.append(val)
+                varg3.append(varg2)
+            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, varg3, ["CreateGroupsForNewObjects:=", False])
+            new_objects = []
+            for new_object in new_object_name:
+                new_objects.append(self._create_object(new_object))
+            if len(new_objects) > 1:
+                return new_objects
+            else:
+                return new_objects[0]
+        self.logger.error("Error creating object from edges.")
+        return
 
-            varg2 = ["NAME:BodyFromFaceToParameters"]
-            varg2.append("FacesToDetach:="), varg2.append([face_id])
-            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, ["NAME:Parameters", varg2])[0]
-            return self._create_object(new_object_name)
+    @pyaedt_function_handler()
+    def create_object_from_face(self, face, non_model=False):
+        """Create an object from one or multiple face.
+
+        Parameters
+        ----------
+        face : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. Default is `False`.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d` or list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D objects.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromFaces
+        """
+        face_ids = self.convert_to_selections(face, True)
+        objs = OrderedDict()
+        for face_id in face_ids:
+            obj_name = self._find_object_from_face_id(face_id)
+            if obj_name not in objs:
+                objs[obj_name] = [face_id]
+            else:
+                objs[obj_name].append(face_id)
+
+        if objs:
+            varg1 = ["NAME:Selections"]
+            varg1.append("Selections:="), varg1.append(self.convert_to_selections(list(objs.keys()), False))
+            varg1.append("NewPartsModelFlag:="), varg1.append("Model" if not non_model else "NonModel")
+            varg3 = ["NAME:Parameters"]
+            for val in list(objs.values()):
+                varg2 = ["NAME:BodyFromFaceToParameters"]
+                varg2.append("FacesToDetach:="), varg2.append(val)
+                varg3.append(varg2)
+            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, varg3, ["CreateGroupsForNewObjects:=", False])
+            new_objects = []
+            for new_object in new_object_name:
+                new_objects.append(self._create_object(new_object))
+            if len(new_objects) > 1:
+                return new_objects
+            else:
+                return new_objects[0]
+        self.logger.error("Error creating object from faces.")
+        return
 
     @pyaedt_function_handler()
     def create_polyline(
@@ -1626,21 +1653,20 @@ class Primitives(object):
         return Polyline(self, src_object=object)
 
     @pyaedt_function_handler()
-    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None, udp_type="Solid"):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None):
         """Create a user-defined primitive (UDP).
 
         Parameters
         ----------
         udp_dll_name : str
-            Name of the UPD DLL.
+            Name of the UDP DLL or Python file. The default for the file format
+            is ``".dll"``.
         udp_parameters_list :
             List of the UDP parameters.
         upd_library : str, optional
             Name of the UDP library. The default is ``"syslib"``.
         name : str, optional
             Name of the component. The default is ``None``.
-        udp_type : str, optional
-            Type of the UDP. The default is ``"Solid"``.
 
         Returns
         -------
@@ -1656,12 +1682,11 @@ class Primitives(object):
         --------
         >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
         ...                                          udp_parameters_list=my_udpPairs,
-        ...                                          upd_library="syslib",
-        ...                                          udp_type="Solid")
+        ...                                          upd_library="syslib")
         <class 'pyaedt.modeler.Object3d.Object3d'>
 
         """
-        if ".dll" not in udp_dll_name:
+        if ".dll" not in udp_dll_name and ".py" not in udp_dll_name:
             vArg1 = [
                 "NAME:UserDefinedPrimitiveParameters",
                 "DllName:=",
@@ -3622,7 +3647,7 @@ class Primitives(object):
                     for data in udm_entry:
                         udm_lists.append(data["Attributes"]["Name"])
             except:
-                self.logger.error("User-defined models were not retrieved from the AEDT file.")
+                self.logger.info("User-defined models were not retrieved from the AEDT file.")
         return udm_lists
 
     @pyaedt_function_handler()

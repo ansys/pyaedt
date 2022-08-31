@@ -1896,6 +1896,11 @@ class Design(AedtObjects):
                             )
                     except:
                         pass
+        if self.design_type in ["HFSS 3D Layout Design"]:
+            for port in self.oboundary.GetAllPortsList():
+                bound = self._update_port_info(port)
+                if bound:
+                    boundaries.append(bound)
         return boundaries
 
     @pyaedt_function_handler()
@@ -3343,7 +3348,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            val = var_obj.GetPropValue("SIValue")
+            val = _retry_ntimes(10, var_obj.GetPropValue, "SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
