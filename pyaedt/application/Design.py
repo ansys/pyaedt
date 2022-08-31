@@ -1896,6 +1896,11 @@ class Design(AedtObjects):
                             )
                     except:
                         pass
+        if self.design_type in ["HFSS 3D Layout Design"]:
+            for port in self.oboundary.GetAllPortsList():
+                bound = self._update_port_info(port)
+                if bound:
+                    boundaries.append(bound)
         return boundaries
 
     @pyaedt_function_handler()
