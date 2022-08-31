@@ -1360,7 +1360,13 @@ class EDBLayers(object):
         return True
 
     @pyaedt_function_handler()
-    def add_layer(
+    def _update_stackup(self):
+        self._active_layout.SetLayerCollection(self.edb_layer_collection)
+        self._update_edb_objects()
+        return True
+
+    @pyaedt_function_handler()
+    def insert_layer_above(
         self,
         layerName,
         start_layer=None,
@@ -1440,9 +1446,152 @@ class EDBLayers(object):
             self.edb_layer_collection.AddLayerTop(newLayer)
         else:
             self.edb_layer_collection.AddLayerAbove(newLayer, start_layer)
-        self._active_layout.SetLayerCollection(self.edb_layer_collection)
-        self._update_edb_objects()
+        self._update_stackup()
 
+
+    @pyaedt_function_handler()
+    def add_layer(
+            self,
+            layerName,
+            start_layer=None,
+            material="copper",
+            fillMaterial="",
+            thickness="35um",
+            layerType=0,
+            negative_layer=False,
+            roughness_enabled=False,
+            etchMap=None,
+    ):
+        """Add a layer after a specific layer.
+
+        Parameters
+        ----------
+        layerName : str
+            Name of the layer to add.
+        start_layer : str, optional
+            Name of the layer after which to add the new layer.
+            The default is ``None``.
+        material : str, optional
+            Name of the material. The default is ``"copper"``.
+        fillMaterial : str, optional
+            Name of the fill material. The default is ``""``.)
+        thickness : str, optional
+            Thickness value, including units. The default is ``"35um"``.
+        layerType :
+            Type of the layer. The default is ``0``
+            ``0``: Signal layer.
+            ``1``: Dielectric layer.
+            ``2``: Conducting plane layer.
+            ``3``: Airline layer.
+            ``4``: Error layer.
+            ``5``: Symbol layer.
+            ``6``: Measure layer.
+            ``8``: Assembly layer.
+            ``9``: Silkscreen layer.
+            ``10``: Solder Mask layer.
+            ``11``: Solder Paste layer.
+        negative_layer : bool, optional
+            ``True`` when negative, ``False`` otherwise.
+        roughness_enabled : bool, optional
+            ``True`` if the layer has roughness, ``False`` otherwise.
+        etchMap : optional
+            Etch value if any. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+            Layer Object for stackup layers. Boolean otherwise (True in case of success).
+        """
+        thisLC = self._pedbstackup._active_layout.GetLayerCollection()
+        layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        layers.reverse()
+        el = 0.0
+        lcNew = self._edb.Cell.LayerCollection()
+
+        if not layers or not start_layer:
+            if int(layerType) > 2:
+                newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
+                lcNew.AddLayerTop(newLayer)
+            else:
+                newLayer = self._edb.Cell.StackupLayer(
+                    layerName,
+                    self._int_to_layer_types(layerType),
+                    self._get_edb_value(0),
+                    self._get_edb_value(0),
+                    "",
+                )
+                self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
+                newLayer = self._edb_object[layerName].update_layer_vals(
+                    layerName,
+                    newLayer,
+                    etchMap,
+                    material,
+                    fillMaterial,
+                    thickness,
+                    negative_layer,
+                    roughness_enabled,
+                    self._int_to_layer_types(layerType),
+                )
+                newLayer.SetLowerElevation(self._get_edb_value(el))
+
+                lcNew.AddLayerTop(newLayer)
+                el += newLayer.GetThickness()
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    continue
+                newLayer = lyr.Clone()
+                newLayer.SetLowerElevation(self._get_edb_value(el))
+                el += newLayer.GetThickness()
+                lcNew.AddLayerTop(newLayer)
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    lcNew.AddLayerTop(lyr.Clone())
+                    continue
+        else:
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    continue
+                if lyr.GetName() == start_layer:
+                    original_layer = lyr.Clone()
+                    original_layer.SetLowerElevation(self._get_edb_value(el))
+                    lcNew.AddLayerTop(original_layer)
+                    el += original_layer.GetThickness()
+                    newLayer = self._edb.Cell.StackupLayer(
+                        layerName,
+                        self._int_to_layer_types(layerType),
+                        self._get_edb_value(0),
+                        self._get_edb_value(0),
+                        "",
+                    )
+                    self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
+                    newLayer = self._edb_object[layerName].update_layer_vals(
+                        layerName,
+                        newLayer,
+                        etchMap,
+                        material,
+                        fillMaterial,
+                        thickness,
+                        negative_layer,
+                        roughness_enabled,
+                        self._int_to_layer_types(layerType),
+                    )
+                    newLayer.SetLowerElevation(self._get_edb_value(el))
+                    lcNew.AddLayerTop(newLayer)
+                    el += newLayer.GetThickness()
+                    # newLayers.Add(original_layer)
+                else:
+                    newLayer = lyr.Clone()
+                    newLayer.SetLowerElevation(self._get_edb_value(el))
+                    el += newLayer.GetThickness()
+                    lcNew.AddLayerTop(newLayer)
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    lcNew.AddLayerTop(lyr.Clone())
+                    continue
+        if not self._active_layout.SetLayerCollection(lcNew):
+            self._logger.error("Failed to set new layers when updating the stackup information.")
+            return False
+        self._update_edb_objects()
         allLayers = [
             i.GetName() for i in list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         ]
@@ -1450,8 +1599,7 @@ class EDBLayers(object):
             return self.layers[layerName]
         elif layerName in allLayers:
             return True
-        else:
-            return False
+        return False
 
     def add_outline_layer(self, outline_name="Outline"):
         """
