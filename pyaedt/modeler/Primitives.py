@@ -15,7 +15,6 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import UserDefinedComponent
@@ -1304,77 +1303,105 @@ class Primitives(object):
         return self._create_object("Region")
 
     @pyaedt_function_handler()
-    def create_object_from_edge(self, edge):
-        """Create a line object from an edge ID or from an
-        :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
+    def create_object_from_edge(self, edge, non_model=False):
+
+        """Create an object from one or multiple edges.
 
         Parameters
         ----------
-        edge : int or :class:`pyaedt.modeler.Object3d.EdgePrimitive`
-            Edge ID or :class:`pyaedt.modeler.Object3d.EdgePrimitive` object.
+        edge : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
+        non_model : bool, optional
+            Either if create the new object as model or nonmodel. Default is `False`.
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object.
-
-        References
-        ----------
-
-        >>> oEditor.CreateObjectFromEdges
-        """
-        if isinstance(edge, EdgePrimitive):
-            edge_id = edge.id
-        else:
-            edge_id = edge
-
-        obj = self._find_object_from_edge_id(edge_id)
-
-        if obj is not None:
-
-            varg1 = ["NAME:Selections"]
-            varg1.append("Selections:="), varg1.append(obj)
-            varg1.append("NewPartsModelFlag:="), varg1.append("Model")
-
-            varg2 = ["NAME:BodyFromEdgeToParameters"]
-            varg2.append("Edges:="), varg2.append([edge_id])
-
-            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, ["NAME:Parameters", varg2])[0]
-            return self._create_object(new_object_name)
-
-    @pyaedt_function_handler()
-    def create_object_from_face(self, face):
-        """Create an object from a face.
-
-        Parameters
-        ----------
-        face : int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
-            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
-            3D object.
+        :class:`pyaedt.modeler.Object3d.Object3d` or list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D objects.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromFaces
         """
-        face_id = face
-        if isinstance(face, FacePrimitive):
-            face_id = face.id
-        obj = self._find_object_from_face_id(face_id)
-        if obj is not None:
+        edge_ids = self.convert_to_selections(edge, True)
+        objs = OrderedDict()
+        for edge_id in edge_ids:
+            obj_name = self._find_object_from_edge_id(edge_id)
+            if obj_name not in objs:
+                objs[obj_name] = [edge_id]
+            else:
+                objs[obj_name].append(edge_id)
 
+        if objs:
             varg1 = ["NAME:Selections"]
-            varg1.append("Selections:="), varg1.append(obj)
-            varg1.append("NewPartsModelFlag:="), varg1.append("Model")
+            varg1.append("Selections:="), varg1.append(self.convert_to_selections(list(objs.keys()), False))
+            varg1.append("NewPartsModelFlag:="), varg1.append("Model" if not non_model else "NonModel")
+            varg3 = ["NAME:Parameters"]
+            for val in list(objs.values()):
+                varg2 = ["NAME:BodyFromEdgeToParameters"]
+                varg2.append("Edges:="), varg2.append(val)
+                varg3.append(varg2)
+            new_object_name = self.oeditor.CreateObjectFromEdges(varg1, varg3, ["CreateGroupsForNewObjects:=", False])
+            new_objects = []
+            for new_object in new_object_name:
+                new_objects.append(self._create_object(new_object))
+            if len(new_objects) > 1:
+                return new_objects
+            else:
+                return new_objects[0]
+        self.logger.error("Error creating object from edges.")
+        return
 
-            varg2 = ["NAME:BodyFromFaceToParameters"]
-            varg2.append("FacesToDetach:="), varg2.append([face_id])
-            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, ["NAME:Parameters", varg2])[0]
-            return self._create_object(new_object_name)
+    @pyaedt_function_handler()
+    def create_object_from_face(self, face, non_model=False):
+        """Create an object from one or multiple face.
+
+        Parameters
+        ----------
+        face : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+            Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
+        non_model : bool, optional
+            Either if create the new object as model or nonmodel. Default is `False`.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d` or list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D objects.
+
+        References
+        ----------
+
+        >>> oEditor.CreateObjectFromFaces
+        """
+        face_ids = self.convert_to_selections(face, True)
+        objs = OrderedDict()
+        for face_id in face_ids:
+            obj_name = self._find_object_from_face_id(face_id)
+            if obj_name not in objs:
+                objs[obj_name] = [face_id]
+            else:
+                objs[obj_name].append(face_id)
+
+        if objs:
+            varg1 = ["NAME:Selections"]
+            varg1.append("Selections:="), varg1.append(self.convert_to_selections(list(objs.keys()), False))
+            varg1.append("NewPartsModelFlag:="), varg1.append("Model" if not non_model else "NonModel")
+            varg3 = ["NAME:Parameters"]
+            for val in list(objs.values()):
+                varg2 = ["NAME:BodyFromFaceToParameters"]
+                varg2.append("FacesToDetach:="), varg2.append(val)
+                varg3.append(varg2)
+            new_object_name = self.oeditor.CreateObjectFromFaces(varg1, varg3, ["CreateGroupsForNewObjects:=", False])
+            new_objects = []
+            for new_object in new_object_name:
+                new_objects.append(self._create_object(new_object))
+            if len(new_objects) > 1:
+                return new_objects
+            else:
+                return new_objects[0]
+        self.logger.error("Error creating object from faces.")
+        return
 
     @pyaedt_function_handler()
     def create_polyline(

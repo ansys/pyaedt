@@ -534,20 +534,22 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return "EdgeId " + str(self.id)
 
     @pyaedt_function_handler()
-    def create_object(self):
+    def create_object(self, non_model=False, create_group_for_new_objects=False):
         """Return A new object from the selected edge.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or nonmodel. Default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromEdges
         """
-        return self._object3d._primitives.create_object_from_edge(self)
+        return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
     def move_along_normal(self, offset=1.0):
@@ -1047,20 +1049,22 @@ class FacePrimitive(object):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self):
+    def create_object(self, non_model=False):
         """Return A new object from the selected face.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or nonmodel. Default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromFaces
         """
-        return self._object3d._primitives.create_object_from_face(self)
+        return self._object3d._primitives.create_object_from_face(self, non_model)
 
 
 class Object3d(object):
