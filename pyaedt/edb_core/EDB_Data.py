@@ -1426,8 +1426,8 @@ class EDBLayers(object):
             self._get_edb_value(0),
             "",
         )
-        self._edb_object[layer_name] = EDBLayer(new_layer.Clone(), self._pedbstackup)
-        new_layer = self._edb_object[layer_name].update_layer_vals(
+        edb_layer = EDBLayer(new_layer.Clone(), self._pedbstackup)
+        new_layer = edb_layer.update_layer_vals(
             layer_name,
             new_layer,
             etchMap,
@@ -1439,6 +1439,7 @@ class EDBLayers(object):
             self._int_to_layer_types(layerType),
         )
         self.edb_layer_collection.AddLayerAbove(new_layer, base_layer)
+        self._edb_object[layer_name] = edb_layer
         self._update_stackup()
         return
 
