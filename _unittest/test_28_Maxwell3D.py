@@ -304,6 +304,35 @@ class TestClass(BasisTest, object):
         assert int(second_udp.bounding_dimension[1]) == 125
         assert int(second_udp.bounding_dimension[2]) == 110
 
+        # Create an udp from a *.py file.
+        python_udp_parameters = []
+        mypair = ["Xpos", "0mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Ypos", "0mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Dist", "5mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Turns", "2"]
+        # mypair = ["Turns", "2", "IntParam"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Width", "2mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Thickness", "1mm"]
+        python_udp_parameters.append(mypair)
+        python_udp_parameters.append(mypair)
+
+        udp_from_python = self.aedtapp.modeler.create_udp(
+            udp_dll_name="Examples/RectangularSpiral.py",
+            udp_parameters_list=python_udp_parameters,
+            name="PythonSpiral",
+        )
+
+        assert udp_from_python
+        assert udp_from_python.name == "PythonSpiral"
+        assert "PythonSpiral" in udp_from_python._primitives.object_names
+        assert int(udp_from_python.bounding_dimension[0]) == 22.0
+        assert int(udp_from_python.bounding_dimension[1]) == 22.0
+
     @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
     def test_27_create_udm(self):
         my_udmPairs = []
