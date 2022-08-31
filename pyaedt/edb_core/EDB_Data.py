@@ -1198,6 +1198,13 @@ class EDBLayers(object):
 
     @property
     def edb_layer_collection(self):
+        """Copy of EDB layer collection.
+
+        Returns
+        -------
+        class : Ansys.Ansoft.Edb.Cell.LayerCollection
+            Collection of layers.
+        """
         if not self._edb_layer_collection:
             lc_readonly = self._pedbstackup._active_layout.GetLayerCollection()
             layers = list(list(lc_readonly.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
