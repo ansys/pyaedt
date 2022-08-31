@@ -2696,7 +2696,7 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
-    def wrap_sheet(self, object_name, imprinted=True):
+    def wrap_sheet(self, object_name, imprinted=False):
         """Execute the sheet wrapping around an object. This object can be either the sheet or the object.
         If wrapping produces an unclassified operation it will be reverted.
 
