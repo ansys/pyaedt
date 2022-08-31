@@ -81,7 +81,7 @@ else:
     }
 settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
-# settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
+settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 
 class BasisTest(object):
