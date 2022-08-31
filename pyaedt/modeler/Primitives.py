@@ -1659,7 +1659,7 @@ class Primitives(object):
         <class 'pyaedt.modeler.Object3d.Object3d'>
 
         """
-        if ".dll" not in udp_dll_name or ".py" not in udp_dll_name:
+        if ".dll" not in udp_dll_name and ".py" not in udp_dll_name:
             vArg1 = [
                 "NAME:UserDefinedPrimitiveParameters",
                 "DllName:=",
@@ -3620,7 +3620,7 @@ class Primitives(object):
                     for data in udm_entry:
                         udm_lists.append(data["Attributes"]["Name"])
             except:
-                self.logger.error("User-defined models were not retrieved from the AEDT file.")
+                self.logger.info("User-defined models were not retrieved from the AEDT file.")
         return udm_lists
 
     @pyaedt_function_handler()

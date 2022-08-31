@@ -356,29 +356,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, vianame, layer, xstart, xend, ystart, yend, archeight=0, arcrad=0, isexternal=True):
+    def create_coax_port(self, vianame, radial_extent, layer, alignment="lower"):
         """Create a new coax port.
 
         Parameters
         ----------
         vianame : str
             Name of the via to create the port on.
+        radial_extent : float
+            Radial coax extension.
         layer : str
             Name of the layer.
-        xstart :
-            Starting position of the pin on the X axis.
-        xend :
-            Ending position of the pin on the X axis.
-        ystart :
-            Starting position of the pin on the Y axis.
-        yend :
-            Ending position of the pin on the Y axis.
-        archeight : float, optional
-            Arc height. The default is ``0``.
-        arcrad : float, optional
-            Rotation of the pin in radians. The default is ``0``.
-        isexternal : bool, optional
-            Whether the pin is external. The default is ``True``.
+        alignment : str, optional
+            Port alignment on Layer.
 
         Returns
         -------
@@ -391,41 +381,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
-        if isinstance(layer, str):
-            layerid = self.modeler.layers.layer_id(layer)
-        else:
-            layerid = layer
-        self.modeler.oeditor.CreateEdgePort(
-            [
-                "NAME:Contents",
-                "edge:=",
-                [
-                    "et:=",
-                    "pse",
-                    "sel:=",
-                    vianame,
-                    "layer:=",
-                    layerid,
-                    "sx:=",
-                    xstart,
-                    "sy:=",
-                    ystart,
-                    "ex:=",
-                    xend,
-                    "ey:=",
-                    yend,
-                    "h:=",
-                    archeight,
-                    "rad:=",
-                    arcrad,
-                ],
-                "external:=",
-                isexternal,
-            ]
-        )
+        if vianame in self.port_list:
+            self.logger.error("Port already existing on via {}".format(vianame))
+            return False
+        self.oeditor.ToggleViaPin(["NAME:elements", vianame])
+
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
+            self.modeler.change_property(
+                "Excitations:{}".format(a[0]), "Radial Extent Factor", str(radial_extent), "EM Design"
+            )
+            self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
+            self.modeler.change_property(
+                a[0],
+                "Pad Port Layer",
+                layer,
+            )
             return a[0]
         else:
             return False
