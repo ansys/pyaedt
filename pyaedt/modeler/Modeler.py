@@ -5103,7 +5103,7 @@ class GeometryModeler(Modeler, object):
         object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
             Object name or solid object.
         imprinted : bool, optional
-            Either if imprint or not over the sheet. Default is `False`.
+            Either if imprint or not over the sheet. Default is ``False``.
 
         Returns
         -------
