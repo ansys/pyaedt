@@ -18,3 +18,5 @@ nbsphinx==0.8.9
 ipywidgets==8.0.1
 joblib==1.1.0
 scikit-learn==1.1.2
+ipython==8.4.0
+jupyterlab==3.4.5
