@@ -1378,7 +1378,7 @@ class EDBLayers(object):
         roughness_enabled=False,
         etch_factor=None,
     ):
-        """Add a layer after a specific layer.
+        """Insert a layer above the specified base layer.
 
         Parameters
         ----------
@@ -1416,7 +1416,7 @@ class EDBLayers(object):
         Returns
         -------
         :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
-            Layer Object for stackup layers. Boolean otherwise (True in case of success).
+            Layer Object for stackup layers.
         """
 
         new_layer = self._edb.Cell.StackupLayer(
