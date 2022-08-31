@@ -1445,16 +1445,16 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def add_layer(
-            self,
-            layerName,
-            start_layer=None,
-            material="copper",
-            fillMaterial="",
-            thickness="35um",
-            layerType=0,
-            negative_layer=False,
-            roughness_enabled=False,
-            etchMap=None,
+        self,
+        layerName,
+        start_layer=None,
+        material="copper",
+        fillMaterial="",
+        thickness="35um",
+        layerType=0,
+        negative_layer=False,
+        roughness_enabled=False,
+        etchMap=None,
     ):
         """Add a layer after a specific layer.
 
