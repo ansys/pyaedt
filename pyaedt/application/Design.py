@@ -3343,7 +3343,7 @@ class Design(AedtObjects):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            val = var_obj.GetPropValue("SIValue")
+            val = _retry_ntimes(10, var_obj.GetPropValue, "SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()
