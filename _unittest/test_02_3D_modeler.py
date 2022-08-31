@@ -642,3 +642,15 @@ class TestClass(BasisTest, object):
             with pytest.raises(ValueError):
                 bounding_box = [100, 200, 100, -100, -300]
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+
+    def test_53_wrap_sheet(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "wrap")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp2")
+        box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp3")
+        assert self.aedtapp.modeler.wrap_sheet(rect, box1)
+        self.aedtapp.odesign.Undo()
+        assert rect.wrap_sheet(box1)
+        self.aedtapp.odesign.Undo()
+        assert box1.wrap_sheet(rect)
+        self.aedtapp.odesign.Undo()
+        assert not box1.wrap_sheet(box2)
