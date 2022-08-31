@@ -21,11 +21,12 @@ from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
+from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt import settings
+from pyaedt.generic.general_methods import open_file
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
@@ -475,7 +476,10 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         vertices = []
-        for vertex in self.oeditor.GetVertexIDsFromEdge(self.id):
+        v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, vertex))
         return vertices
@@ -515,7 +519,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         References
         ----------
 
-        >>> oEditor.GetVertexPosition
+        >>> oEditor.GetEdgeLength
 
         """
         try:
@@ -607,6 +611,32 @@ class FacePrimitive(object):
         return self._object3d.object_units
 
     @property
+    def touching_objects(self):
+        """Get the objects that touch one of the vertex, edge midpoint or the actual face.
+
+        Returns
+        -------
+        list
+            Object names touching that face.
+        """
+        list_names = []
+        for vertex in self.vertices:
+            body_names = self._object3d._primitives.get_bodynames_from_position(vertex.position)
+            a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        for edge in self.edges:
+            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint)
+            a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+            if a:
+                list_names.extend(a)
+        body_names = self._object3d._primitives.get_bodynames_from_position(self.center)
+        a = [i for i in body_names if i != self._object3d.name and i not in list_names]
+        if a:
+            list_names.extend(a)
+        return list_names
+
+    @property
     def edges(self):
         """Edges lists.
 
@@ -642,7 +672,10 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        for vertex in list(self.oeditor.GetVertexIDsFromFace(self.id)):
+        v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, int(vertex)))
         return vertices
@@ -1147,7 +1180,7 @@ class Object3d(object):
         if not os.path.isfile(filename):
             raise Exception("Cannot export the ACIS SAT file for object {}".format(self.name))
 
-        with open(filename, "r") as fh:
+        with open_file(filename, "r") as fh:
             temp = fh.read().splitlines()
         all_lines = [s for s in temp if s.startswith("body ")]
 
@@ -1191,7 +1224,9 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
-        if not self._primitives._app.student_version:
+        if self.object_type == "Unclassified":
+            return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        if not settings.disable_bounding_box_sat:
             bounding = self._bounding_box_sat()
             if bounding:
                 return bounding
@@ -1288,6 +1323,8 @@ class Object3d(object):
     @property
     def touching_objects(self):
         """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        if self.object_type == "Unclassified":
+            return []
         list_names = []
         for vertex in self.vertices:
             body_names = self._primitives.get_bodynames_from_position(vertex.position)
@@ -1320,6 +1357,8 @@ class Object3d(object):
         >>> oEditor.GetFaceIDs
 
         """
+        if self.object_type == "Unclassified":
+            return []
         faces = []
         for face in list(self.m_Editor.GetFaceIDs(self.name)):
             face = int(face)
@@ -1672,6 +1711,8 @@ class Object3d(object):
         >>> oEditor.GetEdgeIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         edges = []
         for edge in self._primitives.get_object_edges(self.name):
             edge = int(edge)
@@ -1692,8 +1733,13 @@ class Object3d(object):
         >>> oEditor.GetVertexIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         vertices = []
-        for vertex in self._primitives.get_object_vertices(self.name):
+        v = [i for i in self._primitives.get_object_vertices(self.name)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self, vertex))
         return vertices
@@ -2906,13 +2952,15 @@ class Padstack(object):
         ]
         arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
         arg3 = ["NAME:pds"]
+        id = 0
         for el in self.layers:
             arg4 = []
+            id += 1
             arg4.append("NAME:lgm")
             arg4.append("lay:=")
             arg4.append(self.layers[el].layername)
             arg4.append("id:=")
-            arg4.append(el)
+            arg4.append(id)
             arg4.append("pad:=")
             arg4.append(
                 [
@@ -3000,7 +3048,15 @@ class Padstack(object):
 
     @pyaedt_function_handler()
     def add_layer(
-        self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
+        self,
+        layername="Start",
+        pad_hole=None,
+        antipad_hole=None,
+        thermal_hole=None,
+        connx=0,
+        conny=0,
+        conndir=0,
+        layer_id=None,
     ):
         """Create a layer in the padstack.
 
@@ -3030,11 +3086,13 @@ class Padstack(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        layer_id = None
         if layername in self.layers:
             return False
         else:
-            new_layer = self.PDSLayer(layername, self.layerid)
-            self.layerid += 1
+            if not layer_id:
+                layer_id = len(list(self.layers.keys())) + 1
+            new_layer = self.PDSLayer(layername, layer_id)
             new_layer.pad = pad_hole
             new_layer.antipad = antipad_hole
             new_layer.thermal = thermal_hole

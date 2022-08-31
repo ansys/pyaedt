@@ -5,7 +5,8 @@ plots in AEDT. They are accessible through the ``post`` property.
 
 .. note::
    The `AdvancedPostProcessing` module requires Python 3 and
-   requires `NumPy <https://numpy.org/doc/stable/>`_, `Matplotlib <https://matplotlib.org/>`_, and `PyVista <https://docs.pyvista.org/>`_.
+   that the `numpy <https://numpy.org/doc/stable/>`_, `matplotlib <https://matplotlib.org/>`_,
+   and `pyvista <https://docs.pyvista.org/>`_ packages are installed.
 
 .. note::
    Some functionalities are available only when AEDT is running 

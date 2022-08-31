@@ -35,9 +35,9 @@ def install(package):
 
 if sys.version_info >= (3, 7):
     install_requires = [
-        "cffi == 1.15.1;platform_system=='Linux'",
+        "cffi == 1.15.0;platform_system=='Linux'",
         "pywin32 >= 303;platform_system=='Windows'",
-        "pythonnet == 3.0.0rc3",
+        "pythonnet == 3.0.0rc4",
         "jupyterlab",
         "rpyc==5.0.1",
         "pyvista>=0.34.1",

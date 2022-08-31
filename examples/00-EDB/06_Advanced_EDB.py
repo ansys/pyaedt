@@ -1,25 +1,27 @@
 """
-Edb: Parametric Via Creation
+EDB: parametric via creation
 ----------------------------
-This example shows how to use EDB to create a layout.
+This example shows how you can use EDB to create a layout.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/viawizard.png'
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 import numpy as np
-import tempfile
 from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_folder_name, generate_unique_name
 
-tmpfold = tempfile.gettempdir()
-if not os.path.exists(tmpfold):
-    os.mkdir(tmpfold)
-aedb_path = os.path.join(tmpfold, generate_unique_name("via_opt") + ".aedb")
+
+aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("via_opt") + ".aedb")
 
 ###############################################################################
-# Stackup Generation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This class creates a simple stackup based on few inputs. it will be used later.
+# Create stackup
+# ~~~~~~~~~~~~~~
+# The ``StackupSimple`` class creates a stackup based on few inputs. This stackup
+# is used later.
+
 class StackupSimple:
     """Creates a typical PCB stackup"""
 
@@ -138,9 +140,10 @@ class StackupSimple:
 
 
 ###############################################################################
-# Ground Planes Generation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method creates a ground plane on specific layers.
+# Create ground plane
+# ~~~~~~~~~~~~~~~~~~~
+# Create a ground plane on specific layers.
+
 def _create_ground_planes(edb, layers):
     plane = edb.core_primitives.Shape("rectangle", pointA=["-3mm", "-3mm"], pointB=["3mm", "3mm"])
     for i in layers:
@@ -148,15 +151,17 @@ def _create_ground_planes(edb, layers):
 
 
 ##################################################################################
-# Edb Creation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# If the path doesn't exists pyaedt will generate automatically a new aedb folder.
+# Create EDB
+# ~~~~~~~~~~
+# Create EDB. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
+
 edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 
 ##################################################################################
-# Stackup Creation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here stackup info are defined and layers are created.
+# Create stackup layers
+# ~~~~~~~~~~~~~~~~~~~~~
+# Create stackup layers.
+
 layout_count = 12
 diel_material_name = "FR4_epoxy"
 diel_thickness = "0.15mm"
@@ -179,10 +184,11 @@ StackupSimple(
 ).create_stackup()
 
 ##################################################################################
-# Parameters Creation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here all the variables are created. If variable has a $ prefix it will be project,
-# oterwhise it will be design variable.
+# Create variables
+# ~~~~~~~~~~~~~~~~
+# Create all variables. If a variable has a ``$`` prefix, it is a project variable.
+# Otherwise, is a design variable.
+
 giva_angle_rad = gvia_angle / 180 * np.pi
 
 edb.add_design_variable("$via_hole_size", "0.3mm")
@@ -193,10 +199,10 @@ edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
 
 ##################################################################################
-# Padstack Creation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here 2 padstacks will be created, one for ground and one for signal. The padstack
-# will be parametric.
+# Create padstacks
+# ~~~~~~~~~~~~~~~~
+# Create two padstacks, one for the ground and one for the signal. The padstacks
+# are parametric.
 
 edb.core_padstack.create_padstack(
     padstackname="SVIA", holediam="$via_hole_size", antipaddiam="$antipaddiam", paddiam="$paddiam"
@@ -204,16 +210,17 @@ edb.core_padstack.create_padstack(
 edb.core_padstack.create_padstack(padstackname="GVIA", holediam="0.3mm", antipaddiam="0.7mm", paddiam="0.5mm")
 
 ##################################################################################
-# Padstack Placement : Signal
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+# Place padstack for signal
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Place the padstack for the signal.
 
 edb.core_padstack.place_padstack([0, 0], "SVIA", net_name="RF", fromlayer=trace_in_layer, tolayer=trace_out_layer)
 
 ##################################################################################
-# Padstack Placement : ground
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# A loop iterates and place multiple ground vias on different positions.
+# Place padstack for ground
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Place the padstack for the  ground. A loop iterates and places multiple ground
+# vias on different positions.
 
 gvia_num_side = gvia_num / 2
 
@@ -243,9 +250,9 @@ else:
         edb.core_padstack.place_padstack([xloc + "*-1", yloc + "*-1"], "GVIA", net_name="GND")
 
 ##################################################################################
-# Trace Placement
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Parametric Traces are generated and placed.
+# Generate traces
+# ~~~~~~~~~~~~~~~
+# Generate and place parametric traces.
 
 path = edb.core_primitives.Shape("polygon", points=[[0, 0], [0, "-3mm"]])
 edb.core_primitives.create_path(
@@ -263,18 +270,19 @@ edb.core_primitives.create_path(
 )
 
 ##################################################################################
-# Ground Placement
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Ground Layers are generated and placed.
+# Generate ground layers
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Generate and place ground layers.
+
 ground_layers = ["L" + str(i + 1) for i in np.arange(layout_count)]
 ground_layers.remove(trace_in_layer)
 ground_layers.remove(trace_out_layer)
 _create_ground_planes(edb=edb, layers=ground_layers)
 
 ##################################################################################
-# Edb Save and Close
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Save and close Edb Created.
+# Save EDB and close
+# ~~~~~~~~~~~~~~~~~~
+# Save EDB and close.
 
 edb.save_edb()
 edb.close_edb()

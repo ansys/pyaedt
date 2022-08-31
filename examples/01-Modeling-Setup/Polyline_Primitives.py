@@ -1,29 +1,31 @@
 """
-General: Polyline Creation
+General: polyline creation
 --------------------------
 This example shows how you can use PyAEDT to create and manipulate polylines.
 """
 
 ###############################################################################
-# Perform Required Imports
+# Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# This example performs required imports from PyAEDT and connects to AEDT.
+# Perform required imports.
 
 import os
 from pyaedt.maxwell import Maxwell3d
 from pyaedt.modeler.Primitives import PolylineSegment
 
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
-
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Create a Maxwell 3D Object and Set the Unit Type
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a :class:`pyaedt.Maxwell3d` object and sets the unit
-# type to ``"mm"``.
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+###############################################################################
+# Create Maxwell 3D object
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a :class:`pyaedt.Maxwell3d` object and set the unit type to ``"mm"``.
 
 M3D = Maxwell3d(
     solution_type="Transient", designname="test_polyline_3D", specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical,
@@ -32,45 +34,40 @@ M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler
 
 ###############################################################################
-# Clear Existing Objects
+# Clear existing objects
 # ~~~~~~~~~~~~~~~~~~~~~~
-# This command clears any existing objects.
+# Clear existing objects.
 
 prim3D.delete()
 
 ###############################################################################
-# Define Some Design Variables
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example defines two design variables as parameters for the polyline
-# objects.
+# Define variables
+# ~~~~~~~~~~~~~~~~
+# Define two design variables as parameters for the polyline objects.
 
 M3D["p1"] = "100mm"
 M3D["p2"] = "71mm"
 
 ###############################################################################
-# Input Data
+# Input data
 # ~~~~~~~~~~
-# All data for the polyline functions can be entered as either floating point
+# Input data. All data for the polyline functions can be entered as either floating point
 # values or strings. Floating point values are assumed to be in model units
 # (``M3D.modeler.model_units``).
 
 test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
 
 ###############################################################################
-# Polyline Primitive Examples
-# ---------------------------
-# Create a Line Primitive
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# The basic polyline command takes a list of positions (``[X, Y, Z]`` coordinates)
-# and creates a polyline object with one or more segments. The supported segment
-# types are:
-#
-# <ul>
-# <li>Line </li>
-# <li>Arc (3-points)</li>
-# <li>AngularArc (center-point + angle)</li>
-# <li>Spline</li>
-# </ul>
+# Polyline primitives
+# -------------------
+# The following examples are for creating polyline primitives.
+
+# Create line primitive
+# ~~~~~~~~~~~~~~~~~~~~~
+# Create a line primitive. The basic polyline command takes a list of positions
+# (``[X, Y, Z]`` coordinates) and creates a polyline object with one or more
+# segments. The supported segment types are ``Line``, ``Arc`` (3 points),
+# ``AngularArc`` (center-point + angle), and ``Spline``.
 
 P = prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
 
@@ -79,21 +76,21 @@ print("Segment types : {}".format(P._segment_types))
 print("primitive id = {}".format(P.id))
 
 ###############################################################################
-# Create an Arc (3-Point) Primitive
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The parameter ``position_list`` must contain at least three position values.
-# The first three position values are used.
+# Create arc primitive
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create an arc primitive. The parameter ``position_list`` must contain at
+# least three position values. The first three position values are used.
 
 P = prim3D.create_polyline(position_list=test_points[0:3], segment_type="Arc", name="PL02_arc")
 
 print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id].name))
 
 ###############################################################################
-# Create a Spline Primitive
+# Create spline primitive
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Here the segment is defined using a `PolylineSegment` object. This allows
-# you to provide additional input parameters to define the spine, such as the
-# number of points (in this case 4). The parameter ``position_list``
+# Create a spline primitive. Defining the segment using a ``PolylineSegment``
+# object allows you to provide additional input parameters for the spine, such
+# as the number of points (in this case 4). The parameter ``position_list``
 # must contain at least four position values.
 
 P = prim3D.create_polyline(
@@ -101,14 +98,14 @@ P = prim3D.create_polyline(
 )
 
 ###############################################################################
-# Create a Center-Point Arc Primitive
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# A center-point arc segment is defined by a starting point, a center point,
-# and an angle of rotation around the center point. The rotation occurs in a
-# plane parallel to the XY, YZ or ZX plane of the active coordinate system.
-# The starting point and the center point must therefore have one coordinate
-# value (X, Y, or Z) with the same value.
-
+# Create center-point arc primitive
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a center-point arc primitive. A center-point arc segment is defined
+# by a starting point, a center point, and an angle of rotation around the
+# center point. The rotation occurs in a plane parallel to the XY, YZ, or ZX
+# plane of the active coordinate system. The starting point and the center point
+# must therefore have one coordinate value (X, Y, or Z) with the same value.
+# 
 # Here ``start-point`` and ``center-point`` have a common Z coordinate, ``"0mm"``.
 # The curve is therefore rotated in the XY plane with Z = ``"0mm"``.
 
@@ -123,8 +120,8 @@ P = prim3D.create_polyline(
 ###############################################################################
 # Here ``start_point`` and ``center_point`` have the same values for the Y and
 # Z coordinates, so the plane or rotation could be either XY or ZX.
-# For these special cases when the rotation plane is ambiguous, the plane can
-# be specified explicitly.
+# For these special cases when the rotation plane is ambiguous, you can specify
+# the plane explicitly.
 
 start_point = [100, 0, 0]
 center_point = [0, 0, 0]
@@ -140,10 +137,10 @@ P = prim3D.create_polyline(
 )
 
 ###############################################################################
-# Compound Polyline Examples
-# --------------------------
-# A list of points can be use to create a multi-segment polyline in a single
-# command.
+# Compound polylines
+# ------------------ 
+# You can use a list of points in a single command to create a multi-segment
+# polyline.
 #
 # By default, if no specification of the type of segments is given, all points
 # are connected by line segments.
@@ -153,14 +150,14 @@ P = prim3D.create_polyline(position_list=test_points, name="PL06_segmented_compo
 ###############################################################################
 # You can specify the segment type with the parameter ``segment_type``.
 # In this case, you must specify that the four input points in ``position_list``
-# are to be connected as a ``"Line"`` segment followed by a 3-point ``"Arc"`` segment.
+# are to be connected as a line segment followed by a 3-point arc segment.
 
 P = prim3D.create_polyline(position_list=test_points, segment_type=["Line", "Arc"], name="PL05_compound_line_arc")
 
 ###############################################################################
 # The parameter ``close_surface`` ensures that the polyline starting point and
-# ending point are the same. If necessary, an additional line segment can be
-# added to achieve this.
+# ending point are the same. If necessary, you can add an additional line
+# segment to achieve this.
 
 P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="PL07_segmented_compound_line_closed")
 
@@ -172,13 +169,15 @@ P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="
 P = prim3D.create_polyline(position_list=test_points, cover_surface=True, name="SPL01_segmented_compound_line")
 
 ###############################################################################
-# Compound Line Examples
-# ---------------------------
-# Insert a Line Segment
-# ~~~~~~~~~~~~~~~~~~~~~
-# Define a line segment starting at vertex 1 ``["100mm", "0mm", "0mm"]``
+# Compound lines
+# --------------
+# The following examples are for inserting compound lines.
+#
+# Insert line segment
+# ~~~~~~~~~~~~~~~~~~~
+# Insert a line segment starting at vertex 1 ``["100mm", "0mm", "0mm"]``
 # of an existing polyline and ending at some new point ``["90mm", "20mm", "0mm"].``
-# By numerical comparison of the start point with the existing vertices of the
+# By numerical comparison of the starting point with the existing vertices of the
 # original polyline object, it is determined automatically that the segment is
 # inserted after the first segment of the original polyline.
 
@@ -191,10 +190,10 @@ insert_point = ["90mm", "20mm", "0mm"]
 P.insert_segment(position_list=[start_point, insert_point])
 
 ###############################################################################
-# Insert a Compound Line with an Insert Curve
-# -------------------------------------------
-# Define a line segment starting at vertex 1 ``["100mm", "0mm", "0mm"]``
-# of an existing polyline and ending at some new point ``["90mm", "20mm", "0mm"]``.
+# Insert compound line with insert curve
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Insert a compound line starting a line segment at vertex 1 ``["100mm", "0mm", "0mm"]``
+# of an existing polyline and end at some new point ``["90mm", "20mm", "0mm"]``.
 # By numerical comparison of the starting point, it is determined automatically
 # that the segment is inserted after the first segment of the original polyline.
 
@@ -208,7 +207,11 @@ insert_point2 = [40, 40, 0]
 P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
 
 ###############################################################################
-# Special case: Insert at the end of a center-point arc (``type="AngularArc"``).
+# Insert compound line at end of a center-point arc
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Insert a compound line at the end of a center-point arc (``type="AngularArc"``).
+# This is a special case.
+#
 # Step 1: Draw a center-point arc.
 
 start_point = [2200.0, 0.0, 1200.0]
@@ -241,8 +244,8 @@ P.insert_segment(
 )
 
 ###############################################################################
-# The following shows how you can complete all three steps in a single step
-# using the compound polyline definition.
+# You can use the compound polyline definition to complete all three steps in
+# a single step.
 
 prim3D.create_polyline(
     position_list=[start_point, end_of_line_segment],
@@ -255,6 +258,8 @@ prim3D.create_polyline(
 )
 
 #########################################################################
+# Insert two 3-point arcs forming a circle and covered
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Insert two 3-point arcs forming a circle and covered.
 # Note that the last point of the second arc segment is not defined in
 # the position list.
@@ -269,12 +274,11 @@ P = prim3D.create_polyline(
 )
 
 ###############################################################################
-# Here is another example of a complex polyline where the number of points is
+# Here is an example of a complex polyline where the number of points is
 # insufficient to populate the requested segments. This results in an
-# ``IndexError`` that is caught silently within PyAEDT. The return value of
-# the command is ``False``, which can be caught at the application level.
-# While this example maybe not so useful in a Jupyter Notebook, it is important
-# for the unit tests.
+# ``IndexError`` that PyAEDT catches silently. The return value of the command
+# is ``False``, which can be caught at the app level.  While this example might
+# not be so useful in a Jupyter Notebook, it is important for unit tests.
 
 MDL_points = [
     ["67.1332mm", "2.9901mm", "0mm"],
@@ -293,7 +297,7 @@ return_value = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, nam
 assert return_value  # triggers an error at the application error
 
 ###############################################################################
-# This example provides more points than the segment list requires.
+# Here is an example that provides more points than the segment list requires.
 # This is valid usage. The remaining points are ignored.
 
 MDL_segments = ["Line", "Arc", "Line", "Arc"]
@@ -301,9 +305,9 @@ MDL_segments = ["Line", "Arc", "Line", "Arc"]
 P = prim3D.create_polyline(MDL_points, segment_type=MDL_segments, name="MDL_Polyline")
 
 ###############################################################################
-# Save the Project
-# ~~~~~~~~~~~~~~~~
-# This example saves the project.
+# Save project
+# ------------
+# Save the project.
 
 project_dir = r"C:\temp"
 project_name = "Polylines"

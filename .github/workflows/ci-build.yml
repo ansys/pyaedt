@@ -7,6 +7,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  docs-style:
+    name: Documentation Style Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+  
+      - name: Running Vale
+        uses: errata-ai/vale-action@reviewdog
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          files: doc
+          reporter: github-pr-check
+          level: error
+          filter_mode: nofilter
+          fail_on_error: true
+          vale_flags: "--config=doc/.vale.ini"
+
   docs_build:
     runs-on: ubuntu-20.04
 
@@ -14,7 +32,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -44,9 +62,9 @@ jobs:
         run: |
           python doc/print_errors.py
 
-      - name: Upload Documentation
-        uses: actions/upload-artifact@v2
-        with:
-          name: Documentation
-          path: doc/_build/html
-          retention-days: 7
+#      - name: Upload Documentation
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: Documentation
+#          path: doc/_build/html
+#          retention-days: 7

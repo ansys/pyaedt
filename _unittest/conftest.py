@@ -10,7 +10,7 @@ This module contains the configuration and fixture for the pytest-based unit tes
 The default configuration can be changed by placing a file called local_config.json in the same
 directory as this module. An example of the contents of local_config.json
 {
-  "desktopVersion": "2022.1",
+  "desktopVersion": "2022.2",
   "NonGraphical": false,
   "NewThread": false,
   "test_desktops": true
@@ -47,20 +47,14 @@ else:
 local_path = os.path.dirname(os.path.realpath(__file__))
 
 from pyaedt import Desktop
-
-# Import required modules
-from pyaedt import Hfss, Edb
+from pyaedt import Edb
+from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
 
 test_project_name = "test_primitives"
 
 sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
-
-# set scratch path and create it if necessary
-scratch_path = tempfile.gettempdir()
-if not os.path.isdir(scratch_path):
-    os.mkdir(scratch_path)
 
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
@@ -83,13 +77,16 @@ else:
         "skip_debug": False,
         "local": False,
         "use_grpc": False,
+        "disable_sat_bounding_box": False,
     }
 settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
+settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
 
 class BasisTest(object):
     def my_setup(self):
+        scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
@@ -113,21 +110,22 @@ class BasisTest(object):
             except:
                 pass
         del self.aedtapps
+        shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
-    def add_app(self, project_name=None, design_name=None, solution_type=None, application=None):
+    def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
             desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             desktop.disable_autosave()
         if project_name:
-            example_project = os.path.join(local_path, "example_models", project_name + ".aedt")
-            example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
+            example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
+            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_project):
                 self.test_project = self.local_scratch.copyfile(example_project)
             elif os.path.exists(example_project + "z"):
                 example_project = example_project + "z"
                 self.test_project = self.local_scratch.copyfile(example_project)
             else:
-                self.test_project = project_name
+                self.test_project = os.path.join(self.local_scratch.path, project_name + ".aedt")
             if os.path.exists(example_folder):
                 target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
                 self.local_scratch.copyfolder(example_folder, target_folder)
@@ -145,9 +143,9 @@ class BasisTest(object):
         )
         return self.aedtapps[-1]
 
-    def add_edb(self, project_name=None):
+    def add_edb(self, project_name=None, subfolder=""):
         if project_name:
-            example_folder = os.path.join(local_path, "example_models", project_name + ".aedb")
+            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
             if os.path.exists(example_folder):
                 target_folder = os.path.join(self.local_scratch.path, project_name + ".aedb")
                 self.local_scratch.copyfolder(example_folder, target_folder)
@@ -192,9 +190,6 @@ def desktop_init():
             os.kill(pid, 9)
         except:
             pass
-    p = [x[0] for x in os.walk(scratch_path) if "scratch" in x[0]]
-    for folder in p:
-        shutil.rmtree(folder, ignore_errors=True)
 
     if config["test_desktops"]:
         run_desktop_tests()

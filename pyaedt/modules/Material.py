@@ -1091,6 +1091,10 @@ class CommonMaterial(object):
             self._props[propname] = str(provpavlue)
             if update_aedt:
                 return self.update()
+        elif isinstance(provpavlue, OrderedDict):
+            self._props[propname] = provpavlue
+            if update_aedt:
+                return self.update()
         elif isinstance(provpavlue, list) and self.__dict__["_" + propname].type == "nonlinear":
             if propname == "permeability":
                 bh = OrderedDict({"DimUnits": ["", ""]})
@@ -1179,6 +1183,12 @@ class Material(CommonMaterial, object):
                     )
                 }
             )
+        if "stacking_type" in self._props:
+            self.stacking_type = self._props["stacking_type"]["Choice"]
+
+        if "wire_type" in self._props:
+            self.wire_type = self._props["wire_type"]["Choice"]
+
         for property in MatProperties.aedtname:
             tmods = None
             smods = None
@@ -1589,6 +1599,196 @@ class Material(CommonMaterial, object):
         self._viscosity.value = value
         self._update_props("viscosity", value)
 
+    @property
+    def stacking_type(self):
+        """Composition of the wire can either be "Solid", "Lamination" or "Litz Wire".
+
+        Returns
+        -------
+        string
+            Structure of the wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._stacking_type
+
+    @stacking_type.setter
+    def stacking_type(self, value):
+        if not value in ["Solid", "Lamination", "Litz Wire"]:
+            raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
+
+        self._stacking_type = value
+        self._update_props(
+            "stacking_type",
+            OrderedDict(
+                {
+                    "property_type": "ChoiceProperty",
+                    "Choice": value,
+                }
+            ),
+        )
+
+    @property
+    def wire_type(self):
+        """The type of the wire can either be "Round", "Square" or "Rectangular".
+
+        Returns
+        -------
+        string
+            Type of the wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._wire_type
+
+    @wire_type.setter
+    def wire_type(self, value):
+        if not value in ["Round", "Square", "Rectangular"]:
+            raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
+
+        self._wire_type = value
+        self._update_props("wire_type", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+
+    @property
+    def wire_thickness_direction(self):
+        """Thickness direction of the wire can either be "V(1)", "V(2)" or "V(3)".
+
+        Returns
+        -------
+        string
+            Thickness direction of the wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._wire_thickness_direction
+
+    @wire_thickness_direction.setter
+    def wire_thickness_direction(self, value):
+        if not value in ["V(1)", "V(2)", "V(3)"]:
+            raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
+
+        self._wire_thickness_direction = value
+        self._update_props(
+            "wire_thickness_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value})
+        )
+
+    @property
+    def wire_width_direction(self):
+        """Width direction of the wire can either be "V(1)", "V(2)" or "V(3)".
+
+        Returns
+        -------
+        string
+            Width direction of the wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._wire_width_direction
+
+    @wire_width_direction.setter
+    def wire_width_direction(self, value):
+        if not value in ["V(1)", "V(2)", "V(3)"]:
+            raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
+
+        self._wire_width_direction = value
+        self._update_props("wire_width_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+
+    @property
+    def strand_number(self):
+        """Strand number for litz wire.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Material.MatProperty`
+            Number of strands for the wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._strand_number
+
+    @strand_number.setter
+    def strand_number(self, value):
+        self._strand_number = value
+        self._update_props("strand_number", value)
+
+    @property
+    def wire_thickness(self):
+        """Thickness of rectangular litz wire.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Material.MatProperty`
+            Thickness of the litz wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._wire_thickness
+
+    @wire_thickness.setter
+    def wire_thickness(self, value):
+        self._wire_thickness = value
+        self._update_props("wire_thickness", value)
+
+    @property
+    def wire_diameter(self):
+        """Diameter of the round litz wire.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Material.MatProperty`
+            Diameter of the litz wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._wire_diameter
+
+    @wire_diameter.setter
+    def wire_diameter(self, value):
+        self._wire_diameter = value
+        self._update_props("wire_diameter", value)
+
+    @property
+    def wire_width(self):
+        """Width of the rectangular or square litz wire.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Material.MatProperty`
+            Width of the litz wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._wire_width
+
+    @wire_width.setter
+    def wire_width(self, value):
+        self._wire_width = value
+        self._update_props("wire_width", value)
+
     @pyaedt_function_handler()
     def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
         """Set Magnetic Coercitivity for material.
@@ -1778,9 +1978,11 @@ class Material(CommonMaterial, object):
         self._props["core_loss_curves"]["Frequency"] = "{}Hz".format(frequency)
         self._props["core_loss_curves"]["Thickness"] = thickness
         self._props["core_loss_curves"]["IsTemperatureDependent"] = False
-        self._props["core_loss_curves"]["Point"] = []
+
+        self._props["core_loss_curves"]["BPCoordinates"] = OrderedDict({})
+        self._props["core_loss_curves"]["BPCoordinates"]["Point"] = []
         for points in point_list:
-            self._props["core_loss_curves"]["Point"].append(points)
+            self._props["core_loss_curves"]["BPCoordinates"]["Point"].append(points)
         return self.update()
 
     @pyaedt_function_handler()

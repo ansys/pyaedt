@@ -35,6 +35,7 @@ class TestClass(BasisTest, object):
 
     def test_02_line(self):
         top = self.st.stackup_layers["top"]
+        gnd = self.st.stackup_layers["gnd1"]
         line1 = top.add_trace(line_length=50, line_width=3, line_position_x=20, line_position_y=20, frequency=1e9)
         assert line1
         line2 = top.add_trace(
@@ -46,7 +47,7 @@ class TestClass(BasisTest, object):
             line_position_y=20,
             frequency=1e9,
         )
-        assert line1.create_lumped_port("gnd1", change_side=True)
+        assert line1.create_lumped_port(gnd, opposite_side=True)
         assert line2
         assert line2._added_length_calcul
         assert line2.frequency.numeric_value == 1e9
@@ -58,8 +59,12 @@ class TestClass(BasisTest, object):
     def test_03_padstackline(self):
         p1 = self.st.add_padstack("Massimo", material="aluminum")
         p1.plating_ratio = 0.7
-        p1.set_start_layer("lay1")
-        p1.set_stop_layer("top")
+        try:
+            p1.set_start_layer("non_existing_layer")
+        except ValueError:
+            assert True
+        assert p1.set_start_layer("lay1")
+        assert p1.set_stop_layer("top")
         p1.set_all_pad_value(1)
         p1.set_all_antipad_value(3)
         p1.num_sides = 8
@@ -80,6 +85,8 @@ class TestClass(BasisTest, object):
             patch_position_y=line1.position_y.numeric_value,
         )
         assert patch.width.numeric_value == 22
+        patch.set_optimal_width()
+        assert patch.width.numeric_value == 0.0912239398980667
         assert self.st.resize_around_element(patch)
         assert patch.create_lumped_port(gnd)
 
@@ -121,3 +128,11 @@ class TestClass(BasisTest, object):
         patch2 = top.ml_patch(1e9, patch_width=width, patch_position_x=0, patch_position_y=0)
         patch2.create_lumped_port(gnd, opposite_side=True)
         assert self.st.resize_around_element(patch2)
+
+    def test_08_duplicated_parametrized_material(self):
+        diel = self.st.stackup_layers["diel1"]
+        assert diel.duplicated_material.permittivity
+        assert diel.duplicated_material.permeability
+        assert diel.duplicated_material.conductivity
+        assert diel.duplicated_material.dielectric_loss_tangent
+        assert diel.duplicated_material.magnetic_loss_tangent

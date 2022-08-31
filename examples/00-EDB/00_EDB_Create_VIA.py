@@ -1,41 +1,39 @@
 """
-Edb: Geometry Creation
+EDB: geometry creation
 ----------------------
-This example shows how to use EDB to create a layout.
+This example shows how you can use EDB to create a layout.
 """
 
-###############################################################################
-# Import the EDB Layout Object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the EDB layout object and initializes it on version 2022R2.
+##########################
+# Import EDB layout object
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Import the EDB layout object and initialize it on version 2022 R2.
 
 import time
 import os
-import tempfile
 from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_folder_name,generate_unique_name
 
 start = time.time()
 
-tmpfold = tempfile.gettempdir()
-aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
+aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 
-###############################################################################
-# Create a Stackup
-# ~~~~~~~~~~~~~~~~
-# This method adds the stackup layers.
+####################
+# Add stackup layers
+# ~~~~~~~~~~~~~~~~~~
+# Add stackup layers.
 #
 if edb:
     edb.core_stackup.stackup_layers.add_layer("GND")
     edb.core_stackup.stackup_layers.add_layer("Diel", "GND", layerType=1, thickness="0.1mm", material="FR4_epoxy")
     edb.core_stackup.stackup_layers.add_layer("TOP", "Diel", thickness="0.05mm")
 
-###############################################################################
-# Create a Signal Net and Ground Planes
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a signal net and ground planes.
+#####################################
+# Create signal net and ground planes
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a signal net and ground planes.
 
 if edb:
     points = [
@@ -52,10 +50,10 @@ if edb:
     plane = edb.core_primitives.Shape("polygon", points=points)
     edb.core_primitives.create_polygon(plane, "TOP")
 
-###############################################################################
-# Create Vias with Parametric Positions
+#######################################
+# Create vias with parametric positions
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates vias with parametric positions.
+# Create vias with parametric positions.
 
 if edb:
     edb.core_padstack.create_padstack("MyVia")
@@ -70,10 +68,10 @@ if edb:
 
 edb.core_nets.plot(None)
 
-###############################################################################
-# Save and Close EDB
+####################
+# Save and close EDB
 # ~~~~~~~~~~~~~~~~~~
-# This example saves and closes EDB.
+# Save and close EDB.
 
 if edb:
     edb.save_edb()

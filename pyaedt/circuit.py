@@ -12,6 +12,7 @@ from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
 from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -183,7 +184,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if self._desktop.GetAutoSaveEnabled() == 1:
             self._desktop.EnableAutoSave(False)
             autosave = True
-        with open(file_to_import, "rb") as f:
+        with open_file(file_to_import, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 if ".param" in line[:7].lower():
@@ -209,7 +210,7 @@ class Circuit(FieldAnalysisCircuit, object):
             self.modeler.schematic.disable_data_netlist(component_name="Models_Netlist")
             xpos += 0.0254
         counter = 0
-        with open(file_to_import, "rb") as f:
+        with open_file(file_to_import, "rb") as f:
             for line in f:
                 line = line.decode("utf-8")
                 mycomp = None
@@ -441,7 +442,7 @@ class Circuit(FieldAnalysisCircuit, object):
         delta = 0.0508
         use_instance = True
         my_netlist = []
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 my_netlist.append(line.split(" "))
         nets = [i for i in my_netlist if i[0] == "NET"]
@@ -657,7 +658,7 @@ class Circuit(FieldAnalysisCircuit, object):
         >>> oDesign.ImportData
         """
         if filename[-2:] == "ts":
-            with open(filename, "r") as f:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 for i in lines:
                     if "[Number of Ports]" in i:
@@ -670,7 +671,7 @@ class Circuit(FieldAnalysisCircuit, object):
             m = re_filename.search(filename)
             ports = int(m.group("ports"))
             portnames = None
-            with open(filename, "r") as f:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 portnames = [i.split(" = ")[1].strip() for i in lines if "Port[" in i]
             if not portnames:
@@ -1431,6 +1432,98 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, filepath):
+        """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (.fds format).
+
+        Parameters
+        ----------
+        ports : list
+            List of circuit ports to assign to the frequency dependent excitation.
+        filepath : str
+            Path to the frequency dependent file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
+        """
+        if not os.path.exists(filepath) or os.path.splitext(filepath)[1] != ".fds":
+            self.logger.error("Introduced file is not correct. Check path and format.")
+            return False
+
+        if not all(elem in self.modeler.schematic.nets for elem in ports):
+            self.logger.error("Defined ports do not exist")
+            return False
+
+        id = self.modeler.schematic.create_unique_id()
+
+        arg1 = [
+            "NAME:NexximSources",
+            [
+                "NAME:NexximSources",
+                [
+                    "NAME:Data",
+                    [
+                        "NAME:VoltageSourceFreq" + str(id),
+                        "DataId:=",
+                        "Source" + str(id),
+                        "Type:=",
+                        17,
+                        "Output:=",
+                        0,
+                        "NumPins:=",
+                        2,
+                        "Netlist:=",
+                        "V@ID %0 %1 *FreqDependentSourceData(@FreqDependentSourceData)",
+                        "CompName:=",
+                        "Nexxim Circuit Elements\\Independent Sources:V_PWL_F",
+                        "FDSFileName:=",
+                        'voltage_source_file="' + filepath + '"',
+                        [
+                            "NAME:Properties",
+                            "TextProp:=",
+                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
+                            "ButtonProp:=",
+                            [
+                                "FreqDependentSourceData",
+                                "OD",
+                                "Frequency Dependent Source Data",
+                                'voltage_source_file="' + filepath + '"',
+                                'voltage_source_file="' + filepath + '"',
+                                7,
+                                "ButtonPropClientData:=",
+                                [],
+                            ],
+                            "TextProp:=",
+                            ["COMPONENT", "RHD", "", "vsource_freq"],
+                            "ButtonProp:=",
+                            ["CosimDefinition", "SOD", "", "Edit", "Edit", 0, "ButtonPropClientData:=", []],
+                            "MenuProp:=",
+                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
+                        ],
+                    ],
+                ],
+            ],
+        ]
+
+        arg2 = ["NAME:ComponentConfigurationData"]
+
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSourceFreq" + str(id) + ":=", ports]]
+
+        arg2.append(arg3)
+        try:
+            self.odesign.UpdateSources(arg1, arg2)
+        except:
+            self.logger.error("Voltage Source not updated, incorrect file.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
     def set_differential_pair(
         self,
         positive_terminal,
@@ -1499,7 +1592,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
         self.odesign.SaveDiffPairsToFile(tmpfile1)
-        with open(tmpfile1, "r") as fh:
+        with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         num_diffs_before = len(lines)
         old_arg = []
@@ -1566,7 +1659,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
         try:
             new_file = os.path.join(os.path.dirname(filename), generate_unique_name("temp") + ".txt")
-            with open(filename, "r") as file:
+            with open_file(filename, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:

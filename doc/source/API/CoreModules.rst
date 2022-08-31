@@ -4,7 +4,7 @@ This section lists the core PyAEDT app modules:
 
 * Design
 * Variable
-* DesignXPloration
+* DesignXploration
 * Configurations
 
 
@@ -81,7 +81,7 @@ optimetrics setups.
 Boundary class
 ~~~~~~~~~~~~~~
 
-Boundary class is very important because it automates the creation of the AEDT syntax for any
+The ``Boundary`` class is very important because it automates the creation of the AEDT syntax for
 boundary and excitation creation.
 
 .. toctree::

@@ -20,16 +20,17 @@ import time
 import warnings
 from collections import OrderedDict
 
-from pyaedt.application.design_solutions import model_names
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
 from pyaedt.application.design_solutions import IcepakDesignSolution
 from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
+from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
 from pyaedt.application.Variables import DataSet
 from pyaedt.application.Variables import VariableManager
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
@@ -37,24 +38,25 @@ from pyaedt.desktop import release_desktop
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
 from pyaedt.generic.DataHandlers import variation_string_to_dict
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import read_csv
 from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
-from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import settings
+from pyaedt.generic.general_methods import write_csv
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.modules.Boundary import BoundaryObject, MaxwellParameters
-from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
     import base64
 
 
-class Design(AedtObjects, object):
+class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
     This class is inherited in the caller application and is accessible through it (for
@@ -182,6 +184,8 @@ class Design(AedtObjects, object):
             self.release_on_exit = False
 
         self.student_version = main_module.student_version
+        if self.student_version:
+            settings.disable_bounding_box_sat = True
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop
@@ -205,11 +209,13 @@ class Design(AedtObjects, object):
         self.oproject = project_name
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
+        self.logger.info("Aedt Objects initialized")
 
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
         self._design_datasets = []
-        _mtime = self.project_time_stamp
+        # _mtime = self.project_time_stamp
+        self.logger.info("Variable Manager initialized")
 
     @property
     def project_datasets(self):
@@ -291,7 +297,7 @@ class Design(AedtObjects, object):
     # but after they are never updated along the different project steps.
 
     @property
-    def project_properies(self):
+    def project_properties(self):
         """Project properties.
 
         Returns
@@ -300,10 +306,12 @@ class Design(AedtObjects, object):
             Dictionary of the project properties.
         """
         start = time.time()
-        if not self._project_dictionary and os.path.exists(self.project_file):
-            self._project_dictionary = load_entire_aedt_file(self.project_file)
+        if (
+            os.path.exists(self.project_file) and self.project_file not in settings._project_properties
+        ) or self.project_timestamp_changed:
+            settings._project_properties[self.project_file] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
-        return self._project_dictionary
+        return settings._project_properties[self.project_file]
 
     @property
     def design_properties(self):
@@ -315,18 +323,10 @@ class Design(AedtObjects, object):
            Dictionary of the design properties.
 
         """
-        # if self._design_dictionary is None and os.path.exists(self.project_file):
-        #     try:
-        #         start = time.time()
-        #         self._design_dictionary = load_keyword_in_aedt_file(self.project_file,
-        #                                                             self.design_name)[self.design_name]
-        #         self._logger.info("aedt design load time {}".format(time.time() - start))
-        #     except (KeyError, TypeError):
-        #         self._design_dictionary = OrderedDict()
-        # return self._design_dictionary
+
         try:
-            if model_names[self._design_type] in self.project_properies["AnsoftProject"]:
-                designs = self.project_properies["AnsoftProject"][model_names[self._design_type]]
+            if model_names[self._design_type] in self.project_properties["AnsoftProject"]:
+                designs = self.project_properties["AnsoftProject"][model_names[self._design_type]]
                 if isinstance(designs, list):
                     for design in designs:
                         if design["Name"] == self.design_name:
@@ -496,15 +496,15 @@ class Design(AedtObjects, object):
     def project_time_stamp(self):
         """Return Project time stamp."""
         if os.path.exists(self.project_file):
-            self._mttime = os.path.getmtime(self.project_file)
+            settings._project_time_stamp = os.path.getmtime(self.project_file)
         else:
-            self._mttime = 0
-        return self._mttime
+            settings._project_time_stamp = 0
+        return settings._project_time_stamp
 
     @property
     def project_timestamp_changed(self):
         """Return a bool if time stamp changed or not."""
-        old_time = self._mttime
+        old_time = settings._project_time_stamp
         return old_time != self.project_time_stamp
 
     @property
@@ -689,7 +689,10 @@ class Design(AedtObjects, object):
         """
 
         toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
-        if not os.path.isdir(toolkit_directory):
+        if settings.remote_rpc_session:
+            toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
+            settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
+        elif not os.path.isdir(toolkit_directory):
             try:
                 os.mkdir(toolkit_directory)
             except FileNotFoundError:
@@ -709,7 +712,10 @@ class Design(AedtObjects, object):
 
         """
         working_directory = os.path.join(self.toolkit_directory, self.design_name)
-        if not os.path.isdir(working_directory):
+        if settings.remote_rpc_session:
+            working_directory = self.toolkit_directory + "/" + self.design_name
+            settings.remote_rpc_session.filemanager.makedirs(working_directory)
+        elif not os.path.isdir(working_directory):
             try:
                 os.mkdir(working_directory)
             except FileNotFoundError:
@@ -871,6 +877,8 @@ class Design(AedtObjects, object):
                     self.logger.info("Project %s has been opened.", proj.GetName())
                     time.sleep(0.5)
                 self._oproject = proj
+            elif settings.force_error_on_missing_project and ".aedt" in proj_name:
+                raise Exception("Project doesn't exists. Check it and retry.")
             else:
                 self._oproject = self.odesktop.NewProject()
                 if ".aedt" in proj_name:
@@ -903,7 +911,7 @@ class Design(AedtObjects, object):
         aedt_object : object
             AEDT Object on which search for property. It can be any oProperty (ex. oDesign).
         object_name : str, optional
-            Path to the object list. Example `"DesignName\Boundaries"`.
+            Path to the object list. Example `"DesignName\\Boundaries"`.
 
         Returns
         -------
@@ -1433,7 +1441,7 @@ class Design(AedtObjects, object):
         try:
             self.odesktop.SetRegistryFromFile(registry_file)
             if make_active:
-                with open(registry_file, "r") as f:
+                with open_file(registry_file, "r") as f:
                     for line in f:
                         stripped_line = line.strip()
                         if "ConfigName" in stripped_line:
@@ -1939,8 +1947,8 @@ class Design(AedtObjects, object):
         """ """
         datasets = {}
         try:
-            for ds in self.project_properies["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properies["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
+            for ds in self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"]:
+                datas = self.project_properties["AnsoftProject"]["ProjectDatasets"]["DatasetDefinitions"][ds][
                     "Coordinates"
                 ]
                 datasets[ds] = self._get_ds_data(ds, datas)
@@ -1954,7 +1962,7 @@ class Design(AedtObjects, object):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datas = self.project_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, datas)
         except:
             pass
@@ -2169,7 +2177,19 @@ class Design(AedtObjects, object):
         return self.create_dataset(dsname, xlist, ylist, is_project_dataset=True, xunit=xunit, yunit=yunit)
 
     @pyaedt_function_handler()
-    def create_dataset3d(self, dsname, xlist, ylist, zlist=None, vlist=None, xunit="", yunit="", zunit="", vunit=""):
+    def create_dataset3d(
+        self,
+        dsname,
+        xlist,
+        ylist,
+        zlist=None,
+        vlist=None,
+        xunit="",
+        yunit="",
+        zunit="",
+        vunit="",
+        is_project_dataset=True,
+    ):
         """Create a 3D dataset.
 
         Parameters
@@ -2192,6 +2212,8 @@ class Design(AedtObjects, object):
             Units for the Z axis for a 3D dataset only. The default is ``""``.
         vunit : str, optional
             Units for the V axis for a 3D dataset only. The default is ``""``.
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
 
         Returns
         -------
@@ -2203,6 +2225,12 @@ class Design(AedtObjects, object):
 
         >>> oDesign.AddDataset
         """
+        if dsname[0] == "$":
+            dsname = dsname[1:]
+            is_project_dataset = True
+        if self.design_type != "Maxwell 3D" and self.design_type != "Icepak":
+            is_project_dataset = True
+
         return self.create_dataset(
             dsname=dsname,
             xlist=xlist,
@@ -2213,6 +2241,7 @@ class Design(AedtObjects, object):
             yunit=yunit,
             zunit=zunit,
             vunit=vunit,
+            is_project_dataset=is_project_dataset,
         )
 
     @pyaedt_function_handler()
@@ -2238,7 +2267,7 @@ class Design(AedtObjects, object):
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
-        with open(filename, "r") as f:
+        with open_file(filename, "r") as f:
             lines = f.read().splitlines()
         header = lines[0]
         points = lines[1:]
@@ -2270,7 +2299,7 @@ class Design(AedtObjects, object):
         )
 
     @pyaedt_function_handler()
-    def import_dataset3d(self, filename, dsname=None, encoding="utf-8-sig"):
+    def import_dataset3d(self, filename, dsname=None, encoding="utf-8-sig", is_project_dataset=True):
         """Import a 3D dataset.
 
         Parameters
@@ -2281,6 +2310,8 @@ class Design(AedtObjects, object):
             Name of the dataset. The default is the file name.
         encoding : str, optional
             File encoding to be provided for csv.
+        is_project_dataset : bool, optional
+            Whether it is a project data set. The default is ``True``.
 
         Returns
         -------
@@ -2343,6 +2374,9 @@ class Design(AedtObjects, object):
 
         if dsname[0] == "$":
             dsname = dsname[1:]
+            is_project_dataset = True
+        if self.design_type != "Maxwell 3D" and self.design_type != "Icepak":
+            is_project_dataset = True
 
         return self.create_dataset(
             dsname,
@@ -2350,7 +2384,7 @@ class Design(AedtObjects, object):
             ylist,
             zlist,
             vlist,
-            is_project_dataset=True,
+            is_project_dataset=is_project_dataset,
             xunit=units[0],
             yunit=units[1],
             zunit=units[2],
@@ -2837,6 +2871,8 @@ class Design(AedtObjects, object):
             )
         elif design_type == "Icepak":
             new_design = self._oproject.InsertDesign("Icepak", unique_design_name, "SteadyState TemperatureAndFlow", "")
+        elif design_type == "Circuit Design":
+            new_design = self._oproject.InsertDesign(design_type, unique_design_name, "None", "")
         else:
             if design_type == "HFSS" and self._aedt_version < "2021.2":
                 new_design = self._oproject.InsertDesign(design_type, unique_design_name, "DrivenModal", "")
@@ -2846,10 +2882,7 @@ class Design(AedtObjects, object):
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
         name = new_design.GetName()
-        if ";" in name:
-            self.odesign = name.split(";")[1]
-        else:
-            self.odesign = name
+        self._odesign = new_design
         return name
 
     @pyaedt_function_handler()
@@ -3039,13 +3072,13 @@ class Design(AedtObjects, object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        design_info = self.project_properies["ProjectPreview"]["DesignInfo"]
+        design_info = self.project_properties["ProjectPreview"]["DesignInfo"]
         if not isinstance(design_info, dict):
             # there are multiple designs, find the right one
             # is self.design_name guaranteed to be there?
             design_info = [design for design in design_info if design["DesignName"] == self.design_name][0]
         image_data_str = design_info["Image64"]
-        with open(filename, "wb") as f:
+        with open_file(filename, "wb") as f:
             if sys.version_info.major == 2:
                 bytestring = bytes(image_data_str).decode("base64")
             else:
@@ -3108,7 +3141,7 @@ class Design(AedtObjects, object):
 
         """
         design_file = os.path.join(self.working_directory, "design_data.json")
-        with open(design_file, "r") as fps:
+        with open_file(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data
 
@@ -3310,10 +3343,7 @@ class Design(AedtObjects, object):
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:
-            if is_ironpython or settings.use_grpc_api:  # pragma: no cover
-                val = var_obj.Get_SIValue()
-            else:
-                val = var_obj.Get_SIValue
+            val = var_obj.GetPropValue("SIValue")
         elif not val:
             try:
                 variation_string = self._odesign.GetNominalVariation()

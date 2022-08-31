@@ -4,6 +4,7 @@ from __future__ import absolute_import  # noreorder
 import math
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -132,7 +133,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         ypos = 0
         delta = 0.0508
         use_instance = True
-        with open(file_to_import, "r") as f:
+        with open_file(file_to_import, "r") as f:
             for line in f:
                 mycomp = None
                 fields = line.split(" ")

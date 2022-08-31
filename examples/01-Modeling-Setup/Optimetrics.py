@@ -1,30 +1,40 @@
 """
-General: Optimetrics Setup
+General: optimetrics setup
 --------------------------
 This example shows how you can use PyAEDT to create a project in HFSS and create all optimetrics setups.
 """
 
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
+
 from pyaedt import Hfss
 import os
 
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Initialize the `Hfss` Object and Create the Needed Design Variables
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# In this example, HFSS is to have two design variables, ``w1`` and ``w2``.
+# Initialize object and create variables
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize the ``Hfss`` object and create two needed design variables,
+# ``w1`` and ``w2``.
+
 hfss = Hfss(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 hfss["w1"] = "1mm"
 hfss["w2"] = "100mm"
 
 ###############################################################################
-# Create a Waveguide with Sheets on It
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method creates one of the standard waveguide structures and parametrizes it.
+# Create waveguide with sheets on it
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create one of the standard waveguide structures and parametrize it.
 # You can also create rectangles of waveguide openings and assign ports later.
 
 wg1, p1, p2 = hfss.modeler.create_waveguide(
@@ -42,18 +52,18 @@ model.show_grid = False
 model.plot(os.path.join(hfss.working_directory, "Image.jpg"))
 
 ###############################################################################
-# Create Wave Ports on the Sheets
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates two wave ports on the sheets.
+# Create wave ports on sheets
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create two wave ports on the sheets.
 
 hfss.create_wave_port_from_sheet(p1, axisdir=hfss.AxisDir.ZPos, portname="1")
 hfss.create_wave_port_from_sheet(p2, axisdir=hfss.AxisDir.ZPos, portname="2")
 
 ###############################################################################
-# Create a Setup and a Frequency Sweep
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a setup and a frequency sweep to use as the base for
-# Optimetrics setups.
+# Create setup and frequency sweep
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a setup and a frequency sweep to use as the base for optimetrics
+# setups.
 
 setup = hfss.create_setup()
 hfss.create_linear_step_sweep(
@@ -61,11 +71,11 @@ hfss.create_linear_step_sweep(
 )
 
 ###############################################################################
-# Optimetrics Parametrics Setup
-# -----------------------------
-# Simple Parametrics Analysis with Output Calculations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a simple parametrics analysis with output calculations.
+# Optimetrics analysis
+# ----------------------
+# Create parametrics analysis
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a simple optimetrics parametrics analysis with output calculations.
 
 sweep = hfss.parametrics.add("w2", 90, 200, 5)
 sweep.add_variation("w1", 0.1, 2, 10)
@@ -73,22 +83,18 @@ sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 sweep.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
-# Optimetrics Sensitivity Setup
-# -----------------------------
-# Sensitivity Analysis with Output Calculations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a sensitivity analysis with output calculations.
+# Create sensitivity analysis
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create an optimetrics sensitivity analysis with output calculations.
 
 sweep2 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="Sensitivity")
 sweep2.add_variation("w1", 0.1, 3, 0.5)
 sweep2.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
-# Optimetrics Optimization Setup
-# ------------------------------
-# Optimization Based on Goals and Calculations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates an optimization based on goals and calculations.
+# Create optimization based on goals and calculations
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create an optimization analysis based on goals and calculations.
 
 sweep3 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"})
 
@@ -101,32 +107,26 @@ sweep3.add_goal(
 )
 
 ###############################################################################
-# Optimetrics DesignXplorer (DX) Setup
-# ------------------------------------
-# DX Optimization Based on a Goal and a Calculation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a DX optimization based on a goal and a calculation.
+# Create DX optimization based on a goal and calculation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a DX (DesignXplorer) optimization based on a goal and a calculation.
 
 sweep4 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DesignExplorer")
 sweep4.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
-# Optimetrics DOE (Design of Experiments) Setup
-# ---------------------------------------------
-# DOE Based on a Goal and a Calculation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a DOE based on a goal and a calculation.
+# Create DOE based on a goal and calculation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a DOE (Design of Experiments) based on a goal and a calculation.
 
 sweep5 = hfss.optimizations.add(calculation="dB(S(1,1))", ranges={"Freq": "2.5GHz"}, optim_type="DXDOE")
 sweep5.add_goal(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 sweep5.add_calculation(calculation="dB(S(1,1))", ranges={"Freq": "2.6GHz"})
 
 ###############################################################################
-# Optimetrics ODOE (Design of Experiments) Setup
-# ----------------------------------------------
-# DOE Based on a Goal and a Calculation
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example creates a DOE based on a goal and a calculation.
+# Create DOE based on a goal and calculation
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a DOE based on a goal and a calculation.
 
 region = hfss.modeler.create_region()
 hfss.assign_radiation_boundary_to_objects(region)
@@ -141,9 +141,9 @@ sweep6 = hfss.optimizations.add(
 ###############################################################################
 # Close AEDT
 # ----------
-# After the simulaton is completed, you can close AEDT or release it using the
+# After the simulaton completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before exiting.
+# All methods provide for saving the project before closing.
 
 if os.name != "posix":
     hfss.release_desktop()

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
 
+from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import settings
+
 # --------------------------------------------------------------------
 # public interface
 
@@ -340,7 +343,7 @@ def _read_aedt_file(filename):
     global _count
 
     # read the AEDT file
-    with open(filename, "rb") as aedt_fh:
+    with open_file(filename, "rb") as aedt_fh:
         raw_lines = aedt_fh.read().splitlines()
     ascii_lines = []
     for raw_line in raw_lines:
@@ -379,6 +382,10 @@ def _load_entire_aedt_file(filename):
         if m:
             _walk_through_structure(m.group(1), main_dict)
         _count += 1
+    if settings.aedt_version and settings.aedt_version > "2022.2":
+        project_preview = load_keyword_in_aedt_file(filename, "ProjectPreview")
+        if project_preview and "ProjectPreview" in project_preview:
+            main_dict["ProjectPreview"] = project_preview["ProjectPreview"]
     return main_dict
 
 

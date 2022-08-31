@@ -5,15 +5,17 @@ This module contains the `Materials` class.
 from __future__ import absolute_import  # noreorder
 
 import copy
+import fnmatch
 import json
 import os
-import fnmatch
 import re
 
+from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
@@ -126,7 +128,7 @@ class Materials(object):
         def get_mat_list(file_name):
             mats = []
             _begin_search = re.compile(r"^\$begin '(.+)'")
-            with open(file_name, "r") as aedt_fh:
+            with open_file(file_name, "r") as aedt_fh:
                 raw_lines = aedt_fh.read().splitlines()
                 for line in raw_lines:
                     b = _begin_search.search(line)
@@ -158,9 +160,14 @@ class Materials(object):
             # m = load_entire_aedt_file(amat)
             # mats.extend(list(m.keys()))
             mats.extend(get_mat_list(amat))
-
-        mats.remove("$index$")
-        mats.remove("$base_index$")
+        try:
+            mats.remove("$index$")
+        except ValueError:
+            pass
+        try:
+            mats.remove("$base_index$")
+        except ValueError:
+            pass
         mats.extend(self.odefinition_manager.GetProjectMaterialNames())
         return mats
 
@@ -177,9 +184,9 @@ class Materials(object):
         """Get materials."""
         mats = {}
         try:
-            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"]:
+            for ds in self._app.project_properties["AnsoftProject"]["Definitions"]["Materials"]:
                 mats[ds.lower()] = Material(
-                    self, ds, self._app.project_properies["AnsoftProject"]["Definitions"]["Materials"][ds]
+                    self, ds, self._app.project_properties["AnsoftProject"]["Definitions"]["Materials"][ds]
                 )
         except:
             pass
@@ -189,11 +196,11 @@ class Materials(object):
     def _get_surface_materials(self):
         mats = {}
         try:
-            for ds in self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
+            for ds in self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"]:
                 mats[ds.lower()] = SurfaceMaterial(
                     self,
                     ds,
-                    self._app.project_properies["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
+                    self._app.project_properties["AnsoftProject"]["Definitions"]["SurfaceMaterials"][ds],
                 )
         except:
             pass
@@ -232,6 +239,8 @@ class Materials(object):
                 self.material_keys[mat.lower()].update()
             return self.material_keys[mat.lower()]
         elif mat.lower() in self._mat_names_aedt_lower:
+            return self._aedmattolibrary(mat)
+        elif settings.remote_api:
             return self._aedmattolibrary(mat)
         return False
 
@@ -584,13 +593,14 @@ class Materials(object):
         return data
 
     def _load_from_project(self):
-        mats = self.odefinition_manager.GetProjectMaterialNames()
-        for el in mats:
-            if el not in list(self.material_keys.keys()):
-                try:
-                    self._aedmattolibrary(el)
-                except Exception as e:
-                    self.logger.info("aedmattolibrary failed for material %s", el)
+        if self.odefinition_manager:
+            mats = self.odefinition_manager.GetProjectMaterialNames()
+            for el in mats:
+                if el not in list(self.material_keys.keys()):
+                    try:
+                        self._aedmattolibrary(el)
+                    except Exception as e:
+                        self.logger.info("aedmattolibrary failed for material %s", el)
 
     @pyaedt_function_handler()
     def _aedmattolibrary(self, matname):
@@ -604,7 +614,7 @@ class Materials(object):
         -------
         :class:`pyaedt.modules.Material.Material`
         """
-        if matname not in self.odefinition_manager.GetProjectMaterialNames():
+        if matname not in self.odefinition_manager.GetProjectMaterialNames() and not settings.remote_api:
             matname = self._get_aedt_case_name(matname)
         props = {}
         _arg2dict(list(_retry_ntimes(20, self.omaterial_manager.GetData, matname)), props)
@@ -702,7 +712,7 @@ class Materials(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        with open(full_json_path, "r") as json_file:
+        with open_file(full_json_path, "r") as json_file:
             data = json.load(json_file)
 
         if "datasets" in list(data.keys()):

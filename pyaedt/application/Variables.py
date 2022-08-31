@@ -13,17 +13,20 @@ Examples
 
 """
 
-from __future__ import absolute_import, division  # noreorder
+from __future__ import absolute_import  # noreorder
+from __future__ import division
 
 import os
 import re
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import SI_UNITS
+from pyaedt.generic.constants import _resolve_unit_system
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.general_methods import is_number, is_array
+from pyaedt.generic.general_methods import is_array
+from pyaedt.generic.general_methods import is_number
+from pyaedt.generic.general_methods import open_file
 
 
 class CSVDataset:
@@ -112,13 +115,13 @@ class CSVDataset:
 
         self._csv_file = csv_file
         if csv_file:
-            with open(csv_file, "r") as fi:
+            with open_file(csv_file, "r") as fi:
                 file_data = fi.readlines()
                 for line in file_data:
                     if self._header:
                         line_data = line.strip().split(self._separator)
                         # Check for invalid data in the line (fields with 'nan')
-                        if not "nan" in line_data:
+                        if "nan" not in line_data:
                             for j, value in enumerate(line_data):
                                 var_name = self._header[j]
                                 if var_name in self._unit_dict:
@@ -1831,11 +1834,11 @@ class DataSet(object):
         arg2 = ["Name:Coordinates"]
         if self.z is None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit])
-        elif self.v is not None and self.name[0] == "$":
+        elif self.v is not None:
             arg2.append(["NAME:DimUnits", self.xunit, self.yunit, self.zunit, self.vunit])
         else:
             return False
-        if self.z and self.name[0] == "$":
+        if self.z:
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
@@ -1845,7 +1848,7 @@ class DataSet(object):
                 arg3 = ["NAME:Point"]
                 arg3.append(float(x[i]))
                 arg3.append(float(y[i]))
-                if self.z and self.name[0] == "$":
+                if self.z:
                     arg3.append(float(z[i]))
                     arg3.append(float(v[i]))
                 arg2.append(arg3)
@@ -1855,7 +1858,7 @@ class DataSet(object):
                 arg4 = ["NAME:CoordPoint"]
                 arg4.append(float(x[i]))
                 arg4.append(float(y[i]))
-                if self.z and self.name[0] == "$":
+                if self.z:
                     arg4.append(float(z[i]))
                     arg4.append(float(v[i]))
                 arg3.append(arg4)

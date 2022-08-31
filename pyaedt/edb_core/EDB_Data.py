@@ -209,6 +209,16 @@ class EDBPrimitives(object):
             return False
         return self.primitive_object.IsVoid()
 
+    @property
+    def id(self):
+        """Primitive ID.
+
+        Returns
+        -------
+        int
+        """
+        return self.GetId()
+
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
         """Get the points of the arc
@@ -472,7 +482,6 @@ class EDBLayer(object):
         self._material_name = None
         self._filling_material_name = None
         self._negative_layer = False
-        self._roughness_enabled = False
         self._lower_elevation = None
         self._upper_elevation = None
         self._top_bottom_association = None
@@ -480,6 +489,10 @@ class EDBLayer(object):
         self._edb = app._edb
         self._active_layout = app._active_layout
         self._pedblayers = app
+        self._roughness_enabled = False
+        self._roughness_model_top = None
+        self._roughness_model_bottom = None
+        self._roughness_model_side = None
         self.init_vals()
 
     @property
@@ -673,6 +686,93 @@ class EDBLayer(object):
         ):
             self._roughness_enabled = value
             self.update_layers()
+
+    @pyaedt_function_handler()
+    def assign_roughness_model_top(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
+        """Assign roughness model on conductor top.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if model_type == "huray":
+            self._roughness_model_top = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_top = [model_type, groisse_roughness]
+        else:
+            self._roughness_model_top = None
+        return self.update_layers()
+
+    @pyaedt_function_handler()
+    def assign_roughness_model_bottom(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
+        """Assign roughness model on conductor bottom.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if model_type == "huray":
+            self._roughness_model_bottom = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_bottom = [model_type, groisse_roughness]
+        else:
+            self._roughness_model_bottom = None
+        return self.update_layers()
+
+    @pyaedt_function_handler()
+    def assign_roughness_model_side(
+        self, model_type="huray", huray_radius="0.5um", huray_surface_ratio="2.9", groisse_roughness="1um"
+    ):
+        """Assign roughness model on conductor side.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if model_type == "huray":
+            self._roughness_model_side = [model_type, huray_radius, huray_surface_ratio]
+        elif model_type == "groisse":
+            self._roughness_model_side = [model_type, groisse_roughness]
+        else:
+            self._roughness_model_side = None
+        return self.update_layers()
 
     @property
     def top_bottom_association(self):
@@ -877,6 +977,24 @@ class EDBLayer(object):
             newLayer.SetNegative(negativeMap)
         if roughnessMap:
             newLayer.SetRoughnessEnabled(roughnessMap)
+            models = [self._roughness_model_top, self._roughness_model_bottom, self._roughness_model_side]
+            regions = [
+                self._edb.Cell.RoughnessModel.Region.Top,
+                self._edb.Cell.RoughnessModel.Region.Side,
+                self._edb.Cell.RoughnessModel.Region.Bottom,
+            ]
+            for mdl, region in zip(models, regions):
+                if not mdl:
+                    continue
+                model_type = mdl[0]
+                if model_type == "huray":
+                    radius = self._get_edb_value(mdl[1])
+                    surface_ratio = self._get_edb_value(mdl[2])
+                    model = self._edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
+                else:
+                    roughness = self._get_edb_value(mdl[1])
+                    model = self._edb.Cell.GroisseRoughnessModel(roughness)
+                newLayer.SetRoughnessModel(region, model)
         if isinstance(etchMap, float) and int(layerTypeMap) in [0, 2]:
             etchVal = float(etchMap)
         else:
@@ -920,6 +1038,7 @@ class EDBLayer(object):
             ``True`` when successful, ``False`` when failed.
         """
         thisLC = self._edb.Cell.LayerCollection(self._active_layout.GetLayerCollection())
+        layer_collection_mode = thisLC.GetMode()
         layers = list(list(thisLC.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
         layers.reverse()
         newLayers = List[self._edb.Cell.Layer]()
@@ -953,8 +1072,12 @@ class EDBLayer(object):
 
         lcNew = self._edb.Cell.LayerCollection()
         newLayers.Reverse()
-        if not lcNew.AddLayers(newLayers) or not self._active_layout.SetLayerCollection(lcNew):
+        if not lcNew.AddLayers(newLayers):
             self._logger.error("Failed to set new layers when updating the stackup information.")
+            return False
+        lcNew.SetMode(layer_collection_mode)
+        if not self._active_layout.SetLayerCollection(lcNew):
+            self._logger.error("Failed to set new layer stackup mode when updating the stackup information.")
             return False
         self._pedblayers._update_edb_objects()
         time.sleep(1)
@@ -1975,6 +2098,18 @@ class EDBPadstack(object):
         else:
             return 0
 
+    @hole_plating_thickness.setter
+    def hole_plating_thickness(self, value):
+        """Hole plating thickness.
+
+        Returns
+        -------
+        float
+            Thickness of the hole plating if present.
+        """
+        hr = 200 * float(value) / float(self.hole_properties[0])
+        self.hole_plating_ratio = hr
+
     @property
     def hole_finished_size(self):
         """Finished hole size.
@@ -2025,6 +2160,15 @@ class EDBPadstackInstance(object):
     >>> edb = Edb(myedb, edbversion="2021.2")
     >>> edb_padstack_instance = edb.core_padstack.padstack_instances[0]
     """
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except:
+            try:
+                return getattr(self._edb_padstackinstance, key)
+            except AttributeError:
+                raise AttributeError("Attribute not present")
 
     def __init__(self, edb_padstackinstance, _pedb):
         self._edb_padstackinstance = edb_padstackinstance
@@ -3001,7 +3145,11 @@ class Source(object):
         self._negative_node = Node()
         self._amplitude = 1.0
         self._phase = 0.0
-        self._impedance_value = 1.0
+        self._impedance = 1.0
+        self._r = 1.0
+        self._l = 0.0
+        self._c = 0.0
+        self._create_physical_resistor = True
         self._config_init()
 
     def _config_init(self):
@@ -3030,11 +3178,13 @@ class Source(object):
         if isinstance(value, int):
             self._source_type = value
             if value == 3:
-                self._impedance_value = 1e-6
+                self._impedance = 1e-6
             if value == 4:
-                self._impedance_value = 5e7
+                self._impedance = 5e7
             if value == 5:
-                self._impedance_value = 1.0
+                self._r = 1.0
+                self._l = 0.0
+                self._c = 0.0
 
     @property
     def positive_node(self):  # pragma: no cover
@@ -3079,14 +3229,50 @@ class Source(object):
             self._phase = value
 
     @property
-    def impedance_value(self):  # pragma: no cover
+    def impedance(self):  # pragma: no cover
         """Impedance values of the source."""
-        return self._impedance_value
+        return self._impedance
 
-    @impedance_value.setter
-    def impedance_value(self, value):  # pragma: no cover
+    @impedance.setter
+    def impedance(self, value):  # pragma: no cover
         if isinstance(value, float):
-            self._impedance_value = value
+            self._impedance = value
+
+    @property
+    def r_value(self):
+        return self._r
+
+    @r_value.setter
+    def r_value(self, value):
+        if isinstance(value, float) or isinstance(value, int):
+            self._r = value
+
+    @property
+    def l_value(self):
+        return self._l
+
+    @l_value.setter
+    def l_value(self, value):
+        if isinstance(value, float) or isinstance(value, int):
+            self._l = value
+
+    @property
+    def c_value(self):
+        return self._c
+
+    @c_value.setter
+    def c_value(self, value):
+        if isinstance(value, float) or isinstance(value, int):
+            self._c = value
+
+    @property
+    def create_physical_resistor(self):
+        return self._create_physical_resistor
+
+    @create_physical_resistor.setter
+    def create_physical_resistor(self, value):
+        if isinstance(value, bool):
+            self._create_physical_resistor = value
 
     def _json_format(self):  # pragma: no cover
         dict_out = {}
@@ -3235,6 +3421,7 @@ class SimulationConfiguration(object):
         self._solver_type = SolverType.Hfss3dLayout
         self._output_aedb = None
         self._sources = []
+        self._mesh_sizefactor = 0.0
         self._read_cfg()
 
     @property
@@ -4331,6 +4518,17 @@ class SimulationConfiguration(object):
             self._output_aedb = value
 
     @property
+    def mesh_sizefactor(self):
+        return self._mesh_sizefactor
+
+    @mesh_sizefactor.setter
+    def mesh_sizefactor(self, value):
+        if isinstance(value, float):
+            self._mesh_sizefactor = value
+            if value > 0.0:
+                self._do_lambda_refinement = False
+
+    @property
     def sources(self):  # pragma: no cover
         return self._sources
 
@@ -4656,33 +4854,29 @@ class SimulationConfiguration(object):
         else:
             return False
 
-    def add_dc_source(
+    def add_voltage_source(
         self,
-        source_type=SourceType.Vsource,
         name="",
-        amplitude=1.0,
-        phase=0.0,
-        impedance=1.0,
+        voltage_value=1,
+        phase_value=0,
+        impedance=1e-6,
         positive_node_component="",
         positive_node_net="",
         negative_node_component="",
         negative_node_net="",
     ):
-        """Add a source for the current SimulationConfiguration instance.
+        """Add a voltage source for the current SimulationConfiguration instance.
 
         Parameters
         ----------
-        source_type : SourceType
-            Source type that is defined.
-
         name : str
             Source name.
 
-        amplitude : float
+        voltage_value : float
             Amplitude value of the source. Either amperes for current source or volts for
             voltage source.
 
-        phase : float
+        phase_value : float
             Phase value of the source.
 
         impedance : float
@@ -4703,56 +4897,174 @@ class SimulationConfiguration(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when a file name is not provided.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
         >>> edb = Edb(target_file)
         >>> sim_setup = SimulationConfiguration()
-        >>> sim_setup.solver_type = SolverType.SiwaveDC
-        >>> sim_setup.add_dc_source(source_type=SourceType.Vsource, positive_node_component="V1",
+        >>> sim_setup.add_voltage_source(voltage_value=1.0, phase_value=0, positive_node_component="V1",
         >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
 
         """
-        if not isinstance(source_type, int):  # pragma: no cover
-            return False
         if name == "":  # pragma: no cover
-            if isinstance(source_type, int):
-                if source_type == 3:
-                    name = generate_unique_name("v_source")
-                elif source_type == 4:
-                    name = generate_unique_name("I_source")
-                elif source_type == 5:
-                    name = generate_unique_name("R")
-        if not isinstance(amplitude, float):  # pragma: no cover
-            return False
-        if not isinstance(phase, float):  # pragma: no cover
-            return False
-        if not isinstance(positive_node_component, str):  # pragma: no cover
-            return False
-        if not isinstance(positive_node_net, str):  # pragma: no cover
-            return False
-        if not isinstance(negative_node_component, str):  # pragma: no cover
-            return False
-        if not isinstance(negative_node_net, str):  # pragma: no cover
-            return False
-        if not isinstance(impedance, float):  # pragma: no cover
-            return False
+            name = generate_unique_name("v_source")
         source = Source()
-        if source_type == 3:  # pragma: no cover
-            source.source_type = SourceType.Vsource
-        elif source_type == 4:  # pragma: no cover
-            source.source_type = SourceType.Isource
-        elif source_type == 5:  # pragma: no cover
-            source.source_type = SourceType.Resistor
+        source.source_type = SourceType.Vsource
         source.name = name
-        source.amplitude = amplitude
-        source.phase = phase
+        source.amplitude = voltage_value
+        source.phase = phase_value
         source.positive_node.component = positive_node_component
         source.positive_node.net = positive_node_net
         source.negative_node.component = negative_node_component
         source.negative_node.net = negative_node_net
         source.impedance_value = impedance
+        try:  # pragma: no cover
+            self.sources.append(source)
+            return True
+        except:  # pragma: no cover
+            return False
+
+    def add_current_source(
+        self,
+        name="",
+        current_value=0.1,
+        phase_value=0,
+        impedance=5e7,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+    ):
+        """Add a current source for the current SimulationConfiguration instance.
+
+        Parameters
+        ----------
+        name : str
+            Source name.
+
+        current_value : float
+            Amplitude value of the source. Either amperes for current source or volts for
+            voltage source.
+
+        phase_value : float
+            Phase value of the source.
+
+        impedance : float
+            Impedance value of the source.
+
+        positive_node_component : str
+            Name of the component used for the positive node.
+
+        negative_node_component : str
+            Name of the component used for the negative node.
+
+        positive_node_net : str
+            Net used for the positive node.
+
+        negative_node_net : str
+            Net used for the negative node.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edb = Edb(target_file)
+        >>> sim_setup = SimulationConfiguration()
+        >>> sim_setup.add_voltage_source(voltage_value=1.0, phase_value=0, positive_node_component="V1",
+        >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
+        """
+
+        if name == "":  # pragma: no cover
+            name = generate_unique_name("I_source")
+        source = Source()
+        source.source_type = SourceType.Isource
+        source.name = name
+        source.amplitude = current_value
+        source.phase = phase_value
+        source.positive_node.component = positive_node_component
+        source.positive_node.net = positive_node_net
+        source.negative_node.component = negative_node_component
+        source.negative_node.net = negative_node_net
+        source.impedance_value = impedance
+        try:  # pragma: no cover
+            self.sources.append(source)
+            return True
+        except:  # pragma: no cover
+            return False
+
+    def add_rlc(
+        self,
+        name="",
+        r_value=1.0,
+        c_value=0.0,
+        l_value=0.0,
+        positive_node_component="",
+        positive_node_net="",
+        negative_node_component="",
+        negative_node_net="",
+        create_physical_rlc=True,
+    ):
+        """Add a voltage source for the current SimulationConfiguration instance.
+
+        Parameters
+        ----------
+        name : str
+            Source name.
+
+        r_value : float
+            Resistor value in Ohms.
+
+        l_value : float
+            Inductance value in Henry.
+
+        c_value : float
+            Capacitance value in Farrad.
+
+        positive_node_component : str
+            Name of the component used for the positive node.
+
+        negative_node_component : str
+            Name of the component used for the negative node.
+
+        positive_node_net : str
+            Net used for the positive node.
+
+        negative_node_net : str
+            Net used for the negative node.
+
+        create_physical_rlc : bool
+            When True create a physical Rlc component. Recommended setting to True to be compatible with Siwave.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> edb = Edb(target_file)
+        >>> sim_setup = SimulationConfiguration()
+        >>> sim_setup.add_voltage_source(voltage_value=1.0, phase_value=0, positive_node_component="V1",
+        >>> positive_node_net="HSG", negative_node_component="V1", negative_node_net="SW")
+        """
+
+        if name == "":  # pragma: no cover
+            name = generate_unique_name("Rlc")
+        source = Source()
+        source.source_type = SourceType.Rlc
+        source.name = name
+        source.r_value = r_value
+        source.l_value = l_value
+        source.c_value = c_value
+        source.create_physical_resistor = create_physical_rlc
+        source.positive_node.component = positive_node_component
+        source.positive_node.net = positive_node_net
+        source.negative_node.component = negative_node_component
+        source.negative_node.net = negative_node_net
         try:  # pragma: no cover
             self.sources.append(source)
             return True

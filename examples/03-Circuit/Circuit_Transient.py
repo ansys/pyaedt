@@ -1,84 +1,97 @@
 """
-Circuit: Transient Analysis and Eye Plot
+Circuit: transient analysis and eye plot
 ----------------------------------------
-This example shows how you can use PyAEDT to create a Circuit design
-and run a Nexxim time-domain simulation and create an eye diagram.
+This example shows how you can use PyAEDT to create a circuit design,
+run a Nexxim time-domain simulation, and create an eye diagram.
 """
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import os
 from matplotlib import pyplot as plt
 import numpy as np
 from pyaedt import Circuit
+from pyaedt import generate_unique_project_name
 
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode, ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT and Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R2 in graphical mode.
+# Launch AEDT with Circuit
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT 2022 R2 in graphical mode with Circuit.
 
-
-cir = Circuit(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+cir = Circuit(projectname=generate_unique_project_name(), specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 
 ###############################################################################
-# Ibis file
-# ~~~~~~~~~
-# This method allow user to read an ibis file and place a buffer into the schematic.
+# Read IBIS file
+# ~~~~~~~~~~~~~~
+# Read an IBIS file and place a buffer in the schematic.
 
 ibis = cir.get_ibis_model_from_file(os.path.join(cir.desktop_install_dir, 'buflib', 'IBIS', 'u26a_800.ibs'))
 ibs = ibis.buffers["DQ_u26a_800"].insert(0, 0)
 
 ###############################################################################
-# Transmission Line Ideal
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# This method allow user to place an ideal TL and parametrize it.
+# Place ideal transmission line
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Place an ideal transmission line in the schematic and parametrize it.
 
 tr1 = cir.modeler.components.components_catalog["Ideal Distributed:TRLK_NX"].place("tr1")
 tr1.parameters["P"] = "50mm"
 
 ###############################################################################
-# Resistor and Ground
-# ~~~~~~~~~~~~~~~~~~~
-# This methods allow user to place a resistor and ground in schematic.
+# Create resistor and ground
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a resistor and ground in the schematic.
 
 res = cir.modeler.components.create_resistor("R1", "1Meg")
 gnd1 = cir.modeler.components.create_gnd()
 
 
 ###############################################################################
-# Schematic connection
-# ~~~~~~~~~~~~~~~~~~~~
-# connect_to_component method easily allow to connect element in schematic.
+# Connect elements
+# ~~~~~~~~~~~~~~~~
+# Connect elements in the schematic.
+
 tr1.pins[0].connect_to_component(ibs.pins[0])
 tr1.pins[1].connect_to_component(res.pins[0])
 res.pins[1].connect_to_component(gnd1.pins[0])
 
 ###############################################################################
-# Probe
-# ~~~~~
-# Add a probe and rename it to vout.
+# Place probe
+# ~~~~~~~~~~~
+# Place a probe and rename it to ``Vout``.
+
 pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"
 pr1.pins[0].connect_to_component(res.pins[0])
 
 ###############################################################################
-# Setup and Run
-# ~~~~~~~~~~~~~
-# Create a Transient analysis and run it.
+# Create setup and analyze
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a transient analysis setup and analyze it.
+
 trans_setup = cir.create_setup("TransientRun", "NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
 
 
 ###############################################################################
-# PostProcessing outside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# get_solution_data allows user to get solutions and plot outside AEDT without need of UI.
+# Create report outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a report outside AEDT using the ``get_solution_data`` method. This
+# method allows you to get solution data and plot it outside AEDT without needing
+# a UI.
+
 report = cir.post.create_report("V(Vout)", domain="Time")
 if not non_graphical:
     report.add_cartesian_y_marker(0)
@@ -86,10 +99,11 @@ solutions = cir.post.get_solution_data("V(Vout)", domain="Time")
 solutions.plot()
 
 ###############################################################################
-# PostProcessing inside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# new_report object is fully customizable and usable with most of available report in AEDT.
-# Standard is the main one used in Circuit and Twin Builder.
+# Create report inside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a report inside AEDT using the ``new_report`` object. This object is
+# fully customizable and usable with most of the reports available in AEDT.
+# The standard report is the main one used in Circuit and Twin Builder.
 
 new_report = cir.post.reports_by_category.standard("V(Vout)")
 new_report.domain = "Time"
@@ -110,18 +124,20 @@ sol = new_report.get_solution_data()
 sol.plot()
 
 ###############################################################################
-# Eye Diagram inside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# new_report object can be used also to create an eye diagram report in AEDT.
+# Create eye diagram inside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create an eye diagram inside AEDT using the ``new_eye`` object. 
+
 new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
 new_eye.unit_interval = "1e-9s"
 new_eye.time_stop = "100ns"
 new_eye.create()
 
 ###############################################################################
-# Eye Diagram outside AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# matplotlib and get_solution_data can be used together to build custom plot outside AEDT.
+# Create eye diagram outside AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create the same eye diagram outside AEDT using Matplotlib and the
+# ``get_solution_data`` method.
 
 unit_interval = 1
 offset = 0.25
@@ -151,7 +167,8 @@ plt.show()
 
 
 ###############################################################################
-# Release Desktop and Close AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+# Release AEDT
+# ~~~~~~~~~~~~
+# Release AEDT.
+cir.save_project()
 cir.release_desktop()

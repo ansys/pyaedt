@@ -15,14 +15,14 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import _dim_arg
-from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import UserDefinedComponent
-from pyaedt.modules.MaterialLib import Material
+from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modeler.Object3d import _uname
 from pyaedt.modeler.object3dlayout import Point
+from pyaedt.modules.MaterialLib import Material
 
 default_materials = {
     "Icepak": "air",
@@ -858,7 +858,7 @@ class Polyline(Object3d):
         assert segment_index < num_vertices, "Vertex for the insert is not found."
         type = segment.type
 
-        varg1 = ["NAME:Insert Polyline Segment="]
+        varg1 = ["NAME:Insert Polyline Segment"]
         varg1.append("Selections:=")
         varg1.append(self._m_name + ":CreatePolyline:1")
         varg1.append("Segment Indices:=")
@@ -933,16 +933,19 @@ class Primitives(object):
     @property
     def solid_objects(self):
         """List of all solid objects."""
+        self._refresh_solids()
         return [self[name] for name in self.solid_names if self[name]]
 
     @property
     def sheet_objects(self):
         """List of all sheet objects."""
+        self._refresh_sheets()
         return [self[name] for name in self.sheet_names if self[name]]
 
     @property
     def line_objects(self):
         """List of all line objects."""
+        self._refresh_lines()
         return [self[name] for name in self.line_names if self[name]]
 
     @property
@@ -995,7 +998,7 @@ class Primitives(object):
     def object_names(self):
         """List of the names of all objects."""
         self._refresh_object_types()
-        return self._all_object_names
+        return [i for i in self._all_object_names if i not in self._unclassified]
 
     @property
     def user_defined_component_names(self):
@@ -1623,21 +1626,20 @@ class Primitives(object):
         return Polyline(self, src_object=object)
 
     @pyaedt_function_handler()
-    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None, udp_type="Solid"):
+    def create_udp(self, udp_dll_name, udp_parameters_list, upd_library="syslib", name=None):
         """Create a user-defined primitive (UDP).
 
         Parameters
         ----------
         udp_dll_name : str
-            Name of the UPD DLL.
+            Name of the UDP DLL or Python file. The default for the file format
+            is ``".dll"``.
         udp_parameters_list :
             List of the UDP parameters.
         upd_library : str, optional
             Name of the UDP library. The default is ``"syslib"``.
         name : str, optional
             Name of the component. The default is ``None``.
-        udp_type : str, optional
-            Type of the UDP. The default is ``"Solid"``.
 
         Returns
         -------
@@ -1653,12 +1655,11 @@ class Primitives(object):
         --------
         >>> my_udp = self.aedtapp.modeler.create_udp(udp_dll_name="RMxprt/ClawPoleCore",
         ...                                          udp_parameters_list=my_udpPairs,
-        ...                                          upd_library="syslib",
-        ...                                          udp_type="Solid")
+        ...                                          upd_library="syslib")
         <class 'pyaedt.modeler.Object3d.Object3d'>
 
         """
-        if ".dll" not in udp_dll_name:
+        if ".dll" not in udp_dll_name and ".py" not in udp_dll_name:
             vArg1 = [
                 "NAME:UserDefinedPrimitiveParameters",
                 "DllName:=",
@@ -1946,7 +1947,7 @@ class Primitives(object):
         new_object_dict = {}
         new_object_id_dict = {}
         all_objects = self.object_names
-        all_unclassified = self.unclassified_objects
+        all_unclassified = self.unclassified_names
         for old_id, obj in self.objects.items():
             if obj.name in all_objects or obj.name in all_unclassified:
                 updated_id = obj.id  # By calling the object property we get the new id
@@ -2001,6 +2002,10 @@ class Primitives(object):
         """
         added_objects = []
         for obj_name in self.object_names:
+            if obj_name not in self.object_id_dict:
+                self._create_object(obj_name)
+                added_objects.append(obj_name)
+        for obj_name in self.unclassified_names:
             if obj_name not in self.object_id_dict:
                 self._create_object(obj_name)
                 added_objects.append(obj_name)
@@ -2134,6 +2139,13 @@ class Primitives(object):
         is_parallel = False
         for el in edge_start_list:
             vertices_i = el.vertices
+            if not vertices_i:
+                for f in start_obj.faces:
+                    if len(f.edges) == 1:
+                        edges_ids = [i.id for i in f.edges]
+                        if el.id in edges_ids:
+                            vertices_i.append(f.center)
+                            break
             vertex1_i = None
             vertex2_i = None
             if len(vertices_i) == 2:  # normal segment edge
@@ -2141,12 +2153,21 @@ class Primitives(object):
                 vertex2_i = vertices_i[1].position
                 start_midpoint = el.midpoint
             elif len(vertices_i) == 1:
-                # TODO why do we need this ?
-                start_midpoint = vertices_i[0].position
+                if isinstance(vertices_i[0], list):
+                    start_midpoint = vertices_i[0]
+                else:
+                    start_midpoint = vertices_i[0].position
             else:
                 continue
             for el1 in edge_stop_list:
                 vertices_j = el1.vertices
+                if not vertices_j:
+                    for f in end_obj.faces:
+                        if len(f.edges) == 1:
+                            edges_ids = [i.id for i in f.edges]
+                            if el1.id in edges_ids:
+                                vertices_j.append(f.center)
+                                break
                 vertex1_j = None
                 vertex2_j = None
                 if len(vertices_j) == 2:  # normal segment edge
@@ -2154,7 +2175,10 @@ class Primitives(object):
                     vertex2_j = vertices_j[1].position
                     end_midpoint = el1.midpoint
                 elif len(vertices_j) == 1:
-                    end_midpoint = vertices_j[0].position
+                    if isinstance(vertices_j[0], list):
+                        end_midpoint = vertices_j[0]
+                    else:
+                        end_midpoint = vertices_j[0].position
                 else:
                     continue
 
@@ -2643,7 +2667,7 @@ class Primitives(object):
         elif len(vertices) == 1:
             return list(self.get_vertex_position(vertices[0]))
         else:
-            return []
+            return
 
     @pyaedt_function_handler()
     def get_bodynames_from_position(self, position, units=None):
@@ -3324,7 +3348,8 @@ class Primitives(object):
         self._refresh_sheets()
         self._refresh_lines()
         self._refresh_points()
-        self._all_object_names = self._solids + self._sheets + self._lines + self._points
+        self._refresh_unclassified()
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
     def _create_object(self, name):
@@ -3596,7 +3621,7 @@ class Primitives(object):
                     for data in udm_entry:
                         udm_lists.append(data["Attributes"]["Name"])
             except:
-                self.logger.error("User-defined models were not retrieved from the AEDT file.")
+                self.logger.info("User-defined models were not retrieved from the AEDT file.")
         return udm_lists
 
     @pyaedt_function_handler()

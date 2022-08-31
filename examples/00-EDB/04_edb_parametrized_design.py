@@ -1,38 +1,40 @@
 """
-Edb: Fully parameterized design
--------------------------------
-This example shows how to use HFSS 3D Layout to create and solve a parametric design.
+EDB: fully parametrized design
+------------------------------
+This example shows how you can use HFSS 3D Layout to create and solve a parametric design.
 """
 
 ###############################################################################
-# Import the `Hfss3dlayout` Object
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This example imports the `Hfss3dlayout` object and initializes it on version
-# 2022.2.
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports, which includes importing the ``Hfss3dlayout`` object
+# and initializing it on version 2022 R2.
 
-import tempfile
 from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import generate_unique_folder_name, generate_unique_name
 from pyaedt import Hfss3dLayout
 import os
 
 ##########################################################
-# Set Non Graphical Mode.
-# Default is False
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. The default is ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ##########################################################
 # Launch EDB
+# ~~~~~~~~~~
+# Launch EDB.
 
-tmpfold = tempfile.gettempdir()
-aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
+aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
 edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 
-###############################################################################
-# Define Parameters
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+######################################################################
+# Define parameters
+# ~~~~~~~~~~~~~~~~~
+# Define the parameters.
 
 params = {"$ms_width": "0.4mm",
           "$sl_width": "0.2mm",
@@ -52,11 +54,11 @@ for par_name in params:
     edb.add_design_variable(par_name, params[par_name])
 
 ######################################################################
-# Define stackup layers from bottom to top.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-# Stackup definition
-# Note that layer_type = (0:signal, 1:dielectric)
+# Define stackup layers
+# ~~~~~~~~~~~~~~~~~~~~~
+# Define the stackup layers from bottom to top.
+# Note that in the stackup definition, ``"layer_type":0`` is signal and
+# ``"layer_type":1`` is dielectric.
 
 layers = [{"name": "bottom", "layer_type": 0, "thickness": "35um", "material": "copper"},
           {"name": "diel_3", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
@@ -84,8 +86,9 @@ for n in range(len(layers)-1):
                                               material=layers[n+1]["material"])
 
 ###############################################################################
-# Create parameterized padstack for the signal via.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create padstack for signal via
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a parametrized padstack for the signal via.
 
 signal_via_padstack = "automated_via"
 edb.core_padstack.create_padstack(
@@ -102,14 +105,17 @@ edb.core_padstack.create_padstack(
         )
 
 ###############################################################################
-# Net names. There are only two signal nets.
+# Assign net names
+# ~~~~~~~~~~~~~~~~
+# # Assign net names. There are only two signal nets.
 
 net_p = "p"
 net_n = "n"
 
 ###############################################################################
-# Place signal vias:
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Place signal vias
+# ~~~~~~~~~~~~~~~~~
+# Place signal vias.
 
 edb.core_padstack.place_padstack(
             position=["$pcb_len/3", "($ms_width+$ms_spacing+$via_spacing)/2"],
@@ -147,17 +153,18 @@ edb.core_padstack.place_padstack(
             fromlayer=layers[-1]["name"],
             tolayer=layers[0]["name"],)
 
-# ##################################
-# # Draw parameterized traces.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Trace width and routing. Microstrip-Stripline-Microstrip.
+# ###############################################################################
+# Draw parametrized traces
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw parametrized traces.
+# Trace the width and the routing (Microstrip-Stripline-Microstrip).
 # Applies to both p and n nets.
 
 width = ["$ms_width", "$sl_width", "$ms_width"]                       # Trace width, n and p
 route_layer = [layers[-1]["name"], layers[4]["name"], layers[-1]["name"]]    # Routing layer, n and p
 
-# Define points for three traces in the "p" net.
+# Define points for three traces in the "p" net
 
 points_p = [
            [["0.0", "($ms_width+$ms_spacing)/2"],
@@ -179,7 +186,7 @@ points_p = [
            ],
           ]
 
-# Define points for three traces in the "n" net.
+# Define points for three traces in the "n" net
 
 points_n = [
           [["0.0", "-($ms_width+$ms_spacing)/2"],
@@ -200,8 +207,10 @@ points_n = [
            ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
           ],
          ]
-
-# Add traces to the edb...
+# ###############################################################################
+# Add traces to EDB
+# ~~~~~~~~~~~~~~~~~
+# Add traces to EDB.
 
 for n in range(len(points_p)):
     path_p = edb.core_primitives.Shape("polygon", points=points_p[n])
@@ -211,8 +220,11 @@ for n in range(len(points_p)):
     edb.core_primitives.create_path(path_n, route_layer[n], width[n], net_name=net_n,
                                     start_cap_style="Flat", end_cap_style="Flat")
 
-################################################################################
+
+###############################################################################
 # Draw ground polygons
+# ~~~~~~~~~~~~~~~~~~~~
+# Draw ground polygons.
 
 gnd_poly = [[0.0, "-$pcb_w/2"],
             ["$pcb_len", "-$pcb_w/2"],
@@ -220,7 +232,7 @@ gnd_poly = [[0.0, "-$pcb_w/2"],
             [0.0, "$pcb_w/2"]]
 gnd_shape = edb.core_primitives.Shape("polygon", points=gnd_poly)
 
-# void in ground for traces on the signal routing layer.
+# Void in ground for traces on the signal routing layer
 
 void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
              ["$pcb_len/3 + $via_spacing", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam)/2-$via_spacing/2"],
@@ -241,7 +253,7 @@ void_poly = [["$pcb_len/3", "-($ms_width+$ms_spacing+$via_spacing+$anti_pad_diam
 
 void_shape = edb.core_primitives.Shape("polygon", points=void_poly)
 
-# Add ground layers.
+# Add ground layers
 
 for layer in layers[1:-1]:
 
@@ -253,26 +265,43 @@ for layer in layers[1:-1]:
                                        voids=void,
                                        net_name="gnd")
 
-##########################
-# Plotting the Edb
+
+###############################################################################
+# Plot EDB
+# ~~~~~~~~
+# Plot EDB.
+
 edb.core_nets.plot(None)
-##########################
-# saving edb
+
+###############################################################################
+# Save EDB
+# ~~~~~~~~
+# Save EDB.
+
 edb.save_edb()
 edb.close_edb()
 
-###############################################
-# opening edb in Electronics Desktop
+
+###############################################################################
+# Open EDB in AEDT
+# ~~~~~~~~~~~~~~~~
+# Open EDB in AEDT.
+
 h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.2", non_graphical=non_graphical)
 
-###############################################
-# create wave ports
+
+###############################################################################
+# Create wave ports
+# ~~~~~~~~~~~~~~~~~
+# Create wave ports:
 
 h3d.create_wave_port_from_two_conductors(["line_0", "line_1"], [0, 0])
 h3d.create_wave_port_from_two_conductors(["line_4", "line_5"], [5, 5])
 
-##########################
-# adding HFSS simulation setup
+###############################################################################
+# Add HFSS simulation setup
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# Add HFSS simulation setup.
 
 setup = h3d.create_setup()
 h3d.create_linear_count_sweep(
@@ -289,14 +318,18 @@ h3d.create_linear_count_sweep(
     use_q3d_for_dc=False,
 )
 
-##############################################
-# start the HFSS solver. Uncomment to solve
+
+###############################################################################
+# Start HFSS solver
+# ~~~~~~~~~~~~~~~~~
+# Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
+
 # h3d.analyze_nominal()
 
 h3d.release_desktop()
 
-###################################################################################
+###############################################################################
 # Note that the ground nets are only connected to each other due
-# to the wave ports.  The problem with poor grounding can be seen in the
+# to the wave ports. The problem with poor grounding can be seen in the
 # S-parameters. Try to modify this script to add ground vias and eliminate
 # the resonance.

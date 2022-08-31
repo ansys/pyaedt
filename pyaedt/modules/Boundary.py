@@ -6,14 +6,14 @@ from collections import OrderedDict
 from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
+from pyaedt.modeler.Object3d import _dim_arg
 
 
 class BoundaryProps(OrderedDict):
@@ -97,6 +97,17 @@ class BoundaryCommon(PropsManager):
 
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
 
     Examples
     --------
@@ -273,6 +284,17 @@ class NativeComponentObject(BoundaryCommon, object):
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
 
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
+
     Examples
     --------
 
@@ -427,6 +449,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignVoltageDrop(self._get_args())
         elif self.type == "Current":
             self._app.oboundary.AssignCurrent(self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Balloon":
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
@@ -471,6 +501,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
         elif self.type == "EndConnection":
             self._app.oboundary.AssignEndConnection(self._get_args())
+        elif self.type == "Hybrid":
+            self._app.oboundary.AssignHybridRegion(self._get_args())
         else:
             return False
         return True
@@ -567,6 +599,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
         elif self.type == "Current":
             self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Vector Potential":
@@ -593,6 +633,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "End Connection":
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
+        elif self.type == "Hybrid":
+            self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
@@ -620,15 +662,32 @@ class BoundaryObject(BoundaryCommon, object):
                     faces_out.append(f)
             self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Faces:=", faces_out])
         elif "Objects" in self.props:
+            pr = []
+            for el in self.props["Objects"]:
+                try:
+                    pr.append(self._app.modeler[el].name)
+                except (KeyError, AttributeError):
+                    pass
 
-            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", self.props["Objects"]])
+            self._app.oboundary.ReassignBoundary(["Name:" + self.name, "Objects:=", pr])
         else:
             return False
         return True
 
 
 class MaxwellParameters(BoundaryCommon, object):
-    """Manages parameter data and execution.
+    """Manages parameters data and execution.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.maxwell.Maxwell3d`, :class:`pyaedt.maxwell.Maxwell2d`
+        Either ``Maxwell3d`` or ``Maxwell2d`` application.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
@@ -722,6 +781,69 @@ class MaxwellParameters(BoundaryCommon, object):
             return False
         self._boundary_name = self.name
         return True
+
+    @pyaedt_function_handler()
+    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if not matrix_name:
+            matrix_name = generate_unique_name("ReducedMatrix", n=3)
+        if not join_name:
+            join_name = generate_unique_name("Join" + red_type, n=3)
+        try:
+            self._app.o_maxwell_parameters.AddReduceOp(
+                self.name,
+                matrix_name,
+                ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
+            )
+            return matrix_name, join_name
+        except:
+            self._app.logger.error("Failed to create Matrix Reduction")
+            return False, False
+
+    @pyaedt_function_handler()
+    def join_series(self, sources, matrix_name=None, join_name=None):
+        """
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
+
+    @pyaedt_function_handler()
+    def join_parallel(self, sources, matrix_name=None, join_name=None):
+        """
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
 
 
 class FieldSetup(BoundaryCommon, object):

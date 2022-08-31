@@ -39,12 +39,15 @@ if not IsWindows and is_ironpython:
 else:
     import subprocess
 
-from pyaedt.misc import list_installed_ansysem
+from pyaedt import __version__
+from pyaedt import aedt_logger
 from pyaedt import pyaedt_function_handler
-from pyaedt.generic.general_methods import is_ironpython, _pythonver, inside_desktop, grpc_active_sessions
 from pyaedt import settings
-
-from pyaedt import aedt_logger, __version__
+from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import grpc_active_sessions
+from pyaedt.generic.general_methods import inside_desktop
+from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.misc import list_installed_ansysem
 
 pathname = os.path.dirname(__file__)
 
@@ -69,9 +72,12 @@ elif IsWindows:  # pragma: no cover
 
         _com = "pywin32"
     else:
-        raise Exception("Error. No win32com.client or PythonNET modules are found. Install them and try again.")
+        warnings.warn("Clr Module not found. Forcing Aedt Grpc")
+        settings.use_grpc_api = True
+        _com = "pythonnet_v3"
 else:
     _com = "pythonnet_v3"
+    settings.use_grpc_api = True
 
 
 def _check_grpc_port(port, machine_name=""):
@@ -152,6 +158,14 @@ def _delete_objects():
             _global.removeHandler(module._aedt_handler[i])
     except AttributeError:
         pass
+    try:
+        del module.oAnsoftApplication
+    except AttributeError:
+        pass
+    try:
+        del module.desktop
+    except AttributeError:
+        pass
     gc.collect()
 
 
@@ -183,7 +197,13 @@ def release_desktop(close_projects=True, close_desktop=True):
         if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
             import ScriptEnv
 
-            ScriptEnv.Release()
+            if close_desktop:
+                ScriptEnv.Shutdown()
+            else:
+                ScriptEnv.Release()
+            _delete_objects()
+            if settings.remote_api:
+                return True
         elif not inside_desktop:
             i = 0
             scopeID = 5
@@ -382,7 +402,7 @@ class Desktop:
                 self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif _com == "pythonnet_v3":
-                if version_key < "2022.2" or not (settings.use_grpc_api or os.name == "posix"):
+                if version_key < "2022.2" or not (settings.use_grpc_api or os.name == "posix" or self.port):
                     self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
                     self._init_cpython(
                         non_graphical,
@@ -402,7 +422,8 @@ class Desktop:
         self._set_logger_file()
         self._init_desktop()
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
-        self._logger.info("Python version %s", sys.version)
+        if not settings.remote_api:
+            self._logger.info("Python version %s", sys.version)
         self.odesktop = self._main.oDesktop
         settings.aedt_version = self.odesktop.GetVersion()[0:6]
         settings.machine = self.machine
@@ -468,7 +489,10 @@ class Desktop:
     @property
     def current_version(self):
         """Current AEDT version."""
-        return self.version_keys[0]
+        try:
+            return self.version_keys[0]
+        except (NameError, IndexError):
+            return ""
 
     @property
     def current_version_student(self):
@@ -476,7 +500,7 @@ class Desktop:
         for version_key in self.version_keys:
             if "SV" in version_key:
                 return version_key
-        return None
+        return ""
 
     def _init_desktop(self):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
@@ -658,11 +682,17 @@ class Desktop:
         launch_msg = "AEDT installation Path {}".format(base_path)
         self.logger.info(launch_msg)
         self.logger.info("Launching AEDT with the gRPC plugin.")
-        if (
-            not self.port
-            and not new_aedt_session
-            and self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]
-        ):
+        if not self.machine or self.machine in [
+            "localhost",
+            "127.0.0.1",
+            socket.getfqdn(),
+            socket.getfqdn().split(".")[0],
+        ]:
+            self.machine = ""
+        else:
+            settings.remote_api = True
+
+        if not self.port and not new_aedt_session and not self.machine:
             sessions = grpc_active_sessions(
                 version=version, student_version=student_version, non_graphical=non_graphical
             )
@@ -674,28 +704,15 @@ class Desktop:
                     self.logger.warning(
                         "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                     )
+            else:
+                self.port = _find_free_port()
+                self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session or not self.port:
             self.port = _find_free_port()
             self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
-            self.machine = ""
         elif self.port:
             self.logger.info("Connecting to AEDT session on gRPC port %s", self.port)
 
-        if not new_aedt_session:
-            # Local server running
-            if not self.machine:
-                if _check_grpc_port(self.port):
-                    self.machine = socket.getfqdn()
-            # Local Server
-            elif self.machine in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
-                # No AEDT started
-                if not _check_grpc_port(self.port):
-                    self.machine = ""
-                # AEDT existing
-                else:
-                    self.machine = socket.getfqdn()
-            elif self.machine not in ["localhost", "127.0.0.1", socket.getfqdn(), socket.getfqdn().split(".")[0]]:
-                settings.remote_api = True
         ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         if "oAnsoftApplication" in dir(self._main):
@@ -1144,7 +1161,7 @@ class Desktop:
         ----------
         license_type : str, optional
             Type of the license. The options are ``"Pack"`` and ``"Pool"``.
-            The default is ``"Pool".
+            The default is ``"Pool"``.
 
         Returns
         -------

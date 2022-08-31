@@ -15,18 +15,22 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
+from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.general_methods import generate_unique_name, pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.Boundary import NativeComponentObject
 
 
 class Icepak(FieldAnalysis3D):
     """Provides the Icepak application interface.
 
-    This class allows you to connect to an existing Icepack design or create a
+    This class allows you to connect to an existing Icepak design or create a
     new Icepak design if one does not exist.
 
     Parameters
@@ -470,6 +474,7 @@ class Icepak(FieldAnalysis3D):
         props = {}
         if not isinstance(object_name, list):
             object_name = [object_name]
+        object_name = self.modeler.convert_to_selections(object_name, True)
         props["Objects"] = object_name
 
         props["Block Type"] = "Solid"
@@ -906,7 +911,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignBlockBoundary
         """
-        with open(csv_name) as csvfile:
+        with open_file(csv_name) as csvfile:
             csv_input = csv.reader(csvfile)
             component_header = next(csv_input)
             data = list(csv_input)
@@ -974,7 +979,7 @@ class Icepak(FieldAnalysis3D):
         i = 2
         if validate == 0:
             priority_list = []
-            with open(temp_log, "r") as f:
+            with open_file(temp_log, "r") as f:
                 lines = f.readlines()
                 for line in lines:
                     if "[error]" in line and component_prefix in line and "intersect" in line:
@@ -1115,9 +1120,6 @@ class Icepak(FieldAnalysis3D):
             self["NumColumnsPerSide"] = numcolumn_perside
         if symmetric:
             self["SymSeparation"] = self.modeler._arg_with_dim(symmetric_separation)
-        # ipk['PatternDirection'] = 'Y'
-        # ipk['LengthDirection'] = 'X'
-        # ipk['HeightDirection'] = 'Z'
         self["Tolerance"] = self.modeler._arg_with_dim(tolerance)
 
         self.modeler.create_box(
@@ -1152,11 +1154,9 @@ class Icepak(FieldAnalysis3D):
         self.modeler.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.modeler["Fin"].material_name = matname
-        # self.modeler.thicken_sheet("Fin",'-FinHeight')
-        num = int((hs_width / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
+        num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
+        self.modeler.move("Fin", self.Position(0, "-FinSeparation-FinThickness", 0))
         self.modeler.duplicate_along_line("Fin", self.Position(0, "FinSeparation+FinThickness", 0), num, True)
-        self.modeler.duplicate_along_line("Fin", self.Position(0, "-FinSeparation-FinThickness", 0), num / 4, True)
-
         all_names = self.modeler.object_names
         list = [i for i in all_names if "Fin" in i]
         if numcolumn_perside > 0:
@@ -1173,7 +1173,7 @@ class Icepak(FieldAnalysis3D):
         all_names = self.modeler.object_names
         list = [i for i in all_names if "Fin" in i]
         self.modeler.create_coordinate_system(self.Position(0, "HSHeight", 0), mode="view", view="XY", name="TopRight")
-
+        self.modeler.set_working_coordinate_system("TopRight")
         self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
 
         if symmetric:
@@ -1779,8 +1779,8 @@ class Icepak(FieldAnalysis3D):
         i = 0
         filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # iterate the variations
-        while os.path.exists(filename):
-            with open(filename, "r") as f:
+        while os.path.exists(filename) or settings.remote_rpc_session:
+            with open_file(filename, "r") as f:
                 lines = f.readlines()
                 variation = lines[1]
                 # Searching file content for temp and power
@@ -1803,7 +1803,7 @@ class Icepak(FieldAnalysis3D):
             i += 1
             filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
         # write the new file
-        with open(newfilename, "w") as f:
+        with open_file(newfilename, "w") as f:
             f.writelines(newfilelines)
         # remove the single files variation
         for fr in filetoremove:

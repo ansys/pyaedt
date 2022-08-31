@@ -9,32 +9,42 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
 # Setup paths for module imports
-from _unittest.conftest import local_path, BasisTest, config
+from _unittest.conftest import BasisTest
+from _unittest.conftest import config
+from _unittest.conftest import local_path
+from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.Primitives import Polyline, PolylineSegment
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import Object3d
 from pyaedt.modeler.Object3d import UserDefinedComponent
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.generic.constants import AXIS
+from pyaedt.modeler.Primitives import Polyline
+from pyaedt.modeler.Primitives import PolylineSegment
 
 test = sys.modules.keys()
 
 scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
+test_subfolder = "T08"
+if config["desktopVersion"] > "2022.2":
+    assembly = "assembly_231"
+    assembly2 = "assembly2_231"
+else:
+    assembly = "assembly"
+    assembly2 = "assembly2"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name="test_primitives", design_name="3D_Primitives")
-        scdoc_file = os.path.join(local_path, "example_models", scdoc)
+        scdoc_file = os.path.join(local_path, "example_models", test_subfolder, scdoc)
         self.local_scratch.copyfile(scdoc_file)
-        self.step_file = os.path.join(local_path, "example_models", step)
+        self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
         self.component3d_file = os.path.join(self.local_scratch.path, component3d)
-        test_98_project = os.path.join(local_path, "example_models", "assembly2" + ".aedt")
+        test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
-        test_99_project = os.path.join(local_path, "example_models", "assembly" + ".aedt")
+        test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
 
     def teardown_class(self):
@@ -489,9 +499,9 @@ class TestClass(BasisTest, object):
         assert center == [4.5, 8.5, 3.0]
 
     def test_37_get_edge_midpoint(self):
-        listedges = self.aedtapp.modeler.get_object_edges("rect_for_get")
-        point = self.aedtapp.modeler.get_edge_midpoint(listedges[0])
-        assert point == [4.5, 2.0, 3.0]
+        polyline = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
+        point = self.aedtapp.modeler.get_edge_midpoint(polyline.id)
+        assert point == [5.0, 2.5, 1.5]
 
     def test_38_get_bodynames_from_position(self):
         center = [20, 20, 0]
@@ -635,7 +645,7 @@ class TestClass(BasisTest, object):
         self.aedtapp["p2"] = "71mm"
         test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
         P = self.aedtapp.modeler.create_polyline(
-            position_list=test_points, close_surface=True, name="PL08_segmented_compound_insert_segment"
+            position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_segment"
         )
         assert P
         start_point = P.start_point
@@ -1153,6 +1163,11 @@ class TestClass(BasisTest, object):
         box2 = self.aedtapp.modeler.create_box([-20, -20, -19], [0.2, 0.2, 0.2])
         assert box2.name in box1.touching_objects
         assert box1.name in box2.touching_objects
+        assert box2.name in box1.faces[0].touching_objects
+        if config["desktopVersion"] > "2022.2":
+            assert box2.name not in box1.faces[3].touching_objects
+        else:
+            assert box2.name not in box1.faces[1].touching_objects
 
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"
@@ -1173,12 +1188,12 @@ class TestClass(BasisTest, object):
         assert obj_3dcomp.mesh_assembly
         obj_3dcomp.name = "Dipole_pyaedt"
         assert "Dipole_pyaedt" in self.aedtapp.modeler.user_defined_component_names
-        obj_3dcomp.name = "MyTorus"
         assert obj_3dcomp.name == "Dipole_pyaedt"
-        assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
-        self.aedtapp["l_dipole2"] = "15.5cm"
-        obj_3dcomp.parameters["dipole_length"] = "l_dipole2"
-        assert obj_3dcomp.parameters["dipole_length"] == "l_dipole2"
+        if config["desktopVersion"] < "2023.1":
+            assert obj_3dcomp.parameters["dipole_length"] == "l_dipole"
+            self.aedtapp["l_dipole2"] = "15.5cm"
+            obj_3dcomp.parameters["dipole_length"] = "l_dipole2"
+            assert obj_3dcomp.parameters["dipole_length"] == "l_dipole2"
         cs = self.aedtapp.modeler.create_coordinate_system()
         obj_3dcomp.target_coordinate_system = cs.name
         assert obj_3dcomp.target_coordinate_system == cs.name
@@ -1262,3 +1277,8 @@ class TestClass(BasisTest, object):
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
+
+    def test_81_duplicate_and_mirror_3dcomponent(self):
+        assert self.aedtapp.modeler.duplicate_and_mirror(
+            self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
+        )

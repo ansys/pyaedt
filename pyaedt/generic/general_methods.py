@@ -13,6 +13,7 @@ import random
 import re
 import string
 import sys
+import tempfile
 import time
 import traceback
 from collections import OrderedDict
@@ -49,7 +50,7 @@ def _write_mes(mes_text):
 
 
 def _exception(ex_info, func, args, kwargs, message="Type Error"):
-    """Writes the trace stack to the desktop when a python error occurs
+    """Write the trace stack to the desktop when a Python error occurs.
 
     Parameters
     ----------
@@ -118,19 +119,94 @@ def _check_types(arg):
     return ""
 
 
+def check_and_download_file(local_path, remote_path, overwrite=True):
+    """Check if a file is remote and either download it or return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path to save the file to.
+    remote_path : str
+        Path to the remote file.
+    overwrite : bool
+        Whether to overwrite the file if it already exits locally.
+        The default is ``True``.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def check_and_download_folder(local_path, remote_path, overwrite=True):
+    """Check if a folder is remote and either download it or return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path to save the folder to.
+    remote_path : str
+        Path to the remote folder.
+    overwrite : bool
+        Whether to overwrite the folder if it already exits locally.
+        The default is ``True``.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+def open_file(file_path, file_options="r"):
+    """Open a file and return the object.
+
+    Parameters
+    ----------
+    file_path : str
+        Full absolute path to the file (either local or remote).
+    file_options : str, optional
+        Options for opening the file.
+
+    Returns
+    -------
+    object
+        Opened file.
+    """
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    dir_name = os.path.dirname(file_path)
+    if os.path.exists(dir_name):
+        return open(file_path, file_options)
+    elif settings.remote_rpc_session:
+        return settings.remote_rpc_session.open_file(file_path, file_options)
+    else:
+        return False
+
+
 def convert_remote_object(arg):
-    """Convert Remote list or dict to native list and dictionary.
+    """Convert a remote list or dictionary to a native list or dictionary.
 
     .. note::
-        This is needed only on Cpython to Ironpython Connection.
+        This method is needed only on a Cpython-to-Ironpython connection.
 
     Parameters
     ----------
     arg : dict or list
-        Object to convert
+        Dictionary or list to convert.
+
     Returns
     -------
     dict or list
+        Converted dictionary or list
     """
     if _check_types(arg) == "list":
         if arg.__len__() > 0:
@@ -214,12 +290,11 @@ def _log_method(func, new_args, new_kwargs):
 
 
 def pyaedt_function_handler(direct_func=None):
-    """Decorator for pyaedt Exception, Logging, and Conversion management.
-    Provides an exception handler, a logging mechanism and an argument conversion for clien-server
+    """Provides an exception handler, logging mechanism, and argument converter for client-server
     communications.
 
-    It returns the function itself if correctly executed otherwise it will return False and errors
-    will be displayed.
+    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
+    and displays errors.
 
     """
 
@@ -310,15 +385,17 @@ def get_version_and_release(input_version):
 
 @pyaedt_function_handler()
 def env_path(input_version):
-    """Return the version Environment Variable name based on an input version string.
+    """Get the path of the version environment variable for an AEDT version.
 
     Parameters
     ----------
     input_version : str
+        AEDT version.
 
     Returns
     -------
     str
+        Path for the version environment variable.
 
     Examples
     --------
@@ -335,15 +412,17 @@ def env_path(input_version):
 
 @pyaedt_function_handler()
 def env_value(input_version):
-    """Return the version Environment Variable value based on an input version string.
+    """Get the name of the version environment variable for an AEDT version.
 
     Parameters
     ----------
     input_version : str
+        AEDT version.
 
     Returns
     -------
     str
+        Name for the version environment variable.
 
     Examples
     --------
@@ -357,15 +436,17 @@ def env_value(input_version):
 
 @pyaedt_function_handler()
 def env_path_student(input_version):
-    """Return the Student version Environment Variable value based on an input version string.
+    """Get the path of the version environment variable for an AEDT student version.
 
     Parameters
     ----------
     input_version : str
+       AEDT student version.
 
     Returns
     -------
     str
+        Path for the student version environment variable.
 
     Examples
     --------
@@ -382,15 +463,17 @@ def env_path_student(input_version):
 
 @pyaedt_function_handler()
 def env_value_student(input_version):
-    """Return the Student version Environment Variable name based on an input version string.
+    """Get the name of the version environment variable for an AEDT student version.
 
     Parameters
     ----------
     input_version : str
+        AEDT student version.
 
     Returns
     -------
     str
+         Name for the student version environment variable.
 
     Examples
     --------
@@ -408,12 +491,14 @@ def get_filename_without_extension(path):
 
     Parameters
     ----------
-    path :
+    path : str
+        Path for the file.
 
 
     Returns
     -------
     str
+       Name for the file, excluding its extension.
 
     """
     return os.path.splitext(os.path.split(path)[1])[0]
@@ -421,19 +506,21 @@ def get_filename_without_extension(path):
 
 @pyaedt_function_handler()
 def generate_unique_name(rootname, suffix="", n=6):
-    """Generate a new  name given a rootname and optionally a suffix.
+    """Generate a new name given a root name and optional suffix.
 
     Parameters
     ----------
     rootname :
-        Root name to which add 6 Random chars
-    suffix :
-        Suffix to be added (Default value = '')
-    n :
-        Number of random characters in the name. The default value is 6.
+        Root name to add random characters to.
+    suffix : string
+        Suffix to add. The default is ``''``.
+    n : int
+        Number of random characters to add to the name. The default value is ``6``.
 
     Returns
     -------
+    str
+        Newly generated name.
 
     """
     char_set = string.ascii_uppercase + string.digits
@@ -442,6 +529,64 @@ def generate_unique_name(rootname, suffix="", n=6):
     if suffix:
         unique_name += "_" + suffix
     return unique_name
+
+
+@pyaedt_function_handler()
+def generate_unique_folder_name(rootname=None, folder_name=None):
+    """Generate a new AEDT folder name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name for the new folder. The default is ``None``.
+    folder_name : str, optional
+        Name for the new AEDT folder if one must be created.
+
+    Returns
+    -------
+    str
+    """
+    if not rootname:
+        rootname = tempfile.gettempdir()
+    if folder_name is None:
+        folder_name = generate_unique_name("pyaedt_prj", n=3)
+    temp_folder = os.path.join(rootname, folder_name)
+    if not os.path.exists(temp_folder):
+        os.makedirs(temp_folder)
+
+    return temp_folder
+
+
+@pyaedt_function_handler()
+def generate_unique_project_name(rootname=None, folder_name=None, project_name=None, project_format="aedt"):
+    """Generate a new AEDT project name given a rootname.
+
+    Parameters
+    ----------
+    rootname : str, optional
+        Root name where the new project is to be created.
+    folder_name : str, optional
+        Name of the folder to create. The default is ``None``, in which case a random folder
+        is created. Use ``""`` if you do not want to create a subfolder.
+    project_name : str, optional
+        Name for the project. The default is ``None``, in which case a random project is
+        created. If a project with this name already exists, a new suffix is added.
+    project_format : str, optional
+        Project format. The default is ``"aedt"``. Options are ``"aedt"`` and ``"aedb"``.
+
+    Returns
+    -------
+    str
+    """
+    if not project_name:
+        project_name = generate_unique_name("Project", n=3)
+    name_with_ext = project_name + "." + project_format
+    folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
+    prj = os.path.join(folder_path, name_with_ext)
+    if os.path.exists(prj):
+        name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
+        prj = os.path.join(folder_path, name_with_ext)
+    return prj
 
 
 def _retry_ntimes(n, function, *args, **kwargs):
@@ -523,35 +668,37 @@ def is_array(a):
 
 
 def is_project_locked(project_path):
-    """Checks if an aedt project lock file exists.
+    """Check if an AEDT project lock file exists.
 
     Parameters
     ----------
     project_path : str
-        Aedt project path.
+        Path for the AEDT project.
 
     Returns
     -------
     bool
+        ``True`` when successful, ``False`` when failed.
     """
     return os.path.exists(project_path[:-4] + "lock")
 
 
 @pyaedt_function_handler()
 def remove_project_lock(project_path):
-    """Checks if an aedt project exists and try to remove the lock file.
+    """Check if an AEDT project exists and try to remove the lock file.
 
     .. note::
-       This operation is risky because the file could be opened in another Desktop instance.
+       This operation is risky because the file could be opened in another AEDT instance.
 
     Parameters
     ----------
     project_path : str
-        Aedt project path.
+        Path for the AEDT project.
 
     Returns
     -------
     bool
+        ``True`` when successful, ``False`` when failed.
     """
     if os.path.exists(project_path + ".lock"):
         os.remove(project_path + ".lock")
@@ -565,9 +712,9 @@ def read_csv(filename, encoding="utf-8"):
     Parameters
     ----------
     filename : str
-            Full path and name for the csv file.
+            Full path and name for the CSV file.
     encoding : str, optional
-            File encoding to be provided for csv. The default is ``utf-8``.
+            File encoding for the CSV file. The default is ``"utf-8"``.
 
     Returns
     -------
@@ -590,7 +737,7 @@ def read_tab(filename):
     Parameters
     ----------
     filename : str
-            Full path and name for the tab file.
+            Full path and name for the TAB file.
 
     Returns
     -------
@@ -604,12 +751,12 @@ def read_tab(filename):
 
 @pyaedt_function_handler()
 def read_xlsx(filename):
-    """Read information from a XLSX file and return a list.
+    """Read information from an XLSX file and return a list.
 
     Parameters
     ----------
     filename : str
-            Full path and name for the xlsx file.
+            Full path and name for the XLSX file.
 
     Returns
     -------
@@ -641,7 +788,7 @@ def write_csv(output, list_data, delimiter=",", quotechar="|", quoting=csv.QUOTE
 
 @pyaedt_function_handler()
 def filter_tuple(value, search_key1, search_key2):
-    """Filter a tuple of 2 elements with two search keywords"""
+    """Filter a tuple of two elements with two search keywords."""
     ignore_case = True
 
     def _create_pattern(k1, k2):
@@ -687,7 +834,7 @@ def filter_string(value, search_key1):
 
 @pyaedt_function_handler()
 def recursive_glob(startpath, filepattern):
-    """Return a list of files matching a pattern, searching recursively from a start path.
+    """Get a list of files matching a pattern, searching recursively from a start path.
 
     Keyword Arguments:
     startpath -- starting path (directory)
@@ -703,17 +850,17 @@ def recursive_glob(startpath, filepattern):
 
 @pyaedt_function_handler()
 def number_aware_string_key(s):
-    """Return a key for sorting strings that treats embedded digit sequences as integers.
+    """Get a key for sorting strings that treats embedded digit sequences as integers.
 
     Parameters
     ----------
     s : str
-        String from which to calculate key
+        String to calculate the key from.
 
     Returns
     -------
     tuple
-        Tuple of key entries
+        Tuple of key entries.
     """
 
     def is_digit(c):
@@ -760,21 +907,23 @@ def _create_json_file(json_dict, full_json_path):
 
 @pyaedt_function_handler()
 def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
-    """Return the active grpc aedt session inf.
+    """Get information for the active gRPC AEDT sessions.
 
     Parameters
     ----------
     version : str, optional
-        String of the version to check. By default checks on every version. Options are "222" or "2022.2".
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specififying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
     student_version : bool, optional
-        Either if check for student version session or not.
+        Whether to check for student version sessions. The default is ``False``.
     non_graphical : bool, optional
-        Either to check for active graphical or non graphical sessions.
+        Whether to check only for active non-graphical sessions. The default is ``False``.
 
     Returns
     -------
     list
-        List of grpc port.
+        List of gRPC ports.
     """
     if student_version:
         keys = ["ansysedtsv.exe"]
@@ -830,8 +979,8 @@ class PropsManager(object):
         ----------
         key : str
             Key to apply.
-        value : int or float or bool or str or dict
-            Value to apply
+        value : int, float, bool, str, dict
+            Value to apply.
         """
         item_split = key.split("/")
         found_el = []
@@ -907,7 +1056,7 @@ class PropsManager(object):
 
 
 class Settings(object):
-    """Class that manages all PyAEDT Environment Variables and global settings."""
+    """Class that manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
         self._enable_logger = True
@@ -930,6 +1079,43 @@ class Settings(object):
         self.machine = ""
         self.port = 0
         self.formatter = None
+        self.remote_rpc_session = None
+        self.remote_rpc_session_temp_folder = ""
+        self.remote_rpc_service_manager_port = 17878
+        self._project_properties = {}
+        self._project_time_stamp = 0
+        self._disable_bounding_box_sat = False
+        self._force_error_on_missing_project = False
+
+    @property
+    def force_error_on_missing_project(self):
+        """Set/Get a flag to check project path.
+        If ``True`` when passing a project path, the project has to exist otherwise it will raise an error.
+        Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._force_error_on_missing_project
+
+    @force_error_on_missing_project.setter
+    def force_error_on_missing_project(self, val):
+        self._force_error_on_missing_project = val
+
+    @property
+    def disable_bounding_box_sat(self):
+        """Set/Get Bounding Box Sat enablement.
+
+        Returns
+        -------
+        bool
+        """
+        return self._disable_bounding_box_sat
+
+    @disable_bounding_box_sat.setter
+    def disable_bounding_box_sat(self, val):
+        self._disable_bounding_box_sat = val
 
     @property
     def use_grpc_api(self):
@@ -948,7 +1134,7 @@ class Settings(object):
 
     @property
     def logger(self):
-        """Return the active logger."""
+        """Get the active logger."""
         try:
             return logging.getLogger("Global")
         except:
@@ -956,7 +1142,7 @@ class Settings(object):
 
     @property
     def non_graphical(self):
-        """Return the non graphical flag."""
+        """Get the value for the non-graphical flag."""
         return self._non_graphical
 
     @non_graphical.setter
@@ -965,7 +1151,7 @@ class Settings(object):
 
     @property
     def enable_error_handler(self):
-        """Return the Environment Variable Content."""
+        """Return the content for the environment variable."""
         return self._enable_error_handler
 
     @enable_error_handler.setter
@@ -974,7 +1160,7 @@ class Settings(object):
 
     @property
     def enable_desktop_logs(self):
-        """Return the Environment Variable Content."""
+        """Get the content for the environment variable."""
         return self._enable_desktop_logs
 
     @enable_desktop_logs.setter
@@ -983,7 +1169,7 @@ class Settings(object):
 
     @property
     def enable_screen_logs(self):
-        """Return the Environment Variable Content."""
+        """Get the content for the environment variable."""
         return self._enable_screen_logs
 
     @enable_screen_logs.setter
@@ -992,7 +1178,7 @@ class Settings(object):
 
     @property
     def pyaedt_server_path(self):
-        """Return the Environment Variable Content."""
+        """Get the content for the environment variable."""
         return os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
 
     @pyaedt_server_path.setter
@@ -1001,7 +1187,7 @@ class Settings(object):
 
     @property
     def enable_file_logs(self):
-        """Return the Environment Variable Content."""
+        """Get the content for the environment variable."""
         return self._enable_file_logs
 
     @enable_file_logs.setter

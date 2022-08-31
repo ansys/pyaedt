@@ -1,17 +1,22 @@
 # standard imports
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
+from _unittest.conftest import desktop_version
 from pyaedt import Circuit
 
 # Import required modules
+test_subfolder = "T11"
+if desktop_version > "2022.2":
 
-test_project_name = "coax_setup"
+    test_project_name = "coax_setup_231"
+else:
+    test_project_name = "coax_setup"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)

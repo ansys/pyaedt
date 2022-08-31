@@ -5,9 +5,13 @@ import clr
 from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 clr.AddReference("System.Collections")
-from pyaedt.generic.constants import AXIS, PLANE, SWEEPDRAFT, unit_converter
 from System import Double
 from System.Collections.Generic import List
+
+from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import SWEEPDRAFT
+from pyaedt.generic.constants import unit_converter
 
 try:
     import pytest  # noqa: F401

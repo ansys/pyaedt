@@ -1,7 +1,7 @@
 PyAEDT
 ======
 
-|pyansys| |pypi| |PyPIact| |GH-CI| |codecov| |MIT| |black|
+|pyansys| |pypi| |PyPIact| |PythonVersion| |GH-CI| |codecov| |MIT| |black|
 
 .. |pyansys| image:: https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC
    :target: https://docs.pyansys.com/
@@ -12,6 +12,9 @@ PyAEDT
 
 .. |PyPIact| image:: https://img.shields.io/pypi/dm/pyaedt.svg?label=PyPI%20downloads
    :target: https://pypi.org/project/pyaedt/
+   
+.. |PythonVersion| image:: https://img.shields.io/badge/python-3.7+-blue.svg
+   :target: https://www.python.org/downloads/
 
 .. |GH-CI| image:: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml/badge.svg
    :target: https://github.com/pyansys/pyaedt/actions/workflows/unit_tests.yml
@@ -42,11 +45,11 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 
 - HFSS and HFSS 3D Layout
 - Icepak
-- Maxwell 2D/3D and RMxprt
-- Q3D/2DExtractor
+- Maxwell 2D, Maxwell 3D, and RMxprt
+- 2D Extractor and Q3D Extractor
 - Mechanical
 - Nexxim
-- EDB Database
+- EDB
 - Twin Builder
 
 What is PyAEDT?
@@ -54,18 +57,18 @@ What is PyAEDT?
 PyAEDT is a Python library that interacts directly with the AEDT API
 to make scripting simpler for the end user. Its architecture
 can be reused for all AEDT 3D products (HFSS, Icepak, Maxwell 3D, and
-Q3D), 2D tools, and Ansys Mechanical. It also provides support for circuit tools like
-Nexxim and system simulation tools like Twin Builder. Finally it provides scripting 
-capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class and method
-structures simplify operation for the end user while reusing information as much as
-possible across the API.
+Q3D Extractor), 2D tools, and Ansys Mechanical. It also provides support for circuit
+tools like Nexxim and system simulation tools like Twin Builder. Finally it provides
+scripting capabilities in Ansys layout tools like HFSS 3D Layout and EDB. Its class
+and method structures simplify operation for the end user while reusing information
+as much as possible across the API.
 
 Documentation and issues
 ------------------------
-In addition to installation, usage, and contribution information, the PyAEDT
-documentation provides `API documentation <https://aedtdocs.pyansys.com/API/>`_,
-`examples <https://aedtdocs.pyansys.com/examples/index.html>`_, and `code guidelines 
-<https://aedtdocs.pyansys.com/Resources/Code_Guidelines.html>`_.
+In addition to installation and usage information, the PyAEDT
+documentation provides `API reference <https://aedtdocs.pyansys.com/API/>`_,
+`Examples <https://aedtdocs.pyansys.com/examples/index.html>`_, and `Contribute 
+<https://aedtdocs.pyansys.com/Resources/Contributing.html>`_ sections.
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
 create issues to submit questions, report bugs, and request new features. To reach
@@ -79,7 +82,7 @@ PyAEDT supports AEDT versions 2021 R1 or newer.
 Student version
 ---------------
 
-PyAEDT supports AEDT Student version 2021 R2. For more information, see
+PyAEDT supports AEDT Student version 2021 R2 and later. For more information, see
 `Student Version page <https://www.ansys.com/academic/students/ansys-e
 lectronics-desktop-student>`_.
 
@@ -127,7 +130,7 @@ Explicit AEDT declaration and error management
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in non-graphical mode
+    # Launch AEDT 2022 R1 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
     with Desktop(specified_version="2022.1",
@@ -167,19 +170,20 @@ On a CPython Server:
 
 .. code:: python
 
-    Launch PyAEDT remote server on CPython
+    # Launch PyAEDT remote server on CPython
 
-    from pyaedt.common_rpc import launch_server
-    launch_server()
+    from pyaedt.common_rpc import pyaedt_service_manager
+    pyaedt_service_manager()
 
 
 On any Windows client machine:
 
 .. code:: python
 
-    from pyaedt.common_rpc import client
-    cl1 = client("server_name")
-    hfss = cl1.root.hfss()
+    from pyaedt.common_rpc import create_session
+    cl1 = create_session("server_name")
+    cl1.aedt(port=50000, non_graphical=False)
+    hfss = Hfss(machine="server_name", port=50000)
     # your code here
 
 Variables

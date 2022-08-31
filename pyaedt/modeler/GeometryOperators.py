@@ -5,8 +5,8 @@ import sys
 
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
-from pyaedt.generic.constants import scale_units
 from pyaedt.generic.constants import SWEEPDRAFT
+from pyaedt.generic.constants import scale_units
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -246,6 +246,8 @@ class GeometryOperators(object):
         c = ((v3[0] - v1[0]) ** 2 + (v3[1] - v1[1]) ** 2 + (v3[2] - v1[2]) ** 2) ** 0.5
         s = 0.5 * (a + b + c)
         area = (s * (s - a) * (s - b) * (s - c)) ** 0.5
+        if isinstance(area, complex):
+            area = area.real
         return area
 
     @staticmethod

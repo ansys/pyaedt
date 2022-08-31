@@ -1,19 +1,18 @@
 """
-Edb: Merge Utility
+EDB: merge utility
 ------------------
 
-This example shows how to use pyaedt toolkit to create WPF for Windows usage.
-This demo will show how to run a merge between two EDBs (eg. package on board).
+This example shows how you can use the PyAEDT toolkit to create the WPF (Windows
+Presentation Foundation) for Windows usage. It runs a merge between two
+EDBs (package on board).
 """
-
-# sphinx_gallery_thumbnail_path = 'Resources/merge_utility.png'
-
 ######################################################################
-# Download Example
+# Download example
 # ~~~~~~~~~~~~~~~~
 #
-# Example contains everything to run.
-# json fil can be customized to change settings.
+# The example contains everything that you need to run it.
+# You can customize the JSON file to change the settings.
+
 import tempfile
 
 from pyaedt.examples.downloads import download_edb_merge_utility
@@ -22,23 +21,27 @@ python_file = download_edb_merge_utility(force_download=True, destination=tempfi
 desktop_version = "2022.2"
 
 ######################################################################
-# Python Script execution
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Launch Python script
+# ~~~~~~~~~~~~~~~~~~~~
 #
-# Python file can be launched in Aedt or from CPython.
-# This can be run from command line or from Run Script.
-# The example downloads 4 files:
-# - `package.aedb` folder containing a package example
-# - `board.aedb` folder containing a board example
-# - `merge_wizard.py` The python script to run
-# - `merge_wizard_settings.json` json file containing settings
+# You can launch a Python script in AEDT (**Tools->Run Script**) 
+# or from the CPython command line.
 #
-# User can launch `merge_wizard.py` from Aedt (Tools->Run Script) or from CPython.
-# The script works only on windows with UI.
+# For this example, four items are downloaded:
 #
-# The json file contains default settings that can be used in any other project to automatically
-# load all settings.
-# The following command line can be unchecked and launched from python interpreter.
+# - ``package.aedb`` folder contains a package example.
+# - ``board.aedb`` folder contains a board example.
+# - ``merge_wizard.py`` file contains the Python script to run.
+# - ``merge_wizard_settings.json`` file contains the settings.
+#
+# You can launch the ``merge_wizard.py`` file in AEDT (**Tools->Run Script**)
+# or from the # CPython command line. This script works only on Windows with UI.
+#
+# The ``merge_wizard_settings.json`` file contains default settings that can be
+# used in any other project to automatically load all settings.
+#
+# You can edit the following lines to launch a Python script from the Python
+# interpreter:
 
 # from pyaedt.generic.toolkit import launch
 # launch(python_file, specified_version=desktop_version, new_desktop_session=False, autosave=False)

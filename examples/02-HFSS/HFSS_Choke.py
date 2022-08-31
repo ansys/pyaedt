@@ -1,64 +1,74 @@
 """
-HFSS: Choke
+HFSS: choke
 -----------
-This example shows how you can use PyAEDT to create an choke setup in HFSS.
+This example shows how you can use PyAEDT to create a choke setup in HFSS.
 """
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports.
 
 import json
-import tempfile
 import os
 
-from pyaedt import generate_unique_name
+from pyaedt import generate_unique_project_name
 from pyaedt import Hfss
 from pyaedt.modules.Mesh import Mesh
 
-tmpfold = tempfile.gettempdir()
 
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
-if not os.path.exists(temp_folder):
-    os.mkdir(temp_folder)
+project_name = generate_unique_project_name(project_name="choke")
 
-##########################################################
-# Set Non Graphical Mode.
-# Default is False
+###############################################################################
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch HFSS in Graphical Mode
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches HFSS 2022.2 in graphical mode.
+# Launch HFSS
+# ~~~~~~~~~~~
+# Launches HFSS 2022 R2 in graphical mode.
 
-hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True, solution_type="Terminal")
+hfss = Hfss(projectname=project_name, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
+            solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The dictionary values is containing the different parameters of the core and the windings which compose
-# the choke. The main structure of the dictionary must not be changed, i.e the dictionary has primary keys
-# ("Number of Windings", "Layer", "Layer Type", etc...) which have dictionaries as values, these dictionaries
-# keys are the secondary keys of the dictionary values ("1", "2", "3", "4", "Simple", etc...).
-# Neither the primary nor the secondary keys must be modified, only their values.
-# The value type must be unchanged. For the dictionary from "Number of Windings" to "Wire Section" included,
-# values must be boolean. Only one value by dictionary must be "True". If all values are "True" only the first one
-# will remain so. If all values are "False", the first value will be choose as the correct one by default".
-# For the dictionary from "Core" to "Inner Winding" included, values must be string or float or int.
-# "Number of Windings" is to choose the number of windings around the core.
-# "Layer" is to choose the number of layers of all windings.
-# "Layer Type" is to choose if the layers of a winding are linked to each other or not.
-# "Similar Layer" is to choose if the layers of a winding have the number of turns and
-# the same spacing between turns or not.
-# "Mode" is only useful for 2 windings to choose if they are in common or differential mode.
-# "Wire Section" is to choose the wire section type and number of segments.
-# "Core" is to design the core.
-# "Outer Winding" is to design the first layer or outer layer of a winding and
-# select the common parameter for all layers.
-# "Mid Winding" is to select the turns and the turns spacing ("Coil Pit")
-# for the second or mid layer if it is necessary.
-# "Inner Winding" is to select the turns and the turns spacing ("Coil Pit")
-# for the third or inner layer if it is necessary.
-# "Occupation(%)" is only an informative parameter, it is useless to modify it.
-# If you have doubt you can let parameters like they are it will work.
+# The dictionary values contain the different parameter values of the core and
+# the windings that compose the choke. You must not change the main structure of
+# the dictionary. The dictionary has many primary keys, including
+# ``"Number of Windings"``, ``"Layer"``, and ``"Layer Type"``, that have
+# dictionaries as values. The keys of these dictionaries are secondary keys
+# of the dictionary values, such as ``"1"``, ``"2"``, ``"3"``, ``"4"``, and
+# ``"Simple"``.
+# 
+# You must not modify the primary or secondary keys. You can modify only their values.
+# You must not change the data types for these keys. For the dictionaries from
+# ``"Number of Windings"`` through ``"Wire Section"``, values must be Boolean. Only
+# one value per dictionary can be ``True``. If all values are ``True``, only the first one
+# remains set to ``True``. If all values are ``False``, the first value is chosen as the
+# correct one by default. For the dictionaries from ``"Core"`` through ``"Inner Winding"``,
+# values must be strings, floats, or integers.
+#
+# Descriptions follow for primary keys:
+#
+# - ``"Number of Windings"``: Number of windings around the core
+# - ``"Layer"``: Number of layers of all windings
+# - ``"Layer Type"``: Whether layers of a winding are linked to each other
+# - ``"Similar Layer"``: Whether layers of a winding have the same number of turns and same spacing between turns
+# - ``"Mode"``: When there are only two windows, whether they are in common or differential mode
+# - ``"Wire Section"``: Type of wire section and number of segments
+# - ``"Core"``: Design of the core
+# - ``"Outer Winding"``: Design of the first layer or outer layer of a winding and the common parameters for all layers
+# - ``"Mid Winding"``: Turns and turns spacing ("Coil Pit") for the second or mid layer if it is necessary
+# - ``"Inner Winding"``: Turns and turns spacing ("Coil Pit") for the third or inner layer if it is necessary
+# - ``"Occupation(%)"``: An informative parameter that is useless to modify
+#
+# The following parameter values work. You can modify them if you want.
 
 values = {
     "Number of Windings": {"1": False, "2": True, "3": False, "4": False},
@@ -91,10 +101,10 @@ values = {
 }
 
 ###############################################################################
-# Convert dictionary to json file
+# Convert dictionary to JSON file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The PyAEDT methods ask the path of the json file as argument, so you can convert this dictionary in json file
-# thanks to the following command.
+# Convert a dictionary to a JSON file. You must supply the path of the
+# JSON file as an argument. 
 
 json_path = os.path.join(hfss.working_directory, "choke_example.json")
 
@@ -102,19 +112,22 @@ with open(json_path, "w") as outfile:
     json.dump(values, outfile)
 
 ###############################################################################
-# Verify the parameter of the json file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The first method "check_choke_values" will take the json file path in argument and:
-# - Check if the json file is correctly written (as it is explained in the rules)
-# - Check inequations on windings parameters to avoid to have unintended intersection
+# Verify parameters of JSON file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Verify parameters of the JSON file. The ``check_choke_values`` method takes
+# the JSON file path as an argument and does the following:
+#
+# - Checks if the JSON file is correctly written (as explained in the rules)
+# - Checks in equations on windings parameters to avoid having unintended intersections
 
 dictionary_values = hfss.modeler.check_choke_values(json_path, create_another_file=False)
 print(dictionary_values)
 
 ###############################################################################
-# Generate the choke
-# ~~~~~~~~~~~~~~~~~~
-# This second method "create_choke" will take the json file path in argument and generate the choke.
+# Create choke
+# ~~~~~~~~~~~~
+# Create the choke. The ``create_choke`` method takes the JSON file path as an 
+# argument.
 
 list_object = hfss.modeler.create_choke(json_path)
 print(list_object)
@@ -124,8 +137,9 @@ second_winding_list = list_object[3]
 
 
 ###############################################################################
-# Create Ground
-# -------------
+# Create ground
+# ~~~~~~~~~~~~~
+# Create a ground.
 
 ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
 ground_position = [0, 0, first_winding_list[1][0][2] - 2]
@@ -133,8 +147,9 @@ ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="
 coat = hfss.assign_coating(ground, isinfgnd=True)
 
 ###############################################################################
-# Create Lumped Ports
-# -------------------
+# Create lumped ports
+# ~~~~~~~~~~~~~~~~~~~
+# Create lumped ports.
 
 port_position_list = [
     [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
@@ -151,8 +166,9 @@ for position in port_position_list:
     )
 
 ###############################################################################
-# Create Mesh Operation
-# ---------------------
+# Create mesh
+# ~~~~~~~~~~~
+# Create the mesh.
 
 cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
 cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
@@ -164,18 +180,18 @@ mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, mes
 
 
 ###############################################################################
-# Create Boundaries
-# -----------------
-# A region with openings is needed to run the analysis.
+# Create boundaries
+# ~~~~~~~~~~~~~~~~~
+# Create the boundaries. A region with openings is needed to run the analysis.
 
 region = hfss.modeler.create_region(pad_percent=1000)
 
 
 ###############################################################################
-# Create the Setup
-# ----------------
-# A setup with a sweep will be used to run the simulation. Depending on your computing machine,
-# simulation can take time.
+# Create setup
+# ~~~~~~~~~~~~
+# Create a setup with a sweep to run the simulation. Depending on your machine's
+# computing power, the simulation can take some time to run.
 
 setup = hfss.create_setup("MySetup")
 setup.props["Frequency"] = "50MHz"
@@ -192,10 +208,10 @@ hfss.create_linear_count_sweep(
 )
 
 ###############################################################################
-# Save the project
-# ----------------
+# Save project
+# ~~~~~~~~~~~~
+# Save the project.
 
-hfss.save_project(os.path.join(temp_folder, "My_HFSS_Choke.aedt"))
 hfss.modeler.fit_all()
 hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
@@ -203,9 +219,9 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton is completed, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
-# All methods provide for saving the project before exiting.
+# All methods provide for saving the project before closing.
 
 
 if os.name != "posix":

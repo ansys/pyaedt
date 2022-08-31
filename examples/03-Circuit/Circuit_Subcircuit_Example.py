@@ -1,44 +1,50 @@
 """
-Circuit: Schematic Subcircuit Management
+Circuit: schematic subcircuit management
 ----------------------------------------
-This example shows how you can use PyAEDT to add a subcircuit to a Circuit design.
- Push down into the child subcircuit and pop up to the parent design.
+This example shows how you can use PyAEDT to add a subcircuit to a circuit design.
+It pushes down the child subcircuit and pops up to the parent design.
 """
+##########################################################
+# Perform required import
+# ~~~~~~~~~~~~~~~~~~~~~~~
+# Perform the required import.
 
 import os
+from pyaedt import Circuit
+from pyaedt import generate_unique_project_name
 
 ##########################################################
-# Set Non Graphical Mode.
-# Default is False
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
 ###############################################################################
-# Launch AEDT and Circuit
+# Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# This examples launches AEDT 2022R2 in graphical mode.
+# Launch AEDT 2022 R2 in graphical mode with Circuit.
 
-from pyaedt import Circuit
-circuit = Circuit(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+circuit = Circuit(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
-# Add new subcircuit
-# ~~~~~~~~~~~~~~~~~~
-# This example adds a new subcircuit to the previously created Circuit design
-# becoming the child circuit.
-# Then it pushes down into the child subcircuit.
+# Add subcircuit
+# ~~~~~~~~~~~~~~
+# Add a new subcircuit to the previously created circuit design, creating a
+# child circuit. Push this child circuit down into the child subcircuit.
 
 subcircuit = circuit.modeler.schematic.create_subcircuit([0.0, 0.0])
 subcircuit_name = subcircuit.composed_name
 circuit.push_down(subcircuit)
 
 ###############################################################################
-# Subcircuit parameterization
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This method parameterizes the subcircuit and adds a resistor, inductor,
-# and a capacitor with the value given by the parameters.
-# They are then connected in series.
-# The ``pop_up`` method provides for getting back to the parent design.
+# Parametrize subcircuit
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Parametrize the subcircuit and add a resistor, inductor, and a capacitor with
+# the parameter values in the following code example. Connect them in series
+# and then use the ``pop_up`` # method to get back to the parent design.
 
 circuit.variable_manager.set_variable("R_val", "35ohm")
 circuit.variable_manager.set_variable("L_val", "1e-7H")
@@ -52,13 +58,18 @@ circuit.modeler.schematic.connect_components_in_series([p1, r1, l1, c1, p2])
 circuit.pop_up()
 
 ###############################################################################
-# Subcircuit duplication
-# ~~~~~~~~~~~~~~~~~~~~~~
-# The formerly created subcircuit is duplicated, and a new parameter value is set.
-# It works only in graphical mode.
+# Duplicate subcircuit
+# ~~~~~~~~~~~~~~~~~~~~
+# Duplicate the previously created subcircuit and set a new parameter value.
+# This works only in graphical mode.
 
 if not non_graphical:
     new_comp = circuit.modeler.schematic.duplicate(subcircuit_name, [0.0512, 0])
     new_comp.parameters["R_val"] = "75ohm"
+
+###############################################################################
+# Release AEDT
+# ~~~~~~~~~~~~
+# Release AEDT.
 
 circuit.release_desktop(True, True)

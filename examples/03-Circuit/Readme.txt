@@ -1,5 +1,5 @@
-Circuit Examples
+Circuit examples
 ~~~~~~~~~~~~~~~~
-This series of examples uses PyAEDT to show some Circuit and Emit end-to-end
-workflow. This include schematic generation, setup, and post-processing.
+These examples use PyAEDT to show some end-to-end workflows for Circuit and EMIT.
+This includes schematic generation, setup, and postprocessing.
 
