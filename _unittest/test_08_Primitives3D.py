@@ -282,7 +282,7 @@ class TestClass(BasisTest, object):
     def test_17_create_object_from_edge(self):
         o = self.create_copper_cylinder()
         edges = o.edges
-        o1 = self.aedtapp.modeler.create_object_from_edge(edges[0], create_group_for_new_objects=True)
+        o1 = self.aedtapp.modeler.create_object_from_edge(edges[0])
         assert o1.id > 0
         assert o1.object_type == "Line"
         assert o1.is3d is False

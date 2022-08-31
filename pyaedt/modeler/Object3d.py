@@ -535,14 +535,14 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
     @pyaedt_function_handler()
     def create_object(self, non_model=False, create_group_for_new_objects=False):
-        """Return A new object from the selected edge.
+        """Return a new object from the selected edge.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
         non_model : bool, optional
-            Either if create the new object as model or nonmodel. Default is `False`.
+            Either if create the new object as model or non-model. Default is `False`.
 
         References
         ----------
@@ -1057,7 +1057,7 @@ class FacePrimitive(object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
         non_model : bool, optional
-            Either if create the new object as model or nonmodel. Default is `False`.
+            Either if create the new object as model or non-model. Default is `False`.
 
         References
         ----------
