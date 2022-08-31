@@ -177,7 +177,7 @@ class TestClass(BasisTest, object):
         assert pad1.create()
 
     def test_11_create_via(self):
-        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0)
+        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
         assert type(via) is str
         via = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
         assert via == "Via123"
@@ -196,11 +196,10 @@ class TestClass(BasisTest, object):
         assert port_wave
         assert self.aedtapp.delete_port(port_wave)
         assert self.aedtapp.create_edge_port("line1", 3, False)
-        assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
 
     def test_14a_create_coaxial_port(self):
-        assert self.aedtapp.create_coax_port("Via123", "Bottom", "Top", 10, 10, 10, 10)
+        assert self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
@@ -369,8 +368,6 @@ class TestClass(BasisTest, object):
 
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
-        self.aedtapp.delete_port("Port3")
-        assert self.aedtapp.validate_full_design(ports=3)
 
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
