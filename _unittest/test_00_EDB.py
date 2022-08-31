@@ -379,6 +379,9 @@ if not config["skip_edb"]:
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
+        def test_39_create_dc_terminal(self):
+            assert self.edbapp.core_siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
+
         def test_39B_create_resistors(self):
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
