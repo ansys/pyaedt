@@ -1369,14 +1369,14 @@ class EDBLayers(object):
     def insert_layer_above(
         self,
         layer_name,
-        base_layer=None,
+        base_layer,
         material="copper",
         fillMaterial="",
         thickness="35um",
         layerType=0,
         negative_layer=False,
         roughness_enabled=False,
-        etchMap=None,
+        etch_factor=None,
     ):
         """Add a layer after a specific layer.
 
@@ -1384,7 +1384,7 @@ class EDBLayers(object):
         ----------
         layer_name : str
             Name of the layer to add.
-        base_layer : str, optional
+        base_layer : str
             Name of the layer after which to add the new layer.
             The default is ``None``.
         material : str, optional
@@ -1410,7 +1410,7 @@ class EDBLayers(object):
             ``True`` when negative, ``False`` otherwise.
         roughness_enabled : bool, optional
             ``True`` if the layer has roughness, ``False`` otherwise.
-        etchMap : optional
+        etch_factor : optional
             Etch value if any. The default is ``None``.
 
         Returns
@@ -1430,7 +1430,7 @@ class EDBLayers(object):
         new_layer = edb_layer.update_layer_vals(
             layer_name,
             new_layer,
-            etchMap,
+            etch_factor,
             material,
             fillMaterial,
             thickness,
@@ -1441,7 +1441,7 @@ class EDBLayers(object):
         self.edb_layer_collection.AddLayerAbove(new_layer, base_layer)
         self._edb_object[layer_name] = edb_layer
         self._update_stackup()
-        return
+        return self.layers[layer_name]
 
     @pyaedt_function_handler()
     def add_layer(
