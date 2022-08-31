@@ -1374,7 +1374,7 @@ class GeometryModeler(Modeler, object):
                             props["List"] = data["GeometryEntityListParameters"]["EntityList"]
                         design_lists.append(Lists(self, props, name))
             except:
-                self.logger.error("Lists were not retrieved from AEDT file")
+                self.logger.info("Lists were not retrieved from AEDT file")
         return design_lists
 
     def __get__(self, instance, owner):

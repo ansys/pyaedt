@@ -77,6 +77,25 @@ def _getIfromRGB(rgb):
     return RGBint
 
 
+@pyaedt_function_handler()
+def _getRGBfromI(value):
+    """Retrieve the Integer from a specific layer color.
+
+    Parameters
+    ----------
+    value : int
+
+
+    Returns
+    -------
+    list
+    """
+    r = (value >> 16) & 0xFF
+    g = (value >> 8) & 0xFF
+    b = (value >> 0) & 0xFF
+    return [r, g, b]
+
+
 class Layer(object):
     """Manages the stackup layer.
 
@@ -104,8 +123,8 @@ class Layer(object):
         self.name = None
         self.type = layertype
         self.id = 0
-        self.color = 8026109
-        self.transparency = 60
+        self._color = [255, 0, 0]
+        self._transparency = 60
         self.IsVisible = True
         self.IsVisibleShape = True
         self.IsVisiblePath = True
@@ -114,25 +133,25 @@ class Layer(object):
         self.IsVisibleComponent = True
         self.IsMeshBackgroundMaterial = True
         self.IsMeshOverlay = True
-        self.locked = False
-        self.topbottom = "neither"
-        self.pattern = 1
-        self.drawoverride = 0
-        self.thickness = 0
-        self.lowerelevation = 0
-        self.roughness = 0
-        self.botroughness = 0
-        self.toprounghenss = 0
-        self.sideroughness = 0
-        self.material = "copper"
-        self.fillmaterial = "FR4_epoxy"
-        self.index = 1
+        self._locked = False
+        self._topbottom = "neither"
+        self._pattern = 1
+        self._drawoverride = 0
+        self._thickness = 0
+        self._lowerelevation = 0
+        self._roughness = 0
+        self._botroughness = 0
+        self._toprounghenss = 0
+        self._sideroughness = 0
+        self._material = "copper"
+        self._fillmaterial = "FR4_epoxy"
+        self._index = 1
         self.IsNegative = negative
         # Etch option
-        self.useetch = False
-        self.etch = 0
+        self._useetch = False
+        self._etch = 0
         # Rough option
-        self.user = False
+        self._user = False
         self.RMdl = "Huray"
         self.NR = 0.5
         self.HRatio = 2.9
@@ -143,10 +162,614 @@ class Layer(object):
         self.SNR = 0.5
         self.SHRatio = 2.9
         # Solver option
-        self.usp = False
+        self._usp = False
         self.hfssSp = {"si": True, "dt": 0, "dtv": 0.1}
         self.planaremSp = {"ifg": False, "vly": False}
-        self.zones = []
+        self._zones = []
+
+    @property
+    def color(self):
+        """Get/Set the property of the active layer. Color it is list of rgb values (0,255).
+
+        Returns
+        -------
+
+        """
+        return self._color
+
+    @color.setter
+    def color(self, val):
+        self._color = val
+
+        self.update_stackup_layer()
+
+    @property
+    def transparency(self):
+        """Get/Set the property to the active layer.
+
+        Returns
+        -------
+        int
+        """
+        return self._transparency
+
+    @transparency.setter
+    def transparency(self, val):
+        self._transparency = val
+        self.update_stackup_layer()
+
+    @property
+    def is_visible(self):
+        """Get/Set the active layer visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsVisible
+
+    @is_visible.setter
+    def is_visible(self, val):
+        self.IsVisible = val
+        self.update_stackup_layer()
+
+    @property
+    def is_visible_shape(self):
+        """Get/Set the active layer shape visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsVisibleShape
+
+    @is_visible_shape.setter
+    def is_visible_shape(self, val):
+        self.IsVisibleShape = val
+        self.update_stackup_layer()
+
+    @property
+    def is_visible_path(self):
+        """Get/Set the active layer paths visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsVisiblePath
+
+    @is_visible_path.setter
+    def is_visible_path(self, val):
+        self.IsVisiblePath = val
+        self.update_stackup_layer()
+
+    @property
+    def is_visible_pad(self):
+        """Get/Set the active layer pad visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsVisiblePad
+
+    @is_visible_pad.setter
+    def is_visible_pad(self, val):
+
+        self.IsVisiblePad = val
+        self.update_stackup_layer()
+
+    @property
+    def is_visible_hole(self):
+        """Get/Set the active layer hole visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsVisibleHole
+
+    @is_visible_hole.setter
+    def is_visible_hole(self, val):
+        self.IsVisibleHole = val
+        self.update_stackup_layer()
+
+    @property
+    def is_visible_component(self):
+        """Get/Set the active layer component visibility.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsVisibleComponent
+
+    @is_visible_component.setter
+    def is_visible_component(self, val):
+        self.IsVisibleComponent = val
+        self.update_stackup_layer()
+
+    @property
+    def is_mesh_background(self):
+        """Get/Set the active layer mesh backgraound.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsMeshBackgroundMaterial
+
+    @is_mesh_background.setter
+    def is_mesh_background(self, val):
+        self.IsMeshBackgroundMaterial = val
+        self.update_stackup_layer()
+
+    @property
+    def is_mesh_overlay(self):
+        """Get/Set the active layer mesh overlay.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsMeshOverlay
+
+    @is_mesh_overlay.setter
+    def is_mesh_overlay(self, val):
+        self.IsMeshOverlay = val
+        self.update_stackup_layer()
+
+    @property
+    def locked(self):
+        """Get/Set the active layer lock flag.
+
+        Returns
+        -------
+        bool
+        """
+        return self._locked
+
+    @locked.setter
+    def locked(self, val):
+        self._locked = val
+        self.update_stackup_layer()
+
+    @property
+    def top_bottom(self):
+        """Get/Set the active layer top bottom alignment.
+
+        Returns
+        -------
+        str
+        """
+        return self._topbottom
+
+    @top_bottom.setter
+    def top_bottom(self, val):
+        self._topbottom = val
+        self.update_stackup_layer()
+
+    @property
+    def pattern(self):
+        """Get/Set the active layer pattern.
+
+        Returns
+        -------
+        float
+        """
+        return self._pattern
+
+    @pattern.setter
+    def pattern(self, val):
+        self._pattern = val
+        self.update_stackup_layer()
+
+    @property
+    def draw_override(self):
+        """Get/Set the active layer draw override value.
+
+        Returns
+        -------
+        float
+        """
+        return self._drawoverride
+
+    @draw_override.setter
+    def draw_override(self, val):
+        self._drawoverride = val
+        self.update_stackup_layer()
+
+    @property
+    def thickness(self):
+        """Get/Set the active layer thickness value.
+
+        Returns
+        -------
+        float
+        """
+        return self._thickness
+
+    @thickness.setter
+    def thickness(self, val):
+        self._thickness = val
+        self.update_stackup_layer()
+
+    @property
+    def lower_elevation(self):
+        """Get/Set the active layer lower elevation.
+
+        Returns
+        -------
+        float
+        """
+        return self._lowerelevation
+
+    @lower_elevation.setter
+    def lower_elevation(self, val):
+        self._lowerelevation = val
+        self.update_stackup_layer()
+
+    @property
+    def roughness(self):
+        """Get/Set the active layer roughness (with units).
+
+        Returns
+        -------
+        str
+        """
+        return self._roughness
+
+    @roughness.setter
+    def roughness(self, val):
+        self._roughness = val
+        self.update_stackup_layer()
+
+    @property
+    def bottom_roughness(self):
+        """Get/Set the active layer bottom roughness (with units).
+
+        Returns
+        -------
+        str
+        """
+        return self._botroughness
+
+    @bottom_roughness.setter
+    def bottom_roughness(self, val):
+        self._botroughness = val
+        self.update_stackup_layer()
+
+    @property
+    def top_roughness(self):
+        """Get/Set the active layer top roughness (with units).
+
+        Returns
+        -------
+        str
+        """
+        return self._toprounghenss
+
+    @top_roughness.setter
+    def top_roughness(self, val):
+        self._toprounghenss = val
+        self.update_stackup_layer()
+
+    @property
+    def side_roughness(self):
+        """Get/Set the active layer side roughness (with units).
+
+        Returns
+        -------
+        str
+        """
+        return self._sideroughness
+
+    @side_roughness.setter
+    def side_roughness(self, val):
+        self._sideroughness = val
+        self.update_stackup_layer()
+
+    @property
+    def material(self):
+        """Get/Set the active layer material name.
+
+        Returns
+        -------
+        str
+        """
+        return self._material
+
+    @material.setter
+    def material(self, val):
+        self._material = val
+        self.update_stackup_layer()
+
+    @property
+    def fill_material(self):
+        """Get/Set the active layer filling material.
+
+        Returns
+        -------
+        str
+        """
+        return self._fillmaterial
+
+    @fill_material.setter
+    def fill_material(self, val):
+        self._fillmaterial = val
+        self.update_stackup_layer()
+
+    @property
+    def index(self):
+        """Get/Set the active layer index.
+
+        Returns
+        -------
+        int
+        """
+        return self._index
+
+    @index.setter
+    def index(self, val):
+        self._index = val
+        self.update_stackup_layer()
+
+    @property
+    def is_negative(self):
+        """Get/Set the active layer negative flag. When `True` the layer will be negative.
+
+        Returns
+        -------
+        bool
+        """
+        return self.IsNegative
+
+    @is_negative.setter
+    def is_negative(self, val):
+        self.IsNegative = val
+        self.update_stackup_layer()
+
+    @property
+    def use_etch(self):
+        """Get/Set the active layer etiching flag. When `True` the layer will use etch.
+
+        Returns
+        -------
+        bool
+        """
+        return self._useetch
+
+    @use_etch.setter
+    def use_etch(self, val):
+        self._useetch = val
+        self.update_stackup_layer()
+
+    @property
+    def etch(self):
+        """Get/Set the active layer etch value.
+
+        Returns
+        -------
+        float
+        """
+        return self._etch
+
+    @etch.setter
+    def etch(self, val):
+        self._etch = val
+        self.update_stackup_layer()
+
+    @property
+    def user(self):
+        """Get/Set the active layer user flag.
+
+        Returns
+        -------
+        bool
+        """
+        return self._user
+
+    @user.setter
+    def user(self, val):
+        self._user = val
+        self.update_stackup_layer()
+
+    @property
+    def top_roughness_model(self):
+        """Get/Set the active layer top roughness model.
+
+        Returns
+        -------
+        str
+        """
+        return self.RMdl
+
+    @top_roughness_model.setter
+    def top_roughness_model(self, val):
+        self.RMdl = val
+        self.update_stackup_layer()
+
+    @property
+    def top_nodule_radius(self):
+        """Get/Set the active layer top roughness radius.
+
+        Returns
+        -------
+        float
+        """
+        return self.NR
+
+    @top_nodule_radius.setter
+    def top_nodule_radius(self, val):
+
+        self.NR = val
+        self.update_stackup_layer()
+
+    @property
+    def top_huray_ratio(self):
+        """Get/Set the active layer top roughness ratio.
+
+        Returns
+        -------
+        float
+        """
+        return self.HRatio
+
+    @top_huray_ratio.setter
+    def top_huray_ratio(self, val):
+        self.HRatio = val
+        self.update_stackup_layer()
+
+    @property
+    def bottom_roughness_model(self):
+        """Get/Set the active layer bottom roughness model.
+
+        Returns
+        -------
+        str
+        """
+        return self.BRMdl
+
+    @bottom_roughness_model.setter
+    def bottom_roughness_model(self, val):
+        self.BRMdl = val
+        self.update_stackup_layer()
+
+    @property
+    def bottom_nodule_radius(self):
+        """Get/Set the active layer bottom roughness radius.
+
+        Returns
+        -------
+        float
+        """
+        return self.BNR
+
+    @bottom_nodule_radius.setter
+    def bottom_nodule_radius(self, val):
+
+        self.BNR = val
+        self.update_stackup_layer()
+
+    @property
+    def bottom_huray_ratio(self):
+        """Get/Set the active layer bottom roughness ratio.
+
+        Returns
+        -------
+        float
+        """
+        return self.BHRatio
+
+    @bottom_huray_ratio.setter
+    def bottom_huray_ratio(self, val):
+        self.BHRatio = val
+        self.update_stackup_layer()
+
+    @property
+    def side_model(self):
+        """Get/Set the active layer side roughness model.
+
+        Returns
+        -------
+        str
+        """
+        return self.SRMdl
+
+    @side_model.setter
+    def side_model(self, val):
+        self.SRMdl = val
+        self.update_stackup_layer()
+
+    @property
+    def side_nodule_radius(self):
+        """Get/Set the active layer side roughness radius.
+
+        Returns
+        -------
+        float
+        """
+        return self.SNR
+
+    @side_nodule_radius.setter
+    def side_nodule_radius(self, val):
+        self.SNR = val
+        self.update_stackup_layer()
+
+    @property
+    def side_huray_ratio(self):
+        """Get/Set the active layer bottom roughness ratio.
+
+        Returns
+        -------
+        float
+        """
+        return self.SHRatio
+
+    @side_huray_ratio.setter
+    def side_huray_ratio(self, val):
+        self.SHRatio = val
+        self.update_stackup_layer()
+
+    @property
+    def usp(self):
+        """Get/Set the active layer usp flag.
+
+        Returns
+        -------
+        bool
+        """
+        return self._usp
+
+    @usp.setter
+    def usp(self, val):
+        self._usp = val
+        self.update_stackup_layer()
+
+    @property
+    def hfss_solver_settings(self):
+        """Get/Set the active layer hfss solver settings.
+
+        Returns
+        -------
+        dict
+        """
+        return self.hfssSp
+
+    @hfss_solver_settings.setter
+    def hfss_solver_settings(self, val):
+        self.hfssSp = val
+        self.update_stackup_layer()
+
+    @property
+    def planar_em_solver_settings(self):
+        """Get/Set the active layer PlanarEm solver settings.
+
+        Returns
+        -------
+        dict
+        """
+        return self.planaremSp
+
+    @planar_em_solver_settings.setter
+    def planar_em_solver_settings(self, val):
+        self.planaremSp = val
+        self.update_stackup_layer()
+
+    @property
+    def zones(self):
+        """Get/Set the active layer zoness.
+
+        Returns
+        -------
+        list
+        """
+        return self._zones
+
+    @zones.setter
+    def zones(self, val):
+        self._zones = val
+        self.update_stackup_layer()
 
     @property
     def oeditor(self):
@@ -201,7 +824,6 @@ class Layer(object):
         """
         rgb = [r, g, b]
         self.color = _getIfromRGB(rgb)
-        self.update_stackup_layer()
         return True
 
     @pyaedt_function_handler()
@@ -228,7 +850,7 @@ class Layer(object):
                     "Type:=",
                     self.type,
                     "Top Bottom:=",
-                    self.topbottom,
+                    self.top_bottom,
                     "Color:=",
                     self.color,
                     "Transparency:=",
@@ -240,23 +862,23 @@ class Layer(object):
                     "Locked:=",
                     self.locked,
                     "DrawOverride:=",
-                    self.drawoverride,
+                    self.draw_override,
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
                         self.thickness,
                         "LowerElevation:=",
-                        self.lowerelevation,
+                        self.lower_elevation,
                         "Roughness:=",
                         self._arg_with_dim(self.roughness, self.LengthUnitRough),
                         "BotRoughness:=",
-                        self._arg_with_dim(self.botroughness, self.LengthUnitRough),
+                        self._arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
                         "SideRoughness:=",
-                        self._arg_with_dim(self.toprounghenss, self.LengthUnitRough),
+                        self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
                         "Material:=",
                         self.material.lower(),
                         "FillMaterial:=",
-                        self.fillmaterial.lower(),
+                        self.fill_material.lower(),
                     ],
                     "Neg:=",
                     self.IsNegative,
@@ -289,7 +911,7 @@ class Layer(object):
                     "Etch:=",
                     str(self.etch),
                     "UseEtch:=",
-                    self.useetch,
+                    self.use_etch,
                     "UseR:=",
                     self.user,
                     "RMdl:=",
@@ -321,7 +943,7 @@ class Layer(object):
                     "Type:=",
                     self.type,
                     "Top Bottom:=",
-                    self.topbottom,
+                    self.top_bottom,
                     "Color:=",
                     self.color,
                     "Transparency:=",
@@ -333,13 +955,13 @@ class Layer(object):
                     "Locked:=",
                     self.locked,
                     "DrawOverride:=",
-                    self.drawoverride,
+                    self.draw_override,
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
                         self.thickness,
                         "LowerElevation:=",
-                        self.lowerelevation,
+                        self.lower_elevation,
                         "Roughness:=",
                         0,
                         "BotRoughness:=",
@@ -393,9 +1015,9 @@ class Layer(object):
                 "Type:=",
                 self.type,
                 "Top Bottom:=",
-                self.topbottom,
+                self.top_bottom,
                 "Color:=",
-                self.color,
+                _getIfromRGB(self.color),
                 "Transparency:=",
                 self.transparency,
                 "Pattern:=",
@@ -405,7 +1027,7 @@ class Layer(object):
                 "Locked:=",
                 self.locked,
                 "DrawOverride:=",
-                self.drawoverride,
+                self.draw_override,
                 "Zones:=",
                 self.zones,
                 [
@@ -413,17 +1035,17 @@ class Layer(object):
                     "Thickness:=",
                     self.thickness,
                     "LowerElevation:=",
-                    self.lowerelevation,
+                    self._arg_with_dim(self.lower_elevation, self.LengthUnit),
                     "Roughness:=",
                     self._arg_with_dim(self.roughness, self.LengthUnitRough),
                     "BotRoughness:=",
-                    self._arg_with_dim(self.botroughness, self.LengthUnitRough),
+                    self._arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
                     "SideRoughness:=",
-                    self._arg_with_dim(self.toprounghenss, self.LengthUnitRough),
+                    self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
                     "Material:=",
                     self.material.lower(),
                     "FillMaterial:=",
-                    self.fillmaterial.lower(),
+                    self.fill_material.lower(),
                 ],
                 "Neg:=",
                 self.IsNegative,
@@ -456,7 +1078,7 @@ class Layer(object):
                 "Etch:=",
                 str(self.etch),
                 "UseEtch:=",
-                self.useetch,
+                self.use_etch,
                 "UseR:=",
                 self.user,
                 "RMdl:=",
@@ -488,7 +1110,7 @@ class Layer(object):
                 "Type:=",
                 self.type,
                 "Top Bottom:=",
-                self.topbottom,
+                self.top_bottom,
                 "Color:=",
                 self.color,
                 "Transparency:=",
@@ -500,7 +1122,7 @@ class Layer(object):
                 "Locked:=",
                 self.locked,
                 "DrawOverride:=",
-                self.drawoverride,
+                self.draw_override,
                 "Zones:=",
                 self.zones,
                 [
@@ -508,7 +1130,7 @@ class Layer(object):
                     "Thickness:=",
                     self.thickness,
                     "LowerElevation:=",
-                    self.lowerelevation,
+                    self.lower_elevation,
                     "Roughness:=",
                     0,
                     "BotRoughness:=",
@@ -529,7 +1151,7 @@ class Layer(object):
                 "Type:=",
                 self.type,
                 "Top Bottom:=",
-                self.topbottom,
+                self.top_bottom,
                 "Color:=",
                 self.color,
                 "Transparency:=",
@@ -749,9 +1371,9 @@ class Layers(object):
                 o.type = "signal"
             else:
                 o.type = infosdict["Type"]
-            o.locked = _str2bool(infosdict["IsLocked"])
+            o._locked = _str2bool(infosdict["IsLocked"])
             o.id = int(infosdict["LayerId"])
-            o.topbottom = infosdict["TopBottomAssociation"].lower()
+            o._top_bottom = infosdict["TopBottomAssociation"].lower()
             o.IsVisible = infosdict["IsVisible"]
             if "IsVisiblePath" in infosdict:
                 o.IsVisiblePath = infosdict["IsVisiblePath"]
@@ -759,28 +1381,28 @@ class Layers(object):
                 o.IsVisibleComponent = infosdict["IsVisibleComponent"]
                 o.IsVisibleShape = infosdict["IsVisibleShape"]
                 o.IsVisibleHole = infosdict["IsVisibleHole"]
-            o.color = int(infosdict["Color"][:-1])
+            o._color = _getRGBfromI(int(infosdict["Color"][:-1]))
             if o.type in ["signal", "dielectric", "via"]:
-                o.index = int(infosdict["Index"])
-                o.thickness = _conv_number(infosdict["LayerThickness"])
-                o.lowerelevation = _conv_number(infosdict["LowerElevation0"])
-                o.fillmaterial = infosdict["FillMaterial0"]
-                o.material = infosdict["Material0"]
+                o._index = int(infosdict["Index"])
+                o._thickness = _conv_number(infosdict["LayerThickness"])
+                o._lowerelevation = _conv_number(infosdict["LowerElevation0"])
+                o._fillmaterial = infosdict["FillMaterial0"]
+                o._material = infosdict["Material0"]
                 if "EtchFactor" in infosdict:
-                    o.useetch = True
-                    o.etch = _conv_number(infosdict["EtchFactor"])
+                    o._useetch = True
+                    o._etch = _conv_number(infosdict["EtchFactor"])
                 if "Roughness0 Type" in infosdict:
-                    o.user = True
+                    o._user = True
                     o.RMdl = infosdict["Roughness0 Type"]
                     o.NR = infosdict["Roughness0"].split(", ")[0]
                     o.HRatio = _conv_number(infosdict["Roughness0"].split(", ")[1])
                 if "BottomRoughness0 Type" in infosdict:
-                    o.user = True
+                    o._user = True
                     o.BRMdl = infosdict["BottomRoughness0 Type"]
                     o.BNR = infosdict["BottomRoughness0"].split(", ")[0]
                     o.BHRatio = _conv_number(infosdict["BottomRoughness0"].split(", ")[1])
                 if "SideRoughness0 Type" in infosdict:
-                    o.user = True
+                    o._user = True
                     o.SRMdl = infosdict["SideRoughness0 Type"]
                     o.SNR = infosdict["SideRoughness0"].split(", ")[0]
                     o.SHRatio = _conv_number(infosdict["SideRoughness0"].split(", ")[1])
@@ -789,23 +1411,23 @@ class Layers(object):
                 layer = self.layers[o.id]
                 layer.name = o.name
                 layer.type = o.type
-                layer.locked = o.locked
-                layer.topbottom = o.topbottom
+                layer._locked = o._locked
+                layer._top_bottom = o._top_bottom
                 layer.IsVisible = o.IsVisible
                 layer.IsVisiblePath = o.IsVisiblePath
                 layer.IsVisiblePad = o.IsVisiblePad
                 layer.IsVisibleComponent = o.IsVisibleComponent
                 layer.IsVisibleShape = o.IsVisibleShape
                 layer.IsVisibleHole = o.IsVisibleHole
-                layer.color = o.color
-                layer.index = o.index
-                layer.thickness = o.thickness
-                layer.lowerelevation = o.lowerelevation
-                layer.fillmaterial = o.fillmaterial
-                layer.material = o.material
-                layer.useetch = o.useetch
-                layer.etch = o.etch
-                layer.user = o.user
+                layer._color = o._color
+                layer.index = o._index
+                layer._thickness = o._thickness
+                layer._lowerelevation = o._lowerelevation
+                layer._fillmaterial = o._fillmaterial
+                layer._material = o._material
+                layer._use_etch = o._useetch
+                layer._etch = o._etch
+                layer._user = o._user
                 layer.RMdl = o.RMdl
                 layer.NR = o.NR
                 layer.HRatio = o.HRatio
@@ -848,7 +1470,7 @@ class Layers(object):
         newlayer = Layer(self, layertype, isnegative)
         newlayer.name = layername
         newlayer.thickness = thickness
-        newlayer.lowerelevation = elevation
+        newlayer.lower_elevation = elevation
         newlayer.material = material
         newlayer.create_stackup_layer()
         self.layers[newlayer.id] = newlayer
