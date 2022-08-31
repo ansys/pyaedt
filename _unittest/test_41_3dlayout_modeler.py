@@ -261,15 +261,17 @@ class TestClass(BasisTest, object):
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
         assert port_wave
-        assert self.aedtapp.delete_port(port_wave)
+        assert self.aedtapp.delete_port(port_wave.name)
         port_wave = self.aedtapp.create_wave_port("line1", 3, 6, 4, "2mm")
         assert port_wave
-        assert self.aedtapp.delete_port(port_wave)
+        assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
 
     def test_14a_create_coaxial_port(self):
-        assert self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
+        port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
+        assert port.name == "Port2"
+        assert port.props["Radial Extent Factor"] == "0.5"
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
@@ -496,7 +498,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
     def test_27_create_pin_port(self):
-        assert self.aedtapp.create_pin_port("PinPort1")
+        port = self.aedtapp.create_pin_port("PinPort1")
+        assert port.name == "PinPort1"
+        port.props["Magnitude"] = "2V"
+        assert port.props["Magnitude"] == "2V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()

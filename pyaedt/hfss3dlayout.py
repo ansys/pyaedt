@@ -5,12 +5,14 @@ from __future__ import absolute_import  # noreorder
 import io
 import os
 import warnings
+from collections import OrderedDict
 
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -170,8 +172,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        str
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port objcet port when successful, ``False`` when failed.
 
         References
         ----------
@@ -229,7 +231,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     property_value=str(wave_launcher),
                     property_tab="EM Design",
                 )
-            return a[0]
+            bound = self._update_port_info(a[0])
+            if bound:
+                self.boundaries.append(bound)
+                return self.boundaries[-1]
+            else:
+                return False
         else:
             return False
 
@@ -260,8 +267,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        str
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port objcet port when successful, ``False`` when failed.
 
         References
         ----------
@@ -274,33 +281,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             wave_launcher=wave_launcher,
         )
         if port_name:
-            self.modeler.change_property(
-                property_object="Excitations:{}".format(port_name),
-                property_name="HFSS Type",
-                property_value="Wave",
-                property_tab="EM Design",
-            )
-            self.modeler.change_property(
-                property_object="Excitations:{}".format(port_name),
-                property_name="Horizontal Extent Factor",
-                property_value=str(wave_horizontal_extension),
-                property_tab="EM Design",
-            )
-            if "Vertical Extent Factor" in list(
-                self.modeler.oeditor.GetProperties("EM Design", "Excitations:{}".format(port_name))
-            ):
-                self.modeler.change_property(
-                    property_object="Excitations:{}".format(port_name),
-                    property_name="Vertical Extent Factor",
-                    property_value=str(wave_vertical_extension),
-                    property_tab="EM Design",
-                )
-            self.modeler.change_property(
-                property_object="Excitations:{}".format(port_name),
-                property_name="PEC Launch Width",
-                property_value=str(wave_launcher),
-                property_tab="EM Design",
-            )
+            port_name["HFSS Type"] = "Wave"
+            port_name["Horizontal Extent Factor"] = str(wave_horizontal_extension)
+            if "Vertical Extent Factor" in list(port_name.props.keys()):
+                port_name["Vertical Extent Factor"] = str(wave_vertical_extension)
+            port_name["PEC Launch Width"] = str(wave_launcher)
             return port_name
         else:
             return False
@@ -323,8 +308,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        type
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port objcet port when successful, ``False`` when failed.
 
         References
         ----------
@@ -349,7 +334,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             listnew = self.port_list
             a = [i for i in listnew if i not in listp]
             if len(a) > 0:
-                return a[0]
+                bound = self._update_port_info(a[0])
+                if bound:
+                    self.boundaries.append(bound)
+                    return self.boundaries[-1]
+                else:
+                    return False
             else:
                 return False
         else:
@@ -372,8 +362,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        str
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port Object when successful, ``False`` when failed.
 
         References
         ----------
@@ -398,7 +388,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 "Pad Port Layer",
                 layer,
             )
-            return a[0]
+            bound = self._update_port_info(a[0])
+            if bound:
+                self.boundaries.append(bound)
+                return self.boundaries[-1]
+            else:
+                return False
         else:
             return False
 
@@ -425,7 +420,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        bool
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -461,7 +457,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 bot_layer,
             ]
         )
-        return True
+        bound = self._update_port_info(name)
+        if bound:
+            self.boundaries.append(bound)
+            return self.boundaries[-1]
+        else:
+            return False
 
     @pyaedt_function_handler()
     def delete_port(self, portname):
@@ -483,6 +484,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.Delete
         """
         self.oexcitation.Delete(portname)
+        for bound in self.boundaries:
+            if bound.name == portname:
+                self.boundaries.remove(bound)
         return True
 
     @pyaedt_function_handler()
@@ -1714,3 +1718,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         self.odesign.EditHfssExtents(arg)
         return True
+
+    @pyaedt_function_handler()
+    def _update_port_info(self, port):
+        propnames = self.oeditor.GetProperties("EM Design", "Excitations:{}".format(port))
+        props = OrderedDict()
+        for prop in propnames:
+            props[prop] = self.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(port), prop)
+        return BoundaryObject3dLayout(self, port, props, "Port")
