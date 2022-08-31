@@ -1433,7 +1433,11 @@ class EDBLayers(object):
             self._int_to_layer_types(layerType),
         )
 
-        self.edb_layer_collection.AddLayerAbove(newLayer, start_layer)
+        if int(layerType) > 2:
+            newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
+            self.edb_layer_collection.AddLayerTop(newLayer)
+        else:
+            self.edb_layer_collection.AddLayerAbove(newLayer, start_layer)
         self._active_layout.SetLayerCollection(self.edb_layer_collection)
         self._update_edb_objects()
 
