@@ -1312,7 +1312,7 @@ class Primitives(object):
         edge : list, int or :class:`pyaedt.modeler.Object3d.FacePrimitive`
             Face ID or :class:`pyaedt.modeler.Object3d.FacePrimitive` object or Face List.
         non_model : bool, optional
-            Either if create the new object as model or non-model. Default is `False`.
+            Either if create the new object as model or non-model. The default is `False`.
 
         Returns
         -------

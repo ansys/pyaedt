@@ -542,7 +542,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
         non_model : bool, optional
-            Either if create the new object as model or non-model. Default is `False`.
+            Either if create the new object as model or non-model. The default is `False`.
 
         References
         ----------
