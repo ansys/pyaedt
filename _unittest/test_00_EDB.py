@@ -2001,6 +2001,11 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
+        def test_119_insert_layer(self):
+            layers = self.edbapp.core_stackup.stackup_layers
+            layer = layers.insert_layer_above("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
+            assert layer.name in layers.layers
+
         def test_Z_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
