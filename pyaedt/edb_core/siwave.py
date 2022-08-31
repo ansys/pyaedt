@@ -333,11 +333,11 @@ class CurrentSource(Source):
         return self._type
 
 
-class DCSource(Source):
+class DCTerminal(Source):
     """Manages a dc terminal source."""
 
     def __init__(self):
-        super(DCSource, self).__init__()
+        super(DCTerminal, self).__init__()
 
         self._type = SourceType.DcTerminal
 
@@ -969,7 +969,7 @@ class EdbSiwave(object):
         >>> edb.core_siwave.create_dc_terminal("U2A5", "V1P5_S3", "source_name")
         """
 
-        dc_source = DCSource()
+        dc_source = DCTerminal()
         dc_source.positive_node.net = net_name
         pos_node_cmp = self._pedb.core_components.get_component_by_name(component_name)
         pos_node_pins = self._pedb.core_components.get_pin_from_component(component_name, net_name)
@@ -1191,7 +1191,7 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        source : VoltageSource, CircuitPort, CurrentSource, DCSource or ResistorSource
+        source : VoltageSource, CircuitPort, CurrentSource, DCTerminal or ResistorSource
             Name of the source.
 
         """
