@@ -5090,3 +5090,45 @@ class GeometryModeler(Modeler, object):
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
         return True
+
+    @pyaedt_function_handler()
+    def wrap_sheet(self, sheet_name, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        sheet_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Sheet name or sheet object.
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is `False`.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        sheet_name = self.convert_to_selections(sheet_name, False)
+        object_name = self.convert_to_selections(object_name, False)
+
+        if sheet_name not in self.sheet_names:
+            self.logger.error("{} is not a valid sheet.".format(sheet_name))
+            return False
+        if object_name not in self.solid_names:
+            self.logger.error("{} is not a valid solid body.".format(object_name))
+            return False
+        unclassified = [i for i in self.unclassified_objects]
+        self.oeditor.WrapSheet(
+            ["NAME:Selections", "Selections:=", "{},{}".format(sheet_name, object_name)],
+            ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
+        )
+        is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
+        if is_unclassified:
+            self.logger.error("Failed to Wrap sheet. Reverting to original objects.")
+            self._odesign.Undo()
+            return False
+        if imprinted:
+            self.cleanup_objects()
+        return True
