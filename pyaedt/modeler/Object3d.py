@@ -2367,6 +2367,57 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
+    def intersect(self, theList, keep_originals=False):
+        """Intersect the active object with a given list.
+
+        Parameters
+        ----------
+        theList : list
+            List of objects.
+        keep_originals : bool, optional
+            Whether to keep the original object. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Retrieve the resulting 3D Object when succeeded.
+
+        References
+        ----------
+
+        >>> oEditor.Intersect
+        """
+        theList = [self.name] + self._primitives.modeler.convert_to_selections(theList, return_list=True)
+        self._primitives.modeler.intersect(theList, keep_originals)
+        return self
+
+    @pyaedt_function_handler()
+    def split(self, plane, sides="Both"):
+        """Split the active object.
+
+        Parameters
+        ----------
+        plane : str
+            Coordinate plane of the cut or the Application.PLANE object.
+            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
+        sides : str
+            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
+            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
+            all objects are kept after the split.
+
+        Returns
+        -------
+        list of str
+            List of split objects.
+
+        References
+        ----------
+
+        >>> oEditor.Split
+        """
+        return self._primitives.modeler.split(self.name, plane, sides)
+
+    @pyaedt_function_handler()
     def mirror(self, position, vector):
         """Mirror a selection.
 
