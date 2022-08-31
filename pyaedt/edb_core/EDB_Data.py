@@ -1346,8 +1346,6 @@ class EDBLayers(object):
 
     @pyaedt_function_handler()
     def _update_edb_objects(self):
-        self._active_layout.SetLayerCollection(self.edb_layer_collection)
-
         self._edb_object = OrderedDict({})
         layers = self.edb_layers
         for i in range(len(layers)):
@@ -1429,6 +1427,7 @@ class EDBLayers(object):
         )
 
         self.edb_layer_collection.AddLayerAbove(newLayer, start_layer)
+        self._active_layout.SetLayerCollection(self.edb_layer_collection)
         self._update_edb_objects()
 
         return True
