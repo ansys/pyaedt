@@ -3360,7 +3360,11 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _create_user_defined_component(self, name):
-        o = UserDefinedComponent(self, name)
+        prop_names = self.oeditor.GetChildObject(name).GetPropNames()
+        props = {}
+        for prop in prop_names:
+            props[prop] = self.oeditor.GetChildObject(name).GetPropValue(prop)
+        o = UserDefinedComponent(self, name, props)
         self.user_defined_components[name] = o
         return o
 

@@ -3832,6 +3832,30 @@ class UserDefinedComponentParameters(dict):
         self._component = component
 
 
+class UserDefinedComponentProps(OrderedDict):
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if self._pyaedt_user_defined_component.auto_update:
+            res = self._pyaedt_user_defined_component.update()
+            if not res:
+                self._pyaedt_user_defined_component._app.logger.warning(
+                    "Update of %s Failed. Check needed arguments", key
+                )
+
+    def __init__(self, user_defined_components, props):
+        OrderedDict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    OrderedDict.__setitem__(self, key, UserDefinedComponentProps(user_defined_components, value))
+                else:
+                    OrderedDict.__setitem__(self, key, value)
+        self._pyaedt_user_defined_component = user_defined_components
+
+    def _setitem_without_update(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+
+
 class UserDefinedComponent(object):
     """Manages object attributes for 3DComponent and User Defined Model.
 
@@ -3855,13 +3879,16 @@ class UserDefinedComponent(object):
     >>> component = aedtapp.modeler[component_names[0]]
     """
 
-    def __init__(self, primitives, name=None):
+    def __init__(self, primitives, name=None, props=None):
         """
         Parameters
         ----------
         primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
             Inherited parent object.
-        name : str
+        name : str, optional
+            The default is ``None``.
+        props : dict, optional
+            Dictionary of properties. The default is ``None``.
         """
         self._fix_udm_props = [
             "General[Name]",
@@ -3889,6 +3916,8 @@ class UserDefinedComponent(object):
         self._target_coordinate_system = None
         self._is_updated = False
         self._all_props = None
+        self.auto_update = True
+        self.props = UserDefinedComponentProps(self, props)
 
     @property
     def group_name(self):
