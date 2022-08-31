@@ -11,3 +11,4 @@ pandas==1.4.3
 openpyxl==3.0.10
 scikit-learn==1.1.2
 pytest-xdist==2.5.0
+ipython==8.4.0
