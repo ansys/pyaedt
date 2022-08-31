@@ -2980,13 +2980,15 @@ class Padstack(object):
         ]
         arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
         arg3 = ["NAME:pds"]
+        id = 0
         for el in self.layers:
             arg4 = []
+            id += 1
             arg4.append("NAME:lgm")
             arg4.append("lay:=")
             arg4.append(self.layers[el].layername)
             arg4.append("id:=")
-            arg4.append(el)
+            arg4.append(id)
             arg4.append("pad:=")
             arg4.append(
                 [
@@ -3074,7 +3076,15 @@ class Padstack(object):
 
     @pyaedt_function_handler()
     def add_layer(
-        self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
+        self,
+        layername="Start",
+        pad_hole=None,
+        antipad_hole=None,
+        thermal_hole=None,
+        connx=0,
+        conny=0,
+        conndir=0,
+        layer_id=None,
     ):
         """Create a layer in the padstack.
 
@@ -3104,11 +3114,13 @@ class Padstack(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        layer_id = None
         if layername in self.layers:
             return False
         else:
-            new_layer = self.PDSLayer(layername, self.layerid)
-            self.layerid += 1
+            if not layer_id:
+                layer_id = len(list(self.layers.keys())) + 1
+            new_layer = self.PDSLayer(layername, layer_id)
             new_layer.pad = pad_hole
             new_layer.antipad = antipad_hole
             new_layer.thermal = thermal_hole

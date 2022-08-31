@@ -41,7 +41,7 @@ jobs:
         run: |
           make -C doc phtml
           touch doc/_build/html/.nojekyll
-          echo "dev.aedtdocs.pyansys.com" >> doc/_build/html/CNAME
+          echo "dev.aedt.docs.pyansys.com" >> doc/_build/html/CNAME
 
       - name: Upload Documentation
         uses: actions/upload-artifact@v3
@@ -54,7 +54,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
           repository-name: pyansys/pyaedt-dev-docs
-          branch: master
+          branch: gh-pages
           folder: doc/_build/html/
           token: ${{ steps.get_workflow_token.outputs.token }}
           clean: true
