@@ -1436,12 +1436,22 @@ class EDBLayers(object):
         if int(layerType) > 2:
             newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
             self.edb_layer_collection.AddLayerTop(newLayer)
+        elif not start_layer:
+            self.edb_layer_collection.AddLayerTop(newLayer)
         else:
             self.edb_layer_collection.AddLayerAbove(newLayer, start_layer)
         self._active_layout.SetLayerCollection(self.edb_layer_collection)
         self._update_edb_objects()
 
-        return True
+        allLayers = [
+            i.GetName() for i in list(list(self.layer_collection.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+        ]
+        if layerName in self.layers:
+            return self.layers[layerName]
+        elif layerName in allLayers:
+            return True
+        else:
+            return False
 
     def add_outline_layer(self, outline_name="Outline"):
         """
