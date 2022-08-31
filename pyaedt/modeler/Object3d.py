@@ -534,20 +534,22 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return "EdgeId " + str(self.id)
 
     @pyaedt_function_handler()
-    def create_object(self):
-        """Return A new object from the selected edge.
+    def create_object(self, non_model=False, create_group_for_new_objects=False):
+        """Return a new object from the selected edge.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. The default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromEdges
         """
-        return self._object3d._primitives.create_object_from_edge(self)
+        return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
     def move_along_normal(self, offset=1.0):
@@ -1047,20 +1049,22 @@ class FacePrimitive(object):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self):
-        """Return A new object from the selected face.
+    def create_object(self, non_model=False):
+        """Return a new object from the selected face.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. Default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromFaces
         """
-        return self._object3d._primitives.create_object_from_face(self)
+        return self._object3d._primitives.create_object_from_face(self, non_model)
 
 
 class Object3d(object):
@@ -2694,6 +2698,34 @@ class Object3d(object):
         """
         self._primitives.modeler.subtract(self.name, tool_list, keep_originals)
         return self
+
+    @pyaedt_function_handler()
+    def wrap_sheet(self, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object. This object can be either the sheet or the object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object or sheet name.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is `False`.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        object_name = self._primitives.convert_to_selections(object_name, False)
+        if self.object_type == "Sheet" and object_name in self._primitives.solid_names:
+            return self._primitives.wrap_sheet(self.name, object_name, imprinted)
+        elif self.object_type == "Solid" and object_name in self._primitives.sheet_names:
+            return self._primitives.wrap_sheet(object_name, self.name, imprinted)
+        else:
+            msg = "Error in command execution."
+            msg += " Either one of the two objects has to be a sheet and the other an object."
+            self.logger.error(msg)
+            return False
 
     @pyaedt_function_handler()
     def delete(self):
