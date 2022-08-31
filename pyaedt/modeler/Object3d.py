@@ -1050,7 +1050,7 @@ class FacePrimitive(object):
 
     @pyaedt_function_handler()
     def create_object(self, non_model=False):
-        """Return A new object from the selected face.
+        """Return a new object from the selected face.
 
         Returns
         -------
