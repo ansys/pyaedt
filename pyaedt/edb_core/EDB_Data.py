@@ -1368,8 +1368,8 @@ class EDBLayers(object):
     @pyaedt_function_handler()
     def insert_layer_above(
         self,
-        layerName,
-        start_layer=None,
+        layer_name,
+        base_layer=None,
         material="copper",
         fillMaterial="",
         thickness="35um",
@@ -1382,9 +1382,9 @@ class EDBLayers(object):
 
         Parameters
         ----------
-        layerName : str
+        layer_name : str
             Name of the layer to add.
-        start_layer : str, optional
+        base_layer : str, optional
             Name of the layer after which to add the new layer.
             The default is ``None``.
         material : str, optional
@@ -1419,17 +1419,17 @@ class EDBLayers(object):
             Layer Object for stackup layers. Boolean otherwise (True in case of success).
         """
 
-        newLayer = self._edb.Cell.StackupLayer(
-            layerName,
+        new_layer = self._edb.Cell.StackupLayer(
+            layer_name,
             self._int_to_layer_types(layerType),
             self._get_edb_value(0),
             self._get_edb_value(0),
             "",
         )
-        self._edb_object[layerName] = EDBLayer(newLayer.Clone(), self._pedbstackup)
-        newLayer = self._edb_object[layerName].update_layer_vals(
-            layerName,
-            newLayer,
+        self._edb_object[layer_name] = EDBLayer(new_layer.Clone(), self._pedbstackup)
+        new_layer = self._edb_object[layer_name].update_layer_vals(
+            layer_name,
+            new_layer,
             etchMap,
             material,
             fillMaterial,
@@ -1438,16 +1438,9 @@ class EDBLayers(object):
             roughness_enabled,
             self._int_to_layer_types(layerType),
         )
-
-        if int(layerType) > 2:
-            newLayer = self._edb.Cell.Layer(layerName, self._int_to_layer_types(layerType))
-            self.edb_layer_collection.AddLayerTop(newLayer)
-        elif not start_layer:
-            self.edb_layer_collection.AddLayerTop(newLayer)
-        else:
-            self.edb_layer_collection.AddLayerAbove(newLayer, start_layer)
+        self.edb_layer_collection.AddLayerAbove(new_layer, base_layer)
         self._update_stackup()
-
+        return
 
     @pyaedt_function_handler()
     def add_layer(
