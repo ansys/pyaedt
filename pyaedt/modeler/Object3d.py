@@ -2400,7 +2400,7 @@ class Object3d(object):
         plane : str
             Coordinate plane of the cut or the Application.PLANE object.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
-        sides : str
+        sides : str, optional
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
             and ``"NegativeOnly"``. The default is ``"Both"``, in which case
             all objects are kept after the split.
