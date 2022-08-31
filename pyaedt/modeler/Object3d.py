@@ -2700,6 +2700,34 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
+    def wrap_sheet(self, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object. This object can be either the sheet or the object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object or sheet name.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is `False`.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        object_name = self._primitives.convert_to_selections(object_name, False)
+        if self.object_type == "Sheet" and object_name in self._primitives.solid_names:
+            return self._primitives.wrap_sheet(self.name, object_name, imprinted)
+        elif self.object_type == "Solid" and object_name in self._primitives.sheet_names:
+            return self._primitives.wrap_sheet(object_name, self.name, imprinted)
+        else:
+            msg = "Error in command execution."
+            msg += " Either one of the two objects has to be a sheet and the other an object."
+            self.logger.error(msg)
+            return False
+
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the object.
 
