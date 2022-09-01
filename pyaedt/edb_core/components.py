@@ -1039,6 +1039,8 @@ class Components(object):
             return False
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, compdef.GetName())
 
+        if isinstance(pins[0], EDBPadstackInstance):
+            pins = [i._edb_padstackinstance for i in pins]
         for pin in pins:
             pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin)
