@@ -1016,7 +1016,7 @@ class Components(object):
             List of EDB core pins.
         component_name : str
             Name of the reference designator for the component.
-        placement_layer : str
+        placement_layer : str, optional
             Name of the layer used for placing the component.
         component_part_name : str, optional
             Part name of the component.
