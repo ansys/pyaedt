@@ -1,7 +1,8 @@
 """
 HFSS 3D Layout: PCB and EDB in 3D layout
 ----------------------------------------
-This example shows how to use HFSS 3D Layout combined with EDB to interact with a 3D layout.
+This example shows how you can use HFSS 3D Layout combined with EDB to
+interact with a 3D layout.
 """
 
 
@@ -31,11 +32,12 @@ print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
@@ -64,7 +66,7 @@ h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
 ###############################################################################
 # Print boundaries
 # ~~~~~~~~~~~~~~~~
-# Print boundaries from the ``setups``` object.
+# Print boundaries from the ``setups`` object.
 
 h3d.boundaries
 
@@ -78,7 +80,7 @@ h3d.modeler.change_net_visibility(visible=False)
 ###############################################################################
 # Show only two nets
 # ~~~~~~~~~~~~~~~~~~
-# Show only the two specified nets.
+# Show only two specified nets.
 
 h3d.modeler.change_net_visibility(["A0_GPIO", "A0_MUX"], visible=True)
 edb = h3d.modeler.edb
@@ -92,8 +94,7 @@ edb.core_nets.plot(["A0_GPIO", "A0_MUX"])
 layers = h3d.modeler.layers.all_signal_layers
 for lay in layers:
     layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(lay)]
-    layer.IsVisible = True
-    layer.update_stackup_layer()
+    layer.is_visible = True
 
 ###############################################################################
 # Change layer color
@@ -112,15 +113,12 @@ h3d.modeler.fit_all()
 # applies modifications to the layout.
 
 top = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("TOP")]
-top.IsVisibleComponent = False
-top.update_stackup_layer()
+top.is_visible_component = False
 
 bot = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id("BOTTOM")]
-bot.IsVisibleComponent = False
-bot.update_stackup_layer()
+bot.is_visible_component = False
 
 ###############################################################################
-
 # Fit all
 # ~~~~~~~
 # Fit all so that you can visualize all.
@@ -130,7 +128,7 @@ h3d.modeler.fit_all()
 ###############################################################################
 # Close AEDT
 # ~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 

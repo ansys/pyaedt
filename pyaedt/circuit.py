@@ -1432,6 +1432,98 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
+    def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, filepath):
+        """Assign a frequency dependent excitation to circuit ports from a frequency dependent source (.fds format).
+
+        Parameters
+        ----------
+        ports : list
+            List of circuit ports to assign to the frequency dependent excitation.
+        filepath : str
+            Path to the frequency dependent file.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
+        """
+        if not os.path.exists(filepath) or os.path.splitext(filepath)[1] != ".fds":
+            self.logger.error("Introduced file is not correct. Check path and format.")
+            return False
+
+        if not all(elem in self.modeler.schematic.nets for elem in ports):
+            self.logger.error("Defined ports do not exist")
+            return False
+
+        id = self.modeler.schematic.create_unique_id()
+
+        arg1 = [
+            "NAME:NexximSources",
+            [
+                "NAME:NexximSources",
+                [
+                    "NAME:Data",
+                    [
+                        "NAME:VoltageSourceFreq" + str(id),
+                        "DataId:=",
+                        "Source" + str(id),
+                        "Type:=",
+                        17,
+                        "Output:=",
+                        0,
+                        "NumPins:=",
+                        2,
+                        "Netlist:=",
+                        "V@ID %0 %1 *FreqDependentSourceData(@FreqDependentSourceData)",
+                        "CompName:=",
+                        "Nexxim Circuit Elements\\Independent Sources:V_PWL_F",
+                        "FDSFileName:=",
+                        'voltage_source_file="' + filepath + '"',
+                        [
+                            "NAME:Properties",
+                            "TextProp:=",
+                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
+                            "ButtonProp:=",
+                            [
+                                "FreqDependentSourceData",
+                                "OD",
+                                "Frequency Dependent Source Data",
+                                'voltage_source_file="' + filepath + '"',
+                                'voltage_source_file="' + filepath + '"',
+                                7,
+                                "ButtonPropClientData:=",
+                                [],
+                            ],
+                            "TextProp:=",
+                            ["COMPONENT", "RHD", "", "vsource_freq"],
+                            "ButtonProp:=",
+                            ["CosimDefinition", "SOD", "", "Edit", "Edit", 0, "ButtonPropClientData:=", []],
+                            "MenuProp:=",
+                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
+                        ],
+                    ],
+                ],
+            ],
+        ]
+
+        arg2 = ["NAME:ComponentConfigurationData"]
+
+        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSourceFreq" + str(id) + ":=", ports]]
+
+        arg2.append(arg3)
+        try:
+            self.odesign.UpdateSources(arg1, arg2)
+        except:
+            self.logger.error("Voltage Source not updated, incorrect file.")
+            return False
+        return True
+
+    @pyaedt_function_handler()
     def set_differential_pair(
         self,
         positive_terminal,

@@ -22,6 +22,7 @@ from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
@@ -936,7 +937,8 @@ class Lists(PropsManager, object):
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
         object_list_new = self._list_verification(self.props["List"], self.props["Type"])
-
+        if type == "Object":
+            object_list_new = ",".join(object_list_new)
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [
             "NAME:GeometryEntityListParameters",
@@ -984,15 +986,16 @@ class Lists(PropsManager, object):
         object_list_new = self._list_verification(object_list, type)
 
         if object_list_new:
+            olist = object_list_new
+            if type == "Object":
+                olist = ",".join(object_list_new)
+
             self.name = self._modeler.oeditor.CreateEntityList(
-                ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", object_list_new],
+                ["NAME:GeometryEntityListParameters", "EntityType:=", type, "EntityList:=", olist],
                 ["NAME:Attributes", "Name:=", name],
             )
             props = {}
-            if type == "Object":
-                props["List"] = object_list
-            else:
-                props["List"] = object_list_new
+            props["List"] = object_list_new
 
             props["ID"] = self._modeler.get_entitylist_id(self.name)
             props["Type"] = type
@@ -1046,13 +1049,15 @@ class Lists(PropsManager, object):
 
     def _list_verification(self, object_list, list_type):
         object_list = self._modeler.convert_to_selections(object_list, True)
-        object_list_new = False
+        object_list_new = []
         if list_type == "Object":
-            check = all(item in self._modeler.object_names for item in object_list)
+            obj_names = [i for i in self._modeler.object_names]
+            check = [item for item in object_list if item in obj_names]
             if check:
-                object_list_new = ",".join(object_list)
+                object_list_new = check
             else:
-                return False
+                return []
+
         elif list_type == "Face":
             object_list_new = []
             for element in object_list:
@@ -1068,7 +1073,7 @@ class Lists(PropsManager, object):
                                         object_list_new.append(f.id)
                                     break
                         else:
-                            return False
+                            return []
                 else:
                     object_list_new.append(int(element))
         return object_list_new
@@ -1369,7 +1374,7 @@ class GeometryModeler(Modeler, object):
                             props["List"] = data["GeometryEntityListParameters"]["EntityList"]
                         design_lists.append(Lists(self, props, name))
             except:
-                self.logger.error("Lists were not retrieved from AEDT file")
+                self.logger.info("Lists were not retrieved from AEDT file")
         return design_lists
 
     def __get__(self, instance, owner):
@@ -2347,8 +2352,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        list of :class:`pyaedt.modeler.Object3d.Object3d
+            List of split objects.
 
         References
         ----------
@@ -2357,6 +2362,7 @@ class GeometryModeler(Modeler, object):
         """
         planes = GeometryOperators.cs_plane_to_plane_str(plane)
         selections = self.convert_to_selections(objects)
+        all_objs = [i for i in self.object_names]
         self.oeditor.Split(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             [
@@ -2376,7 +2382,7 @@ class GeometryModeler(Modeler, object):
             ],
         )
         self.refresh_all_ids()
-        return True
+        return [selections] + [i for i in self.object_names if i not in all_objs]
 
     @pyaedt_function_handler()
     def duplicate_and_mirror(
@@ -2428,15 +2434,15 @@ class GeometryModeler(Modeler, object):
         vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
-            orig_3d = [i for i in self.components_3d_names]
+            orig_3d = [i for i in self.user_defined_component_names]
         added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
         self.add_new_objects()
         if is_3d_comp:
-            added_3d_comps = [i for i in self.components_3d_names if i not in orig_3d]
+            added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
             if added_3d_comps:
                 self.logger.info("Found 3D Components Duplication")
-                return True, added_3d_comps
-        return True, added_objs
+                return added_3d_comps
+        return added_objs
 
     @pyaedt_function_handler()
     def mirror(self, objid, position, vector):
@@ -3192,8 +3198,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            The united object that is the first in the list.
 
         References
         ----------
@@ -3220,7 +3226,7 @@ class GeometryModeler(Modeler, object):
         if len(objs_groups) > 1:
             return self.unite(objs_groups)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return True
+        return self.convert_to_selections(theList[0], False)
 
     @pyaedt_function_handler()
     def clone(self, objid):
@@ -3266,8 +3272,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Retrieve the resulting 3D Object when succeeded.
 
         References
         ----------
@@ -3288,10 +3294,10 @@ class GeometryModeler(Modeler, object):
         if unclassified != unclassified1:
             self._odesign.Undo()
             self.logger.error("Error in intersection. Reverting Operation")
-            return False
+            return
         self.cleanup_objects()
         self.logger.info("Intersection Succeeded")
-        return True
+        return self.convert_to_selections(theList[0], False)
 
     @pyaedt_function_handler()
     def connect(self, theList):
@@ -4185,6 +4191,9 @@ class GeometryModeler(Modeler, object):
 
         # Get all vertices in the line
         vertices_on_line = self.oeditor.GetVertexIDsFromObject(sLineName)
+
+        if settings.aedt_version > "2022.2":
+            vertices_on_line = vertices_on_line[::-1]
 
         for x in vertices_on_line:
             pos = self.oeditor.GetVertexPosition(x)
@@ -5081,4 +5090,46 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.FlattenGroup
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
+        return True
+
+    @pyaedt_function_handler()
+    def wrap_sheet(self, sheet_name, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        sheet_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Sheet name or sheet object.
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        sheet_name = self.convert_to_selections(sheet_name, False)
+        object_name = self.convert_to_selections(object_name, False)
+
+        if sheet_name not in self.sheet_names:
+            self.logger.error("{} is not a valid sheet.".format(sheet_name))
+            return False
+        if object_name not in self.solid_names:
+            self.logger.error("{} is not a valid solid body.".format(object_name))
+            return False
+        unclassified = [i for i in self.unclassified_objects]
+        self.oeditor.WrapSheet(
+            ["NAME:Selections", "Selections:=", "{},{}".format(sheet_name, object_name)],
+            ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
+        )
+        is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
+        if is_unclassified:
+            self.logger.error("Failed to Wrap sheet. Reverting to original objects.")
+            self._odesign.Undo()
+            return False
+        if imprinted:
+            self.cleanup_objects()
         return True

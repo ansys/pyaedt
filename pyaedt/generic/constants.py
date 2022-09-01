@@ -618,7 +618,7 @@ class NodeType(object):
 class SourceType(object):
     """Type of excitation enumerator."""
 
-    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Resistor, Inductor, Capacitor) = range(0, 8)
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc) = range(0, 6)
 
 
 class SOLUTIONS(object):
@@ -639,13 +639,22 @@ class SOLUTIONS(object):
     class Maxwell3d(object):
         """Provides Maxwell 3D solution types."""
 
-        (Transient, Magnetostatic, EddyCurrent, ElectroStatic, ElectroDCConduction, ElectroDCTransient) = (
+        (
+            Transient,
+            Magnetostatic,
+            EddyCurrent,
+            ElectroStatic,
+            ElectroDCConduction,
+            ElectroDCTransient,
+            TransientAPhiFormulation,
+        ) = (
             "Transient",
             "Magnetostatic",
             "EddyCurrent",
             "Electrostatic",
             "ElectroDCConduction",
             "ElectricTransient",
+            "TransientAPhiFormulation",
         )
 
     class Maxwell2d(object):

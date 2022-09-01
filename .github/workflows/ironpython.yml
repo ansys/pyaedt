@@ -26,19 +26,29 @@ jobs:
       - name: 'Run Unit Tests in Ironpython'
         timeout-minutes: 45
         run: |
-          $process = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd' -PassThru
+          $processA = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_0*.py' -PassThru
+          $processB = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_1*.py' -PassThru
+          $processC = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_2*.py' -PassThru
+          $processD = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_3*.py' -PassThru
+          $processE = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_4*.py' -PassThru
+          $processF = start-process 'cmd' -ArgumentList '/c .\_unittest_ironpython\run_unittests_batchmode.cmd --test-filter test_9*.py' -PassThru
 
-          $process.WaitForExit()
+          $processC.WaitForExit()
+          $processD.WaitForExit()
+          $processE.WaitForExit()
+          $processA.WaitForExit()
+          $processB.WaitForExit()
+          $processF.WaitForExit()
 
           get-content .\_unittest_ironpython\runner_unittest.log
 
-          $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "errors=0 failures=0"
+          $test_errors_failures = Select-String -Path .\_unittest_ironpython\runner_unittest.log -Pattern "TextTestResult errors="
 
           if ($test_errors_failures -ne $null)
           {
-          exit 0
+          exit 1
           }
           else
           {
-          exit 1
+          exit 0
           }

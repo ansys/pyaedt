@@ -115,8 +115,9 @@ oper_params = {
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to
+# generate documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -132,15 +133,15 @@ M2D = Maxwell2d(projectname=pName, specified_version=desktopVersion, designname=
 ##########################################################
 # Create object to access 2D modeler
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the object ``mod2D`` to easily access the 2D modeler.
+# Create the object ``mod2D`` to access the 2D modeler easily.
 
 mod2D = M2D.modeler
 mod2D.delete()
 mod2D.model_units = "mm"
 
 ##########################################################
-# Define design variables from dictionaries
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define variables from dictionaries
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define design variables from the created dictionaries.
 
 for k, v in geom_params.items():
@@ -173,9 +174,9 @@ mat_coils.permeability = "1"
 # Create second material
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the material ``"Arnold_Magnetics_N30UH_80C"``.
-# The BH curve is read from a tab CSV file, and a list (``BH_List_PM``)
-# is created. This list is passed to the function
-# ``mat_PM.permeability.set_non_linear(BH_List_PM)``.
+# The BH curve is read from a tabbed CSV file, and a list (``BH_List_PM``)
+# is created. This list is passed to the ``mat_PM.permeability.set_non_linear``
+# method.
 
 mat_PM = M2D.materials.add_material("Arnold_Magnetics_N30UH_80C_new")
 mat_PM.update()
@@ -220,7 +221,7 @@ mat_lam.permeability.set_non_linear(BH_List_lam)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the geometry for the stator. It is created via
 # the RMxprt user-defined primitive. A list of lists is
-# creatd with the proper UDP paramters.
+# created with the proper UDP paramters.
 
 udp_par_list_stator = [["DiaGap", "DiaGap"], ["DiaYoke", "DiaStatorYoke"], ["Length", "Stator_Lam_Length"],
                        ["Skew", "StatorSkewAngle"], ["Slots", "SlotNumber"], ["SlotType", "SlotType"],
@@ -235,7 +236,7 @@ udp_par_list_stator = [["DiaGap", "DiaGap"], ["DiaYoke", "DiaStatorYoke"], ["Len
 
 stator_id = mod2D.create_udp(udp_dll_name="RMxprt/VentSlotCore.dll",
                              udp_parameters_list=udp_par_list_stator, upd_library='syslib',
-                             name='my_stator', udp_type='Solid')  # name not taken
+                             name='my_stator')  # name not taken
 
 ##########################################################
 # Assign properties to stator
@@ -256,7 +257,7 @@ stator_id.solve_inside = True  # to be reassigned: M2D.assign material puts Fals
 # magnetization via the coordinate system. Because each PM needs to have a coordinate
 # system in the face center, auxiliary functions are created. Here, you use the auxiliary
 # function ``find_elements(lst1, lst2)`` to find the elements in list ``lst1`` with indexes
-# in the list ``lst2``.
+# in list ``lst2``.
 
 def find_elements(lst1, lst2):
     return [lst1[i] for i in lst2]
@@ -266,7 +267,7 @@ def find_elements(lst1, lst2):
 # Find largest elements in list
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use the auxiliary function ``find_n_largest (input_len_list, n_largest_edges)``
-# to find the ''n'' largest largest elements in the list ``input_len_list``.
+# to find the ``n`` largest elements in the list ``input_len_list``.
 
 def find_n_largest(input_len_list, n_largest_edges):
     tmp = list(input_len_list)
@@ -284,7 +285,7 @@ def find_n_largest(input_len_list, n_largest_edges):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the coordinate system for the PMs. The inputs are the object name, coordinate
 # system name, and inner or outer magnetization. Find the two longest edges of the magnets
-# and get the midpoint of the outer edge. You need to have this point to create the face
+# and get the midpoint of the outer edge. You must have this point to create the face
 # coordinate systems in case of outer magnetization.
 
 def create_cs_magnets(pm_id, cs_name, point_direction):
@@ -599,7 +600,7 @@ model.plot(os.path.join(M2D.working_directory, "Image.jpg"))
 # Initialize definitions for output variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Initialize the definitions for the needed output variables. You use these
-# output variables later to generate reports
+# output variables later to generate reports.
 
 output_vars = {
     "Current_A": "InputCurrent(Phase_A)",
@@ -727,6 +728,6 @@ M2D.analyze_setup(sName)
 ###############################################
 # Close AEDT
 # ~~~~~~~~~~
-# Closes AEDT.
+# Close AEDT.
 
 M2D.release_desktop()

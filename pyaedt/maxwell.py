@@ -5,6 +5,7 @@ from __future__ import absolute_import  # noreorder
 import io
 import json
 import os
+import re
 from collections import OrderedDict
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
@@ -564,7 +565,12 @@ class Maxwell(object):
                         "Current": amplitude,
                     }
                 )
-            if self.solution_type not in ["Magnetostatic", "DCConduction", "ElectricTransient"]:
+            if self.solution_type not in [
+                "Magnetostatic",
+                "DCConduction",
+                "ElectricTransient",
+                "TransientAPhiFormulation",
+            ]:
                 props["Phase"] = phase
                 if self.solution_type not in ["DCConduction", "ElectricTransient"]:
                     props["IsSolid"] = solid
@@ -1294,6 +1300,141 @@ class Maxwell(object):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def assign_current_density(
+        self,
+        entities,
+        current_density_name=None,
+        phase="0deg",
+        current_density_x="0",
+        current_density_y="0",
+        current_density_z="0",
+        current_density_2d="0",
+        coordinate_system_name="Global",
+        coordinate_system_cartesian="Cartesian",
+    ):
+        """Assign current density to a single or list of entities.
+
+        Parameters
+        ----------
+        entities : list
+            Objects to assign the current to.
+        current_density_name : str, optional
+            Current density name.
+            If no name is provided a random name is generated.
+        phase : str, optional
+            Current density phase.
+            Available units are 'deg', 'degmin', 'degsec' and 'rad'.
+            Default value is 0deg.
+        current_density_x : str, optional
+            Current density X coordinate value.
+            Default value is 0 A/m2.
+        current_density_y : str, optional
+            Current density Y coordinate value.
+            Default value is 0 A/m2.
+        current_density_z : str, optional
+            Current density Z coordinate value.
+            Default value is 0 A/m2.
+        current_density_2d : str, optional
+            Current density 2D value.
+            Default value is 0 A/m2.
+        coordinate_system_name : str, optional
+            Coordinate system name.
+            Default value is 'Global'.
+        coordinate_system_cartesian : str, optional
+            Coordinate system cartesian.
+            Possible values can be ``"Cartesian"``, ``"Cylindrical"``, and ``"Spherical"``.
+            Default value is ``"Cartesian"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            if current_density_name is None:
+                current_density_name = generate_unique_name("CurrentDensity")
+            if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
+                self.logger.error("Invalid phase unit.")
+                return False
+            if coordinate_system_cartesian not in ["Cartesian", "Cylindrical", "Spherical"]:
+                self.logger.error("Invalid coordinate system.")
+                return False
+
+            objects_list = self.modeler.convert_to_selections(entities, True)
+
+            try:
+                if self.modeler._is3d:
+                    if len(objects_list) > 1:
+                        current_density_group_names = []
+                        for x in range(0, len(objects_list)):
+                            current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                        props = OrderedDict({})
+                        props["items"] = current_density_group_names
+                        props[current_density_group_names[0]] = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "CurrentDensityX": current_density_x,
+                                "CurrentDensityY": current_density_y,
+                                "CurrentDensityZ": current_density_z,
+                                "CoordinateSystem Name": coordinate_system_name,
+                                "CoordinateSystem Type": coordinate_system_cartesian,
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
+                    else:
+                        props = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "CurrentDensityX": current_density_x,
+                                "CurrentDensityY": current_density_y,
+                                "CurrentDensityZ": current_density_z,
+                                "CoordinateSystem Name": coordinate_system_name,
+                                "CoordinateSystem Type": coordinate_system_cartesian,
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
+                    return True
+                else:
+                    if len(objects_list) > 1:
+                        current_density_group_names = []
+                        for x in range(0, len(objects_list)):
+                            current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                        props = OrderedDict({})
+                        props["items"] = current_density_group_names
+                        props[current_density_group_names[0]] = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "Value": current_density_2d,
+                                "CoordinateSystem": "",
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityGroup")
+                    else:
+                        props = OrderedDict(
+                            {
+                                "Objects": objects_list,
+                                "Phase": phase,
+                                "Value": current_density_2d,
+                                "CoordinateSystem": "",
+                            }
+                        )
+                        bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
+
+                if bound.create():
+                    self.boundaries.append(bound)
+                    return bound
+                return True
+            except:
+                self.logger.error("Couldn't assign current density to desired list of objects.")
+                return False
+        else:
+            self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
+            return False
+
     def __enter__(self):
         return self
 
@@ -1413,6 +1554,217 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             aedt_process_id,
         )
         Maxwell.__init__(self)
+
+    @pyaedt_function_handler()
+    def assign_insulating(self, geometry_selection, insulation_name=None):
+        """Create an insulating boundary condition.
+
+        Parameters
+        ----------
+        geometry_selection : str
+            Objects to apply the insulating boundary to.
+        insulation_name : str, optional
+            Name of the insulation. The default is ``None`` in which case a unique name is chosen.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignInsulating
+
+        Examples
+        --------
+
+        Create a box and assign insulating boundary to it.
+
+        >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="InsulatedBox")
+        >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
+        >>> type(insulating_assignment)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in [
+            "EddyCurrent",
+            "Transient",
+            "TransientAPhiFormulation",
+            "DCConduction",
+            "ElectroDCConduction",
+        ]:
+
+            if not insulation_name:
+                insulation_name = generate_unique_name("Insulation")
+            elif insulation_name in self.modeler.get_boundaries_name():
+                insulation_name = generate_unique_name(insulation_name)
+
+            listobj = self.modeler.convert_to_selections(geometry_selection, True)
+            props = {"Objects": listobj}
+
+            return self._create_boundary(insulation_name, props, "Insulating")
+        return False
+
+    @pyaedt_function_handler()
+    def assign_impedance(
+        self,
+        geometry_selection,
+        material_name=None,
+        permeability=0.0,
+        conductivity=None,
+        non_linear_permeability=False,
+        impedance_name=None,
+    ):
+        """Create an impedance boundary condition.
+
+        Parameters
+        ----------
+        geometry_selection : str
+            Objects to apply the impedance boundary to.
+        material_name : str, optional
+            If it is different from ``None``, then material properties values will be extracted from
+            the named material in the list of materials available. The default value is ``None``.
+        permeability : float, optional
+            Permeability of the material.The default value is ``0.0``.
+        conductivity : float, optional
+            Conductivity of the material. The default value is ``None``.
+        non_linear_permeability : bool, optional
+            If the option ``material_name`` is activated, the permeability can either be linear or not.
+            The default value is ``False``.
+        impedance_name : str, optional
+            Name of the impedance. The default is ``None`` in which case a unique name is chosen.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.AssignImpedance
+
+        Examples
+        --------
+
+        Create a box and assign impedance boundary to it.
+
+        >>> impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
+        >>> impedance_assignment = self.aedtapp.assign_impedance(impedance_box.name, "InsulatingExample")
+        >>> type(impedance_assignment)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+
+        if self.solution_type in [
+            "EddyCurrent",
+            "Transient",
+        ]:
+
+            if not impedance_name:
+                impedance_name = generate_unique_name("Impedance")
+            elif impedance_name in self.modeler.get_boundaries_name():
+                impedance_name = generate_unique_name(impedance_name)
+
+            listobj = self.modeler.convert_to_selections(geometry_selection, True)
+            props = {"Objects": listobj}
+
+            if material_name is not None:
+                props["UseMaterial"] = True
+                props["MaterialName"] = material_name
+                props["IsPermeabilityNonlinear"] = non_linear_permeability
+                if conductivity is not None:
+                    props["Conductivity"] = conductivity
+            else:
+                props["UseMaterial"] = False
+                props["Permeability"] = permeability
+                props["Conductivity"] = conductivity
+
+            return self._create_boundary(impedance_name, props, "Impedance")
+        return False
+
+    @pyaedt_function_handler()
+    def assign_current_density_terminal(self, entities, current_density_name=None):
+        """Assign current density terminal to a single or list of entities.
+
+        Parameters
+        ----------
+        entities : list
+            Objects to assign the current to.
+        current_density_name : str, optional
+            Current density name.
+            If no name is provided a random name is generated.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.solution_type in ["EddyCurrent", "Magnetostatic"]:
+            if current_density_name is None:
+                current_density_name = generate_unique_name("CurrentDensity")
+
+            objects_list = self.modeler.convert_to_selections(entities, True)
+
+            existing_2d_objects_list = [x.name for x in self.modeler.object_list if not x.is3d]
+            if [x for x in objects_list if x not in existing_2d_objects_list]:
+                self.logger.error("Entity provided not a planar entity.")
+                return False
+
+            try:
+                if len(objects_list) > 1:
+                    current_density_group_names = []
+                    for x in range(0, len(objects_list)):
+                        current_density_group_names.append(current_density_name + "_{}".format(str(x + 1)))
+                    props = OrderedDict({})
+                    props["items"] = current_density_group_names
+                    props[current_density_group_names[0]] = OrderedDict({"Objects": objects_list})
+                    bound = BoundaryObject(self, current_density_group_names[0], props, "CurrentDensityTerminalGroup")
+                else:
+                    props = OrderedDict({"Objects": objects_list})
+                    bound = BoundaryObject(self, current_density_name, props, "CurrentDensityTerminal")
+
+                if bound.create():
+                    self.boundaries.append(bound)
+                    return bound
+                return True
+            except:
+                pass
+        else:
+            self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
+            return False
+
+    @pyaedt_function_handler()
+    def _create_boundary(self, name, props, boundary_type):
+        """Create a boundary.
+
+        Parameters
+        ---------
+        name : str
+            Name of the boundary.
+        props : list
+            List of properties for the boundary.
+        boundary_type :
+            Type of the boundary.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        """
+
+        bound = BoundaryObject(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self.boundaries.append(bound)
+            self.logger.info("Boundary %s %s has been correctly created.", boundary_type, name)
+            return bound
+
+        self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
+        return result
 
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):

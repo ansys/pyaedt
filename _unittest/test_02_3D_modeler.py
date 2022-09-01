@@ -1,5 +1,6 @@
 # Setup paths for module imports
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modeler.Modeler import FaceCoordinateSystem
 from pyaedt.modeler.Primitives import PolylineSegment
@@ -9,11 +10,17 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T02"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Coax_HFSS_231"
+else:
+    test_project_name = "Coax_HFSS"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name="Coax_HFSS")
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -65,15 +72,20 @@ class TestClass(BasisTest, object):
 
     def test_05_split(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split")
-        assert self.aedtapp.modeler.split(box1.name, 2)
+        box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "box_to_split2")
+        split = self.aedtapp.modeler.split(box1.name, 2)
+        assert isinstance(split, list)
+        assert isinstance(split[0], str)
+        split2 = box2.split(1)
+        assert isinstance(split2, list)
+        assert box2.name in split2[0]
 
     def test_06_duplicate_and_mirror(self):
         self.restore_model()
         udp = self.aedtapp.modeler.Position(20, 20, 20)
         udp2 = self.aedtapp.modeler.Position(30, 40, 40)
         out = self.aedtapp.modeler.duplicate_and_mirror("outer", udp, udp2)
-        assert out[0]
-        assert len(out[1]) > 0
+        assert len(out) > 0
 
     def test_07_mirror(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -140,7 +152,7 @@ class TestClass(BasisTest, object):
     def test_17_unite(self):
         o1 = self.aedtapp.modeler["outer"].clone()
         o2 = self.aedtapp.modeler["inner"].clone()
-        assert self.aedtapp.modeler.unite([o1, o2])
+        assert self.aedtapp.modeler.unite([o1, o2]) == o1.name
 
     def test_18_chamfer(self):
         # TODO
@@ -155,7 +167,7 @@ class TestClass(BasisTest, object):
         udp = [0, 0, 0]
         o1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10], name="Rect1")
         o2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12], name="Rect2")
-        assert self.aedtapp.modeler.intersect([o1, o2])
+        assert self.aedtapp.modeler.intersect([o1, o2]) == o1.name
 
     def test_21_connect(self):
         udp = [0, 0, 0]
@@ -170,10 +182,6 @@ class TestClass(BasisTest, object):
         id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12])
         udp2 = self.aedtapp.modeler.Position(0, 20, 5)
         assert self.aedtapp.modeler.translate([id1, id2], udp2)
-
-    def test_23_chassis_subtraction(self):
-        # TODO
-        assert True
 
     def test_24_check_plane(self):
 
@@ -219,7 +227,8 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.user_lists[4].update()
         assert self.aedtapp.modeler.user_lists[2].rename("new_list")
         assert self.aedtapp.modeler.user_lists[2].delete()
-        assert not self.aedtapp.modeler.create_object_list(["Core2", "outer"])
+        assert self.aedtapp.modeler.create_object_list(["Core2", "outer"])
+        assert not self.aedtapp.modeler.create_object_list(["Core2", "Core3"])
 
     def test_29_create_outer_face_list(self):
         assert self.aedtapp.modeler.create_outer_facelist(["Second_airbox"])
@@ -330,7 +339,7 @@ class TestClass(BasisTest, object):
         assert fcs2
         assert fcs2.delete()
         fcs2 = self.aedtapp.modeler.create_face_coordinate_system(
-            face, face.edges[0].vertices[0], face.edges[1].vertices[0]
+            face, face.edges[0].vertices[0], face.edges[1].vertices[1]
         )
         assert fcs2
         assert fcs2.delete()
@@ -633,3 +642,15 @@ class TestClass(BasisTest, object):
             with pytest.raises(ValueError):
                 bounding_box = [100, 200, 100, -100, -300]
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
+
+    def test_53_wrap_sheet(self):
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "wrap")
+        box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp2")
+        box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp3")
+        assert self.aedtapp.modeler.wrap_sheet(rect, box1)
+        self.aedtapp.odesign.Undo()
+        assert rect.wrap_sheet(box1)
+        self.aedtapp.odesign.Undo()
+        assert box1.wrap_sheet(rect)
+        self.aedtapp.odesign.Undo()
+        assert not box1.wrap_sheet(box2)

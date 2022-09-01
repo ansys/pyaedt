@@ -98,6 +98,17 @@ class BoundaryCommon(PropsManager):
 class NativeComponentObject(BoundaryCommon, object):
     """Manages Native Component data and execution.
 
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    component_type : str
+        Type of the component.
+    component_name : str
+        Name of the component.
+    props : dict
+        Properties of the boundary.
+
     Examples
     --------
     in this example the par_beam returned object is a ``pyaedt.modules.Boundary.NativeComponentObject``
@@ -273,6 +284,17 @@ class NativeComponentObject(BoundaryCommon, object):
 class BoundaryObject(BoundaryCommon, object):
     """Manages boundary data and execution.
 
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
+
     Examples
     --------
 
@@ -427,6 +449,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignVoltageDrop(self._get_args())
         elif self.type == "Current":
             self._app.oboundary.AssignCurrent(self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Balloon":
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
@@ -471,6 +501,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.SetSBRTxRxSettings(self._get_args())
         elif self.type == "EndConnection":
             self._app.oboundary.AssignEndConnection(self._get_args())
+        elif self.type == "Hybrid":
+            self._app.oboundary.AssignHybridRegion(self._get_args())
         else:
             return False
         return True
@@ -567,6 +599,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
         elif self.type == "Current":
             self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Vector Potential":
@@ -593,6 +633,8 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditFloquetPort(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "End Connection":
             self._app.oboundary.EditEndConnection(self._boundary_name, self._get_args())
+        elif self.type == "Hybrid":
+            self._app.oboundary.EditHybridRegion(self._boundary_name, self._get_args())
         else:
             return False  # pragma: no cover
         self._boundary_name = self.name
@@ -634,7 +676,18 @@ class BoundaryObject(BoundaryCommon, object):
 
 
 class MaxwellParameters(BoundaryCommon, object):
-    """Manages parameter data and execution.
+    """Manages parameters data and execution.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.maxwell.Maxwell3d`, :class:`pyaedt.maxwell.Maxwell2d`
+        Either ``Maxwell3d`` or ``Maxwell2d`` application.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
 
     Examples
     --------
@@ -728,6 +781,69 @@ class MaxwellParameters(BoundaryCommon, object):
             return False
         self._boundary_name = self.name
         return True
+
+    @pyaedt_function_handler()
+    def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
+        if not matrix_name:
+            matrix_name = generate_unique_name("ReducedMatrix", n=3)
+        if not join_name:
+            join_name = generate_unique_name("Join" + red_type, n=3)
+        try:
+            self._app.o_maxwell_parameters.AddReduceOp(
+                self.name,
+                matrix_name,
+                ["NAME:" + join_name, "Type:=", "Join in " + red_type, "Sources:=", ",".join(sources)],
+            )
+            return matrix_name, join_name
+        except:
+            self._app.logger.error("Failed to create Matrix Reduction")
+            return False, False
+
+    @pyaedt_function_handler()
+    def join_series(self, sources, matrix_name=None, join_name=None):
+        """
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Series", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
+
+    @pyaedt_function_handler()
+    def join_parallel(self, sources, matrix_name=None, join_name=None):
+        """
+
+        Parameters
+        ----------
+        sources : list
+            Sources to be included in matrix reduction.
+        matrix_name :  str, optional
+            name of the string to create.
+        join_name : str, optional
+            Name of the Join operation.
+
+        Returns
+        -------
+        (str, str)
+            Matrix name and Joint name.
+
+        """
+        return self._create_matrix_reduction(
+            red_type="Parallel", sources=sources, matrix_name=matrix_name, join_name=join_name
+        )
 
 
 class FieldSetup(BoundaryCommon, object):
@@ -1385,3 +1501,91 @@ class Matrix(object):
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
         return command
+
+
+class BoundaryObject3dLayout(BoundaryCommon, object):
+    """Manages boundary data and execution for Hfss3dLayout.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
+    """
+
+    def __init__(self, app, name, props, boundarytype):
+        self.auto_update = False
+        self._app = app
+        self._name = name
+        self.props = BoundaryProps(self, OrderedDict(props))
+        self.type = boundarytype
+        self._boundary_name = self.name
+        self.auto_update = True
+
+    @property
+    def name(self):
+        """Boundary Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.update()
+
+    @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        """Retrieve arguments.
+
+        Parameters
+        ----------
+        props :
+            The default is ``None``.
+
+        Returns
+        -------
+        list
+            List of boundary properties.
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
+    def _refresh_properties(self):
+        if len(self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))) != len(self.props):
+            propnames = self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))
+            props = OrderedDict()
+            for prop in propnames:
+                props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
+            self.props = BoundaryProps(self, props)
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        updated = False
+        for el in list(self.props.keys()):
+            if el in self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name)) and self.props[
+                el
+            ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
+                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
+                updated = True
+
+        if updated:
+            self._refresh_properties()
+
+        return True

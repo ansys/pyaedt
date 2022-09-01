@@ -28,30 +28,41 @@ try:
 except ImportError:
     ipython_available = False
 
-test_project_name = "coax_setup_solved"
-test_field_name = "Potter_Horn"
+if config["desktopVersion"] > "2022.2":
+    test_field_name = "Potter_Horn_231"
+    test_project_name = "coax_setup_solved_231"
+    array = "array_simple_231"
+    sbr_file = "poc_scat_small_231"
+    q3d_file = "via_gsg_231"
+
+else:
+    test_field_name = "Potter_Horn"
+    test_project_name = "coax_setup_solved"
+    array = "array_simple"
+    sbr_file = "poc_scat_small"
+    q3d_file = "via_gsg"
+
+
 test_circuit_name = "Switching_Speed_FET_And_Diode"
-sbr_file = "poc_scat_small"
-q3d_file = "via_gsg"
 eye_diagram = "SimpleChannel"
-array = "array_simple"
+test_subfolder = "T12"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         # set a scratch directory and the environment / test data
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
-        self.field_test = BasisTest.add_app(self, project_name=test_field_name)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+        self.field_test = BasisTest.add_app(self, project_name=test_field_name, subfolder=test_subfolder)
         self.circuit_test = BasisTest.add_app(
-            self, project_name=test_circuit_name, design_name="Diode", application=Circuit
+            self, project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder
         )
         self.diff_test = Circuit(designname="diff", projectname=self.circuit_test.project_name)
-        self.sbr_test = BasisTest.add_app(self, project_name=sbr_file)
-        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
-        self.q2dtest = Q2d(projectname=q3d_file)
-        self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit)
-        self.array_test = BasisTest.add_app(self, project_name=array)
+        self.sbr_test = BasisTest.add_app(self, project_name=sbr_file, subfolder=test_subfolder)
+        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
+        self.q2dtest = Q2d(projectname=self.q3dtest.project_name)
+        self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+        self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -78,6 +89,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.post.create_fieldplot_surface(
             self.aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic
         )
+        assert len(self.aedtapp.setups[0].sweeps[0].frequencies) > 0
+        assert isinstance(self.aedtapp.setups[0].sweeps[0].basis_frequencies, list)
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_01_Animate_plt(self):
@@ -140,6 +153,7 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self):
+        self.aedtapp.analyze_nominal()
         trace_names = []
         portnames = ["1", "2"]
         for el in portnames:
@@ -289,6 +303,7 @@ class TestClass(BasisTest, object):
         )
         new_report2.report_type = "Data Table"
         assert new_report2.create()
+        self.field_test.analyze_nominal()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
@@ -546,13 +561,11 @@ class TestClass(BasisTest, object):
         config["NonGraphical"], reason="Skipped because it cannot run on build machine in non-graphical mode"
     )
     def test_13_export_model_picture(self):
-        path = self.aedtapp.post.export_model_picture(dir=self.local_scratch.path, name="images")
+        path = self.aedtapp.post.export_model_picture(full_name=os.path.join(self.local_scratch.path, "images1.jpg"))
         assert path
         path = self.aedtapp.post.export_model_picture(show_axis=True, show_grid=False, show_ruler=True)
         assert path
-        path = self.aedtapp.post.export_model_picture(name="Ericsson", picturename="test_picture")
-        assert path
-        path = self.aedtapp.post.export_model_picture(picturename="test_picture")
+        path = self.aedtapp.post.export_model_picture()
         assert path
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
@@ -818,17 +831,19 @@ class TestClass(BasisTest, object):
     def test_59_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
 
-        out = _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector.aedtplt"))
+        out = _parse_aedtplt(os.path.join(local_path, "example_models", test_subfolder, "test_vector.aedtplt"))
         assert isinstance(out[0], list)
         assert isinstance(out[1], list)
         assert isinstance(out[2], list)
         assert isinstance(out[3], bool)
-        assert _parse_aedtplt(os.path.join(local_path, "example_models", "test_vector_no_solutions.aedtplt"))
+        assert _parse_aedtplt(
+            os.path.join(local_path, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
+        )
 
     @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython")
     def test_60_test_parse_vector(self):
         local_path = os.path.dirname(os.path.realpath(__file__))
-        out = _parse_streamline(os.path.join(local_path, "example_models", "test_streamline.fldplt"))
+        out = _parse_streamline(os.path.join(local_path, "example_models", test_subfolder, "test_streamline.fldplt"))
         assert isinstance(out, list)
 
     def test_61_export_mesh(self):

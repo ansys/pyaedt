@@ -278,12 +278,10 @@ class Edb(object):
             if is_ironpython:
                 clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
                 clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-                clr.AddReferenceToFile("EdbLib.dll")
                 clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
                 clr.AddReference("Ansys.Ansoft.Edb")
                 clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-                clr.AddReference("EdbLib")
                 clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
@@ -293,7 +291,6 @@ class Edb(object):
             sys.path.append(self.base_path)
             clr.AddReference("Ansys.Ansoft.Edb")
             clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-            clr.AddReference("EdbLib")
             clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, "common", "oa")
@@ -507,22 +504,15 @@ class Edb(object):
             command = os.path.join(self.base_path, "anstranslator")
             if os.name != "posix":
                 command += ".exe"
+
         if not working_dir:
             working_dir = os.path.dirname(input_file)
-        if os.name == "posix":
-            cmd_translator = [
-                command,
-                input_file,
-                os.path.join(working_dir, aedb_name),
-                "-l={}".format(os.path.join(working_dir, "Translator.log")),
-            ]
-        else:
-            cmd_translator = [
-                command,
-                input_file,
-                os.path.join(working_dir, aedb_name),
-                '-l="{}"'.format(os.path.join(working_dir, "Translator.log")),
-            ]
+        cmd_translator = [
+            command,
+            input_file,
+            os.path.join(working_dir, aedb_name),
+            "-l={}".format(os.path.join(working_dir, "Translator.log")),
+        ]
         if not use_ppe:
             cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
@@ -962,9 +952,9 @@ class Edb(object):
         reference_list : list, optional
             List of references to add. The default is ``["GND"]``.
         extent_type : str, optional
-            Type of the extension. Options are ``"Conforming"`` and
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
             ``"Bounding"``. The default is ``"Conforming"``.
-        expansion_size : float, optional
+        expansion_size : float, str, optional
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
@@ -983,6 +973,7 @@ class Edb(object):
 
         """
 
+        expansion_size = self.edb_value(expansion_size).ToDouble()
         if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
             signal_list = simulation_setup.signal_nets
             reference_list = simulation_setup.power_nets
@@ -1002,12 +993,18 @@ class Edb(object):
 
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, True, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+        elif extent_type == "Bounding":
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
         else:
             _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, True, use_round_corner, 1
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
+            _poly_list = convert_py_list_to_net_list([_poly])
+            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
 
         # Create new cutout cell/design
         included_nets = convert_py_list_to_net_list(
@@ -1084,8 +1081,9 @@ class Edb(object):
             Edb.Cell.Primitive.Polygon object
 
         """
-        shutil.copytree(self.edbpath, os.path.join(self.edbpath, "_temp_aedb"))
-        temp_edb = Edb(os.path.join(self.edbpath, "_temp_aedb"))
+        temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"
+        shutil.copytree(self.edbpath, temp_edb_path)
+        temp_edb = Edb(temp_edb_path)
         for via in list(temp_edb.core_padstack.padstack_instances.values()):
             via.pin.Delete()
         if netlist:
@@ -1367,7 +1365,7 @@ class Edb(object):
         return os.path.join(path_to_output, "options.config")
 
     @pyaedt_function_handler()
-    def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_hfss(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None, hidden=False):
         """Export EDB to HFSS.
 
         Parameters
@@ -1382,6 +1380,8 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
+        hidden : bool, optional
+            Open Siwave in embedding mode. User will only see Siwave Icon but UI will be hidden.
 
         Returns
         -------
@@ -1402,10 +1402,10 @@ class Edb(object):
 
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
-        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name)
+        return siwave_s.export_3d_cad("HFSS", path_to_output, net_list, num_cores, aedt_file_name, hidden=hidden)
 
     @pyaedt_function_handler()
-    def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_q3d(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None, hidden=False):
         """Export EDB to Q3D.
 
         Parameters
@@ -1420,6 +1420,8 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
+        hidden : bool, optional
+            Open Siwave in embedding mode. User will only see Siwave Icon but UI will be hidden.
 
         Returns
         -------
@@ -1442,11 +1444,11 @@ class Edb(object):
 
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
+            "Q3D", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name, hidden=hidden
         )
 
     @pyaedt_function_handler()
-    def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None):
+    def export_maxwell(self, path_to_output, net_list=None, num_cores=None, aedt_file_name=None, hidden=False):
         """Export EDB to Maxwell 3D.
 
         Parameters
@@ -1461,6 +1463,8 @@ class Edb(object):
         aedt_file_name : str, optional
             Name of the AEDT output file without the ``.aedt`` extension. The default is ``None``,
             in which case the default name is used.
+        hidden : bool, optional
+            Open Siwave in embedding mode. User will only see Siwave Icon but UI will be hidden.
 
         Returns
         -------
@@ -1482,7 +1486,12 @@ class Edb(object):
         """
         siwave_s = SiwaveSolve(self.edbpath, aedt_installer_path=self.base_path)
         return siwave_s.export_3d_cad(
-            "Maxwell", path_to_output, net_list, num_cores=num_cores, aedt_file_name=aedt_file_name
+            "Maxwell",
+            path_to_output,
+            net_list,
+            num_cores=num_cores,
+            aedt_file_name=aedt_file_name,
+            hidden=hidden,
         )
 
     @pyaedt_function_handler()

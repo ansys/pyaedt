@@ -5,6 +5,7 @@ import os
 from collections import OrderedDict
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Maxwell2d
 from pyaedt.generic.constants import SOLUTIONS
@@ -15,12 +16,22 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "TMaxwell"
+if config["desktopVersion"] > "2022.2":
+    test_name = "Motor_EM_R2019R3_231"
+else:
+    test_name = "Motor_EM_R2019R3"
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(
-            self, project_name="Motor_EM_R2019R3", design_name="Basis_Model_For_Test", application=Maxwell2d
+            self,
+            project_name=test_name,
+            design_name="Basis_Model_For_Test",
+            application=Maxwell2d,
+            subfolder=test_subfolder,
         )
 
     def teardown_class(self):
@@ -128,7 +139,7 @@ class TestClass(BasisTest, object):
     def test_14_check_design_preview_image(self):
         jpg_file = os.path.join(self.local_scratch.path, "file.jpg")
         self.aedtapp.export_design_preview_to_jpg(jpg_file)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", "Motor_EM_R2019R3.jpg"))
+        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, test_name + ".jpg"))
 
     def test_14a_model_depth(self):
         self.aedtapp.model_depth = 2.0
@@ -298,3 +309,51 @@ class TestClass(BasisTest, object):
             if bound.name == "Symmetry_Test_IsEven":
                 assert bound.type == "Symmetry"
                 assert not bound.props["IsOdd"]
+
+    def test_25_export_rl_matrix(self):
+        self.aedtapp.set_active_design("Y_Connections")
+        assert not self.aedtapp.export_rl_matrix("Test1", " ")
+        self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        self.aedtapp.assign_matrix(sources=["Current_1", "Current_2"], matrix_name="Test1")
+        self.aedtapp.assign_matrix(sources=["PhaseA", "PhaseB", "PhaseC"], matrix_name="Test2")
+        setup_name = "setupTestMatrixRL"
+        setup = self.aedtapp.create_setup(setupname=setup_name)
+        setup.props["MaximumPasses"] = 2
+        export_path_1 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test1.txt")
+        assert not self.aedtapp.export_rl_matrix("Test1", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("Test2", export_path_1, False, 10, 3, True)
+        self.aedtapp.validate_simple()
+        self.aedtapp.analyze_setup(setup_name)
+        assert self.aedtapp.export_rl_matrix("Test1", export_path_1)
+        assert not self.aedtapp.export_rl_matrix("abcabc", export_path_1)
+        assert os.path.exists(export_path_1)
+        export_path_2 = os.path.join(self.local_scratch.path, "export_rl_matrix_Test2.txt")
+        assert self.aedtapp.export_rl_matrix("Test2", export_path_2, False, 10, 3, True)
+        assert os.path.exists(export_path_2)
+
+    def test_26_assign_current_density(self):
+        self.aedtapp.set_active_design("Y_Connections")
+        assert self.aedtapp.assign_current_density("Coil", "CurrentDensity_1")
+        assert self.aedtapp.assign_current_density("Coil", "CurrentDensity_2", "40deg", current_density_2d="2")
+        assert self.aedtapp.assign_current_density(["Coil", "Coil_1"])
+        assert self.aedtapp.assign_current_density(["Coil", "Coil_1"], "CurrentDensityGroup_1")
+        for bound in self.aedtapp.boundaries:
+            if bound.type == "CurrentDensity":
+                if bound.name == "CurrentDensity_1":
+                    assert bound.props["Objects"] == ["Coil"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["Value"] == "0"
+                    assert bound.props["CoordinateSystem"] == ""
+                if bound.name == "CurrentDensity_2":
+                    assert bound.props["Objects"] == ["Coil"]
+                    assert bound.props["Phase"] == "40deg"
+                    assert bound.props["Value"] == "2"
+                    assert bound.props["CoordinateSystem"] == ""
+            if bound.type == "CurrentDensityGroup":
+                if bound.name == "CurrentDensityGroup_1":
+                    assert bound.props["Objects"] == ["Coil", "Coil_1"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["Value"] == "0"
+                    assert bound.props["CoordinateSystem"] == ""
+        self.aedtapp.set_active_design("Motion")
+        assert not self.aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")

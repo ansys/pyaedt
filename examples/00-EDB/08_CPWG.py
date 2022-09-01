@@ -1,7 +1,7 @@
 """
-EDB: fully parameterized CPWG design
-------------------------------------
-This example shows how to use HFSS 3D Layout to create a parametric design
+EDB: fully parametrized CPWG design
+-----------------------------------
+This example shows how you can use HFSS 3D Layout to create a parametric design
 for a CPWG (coplanar waveguide with ground).
 """
 
@@ -33,6 +33,7 @@ aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pc
 print(aedb_path)
 edbapp = Edb(edbpath=aedb_path, edbversion="2022.2")
 
+###############################################################################
 # Define parameters
 # ~~~~~~~~~~~~~~~~~
 # Define parameters.
@@ -44,12 +45,14 @@ params = {"$ms_width": "0.4mm",
 for par_name in params:
     edbapp.add_design_variable(par_name, params[par_name])
 
+###############################################################################
 # Create stackup
 # ~~~~~~~~~~~~~~
 # Create a symmetric stackup.
 
 edbapp.core_stackup.create_symmetric_stackup(2)
 
+###############################################################################
 # Draw planes
 # ~~~~~~~~~~~
 # Draw planes.
@@ -66,6 +69,7 @@ bot_layer_obj = edbapp.core_primitives.create_rectangle("BOTTOM", net_name="gnd"
 layer_dict = {"TOP": top_layer_obj,
               "BOTTOM": bot_layer_obj}
 
+###############################################################################
 # Draw trace
 # ~~~~~~~~~~
 # Draw a trace.
@@ -79,6 +83,7 @@ edbapp.core_primitives.create_trace(trace_path,
                                     end_cap_style="Flat"
                                     )
 
+###############################################################################
 # Create trace to plane clearance
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a trace to the plane clearance.
@@ -89,6 +94,7 @@ poly_void = edbapp.core_primitives.create_trace(trace_path, layer_name="TOP", ne
                                                 end_cap_style="Flat")
 edbapp.core_primitives.add_void(layer_dict["TOP"], poly_void)
 
+###############################################################################
 # Create ground via padstack and place ground stitching vias
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a ground via padstack and place ground stitching vias.
@@ -105,6 +111,7 @@ for i in np.arange(1, 20):
     edbapp.core_padstack.place_padstack([str(i) + "mm", yloc_u], "GVIA", net_name="GND")
     edbapp.core_padstack.place_padstack([str(i) + "mm", yloc_l], "GVIA", net_name="GND")
 
+###############################################################################
 # Save and close EDB
 # ~~~~~~~~~~~~~~~~~~
 # Save and close EDB.
@@ -115,7 +122,7 @@ edbapp.close_edb()
 ###############################################################################
 # Open EDB in AEDT
 # ~~~~~~~~~~~~~~~~
-# Op3n EDB in AEDT.
+# Open EDB in AEDT.
 
 h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.2",
                    non_graphical=non_graphical)
@@ -163,8 +170,14 @@ h3d.create_linear_count_sweep(
 
 # h3d.analyze_nominal()
 
-# Release AEDT
-# ~~~~~~~~~~~~
-# Release AEDT.
+# Save AEDT
+h3d.save_project()
 
+# Release AEDT.
 h3d.release_desktop()
+
+aedt_path = aedb_path.replace(".aedb", ".aedt")
+print("****************************************",
+      "***Your AEDT project is save to " + aedt_path,
+      "****************************************",
+      sep="\n")

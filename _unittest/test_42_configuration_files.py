@@ -2,6 +2,7 @@
 import os
 
 from _unittest.conftest import BasisTest
+from _unittest.conftest import config
 from pyaedt import Hfss
 from pyaedt import Icepak
 from pyaedt import Q2d
@@ -13,19 +14,22 @@ from pyaedt import Q3d
 
 test_project_name = "dm boundary test"
 test_field_name = "Potter_Horn"
-sbr_file = "poc_scat_small"
-q3d_file = "via_gsg"
 ipk_name = "Icepak_test"
+test_subfolder = "T42"
+if config["desktopVersion"] > "2022.2":
+    q3d_file = "via_gsg_231"
+    test_project_name = "dm boundary test_231"
+else:
+    q3d_file = "via_gsg"
+    test_project_name = "dm boundary test"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         # set a scratch directory and the environment / test data
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name)
-        # self.field_test = BasisTest.add_app(self, project_name=test_field_name)
-        # self.sbr_test = BasisTest.add_app(self, project_name=sbr_file)
-        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d)
+        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
+        self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
         self.q2dtest = Q2d(projectname=q3d_file)
         self.icepak = BasisTest.add_app(self, project_name=ipk_name, application=Icepak)
 

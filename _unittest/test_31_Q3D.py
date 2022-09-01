@@ -6,16 +6,26 @@ from _unittest.conftest import local_path
 from pyaedt import Q3d
 
 test_project_name = "coax_Q3D"
-bondwire_project_name = "bondwireq3d"
+if desktop_version > "2022.2":
+    bondwire_project_name = "bondwireq3d_231.aedt"
+    q2d_q3d = "q2d_q3d_231.aedt"
+
+else:
+    bondwire_project_name = "bondwireq3d.aedt"
+    q2d_q3d = "q2d_q3d.aedt"
+
+test_subfolder = "T31"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Q3d)
-        example_project = os.path.join(local_path, "example_models", bondwire_project_name + ".aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name)
         self.test_project = self.local_scratch.copyfile(example_project)
-        self.test_matrix = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        self.test_matrix = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d)
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -200,4 +210,96 @@ class TestClass(BasisTest, object):
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
+        self.aedtapp.close_project(q3d.project_name, False)
+
+    def test_13a_export_matrix_data(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
+        q3d.matrices[1].name == "JointTest"
+        q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
+        q3d.matrices[2].name == "JointTest2"
+        q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
+        q3d.matrices[3].name == "JointTest3"
+        q3d.analyze_setup(q3d.analysis_setup)
+        assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
+        assert not q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.pdf"))
+        assert not q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), matrix_type="Test"
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            problem_type="C",
+            matrix_type="Maxwell, Spice, Couple",
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            problem_type="C",
+            matrix_type="Maxwell, Spice, Couple",
+        )
+        assert not q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            problem_type="AC RL, DC RL",
+            matrix_type="Maxwell, Spice, Couple",
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), problem_type="AC RL, DC RL"
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            problem_type="AC RL, DC RL",
+            matrix_type="Maxwell, Couple",
+        )
+        assert not q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            problem_type="AC",
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), setup_name="Setup1", sweep="LastAdaptive"
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), setup_name="Setup1", sweep="Last Adaptive"
+        )
+        assert not q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), setup_name="Setup", sweep="LastAdaptive"
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), reduce_matrix="Original"
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), reduce_matrix="JointTest"
+        )
+        assert not q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), reduce_matrix="JointTest4"
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            freq=1,
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+            freq=1,
+            freq_unit="kHz",
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), precision=16, field_width=22
+        )
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), precision=16.2)
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), use_sci_notation=True
+        )
+        assert q3d.export_matrix_data(
+            file_name=os.path.join(self.local_scratch.path, "test.txt"), use_sci_notation=False
+        )
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), r_unit="mohm")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), r_unit="A")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), l_unit="nH")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), l_unit="A")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="farad")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
+        assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
+        assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
         self.aedtapp.close_project(q3d.project_name, False)

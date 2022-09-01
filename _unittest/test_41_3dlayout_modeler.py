@@ -5,7 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
 from pyaedt import Hfss3dLayout
 from pyaedt.generic.filesystem import Scratch
 
@@ -14,18 +13,28 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
+test_subfolder = "T41"
 # Input Data and version for the test
 test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
+
+if config["desktopVersion"] > "2022.2":
+    diff_proj_name = "differential_pairs_231"
+else:
+    diff_proj_name = "differential_pairs"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Hfss3dLayout)
-        self.hfss3dl = BasisTest.add_app(self, project_name="differential_pairs", application=Hfss3dLayout)
-        self.flex = BasisTest.add_app(self, project_name=test_rigid_flex, application=Hfss3dLayout)
-        example_project = os.path.join(local_path, "example_models", "Package.aedb")
+        self.hfss3dl = BasisTest.add_app(
+            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        self.flex = BasisTest.add_app(
+            self, project_name=test_rigid_flex, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_41.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
 
@@ -46,29 +55,101 @@ class TestClass(BasisTest, object):
         s1 = self.aedtapp.modeler.layers.add_layer(
             layername="Bottom", layertype="signal", thickness="0.035mm", elevation="0mm", material="iron"
         )
+        s1.color = [220, 10, 10]
+        s1.is_visible = False
+        assert not s1.IsVisible
+        s1.is_visible = True
+        assert s1.IsVisible
+
+        s1.is_visible_shape = False
+        assert not s1.IsVisibleShape
+        s1.is_visible_shape = True
+        assert s1.IsVisibleShape
+
+        s1.is_visible_component = False
+        assert not s1.IsVisibleComponent
+        s1.is_visible_component = True
+        assert s1.IsVisibleComponent
+
+        s1.is_visible_hole = False
+        assert not s1.IsVisibleHole
+        s1.is_visible_hole = True
+        assert s1.IsVisibleHole
+
+        s1.is_mesh_background = False
+        assert not s1.IsMeshBackgroundMaterial
+        s1.is_mesh_background = True
+        assert s1.IsMeshBackgroundMaterial
+
+        s1.is_mesh_overlay = False
+        assert not s1.IsMeshOverlay
+        s1.is_mesh_overlay = True
+        assert s1.IsMeshOverlay
+
+        assert not s1.locked
+        s1.locked = True
+        assert s1.locked
+        s1.locked = False
+
+        assert s1.draw_override == 0
+        s1.draw_override = 1
+        assert s1.draw_override == 1
+        s1.draw_override = 0
+
+        assert s1.pattern == 1
+        s1.pattern = 0
+        assert s1.pattern == 0
+        s1.pattern = 1
+
+        assert s1.lower_elevation == "0mm"
+        s1.lower_elevation = 1
+        assert s1.lower_elevation == 1
+        s1.lower_elevation = 0
+
+        assert s1.top_bottom == "neither"
+        s1.top_bottom = "top"
+        assert s1.top_bottom == "top"
+        s1.top_bottom = "neither"
+
         assert s1.thickness == "0.035mm"
         assert s1.material == "iron"
-        assert s1.useetch is False
+        assert s1.use_etch is False
         assert s1.user is False
         assert s1.usp is False
         s1.material = "copper"
-        s1.fillmaterial = "glass"
-        s1.update_stackup_layer()
+        s1.fill_material = "glass"
         assert s1.material == "copper"
-        assert s1.fillmaterial == "glass"
-        s1.useetch = True
+        assert s1.fill_material == "glass"
+        s1.use_etch = True
         s1.etch = 1.2
         s1.user = True
         s1.usp = True
-        s1.hfssSp["dt"] = 1
-        s1.planaremSp["ifg"] = True
+        s1.hfss_solver_settings["dt"] = 1
+        s1.planar_em_solver_settings["ifg"] = True
         s1.update_stackup_layer()
-        assert s1.useetch is True
+        assert s1.use_etch is True
         assert s1.etch == 1.2
         assert s1.user is True
         assert s1.usp is True
         assert s1.hfssSp["dt"] == 1
         assert s1.planaremSp["ifg"] is True
+        s1.side_model = "Huray"
+        s1.top_model = "Huray"
+        s1.bottom_model = "Huray"
+        s1.side_nodule_radius = 0.3
+        s1.top_nodule_radius = 0.2
+        s1.bottom_nodule_radius = 0.1
+        s1.side_huray_ratio = 3
+        s1.top_huray_ratio = 2.2
+        s1.bottom_huray_ratio = 2.5
+        assert s1.SHRatio == 3
+        assert s1.SNR == 0.3
+        assert s1.SRMdl == "Huray"
+        assert s1.BRMdl == "Huray"
+        assert s1.RMdl == "Huray"
+        assert s1.NR == 0.2
+        assert s1.BNR == 0.1
+
         d1 = self.aedtapp.modeler.layers.add_layer(
             layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
         )
@@ -77,7 +158,7 @@ class TestClass(BasisTest, object):
         assert d1.transparency == 60
         d1.material = "fr4_epoxy"
         d1.transparency = 23
-        d1.update_stackup_layer()
+
         assert d1.material == "fr4_epoxy"
         assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.add_layer(
@@ -93,16 +174,15 @@ class TestClass(BasisTest, object):
         assert s2.material == "copper"
         assert s2.thickness == 3.5e-5
         assert s2.IsNegative is True
-        s2.IsNegative = False
-        s2.update_stackup_layer()
+        s2.is_negative = False
         assert s2.IsNegative is False
 
         self.aedtapp.modeler.layers.refresh_all_layers()
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "copper"
-        assert s1.fillmaterial == "glass"
-        assert s1.useetch is True
+        assert s1.fill_material == "glass"
+        assert s1.use_etch is True
         assert s1.etch == 1.2
         assert s1.user is True
         assert s1.usp is True
@@ -119,10 +199,9 @@ class TestClass(BasisTest, object):
         assert s2.thickness == 3.5e-5
         assert s2.IsNegative is False
 
-        s1.useetch = False
+        s1.use_etch = False
         s1.user = False
         s1.usp = False
-        s1.update_stackup_layer()
 
     def test_03_create_circle(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
@@ -168,27 +247,31 @@ class TestClass(BasisTest, object):
         assert pad1.create()
 
     def test_11_create_via(self):
-        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0)
+        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
         assert type(via) is str
         via = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
         assert via == "Via123"
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
-            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", netname="VCC"
+            "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
         )
         assert line == "line1"
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
         assert port_wave
-        assert self.aedtapp.delete_port(port_wave)
+        assert self.aedtapp.delete_port(port_wave.name)
+        port_wave = self.aedtapp.create_wave_port("line1", 3, 6, 4, "2mm")
+        assert port_wave
+        assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
-        assert self.aedtapp.create_edge_port("line1", 0, True)
         assert len(self.aedtapp.excitations) > 0
 
     def test_14a_create_coaxial_port(self):
-        assert self.aedtapp.create_coax_port("Via123", "Bottom", "Top", 10, 10, 10, 10)
+        port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
+        assert port.name == "Port2"
+        assert port.props["Radial Extent Factor"] == "0.5"
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
@@ -357,8 +440,6 @@ class TestClass(BasisTest, object):
 
     def test_19A_validate(self):
         assert self.aedtapp.validate_full_design()
-        self.aedtapp.delete_port("Port3")
-        assert self.aedtapp.validate_full_design(ports=3)
 
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
@@ -369,7 +450,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_19C_export_touchsthone(self):
-        filename = os.path.join(scratch_path, "touchstone.s2p")
+        filename = os.path.join(self.aedtapp.working_directory, "touchstone.s2p")
         solution_name = "RFBoardSetup3"
         sweep_name = "Last Adaptive"
         assert self.aedtapp.export_touchstone(solution_name, sweep_name, filename)
@@ -379,7 +460,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.export_touchstone(solution_name, sweep_name)
 
     def test_19D_export_to_hfss(self):
-        with Scratch(scratch_path) as local_scratch:
+        with Scratch(self.local_scratch.path) as local_scratch:
             filename = "export_to_hfss_test"
             file_fullname = os.path.join(local_scratch.path, filename)
             setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
@@ -417,7 +498,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
     def test_27_create_pin_port(self):
-        assert self.aedtapp.create_pin_port("PinPort1")
+        port = self.aedtapp.create_pin_port("PinPort1")
+        assert port.name == "PinPort1"
+        port.props["Magnitude"] = "2V"
+        assert port.props["Magnitude"] == "2V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
@@ -522,7 +606,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self):
-        diff_def_file = os.path.join(local_path, "example_models", "differential_pairs_definition.txt")
+        diff_def_file = os.path.join(local_path, "example_models", test_subfolder, "differential_pairs_definition.txt")
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert self.hfss3dl.load_diff_pairs_from_file(diff_file)
 
@@ -548,3 +632,6 @@ class TestClass(BasisTest, object):
             air_vertical_positive_padding="10mm",
             air_vertical_negative_padding="10mm",
         )
+
+    def test_95_create_text(self):
+        assert self.aedtapp.modeler.create_text("test", [0, 0])

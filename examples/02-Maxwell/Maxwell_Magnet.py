@@ -2,9 +2,9 @@
 Maxwell 3D: magnet DC analysis
 ------------------------------
 This example shows how you can use PyAEDT to create a Maxwell DC analysis,
-compute mass center. and move coordinate systems.
+compute mass center, and move coordinate systems.
 """
-##########################################################
+###############################################################################
 # Peform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -13,11 +13,12 @@ from pyaedt import Maxwell3d
 from pyaedt import generate_unique_project_name
 import os
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical model. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -25,6 +26,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch AEDT
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
+
 m3d = Maxwell3d(projectname=generate_unique_project_name(), specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 

@@ -49,7 +49,7 @@ class LimitLine(object):
         hatch_pixels : int
             Number of pixels for the hatch. The default is ``None``.
         color : tuple, list
-            Trace color specified as a tuple (R,G,B) or a list of integers [0,255].
+            Trace color as a tuple (R,G,B) or a list of integers [0,255].
             The default is ``None``.
 
         Returns
@@ -311,7 +311,7 @@ class CommonReport(object):
 
     @property
     def differential_pairs(self):
-        """Get and Set Differential Pairs flag.
+        """Differential pairs flag.
 
         Returns
         -------
@@ -325,7 +325,7 @@ class CommonReport(object):
 
     @property
     def matrix(self):
-        """Get and Q2D/Q3D Matrix name.
+        """2D or Q3D matrix name.
 
         Returns
         -------
@@ -339,7 +339,7 @@ class CommonReport(object):
 
     @property
     def polyline(self):
-        """Get and Set Polyline name for field report.
+        """Polyline name for the field report.
 
         Returns
         -------
@@ -353,7 +353,7 @@ class CommonReport(object):
 
     @property
     def expressions(self):
-        """Get and Set the Expressions names.
+        """Expressions.
 
         Returns
         -------
@@ -375,7 +375,7 @@ class CommonReport(object):
 
     @property
     def report_category(self):
-        """Get and Report Category.
+        """Report category.
 
         Returns
         -------
@@ -389,9 +389,9 @@ class CommonReport(object):
 
     @property
     def report_type(self):
-        """Get/Set the report Type. Available values are `"3D Polar Plot"`, `"3D Spherical Plot"`,
-        `"Radiation Pattern"`, `"Rectangular Plot"`, `"Data Table"`,
-        `"Smith Chart"`, `"Rectangular Contour Plot"`.
+        """Report type. Options are ``"3D Polar Plot"``, ``"3D Spherical Plot"``,
+        ``"Radiation Pattern"``, ``"Rectangular Plot"``, ``"Data Table"``,
+        ``"Smith Chart"``, and ``"Rectangular Contour Plot"``.
 
         Returns
         -------
@@ -415,15 +415,15 @@ class CommonReport(object):
 
     @property
     def traces(self):
-        """Return the list of available traces in the report.
+        """List of available traces in the report.
 
         .. note::
-            This property works in version 2022 R1 and later. However, It works only in
+            This property works in version 2022 R1 and later. However, it works only in
             non-graphical mode in version 2022 R2 and later.
 
         Returns
         -------
-        list of :class:`pyaedt.modules.report_templates.Trace`
+        List of :class:`pyaedt.modules.report_templates.Trace`
         """
         _traces = []
         try:
@@ -694,15 +694,15 @@ class CommonReport(object):
 
     @property
     def limit_lines(self):
-        """Return the list of available limit lines in the report.
+        """List of available limit lines in the report.
 
         .. note::
-            This property works in version 2022 R1 and later. However, It works only in
+            This property works in version 2022 R1 and later. However, it works only in
             non-graphical mode in version 2022 R2 and later.
 
         Returns
         -------
-        list of :class:`pyaedt.modules.report_templates.LimitLine`
+        List of :class:`pyaedt.modules.report_templates.LimitLine`
         """
         _traces = []
         oo_names = self._post._app.get_oo_name(self._post.oreportsetup, self.plot_name)
@@ -714,10 +714,10 @@ class CommonReport(object):
 
     @property
     def notes(self):
-        """Return the list of available notes in the report.
+        """List of available notes in the report.
 
         .. note::
-            This property works in version 2022 R1 and later. However, It works only in
+            This property works in version 2022 R1 and later. However, it works only in
             non-graphical mode in version 2022 R2 and later.
 
         Returns
@@ -737,7 +737,7 @@ class CommonReport(object):
 
     @property
     def plot_name(self):
-        """Set/Get the Plot Name.
+        """Plot name.
 
         Returns
         -------
@@ -752,7 +752,7 @@ class CommonReport(object):
 
     @property
     def variations(self):
-        """Get and Set the Variations.
+        """Variations.
 
         Returns
         -------
@@ -766,7 +766,7 @@ class CommonReport(object):
 
     @property
     def primary_sweep(self):
-        """Return the Report Primary Sweep.
+        """Primary sweep report.
 
         Returns
         -------
@@ -788,7 +788,7 @@ class CommonReport(object):
 
     @property
     def secondary_sweep(self):
-        """Return the Report (optional) Secondary Sweep.
+        """Secondary sweep report.
 
         Returns
         -------
@@ -810,7 +810,7 @@ class CommonReport(object):
 
     @property
     def primary_sweep_range(self):
-        """Return the Report Primary Sweep Range.
+        """Primary sweep range report.
 
         Returns
         -------
@@ -824,7 +824,7 @@ class CommonReport(object):
 
     @property
     def secondary_sweep_range(self):
-        """Return the Report Secondary Sweep Range.
+        """Secondary sweep range report.
 
         Returns
         -------
@@ -842,12 +842,13 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def update_expressions_with_defaults(self, quantities_category=None):
-        """Update the list of expressions by taking all the quantities from a given category.
+        """Update the list of expressions by taking all quantities from a given category.
 
         Parameters
         ----------
         quantities_category : str, optional
-            Quantity category to use. If None, the default category for the specified report should be used.
+            Quantity category to use. The default is ``None``, in which case the default
+            category for the specified report is used.
 
         Returns
         -------
@@ -892,7 +893,7 @@ class CommonReport(object):
 
     @property
     def domain(self):
-        """Get/Set the Plot Domain.
+        """Plot domain.
 
         Returns
         -------
@@ -947,16 +948,18 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def create(self, plot_name=None):
-        """Create a new Report.
+        """Create a report.
 
         Parameters
         ----------
         plot_name : str, optional
-            Set optionally the plot name
+            Name for the plot. The default is ``None``, in which case the
+            default name is used.
 
         Returns
         -------
-        Bool
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not plot_name:
             if self._is_created:
@@ -981,12 +984,12 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def get_solution_data(self):
-        """Get the Report solution Data.
+        """Get the report solution data.
 
         Returns
         -------
         :class:`pyaedt.modules.solutions.SolutionData`
-            `Solution Data object.
+            Solution data object.
         """
         if not self.expressions:
             self.update_expressions_with_defaults()
@@ -1002,7 +1005,7 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_limit_line_from_points(self, x_list, y_list, x_units="", y_units="", y_axis="Y1"):  # pragma: no cover
-        """Add a Cartesian Limit Line from point lists. This method works only in graphical mode.
+        """Add a Cartesian limit line from point lists. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -1010,16 +1013,17 @@ class CommonReport(object):
             List of float inputs.
         y_list : list
             List of float y values.
-        x_units : str
-            x list units.
-        y_units : str
-            y list units.
+        x_units : str, optional
+            Units for the ``x_list`` parameter. The default is ``""``.
+        y_units : str, optional
+            Units for the ``y_list`` parameter. The default is ``""``.
         y_axis : int, optional
-            Y axis. Default is `"Y1"`.
+            Y axis. The default is `"Y1"`.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         x_list = [GeometryOperators.parse_dim_arg(str(i) + x_units) for i in x_list]
         y_list = [GeometryOperators.parse_dim_arg(str(i) + y_units) for i in y_list]
@@ -1049,7 +1053,7 @@ class CommonReport(object):
     def add_limit_line_from_equation(
         self, start_x, stop_x, step, equation="x", units="GHz", y_axis=1
     ):  # pragma: no cover
-        """Add a Cartesian Limit Line from point lists. This method works only in graphical mode.
+        """Add a Cartesian limit line from point lists. This method works only in graphical mode.
 
         Parameters
         ----------
@@ -1059,16 +1063,17 @@ class CommonReport(object):
             Stop X value.
         step : float
             X step value.
-        equation : str
-            Y equation to apply. Default is Y=X.
+        equation : str, optional
+            Y equation to apply. The default is Y=X.
         units : str
-            X axis units. Default is "GHz".
+            Units for the X axis. The default is ``"GHz"``.
         y_axis : str, int, optional
-            Y axis. Default is `1`.
+            Y axis. The default is ``1``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self.plot_name and self._is_created:
             self._post.oreportsetup.AddCartesianLimitLineFromEquation(
@@ -1092,22 +1097,23 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_note(self, text, x_position=0, y_position=0):  # pragma: no cover
-        """Add a note at position.
+        """Add a note at a position.
 
         Parameters
         ----------
         text : string
-            The text of the note.
-        x_position : float
-            x position of the note.
-        y_position : float
-            y position of the note.
-        note_name : string
-            internal name of the note (optional).
+            Text of the note.
+        x_position : float, optional
+            x position of the note. The default is ``0.0``.
+        y_position : float, optional
+            y position of the note. The default is ``0.0``.
+        note_name : string, optional
+            Internal name of the note.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         noteName = generate_unique_name("Note", n=3)
         if self.plot_name and self._is_created:
@@ -1135,14 +1141,14 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_x_marker(self, val, name=None):  # pragma: no cover
-        """Add a cartesian X Marker. This method works only in graphical mode.
+        """Add a cartesian X marker. This method works only in graphical mode.
 
         Parameters
         ----------
         val : str
             Value to apply with units.
         name : str, optional
-            Marker Name
+            Marker name. The default is ``None``.
 
         Returns
         -------
@@ -1157,16 +1163,16 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_y_marker(self, val, name=None, y_axis=1):  # pragma: no cover
-        """Add a cartesian Y Marker. This method works only in graphical mode.
+        """Add a cartesian Y marker. This method works only in graphical mode.
 
         Parameters
         ----------
         val : str, float
             Value to apply with units.
         name : str, optional
-            Marker Name
+            Marker name. The default is ``None``.
         y_axis : str, optional
-            Y axis. Default is `"Y1"`.
+            Y axis. The default is ``"Y1"``.
 
         Returns
         -------
@@ -1205,29 +1211,33 @@ class CommonReport(object):
         minor_color=(0, 0, 0),
         major_color=(0, 0, 0),
     ):
-        """Edit Plot Grid Settings.
+        """Edit the grid settings for the plot.
 
         Parameters
         ----------
         minor_x : bool, optional
-            Enable or Disable Minor X Grid. Default is `True`.
+            Whether to enable the minor X grid. The default is ``True``.
         minor_y : bool, optional
-            Enable or Disable Minor Y Grid. Default is `True`.
+            Whether to enable the minor Y grid. The default is ``True``.
         major_x : bool, optional
-            Enable or Disable Major X Grid. Default is `True`.
+            Whether to enable the major X grid. The default is ``True``.
         major_y : bool, optional
-            Enable or Disable Major Y Grid. Default is `True`.
+            Whether to enable the major Y grid. The default is ``True``.
         style_minor : str, optional
-            Minor Grid Style. Default is `"Solid"`.
+            Minor grid style. The default is ``"Solid"``.
         style_major : str, optional
-            Major Grid Style. Default is `"Solid"`.
+            Major grid style. The default is ``"Solid"``.
         minor_color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+            Minor grid (R, G, B) color. The default is ``(0, 0, 0)``.
+            Each color value must be an integer in a range from 0 to 255.
         major_color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+            Major grid (R, G, B) color. The default is ``(0, 0, 0)``.
+            Each color value must be an integer in a range from 0 to 255.
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed
         """
         props = ["NAME:ChangedProps"]
         props.append(["NAME:Show minor X grid", "Value:=", minor_x])
@@ -1246,26 +1256,28 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def edit_x_axis(self, font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None):
-        """Edit X Axis  Settings.
+        """Edit the X-axis settings.
 
         Parameters
         ----------
         font : str, optional
-            Font Name. Default is `"Arial"`.
+            Font name. The default is ``"Arial"``.
         font_size : int, optional
-            Font title size. Default is `12`.
+            Font size. The default is ``12``.
         italic : bool, optional
-            Enable or Disable italic. Default is `True`.
+            Whether to use italic type. The default is ``False``.
         bold : bool, optional
-            Enable or Disable bold. Default is `True`.
+            Whether to use bold type. The default is ``False``.
         color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+            Font (R, G, B) color. The default is ``(0, 0, 0)``. Each color value
+            must be an integer in a range from 0 to 255.
         label : str, optional
-            Axis plot name.
+            Label for the Y axis. The default is ``None``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:ChangedProps",
@@ -1316,26 +1328,28 @@ class CommonReport(object):
     def edit_x_axis_scaling(
         self, linear_scaling=True, min_scale=None, max_scale=None, minor_tick_divs=5, min_spacing=None, units=None
     ):
-        """Edit X Axis Scaling Settings.
+        """Edit the X-axis scaling settings.
 
         Parameters
         ----------
         linear_scaling : bool, optional
-            Either if Linear or Log Scale will be used. Default is `True`.
+            Whether to use the linear scale. The default is ``True``.
+            When ``False``, the log scale is used.
         min_scale : str, optional
-            Minimum scale value with units.
+            Minimum scale value with units. The default is ``None``.
         max_scale : str, optional
-            Maximum scale value with units.
+            Maximum scale value with units. The default is ``None``.
         minor_tick_divs : int, optional
-            Min Tick division. Default 5.
+            Minor tick division. The default is ``5``.
         min_spacing : str, optional
-            Min spacing with units.
+            Minimum spacing with units. The default is ``None``.
         units :str, optional
-            Units in plot.
+            Units in the plot. The default is ``None``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -1362,20 +1376,23 @@ class CommonReport(object):
         back_color=(255, 255, 255),
         font_color=(0, 0, 0),
     ):
-        """Edit the plot Legend.
+        """Edit the plot legend.
 
         Parameters
         ----------
         show_solution_name : bool, optional
-            Either if Show or hide the Solution Name.
+            Whether to show the solution name. The default is ``True``.
         show_variation_key : bool, optional
-            Either if Show or hide the Variation key.
+            Whether to show the variation key. The default is ``True``.
         show_trace_name : bool, optional
-            Either if Show or hide the Trace Name.
+            Whether to show the trace name. The default is ``True``.
         back_color : tuple, optional
-            Legend Background Color.
+            Background (R, G, B) color. The default is ``(255, 255, 255)``. Each color value
+            must be an integer in a range from 0 to 255.
         font_color : tuple, optional
-            Legend Font Color.
+            Legend font (R, G, B) color. The default is ``(0, 0, 0)``. Each color value
+            must be an integer in a range from 0 to 255.
+
         Returns
         -------
 
@@ -1394,29 +1411,30 @@ class CommonReport(object):
     def edit_y_axis(
         self, axis_name="Y1", font="Arial", font_size=12, italic=False, bold=False, color=(0, 0, 0), label=None
     ):
-        """Edit Y Axis Settings.
+        """Edit the Y-axis settings.
 
         Parameters
         ----------
         axis_name : str, optional
-            Name of Axis. Default is `"Y1"` main Y axis.
+            Name for the main Y axis. The default is ``"Y1"``.
         font : str, optional
-            Font Name. Default is `"Arial"`.
+            Font name. The default is ``"Arial"``.
         font_size : int, optional
-            Font title size. Default is `12`.
+            Font size. The default is ``12``.
         italic : bool, optional
-            Enable or Disable italic. Default is `True`.
+            Whether to use italic type. The default is ``False``.
         bold : bool, optional
-            Enable or Disable bold. Default is `True`.
+            Whether to use bold type. The default is ``False``.
         color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
-                linear_scaling : bool, optional
-            Either if Linear or Log Scale will be used. Default is `True`.
+            Font (R, G, B) color. The default is ``(0, 0, 0)``. Each color value
+            must be an integer in a range from 0 to 255.
         label : str, optional
-            Y axis label.
+            Label for the Y axis. The default is ``None``.
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:ChangedProps",
@@ -1474,25 +1492,30 @@ class CommonReport(object):
         min_spacing=None,
         units=None,
     ):
-        """Edit Y Axis Scaling Settings.
+        """Edit the Y-axis scaling settings.
 
         Parameters
         ----------
+        axis name : str, optional
+            Axis name. The default is ``Y``.
         linear_scaling : bool, optional
-            Either if Linear or Log Scale will be used. Default is `True`.
+            Whether to use the linear scale. The default is ``True``.
+            When ``False``, the log scale is used.
         min_scale : str, optional
-            Minimum scale value with units.
+            Minimum scale value with units. The default is ``None``.
         max_scale : str, optional
-            Maximum scale value with units.
+            Maximum scale value with units. The default is ``None``.
         minor_tick_divs : int, optional
-            Min Tick division. Default 5.
+            Minor tick division. The default is ``5``.
         min_spacing : str, optional
-            Min spacing with units.
+            Minimum spacing with units. The default is ``None``.
         units :str, optional
-            Units in plot.
+            Units in the plot. The default is ``None``.
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed
         """
         if linear_scaling:
             props = ["NAME:ChangedProps", ["NAME:Axis Scaling", "Value:=", "Linear"]]
@@ -1520,26 +1543,29 @@ class CommonReport(object):
         precision=4,
         use_scientific_notation=True,
     ):
-        """Edit Plot General Settings.
+        """Edit general settings for the plot.
 
         Parameters
         ----------
         background_color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+            Backgoround (R, G, B) color. The default is ``(255, 255, 255)``. Each color value
+            must be an integer in a range from 0 to 255.
         plot_color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+            Plot (R, G, B) color. The default is ``(255, 255, 255)``. Each color value
+            must be an integer in a range from 0 to 255.
         enable_y_stripes : bool, optional
-            Enable/Disable Y Stripes.
+            Whether to enable Y stripes. The default is ``True``.
         field_width : int, optional
-            Field Width. Default is `4`.
+            Field width. The default is ``4``.
         precision : int, optional
-            Field Precision. Default is `4`.
+            Field precision. The default is ``4``.
         use_scientific_notation : bool, optional
-            Either if Enable Scientific notation. Default is `True`.
+            Whether to enable scientific notation. The default is ``True``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:ChangedProps",
@@ -1564,30 +1590,32 @@ class CommonReport(object):
         bold=False,
         color=(0, 0, 0),
     ):
-        """Edit Chart Header.
+        """Edit the plot header.
 
         Parameters
         ----------
         company_name : str, optional
-            Company Name.
+            Company name. The default is ``PyAEDT``.
         show_design_name : bool, optional
-            Either if Show Design Name in plot.
+            Whether to show the design name in the plot. The default is ``True``.
         font : str, optional
-            Font Name. Default is `"Arial"`.
+            Font name. The default is ``"Arial"``.
         title_size : int, optional
-            Font title size. Default is `12`.
+            Title font size. The default is ``12``.
         subtitle_size : int, optional
-            Font subtitle size. Default is `12`.
+            Subtitle font size. The default is ``12``.
         italic : bool, optional
-            Enable or Disable italic. Default is `True`.
+            Whether to use italic type. The default is ``False``.
         bold : bool, optional
-            Enable or Disable bold. Default is `True`.
+            Whether to use bold type. The default is ``False``.
         color : tuple, optional
-            Tuple (R, G, B) color. Every item has to be an integer in range (0,255).
+            Title (R, G, B) color. The default is ``(0, 0, 0)``.
+            Each color value must be an integer in a range from 0 to 255.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:ChangedProps",
@@ -1677,9 +1705,10 @@ class CommonReport(object):
         Parameters
         ----------
         file_path : str
-            Input file path where extension can be ".csv", ".tab", ".dat", ".rdat".
+            Path for the file to import. The extensions supported are ``".csv"``,
+            ``".tab"``, ``".dat"``, and ``".rdat"``.
         plot_name : str
-            Name of the plot where file data have to be imported.
+            Name of the plot to import the file data into.
         """
         if not os.path.exists(file_path):
             msg = "File does not exist."
@@ -1720,7 +1749,7 @@ class CommonReport(object):
         plot_name : str
             Plot name.
         traces_list : list
-            A specific trace or list of traces that the user wishes to delete.
+            List of one or more traces to delete.
         """
         if plot_name not in self._post.all_report_names:
             raise ValueError("Plot does not exist in current project.")
@@ -1747,11 +1776,11 @@ class CommonReport(object):
         traces : list
             List of traces to add.
         setup_name : str, optional
-            Name of the setup.
+            Name of the setup. The default is ``None``.
         variations : dict, optional
-            Dictionary of variations.
+            Dictionary of variations. The default is ``None``.
         context : list, optional
-            Solution context.
+            List of solution context.
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -1779,11 +1808,11 @@ class CommonReport(object):
         traces : list
             List of traces to add.
         setup_name : str, optional
-            Name of the setup.
+            Name of the setup. The default is ``None``.
         variations : dict, optional
-            Dictionary of variations.
+            Dictionary of variations. The default is ``None``.
         context : list, optional
-            Solution context.
+            List of solution context.
         """
         expr = copy.deepcopy(self.expressions)
         self.expressions = traces
@@ -1805,14 +1834,14 @@ class CommonReport(object):
 
 
 class Standard(CommonReport):
-    """Provides a reporting class that fits most of the application's standard reports."""
+    """Provides a reporting class that fits most of the app's standard reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
 
     @property
     def sub_design_id(self):
-        """Get and Set the sub design id for Circuit and HFSS3DLayout subdesigns.
+        """Subdesign ID for a Circuit or HFSS 3D Layout subdesign.
 
         Returns
         -------
@@ -1826,7 +1855,7 @@ class Standard(CommonReport):
 
     @property
     def time_start(self):
-        """Get and Set the time start value.
+        """Time start value.
 
         Returns
         -------
@@ -1840,7 +1869,7 @@ class Standard(CommonReport):
 
     @property
     def time_stop(self):
-        """Get and Set the time stop value.
+        """Time stop value.
 
         Returns
         -------
@@ -1930,7 +1959,7 @@ class Standard(CommonReport):
 
 
 class AntennaParameters(Standard):
-    """Provides a reporting class that fits Antenna Parameters reports in HFSS plot."""
+    """Provides a reporting class that fits antenna parameter reports in an HFSS plot."""
 
     def __init__(self, app, report_category, setup_name, far_field_sphere=None, expressions=None):
         Standard.__init__(self, app, report_category, setup_name, expressions)
@@ -1938,7 +1967,7 @@ class AntennaParameters(Standard):
 
     @property
     def far_field_sphere(self):
-        """Get and Set the Far Field Sphere name.
+        """Far field sphere name.
 
         Returns
         -------
@@ -1957,7 +1986,7 @@ class AntennaParameters(Standard):
 
 
 class Fields(CommonReport):
-    """General Fields Class."""
+    """Provides for managing fields."""
 
     def __init__(self, app, report_type, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_type, setup_name, expressions)
@@ -1968,7 +1997,7 @@ class Fields(CommonReport):
 
     @property
     def point_number(self):
-        """Get and Set the number of polygon Point number.
+        """Polygon point number.
 
         Returns
         -------
@@ -1989,7 +2018,7 @@ class Fields(CommonReport):
 
 
 class NearField(CommonReport):
-    """Near Field Report Class."""
+    """Provides for managing near field reports."""
 
     def __init__(self, app, report_type, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_type, setup_name, expressions)
@@ -2001,7 +2030,7 @@ class NearField(CommonReport):
 
     @property
     def near_field(self):
-        """Get and Set the Near Field name.
+        """Near field name.
 
         Returns
         -------
@@ -2015,7 +2044,7 @@ class NearField(CommonReport):
 
 
 class FarField(CommonReport):
-    """FarField Report Class."""
+    """Provides for managing far field reports."""
 
     def __init__(self, app, report_type, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_type, setup_name, expressions)
@@ -2031,7 +2060,7 @@ class FarField(CommonReport):
 
     @property
     def far_field_sphere(self):
-        """Get and Set the Far Field Sphere name.
+        """Far field sphere name.
 
         Returns
         -------
@@ -2049,7 +2078,7 @@ class FarField(CommonReport):
 
 
 class EyeDiagram(CommonReport):
-    """Eye Diagram Report Class."""
+    """Provides for managing eye diagram reports."""
 
     def __init__(self, app, report_type, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_type, setup_name, expressions)
@@ -2070,7 +2099,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def time_start(self):
-        """Get and Set the time start value.
+        """Time start value.
 
         Returns
         -------
@@ -2084,7 +2113,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def time_stop(self):
-        """Get and Set the time stop value.
+        """Time stop value.
 
         Returns
         -------
@@ -2098,7 +2127,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def unit_interval(self):
-        """Get and Set the unit interval value.
+        """Unit interval value.
 
         Returns
         -------
@@ -2112,7 +2141,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def offset(self):
-        """Get and Set the offset value.
+        """Offset value.
 
         Returns
         -------
@@ -2126,7 +2155,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_delay(self):
-        """Get and Set the autodelay flag.
+        """Autodelay flag.
 
         Returns
         -------
@@ -2140,7 +2169,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def manual_delay(self):
-        """Get and Set the manual delay value in case auto_delay is set to False.
+        """Manual delay value when ``auto_delay`` is set to ``False``.
 
         Returns
         -------
@@ -2154,7 +2183,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_cross_amplitude(self):
-        """Get and Set the auto cross ampltiude flag.
+        """Auto cross ampltiude flag.
 
         Returns
         -------
@@ -2168,7 +2197,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def cross_amplitude(self):
-        """Get and Set the cross amplitude value in case auto_cross_amplitude flag is set to False.
+        """Cross amplitude value when ``auto_cross_amplitude`` is set to ``False``.
 
         Returns
         -------
@@ -2182,7 +2211,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def auto_compute_eye_meas(self):
-        """Get and Set the  flag is to automatically compute eye measurements.
+        """Flag for automatically computing eye measurements.
 
         Returns
         -------
@@ -2196,7 +2225,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def eye_measurement_point(self):
-        """Get and Set the eye measurement point.
+        """Eye measurement point.
 
         Returns
         -------
@@ -2210,7 +2239,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def thinning(self):
-        """Get and Set the thinning flag.
+        """Thinning flag.
 
         Returns
         -------
@@ -2224,7 +2253,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def dy_dx_tolerance(self):
-        """Get and DY DX tolerance.
+        """DY DX tolerance.
 
         Returns
         -------
@@ -2238,7 +2267,7 @@ class EyeDiagram(CommonReport):
 
     @property
     def thinning_points(self):
-        """Get and Set the number of thinning points.
+        """Number of thinning points.
 
         Returns
         -------
@@ -2311,16 +2340,18 @@ class EyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, plot_name=None):
-        """Create a new Eye Diagram Report.
+        """Create an eye diagram report.
 
         Parameters
         ----------
         plot_name : str, optional
-            Optional Plot name.
+            Plot name. The default is ``None``, in which case
+            the default name is used.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not plot_name:
             if self._is_created:
@@ -2378,29 +2409,31 @@ class EyeDiagram(CommonReport):
         Parameters
         ----------
         points : list
-            Points of the eye mask in the format [[x1,y1,],[x2,y2],...].
+            Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
         xunits : str, optional
-            X points units. Default is `"ns"`.
+            X points units. The default is ``"ns"``.
         yunits :  str, optional
-            Y points units. Default is `"mV"`.
+            Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
-            Enable/Disable the upper and lower limits. Default is `False`.
+            Whether to enable the upper and lower limits. The default is ``False``.
         upper_limits float, optional
-            Upper Limit if enabled. Default is `500"`.
+            Upper limit if limits are enabled. The default is ``500``.
         lower_limits str, optional
-            Lower Limit if enabled. Default is `-500`.
+            Lower limit if limits are enabled. The default is ``-500``.
         color : tuple, optional
-            Mask color in (r,g,b) int.
+            Mask in (R, G, B) color. The default is ``(0, 255, 0)``.
+            Each color value must be an integer in a range from 0 to 255.
         xoffset : str, optional
-            Mask Time offset with units. Default is `"0ns"`.
+            Mask time offset with units. The default is ``"0ns"``.
         yoffset : str, optional
-            Mask Value offset with units. Default is `"0V"`.
+            Mask value offset with units. The default is ``"0V"``.
         transparency : float, optional
-            Mask Transparency.  Default is `0.3`.
+            Mask transparency. The default is ``0.3``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         props = [
             "NAME:AllTabs",
@@ -2438,12 +2471,13 @@ class EyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def rectangular_plot(self, value=True):
-        """Enable/disable the rectangular plot on the chart.
+        """Enable or disable the rectangular plot on the chart.
 
         Parameters
         ----------
         value : bool
-            `True` to enable the rectangular plot. `False` to disable. it
+            Whether to enable the rectangular plot. The default is ``True``. When
+            ``False``, the rectangular plot is disabled.
 
         Returns
         -------
@@ -2461,22 +2495,24 @@ class EyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def add_all_eye_measurements(self):
-        """Add all Eye measurements to the plot.
+        """Add all eye measurements to the plot.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         self._post.oreportsetup.AddAllEyeMeasurements(self.plot_name)
         return True
 
     @pyaedt_function_handler()
     def clear_all_eye_measurements(self):
-        """Clear all the Eye measurements from the plot.
+        """Clear all eye measurements from the plot.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         self._post.oreportsetup.ClearAllTraceCharacteristics(self.plot_name)
         return True
@@ -2488,15 +2524,17 @@ class EyeDiagram(CommonReport):
         Parameters
         ----------
         trace_name : str
-            Name of the trace Characteristics.
+            Name of the trace characteristic.
         arguments : list, optional
-            Arguments if exists.
+            Arguments if any. The default is ``None``.
         solution_range : list, optional
-            Output range. Default is Full range.
+            Output range. The default is ``None``, in which case
+            the full range is used.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not arguments:
             arguments = []
@@ -2507,17 +2545,18 @@ class EyeDiagram(CommonReport):
 
     @pyaedt_function_handler()
     def export_mask_violation(self, out_file=None):
-        """Export the Eye Diagram mask violations to a tab file.
+        """Export the eye diagram mask violations to a TAB file.
 
         Parameters
         ----------
         out_file : str, optional
-            Full path to the export file (.tab). Default is `None` to export in working_directory.
+            Full path to the TAB file. The default is ``None``, in which case
+            the violations are exoprted to a TAB file in the working directory.
 
         Returns
         -------
         str
-            Output file path if created.
+            Output file path if a TAB file is created.
         """
         if not out_file:
             out_file = os.path.join(self._post._app.working_directory, "{}_violations.tab".format(self.plot_name))
@@ -2526,7 +2565,7 @@ class EyeDiagram(CommonReport):
 
 
 class Emission(CommonReport):
-    """Emission Report Class."""
+    """Provides for managing emission reports."""
 
     def __init__(self, app, report_type, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_type, setup_name, expressions)
@@ -2534,7 +2573,7 @@ class Emission(CommonReport):
 
 
 class Spectral(CommonReport):
-    """Spectral Report from Transient data."""
+    """Provides for managing spectral reports from transient data."""
 
     def __init__(self, app, report_type, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_type, setup_name, expressions)
@@ -2551,7 +2590,7 @@ class Spectral(CommonReport):
 
     @property
     def time_start(self):
-        """Get and Set the time start value.
+        """Time start value.
 
         Returns
         -------
@@ -2565,7 +2604,7 @@ class Spectral(CommonReport):
 
     @property
     def time_stop(self):
-        """Get and Set the time stop value.
+        """Time stop value.
 
         Returns
         -------
@@ -2579,7 +2618,7 @@ class Spectral(CommonReport):
 
     @property
     def window(self):
-        """Get and Set the windowing value.
+        """Window value.
 
         Returns
         -------
@@ -2593,7 +2632,7 @@ class Spectral(CommonReport):
 
     @property
     def kaiser_coeff(self):
-        """Get and Set the kaiser value.
+        """Kaiser value.
 
         Returns
         -------
@@ -2607,7 +2646,7 @@ class Spectral(CommonReport):
 
     @property
     def adjust_coherent_gain(self):
-        """Get and Set the coherent gain flag.
+        """Coherent gain flag.
 
         Returns
         -------
@@ -2621,7 +2660,7 @@ class Spectral(CommonReport):
 
     @property
     def plot_continous_spectrum(self):
-        """Get and Set the continuous spectrum flag.
+        """Continuous spectrum flag.
 
         Returns
         -------
@@ -2635,7 +2674,7 @@ class Spectral(CommonReport):
 
     @property
     def max_frequency(self):
-        """Get and Set the max spectrum  frequency.
+        """Maximum spectrum  frequency.
 
         Returns
         -------
@@ -2728,12 +2767,13 @@ class Spectral(CommonReport):
 
     @pyaedt_function_handler()
     def create(self, plot_name=None):
-        """Create a new Eye Diagram Report.
+        """Create an eye diagram report.
 
         Parameters
         ----------
         plot_name : str, optional
-            Optional Plot name.
+            Plot name. The default is ``None``, in which case
+            the default name is used.
 
         Returns
         -------

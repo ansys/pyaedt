@@ -1,11 +1,11 @@
 """
 HFSS: component antenna array
 -----------------------------
-This example shows how to use PyAEDT to create an example using a 3D component file. It sets up
+This example shows how you can use PyAEDT to create an example using a 3D component file. It sets up
 the analysis, solves it, and uses postprocessing functions to create plots using Matplotlib and
 PyVista without opening the HFSS user interface. This examples runs only on Windows using CPython.
 """
-###############################################################################
+##########################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -16,20 +16,19 @@ from pyaedt import examples
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_project_name
 
-
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed
+# to generate documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
-
 ##########################################################
-# Download the 3d components
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Download the 3d components needed by the example to run.
+# Download 3D component
+# ~~~~~~~~~~~~~~~~~~~~~
+# Download the 3D component that is needed to run the example.
 example_path = examples.download_3dcomponent()
 
 ##########################################################
@@ -72,7 +71,7 @@ hfss.analyze_nominal(num_cores=4)
 ##########################################################
 # Get far field data
 # ~~~~~~~~~~~~~~~~~~
-# Get far field data. After the simualtion completes, the far
+# Get far field data. After the simulation completes, the far
 # field data is generated port by port and stored in a data class.
 
 ffdata = hfss.get_antenna_ffd_solution_data(sphere_name="Infinite Sphere1", setup_name=hfss.nominal_adaptive,
@@ -90,7 +89,7 @@ ffdata.plot_farfield_contour(qty_str='RealizedGain', convert_to_db=True,
 ##########################################################
 # Generate 2D cutout plots
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Genereate 2D cutout plots. You can define the Theta scan
+# Generate 2D cutout plots. You can define the Theta scan
 # and Phi scan.
 
 ffdata.plot_2d_cut(primary_sweep='theta', secondary_sweep_value=[-180, -75, 75],
@@ -104,7 +103,7 @@ ffdata.plot_2d_cut(primary_sweep="phi", secondary_sweep_value=30,
                    convert_to_db=True)
 
 ##########################################################
-# Genereate 3D polar plots in Matplotlib
+# Generate 3D polar plots in Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate 3D polar plots in Matplotlib. You can define
 # the Theta scan and Phi scan.
@@ -113,11 +112,11 @@ ffdata.polar_plot_3d(qty_str='RealizedGain',
                      convert_to_db=True)
 
 ##########################################################
-# Generate 3D plot in PyVista
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate a 3D plot in PyVista. It generates an easy-to-use
-# interactive plot that you can change on the fly. You can
-# define the Theta and Phi scan angles.
+# Generate 3D plots in PyVista
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate 3D plots in PyVista. You can define the Theta and Phi
+# scan angles. You can change the easy-to-use interactive plot
+# that is generated on the fly. 
 
 ffdata.polar_plot_3d_pyvista(qty_str='RealizedGain',
                              convert_to_db=True,

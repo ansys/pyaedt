@@ -9,6 +9,7 @@ import warnings
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
 from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
@@ -547,43 +548,44 @@ class Components(object):
             negative_pin_group = self.create_pingroup_from_pins(negative_pins)
             if not negative_pin_group:  # pragma: no cover
                 return False
-            positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-            if positive_pin_group_term:  # pragma: no cover
+            if source.source_type == SourceType.Vsource:  # pragma: no cover
+                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
                 negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
-                if not negative_pin_group_term:  # pragma: no cover
-                    self._logger.error("Failed to create negative pin group terminal for source {}".format(source.name))
-                    return False
-                if source.source_type == SourceType.Vsource:  # pragma: no cover
-                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                elif source.source_type == SourceType.Isource:  # pragma: no cover
-                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                elif source.source_type == SourceType.Resistor:  # pragma: no cover
-                    positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
-                    negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
-                    rlc = self._edb.Utility.Rlc()
-                    rlc.IsParallel = True
-                    rlc.REnabled = True
-                    rlc.R = self._get_edb_value(source.impedance_value)
-                    rlc.LEnabled = True
-                    rlc.CEnabled = True
-                    positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                    negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                    positive_pin_group_term.SetRlcBoundaryParameters(rlc)
-                if (
-                    source.source_type == SourceType.Vsource or source.source_type == SourceType.Isource
-                ):  # pragma: no cover
-                    positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                    negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                    positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                    negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                    positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                    negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance_value))
-                term_name = generate_unique_name(source.name)
+                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                term_name = source.name
                 positive_pin_group_term.SetName(term_name)
                 negative_pin_group_term.SetName("{}_ref".format(term_name))
+                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+            elif source.source_type == SourceType.Isource:  # pragma: no cover
+                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                term_name = source.name
+                positive_pin_group_term.SetName(term_name)
+                negative_pin_group_term.SetName("{}_ref".format(term_name))
+                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+            elif source.source_type == SourceType.Rlc:  # pragma: no cover
+                self.create_rlc_component(
+                    pins=[positive_pins[0], negative_pins[0]],
+                    component_name=source.name,
+                    r_value=source.r_value,
+                    l_value=source.l_value,
+                    c_value=source.c_value,
+                )
         return True
 
     @pyaedt_function_handler()
@@ -713,18 +715,17 @@ class Components(object):
         Edb terminal.
         """
 
-        res, pin_position, pin_rot = pin.GetPositionAndRotation(
-            self._edb.Geometry.PointData(self._get_edb_value(0.0), self._get_edb_value(0.0)),
-            0.0,
+        pin_position = self.get_pin_position(pin)  # pragma no cover
+        pin_pos = self._edb.Geometry.PointData(
+            self._get_edb_value(pin_position[0]), self._get_edb_value(pin_position[1])  # pragma no cover
         )
-
         res, from_layer, _ = pin.GetLayerRange()
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
         term_name = "{}_{}_{}".format(cmp_name, net_name, pin_name)
         term = self._edb.Cell.Terminal.PointTerminal.Create(
-            pin.GetLayout(), pin.GetNet(), term_name, pin_position, from_layer
+            pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
         return term
 
@@ -923,6 +924,89 @@ class Components(object):
         return componentDefinition
 
     @pyaedt_function_handler()
+    def create_rlc_component(self, pins, component_name="", r_value=1.0, c_value=1e-9, l_value=1e-9, is_parallel=False):
+        """Create physical Rlc component.
+
+        Parameters
+        ----------
+        pins : list[Edb.Primitive.PadstackInstance]
+             List of EDB pins, length must be 2, since only 2 pins component are currently supported.
+
+        component_name : str
+            Component name.
+
+        r_value : float
+            Resistor value.
+
+        c_value : float
+            Capacitance value.
+
+        l_value : float
+            Inductor value.
+
+        is_parallel : bool
+            Using parallel model when ``True``, series when ``False``.
+
+        Returns
+        -------
+        Component
+            Created EDB component.
+
+        """
+        if not len(pins) == 2:  # pragma no cover
+            self._logger.error("2 Pins must be provided to create an rlc component.")
+            return False
+        comp_def = self._getComponentDefinition(component_name, pins)
+        if not comp_def:  # pragma no cover
+            self._logger.error("Failed to create component definition")
+            return False
+        new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
+        hosting_component_location = pins[0].GetComponent().GetLocation()
+        for pin in pins:
+            new_cmp.AddMember(pin)
+        new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
+        new_cmp_placement_layer = self._edb.Cell.Layer.FindByName(
+            self._active_layout.GetLayerCollection(), new_cmp_layer_name
+        )
+        new_cmp.SetPlacementLayer(new_cmp_placement_layer)
+        rlc = self._edb.Utility.Rlc()
+        rlc.IsParallel = is_parallel
+        if r_value:  # pragma no cover
+            rlc.REnabled = True
+            rlc.R = self._get_edb_value(r_value)
+        else:  # pragma no cover
+            rlc.REnabled = False
+        if l_value:  # pragma no cover
+            rlc.LEnabled = True
+            rlc.L = self._get_edb_value(l_value)
+        else:  # pragma no cover
+            rlc.LEnabled = False
+        if c_value:  # pragma no cover
+            rlc.CEnabled = True
+            rlc.C = self._get_edb_value(c_value)
+        else:  # pragma no cover
+            rlc.CEnabled = False
+        if rlc.REnabled and not rlc.CEnabled and not rlc.CEnabled:  # pragma no cover
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+        elif rlc.CEnabled and not rlc.REnabled and not rlc.LEnabled:  # pragma no cover
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Capacitor)
+        elif rlc.LEnabled and not rlc.REnabled and not rlc.CEnabled:  # pragma no cover
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Inductor)
+        else:  # pragma no cover
+            new_cmp.SetComponentType(self._edb.Definition.ComponentType.Resistor)
+
+        pin_pair = self._edb.Utility.PinPair(pins[0].GetName(), pins[1].GetName())  # pragma no cover
+        rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+        rlc_model.SetPinPairRlc(pin_pair, rlc)
+        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+        if not edb_rlc_component_property.SetModel(rlc_model) or not new_cmp.SetComponentProperty(
+            edb_rlc_component_property
+        ):
+            return False  # pragma no cover
+        new_cmp.SetLocation(hosting_component_location[1], hosting_component_location[2])
+        return new_cmp
+
+    @pyaedt_function_handler()
     def create_component_from_pins(self, pins, component_name, placement_layer=None):
         """Create a component from pins.
 
@@ -969,7 +1053,7 @@ class Components(object):
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
         # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
         # new_cmp.SetTransform(cmp_transform)
-        return (True, new_cmp)
+        return new_cmp
         # except:
         #    return (False, None)
 
@@ -1033,7 +1117,7 @@ class Components(object):
 
                 edbRlcComponentProperty.SetModel(spiceMod)
                 if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                    self._logger.error("Error Assigning the Touchstone model")
+                    self._logger.error("Error assigning the `Spice` model.")
                     return False
             else:
                 self._logger.error("Wrong number of Pins")
@@ -1060,7 +1144,7 @@ class Components(object):
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
             if not edbComponent.SetComponentProperty(edbRlcComponentProperty):
-                self._logger.error("Error Assigning the Touchstone model")
+                self._logger.error("Error assigning the `Touchstone` model")
                 return False
         return True
 
@@ -1204,20 +1288,24 @@ class Components(object):
         return False
 
     @pyaedt_function_handler()
-    def set_solder_ball(self, component="", sball_diam="100um", sball_height="150um"):
+    def set_solder_ball(
+        self, component="", sball_diam="100um", sball_height="150um", shape="Cylinder", sball_mid_diam=None
+    ):
         """Set cylindrical solder balls on a given component.
 
         Parameters
         ----------
         component_name : str or EDB component
             Name of the discrete component.
-
         sball_diam  : str, float, optional
             Diameter of the solder ball.
-
         sball_height : str, float, optional
             Height of the solder ball.
-
+        shape : str, optional
+            Shape of solder ball. Options are ``"Cylinder"``,
+            ``"Spheroid"``. The default is ``"Cylinder"``.
+        sball_mid_diam : str, float, optional
+            Mid diameter of the solder ball.
         Returns
         -------
         bool
@@ -1246,50 +1334,34 @@ class Components(object):
                 _sb_diam = min([self._get_edb_value(val).ToDouble() for val in pad_params[1]])
                 sball_diam = _sb_diam
                 sball_height = sball_diam
+
+            if not sball_mid_diam:
+                sball_mid_diam = sball_diam
+
+            if shape == "Cylinder":
+                sball_shape = self._edb.Definition.SolderballShape.Cylinder
+            else:
+                sball_shape = self._edb.Definition.SolderballShape.Spheroid
+
+            cmp_property = edb_cmp.GetComponentProperty().Clone()
             if cmp_type == self._edb.Definition.ComponentType.IC:
-                ic_cmp_property = edb_cmp.GetComponentProperty().Clone()
-                ic_die_prop = ic_cmp_property.GetDieProperty().Clone()
+                ic_die_prop = cmp_property.GetDieProperty().Clone()
                 ic_die_prop.SetType(self._edb.Definition.DieType.FlipChip)
                 ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
-                ic_cmp_property.SetDieProperty(ic_die_prop)
+                cmp_property.SetDieProperty(ic_die_prop)
 
-                ic_solder_ball_prop = ic_cmp_property.GetSolderBallProperty().Clone()
-                ic_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
-                ic_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
-                ic_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
-                ic_cmp_property.SetSolderBallProperty(ic_solder_ball_prop)
+            solder_ball_prop = cmp_property.GetSolderBallProperty().Clone()
+            solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_mid_diam))
+            solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
 
-                ic_port_prop = ic_cmp_property.GetPortProperty().Clone()
-                ic_port_prop.SetReferenceSizeAuto(True)
-                ic_cmp_property.SetPortProperty(ic_port_prop)
-                edb_cmp.SetComponentProperty(ic_cmp_property)
-                return True
+            solder_ball_prop.SetShape(sball_shape)
+            cmp_property.SetSolderBallProperty(solder_ball_prop)
 
-            elif cmp_type == self._edb.Definition.ComponentType.IO:
-                io_cmp_prop = edb_cmp.GetComponentProperty().Clone()
-                io_solder_ball_prop = io_cmp_prop.GetSolderBallProperty().Clone()
-                io_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
-                io_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
-                io_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
-                io_cmp_prop.SetSolderBallProperty(io_solder_ball_prop)
-                io_port_prop = io_cmp_prop.GetPortProperty().Clone()
-                io_port_prop.SetReferenceSizeAuto(True)
-                io_cmp_prop.SetPortProperty(io_port_prop)
-                edb_cmp.SetComponentProperty(io_cmp_prop)
-                return True
-            elif cmp_type == self._edb.Definition.ComponentType.Other:
-                other_cmp_prop = edb_cmp.GetComponentProperty().Clone()
-                other_solder_ball_prop = other_cmp_prop.GetSolderBallProperty().Clone()
-                other_solder_ball_prop.SetDiameter(self._get_edb_value(sball_diam), self._get_edb_value(sball_diam))
-                other_solder_ball_prop.SetHeight(self._get_edb_value(sball_height))
-                other_solder_ball_prop.SetShape(self._edb.Definition.SolderballShape.Cylinder)
-                other_cmp_prop.SetSolderBallProperty(other_solder_ball_prop)
-                other_port_prop = other_cmp_prop.GetPortProperty().Clone()
-                other_port_prop.SetReferenceSizeAuto(True)
-                other_cmp_prop.SetPortProperty(other_port_prop)
-                edb_cmp.SetComponentProperty(other_cmp_prop)
-            else:
-                return False
+            port_prop = cmp_property.GetPortProperty().Clone()
+            port_prop.SetReferenceSizeAuto(True)
+            cmp_property.SetPortProperty(port_prop)
+            edb_cmp.SetComponentProperty(cmp_property)
+            return True
         else:
             return False
 
@@ -1529,6 +1601,8 @@ class Components(object):
         >>> edbapp.core_components.get_aedt_pin_name(pin)
 
         """
+        if isinstance(pin, EDBPadstackInstance):
+            pin = pin._edb_padstackinstance
         if is_ironpython:
             name = clr.Reference[String]()
             pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)

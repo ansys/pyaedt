@@ -5,7 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
-from _unittest.conftest import scratch_path
 from pyaedt import Hfss
 from pyaedt import Icepak
 
@@ -15,9 +14,20 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 # Access the desktop
+test_subfolder = "T98"
 
 non_graphical_test = False
-test_project_name = "Filter_Board_Icepak"
+if config["desktopVersion"] > "2022.2":
+    test_project_name = "Filter_Board_Icepak_231"
+    src_project_name = "USB_Connector_IPK_231"
+    radio_board_name = "RadioBoardIcepak_231"
+    coldplate = "ColdPlateExample_231"
+
+else:
+    coldplate = "ColdPlateExample"
+    test_project_name = "Filter_Board_Icepak"
+    src_project_name = "USB_Connector_IPK"
+    radio_board_name = "RadioBoardIcepak"
 proj_name = None
 design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
@@ -27,18 +37,18 @@ link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_Prese
 solution_freq = "2.5GHz"
 resolution = 2
 group_name = "Group1"
-
-src_project_name = "USB_Connector_IPK"
-source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
-source_project_path = os.path.join(local_path, "example_models", src_project_name)
-source_fluent = os.path.join(local_path, "example_models", "ColdPlateExample.aedt")
+source_project = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
+source_project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name)
+source_fluent = os.path.join(local_path, "example_models", test_subfolder, coldplate + ".aedt")
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
-        self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, application=Icepak)
-        project_path = os.path.join(local_path, "example_models", src_project_name + ".aedt")
+        self.aedtapp = BasisTest.add_app(
+            self, project_name=test_project_name, application=Icepak, subfolder=test_subfolder
+        )
+        project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
         self.local_scratch.copyfile(project_path)
 
     def teardown_class(self):
@@ -222,11 +232,6 @@ class TestClass(BasisTest, object):
     def test_16_check_priorities(self):
         self.aedtapp.assign_priority_on_intersections("box")
 
-    def test_16_create_output_variable(self):
-        self.aedtapp["Variable1"] = "0.5"
-        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
-        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
-
     def test_16_surface_monitor(self):
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         assert self.aedtapp.assign_surface_monitor("surf1", monitor_name="monitor_surf") == "monitor_surf"
@@ -239,40 +244,55 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.assign_point_monitor_in_object("box1")
         assert not self.aedtapp.assign_point_monitor_in_object(["box"])
 
-    def test_17_analyze(self):
-        self.aedtapp.analyze_nominal()
-
     def test_17_post_processing(self):
         rep = self.aedtapp.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
         assert rep.create()
         assert len(self.aedtapp.post.plots) == 1
 
-    def test_17_get_output_variable(self):
+    def test_19A_analyze_and_export_summary(self):
+        self.aedtapp.insert_design("SolveTest")
+        self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Icepak.SteadyFlowOnly
+        self.aedtapp.problem_type = "TemperatureAndFlow"
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
+        self.aedtapp.create_source_block("box", "1W", False)
+        setup = self.aedtapp.create_setup("SetupIPK")
+        new_props = {"Convergence Criteria - Max Iterations": 3}
+        setup.update(update_dictionary=new_props)
+        airfaces = [i.id for i in self.aedtapp.modeler["Region"].faces]
+        self.aedtapp.assign_openings(airfaces)
+        self.aedtapp["Variable1"] = "0.5"
+        assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
+        assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
+        self.aedtapp.analyze_setup("SetupIPK")
+        self.aedtapp.save_project()
+        self.aedtapp.export_summary(self.aedtapp.working_directory)
+        box = [i.id for i in self.aedtapp.modeler["box"].faces]
+        assert os.path.exists(
+            self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=self.aedtapp.working_directory)
+        )
+
+    def test_19B_get_output_variable(self):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
 
-    def test_18_export_summary(self):
-        assert self.aedtapp.export_summary()
-
-    def test_19_eval_htc(self):
-        box = [i.id for i in self.aedtapp.modeler["box"].faces]
-        assert os.path.exists(self.aedtapp.eval_surface_quantity_from_field_summary(box, savedir=scratch_path))
-
     def test_20_eval_tempc(self):
         assert os.path.exists(
-            self.aedtapp.eval_volume_quantity_from_field_summary(["box"], "Temperature", savedir=scratch_path)
+            self.aedtapp.eval_volume_quantity_from_field_summary(
+                ["box"], "Temperature", savedir=self.aedtapp.working_directory
+            )
         )
 
     def test_21_ExportFLDFil(self):
         object_list = "box"
-        fld_file = os.path.join(scratch_path, "test_fld.fld")
+        fld_file = os.path.join(self.aedtapp.working_directory, "test_fld.fld")
         self.aedtapp.post.export_field_file(
             "Temp", self.aedtapp.nominal_sweep, [], filename=fld_file, obj_list=object_list
         )
         assert os.path.exists(fld_file)
 
     def test_22_create_source_blocks_from_list(self):
+        self.aedtapp.set_active_design("Solve")
         self.aedtapp.modeler.create_box([1, 1, 1], [3, 3, 3], "box3", "copper")
         result = self.aedtapp.create_source_blocks_from_list([["box2", 2], ["box3", 3]])
         assert result[1].props["Total Power"] == "2W"
@@ -387,9 +407,9 @@ class TestClass(BasisTest, object):
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")
-        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", "brd_board.emn"))
+        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"))
         assert self.aedtapp.import_idf(
-            os.path.join(local_path, "example_models", "brd_board.emn"),
+            os.path.join(local_path, "example_models", test_subfolder, "brd_board.emn"),
             filter_cap=True,
             filter_ind=True,
             filter_res=True,

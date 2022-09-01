@@ -16,33 +16,39 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest
 
+test_subfloder = "T22"
 # Access the desktop
 test_project_name = "Dynamic_Link"
 src_design_name = "uUSB"
-src_project_name = "USB_Connector"
-source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
-linked_project_name = "Filter_Board"
+if config["desktopVersion"] > "2022.2":
+    src_project_name = "USB_Connector_231"
+    linked_project_name = "Filter_Board_231"
+else:
+    src_project_name = "USB_Connector"
+    linked_project_name = "Filter_Board"
 
 
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         # set a scratch directory and the environment / test data
-        example_project = os.path.join(local_path, "example_models", test_project_name + ".aedt")
-        source_project = os.path.join(local_path, "example_models", src_project_name + ".aedt")
-        linked_project = os.path.join(local_path, "example_models", linked_project_name + ".aedt")
+        example_project = os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedt")
+        source_project = os.path.join(local_path, "example_models", test_subfloder, src_project_name + ".aedt")
+        linked_project = os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedt")
 
-        self.q3d = self.local_scratch.copyfile(os.path.join(local_path, "example_models", "q2d_q3d.aedt"))
+        self.q3d = self.local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfloder, "q2d_q3d.aedt")
+        )
         self.test_project = self.local_scratch.copyfile(example_project)
         self.test_src_project = self.local_scratch.copyfile(source_project)
         self.test_lkd_project = self.local_scratch.copyfile(linked_project)
 
         self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", test_project_name + ".aedb"),
+            os.path.join(local_path, "example_models", test_subfloder, test_project_name + ".aedb"),
             os.path.join(self.local_scratch.path, test_project_name + ".aedb"),
         )
         self.local_scratch.copyfolder(
-            os.path.join(local_path, "example_models", linked_project_name + ".aedb"),
+            os.path.join(local_path, "example_models", test_subfloder, linked_project_name + ".aedb"),
             os.path.join(self.local_scratch.path, linked_project_name + ".aedb"),
         )
         with open(example_project, "rb") as fh:
@@ -53,8 +59,8 @@ class TestClass(BasisTest, object):
             for line in temp:
                 if not found:
                     if "Filter_Board.aedt" in line.decode("utf-8"):
-                        line = "\t\t\t\tfilename='{}/Filter_Board.aedt'\n".format(
-                            self.local_scratch.path.replace("\\", "/")
+                        line = "\t\t\t\tfilename='{}/{}.aedt'\n".format(
+                            self.local_scratch.path.replace("\\", "/"), linked_project_name
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
@@ -172,8 +178,24 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_08_assign_excitations(self):
-        excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
+        filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_2"]
+        assert self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
+        filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source1.fds")
+        ports_list = ["Excitation_1", "Excitation_2"]
+        assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
+        filepath = os.path.join(local_path, "example_models", test_subfloder, "frequency_dependent_source.fds")
+        ports_list = ["Excitation_1", "Excitation_3"]
+        assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
+
+        excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
+        ports_list = ["Excitation_1"]
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
+
+        excitation_settings = ["10 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
+        ports_list = ["Port_1"]
         assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
@@ -215,7 +237,7 @@ class TestClass(BasisTest, object):
 
     # @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
     def test_11_siwave_link(self):
-        model = os.path.join(local_path, "example_models", "Galileo_um.siw")
+        model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
         self.local_scratch.copyfolder(
             model + "averesults", os.path.join(self.local_scratch.path, "Galileo_um.siwaveresults")

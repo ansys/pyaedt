@@ -476,7 +476,10 @@ class EdgePrimitive(EdgeTypePrimitive, object):
 
         """
         vertices = []
-        for vertex in self.oeditor.GetVertexIDsFromEdge(self.id):
+        v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, vertex))
         return vertices
@@ -516,7 +519,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         References
         ----------
 
-        >>> oEditor.GetVertexPosition
+        >>> oEditor.GetEdgeLength
 
         """
         try:
@@ -531,20 +534,22 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return "EdgeId " + str(self.id)
 
     @pyaedt_function_handler()
-    def create_object(self):
-        """Return A new object from the selected edge.
+    def create_object(self, non_model=False, create_group_for_new_objects=False):
+        """Return a new object from the selected edge.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. The default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromEdges
         """
-        return self._object3d._primitives.create_object_from_edge(self)
+        return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
     def move_along_normal(self, offset=1.0):
@@ -669,7 +674,10 @@ class FacePrimitive(object):
 
         """
         vertices = []
-        for vertex in list(self.oeditor.GetVertexIDsFromFace(self.id)):
+        v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self._object3d, int(vertex)))
         return vertices
@@ -1041,20 +1049,22 @@ class FacePrimitive(object):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self):
-        """Return A new object from the selected face.
+    def create_object(self, non_model=False):
+        """Return a new object from the selected face.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. Default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromFaces
         """
-        return self._object3d._primitives.create_object_from_face(self)
+        return self._object3d._primitives.create_object_from_face(self, non_model)
 
 
 class Object3d(object):
@@ -1218,7 +1228,9 @@ class Object3d(object):
         >>> oEditor.GetModelBoundingBox
 
         """
-        if not self._primitives._app.student_version:
+        if self.object_type == "Unclassified":
+            return [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        if not settings.disable_bounding_box_sat:
             bounding = self._bounding_box_sat()
             if bounding:
                 return bounding
@@ -1315,6 +1327,8 @@ class Object3d(object):
     @property
     def touching_objects(self):
         """Get the objects that touch one of the vertex, edge midpoint or face of the object."""
+        if self.object_type == "Unclassified":
+            return []
         list_names = []
         for vertex in self.vertices:
             body_names = self._primitives.get_bodynames_from_position(vertex.position)
@@ -1347,6 +1361,8 @@ class Object3d(object):
         >>> oEditor.GetFaceIDs
 
         """
+        if self.object_type == "Unclassified":
+            return []
         faces = []
         for face in list(self.m_Editor.GetFaceIDs(self.name)):
             face = int(face)
@@ -1699,6 +1715,8 @@ class Object3d(object):
         >>> oEditor.GetEdgeIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         edges = []
         for edge in self._primitives.get_object_edges(self.name):
             edge = int(edge)
@@ -1719,8 +1737,13 @@ class Object3d(object):
         >>> oEditor.GetVertexIDsFromObject
 
         """
+        if self.object_type == "Unclassified":
+            return []
         vertices = []
-        for vertex in self._primitives.get_object_vertices(self.name):
+        v = [i for i in self._primitives.get_object_vertices(self.name)]
+        if settings.aedt_version > "2022.2":
+            v = v[::-1]
+        for vertex in v:
             vertex = int(vertex)
             vertices.append(VertexPrimitive(self, vertex))
         return vertices
@@ -2348,6 +2371,57 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
+    def intersect(self, theList, keep_originals=False):
+        """Intersect the active object with a given list.
+
+        Parameters
+        ----------
+        theList : list
+            List of objects.
+        keep_originals : bool, optional
+            Whether to keep the original object. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Retrieve the resulting 3D Object when succeeded.
+
+        References
+        ----------
+
+        >>> oEditor.Intersect
+        """
+        theList = [self.name] + self._primitives.modeler.convert_to_selections(theList, return_list=True)
+        self._primitives.modeler.intersect(theList, keep_originals)
+        return self
+
+    @pyaedt_function_handler()
+    def split(self, plane, sides="Both"):
+        """Split the active object.
+
+        Parameters
+        ----------
+        plane : str
+            Coordinate plane of the cut or the Application.PLANE object.
+            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
+        sides : str, optional
+            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
+            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
+            all objects are kept after the split.
+
+        Returns
+        -------
+        list of str
+            List of split objects.
+
+        References
+        ----------
+
+        >>> oEditor.Split
+        """
+        return self._primitives.modeler.split(self.name, plane, sides)
+
+    @pyaedt_function_handler()
     def mirror(self, position, vector):
         """Mirror a selection.
 
@@ -2677,6 +2751,34 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
+    def wrap_sheet(self, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object. This object can be either the sheet or the object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object or sheet name.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is `False`.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        object_name = self._primitives.convert_to_selections(object_name, False)
+        if self.object_type == "Sheet" and object_name in self._primitives.solid_names:
+            return self._primitives.wrap_sheet(self.name, object_name, imprinted)
+        elif self.object_type == "Solid" and object_name in self._primitives.sheet_names:
+            return self._primitives.wrap_sheet(object_name, self.name, imprinted)
+        else:
+            msg = "Error in command execution."
+            msg += " Either one of the two objects has to be a sheet and the other an object."
+            self.logger.error(msg)
+            return False
+
+    @pyaedt_function_handler()
     def delete(self):
         """Delete the object.
 
@@ -2933,13 +3035,15 @@ class Padstack(object):
         ]
         arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
         arg3 = ["NAME:pds"]
+        id = 0
         for el in self.layers:
             arg4 = []
+            id += 1
             arg4.append("NAME:lgm")
             arg4.append("lay:=")
             arg4.append(self.layers[el].layername)
             arg4.append("id:=")
-            arg4.append(el)
+            arg4.append(id)
             arg4.append("pad:=")
             arg4.append(
                 [
@@ -3027,7 +3131,15 @@ class Padstack(object):
 
     @pyaedt_function_handler()
     def add_layer(
-        self, layername="Start", pad_hole=None, antipad_hole=None, thermal_hole=None, connx=0, conny=0, conndir=0
+        self,
+        layername="Start",
+        pad_hole=None,
+        antipad_hole=None,
+        thermal_hole=None,
+        connx=0,
+        conny=0,
+        conndir=0,
+        layer_id=None,
     ):
         """Create a layer in the padstack.
 
@@ -3057,11 +3169,13 @@ class Padstack(object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        layer_id = None
         if layername in self.layers:
             return False
         else:
-            new_layer = self.PDSLayer(layername, self.layerid)
-            self.layerid += 1
+            if not layer_id:
+                layer_id = len(list(self.layers.keys())) + 1
+            new_layer = self.PDSLayer(layername, layer_id)
             new_layer.pad = pad_hole
             new_layer.antipad = antipad_hole
             new_layer.thermal = thermal_hole

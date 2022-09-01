@@ -31,10 +31,12 @@ from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.MaterialLib import Materials
+from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SolveSetup import Setup
 
 
@@ -1231,15 +1233,56 @@ class Analysis(Design, object):
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
         setup = Setup(self, setuptype, name)
-        if self.design_type == "HFSS" and not self.excitations and "MaxDeltaS" in setup.props:
-            new_dict = OrderedDict()
-            for k, v in setup.props.items():
-                if k == "MaxDeltaS":
-                    new_dict["MaxDeltaE"] = 0.01
-                else:
-                    new_dict[k] = v
+        if self.design_type == "HFSS":
+            if not self.excitations and "MaxDeltaS" in setup.props:
+                new_dict = OrderedDict()
+                setup.auto_update = False
+                for k, v in setup.props.items():
+                    if k == "MaxDeltaS":
+                        new_dict["MaxDeltaE"] = 0.01
+                    else:
+                        new_dict[k] = v
+                setup.props = SetupProps(setup, new_dict)
+                setup.auto_update = True
 
-            setup.props = new_dict
+            for boundary in self.boundaries:
+                if "Type" in boundary.props.keys() and boundary.props["Type"] == "SBR+":
+                    setup.auto_update = False
+                    user_domain = None
+                    if props:
+                        if "RadiationSetup" in props:
+                            user_domain = props["RadiationSetup"]
+                    if self.field_setups:
+                        for field_setup in self.field_setups:
+                            if user_domain and user_domain in field_setup.name:
+                                domain = user_domain
+                                break
+                        if not user_domain and self.field_setups:
+                            domain = self.field_setups[0].name
+                    else:
+                        self.logger.error("Field Observation Domain not defined")
+                        return False
+
+                    default_sbr_setup = {
+                        "RayDensityPerWavelength": 4,
+                        "MaxNumberOfBounces": 5,
+                        "EnableCWRays": False,
+                        "RadiationSetup": domain,
+                        "EnableSBRSelfCoupling": False,
+                        "UseSBRAdvOptionsGOBlockage": False,
+                        "UseSBRAdvOptionsWedges": False,
+                        "PTDUTDSimulationSettings": "None",
+                        "SkipSBRSolveDuringAdaptivePasses": True,
+                        "UseSBREnhancedRadiatedPowerCalculation": False,
+                        "AdaptFEBIWithRadiation": False,
+                    }
+                    new_dict = setup.props
+                    for k, v in default_sbr_setup.items():
+                        new_dict[k] = v
+                    setup.props = SetupProps(setup, new_dict)
+                    setup.auto_update = True
+                    break
+
         setup.create()
         if props:
             for el in props:
@@ -1652,20 +1695,24 @@ class Analysis(Design, object):
         project_path = self.project_path
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
-            if os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Win64\ansysedt.exe".format(version)):
+            if version >= "22.2":
+                version_name = "v" + version.replace(".", "")
+            else:
+                version_name = "AnsysEM" + version
+            if os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Win64\ansysedt.exe".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Win64\\\\ansysedt.exe".format(version)
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Win64\\\\ansysedt.exe".format(version_name)
                 )
-            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\AnsysEM{}\Linux64\ansysedt".format(version)):
+            elif os.path.exists(r"\\" + clustername + r"\AnsysEM\{}\Linux64\ansysedt".format(version_name)):
                 aedt_full_exe_path = (
-                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\AnsysEM{}\\\\Linux64\\\\ansysedt".format(version)
+                    r"\\\\\\\\" + clustername + r"\\\\AnsysEM\\\\{}\\\\Linux64\\\\ansysedt".format(version_name)
                 )
             else:
-                self.logger.error("AEDT path does not exist. Please provide a full path.")
+                self.logger.error("AEDT shared path does not exist. Please provide a full path.")
                 return False
         else:
             if not os.path.exists(aedt_full_exe_path):
-                self.logger.error("Aedt Path doesn't exists. Please provide a full path")
+                self.logger.error("AEDT shared path does not exist. Provide a full path.")
                 return False
             aedt_full_exe_path.replace("\\", "\\\\")
 
@@ -1845,3 +1892,108 @@ class Analysis(Design, object):
                 units = self.modeler.model_units
             val = "{0}{1}".format(value, units)
         return val
+
+    @pyaedt_function_handler()
+    def export_rl_matrix(
+        self,
+        matrix_name,
+        file_path,
+        is_format_default=True,
+        width=8,
+        precision=2,
+        is_exponential=False,
+        setup_name=None,
+        default_adaptive=None,
+        is_post_processed=False,
+    ):
+        """Export R/L matrix after solving.
+
+        Parameters
+        ----------
+        matrix_name : str
+            Matrix name to be exported.
+        file_path : str
+            File path to export R/L matrix file.
+        is_format_default : bool, optional
+            Whether the exported format is default or not.
+            If False the custom format is set (no exponential).
+        width : int, optional
+            Column width in exported .txt file.
+        precision : int, optional
+            Decimal precision number in exported *.txt file.
+        is_exponential : bool, optional
+            Whether the format number is exponential or not.
+        setup_name : str, optional
+            Name of the setup.
+        default_adaptive : str, optional
+            Adaptive type.
+        is_post_processed : bool, optional
+            Boolean to check if it is post processed. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not self.solution_type == "EddyCurrent":
+            self.logger.error("RL Matrix can only be exported if solution type is Eddy Current.")
+            return False
+        matrix_list = [bound for bound in self.boundaries if isinstance(bound, MaxwellParameters)]
+        if matrix_name is None:
+            self.logger.error("Matrix name to be exported must be provided.")
+            return False
+        if matrix_list:
+            if not [
+                matrix
+                for matrix in matrix_list
+                if matrix.name == matrix_name or [x for x in matrix.available_properties if matrix_name in x]
+            ]:
+                self.logger.error("Matrix name doesn't exist, provide and existing matrix name.")
+                return False
+        else:
+            self.logger.error("Matrix list parameters is empty, can't export a valid matrix.")
+            return False
+
+        if file_path is None:
+            self.logger.error("File path to export R/L matrix must be provided.")
+            return False
+        elif os.path.splitext(file_path)[1] != ".txt":
+            self.logger.error("File extension must be .txt")
+            return False
+
+        if setup_name is None:
+            setup_name = self.analysis_setup
+        if default_adaptive is None:
+            default_adaptive = self.design_solutions.default_adaptive
+        analysis_setup = setup_name + " : " + default_adaptive
+
+        if not self.available_variations.nominal_w_values_dict:
+            variations = ""
+        else:
+            variations = self.available_variations.nominal_w_values_dict
+
+        if not is_format_default:
+            try:
+                self.oanalysis.ExportSolnData(
+                    analysis_setup,
+                    matrix_name,
+                    is_post_processed,
+                    variations,
+                    file_path,
+                    -1,
+                    is_format_default,
+                    width,
+                    precision,
+                    is_exponential,
+                )
+            except:
+                self.logger.error("Solutions are empty. Solve before exporting.")
+                return False
+        else:
+            try:
+                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, file_path)
+            except:
+                self.logger.error("Solutions are empty. Solve before exporting.")
+                return False
+
+        return True

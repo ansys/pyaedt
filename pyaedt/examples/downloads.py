@@ -1,4 +1,5 @@
 """Download example datasets from https://github.com/pyansys/example-data"""
+import ast
 import os
 import shutil
 import tempfile
@@ -22,7 +23,7 @@ def delete_downloads():
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
-def _get_file_url(directory, filename):
+def _get_file_url(directory, filename=None):
     if not filename:
         return EXAMPLE_REPO + "/".join([directory])
     else:
@@ -40,9 +41,7 @@ def _retrieve_file(url, filename, directory, destination=None):
         return local_path_no_zip
 
     # grab the correct url retriever
-    if is_ironpython:
-        urlretrieve = urllib.urlretrieve
-    else:
+    if not is_ironpython:
         urlretrieve = urllib.request.urlretrieve
 
     dirpath = os.path.dirname(local_path)
@@ -89,9 +88,43 @@ def _retrieve_file(url, filename, directory, destination=None):
     return local_path
 
 
-def _download_file(directory, filename, destination=None):
-    url = _get_file_url(directory, filename)
-    local_path = _retrieve_file(url, filename, directory, destination)
+def _retrieve_folder(url, directory, destination=None):
+    """Download a folder from a url"""
+    # First check if folder exists
+    if not destination:
+        destination = EXAMPLES_PATH
+    local_path = os.path.join(destination, directory)
+    if os.path.isdir(local_path):
+        return local_path
+
+    if is_ironpython:
+        return False
+
+    with urllib.request.urlopen(url) as response:  # nosec
+        data = response.read().decode("utf-8").split("\n")
+
+    if not os.path.isdir(destination):
+        os.mkdir(destination)
+    if not os.path.isdir(local_path):
+        os.makedirs(local_path)
+
+    for line in data:
+        if "js-navigation-open Link--primary" in line:
+            filename = ast.literal_eval(line[line.find("title=") + len("title=") : line.rfind(" data-pjax")])
+            if ".aedb" in filename:
+                _download_file(directory + "/" + filename, "edb.def", destination)
+            else:
+                _download_file(directory, filename, destination)
+    return local_path
+
+
+def _download_file(directory, filename=None, destination=None):
+    if not filename:
+        url = _get_file_url(directory)
+        local_path = _retrieve_folder(url, directory, destination)
+    else:
+        url = _get_file_url(directory, filename)
+        local_path = _retrieve_file(url, filename, directory, destination)
 
     return local_path
 
@@ -552,6 +585,78 @@ def download_multiparts(destination=None):
     if os.path.exists(os.path.join(destination, "multiparts", "library.zip")):
         unzip(os.path.join(destination, "multiparts", "library.zip"), dest_folder)
     return os.path.join(dest_folder, "library")
+
+
+def download_twin_builder_data(file_name, force_download=False, destination=None):
+    """Download a Twin Builder example data file.
+
+    Examples files are downloaded to a persistent cache to avoid
+    downloading the same file twice.
+
+    Parameters
+    ----------
+    file_name : str
+        Path of the file in the Twin Builder folder.
+    force_download : bool, optional
+        Force to delete file and download file again. Default value is ``False``.
+    destination : str, optional
+        Path to download files to. The default is the user's temporary folder.
+
+    Returns
+    -------
+    str
+        Path to the folder containing all Twin Builder example data files.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+    >>> from pyaedt import examples
+    >>> path = examples.download_twin_builder_data(file_name="Example1.zip",force_download=True)
+    >>> path
+    'C:/Users/user/AppData/local/temp/twin_builder'
+    """
+    if not destination:
+        destination = EXAMPLES_PATH
+    if force_download:
+        local_path = os.path.join(destination, os.path.join("twin_builder", file_name))
+        if os.path.exists(local_path):
+            os.unlink(local_path)
+    _download_file("twin_builder", file_name, destination)
+    return os.path.join(destination, "twin_builder")
+
+
+def download_file(directory, filename=None, destination=None):
+    """
+    Download file from directory.
+
+    Files are downloaded to a destination. If filename is not specified, the full directory will be downloaded.
+
+    Parameters
+    ----------
+    directory : str
+        Directory name.
+    filename : str, optional
+        File name to download. The default is all files inside directory.
+    destination : str, optional
+        Path where files will be downloaded. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path = examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
+    >>> path
+    'C:/Users/user/AppData/local/temp/PyAEDTExamples/motorcad'
+    """
+    local_path = _download_file(directory, filename, destination)
+
+    return local_path
 
 
 def unzip(source_filename, dest_dir):

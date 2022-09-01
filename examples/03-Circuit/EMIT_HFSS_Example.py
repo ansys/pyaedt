@@ -1,7 +1,7 @@
 """
 EMIT: HFSS to EMIT coupling
 ---------------------------
-This tutorial shows how you can use PyAEDT to open an AEDT project with
+This example shows how you can use PyAEDT to open an AEDT project with
 an HFSS design, create an EMIT design in the project, and link the HFSS design
 as a coupling link in the EMIT design.
 """
@@ -10,7 +10,6 @@ as a coupling link in the EMIT design.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-# sphinx_gallery_thumbnail_path = 'Resources/emit.png'
 import os
 import tempfile
 
@@ -22,11 +21,15 @@ from pyaedt import Desktop
 
 
 ###############################################################################
-# Specify initialization settings
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Change the ``non_graphical`` Boolean variable to ``False`` to open AEDT in
-# graphical mode. With ``NewThread = False``, an existing instance of AEDT
-# is used if one is available. The following code uses AEDT 2022 R2.
+## Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The Boolean parameter ``new_thread`` defines whether to create a new instance
+# of AEDT or try to connect to an existing instance of it.
+# 
+# The following code uses AEDT 2022 R2.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
@@ -37,9 +40,7 @@ scratch_path = tempfile.gettempdir()
 # Launch AEDT with EMIT
 # ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
-# on the specified version and in the specified graphical mode. The ``NewThread``
-# Boolean variable defines whether to create a new instance of AEDT or try to
-# connect to existing instance of it if one is available.
+# on the specified version and in the specified graphical mode.
 
 d = Desktop(desktop_version, non_graphical, NewThread)
 
@@ -82,6 +83,7 @@ with Scratch(scratch_path) as local_scratch:
         local_scratch.copyfile(example_pdf, my_project_pdf)
 
 aedtapp = Emit(my_project)
+
 ###############################################################################
 # Create and connect EMIT components
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,7 +118,7 @@ for link in aedtapp.couplings.coupling_names:
 ###############################################################################
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# After the simulaton completes, you can close AEDT or release it using the
+# After the simulation completes, you can close AEDT or release it using the
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 

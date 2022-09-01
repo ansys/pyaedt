@@ -3,7 +3,10 @@ General: coordinate system creation
 -----------------------------------
 This example shows how you can use PyAEDT to create and modify coordinate systems in the modeler.
 """
-# sphinx_gallery_thumbnail_path = 'Resources/coordinate_system.png'
+###############################################################################
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports
 
 import os
 
@@ -13,11 +16,12 @@ from pyaedt import generate_unique_project_name
 
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -39,8 +43,8 @@ hfss = Hfss(projectname=generate_unique_project_name(folder_name="CoordSysDemo")
 ###############################################################################
 # Create coordinate system
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# The coordinate system is centered on the ``Global`` origin and has the axis
-# aligned to the ``Global`` coordinate system. The new coordinate system is
+# The coordinate system is centered on the global origin and has the axis
+# aligned to the global coordinate system. The new coordinate system is
 # saved in the object ``cs1``.
 
 cs1 = hfss.modeler.create_coordinate_system()
@@ -72,7 +76,7 @@ cs1.rename("newCS")
 ###############################################################################
 # Change coordinate system mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use the function ``change_cs_mode`` to change the mode. Options are ``0``
+# Use the ``change_cs_mode`` method to change the mode. Options are ``0``
 # for axis/position, ``1`` for Euler angle ZXZ, and ``2`` for Euler angle ZYZ.
 # Here ``1`` sets Euler angle ZXZ as the mode.
 
@@ -176,7 +180,7 @@ fcs4.props["ZRotationAngle"] = "3deg"
 # Apply offset to X and Y axes of face coordinate system
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Apply an offset to the X axis and Y axis of a face coordinate system.
-# The offset is in respect the face coordinate system itself.
+# The offset is in respect to the face coordinate system itself.
 
 fcs5 = hfss.modeler.create_face_coordinate_system(
     face=face, origin=face, axis_position=face.edges[2], offset=[0.5, 0.3]
@@ -190,7 +194,7 @@ fcs5.props["YOffset"] = "0.1mm"
 # Create coordinate system relative to face coordinate system
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a coordinate system relative to a face coordinate system. Coordinate
-# systems and face coordinate systems interact each other.
+# systems and face coordinate systems interact with each other.
 
 face = box.faces[1]
 fcs6 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_position=face.edges[0])

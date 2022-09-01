@@ -5,12 +5,14 @@ from __future__ import absolute_import  # noreorder
 import io
 import os
 import warnings
+from collections import OrderedDict
 
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -140,6 +142,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_horizontal_extension=5,
         wave_vertical_extension=3,
         wave_launcher="1mm",
+        ref_primitive_name=None,
+        ref_edge_number=0,
     ):
         """Create an edge port.
 
@@ -160,11 +164,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         wave_launcher : str, optional
             PEC (perfect electrical conductor) launcher size with units. The
             default is `"1mm"`.
+        ref_primitive_name : str, optional
+            Name of the reference primitive to place negative edge port terminal.
+            The default is ``None``.
+        ref_edge_number : str, int
+            Edge number of reference primitive. The default is ``0``.
 
         Returns
         -------
-        str
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port objcet port when successful, ``False`` when failed.
 
         References
         ----------
@@ -183,8 +192,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 0,
             ]
         )
+
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
+
+        if ref_primitive_name:
+            self.modeler.oeditor.AddRefPort(
+                [a[0]],
+                ["NAME:Contents", "edge:=", ["et:=", "pe", "prim:=", ref_primitive_name, "edge:=", ref_edge_number]],
+            )
+
         if len(a) > 0:
             if iswave:
                 self.modeler.change_property(
@@ -214,7 +231,62 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     property_value=str(wave_launcher),
                     property_tab="EM Design",
                 )
-            return a[0]
+            bound = self._update_port_info(a[0])
+            if bound:
+                self.boundaries.append(bound)
+                return self.boundaries[-1]
+            else:
+                return False
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def create_wave_port(
+        self,
+        primivitive_name,
+        edge_number,
+        wave_horizontal_extension=5,
+        wave_vertical_extension=3,
+        wave_launcher="1mm",
+    ):
+        """Create a single-ended wave port.
+
+        Parameters
+        ----------
+        primivitive_name : str
+            Name of the primitive to create the edge port on.
+        edge_number : int
+            Edge number to create the edge port on.
+        wave_horizontal_extension : float, optional
+            Horizontal port extension factor. The default is ``5``.
+        wave_vertical_extension : float, optional
+            Vertical port extension factor. The default is ``5``.
+        wave_launcher : str, optional
+            PEC (perfect electrical conductor) launcher size with units. The
+            default is ``"1mm"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port objcet port when successful, ``False`` when failed.
+
+        References
+        ----------
+        """
+        port_name = self.create_edge_port(
+            primivitive_name,
+            edge_number,
+            wave_horizontal_extension=wave_horizontal_extension,
+            wave_vertical_extension=wave_vertical_extension,
+            wave_launcher=wave_launcher,
+        )
+        if port_name:
+            port_name["HFSS Type"] = "Wave"
+            port_name["Horizontal Extent Factor"] = str(wave_horizontal_extension)
+            if "Vertical Extent Factor" in list(port_name.props.keys()):
+                port_name["Vertical Extent Factor"] = str(wave_vertical_extension)
+            port_name["PEC Launch Width"] = str(wave_launcher)
+            return port_name
         else:
             return False
 
@@ -236,8 +308,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        type
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port objcet port when successful, ``False`` when failed.
 
         References
         ----------
@@ -262,41 +334,36 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             listnew = self.port_list
             a = [i for i in listnew if i not in listp]
             if len(a) > 0:
-                return a[0]
+                bound = self._update_port_info(a[0])
+                if bound:
+                    self.boundaries.append(bound)
+                    return self.boundaries[-1]
+                else:
+                    return False
             else:
                 return False
         else:
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, vianame, layer, xstart, xend, ystart, yend, archeight=0, arcrad=0, isexternal=True):
+    def create_coax_port(self, vianame, radial_extent, layer, alignment="lower"):
         """Create a new coax port.
 
         Parameters
         ----------
         vianame : str
             Name of the via to create the port on.
+        radial_extent : float
+            Radial coax extension.
         layer : str
             Name of the layer.
-        xstart :
-            Starting position of the pin on the X axis.
-        xend :
-            Ending position of the pin on the X axis.
-        ystart :
-            Starting position of the pin on the Y axis.
-        yend :
-            Ending position of the pin on the Y axis.
-        archeight : float, optional
-            Arc height. The default is ``0``.
-        arcrad : float, optional
-            Rotation of the pin in radians. The default is ``0``.
-        isexternal : bool, optional
-            Whether the pin is external. The default is ``True``.
+        alignment : str, optional
+            Port alignment on Layer.
 
         Returns
         -------
-        str
-            Name of the port when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port Object when successful, ``False`` when failed.
 
         References
         ----------
@@ -304,42 +371,29 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oEditor.CreateEdgePort
         """
         listp = self.port_list
-        if isinstance(layer, str):
-            layerid = self.modeler.layers.layer_id(layer)
-        else:
-            layerid = layer
-        self.modeler.oeditor.CreateEdgePort(
-            [
-                "NAME:Contents",
-                "edge:=",
-                [
-                    "et:=",
-                    "pse",
-                    "sel:=",
-                    vianame,
-                    "layer:=",
-                    layerid,
-                    "sx:=",
-                    xstart,
-                    "sy:=",
-                    ystart,
-                    "ex:=",
-                    xend,
-                    "ey:=",
-                    yend,
-                    "h:=",
-                    archeight,
-                    "rad:=",
-                    arcrad,
-                ],
-                "external:=",
-                isexternal,
-            ]
-        )
+        if vianame in self.port_list:
+            self.logger.error("Port already existing on via {}".format(vianame))
+            return False
+        self.oeditor.ToggleViaPin(["NAME:elements", vianame])
+
         listnew = self.port_list
         a = [i for i in listnew if i not in listp]
         if len(a) > 0:
-            return a[0]
+            self.modeler.change_property(
+                "Excitations:{}".format(a[0]), "Radial Extent Factor", str(radial_extent), "EM Design"
+            )
+            self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
+            self.modeler.change_property(
+                a[0],
+                "Pad Port Layer",
+                layer,
+            )
+            bound = self._update_port_info(a[0])
+            if bound:
+                self.boundaries.append(bound)
+                return self.boundaries[-1]
+            else:
+                return False
         else:
             return False
 
@@ -366,7 +420,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        bool
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+
             ``True`` when successful, ``False`` when failed.
 
         References
@@ -402,7 +457,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 bot_layer,
             ]
         )
-        return True
+        bound = self._update_port_info(name)
+        if bound:
+            self.boundaries.append(bound)
+            return self.boundaries[-1]
+        else:
+            return False
 
     @pyaedt_function_handler()
     def delete_port(self, portname):
@@ -424,6 +484,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         >>> oModule.Delete
         """
         self.oexcitation.Delete(portname)
+        for bound in self.boundaries:
+            if bound.name == portname:
+                self.boundaries.remove(bound)
         return True
 
     @pyaedt_function_handler()
@@ -1550,14 +1613,15 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def export_3d_model(self, file_name=None):
-        """Export the Ecad model to an ACIS 3D file.
+        """Export the Ecad model to a 3D file.
 
         Parameters
         ----------
         file_name : str, optional
             Full name of the file to export. The default is None, in which case the file name is
             set to the design name and saved as a SAT file in the working directory.
-            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"``.
+            Extensions available are ``"sat"``, ``"sab"``, and ``"sm3"`` up to AEDT 2022R2 and
+            Parasolid format `"x_t"` from AEDT 2023R1.
 
         Returns
         -------
@@ -1565,9 +1629,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             File name if successful.
         """
         if not file_name:
-            file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+            if settings.aedt_version > "2022.2":
+                file_name = os.path.join(self.working_directory, self.design_name + ".x_t")
+                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", file_name])
 
-        self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+            else:
+                file_name = os.path.join(self.working_directory, self.design_name + ".sat")
+                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", file_name])
+
         return file_name
 
     @pyaedt_function_handler()
@@ -1649,3 +1718,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         self.odesign.EditHfssExtents(arg)
         return True
+
+    @pyaedt_function_handler()
+    def _update_port_info(self, port):
+        propnames = self.oeditor.GetProperties("EM Design", "Excitations:{}".format(port))
+        props = OrderedDict()
+        for prop in propnames:
+            props[prop] = self.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(port), prop)
+        return BoundaryObject3dLayout(self, port, props, "Port")

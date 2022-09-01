@@ -1,7 +1,7 @@
 """
 Circuit: Touchstone file management
 -----------------------------------
-This example shows how to use objects in a Touchstone file without opening AEDT.
+This example shows how you can use objects in a Touchstone file without opening AEDT.
 
 To provide the advanced postprocessing features needed for this example, Matplotlib and NumPy
 must be installed on your machine.
@@ -13,16 +13,14 @@ This example runs only on Windows using CPython.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports and set the local path to the path for PyAEDT.
 
-# sphinx_gallery_thumbnail_path = 'Resources/nde.png'
-
 from pyaedt import examples
 
 example_path = examples.download_touchstone()
 
 ###############################################################################
-# Import Matplotlib and Touchstone file
+# Import libraries and Touchstone file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Import Matplotlib and the Touchstone file.
+# Import Matplotlib, NumPy, and the Touchstone file.
 
 import matplotlib.pyplot as plt
 import numpy as np

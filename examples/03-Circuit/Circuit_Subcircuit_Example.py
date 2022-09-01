@@ -16,8 +16,9 @@ from pyaedt import generate_unique_project_name
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -39,11 +40,11 @@ subcircuit_name = subcircuit.composed_name
 circuit.push_down(subcircuit)
 
 ###############################################################################
-# Parameterize subcircuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
-# Parameterize the subcircuit and add a resistor, inductor, and a capacitor with
-# the given parameter values. Connect them in series and then use the ``pop_up``
-# method to get back to the parent design.
+# Parametrize subcircuit
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Parametrize the subcircuit and add a resistor, inductor, and a capacitor with
+# the parameter values in the following code example. Connect them in series
+# and then use the ``pop_up`` # method to get back to the parent design.
 
 circuit.variable_manager.set_variable("R_val", "35ohm")
 circuit.variable_manager.set_variable("L_val", "1e-7H")
@@ -66,6 +67,7 @@ if not non_graphical:
     new_comp = circuit.modeler.schematic.duplicate(subcircuit_name, [0.0512, 0])
     new_comp.parameters["R_val"] = "75ohm"
 
+###############################################################################
 # Release AEDT
 # ~~~~~~~~~~~~
 # Release AEDT.

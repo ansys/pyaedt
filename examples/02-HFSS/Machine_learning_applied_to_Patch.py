@@ -1,15 +1,16 @@
 """
 HFSS: machine learning applied to a patch
----------------------------------------
+-----------------------------------------
 This example shows how you can use PyAEDT to create a machine learning algorithm in three steps:
 
-- Generate the database
-- Create the machine learning algorithm
-- Implement the model in a PyAEDT method
+#. Generate the database.
+#. Create the machine learning algorithm.
+#. Implement the model in a PyAEDT method.
 
 While this example supplies the code for all three steps in one Python file, it would be
 better to separate the code for each step into its own Python file.
 """
+###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
@@ -29,11 +30,12 @@ from pyaedt import Hfss
 from pyaedt.modeler.stackup_3d import Stackup3D
 
 
-##########################################################
+###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# `"PYAEDT_NON_GRAPHICAL"` is needed to generate Documentation only.
-# User can define `non_graphical` value either to `True` or `False`.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
@@ -50,9 +52,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 #
 # The following code generates a database of 1 frequency x 2 permittivity
 # x 2 thickness x 2 width. It creates eight cases, which are far too few to
-# use to train the model but are a sufficient number of cases for testing
-# the model. Later in this example, you import more than 3300 different 
-# cases in a previously-generated database of 74 frequencies
+# use to train the model but are a sufficient number for testing
+# the model. Later in this example, you import more than 3,300 different 
+# cases in a previously generated database of 74 frequencies
 # x 5 permittivity x 3 thickness x 3 width.
 
 tuple_random_frequency_permittivity = []
@@ -67,10 +69,10 @@ for in_list in frequency_list:
 # Thickness is generated from 0.0025 to 0.055 of the wavelength in the void.
 # Width is generated from 0.5 to 1.5 of the optimal theoretical width:
 #
-# c / (2 * frequency * sqrt((permittivity + 1) / 2))
-# #
-# For each couple of frequency-permittivity, three random thickness and three
-# random width are generated. Patch length is calculated using the analytic
+# ``c / (2 * frequency * sqrt((permittivity + 1) / 2))``
+#
+# For each couple of frequency-permittivity, three random thicknesses and three
+# random widths are generated. Patch length is calculated using the analytic
 # formula. Using this formula is important because it reduces the sweep
 # frequency needed for the data recovery. Every case is stored in a list of a
 # dictionary.
@@ -126,15 +128,16 @@ print("Its length is: " + str(len(dictionary_list)))
 ###############################################################################
 # Generate HFSS design
 # ~~~~~~~~~~~~~~~~~~~~
-# Generate the HFSS design using the PyAEDT ``Stackup3D`` function.
+# Generate the HFSS design using the ``Stackup3D`` method.
 # Open an HFSS design and create the stackup, add the different layers, and add
 # the patch. In the stackup library, most things, like the layers and patch,
-# are already parameterized.
+# are already parametrized.
 
 desktopVersion = "2022.2"
 
-hfss = Hfss(new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical,
-            specified_version=desktopVersion)
+hfss = Hfss(
+    new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion
+)
 
 stackup = Stackup3D(hfss)
 ground = stackup.add_ground_layer("ground", material="copper", thickness=0.035, fill_material="air")
@@ -145,7 +148,7 @@ patch = signal.add_patch(patch_length=1009.86, patch_width=1185.9, patch_name="P
 ###############################################################################
 # Resize layers around patch
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Resise the layers around the patch so that they change when the patch changes.
+# Resize the layers around the patch so that they change when the patch changes.
 
 stackup.resize_around_element(patch)
 
@@ -236,7 +239,7 @@ def index_of_resonance(imaginary_list, real_list):
 ###############################################################################
 # Create parametric variation by case
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Use a loop to create parametric variation by case and associate it with a setup.
+# Use a loop to create a parametric variation by case and associate it with a setup.
 # The parametric variation is composed of the patch length and width and substrate
 # permittivity and thickness. For each, measure the real resonance frequency to
 # obtain the data length, width, permittivity, and thickness that corresponds
@@ -337,12 +340,12 @@ with open(json_file_path, "w") as readfile:
 #
 # Import training cases
 # ~~~~~~~~~~~~~~~~~~~~~
-# Import the 3300 cases in the suppplied JSON file to train the model. As mentioned
+# Import the 3,300 cases in the supplied JSON file to train the model. As mentioned
 # earlier, you cannot use the small database that you generated earlier for training
-# the model. Its eight cases are used later to test the model.
+# the model. Its 8 cases are used later to test the model.
 
 path_folder = hfss.pyaedt_dir
-training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100GMHz_1GHz.json")
+training_file = os.path.join(path_folder, "misc", "ml_data_file_train_100MHz_1GHz.json")
 with open(training_file) as readfile:
     my_dictio_list_train = json.load(readfile)
 
@@ -357,10 +360,10 @@ print(len(my_dictio_list_test))
 # ~~~~~~~~~~~~
 # Create four lists:
 # 
-# - one for the input of the training
-# - one for the output of training
-# - one for the input of the test
-# - one for the output of the test
+# - One for the input of the training
+# - One for the output of training
+# - Oone for the input of the test
+# - One for the output of the test
 
 
 input_for_training_list = []
@@ -416,25 +419,24 @@ print("output array for training: " + str(output_for_training_array))
 ###############################################################################
 # Create model
 # ~~~~~~~~~~~~
-# Create the model. Depending on the application, you can use different models.
-# The easiest way to find the correct model for an application is to search
-# for this application or one that is close to it.
+# Create the model. Depending on the app, you can use different models.
+# The easiest way to find the correct model for an app is to search
+# for this app or one that is close to it.
 # 
 # To predict characteristics of a patch antenna (resonance frequency, bandwidth,
 # and input impedance), you can use SVR (Support Vector Regression) or ANN
 # (Analyze Neuronal Network). The following code uses SVR because it is easier
 # to implement. ANN is a more general method that also works with other
-# high frequency components. While is is more likely to work for other applications,
-# implenting ANN is
-# much more complex.
+# high frequency components. While it is more likely to work for other app,
+# implementing ANN is much more complex.
 #
-# For SVR, there are three different kernels. For the patch antenna, Radial Basic
-# Function is preferred. There are three other arguments that have a big impact
+# For SVR, there are three different kernels. For the patch antenna, RBF (Radial Basic
+# Function) is preferred. There are three other arguments that have a big impact
 # on the accuracy of the model: C, gamma, and epsilon. Sometimes they are given
-# with the necessary model for the application. Otherwise, you can try different
+# with the necessary model for the app. Otherwise, you can try different
 # values and see which one is the best by measuring the accuracy of the model.
-# To make this example shorter, C is equal to 1e4. However, the optimal value
-# in this application is 5e4.
+# To make this example shorter, ``C=1e4``. However, the optimal value
+# in this app is ``C=5e4``.
 
 svr_rbf = SVR(kernel="rbf", C=1e4, gamma="auto", epsilon=0.05)
 regression = make_pipeline(StandardScaler(), svr_rbf)
@@ -458,13 +460,14 @@ joblib.dump(regression, model_file)
 ###############################################################################
 # Implement model in PyAEDT method
 # -------------------------------------
-# This section describes the third step, which is for implementating the model
+# This section describes the third step, which is for implementing the model
 # in the PyAEDT method.
 # 
 # Load model
 # ~~~~~~~~~~
 # Load the model in another Python file to predict different cases.
-# Here the correct model with C=5e4 is loaded rather than the one you made earlier.
+# Here the correct model with ``C=5e4`` is loaded rather than the one you made
+# earlier with ``C=1e4``.
 
 model_path = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
 regression = joblib.load(model_path)
@@ -472,7 +475,7 @@ regression = joblib.load(model_path)
 ###############################################################################
 # Predict length of patch
 # ~~~~~~~~~~~~~~~~~~~~~~~
-# Predict the length of a patch as a function of its resonant frequency and width
+# Predict the length of the patch as a function of its resonant frequency and width
 # and substrate thickness and permittivity.
 
 prediction_of_length = regression.predict(input_for_test_list)
@@ -534,8 +537,8 @@ for index in range(len(prediction_of_length)):
 average_relative_gap = average_relative_gap / len(prediction_of_length)
 
 ###############################################################################
-# The first displays are the gap (prediction - real). The second displays are
-# the relative gap ((prediction - real)/real).
+# The first displays are the gap ``(prediction - real)``. The second displays are
+# the relative gap ``((prediction - real)/real)``.
 
 print("sample size: " + str(len(prediction_of_length)))
 print("<0.5 : " + str(counter_under_zero_five))
