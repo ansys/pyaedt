@@ -1812,12 +1812,12 @@ class Material(CommonMaterial, object):
 
     @property
     def stacking_direction(self):
-        """Stacking direction of the wire can either be "V(1)", "V(2)" or "V(3)".
+        """Stacking direction for the lamination can either be "V(1)", "V(2)" or "V(3)".
 
         Returns
         -------
         string
-            Stacking direction of the wire.
+            Stacking direction for lamination.
 
         References
         ----------
@@ -1829,7 +1829,7 @@ class Material(CommonMaterial, object):
     @stacking_direction.setter
     def stacking_direction(self, value):
         if not value in ["V(1)", "V(2)", "V(3)"]:
-            raise ValueError("Stacking direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
+            raise ValueError("Stacking direction for the lamination either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._stacking_direction = value
         self._update_props("stacking_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
