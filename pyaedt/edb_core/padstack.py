@@ -553,7 +553,7 @@ class EdbPadstacks(object):
             Y offset of antipad. The default is ``"0.0"``.
         rotation : str, optional
             rotation of antipad. The default is ``"0.0"``.
-        has_hole: bool, optional
+        has_hole : bool, optional
             Whether this padstack has a hole.
         Returns
         -------
