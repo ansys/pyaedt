@@ -506,6 +506,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
             return list(midpoint)
         elif len(self.vertices) == 1:
             return self.vertices[0].position
+        else:
+            return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
 
     @property
     def length(self):
