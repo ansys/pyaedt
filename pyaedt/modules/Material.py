@@ -1789,6 +1789,51 @@ class Material(CommonMaterial, object):
         self._wire_width = value
         self._update_props("wire_width", value)
 
+    @property
+    def stacking_factor(self):
+        """Stacking factor for lamination.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Material.MatProperty`
+            Stacking factor.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._stacking_factor
+
+    @stacking_factor.setter
+    def stacking_factor(self, value):
+        self._stacking_factor = value
+        self._update_props("stacking_factor", value)
+
+    @property
+    def stacking_direction(self):
+        """Stacking direction of the wire can either be "V(1)", "V(2)" or "V(3)".
+
+        Returns
+        -------
+        string
+            Stacking direction of the wire.
+
+        References
+        ----------
+
+        >>> oDefinitionManager.EditMaterial
+        """
+        return self._stacking_direction
+
+    @stacking_direction.setter
+    def stacking_direction(self, value):
+        if not value in ["V(1)", "V(2)", "V(3)"]:
+            raise ValueError("Stacking direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
+
+        self._stacking_direction = value
+        self._update_props("stacking_direction", OrderedDict({"property_type": "ChoiceProperty", "Choice": value}))
+
     @pyaedt_function_handler()
     def set_magnetic_coercitivity(self, value=0, x=1, y=0, z=0):
         """Set Magnetic Coercitivity for material.
