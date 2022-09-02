@@ -1,8 +1,8 @@
 import itertools
 import json
 import os
-import re
 
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
@@ -885,7 +885,7 @@ class Cable:
                             self.source_name = generate_unique_name("clock")
 
                     if source_properties["ClockSignalParams"]["Period"]:
-                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["Period"])[1]
+                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["Period"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Period's unit provided is not valid."
                             raise ValueError(msg)
@@ -895,7 +895,7 @@ class Cable:
                         self.source_period = "35us"
 
                     if source_properties["ClockSignalParams"]["LowPulseVal"]:
-                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
+                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
                             msg = "Low Pulse Value's unit provided is not valid."
                             raise ValueError(msg)
@@ -905,7 +905,7 @@ class Cable:
                         self.low_pulse_value = "0V"
 
                     if source_properties["ClockSignalParams"]["HighPulseVal"]:
-                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
+                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
                             msg = "High Pulse Value's unit provided is not valid."
                             raise ValueError(msg)
@@ -915,7 +915,7 @@ class Cable:
                         self.high_pulse_value = "1V"
 
                     if source_properties["ClockSignalParams"]["Risetime"]:
-                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["Risetime"])[1]
+                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["Risetime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Rise time unit provided is not valid."
                             raise ValueError(msg)
@@ -925,7 +925,7 @@ class Cable:
                         self.rise_time = "5us"
 
                     if source_properties["ClockSignalParams"]["Falltime"]:
-                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["Falltime"])[1]
+                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["Falltime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Fall time unit provided is not valid."
                             raise ValueError(msg)
@@ -935,7 +935,7 @@ class Cable:
                         self.fall_time = "5us"
 
                     if source_properties["ClockSignalParams"]["PulseWidth"]:
-                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["PulseWidth"])[1]
+                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["PulseWidth"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Pulse width unit provided is not valid."
                             raise ValueError(msg)
@@ -987,7 +987,3 @@ class Cable:
         with open(file_path_export_as_json, "w") as f:
             json.dump(load_entire_aedt_file(file_path_export), f)
         return load_entire_aedt_file(file_path_export)
-
-    def _split_number_from_unit(self, value):
-        split = re.compile(r"(\d*\.\d+|\d+)\s*(\w+)").match(value).groups()
-        return [split[0], split[1]]
