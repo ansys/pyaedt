@@ -4459,6 +4459,11 @@ class SimulationConfiguration(object):
         """
         return self._dc_contact_radius
 
+    @dc_contact_radius.setter
+    def dc_contact_radius(self, value):
+        if isinstance(value, str):
+            self._dc_contact_radius = value
+
     @dc_compute_inductance.setter
     def dc_compute_inductance(self, value):
         if isinstance(value, str):
