@@ -624,7 +624,7 @@ class TestClass(BasisTest, object):
         )
         assert Cable(self.aedtapp, cable_file1).create_pwl_source_from_file()
 
-    def test_28_add_pwl_source_from_file(self):
+    def test_29_update_pwl_source(self):
         cable_file1 = os.path.join(
             local_path,
             "example_models",
