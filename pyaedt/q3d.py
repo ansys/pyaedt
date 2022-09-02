@@ -711,27 +711,25 @@ class QExtractor(FieldAnalysis3D, object):
 
     def export_equivalent_circuit(
         self,
+        file_name,
         setup_name=None,
         sweep=None,
         variations=None,
-        file_name=None,
-        export_settings=None,
         matrix_name=None,
-        num_cells=None,
-        user_changed_settings=None,
-        include_cap=None,
-        include_dcr=None,
-        include_dcl=None,
-        include_acr=None,
-        include_acl=None,
-        include_r=None,
-        include_l=None,
+        num_cells=2,
+        user_changed_settings=True,
+        include_cap=True,
+        include_cond=True,
+        include_dcr=True,
+        include_dcl=True,
+        include_acr=True,
+        include_acl=True,
+        add_resistance=None,
+        parse_pin_names=None,
         export_distributed=None,
         lumped_length=None,
         rise_time=None,
-        add_resistance=None,
-        coupling_limit_type=None,
-        coupling_limits_parameters=None,
+        coupling_limit_type=0,
         cap_limit=None,
         ind_limit=None,
         res_limit=None,
@@ -747,6 +745,9 @@ class QExtractor(FieldAnalysis3D, object):
 
         Parameters
         ----------
+        file_name : str
+            Full path to save the equivalent circuit to.
+            Options for file extensions are: .cir, .sml, .sp, .pkg, .spc, .lib, .ckt, .bsp, .dml, .icm.
         setup_name : str, optional
             Setup name. The default value is ``None``, in which case the first
             analysis setup is used.
@@ -759,13 +760,57 @@ class QExtractor(FieldAnalysis3D, object):
         matrix_name : str, optional
             Name of the matrix to display.
             Default value is ``"Original"``.
-
+        num_cells : int, optional
+            Number of cells in export.
+            Default value is 2.
+        user_changed_settings : bool, optional
+            Whether user has changed settings.
+            Default value is True.
+        include_cap : bool, optional
+            Include Capacitance.
+            Default value is True.
+        include_cond : bool, optional
+            Include Conductance.
+            Default value is True.
+        coupling_limit_type : int, optional
+            Coupling limit types.
+            Values can be : "By Value" -> 0  or "By Fraction Of Self Term" -> 1.
+        include_dcr : bool, optional
+            Flag indicates whether to export DC resistance matrix.
+            Default value is True.
+        include_dcl : bool, optional
+            Flag indicates whether to export DC Inductance matrix.
+            Default value is True.
+        include_acr : bool, optional
+            Flag indicates whether to export AC resistance matrix.
+            Default value is True.
+        include_acl : bool, True
+            Flag indicates whether to export AC inductance matrix.
+            Default value is True.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        if os.path.splitext(file_name)[1] not in [
+            ".cir",
+            ".sml",
+            ".sp",
+            ".pkg",
+            ".spc",
+            ".lib",
+            ".ckt",
+            ".bsp",
+            ".dml",
+            ".icm",
+        ]:
+            self.logger.error(
+                "Extension is invalid. Possible extensions are .cir, .sml, .sp, .pkg, .spc,"
+                " .lib, .ckt, .bsp, .dml, .icm."
+            )
+            return False
+
         if setup_name is None:
             setup_name = self.analysis_setup
         elif setup_name != self.analysis_setup:
@@ -804,8 +849,98 @@ class QExtractor(FieldAnalysis3D, object):
                 self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
                 return False
 
+        if coupling_limit_type not in [0, 1]:
+            self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
+            return False
+        elif coupling_limit_type == 0:
+            coupling_limit_type = "By Value"
+        elif coupling_limit_type == 1:
+            coupling_limit_type = "By Fraction Of Self Term"
+
+        if cond_limit is None and coupling_limit_type == 0:
+            cond_limit = "1mSie"
+        elif cond_limit is None and coupling_limit_type == 1:
+            cond_limit = "0.01"
+        elif cond_limit is not None:
+            if decompose_variable_value(cond_limit)[1] not in [
+                "fSie",
+                "pSie",
+                "nSie",
+                "uSie",
+                "mSie",
+                "sie",
+                "kSie",
+                "megSie",
+                "mho",
+                "perohm",
+            ]:
+                self.logger.error("Invalid conductance unit.")
+                return False
+
+        if cap_limit is None and coupling_limit_type == 0:
+            cap_limit = "1pF"
+        elif cap_limit is None and coupling_limit_type == 1:
+            cap_limit = "0.01"
+        elif cap_limit is not None:
+            if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
+                self.logger.error("Invalid capacitance unit.")
+                return False
+
+        if ind_limit is None and coupling_limit_type == 0:
+            ind_limit = "1nH"
+        elif ind_limit is None and coupling_limit_type == 1:
+            ind_limit = "0.01"
+        elif ind_limit is not None:
+            if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
+                self.logger.error("Invalid inductance unit.")
+                return False
+
+        if res_limit is None and coupling_limit_type == 0:
+            res_limit = "1nH"
+        elif res_limit is None and coupling_limit_type == 1:
+            res_limit = "0.01"
+        elif res_limit is not None:
+            if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
+                self.logger.error("Invalid resistance unit.")
+                return False
+
         if self.modeler._is3d:
-            pass
+            try:
+                self.oanalysis.ExportCircuit(
+                    "NAME:CircuitData",
+                    "MatrixName:=",
+                    matrix_name,
+                    "NumberOfCells:=",
+                    num_cells,
+                    "UserHasChangedSettings:=",
+                    user_changed_settings,
+                    "IncludeCap:=",
+                    include_cap,
+                    "IncludeCond:=",
+                    include_cond,
+                    [
+                        "NAME:CouplingLimits",
+                        "CouplingLimitType:=",
+                        coupling_limit_type,
+                        "CapLimit:=",
+                        cap_limit,
+                        "IndLimit:=",
+                        ind_limit,
+                        "ResLimit:=",
+                        res_limit,
+                        "CondLimit:=",
+                        cond_limit,
+                    ],
+                )
+            except:
+                self.logger.error("Export of equivalent circuit was unsuccessful.")
+                return False
+        else:
+            try:
+                self.oanalysis.ExportCircuit()
+            except:
+                self.logger.error("Export of equivalent circuit was unsuccessful.")
+                return False
 
 
 class Q3d(QExtractor, object):
