@@ -709,6 +709,53 @@ class QExtractor(FieldAnalysis3D, object):
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
+    def export_equivalent_circuit(
+        self,
+        solution=None,
+        variation=None,
+        file_name=None,
+        export_settings=None,
+        matrix_name=None,
+        num_cells=None,
+        user_changed_settings=None,
+        include_cap=None,
+        include_dcr=None,
+        include_dcl=None,
+        include_acr=None,
+        include_acl=None,
+        include_r=None,
+        include_l=None,
+        export_distributed=None,
+        lumped_length=None,
+        rise_time=None,
+        add_resistance=None,
+        coupling_limit_type=None,
+        coupling_limits_parameters=None,
+        cap_limit=None,
+        ind_limit=None,
+        res_limit=None,
+        cond_limit=None,
+        cap_fraction=None,
+        ind_fraction=None,
+        res_fraction=None,
+        cond_fraction=None,
+        model_name=None,
+        freq=None,
+    ):
+        """Export matrix data.
+
+        Parameters
+        ----------
+        solution : str
+            Solution to export the equivalent circuit from.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        pass
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D app interface.
