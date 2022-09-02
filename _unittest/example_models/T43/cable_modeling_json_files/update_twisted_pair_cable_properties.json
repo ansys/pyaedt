@@ -1,4 +1,6 @@
 {
+	"Source": "False",
+	"Cable": "True",
 	"CableType":"twisted pair",
 	"IsJacketTypeInsulation": "False",
 	"IsJacketTypeBraidShield": "True",
@@ -53,7 +55,7 @@
 			},
 			"TwistedPairCable": {
 				"TwistedPairParams": {
-					"StraightWireCableID": 1020,
+					"StraightWireCableID": 1023,
 					"IsLayLengthSpecified": "False",
 					"LayLength": "47mm",
 					"TurnsPerMeter": "97"
