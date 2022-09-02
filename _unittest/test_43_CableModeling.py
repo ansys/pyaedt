@@ -143,7 +143,7 @@ class TestClass(BasisTest, object):
         assert cable.cable_definitions["TwistedPairCable"]
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairAttribs"]["Name"] == "twisted_pair_cable"
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] == 1020
+        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] == 1023
         assert not cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"]
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["LayLength"] == "0mm"
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] == "99"
@@ -416,7 +416,7 @@ class TestClass(BasisTest, object):
             == "updated_name_cable_twisted_pair"
         )
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] == 1020
+        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] == 1023
         assert not cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"]
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["LayLength"] == "47mm"
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] == "97"
@@ -456,3 +456,200 @@ class TestClass(BasisTest, object):
             "add_cables_to_bundle_invalid.json",
         )
         assert not Cable(self.aedtapp, cable_file2).add_cable_to_bundle()
+
+    def test_18_add_clock_source(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_clock_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_clock_source()
+        cable = Cable(self.aedtapp)
+        assert len(cable.clock_source_definitions) == 3
+        assert cable.clock_source_definitions[2]["ClockSignalParams"]["Period"] == "40us"
+        assert cable.clock_source_definitions[2]["ClockSignalParams"]["LowPulseVal"] == "0.1V"
+        assert cable.clock_source_definitions[2]["ClockSignalParams"]["HighPulseVal"] == "2V"
+        assert cable.clock_source_definitions[2]["ClockSignalParams"]["Risetime"] == "5us"
+        assert cable.clock_source_definitions[2]["ClockSignalParams"]["Falltime"] == "10us"
+        assert cable.clock_source_definitions[2]["ClockSignalParams"]["PulseWidth"] == "23us"
+
+    def test_19_add_clock_source_invalid_1(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_1.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_20_add_clock_source_invalid_2(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_2.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_21_add_clock_source_invalid_2(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_2.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_22_add_clock_source_invalid_3(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_3.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_24_add_clock_source_invalid_4(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_4.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_24_add_clock_source_invalid_5(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_5.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_25_add_clock_source_invalid_5(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_clock_source_6.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_clock_source()
+
+    def test_24_update_clock_source(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_clock_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).update_clock_source()
+        cable = Cable(self.aedtapp)
+        assert cable.clock_source_definitions[0]["TDSourceAttribs"]["Name"] == "update_clock_test_1"
+        assert cable.clock_source_definitions[0]["ClockSignalParams"]["Period"] == "45us"
+        assert cable.clock_source_definitions[0]["ClockSignalParams"]["LowPulseVal"] == "0.3V"
+        assert cable.clock_source_definitions[0]["ClockSignalParams"]["HighPulseVal"] == "3V"
+        assert cable.clock_source_definitions[0]["ClockSignalParams"]["Risetime"] == "4us"
+        assert cable.clock_source_definitions[0]["ClockSignalParams"]["Falltime"] == "15us"
+        assert cable.clock_source_definitions[0]["ClockSignalParams"]["PulseWidth"] == "26us"
+
+    def test_25_remove_clock_source(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "remove_clock_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).remove_source()
+        cable = Cable(self.aedtapp)
+        assert len(cable.clock_source_definitions) == 2
+
+    def test_26_add_pwl_source(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_pwl_source()
+        cable = Cable(self.aedtapp)
+        assert len(cable.pwl_source_definitions) == 3
+        assert cable.pwl_source_definitions[2]["PWLSignalParams"]["SignalValues"] == [
+            "0V",
+            "0.5V",
+            "0V",
+            "3V",
+            "4V",
+            "0V",
+        ]
+        assert cable.pwl_source_definitions[2]["PWLSignalParams"]["TimeValues"] == [
+            "0ns",
+            "1ns",
+            "2ns",
+            "3ns",
+            "4ns",
+            "5ns",
+        ]
+        assert cable.pwl_source_definitions[2]["TDSourceAttribs"]["Name"] == "pwl4"
+
+    def test_27_add_pwl_source_invalid(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source_invalid.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_pwl_source()
+
+    def test_28_add_pwl_source_from_file(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source_from_file.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_pwl_source_from_file()
+
+    def test_28_add_pwl_source_from_file(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "update_pwl_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).update_pwl_source()
+        cable = Cable(self.aedtapp)
+        assert cable.pwl_source_definitions[0]["PWLSignalParams"]["SignalValues"] == [
+            "0V",
+            "0.5V",
+            "0V",
+            "3V",
+            "4V",
+            "9V",
+            "0V",
+        ]
+        assert cable.pwl_source_definitions[0]["PWLSignalParams"]["TimeValues"] == [
+            "0ns",
+            "1ns",
+            "2ns",
+            "3ns",
+            "4ns",
+            "5ns",
+            "6ns",
+        ]
+        assert cable.pwl_source_definitions[0]["TDSourceAttribs"]["Name"] == "update_pwl_source"
