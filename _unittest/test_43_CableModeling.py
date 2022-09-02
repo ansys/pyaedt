@@ -585,7 +585,6 @@ class TestClass(BasisTest, object):
         )
         assert Cable(self.aedtapp, cable_file1).create_pwl_source()
         cable = Cable(self.aedtapp)
-        assert len(cable.pwl_source_definitions) == 3
         assert all(
             [
                 a == b
