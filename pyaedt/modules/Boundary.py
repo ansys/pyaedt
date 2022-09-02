@@ -218,7 +218,6 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        # self.name = "InsertNativeComponentData"
         try:
             names = [i for i in self._app.excitations]
         except Exception as e:
