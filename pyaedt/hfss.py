@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -1150,9 +1151,12 @@ class Hfss(FieldAnalysis3D, object):
                     ]
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
+            user_defined_component = UserDefinedComponent(
+                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
+            )
+            self.modeler.user_defined_components[native.name] = user_defined_component
             self.native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
-            self.modeler._create_user_defined_component(native.antennaname)
             return native
         self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
 

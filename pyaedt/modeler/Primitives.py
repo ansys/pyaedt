@@ -3387,8 +3387,16 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _create_user_defined_component(self, name):
-        o = UserDefinedComponent(self, name)
-        self.user_defined_components[name] = o
+        if name not in list(self.user_defined_components.keys()):
+            native_component_properties = self._get_native_component_properties(name)
+            if native_component_properties:
+                component_type = native_component_properties["NativeComponentDefinitionProvider"]["Type"]
+                o = UserDefinedComponent(self, name, native_component_properties, component_type)
+            else:
+                o = UserDefinedComponent(self, name)
+            self.user_defined_components[name] = o
+        else:
+            o = self.user_defined_components[name]
         return o
 
     @pyaedt_function_handler()
@@ -3649,6 +3657,40 @@ class Primitives(object):
             except:
                 self.logger.info("User-defined models were not retrieved from the AEDT file.")
         return udm_lists
+
+    @pyaedt_function_handler()
+    def _get_native_component_properties(self, name):
+        """Get properties of native component.
+
+        Returns
+        -------
+        list
+           List of names for native components.
+        """
+        native_comp_properties = None
+        comps3d = self.oeditor.Get3DComponentDefinitionNames()
+        component_name = None
+        for comp3d in comps3d:
+            if name in self.oeditor.Get3DComponentInstanceNames(comp3d):
+                component_name = comp3d
+                break
+        if self._app.design_properties and self._app.design_properties.get("ModelSetup", None) and component_name:
+            try:
+                native_comp_entry = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                    "SubModelDefinitions"
+                ]["NativeComponentDefinition"]
+                if native_comp_entry:
+                    if isinstance(native_comp_entry, (dict, OrderedDict)):
+                        native_comp_entry = [native_comp_entry]
+                    for data in native_comp_entry:
+                        native_comp_name = data["SubmodelDefinitionName"]
+                        if native_comp_name == component_name:
+                            native_comp_properties = data
+                            break
+            except:
+                self.logger.info("Native component properties were not retrieved from the AEDT file.")
+
+        return native_comp_properties
 
     @pyaedt_function_handler()
     def __getitem__(self, partId):

@@ -54,8 +54,11 @@ class TestClass(BasisTest, object):
         )
         par_beam.native_properties["Unit"] = "in"
         assert par_beam.update()
+        self.aedtapp.modeler.user_defined_components["TX1_1"].native_properties["Unit"] = "mm"
+
         assert len(self.aedtapp.native_components) == 3
-        assert self.aedtapp.set_sbr_txrx_settings({"TX1": "RX1"})
+        assert len(self.aedtapp.modeler.user_defined_components) == 3
+        assert self.aedtapp.set_sbr_txrx_settings({"TX1_1_p1": "RX1_1_p1"})
         assert self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.CrossDipole, use_current_source_representation=True
         )
@@ -83,6 +86,7 @@ class TestClass(BasisTest, object):
         l = len(self.aedtapp.native_components)
         toberemoved.delete()
         assert len(self.aedtapp.native_components) == l - 1
+        assert len(self.aedtapp.modeler.user_defined_component_names) == l - 1
         array = self.aedtapp.create_sbr_antenna(
             self.aedtapp.SbrAntennas.WireMonopole, use_current_source_representation=False, is_array=True
         )
