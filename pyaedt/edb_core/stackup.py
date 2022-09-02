@@ -721,8 +721,9 @@ class EdbStackup(object):
 
     @pyaedt_function_handler()
     def place_a3dcomp_3d_placement(self, a3dcomp_path, angle=0.0, offset_x=0.0, offset_y=0.0, place_on_top=True):
-        """Place current Cell into another cell using 3d placement method.
-        Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
+        """Place a 3D Component into current layout.
+         3D Component ports are not visible via EDB. They will be visible after the EDB has been opened in Ansys
+         Electronics Desktop as a project.
 
         Parameters
         ----------

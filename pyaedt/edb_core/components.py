@@ -1007,7 +1007,7 @@ class Components(object):
         return new_cmp
 
     @pyaedt_function_handler()
-    def create_component_from_pins(self, pins, component_name, placement_layer=None):
+    def create_component_from_pins(self, pins, component_name, placement_layer=None, component_part_name=None):
         """Create a component from pins.
 
         Parameters
@@ -1016,8 +1016,10 @@ class Components(object):
             List of EDB core pins.
         component_name : str
             Name of the reference designator for the component.
-        placement_layer : str
+        placement_layer : str, optional
             Name of the layer used for placing the component.
+        component_part_name : str, optional
+            Part name of the component.
 
         Returns
         -------
@@ -1033,12 +1035,16 @@ class Components(object):
         >>> edbapp.core_components.create_component_from_pins(pins, "A1New")
 
         """
-        # try:
-        compdef = self._getComponentDefinition(component_name, pins)
+        if component_part_name:
+            compdef = self._getComponentDefinition(component_part_name, pins)
+        else:
+            compdef = self._getComponentDefinition(component_name, pins)
         if not compdef:
             return False
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, compdef.GetName())
 
+        if isinstance(pins[0], EDBPadstackInstance):
+            pins = [i._edb_padstackinstance for i in pins]
         for pin in pins:
             pin.SetIsLayoutPin(True)
             new_cmp.AddMember(pin)

@@ -449,6 +449,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.AssignVoltageDrop(self._get_args())
         elif self.type == "Current":
             self._app.oboundary.AssignCurrent(self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Balloon":
             self._app.oboundary.AssignBalloon(self._get_args())
         elif self.type == "Winding" or self.type == "Winding Group":
@@ -591,6 +599,14 @@ class BoundaryObject(BoundaryCommon, object):
             self._app.oboundary.EditVoltageDrop(self._boundary_name, self._get_args())
         elif self.type == "Current":
             self._app.oboundary.EditCurrent(self._boundary_name, self._get_args())
+        elif self.type == "CurrentDensity":
+            self._app.oboundary.AssignCurrentDensity(self._get_args())
+        elif self.type == "CurrentDensityGroup":
+            self._app.oboundary.AssignCurrentDensityGroup(self._get_args()[2], self._get_args()[3])
+        elif self.type == "CurrentDensityTerminal":
+            self._app.oboundary.AssignCurrentDensityTerminal(self._get_args())
+        elif self.type == "CurrentDensityTerminalGroup":
+            self._app.oboundary.AssignCurrentDensityTerminalGroup(self._get_args()[2], self._get_args()[3])
         elif self.type == "Winding" or self.type == "Winding Group":
             self._app.oboundary.EditWindingGroup(self._boundary_name, self._get_args())  # pragma: no cover
         elif self.type == "Vector Potential":
@@ -1485,3 +1501,91 @@ class Matrix(object):
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
         return command
+
+
+class BoundaryObject3dLayout(BoundaryCommon, object):
+    """Manages boundary data and execution for Hfss3dLayout.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
+    """
+
+    def __init__(self, app, name, props, boundarytype):
+        self.auto_update = False
+        self._app = app
+        self._name = name
+        self.props = BoundaryProps(self, OrderedDict(props))
+        self.type = boundarytype
+        self._boundary_name = self.name
+        self.auto_update = True
+
+    @property
+    def name(self):
+        """Boundary Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.update()
+
+    @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        """Retrieve arguments.
+
+        Parameters
+        ----------
+        props :
+            The default is ``None``.
+
+        Returns
+        -------
+        list
+            List of boundary properties.
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
+    def _refresh_properties(self):
+        if len(self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))) != len(self.props):
+            propnames = self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))
+            props = OrderedDict()
+            for prop in propnames:
+                props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
+            self.props = BoundaryProps(self, props)
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        updated = False
+        for el in list(self.props.keys()):
+            if el in self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name)) and self.props[
+                el
+            ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
+                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
+                updated = True
+
+        if updated:
+            self._refresh_properties()
+
+        return True

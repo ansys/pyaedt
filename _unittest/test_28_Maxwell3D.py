@@ -75,6 +75,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
         assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
 
+    def test_01B_lamination(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="X", position=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", matname="titanium"
+        )
+        self.aedtapp.materials["titanium"].stacking_type = "Lamination"
+        self.aedtapp.materials["titanium"].stacking_factor = "0.99"
+        self.aedtapp.materials["titanium"].stacking_direction = "V(3)"
+        self.aedtapp.materials["titanium"].stacking_direction = "V(2)"
+        assert self.aedtapp.materials["titanium"].stacking_type == "Lamination"
+        assert self.aedtapp.materials["titanium"].stacking_factor == "0.99"
+        assert self.aedtapp.materials["titanium"].stacking_direction == "V(2)"
+
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
@@ -264,7 +276,6 @@ class TestClass(BasisTest, object):
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
             name=my_udpName,
-            udp_type="Solid",
         )
 
         assert udp
@@ -288,7 +299,6 @@ class TestClass(BasisTest, object):
             udp_dll_name="RMxprt/ClawPoleCore",
             udp_parameters_list=my_udpPairs,
             upd_library="syslib",
-            udp_type="Solid",
         )
 
         assert second_udp
@@ -305,6 +315,35 @@ class TestClass(BasisTest, object):
         assert int(second_udp.bounding_dimension[0]) == 125
         assert int(second_udp.bounding_dimension[1]) == 125
         assert int(second_udp.bounding_dimension[2]) == 110
+
+        # Create an udp from a *.py file.
+        python_udp_parameters = []
+        mypair = ["Xpos", "0mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Ypos", "0mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Dist", "5mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Turns", "2"]
+        # mypair = ["Turns", "2", "IntParam"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Width", "2mm"]
+        python_udp_parameters.append(mypair)
+        mypair = ["Thickness", "1mm"]
+        python_udp_parameters.append(mypair)
+        python_udp_parameters.append(mypair)
+
+        udp_from_python = self.aedtapp.modeler.create_udp(
+            udp_dll_name="Examples/RectangularSpiral.py",
+            udp_parameters_list=python_udp_parameters,
+            name="PythonSpiral",
+        )
+
+        assert udp_from_python
+        assert udp_from_python.name == "PythonSpiral"
+        assert "PythonSpiral" in udp_from_python._primitives.object_names
+        assert int(udp_from_python.bounding_dimension[0]) == 22.0
+        assert int(udp_from_python.bounding_dimension[1]) == 22.0
 
     @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
     def test_27_create_udm(self):
@@ -504,7 +543,59 @@ class TestClass(BasisTest, object):
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
 
-    def test_38_assign_impedance(self):
+    def test_38_assign_current_density(self):
+        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
+        self.aedtapp.set_active_design(design_to_activate[0])
+        assert self.aedtapp.assign_current_density("Inductor", "CurrentDensity_1")
+        assert self.aedtapp.assign_current_density(
+            "Inductor", "CurrentDensity_2", "40deg", current_density_x="3", current_density_y="4"
+        )
+        assert self.aedtapp.assign_current_density(["Inductor", "Paddle"], "CurrentDensity_3")
+        assert not self.aedtapp.assign_current_density(
+            "Inductor", "CurrentDensity_4", coordinate_system_cartesian="test"
+        )
+        assert not self.aedtapp.assign_current_density("Inductor", "CurrentDensity_5", phase="5ang")
+        for bound in self.aedtapp.boundaries:
+            if bound.type == "CurrentDensity":
+                if bound.name == "CurrentDensity_1":
+                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["CurrentDensityX"] == "0"
+                    assert bound.props["CurrentDensityY"] == "0"
+                    assert bound.props["CurrentDensityZ"] == "0"
+                    assert bound.props["CoordinateSystem Name"] == "Global"
+                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+                if bound.name == "CurrentDensity_2":
+                    assert bound.props["Objects"] == ["Inductor"]
+                    assert bound.props["Phase"] == "40deg"
+                    assert bound.props["CurrentDensityX"] == "3"
+                    assert bound.props["CurrentDensityY"] == "4"
+                    assert bound.props["CurrentDensityZ"] == "0"
+                    assert bound.props["CoordinateSystem Name"] == "Global"
+                    assert bound.props["CoordinateSystem Type"] == "Cartesian"
+                if bound.name == "CurrentDensity_3":
+                    assert bound.props["Objects"] == ["Inductor", "Paddle"]
+                    assert bound.props["Phase"] == "0deg"
+                    assert bound.props["CurrentDensityX"] == "0"
+                    assert bound.props["CurrentDensityY"] == "0"
+                    assert bound.props["CurrentDensityZ"] == "0"
+                    assert bound.props["CoordinateSystem Name"] == "Global"
+                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+        self.aedtapp.set_active_design("Motion")
+        assert not self.aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+
+    def test_39_assign_current_density_terminal(self):
+        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
+        self.aedtapp.set_active_design(design_to_activate[0])
+        assert self.aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
+        assert not self.aedtapp.assign_current_density_terminal("Coil_Section1", "CurrentDensityTerminal_1")
+        self.aedtapp.set_active_design("Matrix2")
+        assert self.aedtapp.assign_current_density_terminal(["Sheet1", "Sheet2"], "CurrentDensityTerminalGroup_1")
+        assert not self.aedtapp.assign_current_density_terminal(["Coil_1", "Coil_2"], "CurrentDensityTerminalGroup_2")
+        self.aedtapp.set_active_design("Motion")
+        assert not self.aedtapp.assign_current_density_terminal("Inner_Box", "CurrentDensityTerminal_1")
+
+    def test_40_assign_impedance(self):
         impedance_box = self.aedtapp.modeler.create_box([-50, -50, -50], [294, 294, 19], name="impedance_box")
         impedance_assignment = self.aedtapp.assign_impedance(
             impedance_box.name,
