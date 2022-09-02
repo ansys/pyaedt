@@ -3834,6 +3834,8 @@ class UserDefinedComponentParameters(dict):
 
 
 class UserDefinedComponentProps(OrderedDict):
+    """AEDT Component Internal Parameters."""
+
     def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_user_defined_component.auto_update:
