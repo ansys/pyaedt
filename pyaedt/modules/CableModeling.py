@@ -871,7 +871,7 @@ class Cable:
                     if values["SourcesToRemove"] in self.existing_sources_names:
                         self.source_to_remove = values["SourcesToRemove"]
                     else:
-                        msg = "Cable to remove doesn't exists in the current design."
+                        msg = "Cable to remove doesn't exist in the current design."
                         raise ValueError(msg)
                 # Check if user action is to add a clock source
                 elif values["ClockSource"].lower() == "true":
