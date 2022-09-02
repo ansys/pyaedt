@@ -162,7 +162,7 @@ class Cable:
                     )
                 return True
             except:
-                self._app.logger.error("Couldn't create bundle cable.")
+                self._app.logger.error("Boundle cable not created.")
                 return False
         elif self.cable_type == "straight wire":
             try:
@@ -188,7 +188,7 @@ class Cable:
                 )
                 return True
             except:
-                self._app.logger.error("Couldn't create straight wire cable.")
+                self._app.logger.error("Straight wire cable not created.")
                 return False
         else:
             try:
@@ -221,7 +221,7 @@ class Cable:
                     return False
                 return True
             except:
-                self._app.logger.error("Couldn't create twisted pair cable.")
+                self._app.logger.error("Twisted pair cable not created.")
                 return False
 
     def update_cable_properties(self):
@@ -294,7 +294,7 @@ class Cable:
                 )
             return True
         except:
-            self._app.logger.error("Couldn't update cable properties.")
+            self._app.logger.error("Cable properties not updated.")
             return False
 
     def update_shielding(self):
@@ -341,7 +341,7 @@ class Cable:
             )
             return True
         except:
-            self._app.logger.error("Couldn't update cable shielding properties.")
+            self._app.logger.error("Cable shielding properties not updated.")
             return False
 
     def remove_cables(self):
@@ -422,7 +422,7 @@ class Cable:
             )
             return True
         except:
-            self._app.logger.error("Couldn't create clock source.")
+            self._app.logger.error("Clock source not created.")
             return False
 
     def update_clock_source(self):
@@ -455,7 +455,7 @@ class Cable:
             )
             return True
         except:
-            self._app.logger.error("Couldn't create clock source.")
+            self._app.logger.error("Clock source not created.")
             return False
 
     def remove_source(self):
@@ -470,7 +470,7 @@ class Cable:
             self._omodule.RemoveTimeDomainSource(self.source_to_remove)
             return True
         except:
-            self._app.logger.error("Couldn't remove source.")
+            self._app.logger.error("Source could not be removed.")
             return False
 
     def create_pwl_source(self):
@@ -484,21 +484,19 @@ class Cable:
         try:
             self.signal_values.insert(0, "NAME:SignalValues")
             self.time_values.insert(0, "NAME:TimeValues")
+            arg1 = [x for x in self.signal_values]
+            arg2 = [x for x in self.time_values]
             self._omodule.CreatePWLSource(
                 [
                     "NAME:PWLSignalParams",
-                    [
-                        [x for x in self.signal_values],
-                    ],
-                    [
-                        [x for x in self.time_values],
-                    ],
+                    arg1,
+                    arg2,
                 ],
                 ["NAME:TDSourceAttribs", "Name:=", self.pwl_source_name],
             )
             return True
         except:
-            self._app.logger.error("Couldn't create pwl source.")
+            self._app.logger.error("PWL source not created.")
             return False
 
     def create_pwl_source_from_file(self):
@@ -515,7 +513,7 @@ class Cable:
             )
             return True
         except:
-            self._app.logger.error("Couldn't create pwl source from file.")
+            self._app.logger.error("PWL source from file not created.")
             return False
 
     def update_pwl_source(self):
@@ -556,7 +554,7 @@ class Cable:
             )
             return True
         except:
-            self._app.logger.error("Couldn't update pwl source.")
+            self._app.logger.error("PWL source not created.")
             return False
 
     def _init_from_json(self, json_file_name):
@@ -567,9 +565,6 @@ class Cable:
             self._app.logger.error(str(e))
             return False
         except OSError as e:
-            self._app.logger.error(str(e))
-            return False
-        except IOError as e:
             self._app.logger.error(str(e))
             return False
         except Exception as e:
@@ -890,7 +885,7 @@ class Cable:
                             self.source_name = generate_unique_name("clock")
 
                     if source_properties["ClockSignalParams"]["Period"]:
-                        unit = self.__split_number_from_unit(source_properties["ClockSignalParams"]["Period"])[1]
+                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["Period"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Period's unit provided is not valid."
                             raise ValueError(msg)
@@ -900,7 +895,7 @@ class Cable:
                         self.source_period = "35us"
 
                     if source_properties["ClockSignalParams"]["LowPulseVal"]:
-                        unit = self.__split_number_from_unit(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
+                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
                             msg = "Low Pulse Value's unit provided is not valid."
                             raise ValueError(msg)
@@ -910,7 +905,7 @@ class Cable:
                         self.low_pulse_value = "0V"
 
                     if source_properties["ClockSignalParams"]["HighPulseVal"]:
-                        unit = self.__split_number_from_unit(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
+                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
                             msg = "High Pulse Value's unit provided is not valid."
                             raise ValueError(msg)
@@ -920,7 +915,7 @@ class Cable:
                         self.high_pulse_value = "1V"
 
                     if source_properties["ClockSignalParams"]["Risetime"]:
-                        unit = self.__split_number_from_unit(source_properties["ClockSignalParams"]["Risetime"])[1]
+                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["Risetime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Rise time unit provided is not valid."
                             raise ValueError(msg)
@@ -930,7 +925,7 @@ class Cable:
                         self.rise_time = "5us"
 
                     if source_properties["ClockSignalParams"]["Falltime"]:
-                        unit = self.__split_number_from_unit(source_properties["ClockSignalParams"]["Falltime"])[1]
+                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["Falltime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Fall time unit provided is not valid."
                             raise ValueError(msg)
@@ -940,7 +935,7 @@ class Cable:
                         self.fall_time = "5us"
 
                     if source_properties["ClockSignalParams"]["PulseWidth"]:
-                        unit = self.__split_number_from_unit(source_properties["ClockSignalParams"]["PulseWidth"])[1]
+                        unit = self._split_number_from_unit(source_properties["ClockSignalParams"]["PulseWidth"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                             msg = "Pulse width unit provided is not valid."
                             raise ValueError(msg)
@@ -993,6 +988,6 @@ class Cable:
             json.dump(load_entire_aedt_file(file_path_export), f)
         return load_entire_aedt_file(file_path_export)
 
-    def __split_number_from_unit(self, value):
+    def _split_number_from_unit(self, value):
         split = re.compile(r"(\d*\.\d+|\d+)\s*(\w+)").match(value).groups()
         return [split[0], split[1]]
