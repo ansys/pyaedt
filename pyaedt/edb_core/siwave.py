@@ -1410,7 +1410,7 @@ class EdbSiwave(object):
                 simulation_setup.dc_use_loop_res_for_per_pin
             )
             dcir_setup.SimulationSettings.DCIRSettings.ViaReportPath = simulation_setup.dc_via_report_path
-            dcir_setup.SimulationSettings.DCIRSettings.Name = simulation_setup.setup_name
+            # dcir_setup.SimulationSettings.DCIRSettings.Name = simulation_setup.setup_name
             sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(dcir_setup)
             return self._cell.AddSimulationSetup(sim_setup)
 
