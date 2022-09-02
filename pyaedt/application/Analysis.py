@@ -1259,6 +1259,8 @@ class Analysis(Design, object):
                                 break
                         if not user_domain and self.field_setups:
                             domain = self.field_setups[0].name
+                    elif user_domain:
+                        domain = user_domain
                     else:
                         self.logger.error("Field Observation Domain not defined")
                         return False
