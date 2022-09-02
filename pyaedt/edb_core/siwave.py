@@ -1333,16 +1333,8 @@ class EdbSiwave(object):
                 simsetup_info.SimulationSettings.AdvancedSettings.IgnoreNonFunctionalPads = (
                     simulation_setup.ignore_non_functional_pads
                 )
-            if simulation_setup.dc_min_plane_area_to_mesh:  # pragma: no cover
-                simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh = (
-                    simulation_setup.dc_min_plane_area_to_mesh
-                )
             if simulation_setup.min_void_area:  # pragma: no cover
                 simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.min_void_area
-            if simulation_setup.max_init_mesh_edge_length:  # pragma: no cover
-                simsetup_info.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
-                    simulation_setup.max_init_mesh_edge_length
-                )
             try:
                 sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
                 sweep.IsDiscrete = False  # need True for package??
@@ -1352,10 +1344,7 @@ class EdbSiwave(object):
                 sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
                 sweep.EnforcePassivity = simulation_setup.enforce_passivity
                 sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-                if is_ironpython:  # pragma: no cover
-                    sweep.Frequencies.Clear()
-                else:
-                    list(sweep.Frequencies).clear()
+                list(sweep.Frequencies).clear()
                 if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
                     self._setup_decade_count_sweep(
                         sweep,
@@ -1364,27 +1353,65 @@ class EdbSiwave(object):
                         simulation_setup.decade_count,
                     )
                 else:
-                    if is_ironpython:
-                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency,
-                            simulation_setup.stop_freq,
-                            simulation_setup.step_freq,
-                        )
-                    else:
-                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
-                        )
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
+                    )
                 simsetup_info.SweepDataList.Add(sweep)
             except Exception as err:
                 self._logger.error("Exception in sweep configuration: {0}.".format(err))
             edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
             return self._cell.AddSimulationSetup(edb_sim_setup)
         if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
-            simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
+            dcir_setup = self._pedb.simsetupdata.SimSetupInfo[
                 self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
             ]()
-            simsetup_info.Name = simulation_setup.setup_name
-            sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(simsetup_info)
+            dcir_setup.Name = simulation_setup.setup_name
+            dcir_setup.SimulationSettings.DCSettings.ComputeInductance = simulation_setup.dc_compute_inductance
+            dcir_setup.SimulationSettings.DCSettings.ContactRadius = simulation_setup.dc_contact_radius
+            dcir_setup.SimulationSettings.DCSettings.DCSliderPos = simulation_setup.dc_slide_position
+            dcir_setup.SimulationSettings.DCSettings.PlotJV = simulation_setup.dc_plot_jv
+            dcir_setup.SimulationSettings.DCSettings.UseDCCustomSettings = simulation_setup.dc_use_dc_custom_settings
+            dcir_setup.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh = (
+                simulation_setup.dc_min_plane_area_to_mesh
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = (
+                simulation_setup.dc_min_void_area_to_mesh
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.EnergyError = simulation_setup.dc_error_energy
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
+                simulation_setup.dc_max_init_mesh_edge_length
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MaxNumPasses = simulation_setup.dc_max_num_pass
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MeshBws = simulation_setup.dc_mesh_bondwires
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MeshVias = simulation_setup.dc_mesh_vias
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MinNumPasses = simulation_setup.dc_min_num_pass
+            dcir_setup.SimulationSettings.DCAdvancedSettings.NumBwSides = simulation_setup.dc_num_bondwire_sides
+            dcir_setup.SimulationSettings.DCAdvancedSettings.NumViaSides = simulation_setup.dc_num_via_sides
+            dcir_setup.SimulationSettings.DCAdvancedSettings.PercentLocalRefinement = (
+                simulation_setup.dc_percent_local_refinement
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement = (
+                simulation_setup.dc_perform_adaptive_refinement
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.RefineBws = simulation_setup.dc_refine_bondwires
+            dcir_setup.SimulationSettings.DCAdvancedSettings.RefineVias = simulation_setup.dc_refine_vias
+
+            dcir_setup.SimulationSettings.DCIRSettings.DCReportConfigFile = simulation_setup.dc_report_config_file
+            dcir_setup.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = (
+                simulation_setup.dc_report_show_Active_devices
+            )
+            dcir_setup.SimulationSettings.DCIRSettings.ExportDCThermalData = simulation_setup.dc_export_thermal_data
+            dcir_setup.SimulationSettings.DCIRSettings.FullDCReportPath = simulation_setup.dc_full_report_path
+            dcir_setup.SimulationSettings.DCIRSettings.IcepakTempFile = simulation_setup.dc_icepak_temp_file
+            dcir_setup.SimulationSettings.DCIRSettings.ImportThermalData = simulation_setup.dc_import_thermal_data
+            dcir_setup.SimulationSettings.DCIRSettings.PerPinResPath = simulation_setup.dc_per_pin_res_path
+            dcir_setup.SimulationSettings.DCIRSettings.PerPinUsePinFormat = simulation_setup.dc_per_pin_use_pin_format
+            dcir_setup.SimulationSettings.DCIRSettings.UseLoopResForPerPin = (
+                simulation_setup.dc_use_loop_res_for_per_pin
+            )
+            dcir_setup.SimulationSettings.DCIRSettings.ViaReportPath = simulation_setup.dc_via_report_path
+            dcir_setup.SimulationSettings.DCIRSettings.Name = simulation_setup.setup_name
+            sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(dcir_setup)
             return self._cell.AddSimulationSetup(sim_setup)
 
     @pyaedt_function_handler()

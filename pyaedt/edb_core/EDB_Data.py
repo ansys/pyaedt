@@ -3537,6 +3537,16 @@ class SimulationConfiguration(object):
         self._dc_perform_adaptive_refinement = True
         self._dc_refine_bondwires = True
         self._dc_refine_vias = True
+        self._dc_report_config_file = ""
+        self._dc_report_show_Active_devices = True
+        self._dc_export_thermal_data = True
+        self._dc_full_report_path = ""
+        self._dc_icepak_temp_file = ""
+        self._dc_import_thermal_data = False
+        self._dc_per_pin_res_path = ""
+        self._dc_per_pin_use_pin_format = True
+        self._dc_use_loop_res_for_per_pin = True
+        self._dc_via_report_path = ""
         self._signal_layers_properties = {}
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
@@ -4460,14 +4470,14 @@ class SimulationConfiguration(object):
 
         Returns
         -------
-            str
+            int
             The position value, 0 Optimum speed, 1 balanced, 2 optimum accuracy.
         """
         return self._dc_slide_position
 
     @dc_slide_position.setter
     def dc_slide_position(self, value):
-        if isinstance(value, str):
+        if isinstance(value, int):
             self._dc_slide_position = value
 
     @property
@@ -4691,7 +4701,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_refine_bondwires(self):
-        """Retrieve the value for performing bondwire refinement.
+        """Retrieve the value for performing bond wire refinement.
 
         Returns
         -------
@@ -4733,6 +4743,175 @@ class SimulationConfiguration(object):
             List of layer name.
         """
         return self._signal_layers_properties
+
+    @property
+    def dc_report_config_file(self):
+        """Retrieve the report configuration file path.
+
+        Returns
+        -------
+            str
+            The file path.
+
+        """
+        return self._dc_report_config_file
+
+    @dc_report_config_file.setter
+    def dc_report_config_file(self, value):
+        if isinstance(value, str):
+            self._dc_report_config_file = value
+
+    @property
+    def dc_report_show_Active_devices(self):
+        """Retrieve the value for showing active devices.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_report_show_Active_devices
+
+    @dc_report_show_Active_devices.setter
+    def dc_report_show_Active_devices(self, value):
+        if isinstance(value, bool):
+            self._dc_report_show_Active_devices = value
+
+    @property
+    def dc_export_thermal_data(self):
+        """Retrieve the value for using external data.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_export_thermal_data
+
+    @dc_export_thermal_data.setter
+    def dc_export_thermal_data(self, value):
+        if isinstance(value, bool):
+            self._dc_export_thermal_data = value
+
+    @property
+    def dc_full_report_path(self):
+        """Retrieve the path for the report.
+
+        Returns
+        -------
+            str
+            File path.
+
+        """
+        return self._dc_full_report_path
+
+    @dc_full_report_path.setter
+    def dc_full_report_path(self, value):
+        if isinstance(value, str):
+            self._dc_full_report_path = value
+
+    @property
+    def dc_icepak_temp_file(self):
+        """Retrieve the icepak temp file path.
+
+        Returns
+        -------
+            str
+            File path.
+        """
+        return self._dc_icepak_temp_file
+
+    @dc_icepak_temp_file.setter
+    def dc_icepak_temp_file(self, value):
+        if isinstance(value, str):
+            self._dc_icepak_temp_file = value
+
+    @property
+    def dc_import_thermal_data(self):
+        """Retrieve the value for importing thermal data.
+
+        Returns
+        -------
+            bool
+            'True' when activated,'False' deactivated.
+
+        """
+        return self._dc_import_thermal_data
+
+    @dc_import_thermal_data.setter
+    def dc_import_thermal_data(self, value):
+        if isinstance(value, bool):
+            self._dc_import_thermal_data = value
+
+    @property
+    def dc_per_pin_res_path(self):
+        """Retrieve the file path.
+
+        Returns
+        -------
+            str
+            The file path.
+        """
+        return self._dc_per_pin_res_path
+
+    @dc_per_pin_res_path.setter
+    def dc_per_pin_res_path(self, value):
+        if isinstance(value, str):
+            self._dc_per_pin_res_path = value
+
+    @property
+    def dc_per_pin_use_pin_format(self):
+        """Retrieve the value for using pin format
+
+        Returns
+        -------
+            bool
+        """
+        return self._dc_per_pin_use_pin_format
+
+    @dc_per_pin_use_pin_format.setter
+    def dc_per_pin_use_pin_format(self, value):
+        if isinstance(value, bool):
+            self._dc_per_pin_use_pin_format = value
+
+    @property
+    def dc_use_loop_res_for_per_pin(self):
+        """Retrieve the value for using the loop resistor per pin
+
+        Returns
+        -------
+            bool
+        """
+        return self._dc_use_loop_res_for_per_pin
+
+    @dc_use_loop_res_for_per_pin.setter
+    def dc_use_loop_res_for_per_pin(self, value):
+        if isinstance(value, bool):
+            self._dc_use_loop_res_for_per_pin = value
+
+    @property
+    def dc_via_report_path(self):
+        """Retrieve the via report file path.
+
+        Returns
+        -------
+            str
+            The file path.
+
+        """
+        return self._dc_via_report_path
+
+    @dc_via_report_path.setter
+    def dc_via_report_path(self, value):
+        if isinstance(value, str):
+            self._dc_via_report_path = value
+
+    @dc_via_report_path.setter
+    def dc_via_report_path(self, value):
+        if isinstance(value, str):
+            self._dc_via_report_path = value
 
     @signal_layers_properties.setter
     def signal_layers_properties(self, value):  # pragma: no cover
