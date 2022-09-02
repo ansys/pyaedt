@@ -854,19 +854,24 @@ class Cable:
         # Source implementation
         if values["Source"].lower() == "true":
             # Check whether both add and update source are True -> not possible.
-            if values["AddClockSource"].lower() == "true" and values["UpdateClockSource"].lower() == "true":
-                msg = "AddClockSource and UpdateClockSource fields can't have the same value."
-                raise ValueError(msg)
-            if values["AddPwlSource"].lower() == "true" and values["UpdatePwlSource"].lower() == "true":
-                msg = "AddPwlSource and UpdatePwlSource fields can't have the same value."
-                raise ValueError(msg)
+            try:
+                if values["AddClockSource"].lower() == "true" and values["UpdateClockSource"].lower() == "true":
+                    msg = "AddClockSource and UpdateClockSource fields can't have the same value."
+                    raise ValueError(msg)
+                if values["AddPwlSource"].lower() == "true" and values["UpdatePwlSource"].lower() == "true":
+                    msg = "AddPwlSource and UpdatePwlSource fields can't have the same value."
+                    raise ValueError(msg)
+            except ValueError as e:
+                self._app.logger.error(str(e))
+                return False
+
             try:
                 # Check if user action is to remove the source
                 if values["SourcesToRemove"]:
                     if values["SourcesToRemove"] in self.existing_sources_names:
                         self.source_to_remove = values["SourcesToRemove"]
                     else:
-                        msg = "Cable to remove doesn't exist in the current design."
+                        msg = "Source to remove doesn't exist in the current design."
                         raise ValueError(msg)
                 # Check if user action is to add a clock source
                 elif values["ClockSource"].lower() == "true":
