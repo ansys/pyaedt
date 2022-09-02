@@ -586,22 +586,24 @@ class TestClass(BasisTest, object):
         assert Cable(self.aedtapp, cable_file1).create_pwl_source()
         cable = Cable(self.aedtapp)
         assert len(cable.pwl_source_definitions) == 3
-        assert cable.pwl_source_definitions[2]["PWLSignalParams"]["SignalValues"] == [
-            "0V",
-            "0.5V",
-            "0V",
-            "3V",
-            "4V",
-            "0V",
-        ]
-        assert cable.pwl_source_definitions[2]["PWLSignalParams"]["TimeValues"] == [
-            "0ns",
-            "1ns",
-            "2ns",
-            "3ns",
-            "4ns",
-            "5ns",
-        ]
+        assert all(
+            [
+                a == b
+                for a, b in zip(
+                    cable.pwl_source_definitions[2]["PWLSignalParams"]["SignalValues"],
+                    ["0V", "0.5V", "0V", "3V", "4V", "0V"],
+                )
+            ]
+        )
+        assert all(
+            [
+                a == b
+                for a, b in zip(
+                    cable.pwl_source_definitions[2]["PWLSignalParams"]["TimeValues"],
+                    ["0ns", "1ns", "2ns", "3ns", "4ns", "5ns"],
+                )
+            ]
+        )
         assert cable.pwl_source_definitions[2]["TDSourceAttribs"]["Name"] == "pwl4"
 
     def test_27_add_pwl_source_invalid(self):
@@ -635,22 +637,22 @@ class TestClass(BasisTest, object):
         )
         assert Cable(self.aedtapp, cable_file1).update_pwl_source()
         cable = Cable(self.aedtapp)
-        assert cable.pwl_source_definitions[0]["PWLSignalParams"]["SignalValues"] == [
-            "0V",
-            "0.5V",
-            "0V",
-            "3V",
-            "4V",
-            "9V",
-            "0V",
-        ]
-        assert cable.pwl_source_definitions[0]["PWLSignalParams"]["TimeValues"] == [
-            "0ns",
-            "1ns",
-            "2ns",
-            "3ns",
-            "4ns",
-            "5ns",
-            "6ns",
-        ]
+        assert all(
+            [
+                a == b
+                for a, b in zip(
+                    cable.pwl_source_definitions[0]["PWLSignalParams"]["SignalValues"],
+                    ["0V", "0.5V", "0V", "3V", "4V", "9V", "0V"],
+                )
+            ]
+        )
+        assert all(
+            [
+                a == b
+                for a, b in zip(
+                    cable.pwl_source_definitions[0]["PWLSignalParams"]["TimeValues"],
+                    ["0ns", "1ns", "2ns", "3ns", "4ns", "5ns", "6ns"],
+                )
+            ]
+        )
         assert cable.pwl_source_definitions[0]["TDSourceAttribs"]["Name"] == "update_pwl_source"
