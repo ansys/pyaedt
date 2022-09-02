@@ -63,6 +63,7 @@ class TestClass(BasisTest, object):
             component_name, link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
         assert len(self.aedtapp.native_components) == 1
+        assert len(self.aedtapp.modeler.user_defined_component_names) == 1
 
     def test_02A_find_top(self):
         assert self.aedtapp.find_top(0)

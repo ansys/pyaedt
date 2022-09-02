@@ -23,6 +23,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 
@@ -2107,6 +2108,10 @@ class Icepak(FieldAnalysis3D):
 
         native = NativeComponentObject(self, "Fan", name, native_props)
         if native.create():
+            user_defined_component = UserDefinedComponent(
+                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "Fan"
+            )
+            self.modeler.user_defined_components[native.name] = user_defined_component
             new_name = [i for i in list(self.modeler.oeditor.Get3DComponentInstanceNames(name)) if i not in insts][0]
             self.modeler.refresh_all_ids()
             self.materials._load_from_project()
@@ -2221,6 +2226,10 @@ class Icepak(FieldAnalysis3D):
         native_props["TargetCS"] = PCB_CS
         native = NativeComponentObject(self, "PCB", compName, native_props)
         if native.create():
+            user_defined_component = UserDefinedComponent(
+                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "PCB"
+            )
+            self.modeler.user_defined_components[native.name] = user_defined_component
             self.modeler.refresh_all_ids()
             self.materials._load_from_project()
             self.native_components.append(native)

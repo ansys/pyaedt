@@ -218,17 +218,17 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.name = "InsertNativeComponentData"
+        # self.name = "InsertNativeComponentData"
         try:
             names = [i for i in self._app.excitations]
         except Exception as e:
             names = []
-        self.antennaname = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
+        self.name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
         except Exception as e:
-            self.excitation_name = self.antennaname
+            self.excitation_name = self.name
         return True
 
     @pyaedt_function_handler()
@@ -242,7 +242,6 @@ class NativeComponentObject(BoundaryCommon, object):
 
         """
 
-        self.name = "EditNativeComponentDefinitionData"
         self.update_props = OrderedDict({})
         self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
@@ -274,10 +273,12 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antennaname])
+        self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         for el in self._app.native_components:
             if el.component_name == self.component_name:
                 self._app.native_components.remove(el)
+                del self._app.modeler.user_defined_components[self.name]
+                self._app.modeler.cleanup_objects()
         return True
 
 

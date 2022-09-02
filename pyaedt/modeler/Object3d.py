@@ -23,6 +23,7 @@ from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic import DataHandlers
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
@@ -3836,11 +3837,9 @@ class UserDefinedComponentProps(OrderedDict):
     def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
         if self._pyaedt_user_defined_component.auto_update:
-            res = self._pyaedt_user_defined_component.update()
+            res = self._pyaedt_user_defined_component.update_native()
             if not res:
-                self._pyaedt_user_defined_component._app.logger.warning(
-                    "Update of %s Failed. Check needed arguments", key
-                )
+                self._pyaedt_user_defined_component._logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, user_defined_components, props):
         OrderedDict.__init__(self)
@@ -3879,7 +3878,7 @@ class UserDefinedComponent(object):
     >>> component = aedtapp.modeler[component_names[0]]
     """
 
-    def __init__(self, primitives, name=None, props=None):
+    def __init__(self, primitives, name=None, props=None, component_type=None):
         """
         Parameters
         ----------
@@ -3913,11 +3912,61 @@ class UserDefinedComponent(object):
         self._parameters = {}
         self._parts = None
         self._primitives = primitives
-        self._target_coordinate_system = None
+        self._target_coordinate_system = "Global"
         self._is_updated = False
         self._all_props = None
-        self.auto_update = True
-        self.props = UserDefinedComponentProps(self, props)
+        defined_components = self._primitives.oeditor.Get3DComponentDefinitionNames()
+        for component in defined_components:
+            if self._m_name in self._primitives.oeditor.Get3DComponentInstanceNames(component):
+                self.definition_name = component
+        if component_type:
+            self.auto_update = False
+            self._props = UserDefinedComponentProps(
+                self,
+                OrderedDict(
+                    {
+                        "TargetCS": self._target_coordinate_system,
+                        "SubmodelDefinitionName": component,
+                        "ComponentPriorityLists": OrderedDict({}),
+                        "NextUniqueID": 0,
+                        "MoveBackwards": False,
+                        "DatasetType": "ComponentDatasetType",
+                        "DatasetDefinitions": OrderedDict({}),
+                        "BasicComponentInfo": OrderedDict(
+                            {
+                                "ComponentName": component,
+                                "Company": "",
+                                "Company URL": "",
+                                "Model Number": "",
+                                "Help URL": "",
+                                "Version": "1.0",
+                                "Notes": "",
+                                "IconType": "",
+                            }
+                        ),
+                        "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                        "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                        "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                        "MapInstanceParameters": "DesignVariable",
+                        "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                        + DataHandlers.random_string(12, char_set="abcdef0123456789"),
+                        "OriginFilePath": "",
+                        "IsLocal": False,
+                        "ChecksumString": "",
+                        "ChecksumHistory": [],
+                        "VersionHistory": [],
+                        "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+                        "InstanceParameters": OrderedDict(
+                            {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                        ),
+                    }
+                ),
+            )
+            if props:
+                self._update_props(self._props["NativeComponentDefinitionProvider"], props)
+            self.native_properties = self._props["NativeComponentDefinitionProvider"]
+            self.auto_update = True
+        # self.props = UserDefinedComponentProps(self, props)
 
     @property
     def group_name(self):
@@ -4350,14 +4399,66 @@ class UserDefinedComponent(object):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
+    @pyaedt_function_handler()
+    def update_native(self):
+        """Update the Native Component in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        # self.name = "EditNativeComponentDefinitionData"
+        self.update_props = OrderedDict({})
+        self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
+        self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
+        self.update_props["DesignDefinitionParameters"] = self._props["DesignDefinitionParameters"]
+        self.update_props["MaterialDefinitionParameters"] = self._props["MaterialDefinitionParameters"]
+        self.update_props["NextUniqueID"] = self._props["NextUniqueID"]
+        self.update_props["MoveBackwards"] = self._props["MoveBackwards"]
+        self.update_props["DatasetType"] = self._props["DatasetType"]
+        self.update_props["DatasetDefinitions"] = self._props["DatasetDefinitions"]
+        self.update_props["NativeComponentDefinitionProvider"] = self._props["NativeComponentDefinitionProvider"]
+        self.update_props["ComponentName"] = self._props["BasicComponentInfo"]["ComponentName"]
+        self.update_props["Company"] = self._props["BasicComponentInfo"]["Company"]
+        self.update_props["Model Number"] = self._props["BasicComponentInfo"]["Model Number"]
+        self.update_props["Help URL"] = self._props["BasicComponentInfo"]["Help URL"]
+        self.update_props["Version"] = self._props["BasicComponentInfo"]["Version"]
+        self.update_props["Notes"] = self._props["BasicComponentInfo"]["Notes"]
+        self.update_props["IconType"] = self._props["BasicComponentInfo"]["IconType"]
+        self._primitives.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+
+        return True
+
     @property
     def _logger(self):
         """Logger."""
         return self._primitives.logger
 
     @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_component_property(vPropChange, self._m_name)
+
+    @pyaedt_function_handler()
+    def _update_props(self, d, u):
+        for k, v in u.items():
+            if isinstance(v, (dict, OrderedDict)):
+                if k not in d:
+                    d[k] = OrderedDict({})
+                d[k] = self._update_props(d[k], v)
+            else:
+                d[k] = v
+        return d
 
     @property
     def _m_Editor(self):
