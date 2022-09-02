@@ -1507,9 +1507,9 @@ class Layers(object):
         for v in list(self.layers.values()):
             if v.type in ["signal", "dielectric"]:
                 if mode.lower() == "multizone":
-                    v.zones = [i for i in range(number_zones)]
+                    v._zones = [i for i in range(number_zones)]
                 else:
-                    v.zones = []
+                    v._zones = []
             args.append(v._get_layer_arg)
         self.oeditor.ChangeLayers(args)
         return True
