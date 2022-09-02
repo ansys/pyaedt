@@ -711,8 +711,9 @@ class QExtractor(FieldAnalysis3D, object):
 
     def export_equivalent_circuit(
         self,
-        solution=None,
-        variation=None,
+        setup_name=None,
+        sweep=None,
+        variations=None,
         file_name=None,
         export_settings=None,
         matrix_name=None,
@@ -746,15 +747,65 @@ class QExtractor(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        solution : str
-            Solution to export the equivalent circuit from.
+        setup_name : str, optional
+            Setup name. The default value is ``None``, in which case the first
+            analysis setup is used.
+        sweep : str, optional
+            Solution frequency. The default is ``None``, in which case
+            the default adaptive is used.
+        variations : str, optional
+            Design variation. The default is ``None``, in which case the
+            current nominal variation is used.
+        matrix_name : str, optional
+            Name of the matrix to display.
+            Default value is ``"Original"``.
+
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        pass
+        if setup_name is None:
+            setup_name = self.analysis_setup
+        elif setup_name != self.analysis_setup:
+            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
+            return False
+        if sweep is None:
+            sweep = self.design_solutions.default_adaptive
+        else:
+            sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
+            if sweep.replace(" ", "") not in sweep_array:
+                self.logger.error("Sweep is invalid. Provide a valid sweep.")
+                return False
+        analysis_setup = setup_name + " : " + sweep.replace(" ", "")
+
+        if variations is None:
+            if not self.available_variations.nominal_w_values_dict:
+                variations = ""
+            else:
+                variations_list = []
+                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                    variation = "{}='{}'".format(
+                        list(self.available_variations.nominal_w_values_dict.keys())[x],
+                        list(self.available_variations.nominal_w_values_dict.values())[x],
+                    )
+                    variations_list.append(variation)
+                variations = ",".join(variations_list)
+
+        if matrix_name is None:
+            reduce_matrix = "Original"
+        else:
+            if self.matrices:
+                if not [matrix for matrix in self.matrices if matrix.name == matrix_name]:
+                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
+                    return False
+            else:
+                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
+                return False
+
+        if self.modeler._is3d:
+            pass
 
 
 class Q3d(QExtractor, object):
