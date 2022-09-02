@@ -3834,7 +3834,7 @@ class UserDefinedComponentParameters(dict):
 
 
 class UserDefinedComponentProps(OrderedDict):
-    """AEDT Component Internal Parameters."""
+    """User Defined Component Internal Parameters."""
 
     def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
