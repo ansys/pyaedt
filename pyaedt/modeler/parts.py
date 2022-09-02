@@ -522,6 +522,6 @@ class Antenna(Part, object):
         else:
             antenna_object = self._insert(app, target_cs=self._multiparts.cs_name, units=units)
         if self._do_rotate and antenna_object:
-            self.do_rotate(app, antenna_object.antennaname)
+            self.do_rotate(app, antenna_object.name)
 
         return antenna_object
