@@ -519,6 +519,7 @@ class EdbPadstacks(object):
         offset_x="0.0",
         offset_y="0.0",
         rotation="0.0",
+        has_hole=True,
     ):
         """Create a padstack.
 
@@ -552,6 +553,8 @@ class EdbPadstacks(object):
             Y offset of antipad. The default is ``"0.0"``.
         rotation : str, optional
             rotation of antipad. The default is ``"0.0"``.
+        has_hole : bool, optional
+            Whether this padstack has a hole.
         Returns
         -------
         str
@@ -565,7 +568,10 @@ class EdbPadstacks(object):
             padstackname = generate_unique_name("VIA")
         # assert not self.isreadonly, "Write Functions are not available within AEDT"
         padstackData = self._edb.Definition.PadstackDefData.Create()
-        ptype = self._edb.Definition.PadGeometryType.Circle
+        if has_hole:
+            ptype = self._edb.Definition.PadGeometryType.Circle
+        else:
+            ptype = self._edb.Definition.PadGeometryType.NoGeometry
         holparam = Array[type(holediam)]([holediam])
         value0 = self._get_edb_value("0.0")
         x_size = self._get_edb_value(x_size)

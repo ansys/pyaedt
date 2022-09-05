@@ -271,7 +271,7 @@ $begin 'AnsoftProject'
 		$end 'OutputVariable'
 		$begin 'CableSetup'
 			$begin 'CableManager'
-				CableNextUniqueID=1017
+				CableNextUniqueID=1020
 				MoveBackwards=false
 				Version(1, 0)
 				$begin 'TDSources'
@@ -289,6 +289,40 @@ $begin 'AnsoftProject'
 							Name='clock1'
 						$end 'TDSourceAttribs'
 					$end 'ClockSourceDef'
+					$begin 'PWLSourceDef'
+						ID=1017
+						$begin 'PWLSignalParams'
+							SignalValues[3: '0V', '0.5V', '0V']
+							TimeValues[3: '0ns', '1ns', '2ns']
+						$end 'PWLSignalParams'
+						$begin 'TDSourceAttribs'
+							Name='pwl1'
+						$end 'TDSourceAttribs'
+					$end 'PWLSourceDef'
+					$begin 'ClockSourceDef'
+						ID=1018
+						$begin 'ClockSignalParams'
+							Period='35us'
+							LowPulseVal='0V'
+							HighPulseVal='1V'
+							Risetime='5us'
+							Falltime='5us'
+							PulseWidth='20us'
+						$end 'ClockSignalParams'
+						$begin 'TDSourceAttribs'
+							Name='clock2'
+						$end 'TDSourceAttribs'
+					$end 'ClockSourceDef'
+					$begin 'PWLSourceDef'
+						ID=1019
+						$begin 'PWLSignalParams'
+							SignalValues[3: '0V', '0.5V', '0V']
+							TimeValues[3: '0ns', '1ns', '2ns']
+						$end 'PWLSignalParams'
+						$begin 'TDSourceAttribs'
+							Name='pwl2'
+						$end 'TDSourceAttribs'
+					$end 'PWLSourceDef'
 				$end 'TDSources'
 				$begin 'Definitions'
 				$end 'Definitions'
@@ -966,7 +1000,7 @@ $begin 'AnsoftProject'
 					PlotDefinitionType='Mesh_field_type'
 					PlotName='Mag_E1'
 					PlotDefinitionId=0
-					VersionID=13
+					VersionID=16
 					SolutionId=12
 					UserSpecifyName=0
 					UserSpecifyFolder=0
@@ -1002,7 +1036,7 @@ $begin 'AnsoftProject'
 					PlotDefinitionType='Mesh_field_type'
 					PlotName='Mag_E2'
 					PlotDefinitionId=1
-					VersionID=13
+					VersionID=16
 					SolutionId=12
 					UserSpecifyName=0
 					UserSpecifyFolder=0
@@ -1067,7 +1101,7 @@ $begin 'AnsoftProject'
 					FirstCellPosX='0mm'
 					FirstCellPosY='0mm'
 					FirstCellPosZ='0mm'
-					Behavior='UseSlaveSettings'
+					Behavior='UseScanAngle'
 					ScanAnglePhi='45deg'
 					ScanAngleTheta='45deg'
 					UDirnPhaseShift='0deg'
@@ -1226,7 +1260,7 @@ $begin 'AnsoftProject'
 		Notes=$begin_cdata$ $end_cdata$
 		$begin 'AnimationSetups'
 		$end 'AnimationSetups'
-		CacheHeaderFile='HDR31766480416590047983.tmp'
+		CacheHeaderFile='HDRF79205616619622703.tmp'
 	$end 'HFSSModel'
 	$begin 'DataInstances'
 		DesignEditor='TopLevel'
@@ -1253,7 +1287,7 @@ $begin 'AnsoftProject'
 				DesignInstanceID=1
 				$begin 'WindowPosition'
 					$begin 'EditorWindow'
-						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -9, -38, 0, 0, 1488, 364), OrientationMatrix(-0.000347522378433496, -0.000557275488972664, 0.000881129992194474, 0, 0.00104256707709283, -0.000185758486622944, 0.000293709948891774, 0, 0, 0.000928792520426214, 0.000587420014198869, 0, -1.19209289550781e-07, 0.00696570565924048, -6.21068954467773, 1, 0, -3.48076915740967, 3.48076915740967, -1, 1, -1.55584955215454, 13.9860401153564), Drawings[2: 'Rectangle1', 'Polyline1'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=100, dYForGrid=100, dZForGrid=100, dRForGrid=100, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
+						Circuit(Editor3d(View('View Orientation Gadget'=1, WindowPos(3, -1, -1, -9, -38, 0, 0, 1488, 364), OrientationMatrix(-0.000347522378433496, -0.000557275488972664, 0.000881129992194474, 0, 0.00104256707709283, -0.000185758486622944, 0.000293709948891774, 0, 0, 0.000928792520426214, 0.000587420014198869, 0, -1.19209289550781e-07, 0.00696570565924048, -6.21068954467773, 1, 0, -3.25, 3.25, -1, 1, -1.55584955215454, 13.9860401153564), Drawings[2: 'Rectangle1', 'Polyline1'], 'View Data'('Render Mode'=1, 'Show Ruler'=1, 'Coordinate Systems View Mode'=1, 'CS Triad View Mode'=0, 'Render Facets'=1, GridVisible=1, GridAutoAdjust=1, GridAutoExtents=1, GridType='Rect', GridStyle='Line', NumPixels=30, dXForGrid=100, dYForGrid=100, dZForGrid=100, dRForGrid=100, dThetaForGrid=10), ClipPlanes(ClipPlaneOptions(DisableWhenDrawingNewPlane=true, ForceOpqaueForUnclipped=false, ShowClipped=false, Transparency=0, HandleColor=16776960)))))
 					$end 'EditorWindow'
 				$end 'WindowPosition'
 				$begin 'ReportSetup'

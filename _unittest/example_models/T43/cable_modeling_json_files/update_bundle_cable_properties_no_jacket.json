@@ -1,4 +1,6 @@
 {
+	"Source": "False",
+	"Cable": "True",
 	"CableType":"bundle",
 	"IsJacketTypeInsulation": "False",
 	"IsJacketTypeBraidShield": "False",

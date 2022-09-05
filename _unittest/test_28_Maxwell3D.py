@@ -75,6 +75,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
         assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
 
+    def test_01B_lamination(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="X", position=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", matname="titanium"
+        )
+        self.aedtapp.materials["titanium"].stacking_type = "Lamination"
+        self.aedtapp.materials["titanium"].stacking_factor = "0.99"
+        self.aedtapp.materials["titanium"].stacking_direction = "V(3)"
+        self.aedtapp.materials["titanium"].stacking_direction = "V(2)"
+        assert self.aedtapp.materials["titanium"].stacking_type == "Lamination"
+        assert self.aedtapp.materials["titanium"].stacking_factor == "0.99"
+        assert self.aedtapp.materials["titanium"].stacking_direction == "V(2)"
+
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
