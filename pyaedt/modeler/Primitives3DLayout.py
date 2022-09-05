@@ -616,7 +616,7 @@ class Primitives3DLayout(object):
         return self._padstacks
 
     @pyaedt_function_handler()
-    def change_net_visibility(self, netlist=None, visible=False):
+    def change_net_visibility(self, netlist=None, visible=True):
         """Change the visibility of one or more nets.
 
         Parameters
@@ -624,8 +624,8 @@ class Primitives3DLayout(object):
         netlist : str  or list, optional
             One or more nets to visualize. The default is ``None``.
         visible : bool, optional
-            Whether to make the selected nets visible. The
-            The default value is ``False``.
+            Whether to make the selected nets visible.
+            The default value is ``True``.
 
         Returns
         -------
@@ -639,17 +639,29 @@ class Primitives3DLayout(object):
         """
         if not netlist:
             netlist = self.nets
-
         if type(netlist) is str:
             netlist = [netlist]
+
+        nets_dictionary = {}
+
+        for net in self.nets:
+            if net not in netlist:
+                nets_dictionary[net] = not visible
+            else:
+                nets_dictionary[net] = visible
+
         args = ["NAME:Args"]
-        for net in netlist:
-            args.append("Name:=")
-            args.append(net)
-            args.append("Vis:=")
-            args.append(visible)
-        self.oeditor.SetNetVisible(args)
-        return True
+        try:
+            for key in nets_dictionary:
+                args.append("Name:=")
+                args.append(key)
+                args.append("Vis:=")
+                args.append(nets_dictionary[key])
+            self.oeditor.SetNetVisible(args)
+            return True
+        except:
+            self.logger.error("Couldn't change nets visibility.")
+            return False
 
     @pyaedt_function_handler()
     def create_via(

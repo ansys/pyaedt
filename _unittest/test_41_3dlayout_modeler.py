@@ -635,3 +635,15 @@ class TestClass(BasisTest, object):
 
     def test_95_create_text(self):
         assert self.aedtapp.modeler.create_text("test", [0, 0])
+
+    def test_96_change_nets_visibility(self):
+        self.aedtapp.set_active_design("Galileo_um")
+        # hide all
+        assert self.aedtapp.modeler.change_net_visibility(visible=False)
+        # visualize all
+        assert self.aedtapp.modeler.change_net_visibility()
+        # visualize selected nets only
+        assert self.aedtapp.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True)
+        # hide selected nets and show others
+        assert self.aedtapp.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False)
+        assert not self.aedtapp.modeler.change_net_visibility(["test1, test2"])
