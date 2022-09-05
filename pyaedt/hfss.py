@@ -3519,7 +3519,7 @@ class Hfss(FieldAnalysis3D, object):
             Name of the sheet to apply the boundary to.
         axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also allows give the list
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
             of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
             The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
