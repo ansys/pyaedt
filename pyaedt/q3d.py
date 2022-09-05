@@ -724,8 +724,10 @@ class QExtractor(FieldAnalysis3D, object):
         include_dcl=True,
         include_acr=True,
         include_acl=True,
-        add_resistance=None,
-        parse_pin_names=None,
+        add_resistance=True,
+        include_cpp=False,
+        parse_pin_names=False,
+        cs="Global",
         export_distributed=None,
         lumped_length=None,
         rise_time=None,
@@ -734,10 +736,6 @@ class QExtractor(FieldAnalysis3D, object):
         ind_limit=None,
         res_limit=None,
         cond_limit=None,
-        cap_fraction=None,
-        ind_fraction=None,
-        res_fraction=None,
-        cond_fraction=None,
         model_name=None,
         freq=None,
     ):
@@ -775,6 +773,7 @@ class QExtractor(FieldAnalysis3D, object):
         coupling_limit_type : int, optional
             Coupling limit types.
             Values can be : "By Value" -> 0  or "By Fraction Of Self Term" -> 1.
+            If None, no coupling limits are set.
         include_dcr : bool, optional
             Flag indicates whether to export DC resistance matrix.
             Default value is True.
@@ -787,6 +786,18 @@ class QExtractor(FieldAnalysis3D, object):
         include_acl : bool, True
             Flag indicates whether to export AC inductance matrix.
             Default value is True.
+        add_resistance : bool, optional
+            Adds the DC and AC resistance.
+            Default value is True.
+        parse_pin_names : bool, optional
+            Parse pin names.
+            Default value is False.
+        include_cpp : bool, optional
+            Include chip package protocol.
+            Default value is False.
+        cs : str, optional
+            Coordinate system for chip package control.
+            Default value is Global.
 
         Returns
         -------
@@ -839,7 +850,7 @@ class QExtractor(FieldAnalysis3D, object):
                 variations = ",".join(variations_list)
 
         if matrix_name is None:
-            reduce_matrix = "Original"
+            matrix_name = "Original"
         else:
             if self.matrices:
                 if not [matrix for matrix in self.matrices if matrix.name == matrix_name]:
@@ -849,87 +860,158 @@ class QExtractor(FieldAnalysis3D, object):
                 self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
                 return False
 
-        if coupling_limit_type not in [0, 1]:
-            self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
+        if not coupling_limit_type:
+            if coupling_limit_type not in [0, 1]:
+                self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
+                return False
+            elif coupling_limit_type == 0:
+                coupling_limit_value = "By Value"
+            elif coupling_limit_type == 1:
+                coupling_limit_value = "By Fraction Of Self Term"
+
+            if cond_limit is None and coupling_limit_type == 0:
+                cond_limit = "1mSie"
+            elif cond_limit is None and coupling_limit_type == 1:
+                cond_limit = "0.01"
+            elif cond_limit is not None:
+                if decompose_variable_value(cond_limit)[1] not in [
+                    "fSie",
+                    "pSie",
+                    "nSie",
+                    "uSie",
+                    "mSie",
+                    "sie",
+                    "kSie",
+                    "megSie",
+                    "mho",
+                    "perohm",
+                ]:
+                    self.logger.error("Invalid conductance unit.")
+                    return False
+
+            if cap_limit is None and coupling_limit_type == 0:
+                cap_limit = "1pF"
+            elif cap_limit is None and coupling_limit_type == 1:
+                cap_limit = "0.01"
+            elif cap_limit is not None:
+                if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
+                    self.logger.error("Invalid capacitance unit.")
+                    return False
+
+            if ind_limit is None and coupling_limit_type == 0:
+                ind_limit = "1nH"
+            elif ind_limit is None and coupling_limit_type == 1:
+                ind_limit = "0.01"
+            elif ind_limit is not None:
+                if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
+                    self.logger.error("Invalid inductance unit.")
+                    return False
+
+            if res_limit is None and coupling_limit_type == 0:
+                res_limit = "1ohm"
+            elif res_limit is None and coupling_limit_type == 1:
+                res_limit = "0.01"
+            elif res_limit is not None:
+                if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
+                    self.logger.error("Invalid resistance unit.")
+                    return False
+
+        if include_cpp and not [x for x in [include_dcr, include_acr, include_dcl, include_acl, add_resistance] if x]:
+            self.logger.error("Cannot include chip package protocol.")
             return False
-        elif coupling_limit_type == 0:
-            coupling_limit_type = "By Value"
-        elif coupling_limit_type == 1:
-            coupling_limit_type = "By Fraction Of Self Term"
-
-        if cond_limit is None and coupling_limit_type == 0:
-            cond_limit = "1mSie"
-        elif cond_limit is None and coupling_limit_type == 1:
-            cond_limit = "0.01"
-        elif cond_limit is not None:
-            if decompose_variable_value(cond_limit)[1] not in [
-                "fSie",
-                "pSie",
-                "nSie",
-                "uSie",
-                "mSie",
-                "sie",
-                "kSie",
-                "megSie",
-                "mho",
-                "perohm",
-            ]:
-                self.logger.error("Invalid conductance unit.")
-                return False
-
-        if cap_limit is None and coupling_limit_type == 0:
-            cap_limit = "1pF"
-        elif cap_limit is None and coupling_limit_type == 1:
-            cap_limit = "0.01"
-        elif cap_limit is not None:
-            if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-                self.logger.error("Invalid capacitance unit.")
-                return False
-
-        if ind_limit is None and coupling_limit_type == 0:
-            ind_limit = "1nH"
-        elif ind_limit is None and coupling_limit_type == 1:
-            ind_limit = "0.01"
-        elif ind_limit is not None:
-            if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
-                self.logger.error("Invalid inductance unit.")
-                return False
-
-        if res_limit is None and coupling_limit_type == 0:
-            res_limit = "1nH"
-        elif res_limit is None and coupling_limit_type == 1:
-            res_limit = "0.01"
-        elif res_limit is not None:
-            if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
-                self.logger.error("Invalid resistance unit.")
+        elif include_cpp:
+            existing_cs = [x.name for x in self.modeler.coordinate_systems]
+            if cs not in [existing_cs, "Global"]:
+                self.logger.error("Invalid coordinate system.")
                 return False
 
         if self.modeler._is3d:
             try:
                 self.oanalysis.ExportCircuit(
-                    "NAME:CircuitData",
-                    "MatrixName:=",
-                    matrix_name,
-                    "NumberOfCells:=",
-                    num_cells,
-                    "UserHasChangedSettings:=",
-                    user_changed_settings,
-                    "IncludeCap:=",
-                    include_cap,
-                    "IncludeCond:=",
-                    include_cond,
+                    analysis_setup,
+                    variations,
+                    file_name,
                     [
-                        "NAME:CouplingLimits",
-                        "CouplingLimitType:=",
-                        coupling_limit_type,
-                        "CapLimit:=",
-                        cap_limit,
-                        "IndLimit:=",
-                        ind_limit,
-                        "ResLimit:=",
-                        res_limit,
-                        "CondLimit:=",
-                        cond_limit,
+                        "NAME:CircuitData",
+                        "MatrixName:=",
+                        matrix_name,
+                        "NumberOfCells:=",
+                        str(num_cells),
+                        "UserHasChangedSettings:=",
+                        user_changed_settings,
+                        "IncludeCap:=",
+                        include_cap,
+                        "IncludeCond:=",
+                        include_cond,
+                        [
+                            "NAME:CouplingLimits",
+                            "CouplingLimitType:=",
+                            coupling_limit_value,
+                            "CapLimit:=",
+                            cap_limit,
+                            "IndLimit:=",
+                            ind_limit,
+                            "ResLimit:=",
+                            res_limit,
+                            "CondLimit:=",
+                            cond_limit,
+                        ],
+                        "IncludeDCR:=",
+                        include_dcr,
+                        "IncudeDCL:=",
+                        include_dcl,
+                        "IncludeACR:=",
+                        include_acr,
+                        "IncludeACL:=",
+                        include_acl,
+                        "ADDResistance:=",
+                        add_resistance,
+                        "ParsePinNames:=",
+                        parse_pin_names,
+                        "IncludeCPP:=",
+                        include_cpp,
+                        [
+                            "NAME:CPPInfo",
+                            "PackageType:=",
+                            "wirebond diedown",
+                            "RelativeCS:=",
+                            "Global",
+                            "LengthUnits:=",
+                            self.modeler.model_units,
+                            [
+                                "NAME:Pins",
+                                "d1_e:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "d2_c:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "T1_e:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "T2_c:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "Load_out:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "N_out:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "d2_e:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "T2_e:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "P_out:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "d1_c:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "T1_c:=",
+                                ["Q3D_IGBTdes1", "Power Ground", "OTHER", False],
+                                "T1_gate_in:=",
+                                ["Q3D_IGBTdes1", "Signal", "OTHER", False],
+                                "T2_gate_in:=",
+                                ["Q3D_IGBTdes1", "Signal", "OTHER", False],
+                                "T2_gate_out:=",
+                                ["Q3D_IGBTdes1", "Signal", "OTHER", False],
+                                "T1_gate_out:=",
+                                ["Q3D_IGBTdes1", "Signal", "OTHER", False],
+                            ],
+                        ],
                     ],
                 )
             except:
