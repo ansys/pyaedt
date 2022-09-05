@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
+    from System.Collections.Generic import Dictionary
     from System.Collections.Generic import List
 except ImportError:
     if os.name != "posix":
@@ -3547,6 +3548,7 @@ class SimulationConfiguration(object):
         self._dc_per_pin_use_pin_format = True
         self._dc_use_loop_res_for_per_pin = True
         self._dc_via_report_path = ""
+        self._dc_source_terms_to_ground = Dictionary[str, int]()
         self._signal_layers_properties = {}
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
@@ -4918,6 +4920,25 @@ class SimulationConfiguration(object):
         if isinstance(value, str):
             self._dc_via_report_path = value
 
+    @property
+    def dc_source_terms_to_ground(self):
+        """Retrieve the dictionary of grounded terminals
+
+        Returns
+        -------
+            Dictionary
+            {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
+
+        """
+        return self._dc_source_terms_to_ground
+
+    @dc_source_terms_to_ground.setter
+    def dc_source_terms_to_ground(self, value):
+        if isinstance(value, OrderedDict):
+            if len([k for k in value.keys() if isinstance(k, str)]) == len(value.keys()):
+                if len([v for v in value.values() if isinstance(v, int)]) == len(value.values()):
+                    self._dc_source_terms_to_ground = value
+
     @signal_layers_properties.setter
     def signal_layers_properties(self, value):  # pragma: no cover
         if isinstance(value, dict):
@@ -5165,6 +5186,11 @@ class SimulationConfiguration(object):
             else:
                 prop_values = [value.strip()]
             return prop_values
+
+    def add_dc_ground_source_term(self, source_name=None, node_to_ground=1):
+        if source_name:
+            if node_to_ground in [0, 1, 2]:
+                self._dc_source_terms_to_ground[source_name] = node_to_ground
 
     def _parse_signal_layer_properties(self, signal_properties):  # pragma: no cover
         for lay in signal_properties:
