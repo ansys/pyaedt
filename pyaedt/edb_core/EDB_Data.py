@@ -5188,6 +5188,18 @@ class SimulationConfiguration(object):
             return prop_values
 
     def add_dc_ground_source_term(self, source_name=None, node_to_ground=1):
+        """Add a dc ground source terminal for Siwave.
+
+        Parameters
+        -----------
+
+        source_name = str
+            The source name to assign the reference node
+
+        node_to_ground = int
+            Value must be 0: unspecified, 1: negative node, 2: positive node.
+
+        """
         if source_name:
             if node_to_ground in [0, 1, 2]:
                 self._dc_source_terms_to_ground[source_name] = node_to_ground
