@@ -5448,6 +5448,11 @@ class SimulationConfiguration(object):
                 if k == "_sources":
                     sources_out = [src._json_format() for src in v]
                     dict_out[k[1:]] = sources_out
+                if k == "_dc_source_terms_to_ground":
+                    dc_term_gnd = {}
+                    for k2 in list(v.Keys):
+                        dc_term_gnd[k2] = v[k2]
+                    dict_out[k[1:]] = dc_term_gnd
                 else:
                     dict_out[k[1:]] = v
             else:
@@ -5487,6 +5492,11 @@ class SimulationConfiguration(object):
                         source = Source()
                         source._read_json(src)
                         self.sources.append(source)
+                if k == "dc_source_terms_to_ground":
+                    dc_term_gnd = Dictionary[str, int]()
+                    for k1, v1 in json_dict[k]:
+                        dc_term_gnd[k1] = v1
+                    self.dc_source_terms_to_ground = dc_term_gnd
                 self.__setattr__(k, v)
             self.filename = input_file
             return True
