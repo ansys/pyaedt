@@ -4933,7 +4933,7 @@ class SimulationConfiguration(object):
         return self._dc_source_terms_to_ground
 
     @dc_source_terms_to_ground.setter
-    def dc_source_terms_to_ground(self, value):
+    def dc_source_terms_to_ground(self, value):  # pragma: no cover
         if isinstance(value, OrderedDict):
             if len([k for k in value.keys() if isinstance(k, str)]) == len(value.keys()):
                 if len([v for v in value.values() if isinstance(v, int)]) == len(value.values()):
@@ -5450,7 +5450,7 @@ class SimulationConfiguration(object):
                     dict_out[k[1:]] = sources_out
                 if k == "_dc_source_terms_to_ground":
                     dc_term_gnd = {}
-                    for k2 in list(v.Keys):
+                    for k2 in list(v.Keys):  # pragma: no cover
                         dc_term_gnd[k2] = v[k2]
                     dict_out[k[1:]] = dc_term_gnd
                 else:
@@ -5494,7 +5494,7 @@ class SimulationConfiguration(object):
                         self.sources.append(source)
                 if k == "dc_source_terms_to_ground":
                     dc_term_gnd = Dictionary[str, int]()
-                    for k1, v1 in json_dict[k]:
+                    for k1, v1 in json_dict[k]:  # pragma: no cover
                         dc_term_gnd[k1] = v1
                     self.dc_source_terms_to_ground = dc_term_gnd
                 self.__setattr__(k, v)
