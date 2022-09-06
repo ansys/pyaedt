@@ -616,16 +616,17 @@ class Primitives3DLayout(object):
         return self._padstacks
 
     @pyaedt_function_handler()
-    def change_net_visibility(self, netlist=None, visible=True):
+    def change_net_visibility(self, netlist=None, visible=False):
         """Change the visibility of one or more nets.
 
         Parameters
         ----------
         netlist : str  or list, optional
             One or more nets to visualize. The default is ``None``.
+            If no nets are provided all the nets in the design will be selected.
         visible : bool, optional
             Whether to make the selected nets visible.
-            The default value is ``True``.
+            The default value is ``False``.
 
         Returns
         -------
@@ -637,6 +638,7 @@ class Primitives3DLayout(object):
 
         >>> oEditor.SetNetVisible
         """
+        nets_dictionary = {}
         if not netlist:
             netlist = self.nets
         elif [x for x in netlist if x not in self.nets]:
@@ -645,7 +647,17 @@ class Primitives3DLayout(object):
         if type(netlist) is str:
             netlist = [netlist]
 
-        nets_dictionary = {}
+        if isinstance(visible, str):
+            if visible.lower() == "true":
+                visible = True
+            elif visible.lower() == "false":
+                visible = False
+            else:
+                self.logger.error("Provide a valid string value for visibility.")
+                return False
+        elif not isinstance(visible, bool):
+            self.logger.error("Provide a valid type value for visibility.")
+            return False
 
         for net in self.nets:
             if net not in netlist:

@@ -644,9 +644,10 @@ class TestClass(BasisTest, object):
         # hide all
         assert hfss3d.modeler.change_net_visibility(visible=False)
         # visualize all
-        assert hfss3d.modeler.change_net_visibility()
+        assert hfss3d.modeler.change_net_visibility(visible=True)
         # visualize selected nets only
         assert hfss3d.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True)
         # hide selected nets and show others
         assert hfss3d.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False)
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
+        assert not hfss3d.modeler.change_net_visibility(visible="")
