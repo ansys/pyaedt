@@ -149,6 +149,23 @@ class TestClass(BasisTest, object):
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] == "99"
         assert type(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) is list
         assert len(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) == 2
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_twisted_pair_cable_properties_laylength.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_cable()
+
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_twisted_pair_cable_properties_invalid.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_cable()
 
     def test_04_create_cables_missing_properties(self):
         cable_file1 = os.path.join(
@@ -412,16 +429,16 @@ class TestClass(BasisTest, object):
         cable = Cable(self.aedtapp)
         assert cable.cable_definitions["TwistedPairCable"]
         assert (
-            cable.cable_definitions["TwistedPairCable"]["TwistedPairAttribs"]["Name"]
+            cable.cable_definitions["TwistedPairCable"][0]["TwistedPairAttribs"]["Name"]
             == "updated_name_cable_twisted_pair"
         )
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] == 1023
-        assert not cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"]
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["LayLength"] == "47mm"
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] == "97"
-        assert type(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) is list
-        assert len(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) == 2
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["StraightWireCableID"] == 1023
+        assert not cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["IsLayLengthSpecified"]
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["LayLength"] == "47mm"
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["TurnsPerMeter"] == "97"
+        assert type(cable.cable_definitions["TwistedPairCable"][0]["Instances"]["StWireInstance"]) is list
+        assert len(cable.cable_definitions["TwistedPairCable"][0]["Instances"]["StWireInstance"]) == 2
 
     def test_16_remove_cables(self):
         cable_file1 = os.path.join(
@@ -641,6 +658,15 @@ class TestClass(BasisTest, object):
         )
         assert cable.pwl_source_definitions[2]["TDSourceAttribs"]["Name"] == "pwl4"
 
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source_noname.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_pwl_source()
+
     def test_30_add_pwl_source_invalid(self):
         cable_file1 = os.path.join(
             local_path,
@@ -724,7 +750,7 @@ class TestClass(BasisTest, object):
         )
         assert Cable(self.aedtapp, cable_file1).create_pwl_source()
         cable = Cable(self.aedtapp)
-
+        assert len(cable.existing_sources_names) == 1
         cable_file1 = os.path.join(
             local_path,
             "example_models",
@@ -734,4 +760,4 @@ class TestClass(BasisTest, object):
         )
         assert Cable(self.aedtapp, cable_file1).create_clock_source()
         cable = Cable(self.aedtapp)
-        x = 1
+        assert cable.clock_source_definitions["TDSourceAttribs"]["Name"] == "clock_test_1"

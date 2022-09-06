@@ -225,7 +225,9 @@ class Cable:
                         ["NAME:TwistedPairAttribs", "Name:=", self.cable_name],
                     )
                 else:
-                    self.logger.error("is_lay_length_specified value not valid. Value must be either True or False.")
+                    self._app.logger.error(
+                        "is_lay_length_specified value not valid. Value must be either True or False."
+                    )
                     return False
                 return True
             except:
@@ -542,7 +544,7 @@ class Cable:
             return False
 
     def update_pwl_source(self):
-        """Update clock source.
+        """Update pwl source.
 
         Returns
         -------
@@ -914,6 +916,7 @@ class Cable:
                         else:
                             self.source_name = generate_unique_name("clock")
 
+                    self.source_period = "35us"
                     if source_properties["ClockSignalParams"]["Period"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["Period"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -921,9 +924,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.source_period = source_properties["ClockSignalParams"]["Period"]
-                    else:
-                        self.source_period = "35us"
 
+                    self.low_pulse_value = "0V"
                     if source_properties["ClockSignalParams"]["LowPulseVal"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
@@ -931,9 +933,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.low_pulse_value = source_properties["ClockSignalParams"]["LowPulseVal"]
-                    else:
-                        self.low_pulse_value = "0V"
 
+                    self.high_pulse_value = "1V"
                     if source_properties["ClockSignalParams"]["HighPulseVal"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
@@ -941,9 +942,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.high_pulse_value = source_properties["ClockSignalParams"]["HighPulseVal"]
-                    else:
-                        self.high_pulse_value = "1V"
 
+                    self.rise_time = "5us"
                     if source_properties["ClockSignalParams"]["Risetime"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["Risetime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -951,9 +951,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.rise_time = source_properties["ClockSignalParams"]["Risetime"]
-                    else:
-                        self.rise_time = "5us"
 
+                    self.fall_time = "5us"
                     if source_properties["ClockSignalParams"]["Falltime"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["Falltime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -961,9 +960,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.fall_time = source_properties["ClockSignalParams"]["Falltime"]
-                    else:
-                        self.fall_time = "5us"
 
+                    self.pulse_width = "20us"
                     if source_properties["ClockSignalParams"]["PulseWidth"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["PulseWidth"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -971,8 +969,7 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.pulse_width = source_properties["ClockSignalParams"]["PulseWidth"]
-                    else:
-                        self.pulse_width = "20us"
+
                 # Check if user action is to add a pwl source
                 elif values["PwlSource"].lower() == "true":
                     # Check is user wants to add pwl source from file
@@ -983,14 +980,20 @@ class Cable:
                         # Check if user wants to update pwl source
                         if values["UpdatePwlSource"].lower() == "true":
                             self.updated_pwl_source_name = values["UpdatedSourceName"]
-                            if pwl_source_properties["TDSourceAttribs"]["Name"]:
+                            if (
+                                pwl_source_properties["TDSourceAttribs"]
+                                and "Name" in pwl_source_properties["TDSourceAttribs"]
+                            ):
                                 self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
                             else:
                                 msg = "Provide a pwl source name to update."
                                 raise ValueError(msg)
                         # If user doesn't want to update pwl source a pwl source is added manually
                         else:
-                            if pwl_source_properties["TDSourceAttribs"]["Name"]:
+                            if (
+                                pwl_source_properties["TDSourceAttribs"]
+                                and "Name" in pwl_source_properties["TDSourceAttribs"]
+                            ):
                                 self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
                             else:
                                 self.pwl_source_name = generate_unique_name("clock")
@@ -1005,7 +1008,6 @@ class Cable:
                         else:
                             self.signal_values = pwl_source_properties["PWLSignalParams"]["SignalValues"]
                         self.time_values = pwl_source_properties["PWLSignalParams"]["TimeValues"]
-                        self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
             except ValueError as e:
                 self._app.logger.error(str(e))
                 return False
