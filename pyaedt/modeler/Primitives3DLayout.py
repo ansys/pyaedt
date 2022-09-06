@@ -639,6 +639,9 @@ class Primitives3DLayout(object):
         """
         if not netlist:
             netlist = self.nets
+        elif [x for x in netlist if x not in self.nets]:
+            self.logger.error("Selected net doesn't exist in current design.")
+            return False
         if type(netlist) is str:
             netlist = [netlist]
 
