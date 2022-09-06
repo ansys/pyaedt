@@ -19,4 +19,4 @@ ipywidgets==8.0.2
 joblib==1.1.0
 scikit-learn==1.1.2
 ipython==8.4.0
-jupyterlab==3.4.5
+jupyterlab==3.4.6
