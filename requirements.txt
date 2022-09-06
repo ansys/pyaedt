@@ -35,6 +35,6 @@ matplotlib==3.5.3; python_version > '3.6'
 numpy==1.23.2; python_version > '3.7'
 # License: BSD-3-Clause License
 
-psutil==5.9.1; python_version > '3.6'
+psutil==5.9.2; python_version > '3.6'
 # License: BSD-3-Clause License
 
