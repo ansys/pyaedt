@@ -701,3 +701,37 @@ class TestClass(BasisTest, object):
             ]
         )
         assert cable.pwl_source_definitions[0]["TDSourceAttribs"]["Name"] == "update_pwl_source"
+
+    def test_34_remove_all_sources(self):
+        assert Cable(self.aedtapp).remove_all_sources()
+
+    def test_35_create_cables_bundle_check_new_definitions(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_properties_insulation.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_cable()
+
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_pwl_source()
+        cable = Cable(self.aedtapp)
+
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_clock_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_clock_source()
+        cable = Cable(self.aedtapp)
+        x = 1

@@ -31,30 +31,38 @@ class Cable:
         self._app = app
         self._odesign = app.odesign
         self._omodule = self._odesign.GetModule("CableSetup")
-
+        self.clock_source_definitions = None
+        self.pwl_source_definitions = None
         if working_dir is None:
             self._working_dir = self._app.toolkit_directory
         else:
             self._working_dir = working_dir
 
         file_import = self._cable_properties_parser(self._omodule, self._working_dir)
-        if file_import["CableManager"]["TDSources"]["ClockSourceDef"]:
-            self.clock_source_definitions = file_import["CableManager"]["TDSources"]["ClockSourceDef"]
-        if file_import["CableManager"]["TDSources"]["PWLSourceDef"]:
-            self.pwl_source_definitions = file_import["CableManager"]["TDSources"]["PWLSourceDef"]
-        self.existing_sources_names = []
-        if isinstance(self.clock_source_definitions, list):
-            for source in self.clock_source_definitions:
-                if source.get("ClockSignalParams"):
-                    self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
-        else:
-            self.existing_sources_names.append(self.clock_source_definitions["TDSourceAttribs"]["Name"])
-        if isinstance(self.pwl_source_definitions, list):
-            for source in self.pwl_source_definitions:
-                if source.get("PWLSignalParams"):
-                    self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
-        else:
-            self.existing_sources_names.append(self.pwl_source_definitions["TDSourceAttribs"]["Name"])
+        if file_import["CableManager"]["TDSources"]:
+            if (
+                "ClockSourceDef" in file_import["CableManager"]["TDSources"].keys()
+                and file_import["CableManager"]["TDSources"]["ClockSourceDef"]
+            ):
+                self.clock_source_definitions = file_import["CableManager"]["TDSources"]["ClockSourceDef"]
+            if (
+                "PWLSourceDef" in file_import["CableManager"]["TDSources"].keys()
+                and file_import["CableManager"]["TDSources"]["PWLSourceDef"]
+            ):
+                self.pwl_source_definitions = file_import["CableManager"]["TDSources"]["PWLSourceDef"]
+            self.existing_sources_names = []
+            if isinstance(self.clock_source_definitions, list):
+                for source in self.clock_source_definitions:
+                    if source.get("ClockSignalParams"):
+                        self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
+            elif isinstance(self.clock_source_definitions, dict):
+                self.existing_sources_names.append(self.clock_source_definitions["TDSourceAttribs"]["Name"])
+            if isinstance(self.pwl_source_definitions, list):
+                for source in self.pwl_source_definitions:
+                    if source.get("PWLSignalParams"):
+                        self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
+            elif isinstance(self.pwl_source_definitions, dict):
+                self.existing_sources_names.append(self.pwl_source_definitions["TDSourceAttribs"]["Name"])
 
         self.cable_definitions = file_import["CableManager"]["Definitions"]
         self.existing_bundle_cables_names = []
@@ -468,6 +476,23 @@ class Cable:
         """
         try:
             self._omodule.RemoveTimeDomainSource(self.source_to_remove)
+            return True
+        except:
+            self._app.logger.error("Source could not be removed.")
+            return False
+
+    def remove_all_sources(self):
+        """Remove all sources.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if self.existing_sources_names:
+                for source in self.existing_sources_names:
+                    self._omodule.RemoveTimeDomainSource(source)
             return True
         except:
             self._app.logger.error("Source could not be removed.")
