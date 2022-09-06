@@ -3,6 +3,7 @@ import time
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from pyaedt import Hfss3dLayout
@@ -637,13 +638,15 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.create_text("test", [0, 0])
 
     def test_96_change_nets_visibility(self):
-        self.aedtapp.set_active_design("Galileo_um")
+        project_name = "dxf_out1"
+        design_name = "Galileo_um"
+        hfss3d = Hfss3dLayout(projectname=project_name, designname=design_name, specified_version=desktop_version)
         # hide all
-        assert self.aedtapp.modeler.change_net_visibility(visible=False)
+        assert hfss3d.modeler.change_net_visibility(visible=False)
         # visualize all
-        assert self.aedtapp.modeler.change_net_visibility()
+        assert hfss3d.modeler.change_net_visibility()
         # visualize selected nets only
-        assert self.aedtapp.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True)
+        assert hfss3d.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True)
         # hide selected nets and show others
-        assert self.aedtapp.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False)
-        assert not self.aedtapp.modeler.change_net_visibility(["test1, test2"])
+        assert hfss3d.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False)
+        assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
