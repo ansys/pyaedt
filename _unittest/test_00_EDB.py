@@ -1835,6 +1835,7 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(example_project, self.target_path)
             sim_config = SimulationConfiguration()
             sim_config.add_voltage_source(
+                name="test_v_source",
                 positive_node_component="U2A5",
                 positive_node_net="V3P3_S0",
                 negative_node_component="U2A5",
@@ -1846,6 +1847,8 @@ if not config["skip_edb"]:
                 negative_node_component="U2A5",
                 negative_node_net="GND",
             )
+            sim_config.add_dc_ground_source_term("test_v_source", 1)
+            assert sim_config.dc_source_terms_to_ground["test_v_source"] == 1
             assert len(sim_config.sources) == 2
 
         def test_106_layout_tchickness(self):
