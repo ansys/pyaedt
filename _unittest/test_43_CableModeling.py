@@ -687,7 +687,7 @@ class TestClass(BasisTest, object):
         )
         assert not Cable(self.aedtapp, cable_file1).create_pwl_source()
 
-    @pytest.mark.skip(reason="Waiting for a valid .pwl file to test.")
+    # @pytest.mark.skip(reason="Waiting for a valid .pwl file to test.")
     def test_32_add_pwl_source_from_file(self):
         cable_file1 = os.path.join(
             local_path,
@@ -696,7 +696,25 @@ class TestClass(BasisTest, object):
             "cable_modeling_json_files",
             "add_pwl_source_from_file.json",
         )
+        cable_file2 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source_from_file_1.json",
+        )
         assert Cable(self.aedtapp, cable_file1).create_pwl_source_from_file()
+        assert Cable(self.aedtapp, cable_file2).create_pwl_source_from_file()
+
+    def test_32a_invalid_add_pwl_source_from_file(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_pwl_source_from_file.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_pwl_source_from_file()
 
     def test_33_update_pwl_source(self):
         cable_file1 = os.path.join(
@@ -751,6 +769,7 @@ class TestClass(BasisTest, object):
         assert Cable(self.aedtapp, cable_file1).create_pwl_source()
         cable = Cable(self.aedtapp)
         assert len(cable.existing_sources_names) == 1
+
         cable_file1 = os.path.join(
             local_path,
             "example_models",
@@ -761,3 +780,23 @@ class TestClass(BasisTest, object):
         assert Cable(self.aedtapp, cable_file1).create_clock_source()
         cable = Cable(self.aedtapp)
         assert cable.clock_source_definitions["TDSourceAttribs"]["Name"] == "clock_test_1"
+
+    def test_36_empty_json(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "empty.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1)
+
+    def test_37_invalid_cable_type(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_cable_type.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1)
