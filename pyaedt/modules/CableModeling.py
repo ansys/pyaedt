@@ -226,7 +226,7 @@ class Cable:
                     )
                 else:
                     self._app.logger.error(
-                        "is_lay_length_specified value not valid. Value must be either True or False."
+                        "Value for lay_length_specified is invalid. Value must be True or False."
                     )
                     return False
                 return True
