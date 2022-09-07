@@ -687,7 +687,7 @@ class TestClass(BasisTest, object):
         )
         assert not Cable(self.aedtapp, cable_file1).create_pwl_source()
 
-    # @pytest.mark.skip(reason="Waiting for a valid .pwl file to test.")
+    @pytest.mark.skip(reason="Waiting for a valid .pwl file to test.")
     def test_32_add_pwl_source_from_file(self):
         cable_file1 = os.path.join(
             local_path,
