@@ -572,8 +572,8 @@ class Maxwell(object):
                 "TransientAPhiFormulation",
             ]:
                 props["Phase"] = phase
-                if self.solution_type not in ["DCConduction", "ElectricTransient"]:
-                    props["IsSolid"] = solid
+            if self.solution_type not in ["DCConduction", "ElectricTransient"]:
+                props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
             if type(object_list[0]) is str:
