@@ -106,8 +106,8 @@ class Cable:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.cable_type == "bundle":
-            try:
+        try:
+            if self.cable_type == "bundle":
                 if self.jacket_type == "insulation":
                     self._omodule.CreateCableBundle(
                         [
@@ -168,12 +168,7 @@ class Cable:
                         ],
                         ["NAME:BundleAttribs", "Name:=", self.cable_name],
                     )
-                return True
-            except:
-                self._app.logger.error("Boundle cable not created.")
-                return False
-        elif self.cable_type == "straight wire":
-            try:
+            elif self.cable_type == "straight wire":
                 self._omodule.CreateStraightWireCable(
                     [
                         "NAME:StWireParams",
@@ -194,12 +189,7 @@ class Cable:
                     ],
                     ["NAME:StWireAttribs", "Name:=", self.cable_name],
                 )
-                return True
-            except:
-                self._app.logger.error("Straight wire cable not created.")
-                return False
-        else:
-            try:
+            else:
                 if self.is_lay_length_specified.lower() == "true":
                     self._omodule.CreateTwistedPairCable(
                         self.assign_cable_to_twisted_pair,
@@ -224,15 +214,10 @@ class Cable:
                         ],
                         ["NAME:TwistedPairAttribs", "Name:=", self.cable_name],
                     )
-                else:
-                    self._app.logger.error(
-                        "Value for lay_length_specified is invalid. Value must be True or False."
-                    )
-                    return False
-                return True
-            except:
-                self._app.logger.error("Twisted pair cable not created.")
-                return False
+            return True
+        except:
+            self._app.logger.error("Cable creation was unsuccessful.")
+            return False
 
     def update_cable_properties(self):
         """Update cable properties for all cable types.
@@ -603,6 +588,7 @@ class Cable:
             try:
                 if values["CableType"].lower() in ["bundle", "straight wire", "twisted pair"]:
                     self.cable_type = values["CableType"]
+                    self._app.logger.error("test")
                 else:
                     msg = "Cable type is not valid. Available values are: bundle, straight wire, twisted pair"
                     raise ValueError(msg)
@@ -873,10 +859,8 @@ class Cable:
                             ]
                             self.lay_length = cable_twisted_pair_properties["TwistedPairParams"]["LayLength"]
                             self.turns_per_meter = cable_twisted_pair_properties["TwistedPairParams"]["TurnsPerMeter"]
-                return True
             except ValueError as e:
                 self._app.logger.error(str(e))
-                return False
 
         # Source implementation
         if values["Source"].lower() == "true":
@@ -890,7 +874,6 @@ class Cable:
                     raise ValueError(msg)
             except ValueError as e:
                 self._app.logger.error(str(e))
-                return False
 
             try:
                 # Check if user action is to remove the source
@@ -1010,7 +993,6 @@ class Cable:
                         self.time_values = pwl_source_properties["PWLSignalParams"]["TimeValues"]
             except ValueError as e:
                 self._app.logger.error(str(e))
-                return False
 
     def _cable_properties_parser(self, omodule, working_dir):
         file_path_export = os.path.join(working_dir, "export_cable_library_test.txt")

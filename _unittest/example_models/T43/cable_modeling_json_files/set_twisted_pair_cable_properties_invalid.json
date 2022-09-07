@@ -56,7 +56,7 @@
 			"TwistedPairCable": {
 				"TwistedPairParams": {
 					"StraightWireCableID": 1023,
-					"IsLayLengthSpecified": "test",
+					"IsLayLengthSpecified": {},
 					"LayLength": "34mm",
 					"TurnsPerMeter": "99"
 				},

@@ -789,7 +789,7 @@ class TestClass(BasisTest, object):
             "cable_modeling_json_files",
             "empty.json",
         )
-        assert not Cable(self.aedtapp, cable_file1)
+        assert not Cable(self.aedtapp, cable_file1).create_cable()
 
     def test_37_invalid_cable_type(self):
         cable_file1 = os.path.join(
@@ -799,4 +799,4 @@ class TestClass(BasisTest, object):
             "cable_modeling_json_files",
             "invalid_cable_type.json",
         )
-        assert not Cable(self.aedtapp, cable_file1)
+        assert not Cable(self.aedtapp, cable_file1).create_cable()
