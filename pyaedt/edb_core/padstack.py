@@ -470,6 +470,32 @@ class EdbPadstacks(object):
         rot = padparams[5].ToDouble()
         return geom_type, parameters, offset_x, offset_y, rot
 
+    @pyaedt_function_handler
+    def set_all_antipad_value(self, value):
+        """ """
+        if self.padstacks:
+            for padstack in list(self._padstacks.values()):
+                padstack_data = padstack.edb_padstack.GetData()
+                layers_name = padstack_data.GetLayerNames()
+                for lay in layers_name:
+                    geom_type, parameters, offset_x, offset_y, rot = self.get_pad_parameters(
+                        padstack.edb_padstack, lay, 1
+                    )
+                    if geom_type == 1:
+                        if padstack_data.GetPadParametersValue(
+                            lay,
+                            1,
+                            1,
+                            [self._pedb.Utility.Value(value)],
+                            self._pedb.Utility.Value(offset_x),
+                            self._pedb.Utility.Value(offset_y, rot),
+                        ):
+                            self._logger.info(
+                                "Pad-stack definition {}, anti-pad on layer {}, has been set to {}".format(
+                                    padstack.GetName(), lay, str(value)
+                                )
+                            )
+
     @pyaedt_function_handler()
     def get_via_instance_from_net(self, net_list=None):
         """Get the list for Edb vias from net name list.
