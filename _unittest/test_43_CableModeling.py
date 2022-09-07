@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.CableModeling import Cable
 
 try:
@@ -781,6 +782,7 @@ class TestClass(BasisTest, object):
         cable = Cable(self.aedtapp)
         assert cable.clock_source_definitions["TDSourceAttribs"]["Name"] == "clock_test_1"
 
+    @pytest.mark.skipif(is_ironpython, reason="Ironpython does not allow exception FileNotFoundError")
     def test_36_empty_json(self):
         cable_file1 = os.path.join(
             local_path,
