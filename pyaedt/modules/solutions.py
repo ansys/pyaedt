@@ -993,6 +993,7 @@ class FfdSolutionData(object):
         self.taper = taper
         self.data_dict = {}
         self._init_ffd()
+        self._phase_offset = [0] * len(self.all_port_names)
 
     @pyaedt_function_handler()
     def _init_ffd(self):
