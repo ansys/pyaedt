@@ -476,4 +476,4 @@ class TestClass(BasisTest, object):
         self.power_budget = self.local_scratch.copyfile(source_power_budget)
         app = Icepak(self.power_budget, specified_version=desktop_version)
         power_boundaries, total_power = app.post.power_budget(temperature=20)
-        assert abs(total_power - 787.5221374239883) <1
+        assert abs(total_power - 787.5221374239883) < 1
