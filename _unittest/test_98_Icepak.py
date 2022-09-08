@@ -22,7 +22,7 @@ if config["desktopVersion"] > "2022.2":
     src_project_name = "USB_Connector_IPK_231"
     radio_board_name = "RadioBoardIcepak_231"
     coldplate = "ColdPlateExample_231"
-    power_budget = "PB_Test"
+    power_budget = "PB_Test_231"
 
 else:
     coldplate = "ColdPlateExample"
