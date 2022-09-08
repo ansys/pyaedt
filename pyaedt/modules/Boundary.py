@@ -218,17 +218,16 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self.name = "InsertNativeComponentData"
         try:
             names = [i for i in self._app.excitations]
         except Exception as e:
             names = []
-        self.antennaname = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
+        self.name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:
             a = [i for i in self._app.excitations if i not in names]
             self.excitation_name = a[0].split(":")[0]
         except Exception as e:
-            self.excitation_name = self.antennaname
+            self.excitation_name = self.name
         return True
 
     @pyaedt_function_handler()
@@ -242,7 +241,6 @@ class NativeComponentObject(BoundaryCommon, object):
 
         """
 
-        self.name = "EditNativeComponentDefinitionData"
         self.update_props = OrderedDict({})
         self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
@@ -274,10 +272,12 @@ class NativeComponentObject(BoundaryCommon, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antennaname])
+        self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
         for el in self._app.native_components:
             if el.component_name == self.component_name:
                 self._app.native_components.remove(el)
+                del self._app.modeler.user_defined_components[self.name]
+                self._app.modeler.cleanup_objects()
         return True
 
 
@@ -1501,3 +1501,91 @@ class Matrix(object):
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))
         return command
+
+
+class BoundaryObject3dLayout(BoundaryCommon, object):
+    """Manages boundary data and execution for Hfss3dLayout.
+
+    Parameters
+    ----------
+    app : object
+        An AEDT application from ``pyaedt.application``.
+    name : str
+        Name of the boundary.
+    props : dict
+        Properties of the boundary.
+    boundarytype : str
+        Type of the boundary.
+    """
+
+    def __init__(self, app, name, props, boundarytype):
+        self.auto_update = False
+        self._app = app
+        self._name = name
+        self.props = BoundaryProps(self, OrderedDict(props))
+        self.type = boundarytype
+        self._boundary_name = self.name
+        self.auto_update = True
+
+    @property
+    def name(self):
+        """Boundary Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self.update()
+
+    @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        """Retrieve arguments.
+
+        Parameters
+        ----------
+        props :
+            The default is ``None``.
+
+        Returns
+        -------
+        list
+            List of boundary properties.
+
+        """
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
+    def _refresh_properties(self):
+        if len(self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))) != len(self.props):
+            propnames = self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name))
+            props = OrderedDict()
+            for prop in propnames:
+                props[prop] = self._app.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(self.name), prop)
+            self.props = BoundaryProps(self, props)
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the boundary.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        updated = False
+        for el in list(self.props.keys()):
+            if el in self._app.oeditor.GetProperties("EM Design", "Excitations:{}".format(self.name)) and self.props[
+                el
+            ] != self._app.oeditor.GetPropertyValue("EM Design", "Excitations:" + self.name, el):
+                self._app.oeditor.SetPropertyValue("EM Design", "Excitations:" + self.name, el, self.props[el])
+                updated = True
+
+        if updated:
+            self._refresh_properties()
+
+        return True

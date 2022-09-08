@@ -119,7 +119,7 @@ class SiwaveDCSetupTemplate(object):
 class SourceType(object):
     """Manages source types."""
 
-    (Port, CurrentSource, VoltageSource, Resistor) = (1, 2, 3, 4)
+    (Port, CurrentSource, VoltageSource, Resistor, DcTerminal) = (1, 2, 3, 4, 5)
 
 
 class PinGroup(object):
@@ -326,6 +326,20 @@ class CurrentSource(Source):
     @impedance.setter
     def impedance(self, value):
         self._impedance = value
+
+    @property
+    def source_type(self):
+        """Source type."""
+        return self._type
+
+
+class DCTerminal(Source):
+    """Manages a dc terminal source."""
+
+    def __init__(self):
+        super(DCTerminal, self).__init__()
+
+        self._type = SourceType.DcTerminal
 
     @property
     def source_type(self):
@@ -924,6 +938,53 @@ class EdbSiwave(object):
         return self.create_pin_group_terminal(current_source)
 
     @pyaedt_function_handler()
+    def create_dc_terminal(
+        self,
+        component_name,
+        net_name,
+        source_name="",
+    ):
+        """Create a dc terminal.
+
+        Parameters
+        ----------
+        component_name : str
+            Name of the positive component.
+        net_name : str
+            Name of the positive net.
+
+        source_name : str, optional
+            Name of the source. The default is ``""``.
+
+        Returns
+        -------
+        str
+            The name of the source.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder", "project name", "release version")
+        >>> edb.core_siwave.create_dc_terminal("U2A5", "V1P5_S3", "source_name")
+        """
+
+        dc_source = DCTerminal()
+        dc_source.positive_node.net = net_name
+        pos_node_cmp = self._pedb.core_components.get_component_by_name(component_name)
+        pos_node_pins = self._pedb.core_components.get_pin_from_component(component_name, net_name)
+
+        if source_name == "":
+            source_name = "DC_{}_{}".format(
+                component_name,
+                net_name,
+            )
+        dc_source.name = source_name
+        dc_source.positive_node.component_node = pos_node_cmp
+        dc_source.positive_node.node_pins = pos_node_pins
+        return self.create_pin_group_terminal(dc_source)
+
+    @pyaedt_function_handler()
     def create_exec_file(self):
         """Create an executable file."""
         workdir = os.path.dirname(self._pedb.edbpath)
@@ -1130,16 +1191,17 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        source : VoltageSource, CircuitPort, CurrentSource, or ResistorSource
+        source : VoltageSource, CircuitPort, CurrentSource, DCTerminal or ResistorSource
             Name of the source.
 
         """
+        if source.name in [i.GetName() for i in list(self._active_layout.Terminals)]:
+            source.name = generate_unique_name(source.name, n=3)
+            self._logger.warning("Port already exists with same name. Renaming to {}".format(source.name))
         pos_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.positive_node.node_pins)
-        neg_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
         pos_node_net = self._pedb.core_nets.get_net_by_name(source.positive_node.net)
-        neg_node_net = self._pedb.core_nets.get_net_by_name(source.negative_node.net)
-        pos_pingroup_term_name = generate_unique_name(source.name + "_P_", n=3)
-        neg_pingroup_term_name = generate_unique_name(source.name + "_N_", n=3)
+
+        pos_pingroup_term_name = source.name
         pos_pingroup_terminal = _retry_ntimes(
             10,
             self._edb.Cell.Terminal.PinGroupTerminal.Create,
@@ -1150,15 +1212,19 @@ class EdbSiwave(object):
             False,
         )
         time.sleep(0.5)
-        neg_pingroup_terminal = _retry_ntimes(
-            20,
-            self._edb.Cell.Terminal.PinGroupTerminal.Create,
-            self._active_layout,
-            neg_node_net,
-            neg_pingroup_term_name,
-            neg_pin_group,
-            False,
-        )
+        if source.negative_node.node_pins:
+            neg_pin_group = self._pedb.core_components.create_pingroup_from_pins(source.negative_node.node_pins)
+            neg_node_net = self._pedb.core_nets.get_net_by_name(source.negative_node.net)
+            neg_pingroup_term_name = source.name + "_N"
+            neg_pingroup_terminal = _retry_ntimes(
+                20,
+                self._edb.Cell.Terminal.PinGroupTerminal.Create,
+                self._active_layout,
+                neg_node_net,
+                neg_pingroup_term_name,
+                neg_pin_group,
+                False,
+            )
 
         if source.type == SourceType.Port:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
@@ -1211,7 +1277,8 @@ class EdbSiwave(object):
             Rlc.REnabled = True
             Rlc.R = self._get_edb_value(source.rvalue)
             pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
-
+        elif source.type == SourceType.DcTerminal:
+            pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kDcTerminal)
         else:
             pass
         return pos_pingroup_terminal.GetName()
@@ -1266,16 +1333,8 @@ class EdbSiwave(object):
                 simsetup_info.SimulationSettings.AdvancedSettings.IgnoreNonFunctionalPads = (
                     simulation_setup.ignore_non_functional_pads
                 )
-            if simulation_setup.dc_min_plane_area_to_mesh:  # pragma: no cover
-                simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh = (
-                    simulation_setup.dc_min_plane_area_to_mesh
-                )
             if simulation_setup.min_void_area:  # pragma: no cover
                 simsetup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = simulation_setup.min_void_area
-            if simulation_setup.max_init_mesh_edge_length:  # pragma: no cover
-                simsetup_info.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
-                    simulation_setup.max_init_mesh_edge_length
-                )
             try:
                 sweep = self._pedb.simsetupdata.SweepData(simulation_setup.sweep_name)
                 sweep.IsDiscrete = False  # need True for package??
@@ -1285,10 +1344,7 @@ class EdbSiwave(object):
                 sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
                 sweep.EnforcePassivity = simulation_setup.enforce_passivity
                 sweep.PassivityTolerance = simulation_setup.passivity_tolerance
-                if is_ironpython:  # pragma: no cover
-                    sweep.Frequencies.Clear()
-                else:
-                    list(sweep.Frequencies).clear()
+                list(sweep.Frequencies).clear()
                 if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
                     self._setup_decade_count_sweep(
                         sweep,
@@ -1297,27 +1353,66 @@ class EdbSiwave(object):
                         simulation_setup.decade_count,
                     )
                 else:
-                    if is_ironpython:
-                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency,
-                            simulation_setup.stop_freq,
-                            simulation_setup.step_freq,
-                        )
-                    else:
-                        sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                            simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
-                        )
+                    sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
+                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
+                    )
                 simsetup_info.SweepDataList.Add(sweep)
             except Exception as err:
                 self._logger.error("Exception in sweep configuration: {0}.".format(err))
             edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
             return self._cell.AddSimulationSetup(edb_sim_setup)
         if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
-            simsetup_info = self._pedb.simsetupdata.SimSetupInfo[
+            dcir_setup = self._pedb.simsetupdata.SimSetupInfo[
                 self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
             ]()
-            simsetup_info.Name = simulation_setup.setup_name
-            sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(simsetup_info)
+            dcir_setup.Name = simulation_setup.setup_name
+            dcir_setup.SimulationSettings.DCSettings.ComputeInductance = simulation_setup.dc_compute_inductance
+            dcir_setup.SimulationSettings.DCSettings.ContactRadius = simulation_setup.dc_contact_radius
+            dcir_setup.SimulationSettings.DCSettings.DCSliderPos = simulation_setup.dc_slide_position
+            dcir_setup.SimulationSettings.DCSettings.PlotJV = simulation_setup.dc_plot_jv
+            dcir_setup.SimulationSettings.DCSettings.UseDCCustomSettings = simulation_setup.dc_use_dc_custom_settings
+            dcir_setup.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh = (
+                simulation_setup.dc_min_plane_area_to_mesh
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh = (
+                simulation_setup.dc_min_void_area_to_mesh
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.EnergyError = simulation_setup.dc_error_energy
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength = (
+                simulation_setup.dc_max_init_mesh_edge_length
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MaxNumPasses = simulation_setup.dc_max_num_pass
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MeshBws = simulation_setup.dc_mesh_bondwires
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MeshVias = simulation_setup.dc_mesh_vias
+            dcir_setup.SimulationSettings.DCAdvancedSettings.MinNumPasses = simulation_setup.dc_min_num_pass
+            dcir_setup.SimulationSettings.DCAdvancedSettings.NumBwSides = simulation_setup.dc_num_bondwire_sides
+            dcir_setup.SimulationSettings.DCAdvancedSettings.NumViaSides = simulation_setup.dc_num_via_sides
+            dcir_setup.SimulationSettings.DCAdvancedSettings.PercentLocalRefinement = (
+                simulation_setup.dc_percent_local_refinement
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement = (
+                simulation_setup.dc_perform_adaptive_refinement
+            )
+            dcir_setup.SimulationSettings.DCAdvancedSettings.RefineBws = simulation_setup.dc_refine_bondwires
+            dcir_setup.SimulationSettings.DCAdvancedSettings.RefineVias = simulation_setup.dc_refine_vias
+
+            dcir_setup.SimulationSettings.DCIRSettings.DCReportConfigFile = simulation_setup.dc_report_config_file
+            dcir_setup.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = (
+                simulation_setup.dc_report_show_Active_devices
+            )
+            dcir_setup.SimulationSettings.DCIRSettings.ExportDCThermalData = simulation_setup.dc_export_thermal_data
+            dcir_setup.SimulationSettings.DCIRSettings.FullDCReportPath = simulation_setup.dc_full_report_path
+            dcir_setup.SimulationSettings.DCIRSettings.IcepakTempFile = simulation_setup.dc_icepak_temp_file
+            dcir_setup.SimulationSettings.DCIRSettings.ImportThermalData = simulation_setup.dc_import_thermal_data
+            dcir_setup.SimulationSettings.DCIRSettings.PerPinResPath = simulation_setup.dc_per_pin_res_path
+            dcir_setup.SimulationSettings.DCIRSettings.PerPinUsePinFormat = simulation_setup.dc_per_pin_use_pin_format
+            dcir_setup.SimulationSettings.DCIRSettings.UseLoopResForPerPin = (
+                simulation_setup.dc_use_loop_res_for_per_pin
+            )
+            dcir_setup.SimulationSettings.DCIRSettings.ViaReportPath = simulation_setup.dc_via_report_path
+            dcir_setup.SimulationSettings.DCIRSettings.SourceTermsToGround = simulation_setup.dc_source_terms_to_ground
+            dcir_setup.Name = simulation_setup.setup_name
+            sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(dcir_setup)
             return self._cell.AddSimulationSetup(sim_setup)
 
     @pyaedt_function_handler()

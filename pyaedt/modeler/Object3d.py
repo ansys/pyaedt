@@ -23,6 +23,7 @@ from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic import DataHandlers
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
@@ -506,6 +507,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
             return list(midpoint)
         elif len(self.vertices) == 1:
             return self.vertices[0].position
+        else:
+            return [float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
 
     @property
     def length(self):
@@ -534,20 +537,22 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         return "EdgeId " + str(self.id)
 
     @pyaedt_function_handler()
-    def create_object(self):
-        """Return A new object from the selected edge.
+    def create_object(self, non_model=False, create_group_for_new_objects=False):
+        """Return a new object from the selected edge.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. The default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromEdges
         """
-        return self._object3d._primitives.create_object_from_edge(self)
+        return self._object3d._primitives.create_object_from_edge(self, non_model)
 
     @pyaedt_function_handler()
     def move_along_normal(self, offset=1.0):
@@ -1047,20 +1052,22 @@ class FacePrimitive(object):
             return inv_norm
 
     @pyaedt_function_handler()
-    def create_object(self):
-        """Return A new object from the selected face.
+    def create_object(self, non_model=False):
+        """Return a new object from the selected face.
 
         Returns
         -------
         :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
+        non_model : bool, optional
+            Either if create the new object as model or non-model. Default is `False`.
 
         References
         ----------
 
         >>> oEditor.CreateObjectFromFaces
         """
-        return self._object3d._primitives.create_object_from_face(self)
+        return self._object3d._primitives.create_object_from_face(self, non_model)
 
 
 class Object3d(object):
@@ -2367,6 +2374,57 @@ class Object3d(object):
         return self
 
     @pyaedt_function_handler()
+    def intersect(self, theList, keep_originals=False):
+        """Intersect the active object with a given list.
+
+        Parameters
+        ----------
+        theList : list
+            List of objects.
+        keep_originals : bool, optional
+            Whether to keep the original object. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Retrieve the resulting 3D Object when succeeded.
+
+        References
+        ----------
+
+        >>> oEditor.Intersect
+        """
+        theList = [self.name] + self._primitives.modeler.convert_to_selections(theList, return_list=True)
+        self._primitives.modeler.intersect(theList, keep_originals)
+        return self
+
+    @pyaedt_function_handler()
+    def split(self, plane, sides="Both"):
+        """Split the active object.
+
+        Parameters
+        ----------
+        plane : str
+            Coordinate plane of the cut or the Application.PLANE object.
+            Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
+        sides : str, optional
+            Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
+            and ``"NegativeOnly"``. The default is ``"Both"``, in which case
+            all objects are kept after the split.
+
+        Returns
+        -------
+        list of str
+            List of split objects.
+
+        References
+        ----------
+
+        >>> oEditor.Split
+        """
+        return self._primitives.modeler.split(self.name, plane, sides)
+
+    @pyaedt_function_handler()
     def mirror(self, position, vector):
         """Mirror a selection.
 
@@ -2694,6 +2752,34 @@ class Object3d(object):
         """
         self._primitives.modeler.subtract(self.name, tool_list, keep_originals)
         return self
+
+    @pyaedt_function_handler()
+    def wrap_sheet(self, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object. This object can be either the sheet or the object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object or sheet name.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is `False`.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        object_name = self._primitives.convert_to_selections(object_name, False)
+        if self.object_type == "Sheet" and object_name in self._primitives.solid_names:
+            return self._primitives.wrap_sheet(self.name, object_name, imprinted)
+        elif self.object_type == "Solid" and object_name in self._primitives.sheet_names:
+            return self._primitives.wrap_sheet(object_name, self.name, imprinted)
+        else:
+            msg = "Error in command execution."
+            msg += " Either one of the two objects has to be a sheet and the other an object."
+            self.logger.error(msg)
+            return False
 
     @pyaedt_function_handler()
     def delete(self):
@@ -3832,6 +3918,30 @@ class UserDefinedComponentParameters(dict):
         self._component = component
 
 
+class UserDefinedComponentProps(OrderedDict):
+    """User Defined Component Internal Parameters."""
+
+    def __setitem__(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+        if self._pyaedt_user_defined_component.auto_update:
+            res = self._pyaedt_user_defined_component.update_native()
+            if not res:
+                self._pyaedt_user_defined_component._logger.warning("Update of %s Failed. Check needed arguments", key)
+
+    def __init__(self, user_defined_components, props):
+        OrderedDict.__init__(self)
+        if props:
+            for key, value in props.items():
+                if isinstance(value, (dict, OrderedDict)):
+                    OrderedDict.__setitem__(self, key, UserDefinedComponentProps(user_defined_components, value))
+                else:
+                    OrderedDict.__setitem__(self, key, value)
+        self._pyaedt_user_defined_component = user_defined_components
+
+    def _setitem_without_update(self, key, value):
+        OrderedDict.__setitem__(self, key, value)
+
+
 class UserDefinedComponent(object):
     """Manages object attributes for 3DComponent and User Defined Model.
 
@@ -3855,13 +3965,16 @@ class UserDefinedComponent(object):
     >>> component = aedtapp.modeler[component_names[0]]
     """
 
-    def __init__(self, primitives, name=None):
+    def __init__(self, primitives, name=None, props=None, component_type=None):
         """
         Parameters
         ----------
         primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
             Inherited parent object.
-        name : str
+        name : str, optional
+            The default is ``None``.
+        props : dict, optional
+            Dictionary of properties. The default is ``None``.
         """
         self._fix_udm_props = [
             "General[Name]",
@@ -3886,9 +3999,61 @@ class UserDefinedComponent(object):
         self._parameters = {}
         self._parts = None
         self._primitives = primitives
-        self._target_coordinate_system = None
+        self._target_coordinate_system = "Global"
         self._is_updated = False
         self._all_props = None
+        defined_components = self._primitives.oeditor.Get3DComponentDefinitionNames()
+        for component in defined_components:
+            if self._m_name in self._primitives.oeditor.Get3DComponentInstanceNames(component):
+                self.definition_name = component
+        if component_type:
+            self.auto_update = False
+            self._props = UserDefinedComponentProps(
+                self,
+                OrderedDict(
+                    {
+                        "TargetCS": self._target_coordinate_system,
+                        "SubmodelDefinitionName": component,
+                        "ComponentPriorityLists": OrderedDict({}),
+                        "NextUniqueID": 0,
+                        "MoveBackwards": False,
+                        "DatasetType": "ComponentDatasetType",
+                        "DatasetDefinitions": OrderedDict({}),
+                        "BasicComponentInfo": OrderedDict(
+                            {
+                                "ComponentName": component,
+                                "Company": "",
+                                "Company URL": "",
+                                "Model Number": "",
+                                "Help URL": "",
+                                "Version": "1.0",
+                                "Notes": "",
+                                "IconType": "",
+                            }
+                        ),
+                        "GeometryDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                        "DesignDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                        "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
+                        "MapInstanceParameters": "DesignVariable",
+                        "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
+                        + DataHandlers.random_string(12, char_set="abcdef0123456789"),
+                        "OriginFilePath": "",
+                        "IsLocal": False,
+                        "ChecksumString": "",
+                        "ChecksumHistory": [],
+                        "VersionHistory": [],
+                        "NativeComponentDefinitionProvider": OrderedDict({"Type": component_type}),
+                        "InstanceParameters": OrderedDict(
+                            {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""}
+                        ),
+                    }
+                ),
+            )
+            if props:
+                self._update_props(self._props["NativeComponentDefinitionProvider"], props)
+            self.native_properties = self._props["NativeComponentDefinitionProvider"]
+            self.auto_update = True
+        # self.props = UserDefinedComponentProps(self, props)
 
     @property
     def group_name(self):
@@ -4321,14 +4486,66 @@ class UserDefinedComponent(object):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
+    @pyaedt_function_handler()
+    def update_native(self):
+        """Update the Native Component in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        # self.name = "EditNativeComponentDefinitionData"
+        self.update_props = OrderedDict({})
+        self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
+        self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
+        self.update_props["DesignDefinitionParameters"] = self._props["DesignDefinitionParameters"]
+        self.update_props["MaterialDefinitionParameters"] = self._props["MaterialDefinitionParameters"]
+        self.update_props["NextUniqueID"] = self._props["NextUniqueID"]
+        self.update_props["MoveBackwards"] = self._props["MoveBackwards"]
+        self.update_props["DatasetType"] = self._props["DatasetType"]
+        self.update_props["DatasetDefinitions"] = self._props["DatasetDefinitions"]
+        self.update_props["NativeComponentDefinitionProvider"] = self._props["NativeComponentDefinitionProvider"]
+        self.update_props["ComponentName"] = self._props["BasicComponentInfo"]["ComponentName"]
+        self.update_props["Company"] = self._props["BasicComponentInfo"]["Company"]
+        self.update_props["Model Number"] = self._props["BasicComponentInfo"]["Model Number"]
+        self.update_props["Help URL"] = self._props["BasicComponentInfo"]["Help URL"]
+        self.update_props["Version"] = self._props["BasicComponentInfo"]["Version"]
+        self.update_props["Notes"] = self._props["BasicComponentInfo"]["Notes"]
+        self.update_props["IconType"] = self._props["BasicComponentInfo"]["IconType"]
+        self._primitives.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
+
+        return True
+
     @property
     def _logger(self):
         """Logger."""
         return self._primitives.logger
 
     @pyaedt_function_handler()
+    def _get_args(self, props=None):
+        if props is None:
+            props = self.props
+        arg = ["NAME:" + self.name]
+        _dict2arg(props, arg)
+        return arg
+
+    @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_component_property(vPropChange, self._m_name)
+
+    @pyaedt_function_handler()
+    def _update_props(self, d, u):
+        for k, v in u.items():
+            if isinstance(v, (dict, OrderedDict)):
+                if k not in d:
+                    d[k] = OrderedDict({})
+                d[k] = self._update_props(d[k], v)
+            else:
+                d[k] = v
+        return d
 
     @property
     def _m_Editor(self):

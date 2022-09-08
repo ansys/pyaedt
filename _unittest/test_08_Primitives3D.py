@@ -286,10 +286,17 @@ class TestClass(BasisTest, object):
         assert o1.id > 0
         assert o1.object_type == "Line"
         assert o1.is3d is False
-        o2 = self.aedtapp.modeler[o.name].edges[0].create_object()
+        assert o1.model
+        o2 = self.aedtapp.modeler[o.name].edges[0].create_object(non_model=True)
         assert o2.id > 0
         assert o2.object_type == "Line"
         assert o2.is3d is False
+        assert o2.model is False
+        o3 = self.create_copper_cylinder("cyl_e1")
+        o4 = self.create_copper_cylinder("cyl_e2")
+        of = self.aedtapp.modeler.create_object_from_edge([o4.edges[0], o3.edges[1], o4.edges[1]])
+        assert of
+        assert len(of) == 3
         pass
 
     def test_18_create_object_from_face(self):
@@ -299,10 +306,19 @@ class TestClass(BasisTest, object):
         assert o1.id > 0
         assert o1.object_type == "Sheet"
         assert o1.is3d is False
-        o2 = self.aedtapp.modeler[o.name].faces[0].create_object()
+        o2 = self.aedtapp.modeler[o.name].faces[0].create_object(non_model=True)
         assert o2.id > 0
         assert o2.object_type == "Sheet"
         assert o2.is3d is False
+        assert o2.model is False
+        o3s = self.aedtapp.modeler.create_object_from_face(faces)
+        assert isinstance(o3s, list)
+        assert o3s[0].id > 0
+        o3 = self.create_copper_cylinder("cyl_f1")
+        o4 = self.create_copper_cylinder("cyl_f2")
+        of = self.aedtapp.modeler.create_object_from_face([o3.faces[0], o4.faces[1], o4.faces[1], o3.faces[2]])
+        assert of
+        assert len(of) == 4
         pass
 
     def test_19_create_polyline(self):

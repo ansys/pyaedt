@@ -3,6 +3,7 @@ import time
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from pyaedt import Hfss3dLayout
@@ -261,15 +262,17 @@ class TestClass(BasisTest, object):
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
         assert port_wave
-        assert self.aedtapp.delete_port(port_wave)
+        assert self.aedtapp.delete_port(port_wave.name)
         port_wave = self.aedtapp.create_wave_port("line1", 3, 6, 4, "2mm")
         assert port_wave
-        assert self.aedtapp.delete_port(port_wave)
+        assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
 
     def test_14a_create_coaxial_port(self):
-        assert self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
+        port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
+        assert port.name == "Port2"
+        assert port.props["Radial Extent Factor"] == "0.5"
 
     def test_14_create_setup(self):
         setup_name = "RFBoardSetup"
@@ -496,7 +499,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
 
     def test_27_create_pin_port(self):
-        assert self.aedtapp.create_pin_port("PinPort1")
+        port = self.aedtapp.create_pin_port("PinPort1")
+        assert port.name == "PinPort1"
+        port.props["Magnitude"] = "2V"
+        assert port.props["Magnitude"] == "2V"
 
     def test_28_create_scattering(self):
         assert self.aedtapp.create_scattering()
@@ -630,3 +636,18 @@ class TestClass(BasisTest, object):
 
     def test_95_create_text(self):
         assert self.aedtapp.modeler.create_text("test", [0, 0])
+
+    def test_96_change_nets_visibility(self):
+        project_name = "dxf_out1"
+        design_name = "Galileo_um"
+        hfss3d = Hfss3dLayout(projectname=project_name, designname=design_name, specified_version=desktop_version)
+        # hide all
+        assert hfss3d.modeler.change_net_visibility(visible=False)
+        # visualize all
+        assert hfss3d.modeler.change_net_visibility(visible=True)
+        # visualize selected nets only
+        assert hfss3d.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=True)
+        # hide selected nets and show others
+        assert hfss3d.modeler.change_net_visibility(["V3P3_S0", "V3P3_S3", "V3P3_S5"], visible=False)
+        assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
+        assert not hfss3d.modeler.change_net_visibility(visible="")

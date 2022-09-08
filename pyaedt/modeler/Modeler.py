@@ -2352,8 +2352,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        list of :class:`pyaedt.modeler.Object3d.Object3d
+            List of split objects.
 
         References
         ----------
@@ -2362,6 +2362,7 @@ class GeometryModeler(Modeler, object):
         """
         planes = GeometryOperators.cs_plane_to_plane_str(plane)
         selections = self.convert_to_selections(objects)
+        all_objs = [i for i in self.object_names]
         self.oeditor.Split(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             [
@@ -2381,7 +2382,7 @@ class GeometryModeler(Modeler, object):
             ],
         )
         self.refresh_all_ids()
-        return True
+        return [selections] + [i for i in self.object_names if i not in all_objs]
 
     @pyaedt_function_handler()
     def duplicate_and_mirror(
@@ -2440,8 +2441,8 @@ class GeometryModeler(Modeler, object):
             added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
             if added_3d_comps:
                 self.logger.info("Found 3D Components Duplication")
-                return True, added_3d_comps
-        return True, added_objs
+                return added_3d_comps
+        return added_objs
 
     @pyaedt_function_handler()
     def mirror(self, objid, position, vector):
@@ -3197,8 +3198,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            The united object that is the first in the list.
 
         References
         ----------
@@ -3225,7 +3226,7 @@ class GeometryModeler(Modeler, object):
         if len(objs_groups) > 1:
             return self.unite(objs_groups)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
-        return True
+        return self.convert_to_selections(theList[0], False)
 
     @pyaedt_function_handler()
     def clone(self, objid):
@@ -3271,8 +3272,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        str
+            Retrieve the resulting 3D Object when succeeded.
 
         References
         ----------
@@ -3293,10 +3294,10 @@ class GeometryModeler(Modeler, object):
         if unclassified != unclassified1:
             self._odesign.Undo()
             self.logger.error("Error in intersection. Reverting Operation")
-            return False
+            return
         self.cleanup_objects()
         self.logger.info("Intersection Succeeded")
-        return True
+        return self.convert_to_selections(theList[0], False)
 
     @pyaedt_function_handler()
     def connect(self, theList):
@@ -5089,4 +5090,46 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.FlattenGroup
         """
         self.oeditor.FlattenGroup(["Groups:=", ["Model"]])
+        return True
+
+    @pyaedt_function_handler()
+    def wrap_sheet(self, sheet_name, object_name, imprinted=False):
+        """Execute the sheet wrapping around an object.
+        If wrapping produces an unclassified operation it will be reverted.
+
+        Parameters
+        ----------
+        sheet_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Sheet name or sheet object.
+        object_name : str, :class:`pyaedt.modeler.Object3d.Object3d`
+            Object name or solid object.
+        imprinted : bool, optional
+            Either if imprint or not over the sheet. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            Command execution status.
+        """
+        sheet_name = self.convert_to_selections(sheet_name, False)
+        object_name = self.convert_to_selections(object_name, False)
+
+        if sheet_name not in self.sheet_names:
+            self.logger.error("{} is not a valid sheet.".format(sheet_name))
+            return False
+        if object_name not in self.solid_names:
+            self.logger.error("{} is not a valid solid body.".format(object_name))
+            return False
+        unclassified = [i for i in self.unclassified_objects]
+        self.oeditor.WrapSheet(
+            ["NAME:Selections", "Selections:=", "{},{}".format(sheet_name, object_name)],
+            ["NAME:WrapSheetParameters", "Imprinted:=", imprinted],
+        )
+        is_unclassified = [i for i in self.unclassified_objects if i not in unclassified]
+        if is_unclassified:
+            self.logger.error("Failed to Wrap sheet. Reverting to original objects.")
+            self._odesign.Undo()
+            return False
+        if imprinted:
+            self.cleanup_objects()
         return True

@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -1150,9 +1151,12 @@ class Hfss(FieldAnalysis3D, object):
                     ]
         native = NativeComponentObject(self, antenna_type, antenna_name, native_props)
         if native.create():
+            user_defined_component = UserDefinedComponent(
+                self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
+            )
+            self.modeler.user_defined_components[native.name] = user_defined_component
             self.native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
-            self.modeler._create_user_defined_component(native.antennaname)
             return native
         self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
 
@@ -3205,9 +3209,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
+            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]].
             The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
@@ -3240,11 +3245,21 @@ class Hfss(FieldAnalysis3D, object):
         ...                                                      matname="copper")
         >>> h1 = hfss.create_lumped_port_to_sheet(rectangle.name, hfss.AxisDir.XNeg, 50,
         ...                                  "LumpedPortFromSheet", True, False)
+        >>> h2 = hfss.create_lumped_port_to_sheet(rectangle.name, [rectangle.bottom_edge_x.midpoint,
+        ...                                     rectangle.bottom_edge_y.midpoint], 50, "LumpedPortFromSheet", True,
+        ...                                     False)
 
         """
         sheet_name = self.modeler.convert_to_selections(sheet_name, False)
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
+            if isinstance(axisdir, list):
+                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+                    self.logger.error("List of coordinates is not set correctly")
+                    return False
+                point0 = axisdir[0]
+                point1 = axisdir[1]
+            else:
+                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
 
             portname = self._get_unique_source_name(portname, "Port")
 
@@ -3306,9 +3321,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
+            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
             The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -3332,11 +3348,21 @@ class Hfss(FieldAnalysis3D, object):
         ...                                                  [0, 0, -70], [10, 2], name="VoltageSheet",
         ...                                                  matname="copper")
         >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        >>> v2 = hfss.assign_voltage_source_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint,
+        ...                                     sheet.bottom_edge_y.midpoint], 50, "LumpedPortFromSheet", True,
+        ...                                     False)
 
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
+            if isinstance(axisdir, list):
+                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+                    self.logger.error("List of coordinates is not set correctly")
+                    return False
+                point0 = axisdir[0]
+                point1 = axisdir[1]
+            else:
+                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
             sourcename = self._get_unique_source_name(sourcename, "Voltage")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Voltage")
         return False
@@ -3349,9 +3375,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
+            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
             The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Name of the source. The default is ``None``.
@@ -3375,11 +3402,20 @@ class Hfss(FieldAnalysis3D, object):
         ...                                                  [5, 1], name="CurrentSheet", matname="copper")
         >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
         'CurrentSheetExample'
+        >>> c1 = hfss.assign_current_source_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint,
+        ...                                     sheet.bottom_edge_y.midpoint])
 
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
+            if isinstance(axisdir, list):
+                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+                    self.logger.error("List of coordinates is not set correctly")
+                    return False
+                point0 = axisdir[0]
+                point1 = axisdir[1]
+            else:
+                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
             sourcename = self._get_unique_source_name(sourcename, "Current")
             return self.create_source_excitation(sheet_name, point0, point1, sourcename, sourcetype="Current")
         return False
@@ -3481,9 +3517,10 @@ class Hfss(FieldAnalysis3D, object):
         ----------
         sheet_name : str
             Name of the sheet to apply the boundary to.
-        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+        axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
+            Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
+            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
             The default is ``Application.AxisDir.XNeg``.
         sourcename : str, optional
             Lumped RLC name. The default is ``None``.
@@ -3522,13 +3559,22 @@ class Hfss(FieldAnalysis3D, object):
         ...                                                       Cvalue=1e-6)
         >>> type(lumped_rlc_to_sheet)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
+        >>> h2 = hfss.assign_lumped_rlc_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint,
+        ...                                     sheet.bottom_edge_y.midpoint], Rvalue=50, Lvalue=1e-9, Cvalue=1e-6)
 
         """
 
         if self.solution_type in ["Eigenmode", "Modal", "Terminal", "Transient Network", "SBR+"] and (
             Rvalue or Lvalue or Cvalue
         ):
-            point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
+            if isinstance(axisdir, list):
+                if len(axisdir) != 2 or len(axisdir[0]) != len(axisdir[1]):
+                    self.logger.error("List of coordinates is not set correctly")
+                    return False
+                point0 = axisdir[0]
+                point1 = axisdir[1]
+            else:
+                point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, axisdir)
 
             if not sourcename:
                 sourcename = generate_unique_name("Lump")

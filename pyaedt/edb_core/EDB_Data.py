@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
 try:
+    from System.Collections.Generic import Dictionary
     from System.Collections.Generic import List
 except ImportError:
     if os.name != "posix":
@@ -1103,6 +1104,7 @@ class EDBLayers(object):
         self._stackup_mode = None
         self._pedbstackup = edb_stackup
         self._edb_object = {}
+        self._edb_layer_collection = None
         self._update_edb_objects()
 
     def __getitem__(self, layername):
@@ -1194,6 +1196,35 @@ class EDBLayers(object):
             ):
                 self._signal_layers[layer] = edblayer
         return self._signal_layers
+
+    @property
+    def edb_layer_collection(self):
+        """Copy of EDB layer collection.
+
+        Returns
+        -------
+        class : Ansys.Ansoft.Edb.Cell.LayerCollection
+            Collection of layers.
+        """
+        if not self._edb_layer_collection:
+            lc_readonly = self._pedbstackup._active_layout.GetLayerCollection()
+            layers = list(list(lc_readonly.Layers(self._edb.Cell.LayerTypeSet.AllLayerSet)))
+            layer_collection = self._edb.Cell.LayerCollection()
+
+            flag_first_layer = True
+            for lyr in layers:
+                if not lyr.IsStackupLayer():
+                    continue
+                lyr_clone = lyr.Clone()
+                lyr_name = lyr.GetName()
+                if flag_first_layer:
+                    layer_collection.AddLayerTop(lyr_clone)
+                    flag_first_layer = False
+                else:
+                    layer_collection.AddLayerAbove(lyr_clone, lyr_name)
+            self._edb_layer_collection = layer_collection
+
+        return self._edb_layer_collection
 
     @property
     def layer_collection(self):
@@ -1328,6 +1359,90 @@ class EDBLayers(object):
         for i in range(len(layers)):
             self._edb_object[layers[i].GetName()] = EDBLayer(layers[i], self)
         return True
+
+    @pyaedt_function_handler()
+    def _update_stackup(self):
+        self._active_layout.SetLayerCollection(self.edb_layer_collection)
+        self._update_edb_objects()
+        return True
+
+    @pyaedt_function_handler()
+    def insert_layer_above(
+        self,
+        layer_name,
+        base_layer,
+        material="copper",
+        fillMaterial="",
+        thickness="35um",
+        layerType=0,
+        negative_layer=False,
+        roughness_enabled=False,
+        etch_factor=None,
+    ):
+        """Insert a layer above the specified base layer.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer to add.
+        base_layer : str
+            Name of the layer after which to add the new layer.
+            The default is ``None``.
+        material : str, optional
+            Name of the material. The default is ``"copper"``.
+        fillMaterial : str, optional
+            Name of the fill material. The default is ``""``.)
+        thickness : str, optional
+            Thickness value, including units. The default is ``"35um"``.
+        layerType :
+            Type of the layer. The default is ``0``
+            ``0``: Signal layer.
+            ``1``: Dielectric layer.
+            ``2``: Conducting plane layer.
+            ``3``: Airline layer.
+            ``4``: Error layer.
+            ``5``: Symbol layer.
+            ``6``: Measure layer.
+            ``8``: Assembly layer.
+            ``9``: Silkscreen layer.
+            ``10``: Solder Mask layer.
+            ``11``: Solder Paste layer.
+        negative_layer : bool, optional
+            ``True`` when negative, ``False`` otherwise.
+        roughness_enabled : bool, optional
+            ``True`` if the layer has roughness, ``False`` otherwise.
+        etch_factor : optional
+            Etch value if any. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+            Layer Object for stackup layers.
+        """
+
+        new_layer = self._edb.Cell.StackupLayer(
+            layer_name,
+            self._int_to_layer_types(layerType),
+            self._get_edb_value(0),
+            self._get_edb_value(0),
+            "",
+        )
+        edb_layer = EDBLayer(new_layer.Clone(), self._pedbstackup)
+        new_layer = edb_layer.update_layer_vals(
+            layer_name,
+            new_layer,
+            etch_factor,
+            material,
+            fillMaterial,
+            thickness,
+            negative_layer,
+            roughness_enabled,
+            self._int_to_layer_types(layerType),
+        )
+        self.edb_layer_collection.AddLayerAbove(new_layer, base_layer)
+        self._edb_object[layer_name] = edb_layer
+        self._update_stackup()
+        return self.layers[layer_name]
 
     @pyaedt_function_handler()
     def add_layer(
@@ -3404,8 +3519,36 @@ class SimulationConfiguration(object):
         self._min_pad_area_to_mesh = "0.01mm2"
         self._snap_length_threshold = "2.5um"
         self._min_plane_area_to_mesh = "4mil2"  # Newly Added
+        self._dc_compute_inductance = False
+        self._dc_contact_radius = "100um"
+        self._dc_slide_position = 1
+        self._dc_use_dc_custom_settings = False
+        self._dc_plot_jv = True
         self._dc_min_plane_area_to_mesh = "8mil2"
-        self._max_init_mesh_edge_length = "14.5mil"
+        self._dc_min_void_area_to_mesh = "0.734mil2"
+        self._dc_error_energy = 0.02
+        self._dc_max_init_mesh_edge_length = "5.0mm"
+        self._dc_max_num_pass = 5
+        self._dc_min_num_pass = 1
+        self._dc_mesh_bondwires = True
+        self._dc_num_bondwire_sides = 8
+        self._dc_mesh_vias = True
+        self._dc_num_via_sides = 8
+        self._dc_percent_local_refinement = 0.2
+        self._dc_perform_adaptive_refinement = True
+        self._dc_refine_bondwires = True
+        self._dc_refine_vias = True
+        self._dc_report_config_file = ""
+        self._dc_report_show_Active_devices = True
+        self._dc_export_thermal_data = True
+        self._dc_full_report_path = ""
+        self._dc_icepak_temp_file = ""
+        self._dc_import_thermal_data = False
+        self._dc_per_pin_res_path = ""
+        self._dc_per_pin_use_pin_format = True
+        self._dc_use_loop_res_for_per_pin = True
+        self._dc_via_report_path = ""
+        self._dc_source_terms_to_ground = Dictionary[str, int]()
         self._signal_layers_properties = {}
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
@@ -4291,20 +4434,311 @@ class SimulationConfiguration(object):
             self._dc_min_plane_area_to_mesh = value
 
     @property
-    def max_init_mesh_edge_length(self):  # pragma: no cover
-        """Retrieve the value of the maximum initial mesh edges for Siwave.
+    def dc_compute_inductance(self):
+        """Return the boolean for computing the inductance with SIwave DC solver.
+
+        Returns
+        -------
+            bool
+            'True' activate 'False' deactivated.
+        """
+        return self._dc_compute_inductance
+
+    @dc_compute_inductance.setter
+    def dc_compute_inductance(self, value):
+        if isinstance(value, bool):
+            self._dc_compute_inductance = value
+
+    @property
+    def dc_contact_radius(self):
+        """Retrieve the value for SIwave DC contact radius
+
+        Returns
+        -------
+            str
+            The contact radius value.
+
+        """
+        return self._dc_contact_radius
+
+    @dc_contact_radius.setter
+    def dc_contact_radius(self, value):
+        if isinstance(value, str):
+            self._dc_contact_radius = value
+
+    @dc_compute_inductance.setter
+    def dc_compute_inductance(self, value):
+        if isinstance(value, str):
+            self._dc_contact_radius = value
+
+    @property
+    def dc_slide_position(self):
+        """Retrieve the SIwave DC slide position value.
+
+        Returns
+        -------
+            int
+            The position value, 0 Optimum speed, 1 balanced, 2 optimum accuracy.
+        """
+        return self._dc_slide_position
+
+    @dc_slide_position.setter
+    def dc_slide_position(self, value):
+        if isinstance(value, int):
+            self._dc_slide_position = value
+
+    @property
+    def dc_use_dc_custom_settings(self):
+        """Retrieve the value for using DC custom settings
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_use_dc_custom_settings
+
+    @dc_use_dc_custom_settings.setter
+    def dc_use_dc_custom_settings(self, value):
+        if isinstance(value, bool):
+            self._dc_use_dc_custom_settings = value
+
+    @property
+    def dc_plot_jv(self):
+        """Retrieve the value for computing current density and voltage distribution
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated. Default value True
+
+        """
+        return self._dc_plot_jv
+
+    @dc_plot_jv.setter
+    def dc_plot_jv(self, value):
+        if isinstance(value, bool):
+            self._dc_plot_jv = value
+
+    @property
+    def dc_min_void_area_to_mesh(self):
+        """Retrieve the value for the minimum void surface to mesh.
+
+        Returns
+        -------
+            str
+            The area value.
+
+        """
+        return self._dc_min_void_area_to_mesh
+
+    @dc_min_void_area_to_mesh.setter
+    def dc_min_void_area_to_mesh(self, value):
+        if isinstance(value, str):
+            self._dc_min_void_area_to_mesh = value
+
+    @property
+    def dc_error_energy(self):
+        """Retrieve the value for the DC error energy.
 
         Returns
         -------
             float
-            Value of the maximum initial mesh edge length.
-        """
-        return self._max_init_mesh_edge_length
+            The error energy value, 0.2 as default.
 
-    @max_init_mesh_edge_length.setter
-    def max_init_mesh_edge_length(self, value):  # pragma: no cover
+        """
+        return self._dc_error_energy
+
+    @dc_error_energy.setter
+    def dc_error_energy(self, value):
+        if isinstance(value, float):
+            self._dc_error_energy = value
+
+    @property
+    def dc_max_init_mesh_edge_length(self):
+        """Retrieve the maximum initial mesh edge value.
+
+        Returns
+        -------
+            str
+            maximum mesh length.
+
+        """
+        return self._dc_max_init_mesh_edge_length
+
+    @dc_max_init_mesh_edge_length.setter
+    def dc_max_init_mesh_edge_length(self, value):
         if isinstance(value, str):
-            self._max_init_mesh_edge_length = value
+            self._dc_max_init_mesh_edge_length = value
+
+    @property
+    def dc_max_num_pass(self):
+        """Retrieve the maximum number of adaptive passes.
+
+        Returns
+        -------
+            int
+            number of passes.
+        """
+        return self._dc_max_num_pass
+
+    @dc_max_num_pass.setter
+    def dc_max_num_pass(self, value):
+        if isinstance(value, int):
+            self._dc_max_num_pass = value
+
+    @property
+    def dc_min_num_pass(self):
+        """Retrieve the minimum number of adaptive passes.
+
+        Returns
+        -------
+            nt
+            number of passes.
+        """
+        return self._dc_min_num_pass
+
+    @dc_min_num_pass.setter
+    def dc_min_num_pass(self, value):
+        if isinstance(value, int):
+            self._dc_min_num_pass = value
+
+    @property
+    def dc_mesh_bondwires(self):
+        """Retrieve the value for meshing bondwires.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_mesh_bondwires
+
+    @dc_mesh_bondwires.setter
+    def dc_mesh_bondwires(self, value):
+        if isinstance(value, bool):
+            self._dc_mesh_bondwires = value
+
+    @property
+    def dc_num_bondwire_sides(self):
+        """Retrieve the number of sides used for cylinder discretization.
+
+        Returns
+        -------
+            int
+            Number of sides.
+
+        """
+        return self._dc_num_bondwire_sides
+
+    @dc_num_bondwire_sides.setter
+    def dc_num_bondwire_sides(self, value):
+        if isinstance(value, int):
+            self._dc_num_bondwire_sides = value
+
+    @property
+    def dc_mesh_vias(self):
+        """Retrieve the value for meshing vias.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_mesh_vias
+
+    @dc_mesh_vias.setter
+    def dc_mesh_vias(self, value):
+        if isinstance(value, bool):
+            self._dc_mesh_vias = value
+
+    @property
+    def dc_num_via_sides(self):
+        """Retrieve the number of sides used for cylinder discretization.
+
+        Returns
+        -------
+            int
+            Number of sides.
+
+        """
+        return self._dc_num_via_sides
+
+    @dc_num_via_sides.setter
+    def dc_num_via_sides(self, value):
+        if isinstance(value, int):
+            self._dc_num_via_sides = value
+
+    @property
+    def dc_percent_local_refinement(self):
+        """Retrieve the value for local mesh refinement.
+
+        Returns
+        -------
+            float
+            The refinement value, 0.2 (20%) as default.
+
+        """
+        return self._dc_percent_local_refinement
+
+    @dc_percent_local_refinement.setter
+    def dc_percent_local_refinement(self, value):
+        if isinstance(value, float):
+            self._dc_percent_local_refinement = value
+
+    @property
+    def dc_perform_adaptive_refinement(self):
+        """Retrieve the value for performing adaptive meshing.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_perform_adaptive_refinement
+
+    @dc_perform_adaptive_refinement.setter
+    def dc_perform_adaptive_refinement(self, value):
+        if isinstance(value, bool):
+            self._dc_perform_adaptive_refinement = value
+
+    @property
+    def dc_refine_bondwires(self):
+        """Retrieve the value for performing bond wire refinement.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_refine_bondwires
+
+    @dc_refine_bondwires.setter
+    def dc_refine_bondwires(self, value):
+        if isinstance(value, bool):
+            self._dc_refine_bondwires = value
+
+    @property
+    def dc_refine_vias(self):
+        """Retrieve the value for performing vias refinement.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_refine_vias
+
+    @dc_refine_vias.setter
+    def dc_refine_vias(self, value):
+        if isinstance(value, bool):
+            self._dc_refine_vias = value
 
     @property
     def signal_layers_properties(self):  # pragma: no cover
@@ -4316,6 +4750,194 @@ class SimulationConfiguration(object):
             List of layer name.
         """
         return self._signal_layers_properties
+
+    @property
+    def dc_report_config_file(self):
+        """Retrieve the report configuration file path.
+
+        Returns
+        -------
+            str
+            The file path.
+
+        """
+        return self._dc_report_config_file
+
+    @dc_report_config_file.setter
+    def dc_report_config_file(self, value):
+        if isinstance(value, str):
+            self._dc_report_config_file = value
+
+    @property
+    def dc_report_show_Active_devices(self):
+        """Retrieve the value for showing active devices.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_report_show_Active_devices
+
+    @dc_report_show_Active_devices.setter
+    def dc_report_show_Active_devices(self, value):
+        if isinstance(value, bool):
+            self._dc_report_show_Active_devices = value
+
+    @property
+    def dc_export_thermal_data(self):
+        """Retrieve the value for using external data.
+
+        Returns
+        -------
+            bool
+            'True' when activated, 'False' deactivated.
+
+        """
+        return self._dc_export_thermal_data
+
+    @dc_export_thermal_data.setter
+    def dc_export_thermal_data(self, value):
+        if isinstance(value, bool):
+            self._dc_export_thermal_data = value
+
+    @property
+    def dc_full_report_path(self):
+        """Retrieve the path for the report.
+
+        Returns
+        -------
+            str
+            File path.
+
+        """
+        return self._dc_full_report_path
+
+    @dc_full_report_path.setter
+    def dc_full_report_path(self, value):
+        if isinstance(value, str):
+            self._dc_full_report_path = value
+
+    @property
+    def dc_icepak_temp_file(self):
+        """Retrieve the icepak temp file path.
+
+        Returns
+        -------
+            str
+            File path.
+        """
+        return self._dc_icepak_temp_file
+
+    @dc_icepak_temp_file.setter
+    def dc_icepak_temp_file(self, value):
+        if isinstance(value, str):
+            self._dc_icepak_temp_file = value
+
+    @property
+    def dc_import_thermal_data(self):
+        """Retrieve the value for importing thermal data.
+
+        Returns
+        -------
+            bool
+            'True' when activated,'False' deactivated.
+
+        """
+        return self._dc_import_thermal_data
+
+    @dc_import_thermal_data.setter
+    def dc_import_thermal_data(self, value):
+        if isinstance(value, bool):
+            self._dc_import_thermal_data = value
+
+    @property
+    def dc_per_pin_res_path(self):
+        """Retrieve the file path.
+
+        Returns
+        -------
+            str
+            The file path.
+        """
+        return self._dc_per_pin_res_path
+
+    @dc_per_pin_res_path.setter
+    def dc_per_pin_res_path(self, value):
+        if isinstance(value, str):
+            self._dc_per_pin_res_path = value
+
+    @property
+    def dc_per_pin_use_pin_format(self):
+        """Retrieve the value for using pin format
+
+        Returns
+        -------
+            bool
+        """
+        return self._dc_per_pin_use_pin_format
+
+    @dc_per_pin_use_pin_format.setter
+    def dc_per_pin_use_pin_format(self, value):
+        if isinstance(value, bool):
+            self._dc_per_pin_use_pin_format = value
+
+    @property
+    def dc_use_loop_res_for_per_pin(self):
+        """Retrieve the value for using the loop resistor per pin
+
+        Returns
+        -------
+            bool
+        """
+        return self._dc_use_loop_res_for_per_pin
+
+    @dc_use_loop_res_for_per_pin.setter
+    def dc_use_loop_res_for_per_pin(self, value):
+        if isinstance(value, bool):
+            self._dc_use_loop_res_for_per_pin = value
+
+    @property
+    def dc_via_report_path(self):
+        """Retrieve the via report file path.
+
+        Returns
+        -------
+            str
+            The file path.
+
+        """
+        return self._dc_via_report_path
+
+    @dc_via_report_path.setter
+    def dc_via_report_path(self, value):
+        if isinstance(value, str):
+            self._dc_via_report_path = value
+
+    @dc_via_report_path.setter
+    def dc_via_report_path(self, value):
+        if isinstance(value, str):
+            self._dc_via_report_path = value
+
+    @property
+    def dc_source_terms_to_ground(self):
+        """Retrieve the dictionary of grounded terminals
+
+        Returns
+        -------
+            Dictionary
+            {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
+
+        """
+        return self._dc_source_terms_to_ground
+
+    @dc_source_terms_to_ground.setter
+    def dc_source_terms_to_ground(self, value):  # pragma: no cover
+        if isinstance(value, OrderedDict):
+            if len([k for k in value.keys() if isinstance(k, str)]) == len(value.keys()):
+                if len([v for v in value.values() if isinstance(v, int)]) == len(value.values()):
+                    self._dc_source_terms_to_ground = value
 
     @signal_layers_properties.setter
     def signal_layers_properties(self, value):  # pragma: no cover
@@ -4565,6 +5187,23 @@ class SimulationConfiguration(object):
                 prop_values = [value.strip()]
             return prop_values
 
+    def add_dc_ground_source_term(self, source_name=None, node_to_ground=1):
+        """Add a dc ground source terminal for Siwave.
+
+        Parameters
+        -----------
+
+        source_name = str
+            The source name to assign the reference node
+
+        node_to_ground = int
+            Value must be 0: unspecified, 1: negative node, 2: positive node.
+
+        """
+        if source_name:
+            if node_to_ground in [0, 1, 2]:
+                self._dc_source_terms_to_ground[source_name] = node_to_ground
+
     def _parse_signal_layer_properties(self, signal_properties):  # pragma: no cover
         for lay in signal_properties:
             lp = lay.split(":")
@@ -4809,6 +5448,11 @@ class SimulationConfiguration(object):
                 if k == "_sources":
                     sources_out = [src._json_format() for src in v]
                     dict_out[k[1:]] = sources_out
+                if k == "_dc_source_terms_to_ground":
+                    dc_term_gnd = {}
+                    for k2 in list(v.Keys):  # pragma: no cover
+                        dc_term_gnd[k2] = v[k2]
+                    dict_out[k[1:]] = dc_term_gnd
                 else:
                     dict_out[k[1:]] = v
             else:
@@ -4848,6 +5492,11 @@ class SimulationConfiguration(object):
                         source = Source()
                         source._read_json(src)
                         self.sources.append(source)
+                if k == "dc_source_terms_to_ground":
+                    dc_term_gnd = Dictionary[str, int]()
+                    for k1, v1 in json_dict[k]:  # pragma: no cover
+                        dc_term_gnd[k1] = v1
+                    self.dc_source_terms_to_ground = dc_term_gnd
                 self.__setattr__(k, v)
             self.filename = input_file
             return True

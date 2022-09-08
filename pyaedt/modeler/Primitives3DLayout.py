@@ -623,8 +623,9 @@ class Primitives3DLayout(object):
         ----------
         netlist : str  or list, optional
             One or more nets to visualize. The default is ``None``.
+            If no nets are provided all the nets in the design will be selected.
         visible : bool, optional
-            Whether to make the selected nets visible. The
+            Whether to make the selected nets visible.
             The default value is ``False``.
 
         Returns
@@ -637,19 +638,45 @@ class Primitives3DLayout(object):
 
         >>> oEditor.SetNetVisible
         """
+        nets_dictionary = {}
         if not netlist:
             netlist = self.nets
-
-        if type(netlist) is str:
+        elif [x for x in netlist if x not in self.nets]:
+            self.logger.error("Selected net doesn't exist in current design.")
+            return False
+        if isinstance(netlist, str):
             netlist = [netlist]
+
+        if isinstance(visible, str):
+            if visible.lower() == "true":
+                visible = True
+            elif visible.lower() == "false":
+                visible = False
+            else:
+                self.logger.error("Provide a valid string value for visibility.")
+                return False
+        elif not isinstance(visible, bool):
+            self.logger.error("Provide a valid type value for visibility.")
+            return False
+
+        for net in self.nets:
+            if net not in netlist:
+                nets_dictionary[net] = not visible
+            else:
+                nets_dictionary[net] = visible
+
         args = ["NAME:Args"]
-        for net in netlist:
-            args.append("Name:=")
-            args.append(net)
-            args.append("Vis:=")
-            args.append(visible)
-        self.oeditor.SetNetVisible(args)
-        return True
+        try:
+            for key in nets_dictionary:
+                args.append("Name:=")
+                args.append(key)
+                args.append("Vis:=")
+                args.append(nets_dictionary[key])
+            self.oeditor.SetNetVisible(args)
+            return True
+        except:
+            self.logger.error("Couldn't change nets visibility.")
+            return False
 
     @pyaedt_function_handler()
     def create_via(

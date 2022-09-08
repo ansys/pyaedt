@@ -400,7 +400,7 @@ class Radar(MultiPartComponent, object):
         rx_names = []
         for p in self.parts:
             antenna_object = self.parts[p].insert(app, units=self._local_units)
-            self.aedt_components.append(antenna_object.antennaname)
+            self.aedt_components.append(antenna_object.name)
             self.aedt_antenna_names.append(antenna_object.excitation_name)
             if p.startswith("tx"):
                 tx_names.append(antenna_object.excitation_name)

@@ -75,6 +75,18 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.materials["magnesium"].wire_thickness_direction == "V(2)"
         assert self.aedtapp.materials["magnesium"].wire_width_direction == "V(3)"
 
+    def test_01B_lamination(self):
+        cylinder = self.aedtapp.modeler.create_cylinder(
+            cs_axis="X", position=[2000, 0, 0], radius=0.8, height=20, name="Lamination_model", matname="titanium"
+        )
+        self.aedtapp.materials["titanium"].stacking_type = "Lamination"
+        self.aedtapp.materials["titanium"].stacking_factor = "0.99"
+        self.aedtapp.materials["titanium"].stacking_direction = "V(3)"
+        self.aedtapp.materials["titanium"].stacking_direction = "V(2)"
+        assert self.aedtapp.materials["titanium"].stacking_type == "Lamination"
+        assert self.aedtapp.materials["titanium"].stacking_factor == "0.99"
+        assert self.aedtapp.materials["titanium"].stacking_direction == "V(2)"
+
     def test_02_create_coil(self):
         center_hole = self.aedtapp.modeler.Position(119, 25, 49)
         center_coil = self.aedtapp.modeler.Position(94, 0, 49)
@@ -100,15 +112,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
         self.aedtapp.solution_type = "Magnetostatic"
         volt = self.aedtapp.assign_voltage(self.aedtapp.modeler["Coil_Section1"].faces[0].id, amplitude=1)
-        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
-        assert cur2
-        assert cur2.delete()
+        current2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert current2
+        assert current2.props["IsSolid"]
+        assert current2.delete()
         assert volt
         assert volt.delete()
         self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
-        assert cur2
-        assert cur2.delete()
+        current3 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert current3
+        assert current3.props["IsSolid"]
+        assert current3.delete()
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
