@@ -944,6 +944,8 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="FarFieldSolution not supported by Ironpython")
     def test_71_antenna_plot(self):
         ffdata = self.field_test.get_antenna_ffd_solution_data(frequencies=30e9, sphere_name="3D")
+        ffdata.phase_offset = [0, 90, 0, 90]
+        assert ffdata.phase_offset == [0.0]
         assert ffdata.plot_farfield_contour(
             qty_str="RealizedGain",
             convert_to_db=True,
