@@ -993,6 +993,7 @@ class FfdSolutionData(object):
         self.taper = taper
         self.data_dict = {}
         self._init_ffd()
+        self._phase_offset = [0] * len(self.all_port_names)
 
     @pyaedt_function_handler()
     def _init_ffd(self):
@@ -1042,6 +1043,7 @@ class FfdSolutionData(object):
         self.Ay = float(self.lattice_vectors[1])
         self.Bx = float(self.lattice_vectors[3])
         self.By = float(self.lattice_vectors[4])
+        self._phase_offset = [0] * len(self.all_port_names)
         self.beamform()
 
     @property
@@ -1060,6 +1062,27 @@ class FfdSolutionData(object):
             self._frequency = val
             self.ffd_dict = self._all_solutions[self.frequencies.index(val)]
             self._init_ffd()
+
+    @property
+    def phase_offset(self):
+        """Additional phase offset in degrees on each port. Useful when element has more than one port.
+
+        Returns
+        -------
+        list
+        """
+        return self._phase_offset
+
+    @phase_offset.setter
+    def phase_offset(self, phases):
+        if len(phases) != len(self.all_port_names):
+            self._app.logger.error("Number of phases must be equal to number of ports")
+        else:
+            phases_to_rad = []
+            for phase in phases:
+                phases_to_rad.append(math.radians(phase))
+            self._phase_offset = phases_to_rad
+            self.beamform()
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1321,16 +1344,18 @@ class FfdSolutionData(object):
         w_dict_ang = {}
         w_dict_mag = {}
         array_positions = {}
+        port_cont = 0
         for port_name in self.all_port_names:
             index_str = self.get_array_index(port_name)
             a = index_str[0] - 1
             b = index_str[1] - 1
             w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
-            w_ang = a * phase_shift_A_rad + b * phase_shift_B_rad
+            w_ang = self.phase_offset[port_cont] + (a * phase_shift_A_rad + b * phase_shift_B_rad)
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
             w_dict_mag[port_name] = w_mag
             array_positions[port_name] = self.element_location(a, b)
+            port_cont += 1
 
         length_of_ff_data = len(self.data_dict[self.all_port_names[0]]["rETheta"])
 
