@@ -547,6 +547,10 @@ class TestClass(BasisTest, object):
         )
         names = self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+        assert self.aedtapp.assign_lumped_rlc_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], Lvalue=1e-9
+        )
+        assert not self.aedtapp.assign_lumped_rlc_to_sheet(rect.name, [rect.bottom_edge_x.midpoint], Lvalue=1e-9)
 
     def test_17B_update_assignment(self):
         bound = self.aedtapp.assign_perfecth_to_sheets(self.aedtapp.modeler["My_Box"].faces[0].id)
@@ -576,6 +580,14 @@ class TestClass(BasisTest, object):
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet2", True, True
         )
         assert port2.name + ":1" in self.aedtapp.excitations
+        port3 = self.aedtapp.create_lumped_port_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], 50, "Lump_sheet3", True, True
+        )
+        assert port3.name + ":1" in self.aedtapp.excitations
+        port4 = self.aedtapp.create_lumped_port_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint], 50, "Lump_sheet4", True, True
+        )
+        assert not port4
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -584,6 +596,12 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
         assert port.name in self.aedtapp.excitations
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
+        port = self.aedtapp.assign_voltage_source_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], "LumpVolt2"
+        )
+        assert port.name in self.aedtapp.excitations
+        port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, [rect.bottom_edge_x.midpoint], "LumpVolt2")
+        assert not port
 
     def test_21_create_open_region(self):
         assert self.aedtapp.create_open_region("1GHz")
@@ -780,6 +798,10 @@ class TestClass(BasisTest, object):
             self.aedtapp.PLANE.XY, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
+        assert self.aedtapp.assign_current_source_to_sheet(
+            sheet.name, [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint]
+        )
+        assert not self.aedtapp.assign_current_source_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint])
 
     @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_41_export_step(self):

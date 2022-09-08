@@ -3,6 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.modules.CableModeling import Cable
 
 try:
@@ -149,6 +150,23 @@ class TestClass(BasisTest, object):
         assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] == "99"
         assert type(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) is list
         assert len(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) == 2
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_twisted_pair_cable_properties_laylength.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_cable()
+
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_twisted_pair_cable_properties_invalid.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_cable()
 
     def test_04_create_cables_missing_properties(self):
         cable_file1 = os.path.join(
@@ -412,16 +430,16 @@ class TestClass(BasisTest, object):
         cable = Cable(self.aedtapp)
         assert cable.cable_definitions["TwistedPairCable"]
         assert (
-            cable.cable_definitions["TwistedPairCable"]["TwistedPairAttribs"]["Name"]
+            cable.cable_definitions["TwistedPairCable"][0]["TwistedPairAttribs"]["Name"]
             == "updated_name_cable_twisted_pair"
         )
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] == 1023
-        assert not cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"]
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["LayLength"] == "47mm"
-        assert cable.cable_definitions["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] == "97"
-        assert type(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) is list
-        assert len(cable.cable_definitions["TwistedPairCable"]["Instances"]["StWireInstance"]) == 2
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["StraightWireCableID"] == 1023
+        assert not cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["IsLayLengthSpecified"]
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["LayLength"] == "47mm"
+        assert cable.cable_definitions["TwistedPairCable"][0]["TwistedPairParams"]["TurnsPerMeter"] == "97"
+        assert type(cable.cable_definitions["TwistedPairCable"][0]["Instances"]["StWireInstance"]) is list
+        assert len(cable.cable_definitions["TwistedPairCable"][0]["Instances"]["StWireInstance"]) == 2
 
     def test_16_remove_cables(self):
         cable_file1 = os.path.join(
@@ -641,6 +659,15 @@ class TestClass(BasisTest, object):
         )
         assert cable.pwl_source_definitions[2]["TDSourceAttribs"]["Name"] == "pwl4"
 
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source_noname.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_pwl_source()
+
     def test_30_add_pwl_source_invalid(self):
         cable_file1 = os.path.join(
             local_path,
@@ -670,7 +697,25 @@ class TestClass(BasisTest, object):
             "cable_modeling_json_files",
             "add_pwl_source_from_file.json",
         )
+        cable_file2 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source_from_file_1.json",
+        )
         assert Cable(self.aedtapp, cable_file1).create_pwl_source_from_file()
+        assert Cable(self.aedtapp, cable_file2).create_pwl_source_from_file()
+
+    def test_32a_invalid_add_pwl_source_from_file(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_add_pwl_source_from_file.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_pwl_source_from_file()
 
     def test_33_update_pwl_source(self):
         cable_file1 = os.path.join(
@@ -701,3 +746,59 @@ class TestClass(BasisTest, object):
             ]
         )
         assert cable.pwl_source_definitions[0]["TDSourceAttribs"]["Name"] == "update_pwl_source"
+
+    def test_34_remove_all_sources(self):
+        assert Cable(self.aedtapp).remove_all_sources()
+
+    def test_35_create_cables_bundle_check_new_definitions(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "set_bundle_cable_properties_insulation.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_cable()
+
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_pwl_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_pwl_source()
+        cable = Cable(self.aedtapp)
+        assert len(cable.existing_sources_names) == 1
+
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "add_clock_source.json",
+        )
+        assert Cable(self.aedtapp, cable_file1).create_clock_source()
+        cable = Cable(self.aedtapp)
+        assert cable.clock_source_definitions["TDSourceAttribs"]["Name"] == "clock_test_1"
+
+    @pytest.mark.skipif(is_ironpython, reason="Ironpython does not allow exception FileNotFoundError")
+    def test_36_empty_json(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "empty.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_cable()
+
+    def test_37_invalid_cable_type(self):
+        cable_file1 = os.path.join(
+            local_path,
+            "example_models",
+            test_subfloder,
+            "cable_modeling_json_files",
+            "invalid_cable_type.json",
+        )
+        assert not Cable(self.aedtapp, cable_file1).create_cable()

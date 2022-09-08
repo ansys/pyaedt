@@ -31,30 +31,38 @@ class Cable:
         self._app = app
         self._odesign = app.odesign
         self._omodule = self._odesign.GetModule("CableSetup")
-
+        self.clock_source_definitions = None
+        self.pwl_source_definitions = None
         if working_dir is None:
             self._working_dir = self._app.toolkit_directory
         else:
             self._working_dir = working_dir
 
         file_import = self._cable_properties_parser(self._omodule, self._working_dir)
-        if file_import["CableManager"]["TDSources"]["ClockSourceDef"]:
-            self.clock_source_definitions = file_import["CableManager"]["TDSources"]["ClockSourceDef"]
-        if file_import["CableManager"]["TDSources"]["PWLSourceDef"]:
-            self.pwl_source_definitions = file_import["CableManager"]["TDSources"]["PWLSourceDef"]
-        self.existing_sources_names = []
-        if isinstance(self.clock_source_definitions, list):
-            for source in self.clock_source_definitions:
-                if source.get("ClockSignalParams"):
-                    self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
-        else:
-            self.existing_sources_names.append(self.clock_source_definitions["TDSourceAttribs"]["Name"])
-        if isinstance(self.pwl_source_definitions, list):
-            for source in self.pwl_source_definitions:
-                if source.get("PWLSignalParams"):
-                    self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
-        else:
-            self.existing_sources_names.append(self.pwl_source_definitions["TDSourceAttribs"]["Name"])
+        if file_import["CableManager"]["TDSources"]:
+            if (
+                "ClockSourceDef" in file_import["CableManager"]["TDSources"].keys()
+                and file_import["CableManager"]["TDSources"]["ClockSourceDef"]
+            ):
+                self.clock_source_definitions = file_import["CableManager"]["TDSources"]["ClockSourceDef"]
+            if (
+                "PWLSourceDef" in file_import["CableManager"]["TDSources"].keys()
+                and file_import["CableManager"]["TDSources"]["PWLSourceDef"]
+            ):
+                self.pwl_source_definitions = file_import["CableManager"]["TDSources"]["PWLSourceDef"]
+            self.existing_sources_names = []
+            if isinstance(self.clock_source_definitions, list):
+                for source in self.clock_source_definitions:
+                    if source.get("ClockSignalParams"):
+                        self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
+            elif isinstance(self.clock_source_definitions, dict):
+                self.existing_sources_names.append(self.clock_source_definitions["TDSourceAttribs"]["Name"])
+            if isinstance(self.pwl_source_definitions, list):
+                for source in self.pwl_source_definitions:
+                    if source.get("PWLSignalParams"):
+                        self.existing_sources_names.append(source["TDSourceAttribs"]["Name"])
+            elif isinstance(self.pwl_source_definitions, dict):
+                self.existing_sources_names.append(self.pwl_source_definitions["TDSourceAttribs"]["Name"])
 
         self.cable_definitions = file_import["CableManager"]["Definitions"]
         self.existing_bundle_cables_names = []
@@ -98,8 +106,8 @@ class Cable:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.cable_type == "bundle":
-            try:
+        try:
+            if self.cable_type == "bundle":
                 if self.jacket_type == "insulation":
                     self._omodule.CreateCableBundle(
                         [
@@ -160,12 +168,7 @@ class Cable:
                         ],
                         ["NAME:BundleAttribs", "Name:=", self.cable_name],
                     )
-                return True
-            except:
-                self._app.logger.error("Boundle cable not created.")
-                return False
-        elif self.cable_type == "straight wire":
-            try:
+            elif self.cable_type == "straight wire":
                 self._omodule.CreateStraightWireCable(
                     [
                         "NAME:StWireParams",
@@ -186,12 +189,7 @@ class Cable:
                     ],
                     ["NAME:StWireAttribs", "Name:=", self.cable_name],
                 )
-                return True
-            except:
-                self._app.logger.error("Straight wire cable not created.")
-                return False
-        else:
-            try:
+            else:
                 if self.is_lay_length_specified.lower() == "true":
                     self._omodule.CreateTwistedPairCable(
                         self.assign_cable_to_twisted_pair,
@@ -216,13 +214,10 @@ class Cable:
                         ],
                         ["NAME:TwistedPairAttribs", "Name:=", self.cable_name],
                     )
-                else:
-                    self.logger.error("is_lay_length_specified value not valid. Value must be either True or False.")
-                    return False
-                return True
-            except:
-                self._app.logger.error("Twisted pair cable not created.")
-                return False
+            return True
+        except:
+            self._app.logger.error("Cable creation was unsuccessful.")
+            return False
 
     def update_cable_properties(self):
         """Update cable properties for all cable types.
@@ -473,6 +468,23 @@ class Cable:
             self._app.logger.error("Source could not be removed.")
             return False
 
+    def remove_all_sources(self):
+        """Remove all sources.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if self.existing_sources_names:
+                for source in self.existing_sources_names:
+                    self._omodule.RemoveTimeDomainSource(source)
+            return True
+        except:
+            self._app.logger.error("Source could not be removed.")
+            return False
+
     def create_pwl_source(self):
         """Create a clock source.
 
@@ -517,7 +529,7 @@ class Cable:
             return False
 
     def update_pwl_source(self):
-        """Update clock source.
+        """Update pwl source.
 
         Returns
         -------
@@ -576,6 +588,7 @@ class Cable:
             try:
                 if values["CableType"].lower() in ["bundle", "straight wire", "twisted pair"]:
                     self.cable_type = values["CableType"]
+                    self._app.logger.error("test")
                 else:
                     msg = "Cable type is not valid. Available values are: bundle, straight wire, twisted pair"
                     raise ValueError(msg)
@@ -846,10 +859,8 @@ class Cable:
                             ]
                             self.lay_length = cable_twisted_pair_properties["TwistedPairParams"]["LayLength"]
                             self.turns_per_meter = cable_twisted_pair_properties["TwistedPairParams"]["TurnsPerMeter"]
-                return True
             except ValueError as e:
                 self._app.logger.error(str(e))
-                return False
 
         # Source implementation
         if values["Source"].lower() == "true":
@@ -863,7 +874,6 @@ class Cable:
                     raise ValueError(msg)
             except ValueError as e:
                 self._app.logger.error(str(e))
-                return False
 
             try:
                 # Check if user action is to remove the source
@@ -889,6 +899,7 @@ class Cable:
                         else:
                             self.source_name = generate_unique_name("clock")
 
+                    self.source_period = "35us"
                     if source_properties["ClockSignalParams"]["Period"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["Period"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -896,9 +907,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.source_period = source_properties["ClockSignalParams"]["Period"]
-                    else:
-                        self.source_period = "35us"
 
+                    self.low_pulse_value = "0V"
                     if source_properties["ClockSignalParams"]["LowPulseVal"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
@@ -906,9 +916,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.low_pulse_value = source_properties["ClockSignalParams"]["LowPulseVal"]
-                    else:
-                        self.low_pulse_value = "0V"
 
+                    self.high_pulse_value = "1V"
                     if source_properties["ClockSignalParams"]["HighPulseVal"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
                         if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
@@ -916,9 +925,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.high_pulse_value = source_properties["ClockSignalParams"]["HighPulseVal"]
-                    else:
-                        self.high_pulse_value = "1V"
 
+                    self.rise_time = "5us"
                     if source_properties["ClockSignalParams"]["Risetime"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["Risetime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -926,9 +934,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.rise_time = source_properties["ClockSignalParams"]["Risetime"]
-                    else:
-                        self.rise_time = "5us"
 
+                    self.fall_time = "5us"
                     if source_properties["ClockSignalParams"]["Falltime"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["Falltime"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -936,9 +943,8 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.fall_time = source_properties["ClockSignalParams"]["Falltime"]
-                    else:
-                        self.fall_time = "5us"
 
+                    self.pulse_width = "20us"
                     if source_properties["ClockSignalParams"]["PulseWidth"]:
                         unit = decompose_variable_value(source_properties["ClockSignalParams"]["PulseWidth"])[1]
                         if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
@@ -946,8 +952,7 @@ class Cable:
                             raise ValueError(msg)
                         else:
                             self.pulse_width = source_properties["ClockSignalParams"]["PulseWidth"]
-                    else:
-                        self.pulse_width = "20us"
+
                 # Check if user action is to add a pwl source
                 elif values["PwlSource"].lower() == "true":
                     # Check is user wants to add pwl source from file
@@ -958,14 +963,20 @@ class Cable:
                         # Check if user wants to update pwl source
                         if values["UpdatePwlSource"].lower() == "true":
                             self.updated_pwl_source_name = values["UpdatedSourceName"]
-                            if pwl_source_properties["TDSourceAttribs"]["Name"]:
+                            if (
+                                pwl_source_properties["TDSourceAttribs"]
+                                and "Name" in pwl_source_properties["TDSourceAttribs"]
+                            ):
                                 self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
                             else:
                                 msg = "Provide a pwl source name to update."
                                 raise ValueError(msg)
                         # If user doesn't want to update pwl source a pwl source is added manually
                         else:
-                            if pwl_source_properties["TDSourceAttribs"]["Name"]:
+                            if (
+                                pwl_source_properties["TDSourceAttribs"]
+                                and "Name" in pwl_source_properties["TDSourceAttribs"]
+                            ):
                                 self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
                             else:
                                 self.pwl_source_name = generate_unique_name("clock")
@@ -980,10 +991,8 @@ class Cable:
                         else:
                             self.signal_values = pwl_source_properties["PWLSignalParams"]["SignalValues"]
                         self.time_values = pwl_source_properties["PWLSignalParams"]["TimeValues"]
-                        self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
             except ValueError as e:
                 self._app.logger.error(str(e))
-                return False
 
     def _cable_properties_parser(self, omodule, working_dir):
         file_path_export = os.path.join(working_dir, "export_cable_library_test.txt")
