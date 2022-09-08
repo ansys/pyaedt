@@ -350,3 +350,4 @@ class TestClass(BasisTest, object):
             ind_limit="9uH",
             res_limit="2ohm",
         )
+        self.aedtapp.close_project(q3d.project_name, False)

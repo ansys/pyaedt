@@ -253,3 +253,4 @@ class TestClass(BasisTest, object):
         assert not q2d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
         )
+        self.aedtapp.close_project(q2d.project_name, False)
