@@ -6,6 +6,7 @@ This module provides all functionalities for creating and editing plots in the 3
 """
 from __future__ import absolute_import  # noreorder
 
+import ast
 import os
 import random
 import string
@@ -3194,8 +3195,8 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 prop = "Surface Heat Variation Data"
                 units_input = "irrad_W_per_m2"
-            value_bound = eval(boundary_obj.props[prop]["Variation Value"])[0]
-            expression = eval(boundary_obj.props[prop]["Variation Value"])[1]
+            value_bound = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[0]
+            expression = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[1]
             value = list(decompose_variable_value(value_bound))
             if isinstance(value[0], str):
                 new_value = self._app[value[0]]
