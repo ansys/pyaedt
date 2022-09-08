@@ -3212,7 +3212,7 @@ class Hfss(FieldAnalysis3D, object):
         axisdir : int, :class:`pyaedt.application.Analysis.Analysis.AxisDir` or list, optional
             Direction of the integration line. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``. It also accepts the list
-            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]]
+            of the start point and end point with the format [[xstart, ystart, zstart], [xend, yend, zend]].
             The default is ``Application.AxisDir.XNeg``.
         impedance : float, optional
             Port impedance. The default is ``50``.
