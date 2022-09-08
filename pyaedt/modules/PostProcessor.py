@@ -6,6 +6,7 @@ This module provides all functionalities for creating and editing plots in the 3
 """
 from __future__ import absolute_import  # noreorder
 
+import ast
 import os
 import random
 import string
@@ -14,6 +15,8 @@ from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
 from pyaedt import settings
+from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
@@ -3132,6 +3135,289 @@ class PostProcessor(PostProcessorCommon, object):
             plot.delete()
             return file_to_add
         return None
+
+    @pyaedt_function_handler()
+    def power_budget(self, units="W", temperature=22):
+        """Power budget calculation.
+
+        Parameters
+        ----------
+        units : str
+            Output power units.
+        temperature : float
+            Temperature to calculate the power.
+
+        Returns
+        -------
+        dict, float
+            Dictionary with the power introduced on each boundary and total power.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        available_bcs = self._app.boundaries
+        power_dict = {}
+
+        def multiplier_from_dataset(expression, valuein):
+            multiplier = 0
+            if expression in self._app.design_datasets:
+                dataset = self._app.design_datasets[expression]
+            elif expression in self._app.project_datasets:
+                dataset = self._app.design_datasets[expression]
+            else:
+                return multiplier
+            if valuein >= max(dataset.x):
+                multiplier = dataset.y[-1]
+            elif valuein <= min(dataset.x):
+                multiplier = dataset.y[0]
+            else:
+                start_x = 0
+                start_y = 0
+                end_x = 0
+                end_y = 0
+                for i, y in enumerate(dataset.x):
+                    if y > valuein:
+                        start_x = dataset.x[i - 1]
+                        start_y = dataset.y[i - 1]
+                        end_x = dataset.x[i]
+                        end_y = dataset.y[i]
+                if end_x - start_x == 0:
+                    multiplier = 0
+                else:
+                    multiplier = start_y + (valuein - start_x) * ((end_y - start_y) / (end_x - start_x))
+            return multiplier
+
+        def extract_dataset_info(boundary_obj, units_input="W", boundary="Power"):
+            if boundary == "Power":
+                prop = "Total Power Variation Data"
+            else:
+                prop = "Surface Heat Variation Data"
+                units_input = "irrad_W_per_m2"
+            value_bound = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[0]
+            expression = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[1]
+            value = list(decompose_variable_value(value_bound))
+            if isinstance(value[0], str):
+                new_value = self._app[value[0]]
+                value = list(decompose_variable_value(new_value))
+            value = unit_converter(
+                value[0],
+                unit_system=boundary,
+                input_units=value[1],
+                output_units=units_input,
+            )
+            expression = expression.split(",")[0].split("(")[1]
+            return value, expression
+
+        if not available_bcs:
+            self.logger.warning("No boundaries defined")
+            return True
+        for bc_obj in available_bcs:
+            if bc_obj.type == "Block":
+                n = len(bc_obj.props["Objects"])
+                if "Total Power Variation Data" not in bc_obj.props:
+                    mult = 1
+                    power_value = list(decompose_variable_value(bc_obj.props["Total Power"]))
+                    power_value = unit_converter(
+                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                    )
+
+                else:
+                    power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
+                    mult = multiplier_from_dataset(exp, temperature)
+
+                power_dict[bc_obj.name] = power_value * n * mult
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Source":
+                if bc_obj.props["Thermal Condition"] == "Total Power":
+                    n = 0
+                    if "Faces" in bc_obj.props:
+                        n += len(bc_obj.props["Faces"])
+                    if "Objects" in bc_obj.props:
+                        n += len(bc_obj.props["Objects"])
+
+                    if "Total Power Variation Data" not in bc_obj.props:
+                        mult = 1
+                        power_value = list(decompose_variable_value(bc_obj.props["Total Power"]))
+                        power_value = unit_converter(
+                            power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                        )
+                    else:
+                        power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
+                        mult = multiplier_from_dataset(exp, temperature)
+
+                    power_dict[bc_obj.name] = power_value * n * mult
+                    self.logger.info(
+                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
+                    )
+
+                elif bc_obj.props["Thermal Condition"] == "Surface Flux":
+                    if "Surface Heat Variation Data" not in bc_obj.props:
+                        mult = 1
+                        heat_value = list(decompose_variable_value(bc_obj.props["Surface Heat"]))
+                        if isinstance(heat_value[0], str):
+                            new_value = self._app[heat_value[0]]
+                            heat_value = list(decompose_variable_value(new_value))
+                        heat_value = unit_converter(
+                            heat_value[0],
+                            unit_system="SurfaceHeat",
+                            input_units=heat_value[1],
+                            output_units="irrad_W_per_m2",
+                        )
+                    else:
+                        mult = 0
+                        if bc_obj.props["Surface Heat Variation Data"]["Variation Type"] == "Temp Dep":
+                            heat_value, exp = extract_dataset_info(bc_obj, boundary="SurfaceHeat")
+                            mult = multiplier_from_dataset(exp, temperature)
+                        else:
+                            heat_value = 0
+
+                    power_value = 0.0
+                    if "Faces" in bc_obj.props:
+                        for component in bc_obj.props["Faces"]:
+                            area = self.modeler.get_face_area(component)
+                            area = unit_converter(
+                                area,
+                                unit_system="Area",
+                                input_units=self.modeler.model_units + "2",
+                                output_units="m2",
+                            )
+                            power_value += heat_value * area * mult
+                    if "Objects" in bc_obj.props:
+                        for component in bc_obj.props["Objects"]:
+                            object_assigned = self.modeler[component]
+                            for f in object_assigned.faces:
+                                area = unit_converter(
+                                    f.area,
+                                    unit_system="Area",
+                                    input_units=self.modeler.model_units + "2",
+                                    output_units="m2",
+                                )
+                                power_value += heat_value * area * mult
+
+                    power_value = unit_converter(power_value, unit_system="Power", input_units="W", output_units=units)
+                    power_dict[bc_obj.name] = power_value
+                    self.logger.info(
+                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
+                    )
+
+            elif bc_obj.type == "Network":
+                nodes = bc_obj.props["Nodes"]
+                power_value = 0
+                for node in nodes:
+                    if "Power" in nodes[node]:
+                        value = nodes[node]["Power"]
+                        value = list(decompose_variable_value(value))
+                        value = unit_converter(value[0], unit_system="Power", input_units=value[1], output_units=units)
+                        power_value += value
+                power_dict[bc_obj.name] = power_value
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Conducting Plate":
+                n = 0
+                if "Faces" in bc_obj.props:
+                    n += len(bc_obj.props["Faces"])
+                if "Objects" in bc_obj.props:
+                    n += len(bc_obj.props["Objects"])
+
+                if "Total Power Variation Data" not in bc_obj.props:
+                    mult = 1
+                    power_value = list(decompose_variable_value(bc_obj.props["Total Power"]))
+                    power_value = unit_converter(
+                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                    )
+
+                else:
+                    power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
+                    mult = multiplier_from_dataset(exp, temperature)
+
+                power_dict[bc_obj.name] = power_value * n * mult
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Stationary Wall":
+                if bc_obj.props["External Condition"] == "Heat Flux":
+                    mult = 1
+                    heat_value = list(decompose_variable_value(bc_obj.props["Heat Flux"]))
+                    heat_value = unit_converter(
+                        heat_value[0],
+                        unit_system="SurfaceHeat",
+                        input_units=heat_value[1],
+                        output_units="irrad_W_per_m2",
+                    )
+
+                    power_value = 0.0
+                    if "Faces" in bc_obj.props:
+                        for component in bc_obj.props["Faces"]:
+                            area = self.modeler.get_face_area(component)
+                            area = unit_converter(
+                                area,
+                                unit_system="Area",
+                                input_units=self.modeler.model_units + "2",
+                                output_units="m2",
+                            )
+                            power_value += heat_value * area * mult
+                    if "Objects" in bc_obj.props:
+                        for component in bc_obj.props["Objects"]:
+                            object_assigned = self.modeler[component]
+                            for f in object_assigned.faces:
+                                area = unit_converter(
+                                    f.area,
+                                    unit_system="Area",
+                                    input_units=self.modeler.model_units + "2",
+                                    output_units="m2",
+                                )
+                                power_value += heat_value * area * mult
+
+                    power_value = unit_converter(power_value, unit_system="Power", input_units="W", output_units=units)
+                    power_dict[bc_obj.name] = power_value
+                    self.logger.info(
+                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
+                    )
+
+            elif bc_obj.type == "Resistance":
+                n = len(bc_obj.props["Objects"])
+                mult = 1
+                power_value = list(decompose_variable_value(bc_obj.props["Thermal Power"]))
+                power_value = unit_converter(
+                    power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                )
+
+                power_dict[bc_obj.name] = power_value * n * mult
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Blower":
+                power_value = list(decompose_variable_value(bc_obj.props["Blower Power"]))
+                power_value = unit_converter(
+                    power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                )
+
+                power_dict[bc_obj.name] = power_value
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+        for native_comps in self.modeler.user_defined_components:
+            if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
+                native_key = "NativeComponentDefinitionProvider"
+                power_key = self.modeler.user_defined_components[native_comps].native_properties[native_key]
+                power_value = None
+                if "Power" in power_key:
+                    power_value = list(decompose_variable_value(power_key["Power"]))
+                elif "HubPower" in power_key:
+                    power_value = list(decompose_variable_value(power_key["HubPower"]))
+
+                if power_value:
+                    power_value = unit_converter(
+                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                    )
+
+                    power_dict[native_comps] = power_value
+                    self.logger.info(
+                        "The power of {} is {} {}".format(native_comps, str(power_dict[native_comps]), units)
+                    )
+
+        self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
+        return power_dict, sum(power_dict.values())
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):
