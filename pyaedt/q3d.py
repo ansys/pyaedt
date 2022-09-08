@@ -732,7 +732,8 @@ class QExtractor(FieldAnalysis3D, object):
         cs="Global",
         export_distributed=True,
         lumped_length="1meter",
-        rise_time=None,
+        rise_time_value=None,
+        rise_time_unit=None,
         coupling_limit_type=None,
         cap_limit=None,
         ind_limit=None,
@@ -815,9 +816,12 @@ class QExtractor(FieldAnalysis3D, object):
         lumped_length : str, optional
             Length of the design.
             Default value is 1 meter.
-        rise_time : str, optional
+        rise_time_value : str, optional
             Rise time to calculate the number of cells.
-            Default value is 1e-09s.
+            Default value is 1e-09.
+        rise_time_unit : str, optional
+            Rise time unit.
+            Default is s.
         cap_limit : str, optional
             Capacitance limit.
             Default value is 1pF if coupling_limit_type is 0.
@@ -1028,12 +1032,17 @@ class QExtractor(FieldAnalysis3D, object):
             self.logger.error("Invalid lumped length unit.")
             return False
 
-        if rise_time:
-            if decompose_variable_value(rise_time)[1] not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
+        if rise_time_value is None:
+            rise_time_value = "1e-9"
+
+        if rise_time_unit:
+            if rise_time_unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
                 self.logger.error("Invalid rise time unit.")
                 return False
         else:
-            rise_time = "1e-09s"
+            rise_time_unit = "s"
+
+        rise_time = rise_time_value + rise_time_unit
 
         if file_type.lower() not in ["hspice", "welement", "rlcg"]:
             self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")

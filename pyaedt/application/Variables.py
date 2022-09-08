@@ -238,8 +238,6 @@ def _find_units_in_dependent_variables(variable_value, full_variables={}):
         if len(set(m2)) <= 1:
             return m2[0]
         else:
-            if "e" in m2 or "E" in m2:
-                m2.remove(m2[0])
             if unit_system(m2[0]):
                 return SI_UNITS[unit_system(m2[0])]
     else:
