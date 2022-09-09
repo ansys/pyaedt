@@ -1763,4 +1763,6 @@ class Circuit(FieldAnalysisCircuit, object):
             self.logger.error("Design not solved")
             return None
 
-        return shutil.copy(latest_file, filepath)
+        shutil.copy(latest_file, filepath)
+        filename = os.path.basename(latest_file)
+        return os.path.join(filepath, filename)
