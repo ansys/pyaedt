@@ -2023,8 +2023,4 @@ if not config["skip_edb"]:
             assert self.edbapp.build_simulation_project(sim_config)
 
         def test_120_set_all_antipad_values(self):
-            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            target_path = os.path.join(self.local_scratch.path, "test_117.aedb")
-            self.local_scratch.copyfolder(source_path, target_path)
-            edb = Edb(target_path)
-            assert edb.core_padstack.set_all_antipad_value(0.0)
+            assert self.edbapp.core_stackup.set_all_antipad_value(0.0)
