@@ -472,17 +472,17 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):
-        """Set all anti-pads from all pads-tack definition to the given value.
+        """Set all anti-pads from all pad-stack definition to the given value.
 
         Parameters
         ----------
-        value float, str
+        value : float, str
             anti-pad value
 
         Returns
         --------
         bool
-            ``True`` when all succeed ``False`` if one of anti-pads value failed to be assigned.
+            ``True`` when all succeed. ``False`` if one of anti-pads value failed to be assigned.
         """
         if self.padstacks:
             for padstack in list(self.padstacks.values()):
@@ -503,7 +503,7 @@ class EdbPadstacks(object):
                         if cloned_padstack_data.SetPadParameters(layer, antipad, geom, params, offset_x, offset_y, rot):
                             self._logger.info(
                                 "Pad-stack definition {}, anti-pad on layer {}, has been set to {}".format(
-                                    padstack.edb_padstack.GetName(), layer, str(value)
+                                    padstack.edb_padstack.GetName(), lay, str(value)
                                 )
                             )
                         else:
