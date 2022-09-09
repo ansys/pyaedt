@@ -749,17 +749,17 @@ class QExtractor(FieldAnalysis3D, object):
         ----------
         file_name : str
             Full path to save the equivalent circuit to.
-            Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP, 
+            Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP,
             DML, and ICM.
         setup_name : str, optional
-            Setup name. The default value is ``None``, in which case the first
-            analysis setup is used.
+            Setup name.
+            The default value is ``None``, in which case the first analysis setup is used.
         sweep : str, optional
             Solution frequency. The default is ``None``, in which case
             the default adaptive is used.
         variations : list or str, optional
             Design variation. The default is ``None``, in which case the
-            current nominal variation is used. If you are provide a
+            current nominal variation is used. If you provide a
             design variation, use the format ``{Name}:{Value}``.
         matrix_name : str, optional
             Name of the matrix to show. The default is ``"Original"``.
