@@ -759,8 +759,8 @@ class QExtractor(FieldAnalysis3D, object):
             the default adaptive is used.
         variations : list or str, optional
             Design variation. The default is ``None``, in which case the
-            current nominal variation is used.
-            If provided by user give the value as "{Name}:{Value}".
+            current nominal variation is used. If you are provide a
+            design variation, use the format ``{Name}:{Value}``.
         matrix_name : str, optional
             Name of the matrix to display.
             Default value is ``"Original"``.
