@@ -749,7 +749,8 @@ class QExtractor(FieldAnalysis3D, object):
         ----------
         file_name : str
             Full path to save the equivalent circuit to.
-            Options for file extensions are: .cir, .sml, .sp, .pkg, .spc, .lib, .ckt, .bsp, .dml, .icm.
+            Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP, 
+            DML, and ICM.
         setup_name : str, optional
             Setup name. The default value is ``None``, in which case the first
             analysis setup is used.
