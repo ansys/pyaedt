@@ -472,7 +472,7 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler
     def set_all_antipad_value(self, value):
-        """Set all anti-pads from all pads-tack definition to the given value.
+        """Set all anti-pads from all pad-stack definition to the given value.
 
         Parameters
         ----------
