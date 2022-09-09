@@ -746,7 +746,7 @@ class QExtractor(FieldAnalysis3D, object):
         Parameters
         ----------
         file_name : str
-            Full path to save the equivalent circuit to.
+            Full path for saving the matrix data to.
             Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP,
             DML, and ICM.
         setup_name : str, optional
