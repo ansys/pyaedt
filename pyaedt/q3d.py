@@ -762,8 +762,7 @@ class QExtractor(FieldAnalysis3D, object):
             current nominal variation is used. If you are provide a
             design variation, use the format ``{Name}:{Value}``.
         matrix_name : str, optional
-            Name of the matrix to display.
-            Default value is ``"Original"``.
+            Name of the matrix to show. The default is ``"Original"``.
         num_cells : int, optional
             Number of cells in export.
             Default value is 2.
