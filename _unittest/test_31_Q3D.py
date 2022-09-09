@@ -303,3 +303,57 @@ class TestClass(BasisTest, object):
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
         self.aedtapp.close_project(q3d.project_name, False)
+
+    def test_14_export_equivalent_circuit(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
+        q3d.matrices[1].name == "JointTest"
+        q3d.analyze_setup(q3d.analysis_setup)
+        assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
+        assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="Sweep1",
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Original"
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="JointTest"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="JointTest1"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            coupling_limit_type=0,
+            cond_limit="3Sie",
+            cap_limit="4uF",
+            ind_limit="9uH",
+            res_limit="2ohm",
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="q2d_q3d"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
+        )
+        self.aedtapp.close_project(q3d.project_name, False)
