@@ -1742,7 +1742,7 @@ class Circuit(FieldAnalysisCircuit, object):
         if filepath and not os.path.exists(os.path.normpath(filepath)):
             self.logger.error("Path does not exist.")
             return None
-        else:
+        elif not filepath:
             filepath = os.path.join(os.path.normpath(self.working_directory), "logfile")
             if not os.path.exists(filepath):
                 os.mkdir(filepath)
