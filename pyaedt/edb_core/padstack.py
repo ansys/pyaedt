@@ -494,19 +494,23 @@ class EdbPadstacks(object):
                         padstack.edb_padstack, layer, 1
                     )
                     if geom_type == 1:
-                        params = convert_py_list_to_net_list([self._pedb.edb_value(value)] * len(parameters))
+                        params = convert_py_list_to_net_list(
+                            [self._pedb.edb_value(value)] * len(parameters)
+                        )  # pragma no cover
                         geom = self._edb.Definition.PadGeometryType.Circle
                         offset_x = self._pedb.edb_value(offset_x)
                         offset_y = self._pedb.edb_value(offset_y)
                         rot = self._pedb.edb_value(rot)
                         antipad = self._edb.Definition.PadType.AntiPad
-                        if cloned_padstack_data.SetPadParameters(layer, antipad, geom, params, offset_x, offset_y, rot):
+                        if cloned_padstack_data.SetPadParameters(
+                            layer, antipad, geom, params, offset_x, offset_y, rot
+                        ):  # pragma no cover
                             self._logger.info(
                                 "Pad-stack definition {}, anti-pad on layer {}, has been set to {}".format(
-                                    padstack.edb_padstack.GetName(), lay, str(value)
+                                    padstack.edb_padstack.GetName(), layer, str(value)
                                 )
                             )
-                        else:
+                        else:  # pragma no cover
                             self._logger.error(
                                 "Failed to reassign anti-pad value {} on Pads-stack definition {},"
                                 " layer{}".format(str(value), padstack.edb_padstack.GetName(), layer)
