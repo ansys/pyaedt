@@ -727,9 +727,7 @@ class QExtractor(FieldAnalysis3D, object):
         include_r=True,
         include_l=True,
         add_resistance=True,
-        include_cpp=False,
         parse_pin_names=False,
-        cs="Global",
         export_distributed=True,
         lumped_length="1meter",
         rise_time_value=None,
@@ -803,9 +801,6 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is True.
         parse_pin_names : bool, optional
             Parse pin names.
-            Default value is False.
-        include_cpp : bool, optional
-            Include chip package protocol.
             Default value is False.
         cs : str, optional
             Coordinate system for chip package control.
@@ -1005,10 +1000,6 @@ class QExtractor(FieldAnalysis3D, object):
             coupling_limit_value = "None"
             coupling_limits.append(coupling_limit_value)
 
-        # if include_cpp and not [x for x in [include_dcr, include_acr, include_dcl, include_acl, add_resistance] if x]:
-        #     self.logger.error("Cannot include chip package protocol.")
-        #     return False
-
         if decompose_variable_value(lumped_length)[1] not in [
             "cm",
             "dm",
@@ -1049,6 +1040,7 @@ class QExtractor(FieldAnalysis3D, object):
             return False
 
         if self.modeler._is3d:
+            # IncludeCPP always False, unable to access chip package information.
             try:
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
