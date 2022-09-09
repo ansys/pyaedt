@@ -847,7 +847,6 @@ class QExtractor(FieldAnalysis3D, object):
             "RLGC": Nexxim/HSPICE RLGC W Element file format
             Default value is Hspice.
 
-
         Returns
         -------
         bool
@@ -999,6 +998,12 @@ class QExtractor(FieldAnalysis3D, object):
         else:
             coupling_limit_value = "None"
             coupling_limits.append(coupling_limit_value)
+
+        if model_name is None:
+            model_name = self.project_name
+        elif model_name != self.project_name:
+            self.logger.error("Invalid project name.")
+            return False
 
         if decompose_variable_value(lumped_length)[1] not in [
             "cm",
