@@ -482,7 +482,7 @@ class EdbPadstacks(object):
         Returns
         --------
         bool
-            ``True`` when all succeed ``False`` if one of anti-pads value failed to be assigned.
+            ``True`` when all succeed. ``False`` if one of anti-pads value failed to be assigned.
         """
         if self.padstacks:
             for padstack in list(self.padstacks.values()):
