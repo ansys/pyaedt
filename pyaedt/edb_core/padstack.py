@@ -493,7 +493,7 @@ class EdbPadstacks(object):
                     geom_type, parameters, offset_x, offset_y, rot = self.get_pad_parameters(
                         padstack.edb_padstack, layer, 1
                     )
-                    if geom_type == 1:
+                    if geom_type == 1:  # pragma no cover
                         params = convert_py_list_to_net_list(
                             [self._pedb.edb_value(value)] * len(parameters)
                         )  # pragma no cover
