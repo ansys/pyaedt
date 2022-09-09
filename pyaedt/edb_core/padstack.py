@@ -489,9 +489,9 @@ class EdbPadstacks(object):
                 cloned_padstack_data = self._edb.Definition.PadstackDefData(padstack.edb_padstack.GetData())
                 layers_name = cloned_padstack_data.GetLayerNames()
                 all_succeed = True
-                for lay in layers_name:
+                for layer in layers_name:
                     geom_type, parameters, offset_x, offset_y, rot = self.get_pad_parameters(
-                        padstack.edb_padstack, lay, 1
+                        padstack.edb_padstack, layer, 1
                     )
                     if geom_type == 1:
                         params = convert_py_list_to_net_list([self._pedb.edb_value(value)] * len(parameters))
@@ -500,16 +500,16 @@ class EdbPadstacks(object):
                         offset_y = self._pedb.edb_value(offset_y)
                         rot = self._pedb.edb_value(rot)
                         antipad = self._edb.Definition.PadType.AntiPad
-                        if cloned_padstack_data.SetPadParameters(lay, antipad, geom, params, offset_x, offset_y, rot):
+                        if cloned_padstack_data.SetPadParameters(layer, antipad, geom, params, offset_x, offset_y, rot):
                             self._logger.info(
                                 "Pad-stack definition {}, anti-pad on layer {}, has been set to {}".format(
-                                    padstack.edb_padstack.GetName(), lay, str(value)
+                                    padstack.edb_padstack.GetName(), layer, str(value)
                                 )
                             )
                         else:
                             self._logger.error(
                                 "Failed to reassign anti-pad value {} on Pads-stack definition {},"
-                                " layer{}".format(str(value), padstack.edb_padstack.GetName(), lay)
+                                " layer{}".format(str(value), padstack.edb_padstack.GetName(), layer)
                             )
                             all_succeed = False
                 padstack.edb_padstack.SetData(cloned_padstack_data)
