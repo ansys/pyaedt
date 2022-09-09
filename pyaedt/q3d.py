@@ -1044,7 +1044,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         rise_time = rise_time_value + rise_time_unit
 
-        if file_type.lower() not in ["hspice", "welement", "rlcg"]:
+        if file_type.lower() not in ["hspice", "welement", "rlgc"]:
             self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
             return False
 
