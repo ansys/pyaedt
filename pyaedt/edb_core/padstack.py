@@ -476,7 +476,7 @@ class EdbPadstacks(object):
 
         Parameters
         ----------
-        value float, str
+        value : float, str
             anti-pad value
 
         Returns
