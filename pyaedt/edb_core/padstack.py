@@ -502,7 +502,7 @@ class EdbPadstacks(object):
                         antipad = self._edb.Definition.PadType.AntiPad
                         if cloned_padstack_data.SetPadParameters(lay, antipad, geom, params, offset_x, offset_y, rot):
                             self._logger.info(
-                                "Pad-stack definition {}, anti-pad on layer {}, has been set to {}".format(
+                                "For pad-stack definition {}, anti-pad on layer {} has been set to {}".format(
                                     padstack.edb_padstack.GetName(), lay, str(value)
                                 )
                             )
