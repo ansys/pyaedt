@@ -1028,7 +1028,7 @@ class EdbHfss(object):
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
 
         sim_setup = self._edb.Utility.HFSSSimulationSetup(simsetup_info)
-        for setup in self._cell.SimulationSetups:
+        for setup in self._active_layout.GetCell().SimulationSetups:
             self._cell.DeleteSimulationSetup(setup.GetName())
             self._logger.warning("Setup {} has been delete".format(setup.GetName()))
         return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
