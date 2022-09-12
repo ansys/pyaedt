@@ -1396,7 +1396,6 @@ class Maxwell(object):
                             }
                         )
                         bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
-                    return True
                 else:
                     if len(objects_list) > 1:
                         current_density_group_names = []

@@ -566,7 +566,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["CurrentDensityY"] == "0"
                     assert bound.props["CurrentDensityZ"] == "0"
                     assert bound.props["CoordinateSystem Name"] == "Global"
-                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+                    assert bound.props["CoordinateSystem Type"] == "Cartesian"
                 if bound.name == "CurrentDensity_2":
                     assert bound.props["Objects"] == ["Inductor"]
                     assert bound.props["Phase"] == "40deg"
