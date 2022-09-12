@@ -1360,10 +1360,9 @@ class EdbSiwave(object):
             except Exception as err:
                 self._logger.error("Exception in sweep configuration: {0}.".format(err))
             edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
-            if delete_existing_setup:
-                for setup in self._cell.SimulationSetups:
-                    self._cell.DeleteSimulationSetup(setup.GetName())
-                    self._logger.warning("Setup {} has been delete".format(setup.GetName()))
+            for setup in self._cell.SimulationSetups:
+                self._cell.DeleteSimulationSetup(setup.GetName())
+                self._logger.warning("Setup {} has been delete".format(setup.GetName()))
             return self._cell.AddSimulationSetup(edb_sim_setup)
         if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
             dcir_setup = self._pedb.simsetupdata.SimSetupInfo[
@@ -1417,10 +1416,9 @@ class EdbSiwave(object):
             dcir_setup.SimulationSettings.DCIRSettings.SourceTermsToGround = simulation_setup.dc_source_terms_to_ground
             dcir_setup.Name = simulation_setup.setup_name
             sim_setup = self._edb.Utility.SIWaveDCIRSimulationSetup(dcir_setup)
-            if delete_existing_setup:
-                for setup in self._cell.SimulationSetups:
-                    self._cell.DeleteSimulationSetup(setup.GetName())
-                    self._logger.warning("Setup {} has been delete".format(setup.GetName()))
+            for setup in self._cell.SimulationSetups:
+                self._cell.DeleteSimulationSetup(setup.GetName())
+                self._logger.warning("Setup {} has been delete".format(setup.GetName()))
             return self._cell.AddSimulationSetup(sim_setup)
 
     @pyaedt_function_handler()

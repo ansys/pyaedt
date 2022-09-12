@@ -1384,7 +1384,7 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(example_project, self.target_path)
             cfg_file = os.path.join(self.target_path, "test.cfg")
             with open(cfg_file, "w") as f:
-                f.writelines("SolverType = 'Siwave'\n")
+                f.writelines("SolverType = 'SiwaveSYZ'\n")
                 f.writelines("PowerNets = ['GND']\n")
                 f.writelines("Components = ['U2A5', 'U1B5']")
             sim_config = SimulationConfiguration(cfg_file)

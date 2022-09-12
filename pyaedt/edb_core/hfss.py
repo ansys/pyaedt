@@ -943,7 +943,7 @@ class EdbHfss(object):
         return True
 
     @pyaedt_function_handler()
-    def configure_hfss_analysis_setup(self, simulation_setup=None, delete_existing_setup=True):
+    def configure_hfss_analysis_setup(self, simulation_setup=None):
         """
         Configure HFSS analysis setup.
 
@@ -1028,10 +1028,9 @@ class EdbHfss(object):
             self._logger.error("Exception in Sweep configuration: {0}".format(err))
 
         sim_setup = self._edb.Utility.HFSSSimulationSetup(simsetup_info)
-        if delete_existing_setup:
-            for setup in self._cell.SimulationSetups:
-                self._cell.DeleteSimulationSetup(setup.GetName())
-                self._logger.warning("Setup {} has been delete".format(setup.GetName()))
+        for setup in self._cell.SimulationSetups:
+            self._cell.DeleteSimulationSetup(setup.GetName())
+            self._logger.warning("Setup {} has been delete".format(setup.GetName()))
         return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
 
     def _setup_decade_count_sweep(self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"):
