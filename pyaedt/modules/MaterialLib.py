@@ -9,6 +9,7 @@ import fnmatch
 import json
 import os
 import re
+import warnings
 
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
@@ -111,22 +112,34 @@ class Materials(object):
                 mats.append(el)
         return mats
 
+    @property
     def _mat_names_aedt(self):
+        warnings.warn(
+            "`_mat_names_aedt` is deprecated. Use `mat_names_aedt` instead.",
+            DeprecationWarning,
+        )
         if not self._mats:
             self._mats = self._read_materials()
         return self._mats
 
+    @property
     def _mat_names_aedt_lower(self):
+        warnings.warn(
+            "`_mat_names_aedt_lower` is deprecated. Use `mat_names_aedt_lower` instead.",
+            DeprecationWarning,
+        )
         if len(self._mats_lower) < len(self._mat_names_aedt):
             self._mats_lower = [i.lower() for i in self._mat_names_aedt]
         return self._mats_lower
 
     @property
     def mat_names_aedt(self):
+        """List material names."""
         return self._mat_names_aedt
 
     @property
     def mat_names_aedt_lower(self):
+        """List material names with lower case."""
         return self._mat_names_aedt_lower
 
     @pyaedt_function_handler()
@@ -181,8 +194,8 @@ class Materials(object):
     def _get_aedt_case_name(self, material_name):
         if material_name.lower() in self.material_keys:
             return self.material_keys[material_name.lower()].name
-        if material_name.lower() in self._mat_names_aedt_lower:
-            return self._mat_names_aedt[self._mat_names_aedt_lower.index(material_name.lower())]
+        if material_name.lower() in self.mat_names_aedt_lower:
+            return self._mat_names_aedt[self.mat_names_aedt_lower.index(material_name.lower())]
         return False
 
     @pyaedt_function_handler()
@@ -239,12 +252,12 @@ class Materials(object):
             else:
                 return False
         if mat.lower() in self.material_keys:
-            if mat.lower() in self._mat_names_aedt_lower:
+            if mat.lower() in self.mat_names_aedt_lower:
                 return self.material_keys[mat.lower()]
             if mat.lower() not in list(self.odefinition_manager.GetProjectMaterialNames()):
                 self.material_keys[mat.lower()].update()
             return self.material_keys[mat.lower()]
-        elif mat.lower() in self._mat_names_aedt_lower:
+        elif mat.lower() in self.mat_names_aedt_lower:
             return self._aedmattolibrary(mat)
         elif settings.remote_api:
             return self._aedmattolibrary(mat)
