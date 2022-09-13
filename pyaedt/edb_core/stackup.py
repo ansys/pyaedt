@@ -50,21 +50,10 @@ class Stackup:
         def thickness(self, value):
             layer_clone = self._edb_layer
             layer_clone.SetThickness(self._edb_value(value))
-            self._set_layout_stackup(layer_clone)
+            self._pclass._set_layout_stackup(layer_clone)
 
         def _edb_value(self, value):
             return self._pclass._pedb.edb_value(value)
-
-        def _set_layout_stackup(self, layer_clone):
-            edb_layers = self._pclass._edb_layer_list
-            new_layer_collection = self._pclass._pedb.edb.Cell.LayerCollection()
-
-            for lyr in edb_layers:
-                if not (layer_clone.GetName() == lyr.GetName()):
-                    new_layer_collection.AddLayerBottom(lyr)
-                else:
-                    new_layer_collection.AddLayerBottom(layer_clone)
-            self._pclass._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
 
     def __init__(self, pedb):
@@ -105,9 +94,16 @@ class Stackup:
     def layer(self):
         return {l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list}
 
-    def _update_layout_layer_collection(self):
-        print("update layout")
-        pass
+    def _set_layout_stackup(self, layer_clone):
+        edb_layers = self._edb_layer_list
+        new_layer_collection = self._pedb.edb.Cell.LayerCollection()
+
+        for lyr in edb_layers:
+            if not (layer_clone.GetName() == lyr.GetName()):
+                new_layer_collection.AddLayerBottom(lyr)
+            else:
+                new_layer_collection.AddLayerBottom(layer_clone)
+        self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
 
 class EdbStackup(object):
