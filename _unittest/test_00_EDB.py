@@ -632,6 +632,9 @@ if not config["skip_edb"]:
         def test_60_create_outline(self):
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
+            assert self.edbapp.stackup.layer["TOP"].thickness == 4.826e-05
+            self.edbapp.stackup.layer["TOP"].thickness = 4e-5
+            assert self.edbapp.stackup.layer["TOP"].thickness == 4e-05
 
         def test_61_create_edb(self):
             edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))

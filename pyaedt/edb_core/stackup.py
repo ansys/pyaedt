@@ -15,6 +15,7 @@ from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from System.Collections.Generic import List
 
 try:
     import clr
@@ -22,6 +23,91 @@ except ImportError:
     warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
+
+
+class Stackup:
+
+    class _Layer:
+        def __init__(self, pclass, name):
+            self._pclass = pclass
+            self._name = name
+
+        @property
+        def _edb_layer(self):
+            for l in self._pclass._edb_layer_list:
+                if l.GetName() == self._name:
+                    return l.Clone()
+
+        @property
+        def name(self):
+            return self._edb_layer.GetName()
+
+        @property
+        def thickness(self):
+            return self._edb_layer.GetThicknessValue().ToDouble()
+
+        @thickness.setter
+        def thickness(self, value):
+            layer_clone = self._edb_layer
+            layer_clone.SetThickness(self._edb_value(value))
+            self._set_layout_stackup(layer_clone)
+
+        def _edb_value(self, value):
+            return self._pclass._pedb.edb_value(value)
+
+        def _set_layout_stackup(self, layer_clone):
+            edb_layers = self._pclass._edb_layer_list
+            new_layer_collection = self._pclass._pedb.edb.Cell.LayerCollection()
+
+            for lyr in edb_layers:
+                if not (layer_clone.GetName() == lyr.GetName()):
+                    new_layer_collection.AddLayerBottom(lyr)
+                else:
+                    new_layer_collection.AddLayerBottom(layer_clone)
+            self._pclass._pedb._active_layout.SetLayerCollection(new_layer_collection)
+
+
+    def __init__(self, pedb):
+        self._pedb = pedb
+
+    @property
+    def _layer_collection(self):
+        """Copy of EDB layer collection.
+
+        Returns
+        -------
+        class : Ansys.Ansoft.Edb.Cell.LayerCollection
+            Collection of layers.
+        """
+
+        lc_readonly = self._pedb._active_layout.GetLayerCollection()
+        layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
+        layer_collection = self._pedb.edb.Cell.LayerCollection()
+
+        flag_first_layer = True
+        for lyr in layers:
+            if not lyr.IsStackupLayer():
+                continue
+            lyr_clone = lyr.Clone()
+            lyr_name = lyr.GetName()
+            if flag_first_layer:
+                layer_collection.AddLayerTop(lyr_clone)
+                flag_first_layer = False
+            else:
+                layer_collection.AddLayerAbove(lyr_clone, lyr_name)
+        return layer_collection
+
+    @property
+    def _edb_layer_list(self):
+        return list(self._layer_collection.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet))
+
+    @property
+    def layer(self):
+        return {l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list}
+
+    def _update_layout_layer_collection(self):
+        print("update layout")
+        pass
 
 
 class EdbStackup(object):

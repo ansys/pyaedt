@@ -47,6 +47,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
+from pyaedt.edb_core.stackup import Stackup
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -231,6 +232,8 @@ class Edb(object):
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
+        self._stackup2 = Stackup(self)
+
         self.logger.info("Objects Initialized")
 
     @property
@@ -617,6 +620,12 @@ class Edb(object):
         if not self._stackup and self.builder:
             self._stackup = EdbStackup(self)
         return self._stackup
+
+    @property
+    def stackup(self):
+        if not self._stackup2 and self.builder:
+            self._stackup2 = Stackup(self)
+        return self._stackup2
 
     @property
     def core_padstack(self):
