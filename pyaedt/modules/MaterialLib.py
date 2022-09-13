@@ -111,17 +111,23 @@ class Materials(object):
                 mats.append(el)
         return mats
 
-    @property
     def _mat_names_aedt(self):
         if not self._mats:
             self._mats = self._read_materials()
         return self._mats
 
-    @property
     def _mat_names_aedt_lower(self):
         if len(self._mats_lower) < len(self._mat_names_aedt):
             self._mats_lower = [i.lower() for i in self._mat_names_aedt]
         return self._mats_lower
+
+    @property
+    def mat_names_aedt(self):
+        return self._mat_names_aedt
+
+    @property
+    def mat_names_aedt_lower(self):
+        return self._mat_names_aedt_lower
 
     @pyaedt_function_handler()
     def _read_materials(self):
