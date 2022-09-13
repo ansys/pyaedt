@@ -9,7 +9,6 @@ import fnmatch
 import json
 import os
 import re
-import warnings
 
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
@@ -114,20 +113,12 @@ class Materials(object):
 
     @property
     def _mat_names_aedt(self):
-        warnings.warn(
-            "`_mat_names_aedt` is deprecated. Use `mat_names_aedt` instead.",
-            DeprecationWarning,
-        )
         if not self._mats:
             self._mats = self._read_materials()
         return self._mats
 
     @property
     def _mat_names_aedt_lower(self):
-        warnings.warn(
-            "`_mat_names_aedt_lower` is deprecated. Use `mat_names_aedt_lower` instead.",
-            DeprecationWarning,
-        )
         if len(self._mats_lower) < len(self._mat_names_aedt):
             self._mats_lower = [i.lower() for i in self._mat_names_aedt]
         return self._mats_lower
