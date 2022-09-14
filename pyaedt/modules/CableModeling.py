@@ -569,6 +569,117 @@ class Cable:
             self._app.logger.error("PWL source not created.")
             return False
 
+    def create_cable_harness(self):
+        """Create cable harness.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self._omodule.CreateCableHarness(
+                [
+                    "NAME:HarnessParams",
+                    "Bundle:=",
+                    self.cable_harness_bundle,
+                    "TwistAlongPath:=",
+                    self.twist_angle_along_route,
+                    "Route:=",
+                    self.cable_harness_polyline,
+                    "AutoOrient:=",
+                    self.cable_harness_auto_orient,
+                    "Origin:=",
+                    self.cable_harness_x_axis_origin,
+                    "XAxisEnd:=",
+                    self.cable_harness_x_axis_end_point,
+                    "PlaneFlip:=",
+                    self.reverse_y_axis_direction,
+                    self.args,
+                ],
+                ["NAME:HarnessAttribs", "Name:=", self.cable_harness_name],
+            )
+            oEditor = self._odesign.SetActiveEditor("3D Modeler")
+            oEditor.InsertNativeComponent(
+                [
+                    "NAME:InsertNativeComponentData",
+                    "TargetCS:=",
+                    "Global",
+                    "SubmodelDefinitionName:=",
+                    self.cable_harness_name,
+                    ["NAME:ComponentPriorityLists"],
+                    "NextUniqueID:=",
+                    0,
+                    "MoveBackwards:=",
+                    False,
+                    "DatasetType:=",
+                    "ComponentDatasetType",
+                    ["NAME:DatasetDefinitions"],
+                    [
+                        "NAME:BasicComponentInfo",
+                        "ComponentName:=",
+                        self.cable_harness_name,
+                        "Company:=",
+                        "",
+                        "Company URL:=",
+                        "",
+                        "Model Number:=",
+                        "",
+                        "Help URL:=",
+                        "",
+                        "Version:=",
+                        "1.0",
+                        "Notes:=",
+                        "",
+                        "IconType:=",
+                        "CableHarness",
+                    ],
+                    ["NAME:GeometryDefinitionParameters", ["NAME:VariableOrders"]],
+                    ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]],
+                    ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]],
+                    "MapInstanceParameters:=",
+                    "NotVariable",
+                    "UniqueDefinitionIdentifier:=",
+                    "5c0c451d-2fc3-4800-bcac-2109a11351ee",
+                    "OriginFilePath:=",
+                    "",
+                    "IsLocal:=",
+                    False,
+                    "ChecksumString:=",
+                    "",
+                    "ChecksumHistory:=",
+                    [],
+                    "VersionHistory:=",
+                    [],
+                    [
+                        "NAME:NativeComponentDefinitionProvider",
+                        "Type:=",
+                        "CableHarness",
+                        "Unit:=",
+                        "mm",
+                        "Harness:=",
+                        self.cable_harness_name,
+                        "HarnessPartID:=",
+                        -1,
+                    ],
+                    [
+                        "NAME:InstanceParameters",
+                        "GeometryParameters:=",
+                        "",
+                        "MaterialParameters:=",
+                        "",
+                        "DesignParameters:=",
+                        "",
+                    ],
+                ]
+            )
+
+            return True
+        except:
+            self._app.logger.error("Couldn't create cable harness.")
+            return False
+        pass
+
     def _init_from_json(self, json_file_name):
         try:
             with open(json_file_name, "r") as read_file:
@@ -991,6 +1102,160 @@ class Cable:
                         else:
                             self.signal_values = pwl_source_properties["PWLSignalParams"]["SignalValues"]
                         self.time_values = pwl_source_properties["PWLSignalParams"]["TimeValues"]
+            except ValueError as e:
+                self._app.logger.error(str(e))
+
+        # Cable Harness implementation
+        if values["CableHarness"]["Create"].lower() == "true":
+            try:
+                if values["CableHarness"]["Name"]:
+                    self.cable_harness_name = values["CableHarness"]["Name"]
+                else:
+                    self.cable_harness_name = generate_unique_name("cable_harness")
+
+                if values["CableHarness"]["Bundle"] not in self.existing_bundle_cables_names:
+                    msg = "Cable bundle name doesn't exist in the current project."
+                    raise ValueError(msg)
+                else:
+                    self.cable_harness_bundle = values["CableHarness"]["Bundle"]
+
+                unit = decompose_variable_value(values["CableHarness"]["TwistAngleAlongRoute"])[1]
+                if unit not in ["deg", "degmin", "degsec", "rad"]:
+                    msg = "Angle's unit provided is not valid."
+                    raise ValueError(msg)
+                else:
+                    self.twist_angle_along_route = values["CableHarness"]["TwistAngleAlongRoute"]
+
+                if not [x for x in self._app.modeler.object_names if values["CableHarness"]["Polyline"] == x.lower()]:
+                    msg = "Polyline doesn't exist in the current project."
+                    raise ValueError(msg)
+                else:
+                    self.cable_harness_polyline = values["CableHarness"]["Polyline"]
+
+                if (
+                    values["CableHarness"]["AutoOrient"].lower() == "true"
+                    or values["CableHarness"]["AutoOrient"].lower() == "false"
+                ):
+                    self.cable_harness_auto_orient = values["CableHarness"]["AutoOrient"].title()
+                    if values["CableHarness"]["AutoOrient"].lower() == "true":
+                        if values["CableHarness"]["XAxis"] not in ["Undefined", "NewVector"]:
+                            msg = "Invalid value for cable harness x axis."
+                            raise ValueError(msg)
+                        elif values["CableHarness"]["XAxis"] == "NewVector":
+                            if [
+                                x
+                                for x in values["CableHarness"]["XAxisOrigin"]
+                                if decompose_variable_value(x)[1] != self._app.modeler.model_units
+                            ]:
+                                msg = "Provided units for x axis origin point are not valid."
+                                raise ValueError(msg)
+                            else:
+                                self.cable_harness_x_axis_origin = values["CableHarness"]["XAxisOrigin"]
+
+                            if [
+                                x
+                                for x in values["CableHarness"]["XAxisEnd"]
+                                if decompose_variable_value(x)[1] != self._app.modeler.model_units
+                            ]:
+                                msg = "Provided units for x axis end point are not valid."
+                                raise ValueError(msg)
+                            else:
+                                self.cable_harness_x_axis_end_point = values["CableHarness"]["XAxisEnd"]
+                else:
+                    msg = "Provide  valid value for auto orientation boolean."
+                    raise ValueError(msg)
+
+                if (
+                    values["CableHarness"]["ReverseYAxisDirection"].lower() == "true"
+                    or values["CableHarness"]["ReverseYAxisDirection"].lower() == "false"
+                ):
+                    self.reverse_y_axis_direction = values["CableHarness"]["ReverseYAxisDirection"]
+                else:
+                    msg = "Provide  valid value for y axis direction boolean."
+                    raise ValueError(msg)
+
+                if [x for x in values["CableHarness"]["CableTerminationsToInclude"]]:
+                    cable_terminations_to_include = values["CableHarness"]["CableTerminationsToInclude"]
+                    # check if cable to include in harness exists in current project
+                    self.args = []
+                    for x in cable_terminations_to_include:
+                        if x["CableName"] in [
+                            self.existing_bundle_cables_names,
+                            self.existing_twisted_pair_cables_names,
+                            self.existing_straight_wire_cables_names,
+                        ]:
+                            if x["Assignment"] not in [
+                                "Reference Conductor",
+                                "Input Terminations",
+                                "Output Terminations",
+                            ]:
+                                msg = "Invalid cable harness assignment."
+                                raise ValueError(msg)
+                            elif x["Assignment"] == "Reference Conductor":
+                                ref_cond = ["NAME:RefConductors", x["Name"]]
+                                self.args.append(ref_cond)
+                            elif x["Assignment"] == "Input Terminations" or x["Assignment"] == "Output Terminations":
+                                terminations = []
+                                if x["Assignment"] == "Input Terminations":
+                                    terminations.append("NAME:InputTerminations")
+                                elif x["Assignment"] == "Output Terminations":
+                                    terminations.append("NAME:OutputTerminations")
+                                terminations.append(x["Name"])
+                                assignment_type = []
+                                if x["AssignmentType"] == "Impedance":
+                                    if decompose_variable_value(cable_terminations_to_include["Impedance"])[1] not in [
+                                        "GOhm",
+                                        "kOhm",
+                                        "megohm",
+                                        "mohm",
+                                        "ohm",
+                                        "uohm",
+                                    ]:
+                                        msg = "Invalid impedance unit."
+                                        raise ValueError(msg)
+                                    else:
+                                        assignment_type.append("Imped:=")
+                                        assignment_type.append(x["Impedance"])
+                                elif x["AssignmentType"] == "Source":
+                                    assignment_type.append("Source:=")
+                                    if x["Source"]["Type"] not in ["Single Value", "Transient"]:
+                                        msg = "Invalid source type value."
+                                        raise ValueError(msg)
+                                    elif x["Source"]["Type"] == "Transient":
+                                        if x["Source"]["Signal"] not in self.existing_sources_names:
+                                            msg = "Source name doesn't exist in current project."
+                                            raise ValueError(msg)
+                                        else:
+                                            assignment_type.append("/'{}/'".format(x["Source"]["Name"]))
+                                    elif x["Source"]["Type"] == "Signal Value":
+                                        if decompose_variable_value(x["Source"]["Signal"])[1] not in [
+                                            "fV",
+                                            "pV",
+                                            "nV",
+                                            "uV",
+                                            "mV",
+                                            "V",
+                                            "kV",
+                                            "megV",
+                                            "gV",
+                                            "dBV",
+                                        ] and decompose_variable_value(x["Source"]["ImpedanceValue"])[1] not in [
+                                            "GOhm",
+                                            "kOhm",
+                                            "megohm",
+                                            "mohm",
+                                            "ohm",
+                                            "uohm",
+                                        ]:
+                                            msg = "Invalid source signal units."
+                                            raise ValueError(msg)
+                                        else:
+                                            assignment_type.append(x["Source"]["Signal"])
+                                            assignment_type.append("Imped:=")
+                                            assignment_type.append(x["Source"]["ImpedanceValue"])
+                                terminations.append(assignment_type)
+                                self.args.append(terminations)
+
             except ValueError as e:
                 self._app.logger.error(str(e))
 
