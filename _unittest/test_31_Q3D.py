@@ -8,11 +8,11 @@ from pyaedt import Q3d
 test_project_name = "coax_Q3D"
 if desktop_version > "2022.2":
     bondwire_project_name = "bondwireq3d_231.aedt"
-    q2d_q3d = "q2d_q3d_231.aedt"
+    q2d_q3d = "q2d_q3d_231"
 
 else:
     bondwire_project_name = "bondwireq3d.aedt"
-    q2d_q3d = "q2d_q3d.aedt"
+    q2d_q3d = "q2d_q3d"
 
 test_subfolder = "T31"
 
@@ -24,7 +24,7 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", test_subfolder, bondwire_project_name)
         self.test_project = self.local_scratch.copyfile(example_project)
         self.test_matrix = self.local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d)
+            os.path.join(local_path, "example_models", test_subfolder, q2d_q3d + ".aedt")
         )
 
     def teardown_class(self):
@@ -351,7 +351,7 @@ class TestClass(BasisTest, object):
             res_limit="2ohm",
         )
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="q2d_q3d"
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d
         )
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
