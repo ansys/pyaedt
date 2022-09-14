@@ -4053,7 +4053,6 @@ class UserDefinedComponent(object):
                 self._update_props(self._props["NativeComponentDefinitionProvider"], props)
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
-        # self.props = UserDefinedComponentProps(self, props)
 
     @property
     def group_name(self):
