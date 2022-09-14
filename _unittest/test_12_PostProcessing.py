@@ -316,6 +316,21 @@ class TestClass(BasisTest, object):
             assert data.plot(is_polar=True)
             assert data.plot_3d()
             assert self.field_test.post.create_3d_plot(data)
+
+        self.field_test.set_source_context(["1"])
+        context = {"Context": "3D", "SourceContext": "1:1"}
+        data = self.field_test.post.get_solution_data(
+            "GainTotal",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Theta",
+            context=context,
+            report_category="Far Fields",
+        )
+        if not is_ironpython:
+            assert data.plot(is_polar=True)
+            assert data.plot_3d()
+            assert self.field_test.post.create_3d_plot(data)
         self.field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = self.field_test.available_variations.nominal_w_values_dict
         variations2["Theta"] = ["All"]

@@ -1725,7 +1725,12 @@ class PostProcessorCommon(object):
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
-                report.far_field_sphere = context
+                if isinstance(context, dict):
+                    if "Context" in context.keys() and "SourceContext" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_context = context["SourceContext"]
+                else:
+                    report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context and isinstance(context, dict):
