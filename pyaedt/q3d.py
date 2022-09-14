@@ -709,6 +709,422 @@ class QExtractor(FieldAnalysis3D, object):
                 self.logger.error("Export of matrix data was unsuccessful.")
                 return False
 
+    def export_equivalent_circuit(
+        self,
+        file_name,
+        setup_name=None,
+        sweep=None,
+        variations=None,
+        matrix_name=None,
+        num_cells=2,
+        user_changed_settings=True,
+        include_cap=True,
+        include_cond=True,
+        include_dcr=True,
+        include_dcl=True,
+        include_acr=True,
+        include_acl=True,
+        include_r=True,
+        include_l=True,
+        add_resistance=True,
+        parse_pin_names=False,
+        export_distributed=True,
+        lumped_length="1meter",
+        rise_time_value=None,
+        rise_time_unit=None,
+        coupling_limit_type=None,
+        cap_limit=None,
+        ind_limit=None,
+        res_limit=None,
+        cond_limit=None,
+        model_name=None,
+        freq=0,
+        file_type="HSPICE",
+    ):
+        """Export matrix data.
+
+        Parameters
+        ----------
+        file_name : str
+            Full path for saving the matrix data to.
+            Options for file extensions are CIR, SML, SP, PKG, SPC, LIB, CKT, BSP,
+            DML, and ICM.
+        setup_name : str, optional
+            Setup name.
+            The default value is ``None``, in which case the first analysis setup is used.
+        sweep : str, optional
+            Solution frequency. The default is ``None``, in which case
+            the default adaptive is used.
+        variations : list or str, optional
+            Design variation. The default is ``None``, in which case the
+            current nominal variation is used. If you provide a
+            design variation, use the format ``{Name}:{Value}``.
+        matrix_name : str, optional
+            Name of the matrix to show. The default is ``"Original"``.
+        num_cells : int, optional
+            Number of cells in export.
+            Default value is 2.
+        user_changed_settings : bool, optional
+            Whether user has changed settings or not, defaulted to True.
+            Default value is False.
+        include_cap : bool, optional
+            Include Capacitance.
+            Default value is True.
+        include_cond : bool, optional
+            Include Conductance.
+            Default value is True.
+        coupling_limit_type : int, optional
+            Coupling limit types.
+            Values can be : "By Value" -> 0  or "By Fraction Of Self Term" -> 1.
+            If None, no coupling limits are set.
+            Default value is None.
+        include_dcr : bool, optional
+            Flag indicates whether to export DC resistance matrix.
+            Default value is True.
+        include_dcl : bool, optional
+            Flag indicates whether to export DC Inductance matrix.
+            Default value is True.
+        include_acr : bool, optional
+            Flag indicates whether to export AC resistance matrix.
+            Default value is True.
+        include_acl : bool, optional
+            Flag indicates whether to export AC inductance matrix.
+            Default value is True.
+        include_r : bool, optional
+            Flag indicates whether to export resistance.
+            Default value is True.
+        include_l : bool, optional
+            Flag indicates whether to export inductance.
+            Default value is True.
+        add_resistance : bool, optional
+            Adds the DC and AC resistance.
+            Default value is True.
+        parse_pin_names : bool, optional
+            Parse pin names.
+            Default value is False.
+        cs : str, optional
+            Coordinate system for chip package control.
+            Default value is Global.
+        export_distributed : bool, optional
+            Flag to tell whether to export in distributed mode or Lumped mode.
+            Default value is True.
+        lumped_length : str, optional
+            Length of the design.
+            Default value is 1 meter.
+        rise_time_value : str, optional
+            Rise time to calculate the number of cells.
+            Default value is 1e-09.
+        rise_time_unit : str, optional
+            Rise time unit.
+            Default is s.
+        cap_limit : str, optional
+            Capacitance limit.
+            Default value is 1pF if coupling_limit_type is 0.
+            Default value is 0.01 if coupling_limit_type is 1.
+        cond_limit : str, optional
+            Conductance limit.
+            Default value is 1mSie if coupling_limit_type is 0.
+            Default value is 0.01 if coupling_limit_type is 1.
+        res_limit : str, optional
+            Resistance limit.
+            Default value is 1ohm if coupling_limit_type is 0.
+            Default value is 0.01 if coupling_limit_type is 1.
+        ind_limit : str, optional
+            Inductance limit.
+            Default value is 1nH if coupling_limit_type is 0.
+            Default value is 0.01 if coupling_limit_type is 1.
+        model_name : str, optional
+            Model name or name of the sub circuit (Optional).
+            If None then file_name is considered as model name.
+        freq : str, optional
+            Sweep frequency in Hz.
+            Default value is 0.
+        file_type : str, optional
+            The type of file format.
+            Used to specify the type of "HSPICE" file format (all HSPICE file formats have same extension *.sp).
+            "Hspice": simple HSPICE file format.
+            "Welement": Nexxim/HSPICE W Element file format
+            "RLGC": Nexxim/HSPICE RLGC W Element file format
+            Default value is Hspice.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if os.path.splitext(file_name)[1] not in [
+            ".cir",
+            ".sml",
+            ".sp",
+            ".pkg",
+            ".spc",
+            ".lib",
+            ".ckt",
+            ".bsp",
+            ".dml",
+            ".icm",
+        ]:
+            self.logger.error(
+                "Extension is invalid. Possible extensions are .cir, .sml, .sp, .pkg, .spc,"
+                " .lib, .ckt, .bsp, .dml, .icm."
+            )
+            return False
+
+        if setup_name is None:
+            setup_name = self.analysis_setup
+        elif setup_name != self.analysis_setup:
+            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
+            return False
+        if sweep is None:
+            sweep = self.design_solutions.default_adaptive
+        else:
+            sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
+            if sweep.replace(" ", "") not in sweep_array:
+                self.logger.error("Sweep is invalid. Provide a valid sweep.")
+                return False
+        analysis_setup = setup_name + " : " + sweep.replace(" ", "")
+
+        if variations is None:
+            if not self.available_variations.nominal_w_values_dict:
+                variations = ""
+            else:
+                variations_list = []
+                for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                    variation = "{}='{}'".format(
+                        list(self.available_variations.nominal_w_values_dict.keys())[x],
+                        list(self.available_variations.nominal_w_values_dict.values())[x],
+                    )
+                    variations_list.append(variation)
+                variations = ",".join(variations_list)
+        else:
+            variations_list = []
+            if not isinstance(variations, list):
+                self.logger.error("Variations must be provided as a list.")
+                return False
+            for x in range(0, len(variations)):
+                name = variations[x].replace(" ", "").split(":")[0]
+                value = variations[x].replace(" ", "").split(":")[1]
+                if name not in self.available_variations.nominal_w_values_dict.keys():
+                    self.logger.error("Provided variation name doesn't exist.")
+                    return False
+                if value not in self.available_variations.nominal_w_values_dict.values():
+                    self.logger.error("Provided variation value doesn't exist.")
+                    return False
+                variation = "{}='{}'".format(name, value)
+                variations_list.append(variation)
+            variations = ",".join(variations_list)
+
+        if matrix_name is None:
+            matrix_name = "Original"
+        else:
+            if self.matrices:
+                if not [matrix for matrix in self.matrices if matrix.name == matrix_name]:
+                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
+                    return False
+            else:
+                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
+                return False
+
+        coupling_limits = ["NAME:CouplingLimits", "CouplingLimitType:="]
+        if coupling_limit_type:
+            if coupling_limit_type not in [0, 1]:
+                self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
+                return False
+            elif coupling_limit_type == 0:
+                coupling_limit_value = "By Value"
+            elif coupling_limit_type == 1:
+                coupling_limit_value = "By Fraction Of Self Term"
+
+            coupling_limits.append(coupling_limit_value)
+
+            if cond_limit is None and coupling_limit_type == 0:
+                cond_limit = "1mSie"
+            elif cond_limit is None and coupling_limit_type == 1:
+                cond_limit = "0.01"
+            elif cond_limit is not None:
+                if decompose_variable_value(cond_limit)[1] not in [
+                    "fSie",
+                    "pSie",
+                    "nSie",
+                    "uSie",
+                    "mSie",
+                    "sie",
+                    "kSie",
+                    "megSie",
+                    "mho",
+                    "perohm",
+                ]:
+                    self.logger.error("Invalid conductance unit.")
+                    return False
+
+            coupling_limits.append("CondLimit:=")
+            coupling_limits.append(cond_limit)
+
+            if cap_limit is None and coupling_limit_type == 0:
+                cap_limit = "1pF"
+            elif cap_limit is None and coupling_limit_type == 1:
+                cap_limit = "0.01"
+            elif cap_limit is not None:
+                if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
+                    self.logger.error("Invalid capacitance unit.")
+                    return False
+
+            coupling_limits.append("CapLimit:=")
+            coupling_limits.append(cap_limit)
+
+            if ind_limit is None and coupling_limit_type == 0:
+                ind_limit = "1nH"
+            elif ind_limit is None and coupling_limit_type == 1:
+                ind_limit = "0.01"
+            elif ind_limit is not None:
+                if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
+                    self.logger.error("Invalid inductance unit.")
+                    return False
+
+            coupling_limits.append("IndLimit:=")
+            coupling_limits.append(ind_limit)
+
+            if res_limit is None and coupling_limit_type == 0:
+                res_limit = "1ohm"
+            elif res_limit is None and coupling_limit_type == 1:
+                res_limit = "0.01"
+            elif res_limit is not None:
+                if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
+                    self.logger.error("Invalid resistance unit.")
+                    return False
+
+            coupling_limits.append("ResLimit:=")
+            coupling_limits.append(res_limit)
+        else:
+            coupling_limit_value = "None"
+            coupling_limits.append(coupling_limit_value)
+
+        if model_name is None:
+            model_name = self.project_name
+        elif model_name != self.project_name:
+            self.logger.error("Invalid project name.")
+            return False
+
+        if decompose_variable_value(lumped_length)[1] not in [
+            "cm",
+            "dm",
+            "fm",
+            "ft",
+            "in",
+            "km",
+            "light year",
+            "meter",
+            "mil",
+            "mile",
+            "mileNaut",
+            "mileTerr",
+            "mm",
+            "nm",
+            "pm",
+            "uin",
+            "um",
+            "yd",
+        ]:
+            self.logger.error("Invalid lumped length unit.")
+            return False
+
+        if rise_time_value is None:
+            rise_time_value = "1e-9"
+
+        if rise_time_unit:
+            if rise_time_unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
+                self.logger.error("Invalid rise time unit.")
+                return False
+        else:
+            rise_time_unit = "s"
+
+        rise_time = rise_time_value + rise_time_unit
+
+        if file_type.lower() not in ["hspice", "welement", "rlgc"]:
+            self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
+            return False
+
+        if self.modeler._is3d:
+            # IncludeCPP always False, unable to access chip package information.
+            try:
+                self.oanalysis.ExportCircuit(
+                    analysis_setup,
+                    variations,
+                    file_name,
+                    [
+                        "NAME:CircuitData",
+                        "MatrixName:=",
+                        matrix_name,
+                        "NumberOfCells:=",
+                        str(num_cells),
+                        "UserHasChangedSettings:=",
+                        user_changed_settings,
+                        "IncludeCap:=",
+                        include_cap,
+                        "IncludeCond:=",
+                        include_cond,
+                        [coupling_limits],
+                        "IncludeDCR:=",
+                        include_dcr,
+                        "IncudeDCL:=",
+                        include_dcl,
+                        "IncludeACR:=",
+                        include_acr,
+                        "IncludeACL:=",
+                        include_acl,
+                        "ADDResistance:=",
+                        add_resistance,
+                        "ParsePinNames:=",
+                        parse_pin_names,
+                        "IncludeCPP:=",
+                        False,
+                    ],
+                    model_name,
+                    freq,
+                )
+                return True
+            except:
+                self.logger.error("Export of equivalent circuit was unsuccessful.")
+                return False
+        else:
+            try:
+                self.oanalysis.ExportCircuit(
+                    analysis_setup,
+                    variations,
+                    file_name,
+                    [
+                        "NAME:CircuitData",
+                        "MatrixName:=",
+                        matrix_name,
+                        "NumberOfCells:=",
+                        str(num_cells),
+                        "UserHasChangedSettings:=",
+                        user_changed_settings,
+                        "IncludeCap:=",
+                        include_cap,
+                        "IncludeCond:=",
+                        include_cond,
+                        [coupling_limits],
+                        "IncludeR:=",
+                        include_r,
+                        "IncludeL:=",
+                        include_l,
+                        "ExportDistributed:=",
+                        export_distributed,
+                        "LumpedLength:=",
+                        lumped_length,
+                        "RiseTime:=",
+                        rise_time,
+                    ],
+                    model_name,
+                    file_type,
+                    freq,
+                )
+                return True
+            except:
+                self.logger.error("Export of equivalent circuit was unsuccessful.")
+                return False
+
 
 class Q3d(QExtractor, object):
     """Provides the Q3D app interface.

@@ -1835,6 +1835,7 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(example_project, self.target_path)
             sim_config = SimulationConfiguration()
             sim_config.add_voltage_source(
+                name="test_v_source",
                 positive_node_component="U2A5",
                 positive_node_net="V3P3_S0",
                 negative_node_component="U2A5",
@@ -1846,6 +1847,8 @@ if not config["skip_edb"]:
                 negative_node_component="U2A5",
                 negative_node_net="GND",
             )
+            sim_config.add_dc_ground_source_term("test_v_source", 1)
+            assert sim_config.dc_source_terms_to_ground["test_v_source"] == 1
             assert len(sim_config.sources) == 2
 
         def test_106_layout_tchickness(self):
@@ -2018,3 +2021,9 @@ if not config["skip_edb"]:
 
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
+
+        def test_120_set_all_antipad_values(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_120.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            assert self.edbapp.core_padstack.set_all_antipad_value(0.0)

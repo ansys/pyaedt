@@ -112,15 +112,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.assign_current(["Coil_Section1"], amplitude=2472)
         self.aedtapp.solution_type = "Magnetostatic"
         volt = self.aedtapp.assign_voltage(self.aedtapp.modeler["Coil_Section1"].faces[0].id, amplitude=1)
-        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
-        assert cur2
-        assert cur2.delete()
+        current2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert current2
+        assert current2.props["IsSolid"]
+        assert current2.delete()
         assert volt
         assert volt.delete()
         self.aedtapp.solution_type = self.aedtapp.SOLUTIONS.Maxwell3d.TransientAPhiFormulation
-        cur2 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
-        assert cur2
-        assert cur2.delete()
+        current3 = self.aedtapp.assign_current(["Coil_Section1"], amplitude=212)
+        assert current3
+        assert current3.props["IsSolid"]
+        assert current3.delete()
         self.aedtapp.solution_type = "EddyCurrent"
 
     def test_05_winding(self):
@@ -564,7 +566,7 @@ class TestClass(BasisTest, object):
                     assert bound.props["CurrentDensityY"] == "0"
                     assert bound.props["CurrentDensityZ"] == "0"
                     assert bound.props["CoordinateSystem Name"] == "Global"
-                    assert bound.props["CoordinateSystem Name"] == "Cartesian"
+                    assert bound.props["CoordinateSystem Type"] == "Cartesian"
                 if bound.name == "CurrentDensity_2":
                     assert bound.props["Objects"] == ["Inductor"]
                     assert bound.props["Phase"] == "40deg"

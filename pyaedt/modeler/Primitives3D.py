@@ -96,7 +96,7 @@ class Primitives3D(Primitives, object):
         attributes.append("Name:="), attributes.append(name)
         attributes.append("Color:="), attributes.append(color)
 
-        point = _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
         return self._create_point(name)
 
     @pyaedt_function_handler()

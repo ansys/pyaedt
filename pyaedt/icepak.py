@@ -2248,6 +2248,7 @@ class Icepak(FieldAnalysis3D):
         close_linked_project_after_import=True,
         custom_x_resolution=None,
         custom_y_resolution=None,
+        power_in=0,
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file.
 
@@ -2275,6 +2276,8 @@ class Icepak(FieldAnalysis3D):
             The default is ``None``.
         custom_y_resolution :
             The default is ``None``.
+        power_in : float, optional
+            Power in in Watt.
 
         Returns
         -------
@@ -2298,6 +2301,7 @@ class Icepak(FieldAnalysis3D):
             outlinepolygon=outlinepolygon,
             custom_x_resolution=custom_x_resolution,
             custom_y_resolution=custom_y_resolution,
+            powerin=self.modeler._arg_with_dim(power_in, "W"),
         )
 
         if close_linked_project_after_import and ".aedt" in project_name:

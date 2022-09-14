@@ -22,12 +22,14 @@ if config["desktopVersion"] > "2022.2":
     src_project_name = "USB_Connector_IPK_231"
     radio_board_name = "RadioBoardIcepak_231"
     coldplate = "ColdPlateExample_231"
+    power_budget = "PB_Test_231"
 
 else:
     coldplate = "ColdPlateExample"
     test_project_name = "Filter_Board_Icepak"
     src_project_name = "USB_Connector_IPK"
     radio_board_name = "RadioBoardIcepak"
+    power_budget = "PB_Test"
 proj_name = None
 design_name = "cutout3"
 solution_name = "HFSS Setup 1 : Last Adaptive"
@@ -40,6 +42,7 @@ group_name = "Group1"
 source_project = os.path.join(local_path, "example_models", test_subfolder, src_project_name + ".aedt")
 source_project_path = os.path.join(local_path, "example_models", test_subfolder, src_project_name)
 source_fluent = os.path.join(local_path, "example_models", test_subfolder, coldplate + ".aedt")
+source_power_budget = os.path.join(local_path, "example_models", test_subfolder, power_budget + ".aedtz")
 
 
 class TestClass(BasisTest, object):
@@ -468,3 +471,9 @@ class TestClass(BasisTest, object):
         assert bound.update_assignment()
         bound.props["Objects"].remove(box2)
         assert bound.update_assignment()
+
+    def test_40_power_budget(self):
+        self.power_budget = self.local_scratch.copyfile(source_power_budget)
+        app = Icepak(self.power_budget, specified_version=desktop_version)
+        power_boundaries, total_power = app.post.power_budget(temperature=20)
+        assert abs(total_power - 787.5221374239883) < 1
