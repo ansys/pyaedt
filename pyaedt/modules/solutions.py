@@ -56,6 +56,7 @@ class SolutionData(object):
     def __init__(self, aedtdata):
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
+        self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
 
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
@@ -66,7 +67,7 @@ class SolutionData(object):
         self.active_intrinsic = OrderedDict({})
         for k, v in self.intrinsics.items():
             self.active_intrinsic[k] = v[0]
-        if self.intrinsics:
+        if len(self.intrinsics) > 0:
             self._primary_sweep = list(self.intrinsics.keys())[0]
         else:
             self._primary_sweep = self._sweeps_names[0]
@@ -77,7 +78,6 @@ class SolutionData(object):
                 self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
             except:
                 self.units_sweeps[intrinsic] = None
-        self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
         self.init_solutions_data()
         self._ifft = None
 
@@ -586,6 +586,8 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
 
         """
+        if self.enable_pandas_output:
+            return pd.Series(self.variation_values(self.primary_sweep))
         return self.variation_values(self.primary_sweep)
 
     @property

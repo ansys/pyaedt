@@ -117,7 +117,7 @@ solutions = aedt_app.post.get_solution_data(
 )
 solutions.enable_pandas_output = True
 real, imag = solutions.full_matrix_real_imag
-display(real)
+print(real)
 
 ###############################################################################
 # Plot data
