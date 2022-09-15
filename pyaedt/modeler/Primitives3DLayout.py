@@ -719,8 +719,8 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-            str or bool
-                Name of the via created when successful, ``False`` when failed.
+        str or bool
+            Name of the via created when successful, ``False`` when failed.
 
         References
         ----------
