@@ -642,8 +642,12 @@ class TestClass(BasisTest, object):
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
         )
         assert new_report.create()
-        data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
         assert data1.primary_sweep == "Freq"
+        assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        data11 = self.circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
+        assert data11.primary_sweep == "Freq"
+        assert "dB(S(Port2,Port1))" in data11.expressions
         assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
         new_report = self.circuit_test.post.reports_by_category.standard(["V(net_11)"], "Transient")
         new_report.domain = "Time"
@@ -797,11 +801,11 @@ class TestClass(BasisTest, object):
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
         assert new_report.create()
         self.q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
-        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Poly1")
         assert new_report.create()
         assert len(self.q3dtest.post.plots) == 6
 
