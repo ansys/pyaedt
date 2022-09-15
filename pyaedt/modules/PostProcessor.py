@@ -712,6 +712,8 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
+        if not context:
+            context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
             quantities_category = categories[0] if categories else None
@@ -1715,7 +1717,9 @@ class PostProcessorCommon(object):
             setup_sweep_name = self._app.nominal_sweep
         report = report_class(self, report_category, setup_sweep_name)
         if not expressions:
-            expressions = self.available_report_quantities(report_category=report_category, context=context)
+            expressions = [
+                i for i in self.available_report_quantities(report_category=report_category, context=context)
+            ]
         if math_formula:
             expressions = ["{}({})".format(math_formula, i) for i in expressions]
         report.expressions = expressions

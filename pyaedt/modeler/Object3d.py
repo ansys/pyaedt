@@ -23,7 +23,6 @@ from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic import DataHandlers
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
@@ -4036,7 +4035,7 @@ class UserDefinedComponent(object):
                         "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
                         "MapInstanceParameters": "DesignVariable",
                         "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                        + DataHandlers.random_string(12, char_set="abcdef0123456789"),
+                        + "".join(random.choice("abcdef0123456789") for _ in range(int(12))),
                         "OriginFilePath": "",
                         "IsLocal": False,
                         "ChecksumString": "",
