@@ -710,7 +710,7 @@ class Primitives3DLayout(object):
         top_layer : str, optional
             Top layer. If None the first layer is taken.
         bot_layer : str, optional
-            Bottom layer. If None the last layer is taken.
+            Bottom layer. If ``None`` the last layer is taken.
         name : str, optional
             Name of the via. If ``None`` a random name is generated.
         netname : str, optional
