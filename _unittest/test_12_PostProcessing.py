@@ -775,7 +775,7 @@ class TestClass(BasisTest, object):
             report_category="Near Fields",
         )
         assert solution_data
-        assert solution_data.primary_sweep_values
+        assert len(solution_data.primary_sweep_values) > 0
         assert len(solution_data.primary_sweep_variations) > 0
         assert solution_data.set_active_variation(0)
         assert not solution_data.set_active_variation(99)
