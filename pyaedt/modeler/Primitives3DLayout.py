@@ -741,8 +741,6 @@ class Primitives3DLayout(object):
         try:
             arg = ["NAME:Contents"]
             arg.append("name:="), arg.append(name)
-            if not [x for x in self.modeler.padstacks if x == padstack]:
-                raise ValueError("Provide a valid padstack name.")
             arg.append("ReferencedPadstack:="), arg.append(padstack),
             arg.append("vposition:="),
             arg.append(["x:=", self.arg_with_dim(x), "y:=", self.arg_with_dim(y)])

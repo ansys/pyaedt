@@ -279,7 +279,6 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_3].angle == "0deg"
         assert self.aedtapp.modeler.vias[via_3].holediam == "22mm"
         assert "VCC" in self.aedtapp.oeditor.GetNets()
-        assert not self.aedtapp.modeler.create_via("My_padstack3", x=5, y=5, name="Via1234")
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
