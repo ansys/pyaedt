@@ -1979,13 +1979,13 @@ if not config["skip_edb"]:
             edb.core_hfss.configure_hfss_analysis_setup(sim_setup)
             if is_ironpython:
                 mesh_size_factor = (
-                    list(edb.active_cell.SimulationSetups)[1]
+                    list(edb.active_cell.SimulationSetups)[0]
                     .GetSimSetupInfo()
                     .SimulationSettings.InitialMeshSettings.MeshSizefactor
                 )
             else:
                 mesh_size_factor = (
-                    list(edb.active_cell.SimulationSetups)[1]
+                    list(edb.active_cell.SimulationSetups)[0]
                     .GetSimSetupInfo()
                     .get_SimulationSettings()
                     .get_InitialMeshSettings()
