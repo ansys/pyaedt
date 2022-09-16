@@ -1030,7 +1030,7 @@ class EdbHfss(object):
         sim_setup = self._edb.Utility.HFSSSimulationSetup(simsetup_info)
         for setup in self._active_layout.GetCell().SimulationSetups:
             self._active_layout.GetCell().DeleteSimulationSetup(setup.GetName())
-            self._logger.warning("Setup {} has been delete".format(setup.GetName()))
+            self._logger.warning("Setup {} has been deleted".format(setup.GetName()))
         return self._active_layout.GetCell().AddSimulationSetup(sim_setup)
 
     def _setup_decade_count_sweep(self, sweep, start_freq="1", stop_freq="1MHz", decade_count="10"):
