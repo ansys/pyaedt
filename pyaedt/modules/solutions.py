@@ -237,11 +237,11 @@ class SolutionData(object):
         "Initialize the database and store info in variables."
         self._solutions_real = self._init_solution_data_real()
         self._solutions_imag = self._init_solution_data_imag()
-        self._solutions_mag = self._init_solutions_mag()
+        self._solutions_mag = self._init_solution_data_mag()
         self._solutions_phase = self._init_solution_data_phase()
 
     @pyaedt_function_handler()
-    def _init_solutions_mag(self):
+    def _init_solution_data_mag(self):
         _solutions_mag = {}
         self.units_data = {}
 

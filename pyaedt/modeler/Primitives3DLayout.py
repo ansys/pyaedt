@@ -3,6 +3,7 @@ import sys
 import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import Padstack
@@ -410,9 +411,9 @@ class Primitives3DLayout(object):
         dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
             Vias Dictionary.
         """
-        if self._vias:
-            return self._vias
         objs = self.modeler.oeditor.FindObjects("Type", "via")
+        if self._vias and len(objs) == len(self._vias):
+            return self._vias
         for obj in objs:
             self._vias[obj] = Pins3DLayout(self, obj, is_pin=False)
         return self._vias
@@ -703,24 +704,23 @@ class Primitives3DLayout(object):
             Position on the Y axis. The default is ``0``.
         rotation : float, optional
             Angle rotation in degrees. The default is ``0``.
-        hole_diam :
-            Diameter of the hole. The default is ``None``, in which case
-            the override is disabled.
+        hole_diam : float, optional
+            Diameter of the hole. If ``None`` the default is ``1``,
+            in which case the override is disabled.
         top_layer : str, optional
-            Top layer. The default is ``None``.
+            Top layer. If ``None`` the first layer is taken.
         bot_layer : str, optional
-            Bottom layer. The default is ``None``.
+            Bottom layer. If ``None`` the last layer is taken.
         name : str, optional
-            Name of the via. The default is ``None``, in which case the
-            default name is assigned.
+            Name of the via. If ``None`` a random name is generated.
         netname : str, optional
-            Name of the net. The default is ``None``, in which case the
-            default name is assigned.
+            Name of the net. The default is ``None``, in which case no
+            name is assigned.
 
         Returns
         -------
-        str
-            Name of the via created when successful.
+        str or bool
+            Name of the via created when successful, ``False`` when failed.
 
         References
         ----------
@@ -733,34 +733,46 @@ class Primitives3DLayout(object):
         if not bot_layer:
             bot_layer = layers[len(layers) - 1]
         if not name:
-            name = _uname()
+            name = generate_unique_name("via")
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
-        arg = ["NAME:Contents"]
-        arg.append("name:="), arg.append(name)
-        arg.append("ReferencedPadstack:="), arg.append(padstack),
-        arg.append("vposition:="),
-        arg.append(["x:=", self.arg_with_dim(x), "y:=", self.arg_with_dim(y)])
-        arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
-        if hole_diam:
-            arg.append("overrides hole:="), arg.append(True)
-            arg.append("hole diameter:="), arg.append([self.arg_with_dim(hole_diam)])
+        try:
+            arg = ["NAME:Contents"]
+            arg.append("name:="), arg.append(name)
+            arg.append("ReferencedPadstack:="), arg.append(padstack),
+            arg.append("vposition:="),
+            arg.append(["x:=", self.arg_with_dim(x), "y:=", self.arg_with_dim(y)])
+            arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
+            if hole_diam:
+                arg.append("overrides hole:="), arg.append(True)
+                arg.append("hole diameter:="), arg.append([self.arg_with_dim(hole_diam)])
 
-        else:
-            arg.append("overrides hole:="), arg.append(False)
-            arg.append("hole diameter:="), arg.append([self.arg_with_dim(1)])
+            else:
+                arg.append("overrides hole:="), arg.append(False)
+                arg.append("hole diameter:="), arg.append([self.arg_with_dim(1)])
 
-        arg.append("Pin:="), arg.append(False)
-        arg.append("highest_layer:="), arg.append(top_layer)
-        arg.append("lowest_layer:="), arg.append(bot_layer)
-        self.oeditor.CreateVia(arg)
-        # self.objects[name] = Object3dlayout(self)
-        # self.objects[name].name = name
-        # if netname:
-        #     self.objects[name].set_net_name(netname)
-        return name
+            arg.append("Pin:="), arg.append(False)
+            arg.append("highest_layer:="), arg.append(top_layer)
+            arg.append("lowest_layer:="), arg.append(bot_layer)
+
+            self.oeditor.CreateVia(arg)
+            if netname:
+                self.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:BaseElementTab",
+                            ["NAME:PropServers", name],
+                            ["NAME:ChangedProps", ["NAME:Net", "Value:=", netname]],
+                        ],
+                    ]
+                )
+            return name
+        except ValueError as e:
+            self.logger.error(str(e))
+            return False
 
     @pyaedt_function_handler()
     def create_circle(self, layername, x, y, radius, name=None, net_name=None, **kwargs):
