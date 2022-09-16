@@ -24,10 +24,10 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class Stackup:
+class Stackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.stackup` property."""
 
-    class _Layer:
+    class _Layer(object):
         def __init__(self, pclass, name):
             self._pclass = pclass
             self._name = name
