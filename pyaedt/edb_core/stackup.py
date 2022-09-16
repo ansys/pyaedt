@@ -38,14 +38,33 @@ class Stackup:
 
         @property
         def is_stackup_layer(self):
+            """Determine whether this layer is a stackup layer.
+
+            Returns
+            -------
+            bool
+                True if this layer is a stackup layer, False otherwise.
+            """
             return self._edb_layer.IsStackupLayer()
 
         @property
         def name(self):
+            """Retrieve name of the layer.
+
+            Returns
+            -------
+            str
+            """
             return self._edb_layer.GetName()
 
         @property
         def thickness(self):
+            """Retrieve thickness of the layer.
+
+            Returns
+            -------
+            float
+            """
             if not self.is_stackup_layer:
                 return
             return self._edb_layer.GetThicknessValue().ToDouble()
@@ -60,6 +79,12 @@ class Stackup:
 
         @property
         def etch_factor(self):
+            """Retrieve etch factor of this layer
+
+            Returns
+            -------
+            float
+            """
             return self._edb_layer.GetEtchFactor().ToDouble()
 
         @etch_factor.setter
@@ -77,6 +102,12 @@ class Stackup:
 
         @property
         def roughness_enabled(self):
+            """Determine whether roughness is enabled on this layer.
+
+            Returns
+            -------
+            bool
+            """
             if not self.is_stackup_layer:
                 return
             return self._edb_layer.IsRoughnessEnabled()
@@ -95,6 +126,7 @@ class Stackup:
                 layer_clone.SetRoughnessEnabled(False)
                 self._pclass._set_layout_stackup(layer_clone, "replace")
 
+        @pyaedt_function_handler()
         def assign_roughness_model(
             self,
             model_type="huray",
@@ -103,6 +135,25 @@ class Stackup:
             groisse_roughness="1um",
             apply_on_surface="all",
         ):
+            """Assign roughness model on this layer.
+
+            Parameters
+            ----------
+            model_type : str, optional
+                Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+            huray_radius : str, optional
+                Radius of huray model. The default is ``"0.5um"``.
+            huray_surface_ratio : str, float, optional.
+                Surface ratio of huray model. The default is ``"2.9"``.
+            groisse_roughness : str, float, optional
+                Roughness of groisse model. The default is ``"1um"``.
+            apply_on_surface : str, optional.
+                Where to assign roughness model. The default is ``"all"``. Options are ``"top"``, ``"bottom"``,
+                 ``"side"``.
+            Returns
+            -------
+
+            """
             if not self.is_stackup_layer:
                 return
             radius = self._pclass._edb_value(huray_radius)
@@ -185,18 +236,32 @@ class Stackup:
 
     @property
     def layer(self):
+        """Retrieve the dictionary of layers.
+
+        Returns
+        -------
+        dict
+        """
         return {l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list}
 
     @property
     def signal_layer(self):
+        """Retrieve the dictionary of signal layers.
+
+        Returns
+        -------
+        dict
+        """
         layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
         return {
             l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list if l.GetLayerType() == layer_type
         }
 
+    @pyaedt_function_handler()
     def _edb_value(self, value):
         return self._pedb.edb_value(value)
 
+    @pyaedt_function_handler()
     def _set_layout_stackup(self, layer_clone, operation, base_layer=None):
         edb_layers = self._edb_layer_list
         if operation == "replace":
@@ -224,6 +289,7 @@ class Stackup:
 
         self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
+    @pyaedt_function_handler()
     def _create_stackup_layer(self, layer_name, thickness, layer_type="signal"):
         if layer_type == "signal":
             _layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
@@ -240,6 +306,7 @@ class Stackup:
             "",
         )
 
+    @pyaedt_function_handler()
     def _create_nonstackup_layer(self, layer_name, layer_type):
         if layer_type == "conducting":
             _layer_type = self._pedb.edb.Cell.LayerType.ConductingLayer
@@ -272,11 +339,12 @@ class Stackup:
 
         return self._pedb.edb.Cell.Layer(layer_name, _layer_type)
 
+    @pyaedt_function_handler()
     def insert_layer(
         self,
         layer_name,
-        base_layer,
-        insert_type,
+        base_layer=None,
+        insert_type="add_on_top",
         layer_type="signal",
         material="copper",
         fillMaterial="fr4_epoxy",
@@ -285,6 +353,37 @@ class Stackup:
         is_negative=False,
         enable_roughness=False,
     ):
+        """Insert a layer into stackup.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer.
+        base_layer : str, optional
+            Name of the base layer.
+        insert_type : str, optional
+            Where to insert the new layer. The default is ``"add_on_top"``. Options are ``"add_on_top"``,
+            ``"add_on_bottom"``, ``"insert_above"``, ``"insert_below"``.
+        layer_type : str, optional
+            Type of layer. The default is ``"signal"``. Options are ``"signal"``, ``"dielectric"``, ``"conducting"``,
+             ``"air_lines"``, ``"error"``, ``"symbol"``, ``"measure"``, ``"assembly"``, ``"silkscreen"``,
+             ``"solder_mask"``, ``"solder_paste"``, ``"glue"``, ``"wirebond"``, ``"hfss_region"``, ``"user"``.
+        material : str, optional
+            Material of the layer.
+        fillMaterial : str, optional
+            Fill material of the layer.
+        thickness : str, float, optional
+            Thickness of the layer.
+        etch_factor : int, float, optional
+            Etch factor of the layer.
+        is_negative : bool, optional
+            Whether the layer is negative.
+        enable_roughness : bool, optional
+            Whether roughness is enabled.
+        Returns
+        -------
+
+        """
         if layer_type in ["signal", "dielectric"]:
             new_layer = self._create_stackup_layer(layer_name, thickness, layer_type)
             new_layer.SetMaterial(material)
