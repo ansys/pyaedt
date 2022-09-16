@@ -250,7 +250,7 @@ class TestClass(BasisTest, object):
     def test_11_create_via(self):
         via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
         assert isinstance(via, str)
-        assert self.aedtapp.modeler.vias[via].name == via
+        assert self.aedtapp.modeler.vias[via].name == via == "port_via"
         assert self.aedtapp.modeler.vias[via].prim_type == "via"
         assert self.aedtapp.modeler.vias[via].location[0] == float(0)
         assert self.aedtapp.modeler.vias[via].location[1] == float(0)
