@@ -708,7 +708,7 @@ class Primitives3DLayout(object):
             Diameter of the hole. If ``None`` the default is ``1``,
             in which case the override is disabled.
         top_layer : str, optional
-            Top layer. If None the first layer is taken.
+            Top layer. If ``None`` the first layer is taken.
         bot_layer : str, optional
             Bottom layer. If ``None`` the last layer is taken.
         name : str, optional
