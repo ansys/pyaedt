@@ -249,9 +249,36 @@ class TestClass(BasisTest, object):
 
     def test_11_create_via(self):
         via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
-        assert type(via) is str
-        via = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
-        assert via == "Via123"
+        assert isinstance(via, str)
+        assert self.aedtapp.modeler.vias[via].name == via == "port_via"
+        assert self.aedtapp.modeler.vias[via].prim_type == "via"
+        assert self.aedtapp.modeler.vias[via].location[0] == float(0)
+        assert self.aedtapp.modeler.vias[via].location[1] == float(0)
+        assert self.aedtapp.modeler.vias[via].angle == "0deg"
+        via_1 = self.aedtapp.modeler.create_via(x=1, y=1)
+        assert isinstance(via_1, str)
+        assert self.aedtapp.modeler.vias[via_1].name == via_1
+        assert self.aedtapp.modeler.vias[via_1].prim_type == "via"
+        assert self.aedtapp.modeler.vias[via_1].location[0] == float(1)
+        assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
+        assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
+        assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
+        via_2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        assert isinstance(via_2, str)
+        assert self.aedtapp.modeler.vias[via_2].name == via_2
+        assert self.aedtapp.modeler.vias[via_2].prim_type == "via"
+        assert self.aedtapp.modeler.vias[via_2].location[0] == float(10)
+        assert self.aedtapp.modeler.vias[via_2].location[1] == float(10)
+        assert self.aedtapp.modeler.vias[via_2].angle == "0deg"
+        assert "VCC" in self.aedtapp.oeditor.GetNets()
+        via_3 = self.aedtapp.modeler.create_via(
+            "My_padstack2", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
+        )
+        assert self.aedtapp.modeler.vias[via_3].location[0] == float(5)
+        assert self.aedtapp.modeler.vias[via_3].location[1] == float(5)
+        assert self.aedtapp.modeler.vias[via_3].angle == "0deg"
+        assert self.aedtapp.modeler.vias[via_3].holediam == "22mm"
+        assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
