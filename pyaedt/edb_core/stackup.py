@@ -26,7 +26,6 @@ logger = logging.getLogger(__name__)
 
 
 class Stackup:
-
     class _Layer:
         def __init__(self, pclass, name):
             self._pclass = pclass
@@ -37,6 +36,7 @@ class Stackup:
             for l in self._pclass._edb_layer_list:
                 if l.GetName() == self._name:
                     return l.Clone()
+
         @property
         def is_stackup_layer(self):
             return self._edb_layer.IsStackupLayer()
@@ -97,19 +97,19 @@ class Stackup:
                 self._pclass._set_layout_stackup(layer_clone, "replace")
 
         def assign_roughness_model(
-                self,
-                model_type="huray",
-                huray_radius="0.5um",
-                huray_surface_ratio="2.9",
-                groisse_roughness="1um",
-                apply_on_surface="all"
+            self,
+            model_type="huray",
+            huray_radius="0.5um",
+            huray_surface_ratio="2.9",
+            groisse_roughness="1um",
+            apply_on_surface="all",
         ):
             if not self.is_stackup_layer:
                 return
             radius = self._pclass._edb_value(huray_radius)
             surface_ratio = self._pclass._edb_value(huray_surface_ratio)
-            groisse_roughness =  self._pclass._edb_value(groisse_roughness)
-            regions=[]
+            groisse_roughness = self._pclass._edb_value(groisse_roughness)
+            regions = []
             if apply_on_surface == "all":
                 regions = [
                     self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
@@ -188,9 +188,12 @@ class Stackup:
     def layer(self):
         return {l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list}
 
-    #@property
-    #def signal_layer(self):
-    #    return {l.GetName(): self._Layer(self, l.GetName()) if l.for l in self._edb_layer_list}
+    @property
+    def signal_layer(self):
+        layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
+        return {
+            l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list if l.GetLayerType() == layer_type
+        }
 
     def _edb_value(self, value):
         return self._pedb.edb_value(value)
@@ -290,12 +293,12 @@ class Stackup:
             new_layer.SetNegative(is_negative)
             self._set_layout_stackup(new_layer, insert_type, base_layer)
 
-            if not etch_factor:
-                new_layer = self.layer[layer_name]
-                new_layer.etch_factor(False)
-            else:
+            if etch_factor:
                 new_layer = self.layer[layer_name]
                 new_layer.etch_factor = etch_factor
+            if enable_roughness:
+                new_layer = self.layer[layer_name]
+                new_layer.roughness_enabled = True
         else:
             new_layer = self._create_nonstackup_layer(layer_name, layer_type)
             self._set_layout_stackup(new_layer, "non_stackup")
