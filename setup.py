@@ -43,6 +43,7 @@ if sys.version_info >= (3, 7):
         "numpy",
         "matplotlib",
         "psutil",
+        "pandas",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif is_ironpython:
