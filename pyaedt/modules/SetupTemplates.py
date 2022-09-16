@@ -5,6 +5,41 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
+
+@pyaedt_function_handler()
+def identify_setup(props):
+    """Identify if a setup props is time or frequency domain.
+
+    Parameters
+    ----------
+    props : dict
+
+    Returns
+    -------
+    bool
+        `True` if domain is Time. `False` for Frequency and Sweeps.
+    """
+    keys = [
+        "Transient",
+        "TimeStep",
+        "Data/InitialStep",
+        "TransientData",
+        "QuickEyeAnalysis",
+        "VerifEyeAnalysis",
+        "AMIAnalysis",
+        "HSPICETransientData",
+        "SystemFDAnalysis",
+        "Start Time:=",
+    ]
+    for key in keys:
+        if "/" in key:
+            if key.split("/")[0] in props and key.split("/")[1] in props[key.split("/")[0]]:
+                return True
+        elif key in props:
+            return True
+    return False
+
+
 meshlink = [("ImportMesh", False)]
 autosweep = [("RangeType", "LinearStep"), ("RangeStart", "1GHz"), ("RangeEnd", "10GHz"), ("RangeStep", "1GHz")]
 autosweeps = [("Sweep", autosweep)]
@@ -1350,6 +1385,8 @@ class SweepHFSS(object):
             `True` if solutions are available.
         """
         sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        if identify_setup(self.props):
+            sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
     @property
@@ -1629,7 +1666,12 @@ class SweepHFSS3DLayout(object):
         bool
             `True` if solutions are available.
         """
-        sol = self._app._app.post.reports_by_category.standard(setup_name=self.combined_name)
+        expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.combined_name)]
+        sol = self._app._app.post.reports_by_category.standard(
+            setup_name=self.combined_name, expressions=expressions[0]
+        )
+        if identify_setup(self.props):
+            sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
     @pyaedt_function_handler()
@@ -1844,7 +1886,6 @@ class SweepQ3D(object):
                 self.props["RangeStep"] = "1GHz"
                 self.props["RangeEnd"] = "7.5GHz"
                 self.props["SaveSingleField"] = False
-
                 self.props["RangeSamples"] = 3
                 self.props["RangeCount"] = 401
                 self.props["SaveFields"] = False

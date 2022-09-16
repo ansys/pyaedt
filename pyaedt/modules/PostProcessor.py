@@ -716,7 +716,9 @@ class PostProcessorCommon(object):
             context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
-            quantities_category = categories[0] if categories else None
+            quantities_category = ""
+            if categories:
+                quantities_category = "All" if "All" in categories else categories[0]
         if quantities_category and display_type and report_category and solution:
             return list(
                 self.oreportsetup.GetAllQuantities(
