@@ -90,13 +90,20 @@ class CommonSetup(PropsManager, object):
         bool
             `True` if solutions are available.
         """
-        expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
+
         if self.p_app.design_solutions.default_adaptive:
+            expressions = [
+                i
+                for i in self.p_app.post.available_report_quantities(
+                    solution="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive)
+                )
+            ]
             sol = self.p_app.post.reports_by_category.standard(
                 setup_name="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive),
                 expressions=expressions[0],
             )
         else:
+            expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
             sol = self.p_app.post.reports_by_category.standard(setup_name=self.name, expressions=expressions[0])
         if identify_setup(self.props):
             sol.domain = "Time"
