@@ -1014,7 +1014,9 @@ class Primitives(object):
             comps3d = self.oeditor.Get3DComponentDefinitionNames()
             for comp3d in comps3d:
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
-            udm = self._get_user_defined_component_names()
+            udm = []
+            if "UserDefinedModels" in self.oeditor.GetChildTypes():
+                udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
             if self.user_defined_components:
@@ -3632,31 +3634,6 @@ class Primitives(object):
                     return obj
 
         return None
-
-    @pyaedt_function_handler()
-    def _get_user_defined_component_names(self):
-        """Get list of names for user-defined models.
-
-        Returns
-        -------
-        list
-           List of names for user-defined models.
-        """
-        udm_lists = []
-        if self._app.design_properties and self._app.design_properties.get("ModelSetup", None):
-            try:
-                entity_list = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "UserDefinedModels"
-                ]
-                if entity_list:
-                    udm_entry = entity_list["UserDefinedModel"]
-                    if isinstance(udm_entry, (dict, OrderedDict)):
-                        udm_entry = [udm_entry]
-                    for data in udm_entry:
-                        udm_lists.append(data["Attributes"]["Name"])
-            except:
-                self.logger.info("User-defined models were not retrieved from the AEDT file.")
-        return udm_lists
 
     @pyaedt_function_handler()
     def _get_native_component_properties(self, name):

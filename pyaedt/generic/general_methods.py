@@ -1086,6 +1086,23 @@ class Settings(object):
         self._project_time_stamp = 0
         self._disable_bounding_box_sat = False
         self._force_error_on_missing_project = False
+        self._enable_pandas_output = False
+
+    @property
+    def enable_pandas_output(self):
+        """Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        If ``True`` the property or method will return a pandas object in CPython environment.
+        Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._enable_pandas_output
+
+    @enable_pandas_output.setter
+    def enable_pandas_output(self, val):
+        self._enable_pandas_output = val
 
     @property
     def force_error_on_missing_project(self):

@@ -2051,6 +2051,7 @@ class FarField(CommonReport):
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
+        self.source_context = None
         if "Phi" not in self.variations:
             self.variations["Phi"] = ["All"]
         if "Theta" not in self.variations:
@@ -2074,6 +2075,8 @@ class FarField(CommonReport):
 
     @property
     def _context(self):
+        if self.source_context:
+            return ["Context:=", self.far_field_sphere, "SourceContext:=", self.source_context]
         return ["Context:=", self.far_field_sphere]
 
 
