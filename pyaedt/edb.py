@@ -623,6 +623,7 @@ class Edb(object):
 
     @property
     def stackup(self):
+        """Stackup."""
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
