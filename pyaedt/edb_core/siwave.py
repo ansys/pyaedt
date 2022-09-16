@@ -1362,7 +1362,7 @@ class EdbSiwave(object):
             edb_sim_setup = self._edb.Utility.SIWaveSimulationSetup(simsetup_info)
             for setup in self._cell.SimulationSetups:
                 self._cell.DeleteSimulationSetup(setup.GetName())
-                self._logger.warning("Setup {} has been delete".format(setup.GetName()))
+                self._logger.warning("Setup {} has been deleted".format(setup.GetName()))
             return self._cell.AddSimulationSetup(edb_sim_setup)
         if simulation_setup.solver_type == SolverType.SiwaveDC:  # pragma: no cover
             dcir_setup = self._pedb.simsetupdata.SimSetupInfo[
