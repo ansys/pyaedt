@@ -712,9 +712,13 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
+        if not context:
+            context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
-            quantities_category = categories[0] if categories else None
+            quantities_category = ""
+            if categories:
+                quantities_category = "All" if "All" in categories else categories[0]
         if quantities_category and display_type and report_category and solution:
             return list(
                 self.oreportsetup.GetAllQuantities(
@@ -1598,7 +1602,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def get_solution_data(
         self,
-        expressions,
+        expressions=None,
         setup_sweep_name=None,
         domain="Sweep",
         variations=None,
@@ -1607,6 +1611,7 @@ class PostProcessorCommon(object):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
+        math_formula=None,
     ):
         """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
 
@@ -1614,6 +1619,7 @@ class PostProcessorCommon(object):
         ----------
         expressions : str or list, optional
             One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+            Default is `None` which will return all traces.
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
         domain : str, optional
@@ -1638,6 +1644,8 @@ class PostProcessorCommon(object):
             The default value is ``None``.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
+        math_formula : str, optional
+            It is one of the available AEDT mathematical formulas. Example abs, dB.
 
 
         Returns
@@ -1693,6 +1701,7 @@ class PostProcessorCommon(object):
         ...     context=context
         ...)
         """
+        expressions = [expressions] if isinstance(expressions, str) else expressions
         if domain in ["Spectral", "Spectrum"]:
             report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
@@ -1709,6 +1718,12 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         report = report_class(self, report_category, setup_sweep_name)
+        if not expressions:
+            expressions = [
+                i for i in self.available_report_quantities(report_category=report_category, context=context)
+            ]
+        if math_formula:
+            expressions = ["{}({})".format(math_formula, i) for i in expressions]
         report.expressions = expressions
         report.domain = domain
         if primary_sweep_variable:
@@ -1725,7 +1740,12 @@ class PostProcessorCommon(object):
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
-                report.far_field_sphere = context
+                if isinstance(context, dict):
+                    if "Context" in context.keys() and "SourceContext" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_context = context["SourceContext"]
+                else:
+                    report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context and isinstance(context, dict):
