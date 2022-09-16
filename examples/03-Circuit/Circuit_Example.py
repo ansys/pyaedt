@@ -115,7 +115,16 @@ aedt_app.export_fullwave_spice()
 solutions = aedt_app.post.get_solution_data(
     expressions=aedt_app.get_traces_for_plot(category="S"),
 )
+solutions.enable_pandas_output = True
+real, imag = solutions.full_matrix_real_imag
+print(real)
+
+###############################################################################
+# Plot data
+# ~~~~~~~~~
+# Create a plot based on solution data.
 fig = solutions.plot()
+
 
 
 ###############################################################################
