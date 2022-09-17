@@ -28,7 +28,7 @@ dotnetcore2==3.1.23; python_version > '3.6' and sys_platform == 'linux'
 pyvista==0.36.1; python_version > '3.6'
 # License: MIT
 
-matplotlib==3.5.3; python_version > '3.6'
+matplotlib==3.6.0; python_version > '3.6'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
