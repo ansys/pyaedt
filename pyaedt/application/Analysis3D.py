@@ -149,10 +149,11 @@ class FieldAnalysis3D(Analysis, object):
         components_dict = {}
 
         # Define libraries where 3d components may exist.
-        # [syslib, userlib]
+        # libs = [syslib, userlib]
 
         libs = [os.path.join(self.syslib, "3DComponents", self._design_type),
                 os.path.join(self.userlib, "3DComponents", self._design_type)]
+
         for lib in libs:
             if os.path.exists(lib):
                 listfiles = []
