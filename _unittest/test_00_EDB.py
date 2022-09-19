@@ -632,7 +632,7 @@ if not config["skip_edb"]:
         def test_60_create_outline(self):
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
-            self.edbapp.stackup.insert_layer("new_layer_1", "TOP", "insert_below")
+            self.edbapp.stackup.add_layer("new_layer_1", "TOP", "insert_below")
             assert self.edbapp.stackup.layer["TOP"].thickness == 4.826e-05
             self.edbapp.stackup.layer["TOP"].thickness = 4e-5
             assert self.edbapp.stackup.layer["TOP"].thickness == 4e-05
@@ -2031,3 +2031,23 @@ if not config["skip_edb"]:
             target_path = os.path.join(self.local_scratch.path, "test_120.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             assert self.edbapp.core_padstack.set_all_antipad_value(0.0)
+
+        def test_stackup(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.stackup["TOP"]
+            assert edbapp.stackup.add_layer("new_layer")
+            new_layer = edbapp.stackup["new_layer"]
+            assert new_layer.is_stackup_layer
+            new_layer.name = "renamed_layer"
+            assert new_layer.name == "renamed_layer"
+            rename_layer = edbapp.stackup["renamed_layer"]
+            rename_layer.thickness = 50e-6
+            assert rename_layer.thickness == 50e-6
+            rename_layer.etch_factor = 2
+            assert rename_layer.etch_factor == 2
+            rename_layer.roughness_enabled = True
+            assert rename_layer.roughness_enabled
+            assert rename_layer.assign_roughness_model("groisse", groisse_roughness="2um")
+            edbapp.close_edb()
+

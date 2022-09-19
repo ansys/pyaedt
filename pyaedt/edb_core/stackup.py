@@ -59,6 +59,13 @@ class Stackup(object):
             """
             return self._edb_layer.GetName()
 
+        @name.setter
+        def name(self, name):
+            layer_clone = self._edb_layer
+            layer_clone.SetName(name)
+            self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
+            self._name = name
+
         @property
         def thickness(self):
             """Retrieve thickness of the layer.
@@ -77,7 +84,7 @@ class Stackup(object):
                 return
             layer_clone = self._edb_layer
             layer_clone.SetThickness(self._pclass._edb_value(value))
-            self._pclass._set_layout_stackup(layer_clone, "replace")
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
         @property
         def etch_factor(self):
@@ -100,7 +107,7 @@ class Stackup(object):
                 layer_clone = self._edb_layer
                 layer_clone.SetEtchFactorEnabled(True)
                 layer_clone.SetEtchFactor(self._pclass._edb_value(value))
-                self._pclass._set_layout_stackup(layer_clone, "replace")
+                self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
         @property
         def roughness_enabled(self):
@@ -121,12 +128,12 @@ class Stackup(object):
             if set_enable:
                 layer_clone = self._edb_layer
                 layer_clone.SetRoughnessEnabled(True)
-                self._pclass._set_layout_stackup(layer_clone, "replace")
+                self._pclass._set_layout_stackup(layer_clone, "change_attribute")
                 self.assign_roughness_model()
             else:
                 layer_clone = self._edb_layer
                 layer_clone.SetRoughnessEnabled(False)
-                self._pclass._set_layout_stackup(layer_clone, "replace")
+                self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
         @pyaedt_function_handler()
         def assign_roughness_model(
@@ -188,7 +195,8 @@ class Stackup(object):
                 else:
                     model = self._pclass._pedb.edb.Cell.GroisseRoughnessModel(groisse_roughness)
                 layer_clone.SetRoughnessModel(r, model)
-            self._pclass._set_layout_stackup(layer_clone, "replace")
+            return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
 
     def __getitem__(self, item):
         return self.layer[item]
@@ -266,14 +274,20 @@ class Stackup(object):
     @pyaedt_function_handler()
     def _set_layout_stackup(self, layer_clone, operation, base_layer=None):
         edb_layers = self._edb_layer_list
-        if operation == "replace":
+        if operation in ["change_attribute", "change_name"]:
             new_layer_collection = self._pedb.edb.Cell.LayerCollection()
         else:
             new_layer_collection = self._layer_collection
 
-        if operation == "replace":
+        if operation == "change_attribute":
             for lyr in edb_layers:
                 if not (layer_clone.GetName() == lyr.GetName()):
+                    new_layer_collection.AddLayerBottom(lyr)
+                else:
+                    new_layer_collection.AddLayerBottom(layer_clone)
+        elif operation == "change_name":
+            for lyr in edb_layers:
+                if not (base_layer == lyr.GetName()):
                     new_layer_collection.AddLayerBottom(lyr)
                 else:
                     new_layer_collection.AddLayerBottom(layer_clone)
@@ -289,7 +303,7 @@ class Stackup(object):
         else:
             new_layer_collection.AddLayerTop(layer_clone)
 
-        self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
     @pyaedt_function_handler()
     def _create_stackup_layer(self, layer_name, thickness, layer_type="signal"):
@@ -342,7 +356,7 @@ class Stackup(object):
         return self._pedb.edb.Cell.Layer(layer_name, _layer_type)
 
     @pyaedt_function_handler()
-    def insert_layer(
+    def add_layer(
         self,
         layer_name,
         base_layer=None,
@@ -402,6 +416,8 @@ class Stackup(object):
         else:
             new_layer = self._create_nonstackup_layer(layer_name, layer_type)
             self._set_layout_stackup(new_layer, "non_stackup")
+
+        return self.layer[layer_name]
 
 
 class EdbStackup(object):
