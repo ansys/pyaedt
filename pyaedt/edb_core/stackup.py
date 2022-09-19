@@ -197,7 +197,6 @@ class Stackup(object):
                 layer_clone.SetRoughnessModel(r, model)
             return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
-
     def __getitem__(self, item):
         return self.layer[item]
 

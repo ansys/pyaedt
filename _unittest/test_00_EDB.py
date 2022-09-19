@@ -2050,4 +2050,3 @@ if not config["skip_edb"]:
             assert rename_layer.roughness_enabled
             assert rename_layer.assign_roughness_model("groisse", groisse_roughness="2um")
             edbapp.close_edb()
-
