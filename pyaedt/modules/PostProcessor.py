@@ -306,7 +306,7 @@ class Reports(object):
         setup_name : str, optional
             Setup Name.
         sphere_name : str, optional
-            Name of the sphere on which create the far field.
+            Name of the sphere to create the far field on.
         source_context : str, optional
             Name of the active source to create the far field on.
 
