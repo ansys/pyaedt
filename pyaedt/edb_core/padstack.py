@@ -517,7 +517,7 @@ class EdbPadstacks(object):
                             )
                             all_succeed = False
                 padstack.edb_padstack.SetData(cloned_padstack_data)
-                return all_succeed
+            return all_succeed
 
     @pyaedt_function_handler()
     def get_via_instance_from_net(self, net_list=None):
