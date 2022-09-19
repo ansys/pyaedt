@@ -308,7 +308,7 @@ class Reports(object):
         sphere_name : str, optional
             Name of the sphere on which create the far field.
         source_context : str, optional
-            Name of the active source on which create the far field.
+            Name of the active source to create the far field on.
 
         Returns
         -------
