@@ -283,6 +283,18 @@ class TestClass(BasisTest, object):
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
+        self.field_test.set_source_context(["1"])
+        context = {"Context": "3D", "SourceContext": "1:1"}
+        assert self.field_test.post.create_report(
+            "db(GainTotal)",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            secondary_sweep_variable="Theta",
+            plot_type="3D Polar Plot",
+            context=context,
+            report_category="Far Fields",
+        )
         assert self.field_test.post.create_report(
             "db(GainTotal)",
             self.field_test.nominal_adaptive,
@@ -300,11 +312,20 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+
+        new_report2 = self.field_test.post.reports_by_category.far_field(
+            "db(RealizedGainTotal)", self.field_test.nominal_adaptive, "3D", "1:1"
+        )
+        new_report2.variations = variations
+        new_report2.report_type = "3D Polar Plot"
+        assert new_report2.create()
+
+        new_report3 = self.field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
         )
-        new_report2.report_type = "Data Table"
-        assert new_report2.create()
+        new_report3.report_type = "Data Table"
+        assert new_report3.create()
+
         self.field_test.analyze_nominal()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
@@ -319,7 +340,6 @@ class TestClass(BasisTest, object):
             assert data.plot_3d()
             assert self.field_test.post.create_3d_plot(data)
 
-        self.field_test.set_source_context(["1"])
         context = {"Context": "3D", "SourceContext": "1:1"}
         data = self.field_test.post.get_solution_data(
             "GainTotal",
@@ -372,6 +392,18 @@ class TestClass(BasisTest, object):
             report_category="Fields",
         )
         assert data.units_sweeps["Phase"] == "deg"
+
+        assert self.field_test.post.get_far_field_data(
+            setup_sweep_name=self.field_test.nominal_adaptive, expression="RealizedGainTotal", domain="3D"
+        )
+        data_farfield2 = self.field_test.post.get_far_field_data(
+            setup_sweep_name=self.field_test.nominal_adaptive,
+            expression="RealizedGainTotal",
+            domain={"Context": "3D", "SourceContext": "1:1"},
+        )
+        if not is_ironpython:
+            assert data_farfield2.plot(math_formula="db20", is_polar=True)
+
         pass
 
     def test_09b_export_report(self):  # pragma: no cover
