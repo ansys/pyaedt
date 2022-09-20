@@ -2036,6 +2036,7 @@ if not config["skip_edb"]:
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert edbapp.stackup["TOP"]
+            assert not edbapp.stackup["Outline"].is_stackup_layer
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
             assert new_layer.is_stackup_layer
