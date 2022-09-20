@@ -2035,7 +2035,9 @@ if not config["skip_edb"]:
         def test_stackup(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
-            assert edbapp.stackup["TOP"]
+            assert isinstance(edbapp.stackup, dict)
+            assert isinstance(edbapp.stackup.signal_layer, dict)
+            assert isinstance(edbapp.stackup.non_stackup_layer, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
@@ -2045,9 +2047,18 @@ if not config["skip_edb"]:
             rename_layer = edbapp.stackup["renamed_layer"]
             rename_layer.thickness = 50e-6
             assert rename_layer.thickness == 50e-6
+            rename_layer.etch_factor = 0
             rename_layer.etch_factor = 2
             assert rename_layer.etch_factor == 2
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
+            rename_layer.roughness_enabled = False
+            assert not rename_layer.roughness_enabled
             assert rename_layer.assign_roughness_model("groisse", groisse_roughness="2um")
+            assert rename_layer.assign_roughness_model(apply_on_surface="top")
+            assert rename_layer.assign_roughness_model(apply_on_surface="bottom")
+            assert rename_layer.assign_roughness_model(apply_on_surface="side")
+            assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
+            assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
+            assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
             edbapp.close_edb()

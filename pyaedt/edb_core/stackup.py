@@ -74,7 +74,7 @@ class Stackup(object):
             -------
             float
             """
-            if not self.is_stackup_layer:
+            if not self.is_stackup_layer:  # pragma: no cover
                 return
             return self._edb_layer.GetThicknessValue().ToDouble()
 
@@ -102,12 +102,12 @@ class Stackup(object):
                 return
             if not value:
                 layer_clone = self._edb_layer
-                layer_clone.SetEtchFactorEnabled(False)
+                return layer_clone.SetEtchFactorEnabled(False)
             else:
                 layer_clone = self._edb_layer
                 layer_clone.SetEtchFactorEnabled(True)
                 layer_clone.SetEtchFactor(self._pclass._edb_value(value))
-                self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+                return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
         @property
         def roughness_enabled(self):
@@ -129,11 +129,11 @@ class Stackup(object):
                 layer_clone = self._edb_layer
                 layer_clone.SetRoughnessEnabled(True)
                 self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-                self.assign_roughness_model()
+                return self.assign_roughness_model()
             else:
                 layer_clone = self._edb_layer
                 layer_clone.SetRoughnessEnabled(False)
-                self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+                return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
         @pyaedt_function_handler()
         def assign_roughness_model(
@@ -262,9 +262,17 @@ class Stackup(object):
         dict
         """
         layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
-        return {
-            l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list if l.GetLayerType() == layer_type
-        }
+        return {name: obj for name, obj in self.layer.items() if obj._edb_layer.GetLayerType() == layer_type}
+
+    @property
+    def non_stackup_layer(self):
+        """Retrieve the dictionary of signal layers.
+
+        Returns
+        -------
+        dict
+        """
+        return {l.GetName(): self._Layer(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
 
     @pyaedt_function_handler()
     def _edb_value(self, value):
@@ -308,10 +316,8 @@ class Stackup(object):
     def _create_stackup_layer(self, layer_name, thickness, layer_type="signal"):
         if layer_type == "signal":
             _layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
-        elif layer_type == "delectric":
-            _layer_type = self._pedb.edb.Cell.LayerType.DielectricLayer
         else:
-            _layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
+            _layer_type = self._pedb.edb.Cell.LayerType.DielectricLayer
 
         return self._pedb.edb.Cell.StackupLayer(
             layer_name,
@@ -323,33 +329,33 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def _create_nonstackup_layer(self, layer_name, layer_type):
-        if layer_type == "conducting":
+        if layer_type == "conducting":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.ConductingLayer
-        elif layer_type == "air_lines":
+        elif layer_type == "air_lines":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.AirlinesLayer
-        elif layer_type == "error":
+        elif layer_type == "error":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.ErrorsLayer
-        elif layer_type == "symbol":
+        elif layer_type == "symbol":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SymbolLayer
-        elif layer_type == "measure":
+        elif layer_type == "measure":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.MeasureLayer
-        elif layer_type == "assembly":
+        elif layer_type == "assembly":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.AssemblyLayer
-        elif layer_type == "silkscreen":
+        elif layer_type == "silkscreen":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SilkscreenLayer
-        elif layer_type == "solder_mask":
+        elif layer_type == "solder_mask":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SolderMaskLayer
-        elif layer_type == "solder_paste":
+        elif layer_type == "solder_paste":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SolderPasteLayer
-        elif layer_type == "glue":
+        elif layer_type == "glue":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.GlueLayer
-        elif layer_type == "wirebond":
+        elif layer_type == "wirebond":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.WirebondLayer
-        elif layer_type == "user":
+        elif layer_type == "user":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.UserLayer
-        elif layer_type == "hfss_region":
+        elif layer_type == "hfss_region":  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.SIwaveHFSSSolverRegions
-        else:
+        else:  # pragma: no cover
             _layer_type = self._pedb.edb.Cell.LayerType.OutlineLayer
 
         return self._pedb.edb.Cell.Layer(layer_name, _layer_type)
