@@ -80,7 +80,7 @@ class Stackup(object):
 
         @thickness.setter
         def thickness(self, value):
-            if not self.is_stackup_layer:
+            if not self.is_stackup_layer: # pragma: no cover
                 return
             layer_clone = self._edb_layer
             layer_clone.SetThickness(self._pclass._edb_value(value))
@@ -98,7 +98,7 @@ class Stackup(object):
 
         @etch_factor.setter
         def etch_factor(self, value):
-            if not self.is_stackup_layer:
+            if not self.is_stackup_layer: # pragma: no cover
                 return
             if not value:
                 layer_clone = self._edb_layer
@@ -117,13 +117,13 @@ class Stackup(object):
             -------
             bool
             """
-            if not self.is_stackup_layer:
+            if not self.is_stackup_layer: # pragma: no cover
                 return
             return self._edb_layer.IsRoughnessEnabled()
 
         @roughness_enabled.setter
         def roughness_enabled(self, set_enable):
-            if not self.is_stackup_layer:
+            if not self.is_stackup_layer: # pragma: no cover
                 return
             if set_enable:
                 layer_clone = self._edb_layer
@@ -163,7 +163,7 @@ class Stackup(object):
             -------
 
             """
-            if not self.is_stackup_layer:
+            if not self.is_stackup_layer: # pragma: no cover
                 return
             radius = self._pclass._edb_value(huray_radius)
             surface_ratio = self._pclass._edb_value(huray_surface_ratio)
