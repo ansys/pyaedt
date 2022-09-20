@@ -632,6 +632,10 @@ if not config["skip_edb"]:
         def test_60_create_outline(self):
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
+            self.edbapp.stackup.add_layer("new_layer_1", "TOP", "insert_below")
+            assert self.edbapp.stackup.layer["TOP"].thickness == 4.826e-05
+            self.edbapp.stackup.layer["TOP"].thickness = 4e-5
+            assert self.edbapp.stackup.layer["TOP"].thickness == 4e-05
 
         def test_61_create_edb(self):
             edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
@@ -1709,7 +1713,7 @@ if not config["skip_edb"]:
             finally:
                 laminate_edb.close_edb()
 
-        def test_A02b_place_a3dcomp_3d_placement_on_bottom(self):
+        def test_A102b_place_a3dcomp_3d_placement_on_bottom(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_bottom_place.aedb")
             target_path = os.path.join(self.local_scratch.path, "output.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1851,13 +1855,13 @@ if not config["skip_edb"]:
             assert sim_config.dc_source_terms_to_ground["test_v_source"] == 1
             assert len(sim_config.sources) == 2
 
-        def test_106_layout_tchickness(self):
+        def test_A106_layout_tchickness(self):
             assert self.edbapp.core_stackup.get_layout_thickness()
 
-        def test_107_get_layout_stats(self):
+        def test_A107_get_layout_stats(self):
             assert self.edbapp.get_statistics()
 
-        def test_110_edb_stats(self):
+        def test_A110_edb_stats(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_110.aedb")
             self.local_scratch.copyfolder(example_project, target_path)
@@ -1878,7 +1882,7 @@ if not config["skip_edb"]:
             assert edb_stats.num_capacitors
             assert edb_stats.num_resistors
 
-        def test_111_set_bounding_box_extent(self):
+        def test_A111_set_bounding_box_extent(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_111.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1891,7 +1895,7 @@ if not config["skip_edb"]:
             final_extent_info = edb.active_cell.GetHFSSExtentInfo()
             assert final_extent_info.ExtentType == edb.edb.Utility.HFSSExtentInfoType.BoundingBox
 
-        def test_112_create_source(self):
+        def test_A112_create_source(self):
             source = Source()
             source.l_value = 1e-9
             assert source.l_value == 1e-9
@@ -1902,7 +1906,7 @@ if not config["skip_edb"]:
             source.create_physical_resistor = True
             assert source.create_physical_resistor
 
-        def test_113_create_rlc(self):
+        def test_A113_create_rlc(self):
             sim_config = SimulationConfiguration()
             sim_config.add_rlc(
                 "test",
@@ -1920,7 +1924,7 @@ if not config["skip_edb"]:
             assert sim_config.sources[0].l_value == 1e-10
             assert sim_config.sources[0].c_value == 1e-13
 
-        def test_114_create_rlc_component(self):
+        def test_A114_create_rlc_component(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_114.aedb")
             self.local_scratch.copyfolder(example_project, target_path)
@@ -1932,7 +1936,7 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_115_create_rlc_boundary(self):
+        def test_A115_create_rlc_boundary(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_115.aedb")
             if not os.path.exists(self.local_scratch.path):
@@ -1946,7 +1950,7 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_116_configure_hfss_analysis_setup_enforce_causality(self):
+        def test_A116_configure_hfss_analysis_setup_enforce_causality(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_top_place_no_setups.aedb")
             target_path = os.path.join(self.local_scratch.path, "lam_for_top_place_no_setups_t116.aedb")
             if not os.path.exists(self.local_scratch.path):
@@ -1968,7 +1972,7 @@ if not config["skip_edb"]:
             sweep = list(ssi.SweepDataList)[0]
             assert not sweep.EnforceCausality
 
-        def test_117_add_hfss_config(self):
+        def test_A117_add_hfss_config(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_117.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1993,7 +1997,7 @@ if not config["skip_edb"]:
                 )
             assert mesh_size_factor == 1.9
 
-        def test_118_edb_create_port(self):
+        def test_A118_edb_create_port(self):
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
                 edbversion=desktop_version,
@@ -2007,12 +2011,12 @@ if not config["skip_edb"]:
             )
             edb.close_edb()
 
-        def test_119_insert_layer(self):
+        def test_A119_insert_layer(self):
             layers = self.edbapp.core_stackup.stackup_layers
             layer = layers.insert_layer_above("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
             assert layer.name in layers.layers
 
-        def test_Z_build_hfss_project_from_config_file(self):
+        def test_A120_build_hfss_project_from_config_file(self):
             cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
@@ -2022,8 +2026,39 @@ if not config["skip_edb"]:
             sim_config = SimulationConfiguration(cfg_file)
             assert self.edbapp.build_simulation_project(sim_config)
 
-        def test_120_set_all_antipad_values(self):
+        def test_A121_set_all_antipad_values(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_120.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             assert self.edbapp.core_padstack.set_all_antipad_value(0.0)
+
+        def test_A122_stackup(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert isinstance(edbapp.stackup.layer, dict)
+            assert isinstance(edbapp.stackup.signal_layer, dict)
+            assert isinstance(edbapp.stackup.non_stackup_layer, dict)
+            assert not edbapp.stackup["Outline"].is_stackup_layer
+            assert edbapp.stackup.add_layer("new_layer")
+            new_layer = edbapp.stackup["new_layer"]
+            assert new_layer.is_stackup_layer
+            new_layer.name = "renamed_layer"
+            assert new_layer.name == "renamed_layer"
+            rename_layer = edbapp.stackup["renamed_layer"]
+            rename_layer.thickness = 50e-6
+            assert rename_layer.thickness == 50e-6
+            rename_layer.etch_factor = 0
+            rename_layer.etch_factor = 2
+            assert rename_layer.etch_factor == 2
+            rename_layer.roughness_enabled = True
+            assert rename_layer.roughness_enabled
+            rename_layer.roughness_enabled = False
+            assert not rename_layer.roughness_enabled
+            assert rename_layer.assign_roughness_model("groisse", groisse_roughness="2um")
+            assert rename_layer.assign_roughness_model(apply_on_surface="top")
+            assert rename_layer.assign_roughness_model(apply_on_surface="bottom")
+            assert rename_layer.assign_roughness_model(apply_on_surface="side")
+            assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
+            assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
+            assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+            edbapp.close_edb()
