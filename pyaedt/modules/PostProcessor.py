@@ -297,7 +297,7 @@ class Reports(object):
 
     @pyaedt_function_handler()
     def far_field(self, expressions=None, setup_name=None, sphere_name=None, source_context=None):
-        """Create a Field Report object.
+        """Create a Far Field Report object.
 
         Parameters
         ----------
