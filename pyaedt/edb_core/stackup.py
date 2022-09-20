@@ -359,7 +359,7 @@ class Stackup(object):
         self,
         layer_name,
         base_layer=None,
-        insert_type="add_on_top",
+        method="add_on_top",
         layer_type="signal",
         material="copper",
         fillMaterial="fr4_epoxy",
@@ -376,7 +376,7 @@ class Stackup(object):
             Name of the layer.
         base_layer : str, optional
             Name of the base layer.
-        insert_type : str, optional
+        method : str, optional
             Where to insert the new layer. The default is ``"add_on_top"``. Options are ``"add_on_top"``,
             ``"add_on_bottom"``, ``"insert_above"``, ``"insert_below"``.
         layer_type : str, optional
@@ -404,7 +404,7 @@ class Stackup(object):
             new_layer.SetMaterial(material)
             new_layer.SetFillMaterial(fillMaterial)
             new_layer.SetNegative(is_negative)
-            self._set_layout_stackup(new_layer, insert_type, base_layer)
+            self._set_layout_stackup(new_layer, method, base_layer)
 
             if etch_factor:
                 new_layer = self.layer[layer_name]
