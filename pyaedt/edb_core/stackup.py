@@ -123,7 +123,7 @@ class Stackup(object):
 
         @roughness_enabled.setter
         def roughness_enabled(self, set_enable):
-            if not self.is_stackup_layer: # pragma: no cover
+            if not self.is_stackup_layer:  # pragma: no cover
                 return
             if set_enable:
                 layer_clone = self._edb_layer
