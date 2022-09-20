@@ -2032,10 +2032,10 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             assert self.edbapp.core_padstack.set_all_antipad_value(0.0)
 
-        def test_stackup(self):
+        def test_A122_stackup(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
-            assert isinstance(edbapp.stackup, dict)
+            assert isinstance(edbapp.stackup.layer, dict)
             assert isinstance(edbapp.stackup.signal_layer, dict)
             assert isinstance(edbapp.stackup.non_stackup_layer, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
