@@ -1523,6 +1523,72 @@ class Components(object):
         return found
 
     @pyaedt_function_handler()
+    def import_bom(
+        self,
+        bom_file,
+        delimiter=",",
+        refdes_col=0,
+        part_name_col=1,
+        comp_type_col=2,
+        value_col=3,
+    ):
+        """Load external BOM file.
+
+        Parameters
+        ----------
+        bom_file : str
+            Full path to the BOM file, which is a delimited text file.
+        delimiter : str, optional
+            Value to use for the delimiter. The default is ``","``.
+        refdes_col : int, optional
+            Column index of refdes.
+        part_name_col : int, optional
+             Column index of part name.
+        comp_type_col : int, optional
+            Column index of component type.
+        value_col : int, optional
+            Column index of value.
+        Returns
+        -------
+        bool
+        """
+        with open(bom_file, "r") as f:
+            lines = f.readlines()
+            unmount_comp_list = list(self.components.keys())
+            for l in lines[1:]:
+                print(l)
+                l = l.replace(" ", "").replace("\n", "")
+                if not l:
+                    continue
+                l = l.split(delimiter)
+
+                refdes = l[refdes_col]
+                comp = self.components[refdes]
+                if not part_name_col == None:
+                    part_name = l[part_name_col]
+                    comp.partname = part_name
+                comp_type = l[comp_type_col]
+                comp_type = comp_type[0].capitalize() + comp_type[1:].lower()
+                comp.type = comp_type
+                if comp_type in ["Resistor", "Capacitor", "Inductor"]:
+                    unmount_comp_list.remove(refdes)
+                if not value_col == None:
+                    try:
+                        value = l[value_col]
+                    except:
+                        value = None
+                    if value:
+                        if comp_type == "Resistor":
+                            self.set_component_rlc(refdes, res_value=value)
+                        elif comp_type == "Capacitor":
+                            self.set_component_rlc(refdes, cap_value=value)
+                        elif comp_type == "Inductor":
+                            self.set_component_rlc(refdes, ind_value=value)
+            for comp in unmount_comp_list:
+                self.components[comp].is_enabled = False
+        return True
+
+    @pyaedt_function_handler()
     def get_pin_from_component(self, component, netName=None, pinName=None):
         """Retrieve the pins of a component.
 
