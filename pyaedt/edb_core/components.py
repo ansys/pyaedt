@@ -1541,13 +1541,13 @@ class Components(object):
         delimiter : str, optional
             Value to use for the delimiter. The default is ``","``.
         refdes_col : int, optional
-            Column index of refdes.
+            Column index of refdes. The default is ``"0"``.
         part_name_col : int, optional
-             Column index of part name.
+             Column index of part name. The default is ``"1"``. Set to None if not exist.
         comp_type_col : int, optional
-            Column index of component type.
+            Column index of component type. The default is ``"2"``.
         value_col : int, optional
-            Column index of value.
+            Column index of value. The default is ``"3"``. Set to None if not exist.
         Returns
         -------
         bool
