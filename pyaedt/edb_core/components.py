@@ -1548,7 +1548,8 @@ class Components(object):
         comp_type_col : int, optional
             Column index of component type. The default is ``"2"``.
         value_col : int, optional
-            Column index of value. The default is ``"3"``. Set to None if not exist.
+            Column index of value. The default is ``"3"``. Set to ``None``
+            if the column does not exist.
         Returns
         -------
         bool
