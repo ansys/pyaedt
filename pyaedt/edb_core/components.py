@@ -1541,7 +1541,7 @@ class Components(object):
         delimiter : str, optional
             Value to use for the delimiter. The default is ``","``.
         refdes_col : int, optional
-            Column index of refdes. The default is ``"0"``.
+            Column index of reference designator. The default is ``"0"``.
         part_name_col : int, optional
              Column index of part name. The default is ``"1"``. Set to None if not exist.
         comp_type_col : int, optional
