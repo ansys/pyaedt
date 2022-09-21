@@ -394,6 +394,14 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.set_source_context(["port10", "port11"])
 
+        assert self.aedtapp.set_source_context([])
+
+        assert self.aedtapp.set_source_context(["port10", "port11"], 0)
+
+        assert self.aedtapp.set_source_context(["port10", "port11", "sheet1_Port"])
+
+        assert self.aedtapp.set_source_context(["port10", "port11", "sheet1_Port"], 0)
+
         self.aedtapp.solution_type = "Terminal"
         assert (
             self.aedtapp.create_circuit_port_from_edges(
