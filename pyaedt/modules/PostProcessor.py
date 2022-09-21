@@ -304,7 +304,7 @@ class Reports(object):
         expressions : str or list
             Expression List.
         setup_name : str, optional
-            Setup Name.
+            Setup name.
         sphere_name : str, optional
             Name of the sphere to create the far field on.
         source_context : str, optional
