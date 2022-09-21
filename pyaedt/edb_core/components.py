@@ -1558,7 +1558,6 @@ class Components(object):
             lines = f.readlines()
             unmount_comp_list = list(self.components.keys())
             for l in lines[1:]:
-                print(l)
                 l = l.replace(" ", "").replace("\n", "")
                 if not l:
                     continue
