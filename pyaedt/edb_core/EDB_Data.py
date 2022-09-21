@@ -3123,11 +3123,7 @@ class EDBComponent(object):
 
     @partname.setter
     def partname(self, name):
-        """Set component Part Name.
-
-        Returns
-        -------
-        """
+        """Set component part name."""
         return self.edbcomponent.GetComponentDef().SetName(name)
 
     def _get_edb_value(self, value):
