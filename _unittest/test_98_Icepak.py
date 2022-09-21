@@ -426,7 +426,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_35_create_fan(self):
-        fan = self.aedtapp.create_fan(origin=[5, 21, 1])
+        fan = self.aedtapp.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.component_name in self.aedtapp.modeler.oeditor.Get3DComponentInstanceNames(fan.component_name)[0]
 
