@@ -9,12 +9,8 @@ pywin32==303; python_version > '3.6'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
-pythonnet==3.0.0rc4; python_version > '3.6'
+pythonnet==3.0.0rc6; python_version > '3.6'
 # https://github.com/pythonnet/pythonnet
-# License: MIT
-
-clr-loader==0.1.7; python_version > '3.6'
-# https://github.com/pythonnet/clr-loader
 # License: MIT
 
 rpyc==5.0.1; python_version > '3.6'

@@ -37,8 +37,7 @@ if sys.version_info >= (3, 7):
     install_requires = [
         "cffi == 1.15.0;platform_system=='Linux'",
         "pywin32 >= 303;platform_system=='Windows'",
-        "clr-loader==0.1.7",
-        "pythonnet == 3.0.0rc4",
+        "pythonnet == 3.0.0rc6",
         "rpyc==5.0.1",
         "pyvista>=0.34.1",
         "numpy",
