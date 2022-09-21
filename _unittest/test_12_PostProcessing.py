@@ -292,16 +292,6 @@ class TestClass(BasisTest, object):
             primary_sweep_variable="Phi",
             secondary_sweep_variable="Theta",
             plot_type="3D Polar Plot",
-            context=context,
-            report_category="Far Fields",
-        )
-        assert self.field_test.post.create_report(
-            "db(GainTotal)",
-            self.field_test.nominal_adaptive,
-            variations=variations,
-            primary_sweep_variable="Phi",
-            secondary_sweep_variable="Theta",
-            plot_type="3D Polar Plot",
             context="3D",
             report_category="Far Fields",
         )
