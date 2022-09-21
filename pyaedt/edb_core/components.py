@@ -1543,7 +1543,8 @@ class Components(object):
         refdes_col : int, optional
             Column index of reference designator. The default is ``"0"``.
         part_name_col : int, optional
-             Column index of part name. The default is ``"1"``. Set to None if not exist.
+             Column index of part name. The default is ``"1"``. Set to ``None`` if
+             the column does not exist.
         comp_type_col : int, optional
             Column index of component type. The default is ``"2"``.
         value_col : int, optional
