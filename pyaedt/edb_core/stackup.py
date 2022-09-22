@@ -306,7 +306,8 @@ class Stackup(object):
         operation : str
             Options are ``"change_attribute"``, ``"change_name"``, ``"insert_below"``,
              ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
-        base_layer :
+        base_layer : str, optional
+            Name of the base layer. The default value is ``None``.
         Returns
         -------
 
