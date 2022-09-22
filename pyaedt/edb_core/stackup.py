@@ -302,7 +302,7 @@ class Stackup(object):
 
         Parameters
         ----------
-        layer_clone :
+        layer_clone : :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
         operation : str
             Options are ``"change_attribute"``, ``"change_name"``, ``"insert_below"``,
              ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
