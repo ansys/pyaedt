@@ -637,3 +637,11 @@ class TestClass(BasisTest, object):
         assert impedance_assignment_copper.name == "ImpedanceExampleCopperNonLinear"
         impedance_assignment_copper.name = "ImpedanceExampleCopperNonLinearModified"
         assert impedance_assignment_copper.update()
+
+    @pytest.mark.skipif(desktop_version < "2023.1", reason="Method implemented in AEDT 2023R1")
+    def test_41_conduction_paths(self):
+        self.aedtapp.insert_design("conduction")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], matname="copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], matname="copper")
+        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
+        assert len(self.aedtapp.get_conduction_paths()) == 2

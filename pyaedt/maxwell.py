@@ -1765,6 +1765,24 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
         return result
 
+    def get_conduction_paths(self):
+        """Get a dictionary of all conduction paths with relative objects. It works from AEDT 23R1
+
+        Returns
+        -------
+        dict
+
+        """
+        conduction_paths = {}
+
+        try:
+            paths = list(self.oboundary.GetConductionPaths())
+            for path in paths:
+                conduction_paths[path] = list(self.oboundary.GetConductionPathObjects(path))
+            return conduction_paths
+        except:
+            return conduction_paths
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D application interface.

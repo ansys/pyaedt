@@ -471,6 +471,7 @@ class TestClass(BasisTest, object):
 
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
+        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
         self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))

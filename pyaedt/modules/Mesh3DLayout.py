@@ -139,6 +139,27 @@ class Mesh3d(object):
 
         pass
 
+    @pyaedt_function_handler()
+    def generate_mesh(self, name):
+        """Generate the mesh for a design.
+
+        Parameters
+        ----------
+        name : str
+            Name of the design.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.GenerateMesh
+        """
+        return self._app.oanalysis.GenerateMesh([name]) == 0
+
     @property
     def omeshmodule(self):
         """AEDT Mesh Module.

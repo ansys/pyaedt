@@ -349,6 +349,224 @@ class Components3DLayout(Objec3DLayout, object):
         return self.change_property(args)
 
     @property
+    def solderball_enabled(self):
+        """Check if Solderball is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        if self._part_type_id not in [0, 4, 5]:
+            return False
+        component_info = str(list(self.m_Editor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
+        if "sbsh=Cyl" in component_info or "sbsh=Sph" in component_info:
+            return True
+        return False
+
+    @property
+    def die_enabled(self):
+        """Check if the die is enabled. Valid for IC only.
+
+        Returns
+        -------
+        bool
+        """
+        if self._part_type_id not in [0, 4, 5]:
+            return False
+        component_info = str(list(self.m_Editor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
+        if "dt=1" in component_info or "dt=2" in component_info:
+            return True
+        return False
+
+    @property
+    def die_type(self):
+        """Get the die type.
+
+        Returns
+        -------
+        str
+        """
+        if self._part_type_id not in [0, 4, 5]:
+            return False
+        component_info = str(list(self.m_Editor.GetComponentInfo(self.name))).replace("'", "").replace('"', "")
+        if "dt=1" in component_info:
+            return "FlipChip"
+        elif "dt=2" in component_info:
+            return "WireBond"
+        return None
+
+    @pyaedt_function_handler()
+    def set_die_type(
+        self,
+        die_type=1,
+        orientation=0,
+        height=0,
+        reference_offset=0,
+        auto_reference=True,
+        reference_x="0.1mm",
+        reference_y="0.1mm",
+    ):
+        """Set the die type
+
+        Parameters
+        ----------
+        die_type : int, optional
+            Die type. It can be 0 for None, 1 for FlipChip and 2 for WireBond.
+        orientation : int, optional
+            Die orientation. it can be 0 for Chip Top and 1 for Chip Bottom.
+        height : float, optional
+            Die height valid for port setup.
+        reference_offset : str, float, optional
+            Port reference offset. Default is 0.
+        auto_reference : bool, optional
+            Either if auto compute reference size. Default is `True`.
+        reference_x : str, float, optional
+            Reference x size. auto_reference as to be set to False to use this parameter.
+        reference_y : str, float, optional
+            Reference y size. auto_reference as to be set to False to use this parameter.
+
+        Returns
+        -------
+        bool
+        """
+        if self._part_type_id not in [0, 4, 5]:
+            return False
+        if auto_reference:
+            reference_x = "0"
+            reference_y = "0"
+        if self._part_type_id == 4:
+            prop_name = "ICProp:="
+        else:
+            prop_name = "IOProp:="
+        args = [
+            "NAME:Model Info",
+            [
+                "NAME:Model",
+                prop_name,
+                [
+                    "DieProp:=",
+                    ["dt:=", die_type, "do:=", orientation, "dh:=", str(height), "lid:=", -100],
+                    "PortProp:=",
+                    [
+                        "rh:=",
+                        str(reference_offset),
+                        "rsa:=",
+                        auto_reference,
+                        "rsx:=",
+                        reference_x,
+                        "rsy:=",
+                        reference_y,
+                    ],
+                ],
+                "CompType:=",
+                4,
+            ],
+        ]
+        return self.change_property(args)
+
+    @pyaedt_function_handler()
+    def set_solderball(
+        self, solderball_type="Cyl", diameter="0.1mm", mid_diameter="0.1mm", height="0.2mm", material="solder"
+    ):
+        """Set Solderball on the active component. It applies to Component of type Other, IC and IO.
+
+        Parameters
+        ----------
+        solderball_type : str, optional
+            Either one of "None", "Cyl" or "Sph" values.
+        diameter : str, optional
+            Ball diameter.
+        mid_diameter : str, optional
+            Ball diameter.
+        height : str, optional
+            Ball mid diameter.
+        material : str, optional
+            Ball height.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded. `False` if fails or wrong component type.
+        """
+        if self._part_type_id not in [0, 4, 5]:
+            return False
+        if self._part_type_id == 4:
+            prop_name = "ICProp:="
+        else:
+            prop_name = "IOProp:="
+        if self._part_type_id == 4:
+            if not self.die_enabled:
+                self.set_die_type()
+            props = _retry_ntimes(10, self.m_Editor.GetComponentInfo, self.name)
+            model = ""
+            for p in props:
+                if "PortProp(" in p:
+                    model = p
+                    break
+            s = r".+\PortProp(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'"
+            m = re.search(s, model)
+            rh = "0"
+            rsx = "0"
+            rsy = "0"
+            rsa = True
+            if m:
+                rh = m.group(1)
+                rsx = m.group(3)
+                rsy = m.group(4)
+                if m.group(2) == "false":
+                    rsa = False
+            args = [
+                "NAME:Model Info",
+                [
+                    "NAME:Model",
+                    prop_name,
+                    [
+                        "SolderBallProp:=",
+                        [
+                            "sbsh:=",
+                            str(solderball_type),
+                            "sbh:=",
+                            height,
+                            "sbr:=",
+                            diameter,
+                            "sb2:=",
+                            mid_diameter,
+                            "sbn:=",
+                            material,
+                        ],
+                        "PortProp:=",
+                        ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy],
+                    ],
+                    "CompType:=",
+                    4,
+                ],
+            ]
+        else:
+            args = [
+                "NAME:Model Info",
+                [
+                    "NAME:Model",
+                    prop_name,
+                    [
+                        "SolderBallProp:=",
+                        [
+                            "sbsh:=",
+                            str(solderball_type),
+                            "sbh:=",
+                            height,
+                            "sbr:=",
+                            diameter,
+                            "sb2:=",
+                            mid_diameter,
+                            "sbn:=",
+                            material,
+                        ],
+                    ],
+                ],
+            ]
+        return self.change_property(args)
+
+    @property
     def pins(self):
         """Component pins.
 

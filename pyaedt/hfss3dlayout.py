@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import  # noreorder
 
+import fnmatch
 import io
 import os
 import warnings
@@ -346,7 +347,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, vianame, radial_extent, layer, alignment="lower"):
+    def create_coax_port(self, vianame, radial_extent=0.1, layer=None, alignment="lower"):
         """Create a new coax port.
 
         Parameters
@@ -356,7 +357,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         radial_extent : float
             Radial coax extension.
         layer : str
-            Name of the layer.
+            Name of the layer. to which apply the reference.
         alignment : str, optional
             Port alignment on Layer.
 
@@ -383,11 +384,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 "Excitations:{}".format(a[0]), "Radial Extent Factor", str(radial_extent), "EM Design"
             )
             self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
-            self.modeler.change_property(
-                a[0],
-                "Pad Port Layer",
-                layer,
-            )
+            if layer:
+                self.modeler.change_property(
+                    a[0],
+                    "Pad Port Layer",
+                    layer,
+                )
             bound = self._update_port_info(a[0])
             if bound:
                 self.boundaries.append(bound)
@@ -1726,3 +1728,24 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         for prop in propnames:
             props[prop] = self.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(port), prop)
         return BoundaryObject3dLayout(self, port, props, "Port")
+
+    @pyaedt_function_handler()
+    def get_model_from_mesh_results(self):
+        """Search for parasolid file in results folder and provide the path.
+        Parasolid file is generated after the mesh is created in 3D Layout.
+
+        Returns
+        -------
+        str
+        """
+        startpath = os.path.join(self.results_directory, self.design_name)
+        out_files = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(startpath)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, ".x_t") or fnmatch.fnmatch(filename, ".x_b")
+        ]
+        if out_files:
+            out_files.sort(key=lambda x: os.path.getmtime(x))
+            return out_files[0]
+        return ""
