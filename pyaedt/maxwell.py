@@ -1516,13 +1516,13 @@ class Maxwell(object):
         output_directory : str, optional
             Path to export. If `None` pyaedt working dir will be used.
         setup_name : str, optional
-            Setup name. If `None` pyaedt will use nominal setup.
+            Setup name. If ``None`` pyaedt will use nominal setup.
         start_frequency : float, optional
             When a float is entered the Start-Stop Frequency approach is used.
         stop_frequency : float, optional
             A float must be entered when the Start-Stop Frequency approach is used.
         number_of_frequency : int, optional
-            When a number is entered the number of frequencies approach is used.
+            When a number is entered, the number of frequencies approach is used.
 
         Returns
         -------
