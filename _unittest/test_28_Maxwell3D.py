@@ -653,7 +653,7 @@ class TestClass(BasisTest, object):
     def test_42_harmonic_forces(self):
         assert self.m3dtransient.enable_harmonic_force(
             ["stator"],
-            force_type=0,
+            force_type=1,
             window_function="Rectangular",
             use_number_of_last_cycles=True,
             last_cycles_number=3,

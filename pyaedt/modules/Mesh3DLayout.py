@@ -158,7 +158,8 @@ class Mesh3d(object):
 
         >>> oDesign.GenerateMesh
         """
-        return self._app.oanalysis.GenerateMesh([name]) == 0
+        self._app.oanalysis.GenerateMesh([name])
+        return True
 
     @property
     def omeshmodule(self):
