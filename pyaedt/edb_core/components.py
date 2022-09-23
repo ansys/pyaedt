@@ -1617,7 +1617,7 @@ class Components(object):
                     value = ""
                 if not value:
                     value = ""
-                f.writelines([delimiter.join([refdes, part_name, comp_type, value+"\n"])])
+                f.writelines([delimiter.join([refdes, part_name, comp_type, value + "\n"])])
         return True
 
     @pyaedt_function_handler()
