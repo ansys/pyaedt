@@ -1514,7 +1514,7 @@ class Maxwell(object):
         Parameters
         ----------
         output_directory : str, optional
-            Path to export. If `None` pyaedt working dir will be used.
+            Path to export. If ``None`` pyaedt working dir will be used.
         setup_name : str, optional
             Setup name. If ``None`` pyaedt will use nominal setup.
         start_frequency : float, optional
@@ -1884,6 +1884,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Returns
         -------
         dict
+            Dictionary of all conduction paths with relative objects.
 
         """
         conduction_paths = {}

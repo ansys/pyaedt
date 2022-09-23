@@ -350,11 +350,12 @@ class Components3DLayout(Objec3DLayout, object):
 
     @property
     def solderball_enabled(self):
-        """Check if Solderball is enabled.
+        """Check if solderball is enabled.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
@@ -365,11 +366,12 @@ class Components3DLayout(Objec3DLayout, object):
 
     @property
     def die_enabled(self):
-        """Check if the die is enabled. Valid for IC only.
+        """Check if the die is enabled. This method is valid for integrated circuits only.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
@@ -380,7 +382,7 @@ class Components3DLayout(Objec3DLayout, object):
 
     @property
     def die_type(self):
-        """Get the die type.
+        """Die type.
 
         Returns
         -------
@@ -406,28 +408,31 @@ class Components3DLayout(Objec3DLayout, object):
         reference_x="0.1mm",
         reference_y="0.1mm",
     ):
-        """Set the die type
+        """Set the die type.
 
         Parameters
         ----------
         die_type : int, optional
-            Die type. It can be 0 for None, 1 for FlipChip and 2 for WireBond.
+            Die type. The default is ``1``. Options are ``0`` for None, ``1`` for FlipChip, and
+            ``2`` for WireBond.
         orientation : int, optional
-            Die orientation. it can be 0 for Chip Top and 1 for Chip Bottom.
+            Die orientation. The default is ``0``. Options are ``0`` for Chip Top and ``1`` for
+            Chip Bottom.
         height : float, optional
-            Die height valid for port setup.
+            Die height valid for port setup. The default is ``0``.
         reference_offset : str, float, optional
-            Port reference offset. Default is 0.
+            Port reference offset. The default is ``0``.
         auto_reference : bool, optional
-            Either if auto compute reference size. Default is `True`.
+            Whether to automatically compute reference size. The default is ``True``.
         reference_x : str, float, optional
-            Reference x size. auto_reference as to be set to False to use this parameter.
+            Reference x size for when ``auto_reference=False``.
         reference_y : str, float, optional
-            Reference y size. auto_reference as to be set to False to use this parameter.
+            Reference y size for when ``auto_reference=False``.
 
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
@@ -468,25 +473,28 @@ class Components3DLayout(Objec3DLayout, object):
     def set_solderball(
         self, solderball_type="Cyl", diameter="0.1mm", mid_diameter="0.1mm", height="0.2mm", material="solder"
     ):
-        """Set Solderball on the active component. It applies to Component of type Other, IC and IO.
+        """Set solderball on the active component.
+        
+        The method applies to these component types: ``Other``, ``IC`` and ``IO``.
 
         Parameters
         ----------
         solderball_type : str, optional
-            Either one of "None", "Cyl" or "Sph" values.
+            Solderball type. The default is ``"Cyl"``. Options are ``"None"``, ``"Cyl"``,
+            and ``"Sph"``.
         diameter : str, optional
-            Ball diameter.
+            Ball diameter. The default is ``"0.1mm"``.
         mid_diameter : str, optional
-            Ball diameter.
+            Ball mid diameter. The default is ``"0.1mm"``.
         height : str, optional
-            Ball mid diameter.
+            Ball height. The default is height="0.2mm".
         material : str, optional
-            Ball height.
+            Ball material. The default is ``"solder"``.
 
         Returns
         -------
         bool
-            `True` if succeeded. `False` if fails or wrong component type.
+            ``True`` when successful, ``False`` when failed or the wrong component type.
         """
         if self._part_type_id not in [0, 4, 5]:
             return False
