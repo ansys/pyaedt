@@ -548,6 +548,9 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_components.components["R2L2"].is_enabled
             assert self.edbapp.core_components.components["U2A5"].partname == "IPD031-201x"
 
+            export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
+            assert self.edbapp.core_components.export_bom(export_bom_path)
+
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
             component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
