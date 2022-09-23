@@ -2055,6 +2055,7 @@ if not config["skip_edb"]:
             rename_layer.etch_factor = 0
             rename_layer.etch_factor = 2
             assert rename_layer.etch_factor == 2
+
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
             rename_layer.roughness_enabled = False
@@ -2066,4 +2067,8 @@ if not config["skip_edb"]:
             assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
             assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
             assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+
+            assert edbapp.stackup["TOP"].color
+            edbapp.stackup["TOP"].color = [0, 120, 0]
+            assert edbapp.stackup["TOP"].color == (0, 120, 0)
             edbapp.close_edb()
