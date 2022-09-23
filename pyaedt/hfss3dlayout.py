@@ -357,9 +357,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         radial_extent : float
             Radial coax extension.
         layer : str
-            Name of the layer. to which apply the reference.
+            Name of the layer to apply the reference to.
         alignment : str, optional
-            Port alignment on Layer.
+            Port alignment on the layer.
 
         Returns
         -------
@@ -1731,8 +1731,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def get_model_from_mesh_results(self, binary=True):
-        """Search for parasolid file in results folder and provide the path.
-        Parasolid file is generated after the mesh is created in 3D Layout.
+        """Gets the path for the parasolid file in the results folder.
+        
+        The parasolid file is generated after the mesh is created in 3D Layout.
 
         Parameters
         ----------
@@ -1741,6 +1742,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         Returns
         -------
         str
+            Path for the parasolid file in the results folder.
         """
         startpath = os.path.join(self.results_directory, self.design_name)
         if not binary:
