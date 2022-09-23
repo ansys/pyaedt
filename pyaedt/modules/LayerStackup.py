@@ -764,7 +764,7 @@ class Layer(object):
         -------
         list
         """
-        return self._zones
+        return [i for i in self._layers.all_layers if self.name in i and ";" in i]
 
     @zones.setter
     def zones(self, val):
@@ -1274,7 +1274,7 @@ class Layers(object):
 
         >>> oEditor.GetStackupLayerNames()
         """
-        return [i for i in self.oeditor.GetStackupLayerNames() if ";" not in i]
+        return [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
 
     @property
     def drawing_layers(self):
@@ -1302,15 +1302,9 @@ class Layers(object):
         list
             List of signal layers.
         """
-        a = self.all_layers
-        sig = []
-        for lay in a:
-            layid = self.layer_id(lay)
-            if layid not in self.layers:
-                self.refresh_all_layers()
-            if self.layers[layid].type == "signal":
-                sig.append(lay)
-        return sig
+        if len(self.all_layers) != len(self.layers):
+            self.refresh_all_layers()
+        return [v.name for k, v in self.layers.items() if v.type == "signal"]
 
     @property
     def all_diel_layers(self):
@@ -1420,7 +1414,7 @@ class Layers(object):
                 layer.IsVisibleShape = o.IsVisibleShape
                 layer.IsVisibleHole = o.IsVisibleHole
                 layer._color = o._color
-                layer.index = o._index
+                layer._index = o._index
                 layer._thickness = o._thickness
                 layer._lowerelevation = o._lowerelevation
                 layer._fillmaterial = o._fillmaterial

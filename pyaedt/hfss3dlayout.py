@@ -1730,20 +1730,29 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return BoundaryObject3dLayout(self, port, props, "Port")
 
     @pyaedt_function_handler()
-    def get_model_from_mesh_results(self):
+    def get_model_from_mesh_results(self, binary=True):
         """Search for parasolid file in results folder and provide the path.
         Parasolid file is generated after the mesh is created in 3D Layout.
 
+        Parameters
+        ----------
+        binary : str, optional
+            Either if retrieve binary format of parasoli or not.
         Returns
         -------
         str
         """
         startpath = os.path.join(self.results_directory, self.design_name)
+        if not binary:
+            model_name = "model_sm3.x_t"
+        else:
+            model_name = "model.x_b"
+
         out_files = [
             os.path.join(dirpath, filename)
             for dirpath, _, filenames in os.walk(startpath)
             for filename in filenames
-            if fnmatch.fnmatch(filename, ".x_t") or fnmatch.fnmatch(filename, ".x_b")
+            if fnmatch.fnmatch(filename, model_name)
         ]
         if out_files:
             out_files.sort(key=lambda x: os.path.getmtime(x))
