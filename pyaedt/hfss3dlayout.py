@@ -1731,8 +1731,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def get_model_from_mesh_results(self, binary=True):
-        """Gets the path for the parasolid file in the results folder.
-        
+        """Get the path for the parasolid file in the results folder.
         The parasolid file is generated after the mesh is created in 3D Layout.
 
         Parameters

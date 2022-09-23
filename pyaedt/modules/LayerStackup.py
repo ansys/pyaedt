@@ -165,7 +165,7 @@ class Layer(object):
         self._usp = False
         self.hfssSp = {"si": True, "dt": 0, "dtv": 0.1}
         self.planaremSp = {"ifg": False, "vly": False}
-        self._zones = []
+        self._zones = None
 
     @property
     def color(self):
@@ -764,7 +764,9 @@ class Layer(object):
         -------
         list
         """
-        return [i for i in self._layers.all_layers if self.name in i and ";" in i]
+        if self._zones is None:
+            self._zones = [i for i in self._layers.all_layers if self.name in i and ";" in i]
+        return self._zones
 
     @zones.setter
     def zones(self, val):
@@ -1290,8 +1292,9 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-        stackup = self.all_layers
-        return [i for i in list(self.oeditor.GetAllLayerNames()) if i not in stackup and ";" not in i]
+        if len(self.all_layers) != len(self.layers):
+            self.refresh_all_layers()
+        return [v.name for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
     @property
     def all_signal_layers(self):

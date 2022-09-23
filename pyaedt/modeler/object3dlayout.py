@@ -474,7 +474,7 @@ class Components3DLayout(Objec3DLayout, object):
         self, solderball_type="Cyl", diameter="0.1mm", mid_diameter="0.1mm", height="0.2mm", material="solder"
     ):
         """Set solderball on the active component.
-        
+
         The method applies to these component types: ``Other``, ``IC`` and ``IO``.
 
         Parameters
@@ -500,9 +500,6 @@ class Components3DLayout(Objec3DLayout, object):
             return False
         if self._part_type_id == 4:
             prop_name = "ICProp:="
-        else:
-            prop_name = "IOProp:="
-        if self._part_type_id == 4:
             if not self.die_enabled:
                 self.set_die_type()
             props = _retry_ntimes(10, self.m_Editor.GetComponentInfo, self.name)
@@ -511,7 +508,7 @@ class Components3DLayout(Objec3DLayout, object):
                 if "PortProp(" in p:
                     model = p
                     break
-            s = r".+\PortProp(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'"
+            s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'"
             m = re.search(s, model)
             rh = "0"
             rsx = "0"
@@ -550,6 +547,7 @@ class Components3DLayout(Objec3DLayout, object):
                 ],
             ]
         else:
+            prop_name = "IOProp:="
             args = [
                 "NAME:Model Info",
                 [
