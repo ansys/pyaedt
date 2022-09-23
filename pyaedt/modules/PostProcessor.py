@@ -296,17 +296,19 @@ class Reports(object):
         return
 
     @pyaedt_function_handler()
-    def far_field(self, expressions=None, setup_name=None, sphere_name=None):
-        """Create a Field Report object.
+    def far_field(self, expressions=None, setup_name=None, sphere_name=None, source_context=None):
+        """Create a Far Field Report object.
 
         Parameters
         ----------
         expressions : str or list
             Expression List.
         setup_name : str, optional
-            Setup Name.
+            Setup name.
         sphere_name : str, optional
-            Name of the sphere on which create the far field.
+            Name of the sphere to create the far field on.
+        source_context : str, optional
+            Name of the active source to create the far field on.
 
         Returns
         -------
@@ -328,6 +330,7 @@ class Reports(object):
             rep = rt.FarField(self._post_app, "Far Fields", setup_name)
             rep.expressions = expressions
             rep.far_field_sphere = sphere_name
+            rep.source_context = source_context
             return rep
         return
 
@@ -1561,7 +1564,12 @@ class PostProcessorCommon(object):
             if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
-                report.far_field_sphere = context
+                if isinstance(context, dict):
+                    if "Context" in context.keys() and "SourceContext" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_context = context["SourceContext"]
+                else:
+                    report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
@@ -3032,7 +3040,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_sweep_name : str, optional
             Name of the setup for computing the report. The default is ``""``,
             in which case the nominal sweep is used.
-        domain : str, optional
+        domain : str, dict, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
         families_dict : dict, optional
             Dictionary of variables and values. The default is ``{"Freq": ["All"]}``.
@@ -3052,8 +3060,13 @@ class PostProcessor(PostProcessorCommon, object):
             setup_sweep_name = self._app.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
+        context = ["Context:=", domain]
+        if isinstance(domain, dict):
+            if "Context" in domain.keys() and "SourceContext" in domain.keys():
+                context = ["Context:=", domain["Context"], "Context:=", domain["SourceContext"]]
+
         solution_data = self.get_solution_data_per_variation(
-            "Far Fields", setup_sweep_name, ["Context:=", domain], families_dict, expression
+            "Far Fields", setup_sweep_name, context, families_dict, expression
         )
         if not solution_data:
             print("No Data Available. Check inputs")

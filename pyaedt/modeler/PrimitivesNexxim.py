@@ -1951,7 +1951,7 @@ class NexximComponents(CircuitComponents):
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)
-        self.o_component_manager.ImportModelsFromFile(model_path, arg)
+        self.o_component_manager.ImportModelsFromFile(model_path.replace("\\", "/"), arg)
 
         return self.create_component(
             None,

@@ -50,6 +50,24 @@ class Stackup(object):
             return self._edb_layer.IsStackupLayer()
 
         @property
+        def color(self):
+            """Retrieve color of the layer.
+
+            Returns
+            -------
+            tuple
+                RGB.
+            """
+            layer_color = self._edb_layer.GetColor()
+            return layer_color.Item1, layer_color.Item2, layer_color.Item3
+
+        @color.setter
+        def color(self, rgb):
+            layer_clone = self._edb_layer
+            layer_clone.SetColor(*rgb)
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+        @property
         def name(self):
             """Retrieve name of the layer.
 
@@ -280,6 +298,20 @@ class Stackup(object):
 
     @pyaedt_function_handler()
     def _set_layout_stackup(self, layer_clone, operation, base_layer=None):
+        """Internal method. Apply stackup change into EDB.
+
+        Parameters
+        ----------
+        layer_clone : :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+        operation : str
+            Options are ``"change_attribute"``, ``"change_name"``, ``"insert_below"``,
+             ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
+        base_layer : str, optional
+            Name of the base layer. The default value is ``None``.
+        Returns
+        -------
+
+        """
         edb_layers = self._edb_layer_list
         if operation in ["change_attribute", "change_name"]:
             new_layer_collection = self._pedb.edb.Cell.LayerCollection()

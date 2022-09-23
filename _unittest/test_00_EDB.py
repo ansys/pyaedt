@@ -542,6 +542,14 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_components.components["R2L2"].is_enabled
             self.edbapp.core_components.components["R2L2"].is_enabled = True
             assert self.edbapp.core_components.components["R2L2"].is_enabled
+            self.edbapp.core_components.import_bom(
+                os.path.join(local_path, "example_models", test_subfolder, "bom_example_2.csv")
+            )
+            assert not self.edbapp.core_components.components["R2L2"].is_enabled
+            assert self.edbapp.core_components.components["U2A5"].partname == "IPD031-201x"
+
+            export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
+            assert self.edbapp.core_components.export_bom(export_bom_path)
 
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
@@ -2050,6 +2058,7 @@ if not config["skip_edb"]:
             rename_layer.etch_factor = 0
             rename_layer.etch_factor = 2
             assert rename_layer.etch_factor == 2
+
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
             rename_layer.roughness_enabled = False
@@ -2061,4 +2070,8 @@ if not config["skip_edb"]:
             assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
             assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
             assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+
+            assert edbapp.stackup["TOP"].color
+            edbapp.stackup["TOP"].color = [0, 120, 0]
+            assert edbapp.stackup["TOP"].color == (0, 120, 0)
             edbapp.close_edb()
