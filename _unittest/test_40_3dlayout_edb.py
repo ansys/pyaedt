@@ -254,3 +254,14 @@ class TestClass(BasisTest, object):
         lines_on_top = self.aedtapp.modeler.objects_by_layer("TOP", "line")
         assert len(lines_on_top) > 0
         assert self.aedtapp.modeler.geometries[lines_on_top[0]].placement_layer == "TOP"
+
+    def test_14_set_solderball(self):
+        assert not self.aedtapp.modeler.components["U3B2"].die_enabled
+        assert not self.aedtapp.modeler.components["U3B2"].die_type
+        assert self.aedtapp.modeler.components["U3B2"].set_die_type()
+        assert self.aedtapp.modeler.components["U3B2"].set_solderball("Cyl")
+        assert self.aedtapp.modeler.components["U3B2"].solderball_enabled
+        assert self.aedtapp.modeler.components["U3B2"].set_solderball(None)
+        assert not self.aedtapp.modeler.components["U3B2"].solderball_enabled
+        assert not self.aedtapp.modeler.components["L3A1"].set_solderball(None)
+        assert self.aedtapp.modeler.components["J1"].set_solderball("Sph")

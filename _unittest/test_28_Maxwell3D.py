@@ -21,6 +21,7 @@ if config["desktopVersion"] > "2022.2":
     core_loss_file = "PlanarTransformer_231"
 else:
     core_loss_file = "PlanarTransformer"
+transient = "Transient_StrandedWindings"
 
 
 class TestClass(BasisTest, object):
@@ -29,6 +30,9 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, application=Maxwell3d, solution_type="EddyCurrent")
         example_project = os.path.join(local_path, "example_models", test_subfolder, core_loss_file + ".aedt")
         self.file_path = self.local_scratch.copyfile(example_project)
+        self.m3dtransient = BasisTest.add_app(
+            self, application=Maxwell3d, project_name=transient, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -637,3 +641,26 @@ class TestClass(BasisTest, object):
         assert impedance_assignment_copper.name == "ImpedanceExampleCopperNonLinear"
         impedance_assignment_copper.name = "ImpedanceExampleCopperNonLinearModified"
         assert impedance_assignment_copper.update()
+
+    @pytest.mark.skipif(desktop_version < "2023.1", reason="Method implemented in AEDT 2023R1")
+    def test_41_conduction_paths(self):
+        self.aedtapp.insert_design("conduction")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 1], matname="copper")
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [-10, 10, 1], matname="copper")
+        box3 = self.aedtapp.modeler.create_box([-50, -50, -50], [1, 1, 1], matname="copper")
+        assert len(self.aedtapp.get_conduction_paths()) == 2
+
+    def test_42_harmonic_forces(self):
+        assert self.m3dtransient.enable_harmonic_force(
+            ["Stator"],
+            force_type=2,
+            window_function="Rectangular",
+            use_number_of_last_cycles=True,
+            last_cycles_number=3,
+            calculate_force="Harmonic",
+        )
+        self.m3dtransient.analyze_nominal()
+        assert self.m3dtransient.export_element_based_harmonic_force(
+            start_frequency=1, stop_frequency=100, number_of_frequency=None
+        )
+        assert self.m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)

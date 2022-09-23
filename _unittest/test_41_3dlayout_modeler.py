@@ -471,6 +471,7 @@ class TestClass(BasisTest, object):
 
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
+        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
         self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
@@ -592,7 +593,6 @@ class TestClass(BasisTest, object):
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
         control_file = ""
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
-        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(os.name == "posix", reason="Failing on linux")
