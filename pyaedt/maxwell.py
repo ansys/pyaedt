@@ -1468,8 +1468,6 @@ class Maxwell(object):
         -------
 
         """
-        """"Set the Harmonic Force for Transient Analysis
-        """
         if self.solution_type != "Transient":
             self.logger.error("This methods work only with Maxwell Transient Analysis.")
             return False
@@ -1881,7 +1879,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def get_conduction_paths(self):
-        """Get a dictionary of all conduction paths with relative objects. It works from AEDT 23R1
+        """Get a dictionary of all conduction paths with relative objects. It works from AEDT 23R1.
 
         Returns
         -------
