@@ -594,7 +594,6 @@ class TestClass(BasisTest, object):
         control_file = ""
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
-        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(os.name == "posix", reason="Failing on linux")
     def test_37_import_gerber(self):
