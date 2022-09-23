@@ -625,16 +625,18 @@ class FacePrimitive(object):
         """
         list_names = []
         for vertex in self.vertices:
-            body_names = self._object3d._primitives.get_bodynames_from_position(vertex.position)
+            body_names = self._object3d._primitives.get_bodynames_from_position(
+                vertex.position, include_non_model=False
+            )
             a = [i for i in body_names if i != self._object3d.name and i not in list_names]
             if a:
                 list_names.extend(a)
         for edge in self.edges:
-            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint)
+            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint, include_non_model=False)
             a = [i for i in body_names if i != self._object3d.name and i not in list_names]
             if a:
                 list_names.extend(a)
-        body_names = self._object3d._primitives.get_bodynames_from_position(self.center)
+        body_names = self._object3d._primitives.get_bodynames_from_position(self.center, include_non_model=False)
         a = [i for i in body_names if i != self._object3d.name and i not in list_names]
         if a:
             list_names.extend(a)

@@ -1083,8 +1083,13 @@ class Primitives(object):
 
     @property
     def non_model_objects(self):
-        """List of names of all non-model objects."""
+        """List of objects of all non-model objects."""
         return self._get_model_objects(model=False)
+
+    @property
+    def non_model_names(self):
+        """List of names of all non-model objects."""
+        return self.oeditor.GetObjectsInGroup("Non Model")
 
     @property
     def model_consistency_report(self):
@@ -2698,7 +2703,7 @@ class Primitives(object):
             return
 
     @pyaedt_function_handler()
-    def get_bodynames_from_position(self, position, units=None):
+    def get_bodynames_from_position(self, position, units=None, include_non_model=True):
         """Retrieve the names of the objects that are in contact with a given point.
 
         Parameters
@@ -2708,6 +2713,8 @@ class Primitives(object):
         units : str, optional
             Units, such as ``"m"``. The default is ``None``, in which case the
             model units are used.
+        include_non_model : bool, optional
+            Either if include or not non model objects.
 
         Returns
         -------
@@ -2726,6 +2733,9 @@ class Primitives(object):
         vArg1.append("YPosition:="), vArg1.append(YCenter)
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
+        if not include_non_model:
+            non_models = [i for i in self.non_model_names]
+            list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
     @pyaedt_function_handler()
