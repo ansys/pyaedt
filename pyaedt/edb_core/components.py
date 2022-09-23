@@ -1590,6 +1590,37 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
+    def export_bom(self, bom_file, delimiter=","):
+        """Export Bom file from layout.
+
+        Parameters
+        ----------
+        bom_file : str
+            Full path to the BOM file, which is a delimited text file.
+        delimiter : str, optional
+            Value to use for the delimiter. The default is ``","``.
+        """
+        with open(bom_file, "w") as f:
+            f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
+            for refdes, comp in self.components.items():
+                if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
+                    continue
+                part_name = comp.partname
+                comp_type = comp.type
+                if comp_type == "Resistor":
+                    value = comp.res_value
+                elif comp_type == "Capacitor":
+                    value = comp.cap_value
+                elif comp_type == "Inductor":
+                    value = comp.ind_value
+                else:
+                    value = ""
+                if not value:
+                    value = ""
+                f.writelines([delimiter.join([refdes, part_name, comp_type, value + "\n"])])
+        return True
+
+    @pyaedt_function_handler()
     def get_pin_from_component(self, component, netName=None, pinName=None):
         """Retrieve the pins of a component.
 
