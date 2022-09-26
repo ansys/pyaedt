@@ -33,7 +33,20 @@ def install(package):
         pip._internal.main(["install", package])
 
 
-if sys.version_info >= (3, 7):
+if sys.version_info == (3, 7):
+    install_requires = [
+        "cffi == 1.15.0;platform_system=='Linux'",
+        "pywin32 >= 303;platform_system=='Windows'",
+        "pythonnet == 3.0.0rc6",
+        "rpyc==5.0.1",
+        "pyvista>=0.34.1",
+        "numpy",
+        "matplotlib",
+        "psutil",
+        "pandas==1.3.5",
+        "dotnetcore2 ==3.1.23;platform_system=='Linux'",
+    ]
+elif sys.version_info > (3, 7):
     install_requires = [
         "cffi == 1.15.0;platform_system=='Linux'",
         "pywin32 >= 303;platform_system=='Windows'",
