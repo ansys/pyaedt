@@ -5875,3 +5875,293 @@ class EDBStatistics(object):
     def num_resistors(self, value):
         if isinstance(value, int):
             self._nb_resistors = value
+
+
+class StackupInfo(object):
+    """Class describing the layer stackup information."""
+
+    def __init__(self):
+        self._layer_stackup = {"primary": []}
+
+    @property
+    def layers(self):
+        return self._layer_stackup
+
+    def create_layer(
+        self,
+        name=None,
+        material_name=None,
+        thickness=None,
+        dielectric_filliing_material=None,
+        dielectric_constant=None,
+        loss_tangent=None,
+    ):
+        layer = Layer()
+        if name:
+            layer.name = name
+        if material_name:
+            layer.material_name = material_name
+        if thickness:
+            layer.thickness = thickness
+        if dielectric_filliing_material:
+            layer.dielectric_fill_material = dielectric_filliing_material
+        if dielectric_constant:
+            layer.dielectric_constant = dielectric_constant
+        if loss_tangent:
+            layer.loss_tangent = loss_tangent
+        return layer
+
+    def add_layer(self, new_layer=None):
+        if isinstance(new_layer, Layer):
+            self.layers["primary"].append(new_layer)
+
+    def export_json(self, output_file):
+        dict_out = {}
+        for zone, layers in self.layers.items():
+            dict_out = {zone: []}
+            for layer in layers:
+                dict_out[zone].append(layer._json_format())
+        if output_file:
+            with open(output_file, "w") as write_file:
+                json.dump(dict_out, write_file, indent=4)
+            return True
+        else:
+            return False
+
+    def import_json(self, input_file=None):
+        if input_file:
+            f = open(input_file)
+            jdata = json.load(f)
+            # stackup = StackupInfo()
+            for zone, layers in jdata.items():
+                self.layers[zone] = []
+                for layer in layers:
+                    layer_obj = Layer()
+                    for k, v in layer.items():
+                        layer_obj.__setattr__(k, v)
+                    self.layers[zone].append(layer_obj)
+
+
+class Layer(object):
+    def __init__(self):
+        self._name = ""
+        self._material_name = ""
+        self._type = "conductor"
+        self._thickness = "25um"
+        self._dielectric_fill_material = ""
+        self._dielectric_constant = 1.0
+        self._loss_tangent = 0.0
+        self._conductivity = 5.9e7
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        if isinstance(value, str):
+            self._name = value
+
+    @property
+    def material_name(self):
+        return self._material_name
+
+    @material_name.setter
+    def material_name(self, value):
+        if isinstance(value, str):
+            self._material_name = value
+
+    @property
+    def layer_type(self):
+        return self._type
+
+    @layer_type.setter
+    def layer_type(self, value):
+        self._type = value
+
+    @property
+    def thickness(self):
+        return self._thickness
+
+    @thickness.setter
+    def thickness(self, value):
+        self._thickness = value
+
+    @property
+    def dielectric_fill_material(self):
+        return self._dielectric_fill_material
+
+    @dielectric_fill_material.setter
+    def dielectric_fill_material(self, value):
+        self._dielectric_fill_material = value
+
+    @property
+    def dielectric_constant(self):
+        return self._dielectric_constant
+
+    @dielectric_fill_material.setter
+    def dielectric_constant(self, value):
+        self._dielectric_constant = value
+
+    @property
+    def loss_tangent(self):
+        return self._loss_tangent
+
+    @loss_tangent.setter
+    def loss_tangent(self, value):
+        self._loss_tangent = value
+
+    @property
+    def conductivity(self):
+        return self._conductivity
+
+    @conductivity.setter
+    def conductivity(self, value):
+        self._conductivity = value
+
+    def _json_format(self):
+        """Export Json file from SimulationConfiguration object.
+
+        Parameters
+        ----------
+        output_file : str
+            Json file name.
+
+        Returns
+        -------
+        bool
+            True when succeeded False when file name not provided.
+
+        """
+        dict_out = {}
+        for k, v in self.__dict__.items():
+            if k[0] == "_":
+                dict_out[k[1:]] = v
+            else:
+                dict_out[k] = v
+        return dict_out
+
+
+class MostfetModel(object):
+    def __init__(self):
+        self._refdes = ""
+        self._source_pin = ""
+        self._gate_pin = ""
+        self._drain_pin = ""
+        self._rds = 0.3
+        self._isd = 10.0
+        self._isdm = 15.0
+        self._vsd = 5.0
+        self._trr = 1e-3
+        self._qrr = 1e-3
+        self._irrm = 1e-3
+        self._is_floating = True
+
+    @property
+    def refdes(self):
+        return self._refdes
+
+    @refdes.setter
+    def refdes(self, value):
+        if isinstance(value, str):
+            self._refdes = value
+
+    @property
+    def source_pin(self):
+        return self._source_pin
+
+    @source_pin.setter
+    def source_pin(self, value):
+        if isinstance(value, str):
+            self._source_pin = value
+
+    @property
+    def gate_pin(self):
+        return self._gate_pin
+
+    @gate_pin.setter
+    def gate_pin(self, value):
+        if isinstance(value, str):
+            self._gate_pin = value
+
+    @property
+    def drain_pin(self):
+        return self._drain_pin
+
+    @drain_pin.setter
+    def drain_pin(self, value):
+        if isinstance(value, str):
+            self._drain_pin = value
+
+    @property
+    def rds(self):
+        return self._rds
+
+    @rds.setter
+    def rds(self, value):
+        self._rds = value
+
+    @property
+    def isd(self):
+        return self._isd
+
+    @isd.setter
+    def isd(self, value):
+        self._isd = value
+
+    @property
+    def isdm(self):
+        return self._isdm
+
+    @isdm.setter
+    def isdm(self, value):
+        self._isdm = value
+
+    @property
+    def vsd(self):
+        return self._vsd
+
+    @vsd.setter
+    def vsd(self, value):
+        self._vsd = value
+
+    @property
+    def trr(self):
+        return self._trr
+
+    @trr.setter
+    def trr(self, value):
+        self._trr = value
+
+    @property
+    def qrr(self):
+        return self._qrr
+
+    @qrr.setter
+    def qrr(self, value):
+        self._qrr = value
+
+    @property
+    def irrm(self):
+        return self._irrm
+
+    @irrm.setter
+    def irrm(self, value):
+        self._irrm = value
+
+    @property
+    def is_floating(self):
+        return self._is_floating
+
+    @is_floating.setter
+    def is_floating(self, value):
+        self._is_floating = value
+
+
+class InverterModel(object):
+    def __init__(self):
+        self._Mosfets = []
+
+    def add_mosfet(self, mosfet_model=None):
+        if isinstance(mosfet_model, MostfetModel):
+            self._Mosfets.append(mosfet_model)

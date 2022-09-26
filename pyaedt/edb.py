@@ -33,6 +33,7 @@ from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
+from pyaedt.edb_core.EDB_Data import InverterModel
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.stackup import Stackup
@@ -1757,3 +1758,9 @@ class Edb(object):
         EDBStatistics object from the loaded layout.
         """
         return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
+
+    @pyaedt_function_handler()
+    def build_inverter_project(self, inverter_model=None):
+        if not isinstance(inverter_model, InverterModel):
+            self.logger.error("No InverterModel object provided as argument")
+            return False

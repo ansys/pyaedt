@@ -12,6 +12,7 @@ import warnings
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data import StackupInfo
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -423,6 +424,18 @@ class Stackup(object):
             self._set_layout_stackup(new_layer, "non_stackup")
 
         return self.layer[layer_name]
+
+    def check_and_fix_stackup(self, stackup_info=None):
+        if not isinstance(stackup_info, StackupInfo):
+            logger.error("Argument must be an instance of StackInfo")
+            return False
+        for layer in stackup_info.layers["primary"]:
+            try:
+                layer_to_check = self.layer[layer.name]
+            except:
+                pass
+            if layer_to_check:
+                layer_to_check.thickness = layer.thickness
 
 
 class EdbStackup(object):
