@@ -2822,11 +2822,11 @@ class EDBPadstackInstance(object):
             i = 0
             while i < polygon_data.Count:
                 point = polygon_data.GetPoint(i)
+                i += 1
                 if point.IsArc():
                     continue
                 else:
                     points.append([point.X.ToDouble(), point.Y.ToDouble()])
-                i += 1
             xpoly, ypoly = zip(*points)
             polygon = [list(xpoly), list(ypoly)]
             rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
