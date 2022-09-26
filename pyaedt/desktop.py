@@ -445,6 +445,46 @@ class Desktop:
         if self.close_on_exit:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
 
+    @pyaedt_function_handler()
+    def __getitem__(self, project_design_name):
+        """Get the application interface object (Hfss, Icepak, Maxwell3D...) for a given project name and design name.
+
+        Parameters
+        ----------
+        project_design_name : list
+            Project and design name.
+
+        Returns
+        -------
+        :class:Application interface
+            Returns None if project and design name are not found.
+
+        """
+
+        if isinstance(project_design_name[0], int) and project_design_name[0] <= len(self.project_list()):
+            projectname = self.project_list()[project_design_name[0]]
+        elif isinstance(project_design_name[0], str) and project_design_name[0] in self.project_list():
+            projectname = project_design_name[0]
+        else:
+            return None
+
+        initial_oproject = self.odesktop.GetActiveProject()
+        initial_odesign = initial_oproject.GetActiveDesign()
+        if initial_oproject.GetName() != projectname:
+            self.odesktop.SetActiveProject(projectname)
+
+        if isinstance(project_design_name[1], int) and project_design_name[1] <= len(self.design_list()):
+            designname = self.design_list()[project_design_name[1]]
+        elif isinstance(project_design_name[1], str) and project_design_name[1] in self.design_list():
+            designname = project_design_name[1]
+        else:
+            return None
+
+        if initial_oproject.GetName() != projectname:
+            initial_oproject = self.odesktop.SetActiveProject(initial_oproject.GetName())
+            initial_oproject.SetActiveDesign(initial_odesign.GetName())
+        return self.get_design_interface(projectname, designname)
+
     @property
     def install_path(self):
         """Installation path for AEDT."""
@@ -963,6 +1003,83 @@ class Desktop:
         if odesign:
             return odesign.GetDesignType()
         return ""
+
+    @pyaedt_function_handler()
+    def get_design_interface(self, project_name=None, design_name=None):
+        """Get the interface of a design to control it.
+
+        Parameters
+        ----------
+        project_name : str, optional
+            Project name. The default is ``None``, in which case the active
+            project is used.
+        design_name : str, optional
+            Design name. The default is ``None``, in which case the active
+            design is used.
+
+        Returns
+        -------
+        :class:Application interface
+            Returns None if project and design name are not found.
+        """
+        initial_oproject = self.odesktop.GetActiveProject()
+        initial_odesign = initial_oproject.GetActiveDesign()
+        design_type = self.design_type(project_name, design_name)
+        app = None
+        if design_type:
+            if design_type == "HFSS":
+                from pyaedt import Hfss
+
+                app = Hfss(projectname=project_name, designname=design_name)
+            elif design_type == "Icepak":
+                from pyaedt import Icepak
+
+                app = Icepak(projectname=project_name, designname=design_name)
+            elif design_type == "Q3D Extractor":
+                from pyaedt import Q3d
+
+                app = Q3d(projectname=project_name, designname=design_name)
+            elif design_type == "2D Extractor":
+                from pyaedt import Q2d
+
+                app = Q2d(projectname=project_name, designname=design_name)
+            elif design_type == "Circuit Design":
+                from pyaedt import Circuit
+
+                app = Circuit(projectname=project_name, designname=design_name)
+            elif design_type == "Maxwell 2D":
+                from pyaedt import Maxwell2d
+
+                app = Maxwell2d(projectname=project_name, designname=design_name)
+            elif design_type == "Maxwell 3D":
+                from pyaedt import Maxwell3d
+
+                app = Maxwell3d(projectname=project_name, designname=design_name)
+            elif design_type == "Maxwell Circuit":
+                from pyaedt import MaxwellCircuit
+
+                app = MaxwellCircuit(projectname=project_name, designname=design_name)
+            elif design_type == "HFSS 3D Layout Design":
+                from pyaedt import Hfss3dLayout
+
+                app = Hfss3dLayout(projectname=project_name, designname=design_name)
+            elif design_type == "EMIT":
+                from pyaedt import Emit
+
+                app = Emit(projectname=project_name, designname=design_name)
+            elif design_type == "Mechanical":
+                from pyaedt import Mechanical
+
+                app = Mechanical(projectname=project_name, designname=design_name)
+            elif design_type == "Twin Builder":
+                from pyaedt import Simplorer
+
+                app = Simplorer(projectname=project_name, designname=design_name)
+        if app:
+            initial_oproject = self.odesktop.SetActiveProject(initial_oproject.GetName())
+            initial_oproject.SetActiveDesign(initial_odesign.GetName())
+            return app
+        return None
 
     @property
     def personallib(self):
