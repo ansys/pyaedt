@@ -2859,6 +2859,7 @@ class EDBComponentDef(object):
     comp_def : object
         Edb ComponentDef Object
     """
+
     def __init__(self, componenets, comp_def):
         self._pcomponents = componenets
         self._edb_comp_def = comp_def
