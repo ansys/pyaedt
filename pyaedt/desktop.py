@@ -53,7 +53,6 @@ pathname = os.path.dirname(__file__)
 
 pyaedtversion = __version__
 
-
 if is_ironpython:
     import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
@@ -444,6 +443,45 @@ class Desktop:
             err = self._exception(ex_value, ex_traceback)
         if self.close_on_exit:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+
+    @pyaedt_function_handler()
+    def __getitem__(self, project_design_name):
+        """Get the application interface object (Hfss, Icepak, Maxwell3D...) for a given project name and design name.
+
+        Parameters
+        ----------
+        project_design_name : list
+            Project and design name.
+
+        Returns
+        -------
+        :class:Application interface
+            Returns None if project and design name are not found.
+
+        """
+        from pyaedt import get_pyaedt_app
+
+        if len(project_design_name) != 2:
+            return None
+        if isinstance(project_design_name[0], int) and project_design_name[0] < len(self.project_list()):
+            projectname = self.project_list()[project_design_name[0]]
+        elif isinstance(project_design_name[0], str) and project_design_name[0] in self.project_list():
+            projectname = project_design_name[0]
+        else:
+            return None
+
+        initial_oproject = self.odesktop.GetActiveProject()
+        if initial_oproject.GetName() != projectname:
+            self.odesktop.SetActiveProject(projectname)
+
+        if isinstance(project_design_name[1], int) and project_design_name[1] < len(self.design_list()):
+            designname = self.design_list()[project_design_name[1]]
+        elif isinstance(project_design_name[1], str) and project_design_name[1] in self.design_list():
+            designname = project_design_name[1]
+        else:
+            return None
+
+        return get_pyaedt_app(projectname, designname)
 
     @property
     def install_path(self):

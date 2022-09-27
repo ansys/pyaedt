@@ -326,3 +326,16 @@ class TestClass(BasisTest, object):
             assert e.args[0] == "Project doesn't exists. Check it and retry."
         assert exception_raised
         settings.force_error_on_missing_project = False
+
+    def test_35_get_app(self):
+        d = Desktop(desktop_version, new_desktop_session=False)
+        assert d[[0, 0]]
+        assert d[["Coax_HFSS", "myname"]]
+        assert d[[0, "mydesign"]]
+        assert d[["Coax_HFSS", 2]]
+        assert not d[["Coax_HFSS", 5]]
+        assert not d[[1, 0]]
+        assert not d[[1, 0, 3]]
+        self.aedtapp.create_new_project("Test")
+        assert d[[1, 0]]
+        assert "Test" in d[[1, 0]].project_name
