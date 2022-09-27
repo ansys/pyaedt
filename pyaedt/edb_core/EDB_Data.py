@@ -11,6 +11,7 @@ from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import RadiationBoxType
+from pyaedt.generic.constants import SimulationType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 from pyaedt.generic.constants import SweepType
@@ -6158,10 +6159,125 @@ class MostfetModel(object):
         self._is_floating = value
 
 
-class InverterModel(object):
+class Components(object):
     def __init__(self):
-        self._Mosfets = []
+        self._refdes = ""
+        self._pins = []
+        self._is_floating = True
 
-    def add_mosfet(self, mosfet_model=None):
-        if isinstance(mosfet_model, MostfetModel):
-            self._Mosfets.append(mosfet_model)
+    @property
+    def refdes(self):
+        return self._refdes
+
+    @refdes.setter
+    def refdes(self, value):
+        self._refdes = value
+
+    @property
+    def pins(self):
+        return self._pins
+
+    @pins.setter
+    def pins(self, value):
+        self._pins = value
+
+    @property
+    def is_floating(self):
+        return self._is_floating
+
+    @is_floating.setter
+    def is_floating(self, value):
+        self._is_floating = value
+
+
+class VoltageRegulator(object):
+    def __init__(self):
+        self._refdes_positive_node = ""
+        self._net_positive_node = ""
+        self._refdes_negative_node = ""
+        self._net_negative_node = ""
+        self._voltage_value = 1.0
+        self._is_floating = True
+
+
+class InverterModel:
+    def __init__(self):
+        self._layout_file = ""
+        self.simulation_config = SimulationConfiguration()
+        self.simulation_config.solver_type = SolverType.SiwaveSYZ
+        self._stackup_file = ""
+        self._mosfets = []
+        self._components = []
+        self._vrm = VoltageRegulator()
+        self._simulation_type = SimulationType.Syz
+
+    @property
+    def layout_file(self):
+        return self._layout_file
+
+    @layout_file.setter
+    def layout_file(self, value):
+        if isinstance(value, str):
+            self._layout_file = value
+
+    @property
+    def stackup_file(self):
+        return self._stackup_file
+
+    @stackup_file.setter
+    def stackup_file(self, value):
+        if isinstance(value, str):
+            self._stackup_file = value
+
+    @property
+    def voltage_regulator(self):
+        return self._vrm
+
+    @voltage_regulator.setter
+    def voltage_regulator(self, value):
+        if isinstance(value, VoltageRegulator):
+            self._vrm = value
+
+    @property
+    def mosfets(self):
+        return self._mosfets
+
+    @mosfets.setter
+    def mosfets(self, value):
+        if isinstance(value, list):
+            if len([cmp for cmp in value if isinstance(cmp, MostfetModel)]) == len(value):
+                self._mosfets = value
+
+    @property
+    def components(self):
+        return self._components
+
+    @components.setter
+    def components(self, value):
+        self._components = value
+
+    @property
+    def simulation_type(self):
+        return self._simulation_type
+
+    @simulation_type.setter
+    def simulation_type(self, value):
+        if isinstance(value, int):
+            self._simulation_type = value
+
+    def add_mosfet(self, refdes=None, source_pin=None, gate_pin=None, drain_pin=None, is_floating=True, rds=300e-3):
+        mosfet = MostfetModel()
+        mosfet.refdes = refdes
+        mosfet.gate_pin = gate_pin
+        mosfet.drain_pin = drain_pin
+        mosfet.source_pin = source_pin
+        mosfet.is_floating = is_floating
+        mosfet.rds = rds
+        self.mosfets.append(mosfet)
+
+    def add_component(self, refdes=None, pins=None, is_floating=None):
+        component = Components()
+        component.refdes = refdes
+        component.pins = pins
+        component.is_floating = is_floating
+        self._components.append(component)

@@ -627,6 +627,12 @@ class SolverType(object):
     (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
 
 
+class SimulationType(object):
+    """Provides the simulation type."""
+
+    (Syz, DC, Circuit) = range(0, 3)
+
+
 class CutoutSubdesignType(object):
     (Conformal, BoundingBox, Invalid) = range(0, 3)
 

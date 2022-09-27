@@ -35,6 +35,7 @@ from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.EDB_Data import InverterModel
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data import StackupInfo
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
@@ -1764,3 +1765,53 @@ class Edb(object):
         if not isinstance(inverter_model, InverterModel):
             self.logger.error("No InverterModel object provided as argument")
             return False
+        if inverter_model.stackup_file:
+            self.logger.info("Checking layer stackup using file {}".format(inverter_model.stackup_file))
+            stackup_info = StackupInfo()
+            stackup_info.import_json(inverter_model.stackup_file)
+            self.stackup.check_and_fix_stackup(stackup_info)
+        if [cmp for cmp in inverter_model.mosfets if cmp.is_floating]:
+            self.stackup.add_layer(
+                layer_name="air_gap",
+                thickness="1mm",
+                layer_type="dielectric",
+                base_layer="bottom",
+                method="insert_below",
+                material="air",
+            )
+            self.stackup.add_layer(
+                layer_name="virtual_ground",
+                layer_type="signal",
+                base_layer="air_gap",
+                method="insert_below",
+                material="copper",
+                is_negative=False,
+            )
+            layout_extent = self.get_statistics().layout_size
+            self.core_primitives.create_rectangle(
+                layer_name="virtual_ground",
+                net_name="virtual_ground",
+                lower_left_point=layout_extent[:2],
+                upper_right_point=layout_extent[2:],
+            )
+        if inverter_model.simulation_type == 0:
+            for mosfet in inverter_model.mosfets:
+                self.core_siwave.create_port_between_pin_and_layer(
+                    component_name=mosfet.refdes,
+                    pins_name=[mosfet.source_pin, mosfet.gate_pin, mosfet.drain_pin],
+                    layer_name="virtual_ground",
+                    reference_net="virtual_ground",
+                )
+
+            for component in inverter_model.components:
+                self.core_siwave.create_port_between_pin_and_layer(
+                    component_name=component.refdes,
+                    pins_name=component.pins,
+                    layer_name="virtual_ground",
+                    reference_net="virtual_ground",
+                )
+        self.core_siwave.configure_siw_analysis_setup(inverter_model.simulation_config)
+
+    @pyaedt_function_handler()
+    def create_inverter_model(self):
+        return InverterModel()
