@@ -1580,18 +1580,20 @@ class Components(object):
                 comp = self.components[refdes]
                 if not part_name_col == None:
                     part_name = l[part_name_col]
-                    if part_name in self.component_definition:
-                        comp.partname = part_name
+                    if comp.partname == part_name:
+                        pass
                     else:
                         pinlist = self.get_pin_from_component(refdes)
+                        if not part_name in self.component_definition:
+                            footprint_cell = self.component_definition[comp.partname].GetFootprintCell()
+                            comp_def = self._edb.Definition.ComponentDef.Create(self._db, part_name, footprint_cell)
+                            for pin in pinlist:
+                                self._edb.Definition.ComponentDefPin.Create(comp_def, pin.GetName())
+
                         p_layer = comp.placement_layer
                         refdes_temp = comp.refdes + "_temp"
                         comp.refdes = refdes_temp
 
-                        footprint_cell = self.component_definition[comp.partname].GetFootprintCell()
-                        comp_def = self._edb.Definition.ComponentDef.Create(self._db, part_name, footprint_cell)
-                        for pin in pinlist:
-                            self._edb.Definition.ComponentDefPin.Create(comp_def, pin.GetName())
                         unmount_comp_list.remove(refdes)
                         comp.edbcomponent.Ungroup(True)
 
