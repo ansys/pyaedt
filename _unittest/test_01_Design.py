@@ -338,3 +338,4 @@ class TestClass(BasisTest, object):
         assert not d[[1, 0, 3]]
         self.aedtapp.create_new_project("Test")
         assert d[[1, 0]]
+        assert "Test" in d[[1, 0]].project_name
