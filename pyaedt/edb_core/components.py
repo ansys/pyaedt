@@ -150,6 +150,7 @@ class Components(object):
 
     @property
     def component_definition(self):
+        """Retrieve component definition list."""
         if not self._comp_def:
             self.refresh_components()
         return self._comp_def
