@@ -2896,6 +2896,10 @@ class EDBComponent(object):
         """
         return self.edbcomponent.GetName()
 
+    @refdes.setter
+    def refdes(self, name):
+        self.edbcomponent.SetName(name)
+
     @property
     def is_enabled(self):
         """Check if the current object is enabled.

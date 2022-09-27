@@ -72,6 +72,7 @@ class Components(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._cmp = {}
+        self._comp_def = {}
         self._res = {}
         self._cap = {}
         self._ind = {}
@@ -147,15 +148,28 @@ class Components(object):
             self.refresh_components()
         return self._cmp
 
+    @property
+    def component_definition(self):
+        if not self._comp_def:
+            self.refresh_components()
+        return self._comp_def
+
+
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
         self._cmp = {}
+        self._comp_def = {}
         self._logger.info("Refreshing the Components dictionary.")
         if self._active_layout:
             for cmp in self._active_layout.Groups:
                 if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
                     self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
+                    comp_def = cmp.GetComponentDef()
+                    comp_def_name = comp_def.GetName()
+                    if not comp_def_name in self._comp_def:
+                        self._comp_def[comp_def_name] = comp_def
+
 
     @property
     def resistors(self):
@@ -1567,11 +1581,29 @@ class Components(object):
                 comp = self.components[refdes]
                 if not part_name_col == None:
                     part_name = l[part_name_col]
-                    comp.partname = part_name
-                comp_type = l[comp_type_col]
-                comp_type = comp_type[0].capitalize() + comp_type[1:].lower()
+                    if part_name in self.component_definition:
+                        comp.partname = part_name
+                    else:
+                        pinlist = self.get_pin_from_component(refdes)
+                        p_layer = comp.placement_layer
+                        refdes_temp = comp.refdes + "_temp"
+                        comp.refdes = refdes_temp
+
+                        footprint_cell = self.component_definition[comp.partname].GetFootprintCell()
+                        comp_def = self._edb.Definition.ComponentDef.Create(self._db, part_name, footprint_cell)
+                        for pin in pinlist:
+                            self._edb.Definition.ComponentDefPin.Create(comp_def, pin.GetName())
+                        unmount_comp_list.remove(refdes)
+                        comp.edbcomponent.Ungroup(True)
+
+                        self.create_component_from_pins(pinlist, refdes, p_layer, part_name)
+                        self.refresh_components()
+                        comp = self.components[refdes]
+
+                comp_type = l[comp_type_col].upper()
                 comp.type = comp_type
-                if comp_type in ["Resistor", "Capacitor", "Inductor"]:
+                print(comp.refdes, comp_type)
+                if comp_type in ["RESISTOR", "CAPACITOR", "INDUCTOR"]:
                     unmount_comp_list.remove(refdes)
                 if not value_col == None:
                     try:
@@ -1579,11 +1611,11 @@ class Components(object):
                     except:
                         value = None
                     if value:
-                        if comp_type == "Resistor":
+                        if comp_type == "RESISTOR":
                             self.set_component_rlc(refdes, res_value=value)
-                        elif comp_type == "Capacitor":
+                        elif comp_type == "CAPACITOR":
                             self.set_component_rlc(refdes, cap_value=value)
-                        elif comp_type == "Inductor":
+                        elif comp_type == "INDUCTOR":
                             self.set_component_rlc(refdes, ind_value=value)
             for comp in unmount_comp_list:
                 self.components[comp].is_enabled = False
@@ -1603,15 +1635,15 @@ class Components(object):
         with open(bom_file, "w") as f:
             f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
             for refdes, comp in self.components.items():
-                if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
+                if not comp.is_enabled and comp.type in ["RESISTOR", "CAPACITOR", "INDUCTOR"]:
                     continue
                 part_name = comp.partname
                 comp_type = comp.type
-                if comp_type == "Resistor":
+                if comp_type == "RESISTOR":
                     value = comp.res_value
-                elif comp_type == "Capacitor":
+                elif comp_type == "CAPACITOR":
                     value = comp.cap_value
-                elif comp_type == "Inductor":
+                elif comp_type == "INDUCTOR":
                     value = comp.ind_value
                 else:
                     value = ""
