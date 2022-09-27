@@ -1364,6 +1364,7 @@ class CommonReport(object):
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
         if units:
+            props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
         return self._change_property("Scaling", "AxisX", props)
 
@@ -1530,6 +1531,7 @@ class CommonReport(object):
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
         if units:
+            props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
         return self._change_property("Scaling", "Axis" + axis_name, props)
 
