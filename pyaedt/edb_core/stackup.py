@@ -466,8 +466,6 @@ class Stackup(object):
             etch_factor = lyr.etch_factor
 
 
-
-
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
 

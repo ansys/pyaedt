@@ -155,7 +155,6 @@ class Components(object):
             self.refresh_components()
         return self._comp_def
 
-
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
@@ -170,7 +169,6 @@ class Components(object):
                     comp_def_name = comp_def.GetName()
                     if not comp_def_name in self._comp_def:
                         self._comp_def[comp_def_name] = comp_def
-
 
     @property
     def resistors(self):
