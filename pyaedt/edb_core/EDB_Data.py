@@ -2849,6 +2849,7 @@ class EDBPadstackInstance(object):
             created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
             return created_polygon
 
+
 class EDBComponentDef(object):
     """Manages EDB functionalities for component definitions.
 
@@ -2872,6 +2873,7 @@ class EDBComponentDef(object):
     @part_name.setter
     def part_name(self, name):
         self._edb_comp_def.SetName(name)
+        self._pcomponents.refresh_components()
 
 
 class EDBComponent(object):

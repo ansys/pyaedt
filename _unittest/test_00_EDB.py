@@ -554,6 +554,7 @@ if not config["skip_edb"]:
 
             export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
             assert edbapp.core_components.export_bom(export_bom_path)
+            edbapp.close_edb()
 
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
@@ -2088,3 +2089,4 @@ if not config["skip_edb"]:
             assert comp_def
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
+            edbapp.close_edb()
