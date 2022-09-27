@@ -2861,8 +2861,8 @@ class EDBComponentDef(object):
         Edb ComponentDef Object
     """
 
-    def __init__(self, componenets, comp_def):
-        self._pcomponents = componenets
+    def __init__(self, components, comp_def):
+        self._pcomponents = components
         self._edb_comp_def = comp_def
 
     @property
