@@ -456,15 +456,6 @@ class Stackup(object):
 
         return self.layer[layer_name]
 
-    @pyaedt_function_handler
-    def export_stackup(self, fpath):
-        for name, lyr in self.layer:
-            lyr_type = lyr.type
-            thickness = lyr.thickness
-            material = lyr.material
-            fill_material = lyr.fill_material
-            etch_factor = lyr.etch_factor
-
 
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
