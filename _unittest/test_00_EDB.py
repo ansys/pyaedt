@@ -2075,3 +2075,12 @@ if not config["skip_edb"]:
             edbapp.stackup["TOP"].color = [0, 120, 0]
             assert edbapp.stackup["TOP"].color == (0, 120, 0)
             edbapp.close_edb()
+
+        def test_A123_comp_def(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.core_components.component_definition
+            comp_def = edbapp.core_components.component_definition["G83568-001"]
+            assert comp_def
+            comp_def.part_name = "G83568-001x"
+            assert comp_def.part_name == "G83568-001x"

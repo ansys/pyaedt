@@ -2849,6 +2849,29 @@ class EDBPadstackInstance(object):
             created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
             return created_polygon
 
+class EDBComponentDef(object):
+    """Manages EDB functionalities for component definitions.
+
+    Parameters
+    ----------
+    parent : :class:`pyaedt.edb_core.components.Components`
+        Inherited AEDT object.
+    comp_def : object
+        Edb ComponentDef Object
+    """
+    def __init__(self, componenets, comp_def):
+        self._pcomponents = componenets
+        self._edb_comp_def = comp_def
+
+    @property
+    def part_name(self):
+        """Retrieve component definition name."""
+        return self._edb_comp_def.GetName()
+
+    @part_name.setter
+    def part_name(self, name):
+        self._edb_comp_def.SetName(name)
+
 
 class EDBComponent(object):
     """Manages EDB functionalities for components.

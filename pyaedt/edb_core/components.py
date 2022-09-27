@@ -9,6 +9,7 @@ import warnings
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
+from pyaedt.edb_core.EDB_Data import EDBComponentDef
 from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
 from pyaedt.edb_core.EDB_Data import Source
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -168,7 +169,7 @@ class Components(object):
                     comp_def = cmp.GetComponentDef()
                     comp_def_name = comp_def.GetName()
                     if not comp_def_name in self._comp_def:
-                        self._comp_def[comp_def_name] = comp_def
+                        self._comp_def[comp_def_name] = EDBComponentDef(self, comp_def)
 
     @property
     def resistors(self):
@@ -1585,7 +1586,7 @@ class Components(object):
                     else:
                         pinlist = self.get_pin_from_component(refdes)
                         if not part_name in self.component_definition:
-                            footprint_cell = self.component_definition[comp.partname].GetFootprintCell()
+                            footprint_cell = self.component_definition[comp.partname]._edb_comp_def.GetFootprintCell()
                             comp_def = self._edb.Definition.ComponentDef.Create(self._db, part_name, footprint_cell)
                             for pin in pinlist:
                                 self._edb.Definition.ComponentDefPin.Create(comp_def, pin.GetName())
