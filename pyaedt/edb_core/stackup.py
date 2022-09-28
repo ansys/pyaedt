@@ -9,13 +9,22 @@ import difflib
 import logging
 import math
 import warnings
-import pandas as pd
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
+pd = None
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n"
+            "Install with \n\npip install pandas\n"
+        )
 
 try:
     import clr
@@ -530,6 +539,8 @@ class Stackup(object):
         fpath : str
             File path to csv file.
         """
+        if is_ironpython:
+            return
         df = pd.read_csv(fpath, index_col=0)
         for row, val in df.iterrows():
             lyr = self.stackup_layer[row]
@@ -547,6 +558,8 @@ class Stackup(object):
         fpath : str
             File path to csv file.
         """
+        if is_ironpython:
+            return
         data = {"Type": [],
                 "Material": [],
                 "Dielectric_Fill": [],
