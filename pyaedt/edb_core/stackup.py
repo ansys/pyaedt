@@ -9,6 +9,7 @@ import difflib
 import logging
 import math
 import warnings
+import pandas as pd
 
 from pyaedt.edb_core.EDB_Data import EDBLayers
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
@@ -31,6 +32,10 @@ class Stackup(object):
         def __init__(self, pclass, name):
             self._pclass = pclass
             self._name = name
+
+        @property
+        def _edb(self):
+            return self._pclass._pedb.edb
 
         @property
         def _edb_layer(self):
@@ -83,6 +88,49 @@ class Stackup(object):
             layer_clone.SetName(name)
             self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
             self._name = name
+
+        @property
+        def type(self):
+            """Retrieve type of the layer."""
+            if self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.SignalLayer:
+                return "signal"
+            elif self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer:
+                return "dielectric"
+            else:
+                return
+
+        @type.setter
+        def type(self, new_type):
+            if new_type == "signal":
+                self._edb_layer.SetLayerType(self._edb.Cell.LayerType.SignalLayer)
+            elif new_type == "dielectric":
+                self._edb_layer.SetLayerType(self._edb.Cell.LayerType.DielectricLayer)
+            else:
+                pass
+
+        @property
+        def material(self):
+            """Retrieve material name of the layer."""
+            return self._edb_layer.GetMaterial()
+
+        @material.setter
+        def material(self, name):
+            self._edb_layer.SetMaterial(name)
+
+        @property
+        def dielectric_fill(self):
+            """Retrieve material name of the layer dielectric fill."""
+            if self.type == "signal":
+                return self._edb_layer.GetFillMaterial()
+            else:
+                return
+
+        @dielectric_fill.setter
+        def dielectric_fill(self, name):
+            if self.type == "signal":
+                self._edb_layer.SetFillMaterial(name)
+            else:
+                pass
 
         @property
         def thickness(self):
@@ -283,6 +331,19 @@ class Stackup(object):
         return {name: obj for name, obj in self.layer.items() if obj._edb_layer.GetLayerType() == layer_type}
 
     @property
+    def stackup_layer(self):
+        """Retrieve the dictionary of signal and dielectric layers.
+
+        Returns
+        -------
+        dict
+        """
+        layer_type = [self._pedb.edb.Cell.LayerType.SignalLayer,
+                      self._pedb.edb.Cell.LayerType.DielectricLayer,
+                      ]
+        return {name: obj for name, obj in self.layer.items() if obj._edb_layer.GetLayerType() in layer_type}
+
+    @property
     def non_stackup_layer(self):
         """Retrieve the dictionary of signal layers.
 
@@ -455,6 +516,51 @@ class Stackup(object):
             self._set_layout_stackup(new_layer, "non_stackup")
 
         return self.layer[layer_name]
+
+    @pyaedt_function_handler
+    def import_stackup(self):
+        pass
+
+    @pyaedt_function_handler
+    def import_stackup(self, fpath):
+        """Import stackup defnition from csv file.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to csv file.
+        """
+        df = pd.read_csv(fpath, index_col=0)
+        for row, val in df.iterrows():
+            lyr = self.stackup_layer[row]
+            lyr.type = val.Type
+            lyr.material = val.Material
+            lyr.dielectric_fill = val.Dielectric_Fill
+            lyr.thickness = val.Thickness
+
+    @pyaedt_function_handler
+    def export_stackup(self, fpath):
+        """Export stackup definition to csv file.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to csv file.
+        """
+        data = {"Type": [],
+                "Material": [],
+                "Dielectric_Fill": [],
+                "Thickness": [],
+                }
+        idx = []
+        for lyr in self.stackup_layer.values():
+            idx.append(lyr.name)
+            data["Type"].append(lyr.type)
+            data["Material"].append(lyr.material)
+            data["Dielectric_Fill"].append(lyr.dielectric_fill)
+            data["Thickness"].append(lyr.thickness)
+        df = pd.DataFrame(data, index=idx, columns=["Type", "Material", "Dielectric_Fill", "Thickness"])
+        df.to_csv(fpath)
 
 
 class EdbStackup(object):

@@ -2063,6 +2063,8 @@ if not config["skip_edb"]:
             rename_layer.etch_factor = 0
             rename_layer.etch_factor = 2
             assert rename_layer.etch_factor == 2
+            assert rename_layer.material
+            assert rename_layer.type
 
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
@@ -2080,6 +2082,16 @@ if not config["skip_edb"]:
             edbapp.stackup["TOP"].color = [0, 120, 0]
             assert edbapp.stackup["TOP"].color == (0, 120, 0)
             edbapp.close_edb()
+
+        def test_A122b_stackup(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            edbapp.stackup.import_stackup(
+                os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv")
+            )
+            export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
+            edbapp.stackup.export_stackup(export_stackup_path)
+
 
         def test_A123_comp_def(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
