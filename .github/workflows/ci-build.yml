@@ -82,7 +82,7 @@ jobs:
       - name: Upload json Documentation
         uses: actions/upload-artifact@v3
         with:
-          name: Documentation
+          name: doc-flatten-json.zip
           path: doc-flatten-json.zip
           retention-days: 7
 
