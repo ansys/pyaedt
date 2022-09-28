@@ -3,11 +3,6 @@ from __future__ import absolute_import  # noreorder
 import logging
 import warnings
 
-try:
-    import clr
-except ImportError:
-    warnings.warn("This module requires the PythonNET package.")
-
 logger = logging.getLogger(__name__)
 
 

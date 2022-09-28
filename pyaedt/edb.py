@@ -35,8 +35,8 @@ from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.edb_core.stackup import Stackup
 from pyaedt.edb_core.material import Material
+from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
