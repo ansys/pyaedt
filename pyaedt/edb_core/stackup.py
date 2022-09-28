@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class Stackup(object):
-    """Manages EDB methods for stackup and material management accessible from `Edb.stackup` property."""
+    """Manages EDB methods for stackup accessible from `Edb.stackup` property."""
 
     class _Layer(object):
         def __init__(self, pclass, name):
