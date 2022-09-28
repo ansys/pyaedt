@@ -2850,6 +2850,32 @@ class EDBPadstackInstance(object):
             return created_polygon
 
 
+class EDBComponentDef(object):
+    """Manages EDB functionalities for component definitions.
+
+    Parameters
+    ----------
+    parent : :class:`pyaedt.edb_core.components.Components`
+        Inherited AEDT object.
+    comp_def : object
+        Edb ComponentDef Object
+    """
+
+    def __init__(self, components, comp_def):
+        self._pcomponents = components
+        self._edb_comp_def = comp_def
+
+    @property
+    def part_name(self):
+        """Retrieve component definition name."""
+        return self._edb_comp_def.GetName()
+
+    @part_name.setter
+    def part_name(self, name):
+        self._edb_comp_def.SetName(name)
+        self._pcomponents.refresh_components()
+
+
 class EDBComponent(object):
     """Manages EDB functionalities for components.
 
@@ -2895,6 +2921,10 @@ class EDBComponent(object):
             Reference Designator Name.
         """
         return self.edbcomponent.GetName()
+
+    @refdes.setter
+    def refdes(self, name):
+        self.edbcomponent.SetName(name)
 
     @property
     def is_enabled(self):
