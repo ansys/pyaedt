@@ -550,13 +550,15 @@ class Stackup(object):
             lyr.thickness = val.Thickness
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath):
+    def export_stackup(self, fpath, format="csv"):
         """Export stackup definition to csv file.
 
         Parameters
         ----------
         fpath : str
             File path to csv file.
+        format : str, optional
+            The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
         """
         if is_ironpython:
             return
@@ -573,7 +575,14 @@ class Stackup(object):
             data["Dielectric_Fill"].append(lyr.dielectric_fill)
             data["Thickness"].append(lyr.thickness)
         df = pd.DataFrame(data, index=idx, columns=["Type", "Material", "Dielectric_Fill", "Thickness"])
-        df.to_csv(fpath)
+        if format == "csv":
+            if not fpath.endswith(".csv"):
+                fpath = fpath + ".csv"
+            df.to_csv(fpath)
+        else:
+            if not fpath.endswith(".xlsx"):
+                fpath = fpath + ".xlsx"
+            df.to_excel(fpath)
 
 
 class EdbStackup(object):

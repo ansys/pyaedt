@@ -2066,7 +2066,7 @@ if not config["skip_edb"]:
             assert rename_layer.etch_factor == 2
             assert rename_layer.material
             assert rename_layer.type
-            assert rename_layer.dielectricl_fill
+            assert rename_layer.dielectric_fill
 
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
