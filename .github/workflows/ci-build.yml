@@ -79,6 +79,13 @@ jobs:
           echo Clean up build directories after the process is completed.
           rm -rf doc-json doc-flatten-json;
 
+      - name: Upload json Documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: Documentation
+          path: doc-flatten-json.zip
+          retention-days: 7
+
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |
