@@ -22,8 +22,7 @@ if not is_ironpython:
         import pandas as pd
     except ImportError:
         warnings.warn(
-            "The Pandas module is required to run some functionalities.\n"
-            "Install with \n\npip install pandas\n"
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
         )
 
 try:
@@ -347,9 +346,10 @@ class Stackup(object):
         -------
         dict
         """
-        layer_type = [self._pedb.edb.Cell.LayerType.SignalLayer,
-                      self._pedb.edb.Cell.LayerType.DielectricLayer,
-                      ]
+        layer_type = [
+            self._pedb.edb.Cell.LayerType.SignalLayer,
+            self._pedb.edb.Cell.LayerType.DielectricLayer,
+        ]
         return {name: obj for name, obj in self.layer.items() if obj._edb_layer.GetLayerType() in layer_type}
 
     @property
@@ -562,11 +562,12 @@ class Stackup(object):
         """
         if is_ironpython:
             return
-        data = {"Type": [],
-                "Material": [],
-                "Dielectric_Fill": [],
-                "Thickness": [],
-                }
+        data = {
+            "Type": [],
+            "Material": [],
+            "Dielectric_Fill": [],
+            "Thickness": [],
+        }
         idx = []
         for lyr in self.stackup_layer.values():
             idx.append(lyr.name)
