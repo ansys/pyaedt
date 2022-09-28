@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import  # noreorder
 
 import logging
@@ -96,7 +95,6 @@ class Material(object):
     @property
     def _db(self):
         return self._pedb.db
-
 
     @property
     def material(self):
