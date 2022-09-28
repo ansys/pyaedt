@@ -48,6 +48,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
+from pyaedt.edb_core.IPC2581.ipc2581 import IPC2581
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -530,6 +531,12 @@ class Edb(object):
             return False
         self.edbpath = os.path.join(working_dir, aedb_name)
         self.open_edb()
+
+    @pyaedt_function_handler()
+    def export_to_ipc2581_beta(self, units="mm"):
+        ipc = IPC2581(self, units)
+        #ipc.units = units
+        ipc.load_ipc_model()
 
     @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
