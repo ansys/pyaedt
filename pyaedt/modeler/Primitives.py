@@ -1113,6 +1113,56 @@ class Primitives(object):
         return report
 
     @pyaedt_function_handler()
+    def create_point(self, position, name=None, color="(143 175 143)"):
+        """Create a point.
+
+        Parameters
+        ----------
+        position : list
+            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain less than 3 elements.
+        name : str, optional
+            Name of the point. The default is ``None``, in which case the
+            default name is assigned.
+        color : str, optional
+            String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.Point`
+            Point object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+
+        Examples
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
+
+        """
+        x_position, y_position, z_position = self._pos_with_arg(position)
+
+        if not name:
+            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
+            name = "NewPoint_" + unique_name
+
+        parameters = ["NAME:PointParameters"]
+        parameters.append("PointX:="), parameters.append(x_position)
+        parameters.append("PointY:="), parameters.append(y_position)
+        parameters.append("PointZ:="), parameters.append(z_position)
+
+        attributes = ["NAME:Attributes"]
+        attributes.append("Name:="), attributes.append(name)
+        attributes.append("Color:="), attributes.append(color)
+
+        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        return self._create_point(name)
+
+    @pyaedt_function_handler()
     def _change_component_property(self, vPropChange, names_list):
         names = self._app.modeler.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
