@@ -2093,6 +2093,7 @@ if not config["skip_edb"]:
             )
             export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
             edbapp.stackup.export_stackup(export_stackup_path)
+            edbapp.close_edb()
 
 
         def test_A123_comp_def(self):
