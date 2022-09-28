@@ -36,6 +36,7 @@ from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.stackup import Stackup
+from pyaedt.edb_core.material import Material
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
@@ -233,6 +234,7 @@ class Edb(object):
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
+        self._material = Material(self)
 
         self.logger.info("Objects Initialized")
 
@@ -627,6 +629,13 @@ class Edb(object):
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
+
+    @property
+    def material(self):
+        """Material"""
+        if not self._material and self.builder:
+            self._material = Material(self)
+        return self._material
 
     @property
     def core_padstack(self):
