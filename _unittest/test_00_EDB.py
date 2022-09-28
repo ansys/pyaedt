@@ -2050,6 +2050,7 @@ if not config["skip_edb"]:
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert isinstance(edbapp.stackup.layer, dict)
             assert isinstance(edbapp.stackup.signal_layer, dict)
+            assert isinstance(edbapp.stackup.stackup_layer, dict)
             assert isinstance(edbapp.stackup.non_stackup_layer, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
             assert edbapp.stackup.add_layer("new_layer")
@@ -2065,6 +2066,7 @@ if not config["skip_edb"]:
             assert rename_layer.etch_factor == 2
             assert rename_layer.material
             assert rename_layer.type
+            assert rename_layer.dielectricl_fill
 
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
