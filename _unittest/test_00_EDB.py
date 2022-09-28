@@ -2090,3 +2090,15 @@ if not config["skip_edb"]:
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
             edbapp.close_edb()
+
+        def test_A124_material(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert isinstance(edbapp.material.material, dict)
+            edbapp.material["FR4_epoxy"].conductivity = 1
+            assert edbapp.material["FR4_epoxy"].conductivity == 1
+            edbapp.material["FR4_epoxy"].permittivity = 1
+            assert edbapp.material["FR4_epoxy"].permittivity == 1
+            edbapp.material["FR4_epoxy"].loss_tangent = 1
+            assert edbapp.material["FR4_epoxy"].loss_tangent == 1
+            edbapp.close_edb()

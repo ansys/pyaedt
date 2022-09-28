@@ -134,5 +134,5 @@ class TestClass(BasisTest, object):
         assert diel.duplicated_material.permittivity
         assert diel.duplicated_material.permeability
         assert diel.duplicated_material.conductivity
-        assert diel.duplicated_material.dielectric_loss_tangent
+        assert diel.duplicated_material.loss_tangent
         assert diel.duplicated_material.magnetic_loss_tangent

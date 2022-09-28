@@ -50,26 +50,26 @@ class Material(object):
             self._edb_material_def.SetProperty(material_id, self._edb_value(value))
 
         @property
-        def primitivity(self):
+        def permittivity(self):
             """Retrieve material permittivity."""
             material_id = self._edb.Definition.MaterialPropertyId.Permittivity
             _, value = self._edb_material_def.GetProperty(material_id)
             return value.ToDouble()
 
-        @primitivity.setter
-        def primitivity(self, value):
+        @permittivity.setter
+        def permittivity(self, value):
             material_id = self._edb.Definition.MaterialPropertyId.Permittivity
             self._edb_material_def.SetProperty(material_id, self._edb_value(value))
 
         @property
-        def dielectric_loss_tangent(self):
+        def loss_tangent(self):
             """Retrieve material loss tangent."""
             material_id = self._edb.Definition.MaterialPropertyId.DielectricLossTangent
             _, value = self._edb_material_def.GetProperty(material_id)
             return value.ToDouble()
 
-        @dielectric_loss_tangent.setter
-        def dielectric_loss_tangent(self, value):
+        @loss_tangent.setter
+        def loss_tangent(self, value):
             material_id = self._edb.Definition.MaterialPropertyId.DielectricLossTangent
             self._edb_material_def.SetProperty(material_id, self._edb_value(value))
 
@@ -125,7 +125,7 @@ class Material(object):
             new_material = self.material[name]
             new_material.conductivity = conductivity
             new_material.permittivity = permittivity
-            new_material.dielectric_loss_tangent = loss_tangent
+            new_material.loss_tangent = loss_tangent
             return new_material
         else:
             warnings.warn("Material {} already exist in material library.".format(name))
