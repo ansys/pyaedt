@@ -86,6 +86,16 @@ jobs:
           path: doc-flatten-json.zip
           retention-days: 7
 
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.4.0
+        with:
+          repository-name: pyansys/devportal-doc-archive
+          branch: drupal
+          folder: ~/doc-flatten-json.zip
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          clean: true
+
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |
