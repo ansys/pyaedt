@@ -65,25 +65,25 @@ jobs:
       - name: Flatten the generated nested files into a single directory
         run: |
           echo Flattening a nested directory
-          mkdir doc-flatten-json;
+          mkdir pyaedt-doc-flatten-json;
           echo Move all the JSON file to the flatten directory.
-          find . -name "*.fjson" -exec mv "{}" --backup=numbered ./doc-flatten-json \;
+          find . -name "*.fjson" -exec mv "{}" --backup=numbered ./pyaedt-doc-flatten-json \;
           echo Make sure all the file has .json extensions instead of the .fjson
-          for f in doc-flatten-json/* ; do mv -- "$f" "$f.json" ; done;
+          for f in pyaedt-doc-flatten-json/* ; do mv -- "$f" "$f.json" ; done;
           echo Move all static image files to the JSON flatten folder.
-          mv doc-json/json/_images doc-flatten-json/_images;
+          mv doc-json/json/_images pyaedt-doc-flatten-json/_images;
 
       - name: zip the flattened JSON directory
         run: |
-          zip -r doc-flatten-json.zip doc-flatten-json;
+          zip -r pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
           echo Clean up build directories after the process is completed.
-          rm -rf doc-json doc-flatten-json;
+          rm -rf doc-json pyaedt-doc-flatten-json;
 
       - name: Upload json Documentation
         uses: actions/upload-artifact@v3
         with:
-          name: doc-flatten-json.zip
-          path: doc-flatten-json.zip
+          name: pyaedt-doc-flatten-json.zip
+          path: pyaedt-doc-flatten-json.zip
           retention-days: 7
 
       - name: Get Bot Application Token
@@ -98,7 +98,7 @@ jobs:
         with:
           repository-name: pyansys/devportal-doc-archive
           branch: drupal
-          folder: ~/pyaedt-doc-flatten-json.zip
+          folder: pyaedt-doc-flatten-json
           token: ${{ steps.get_workflow_token.outputs.token }}
           clean: true
 
