@@ -57,6 +57,28 @@ jobs:
           echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"
 
+      - name: Build json documentation
+        run: |
+          # Export the documentation files to JSON files.
+          sphinx-build -M json doc/source doc-json -j auto -w build_errors.txt -N;
+
+      - name: Flatten the generated nested files into a single directory
+        run: |
+          echo Flattening a nested directory
+          mkdir doc-flatten-json;
+          echo Move all the JSON file to the flatten directory.
+          find . -name "*.fjson" -exec mv "{}" --backup=numbered ./doc-flatten-json \;
+          echo Make sure all the file has .json extensions instead of the .fjson
+          for f in doc-flatten-json/* ; do mv -- "$f" "$f.json" ; done;
+          echo Move all static image files to the JSON flatten folder.
+          mv doc-json/json/_images doc-flatten-json/_images;
+
+      - name: zip the flattened JSON directory
+        run: |
+          zip -r doc-flatten-json.zip doc-flatten-json;
+          echo Clean up build directories after the process is completed.
+          rm -rf doc-json doc-flatten-json;
+
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |
