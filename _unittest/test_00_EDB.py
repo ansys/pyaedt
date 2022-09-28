@@ -2095,7 +2095,6 @@ if not config["skip_edb"]:
             edbapp.stackup.export_stackup(export_stackup_path)
             edbapp.close_edb()
 
-
         def test_A123_comp_def(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
