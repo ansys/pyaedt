@@ -73,11 +73,11 @@ jobs:
           echo Move all static image files to the JSON flatten folder.
           mv doc-json/json/_images pyaedt-doc-flatten-json/_images;
 
-      - name: zip the flattened JSON directory
-        run: |
-          zip -r pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
-          echo Clean up build directories after the process is completed.
-          rm -rf doc-json pyaedt-doc-flatten-json;
+      # - name: zip the flattened JSON directory
+      #   run: |
+      #     zip -r pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
+      #     echo Clean up build directories after the process is completed.
+      #     rm -rf doc-json pyaedt-doc-flatten-json;
 
       - name: Upload json Documentation
         uses: actions/upload-artifact@v3
