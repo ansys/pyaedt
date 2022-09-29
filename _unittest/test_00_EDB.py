@@ -2101,11 +2101,10 @@ if not config["skip_edb"]:
             edbapp.close_edb()
 
         def test_A123_comp_def(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            edbapp = Edb(target_path, edbversion=desktop_version)
-            assert edbapp.core_components.component_definition
-            comp_def = edbapp.core_components.component_definition["G83568-001"]
+            assert self.edbapp.core_components.components
+            assert self.edbapp.core_components.definitions
+            comp_def = self.edbapp.core_components.definitions["G83568-001"]
             assert comp_def
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
-            edbapp.close_edb()
+            assert len(comp_def.components) > 0

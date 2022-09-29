@@ -150,26 +150,24 @@ class Components(object):
         return self._cmp
 
     @property
-    def component_definition(self):
-        """Retrieve component definition list."""
-        if not self._comp_def:
-            self.refresh_components()
-        return self._comp_def
+    def definitions(self):
+        """Retrieve component definition list.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.edb_core.EDB_Data.EDBComponentDef`"""
+        return {l.GetName(): EDBComponentDef(self, l) for l in list(self._db.ComponentDefs)}
 
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
-        self._cmp = {}
-        self._comp_def = {}
         self._logger.info("Refreshing the Components dictionary.")
-        if self._active_layout:
-            for cmp in self._active_layout.Groups:
-                if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
-                    self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
-                    comp_def = cmp.GetComponentDef()
-                    comp_def_name = comp_def.GetName()
-                    if not comp_def_name in self._comp_def:
-                        self._comp_def[comp_def_name] = EDBComponentDef(self, comp_def)
+        self._cmp = {
+            l.GetName(): EDBComponent(self, l)
+            for l in self._active_layout.Groups
+            if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component"
+        }
+        return True
 
     @property
     def resistors(self):
@@ -1599,8 +1597,8 @@ class Components(object):
                         pass
                     else:
                         pinlist = self.get_pin_from_component(refdes)
-                        if not part_name in self.component_definition:
-                            footprint_cell = self.component_definition[comp.partname]._edb_comp_def.GetFootprintCell()
+                        if not part_name in self.definitions:
+                            footprint_cell = self.definitions[comp.partname]._edb_comp_def.GetFootprintCell()
                             comp_def = self._edb.Definition.ComponentDef.Create(self._db, part_name, footprint_cell)
                             for pin in pinlist:
                                 self._edb.Definition.ComponentDefPin.Create(comp_def, pin.GetName())
