@@ -208,7 +208,7 @@ class LayerEdbClass(object):
 
     @property
     def etch_factor(self):
-        """Retrieve etch factor of this layer
+        """Retrieve etch factor of this layer.
 
         Returns
         -------
