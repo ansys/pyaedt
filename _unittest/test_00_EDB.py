@@ -646,9 +646,9 @@ if not config["skip_edb"]:
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             self.edbapp.stackup.add_layer("new_layer_1", "TOP", "insert_below")
-            assert self.edbapp.stackup.layer["TOP"].thickness == 4.826e-05
-            self.edbapp.stackup.layer["TOP"].thickness = 4e-5
-            assert self.edbapp.stackup.layer["TOP"].thickness == 4e-05
+            assert self.edbapp.stackup.layers["TOP"].thickness == 4.826e-05
+            self.edbapp.stackup.layers["TOP"].thickness = 4e-5
+            assert self.edbapp.stackup.layers["TOP"].thickness == 4e-05
 
         def test_61_create_edb(self):
             edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
@@ -2048,9 +2048,10 @@ if not config["skip_edb"]:
         def test_A122_stackup(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
-            assert isinstance(edbapp.stackup.layer, dict)
-            assert isinstance(edbapp.stackup.signal_layer, dict)
-            assert isinstance(edbapp.stackup.non_stackup_layer, dict)
+            assert isinstance(edbapp.stackup.layers, dict)
+            assert isinstance(edbapp.stackup.signal_layers, dict)
+            assert isinstance(edbapp.stackup.stackup_layers, dict)
+            assert isinstance(edbapp.stackup.non_stackup_layers, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
@@ -2063,6 +2064,9 @@ if not config["skip_edb"]:
             rename_layer.etch_factor = 0
             rename_layer.etch_factor = 2
             assert rename_layer.etch_factor == 2
+            assert rename_layer.material
+            assert rename_layer.type
+            assert rename_layer.dielectric_fill
 
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
@@ -2079,6 +2083,21 @@ if not config["skip_edb"]:
             assert edbapp.stackup["TOP"].color
             edbapp.stackup["TOP"].color = [0, 120, 0]
             assert edbapp.stackup["TOP"].color == (0, 120, 0)
+            edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
+        def test_A122b_stackup(self):
+            edbapp = Edb(edbversion=desktop_version)
+            assert edbapp.stackup.add_layer("TOP", None, "add_on_top", material="iron")
+            assert edbapp.stackup.import_stackup(
+                os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv")
+            )
+            assert "TOP" in edbapp.stackup.layers.keys()
+            assert edbapp.stackup.layers["TOP"].material == "COPPER"
+            assert edbapp.stackup.layers["TOP"].thickness == 6e-5
+            export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
+            assert edbapp.stackup.export_stackup(export_stackup_path)
+            assert os.path.exists(export_stackup_path)
             edbapp.close_edb()
 
         def test_A123_comp_def(self):

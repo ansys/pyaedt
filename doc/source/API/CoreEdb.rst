@@ -40,6 +40,7 @@ to AEDB files.
    padstack.EdbPadstacks
    layout.EdbLayout
    stackup.EdbStackup
+   stackup.Stackup
 
 
 .. code:: python
