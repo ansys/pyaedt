@@ -102,7 +102,7 @@ jobs:
           branch: drupal
           folder: pyaedt-doc-flatten-json
           token: ${{ steps.get_workflow_token.outputs.token }}
-          clean: true
+          clean: false
 
       # Verify that sphinx generates no warnings
       - name: Check for warnings
