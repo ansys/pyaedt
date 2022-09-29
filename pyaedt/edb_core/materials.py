@@ -3,8 +3,14 @@ from __future__ import absolute_import  # noreorder
 import logging
 import warnings
 
+from pyaedt import is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
+try:
+    import clr
+except ImportError:
+    warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +39,20 @@ class Material(object):
     def _edb(self):
         return self._pclass._edb
 
+    @pyaedt_function_handler()
+    def _get_property(self, property_name):
+        if is_ironpython:  # pragma: no cover
+            property_box = clr.StrongBox[float]()
+            self._edb_material_def.GetProperty(property_name, property_box)
+            return float(property_box)
+        else:
+            _, property_box = self._edb_material_def.GetProperty(property_name)
+            return property_box.ToDouble()
+
     @property
     def conductivity(self):
         material_id = self._edb.Definition.MaterialPropertyId.Conductivity
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @conductivity.setter
     def conductivity(self, value):
@@ -49,8 +64,7 @@ class Material(object):
     def permittivity(self):
         """Retrieve material permittivity."""
         material_id = self._edb.Definition.MaterialPropertyId.Permittivity
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @permittivity.setter
     def permittivity(self, value):
@@ -61,8 +75,7 @@ class Material(object):
     def permeability(self):
         """Retrieve material permeability."""
         material_id = self._edb.Definition.MaterialPropertyId.Permeability
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @permeability.setter
     def permeability(self, value):
@@ -73,8 +86,7 @@ class Material(object):
     def loss_tangent(self):
         """Retrieve material loss tangent."""
         material_id = self._edb.Definition.MaterialPropertyId.DielectricLossTangent
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @loss_tangent.setter
     def loss_tangent(self, value):
@@ -85,8 +97,7 @@ class Material(object):
     def magnetic_loss_tangent(self):
         """Retrieve material magnetic loss tangent."""
         material_id = self._edb.Definition.MaterialPropertyId.MagneticLossTangent
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @magnetic_loss_tangent.setter
     def magnetic_loss_tangent(self, value):
@@ -97,8 +108,7 @@ class Material(object):
     def thermal_conductivity(self):
         """Retrieve material thermal conductivity."""
         material_id = self._edb.Definition.MaterialPropertyId.ThermalConductivity
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @thermal_conductivity.setter
     def thermal_conductivity(self, value):
@@ -109,8 +119,7 @@ class Material(object):
     def mass_density(self):
         """Retrieve material mass density."""
         material_id = self._edb.Definition.MaterialPropertyId.MassDensity
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @mass_density.setter
     def mass_density(self, value):
@@ -121,8 +130,7 @@ class Material(object):
     def youngs_modulus(self):
         """Retrieve material Young's Modulus."""
         material_id = self._edb.Definition.MaterialPropertyId.YoungsModulus
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @youngs_modulus.setter
     def youngs_modulus(self, value):
@@ -133,8 +141,7 @@ class Material(object):
     def specific_heat(self):
         """Retrieve material Specific Heat."""
         material_id = self._edb.Definition.MaterialPropertyId.SpecificHeat
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @specific_heat.setter
     def specific_heat(self, value):
@@ -145,8 +152,7 @@ class Material(object):
     def poisson_ratio(self):
         """Retrieve material Poisson Ratio."""
         material_id = self._edb.Definition.MaterialPropertyId.PoissonsRatio
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @poisson_ratio.setter
     def poisson_ratio(self, value):
@@ -157,8 +163,7 @@ class Material(object):
     def thermal_expansion_coefficient(self):
         """Retrieve material Thermal Coefficient.."""
         material_id = self._edb.Definition.MaterialPropertyId.ThermalExpansionCoefficient
-        _, value = self._edb_material_def.GetProperty(material_id)
-        return value.ToDouble()
+        return self._get_property(material_id)
 
     @thermal_expansion_coefficient.setter
     def thermal_expansion_coefficient(self, value):
