@@ -33,8 +33,8 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class Layer(object):
-    """Manages stackup layer properties."""
+class LayerEdbClass(object):
+    """New Edb Layer management class. Replaces EDBLayer."""
 
     def __init__(self, pclass, name):
         self._pclass = pclass
@@ -119,7 +119,12 @@ class Layer(object):
 
     @property
     def material(self):
-        """Retrieve material name of the layer."""
+        """Get/Set the material loss_tangent.
+
+        Returns
+        -------
+        float
+        """
         return self._edb_layer.GetMaterial()
 
     @material.setter
@@ -127,6 +132,42 @@ class Layer(object):
         layer_clone = self._edb_layer
         layer_clone.SetMaterial(name)
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @property
+    def conductivity(self):
+        """Get the material conductivity.
+
+        Returns
+        -------
+        float
+        """
+        if self.material in self._pclass._pedb.materials:
+            return self._pclass._pedb.materials[self.material].conductivity
+        return None
+
+    @property
+    def permittivity(self):
+        """Get the material permittivity.
+
+        Returns
+        -------
+        float
+        """
+        if self.material in self._pclass._pedb.materials:
+            return self._pclass._pedb.materials[self.material].permittivity
+        return None
+
+    @property
+    def loss_tangent(self):
+        """Get the material loss_tangent.
+
+        Returns
+        -------
+        float
+        """
+        if self.material in self._pclass._pedb.materials:
+            return self._pclass._pedb.materials[self.material].loss_tangent
+        return None
 
     @property
     def dielectric_fill(self):
@@ -167,7 +208,7 @@ class Layer(object):
 
     @property
     def etch_factor(self):
-        """Retrieve etch factor of this layer
+        """Retrieve etch factor of this layer.
 
         Returns
         -------
@@ -181,12 +222,12 @@ class Layer(object):
             return
         if not value:
             layer_clone = self._edb_layer
-            return layer_clone.SetEtchFactorEnabled(False)
+            layer_clone.SetEtchFactorEnabled(False)
         else:
             layer_clone = self._edb_layer
             layer_clone.SetEtchFactorEnabled(True)
             layer_clone.SetEtchFactor(self._pclass._edb_value(value))
-            return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
     def roughness_enabled(self):
@@ -208,11 +249,11 @@ class Layer(object):
             layer_clone = self._edb_layer
             layer_clone.SetRoughnessEnabled(True)
             self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-            return self.assign_roughness_model()
+            self.assign_roughness_model()
         else:
             layer_clone = self._edb_layer
             layer_clone.SetRoughnessEnabled(False)
-            return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @pyaedt_function_handler()
     def assign_roughness_model(
@@ -278,13 +319,98 @@ class Layer(object):
 
 
 class Stackup(object):
-    """Manages EDB methods for stackup and material management accessible from `Edb.stackup` property."""
+    """Manages EDB methods for stackup accessible from `Edb.stackup` property."""
 
     def __getitem__(self, item):
         return self.layers[item]
 
     def __init__(self, pedb):
         self._pedb = pedb
+
+    def create_symmetric_stackup(
+        self,
+        layer_count,
+        inner_layer_thickness="17um",
+        outer_layer_thickness="50um",
+        dielectric_thickness="100um",
+        dielectric_material="FR4_epoxy",
+        soldermask=True,
+        soldermask_thickness="20um",
+    ):
+        """Create a symmetric stackup.
+
+        Parameters
+        ----------
+        layer_count : int
+            Number of layer count.
+        inner_layer_thickness : str, float, optional
+            Thickness of inner conductor layer.
+        outer_layer_thickness : str, float, optional
+            Thickness of outer conductor layer.
+        dielectric_thickness : str, float, optional
+            Thickness of dielectric layer.
+        dielectric_material : str, optional
+            Material of dielectric layer.
+        soldermask : bool, optional
+            Whether to create soldermask layers. The default is``True``.
+        soldermask_thickness : str, optional
+            Thickness of soldermask layer.
+        Returns
+        -------
+        bool
+        """
+        if not layer_count % 2 == 0:
+            return False
+
+        if soldermask:
+            self.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layer_type="dielectric")
+            layer_name = "BOTTOM"
+            self.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
+        else:
+            layer_name = "BOTTOM"
+            self.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+
+        for layer in range(layer_count - 1, 1, -1):
+            new_layer_name = "D" + str(layer - 1)
+            self.add_layer(
+                new_layer_name,
+                layer_name,
+                material=dielectric_material,
+                thickness=dielectric_thickness,
+                layer_type="dielectric",
+            )
+            layer_name = new_layer_name
+            new_layer_name = "L" + str(layer - 1)
+            self.add_layer(
+                new_layer_name,
+                layer_name,
+                material="copper",
+                fillMaterial=dielectric_material,
+                thickness=inner_layer_thickness,
+            )
+            layer_name = new_layer_name
+
+        new_layer_name = "D1"
+        self.add_layer(
+            new_layer_name,
+            layer_name,
+            material=dielectric_material,
+            thickness=dielectric_thickness,
+            layer_type="dielectric",
+        )
+        layer_name = new_layer_name
+
+        if soldermask:
+            new_layer_name = "TOP"
+            self.add_layer(new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness)
+            layer_name = new_layer_name
+            self.add_layer(
+                "SMT", layer_name, material="SolderMask", thickness=soldermask_thickness, layer_type="dielectric"
+            )
+        else:
+            new_layer_name = "TOP"
+            self.add_layer(new_layer_name, layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+        return True
 
     @property
     def _layer_collection(self):
@@ -334,7 +460,7 @@ class Stackup(object):
         -------
         dict
         """
-        return {l.GetName(): Layer(self, l.GetName()) for l in self._edb_layer_list}
+        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list}
 
     @property
     def signal_layers(self):
@@ -369,7 +495,7 @@ class Stackup(object):
         -------
         dict
         """
-        return {l.GetName(): Layer(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
+        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
 
     @pyaedt_function_handler()
     def _edb_value(self, value):
