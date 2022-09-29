@@ -475,7 +475,7 @@ if not config["skip_edb"]:
                 assert pad.hole_plating_ratio is not None or False
                 assert pad.via_start_layer is not None or False
                 assert pad.via_stop_layer is not None or False
-                assert pad.material is not None or False
+                assert pad.materials is not None or False
                 assert pad.hole_finished_size is not None or False
                 assert pad.hole_rotation is not None or False
                 assert pad.hole_offset_x is not None or False
@@ -502,7 +502,7 @@ if not config["skip_edb"]:
             assert pad.hole_plating_ratio == 90
             pad.hole_plating_thickness = 0.3
             assert abs(pad.hole_plating_thickness - 0.3) <= tol
-            pad.material = "copper"
+            pad.materials = "copper"
             assert abs(pad.hole_properties[0] - hole_pad) < tol
             offset_x = 7
             offset_y = 1
@@ -2094,11 +2094,11 @@ if not config["skip_edb"]:
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
-            assert isinstance(edbapp.material.material, dict)
-            edbapp.material["FR4_epoxy"].conductivity = 1
-            assert edbapp.material["FR4_epoxy"].conductivity == 1
-            edbapp.material["FR4_epoxy"].permittivity = 1
-            assert edbapp.material["FR4_epoxy"].permittivity == 1
-            edbapp.material["FR4_epoxy"].loss_tangent = 1
-            assert edbapp.material["FR4_epoxy"].loss_tangent == 1
+            assert isinstance(edbapp.materials.materials, dict)
+            edbapp.materials["FR4_epoxy"].conductivity = 1
+            assert edbapp.materials["FR4_epoxy"].conductivity == 1
+            edbapp.materials["FR4_epoxy"].permittivity = 1
+            assert edbapp.materials["FR4_epoxy"].permittivity == 1
+            edbapp.materials["FR4_epoxy"].loss_tangent = 1
+            assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
             edbapp.close_edb()
