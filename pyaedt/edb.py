@@ -616,7 +616,14 @@ class Edb(object):
 
     @property
     def core_stackup(self):
-        """Core stackup."""
+        """Core stackup.
+
+        .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class .
+        """
+        mess = "`core_stackup` is deprecated.\n"
+        mess += " Use `app.stackup` directly to instantiate new stackup methods."
+        warnings.warn(mess, DeprecationWarning)
         if not self._stackup and self.builder:
             self._stackup = EdbStackup(self)
         return self._stackup
