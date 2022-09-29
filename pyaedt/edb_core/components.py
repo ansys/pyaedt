@@ -1309,7 +1309,13 @@ class Components(object):
 
     @pyaedt_function_handler()
     def set_solder_ball(
-        self, component="", sball_diam="100um", sball_height="150um", shape="Cylinder", sball_mid_diam=None
+        self,
+        component="",
+        sball_diam="100um",
+        sball_height="150um",
+        shape="Cylinder",
+        sball_mid_diam=None,
+        chip_orientation="chip_down",
     ):
         """Set cylindrical solder balls on a given component.
 
@@ -1326,6 +1332,9 @@ class Components(object):
             ``"Spheroid"``. The default is ``"Cylinder"``.
         sball_mid_diam : str, float, optional
             Mid diameter of the solder ball.
+        chip_orientation : str
+            Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
+            IC model.
         Returns
         -------
         bool
@@ -1367,7 +1376,12 @@ class Components(object):
             if cmp_type == self._edb.Definition.ComponentType.IC:
                 ic_die_prop = cmp_property.GetDieProperty().Clone()
                 ic_die_prop.SetType(self._edb.Definition.DieType.FlipChip)
-                ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                if chip_orientation.lower() == "chip_down":
+                    ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                if chip_orientation.lower() == "chip_up":
+                    ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
+                else:
+                    ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
                 cmp_property.SetDieProperty(ic_die_prop)
 
             solder_ball_prop = cmp_property.GetSolderBallProperty().Clone()
