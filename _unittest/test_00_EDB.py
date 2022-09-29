@@ -2108,7 +2108,6 @@ if not config["skip_edb"]:
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
             assert len(comp_def.components) > 0
-            edbapp.close_edb()
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
