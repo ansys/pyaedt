@@ -1929,7 +1929,7 @@ class NexximComponents(CircuitComponents):
             Path to .lib file.
         model_name : str, optional
             Model name to import. If `None` the first subckt in the lib file will be placed.
-        create_component: bool, optional
+        create_component : bool, optional
             If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
