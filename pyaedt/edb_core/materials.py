@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Material:
     """Manages EDB methods for material property management."""
+
     def __init__(self, pclass, edb_material_def):
         self._pclass = pclass
         self._name = edb_material_def.GetName()
