@@ -1,13 +1,12 @@
 import xml.etree.cElementTree as ET
 
+from pyaedt.edb_core.IPC2581.BOM.bom import Bom
+from pyaedt.edb_core.IPC2581.BOM.bom_item import BomItem
 from pyaedt.edb_core.IPC2581.content.content import Content
 from pyaedt.edb_core.IPC2581.ecad.ecad import Ecad
 from pyaedt.edb_core.IPC2581.history_record import HistoryRecord
 from pyaedt.edb_core.IPC2581.logistic_header import LogisticHeader
-from pyaedt.edb_core.IPC2581.BOM.bom import Bom
-from pyaedt.edb_core.IPC2581.BOM.bom_item import BomItem
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
 
 
 class IPC2581(object):
@@ -44,8 +43,9 @@ class IPC2581(object):
         for layer_name in list(self._pedb.stackup.layer.keys()):
             self.content.add_layer_ref(layer_name)
             layer_color = self._pedb.stackup.layer[layer_name].color
-            self.content.dict_colors.add_color("COLOR_{}".format(layer_name), str(layer_color[0]), str(layer_color[1]),
-                                               str(layer_color[2]))
+            self.content.dict_colors.add_color(
+                "COLOR_{}".format(layer_name), str(layer_color[0]), str(layer_color[1]), str(layer_color[2])
+            )
 
         for path_width in list(set([path.GetWidth() for path in self._pedb.core_primitives.paths])):
             if self.units == "mm":
@@ -71,3 +71,7 @@ class IPC2581(object):
             for cmp in components:
                 bom_item.add_refdes(cmp.refdes, cmp.placement_layer)
 
+        # Ecad
+        self.ecad.design_name = self.design_name
+        self.ecad.cad_header.units = self.units
+        self.ecad.cad_header.add_spec()

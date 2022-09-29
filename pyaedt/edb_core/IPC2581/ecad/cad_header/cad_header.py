@@ -5,13 +5,14 @@ from pyaedt.edb_core.IPC2581.ecad.cad_header.spec import Spec
 
 class CadHeader(object):
     """Class describing layer stackup."""
+
     def __init__(self):
         self.specs = []
         self.units = ""
 
     @property
     def specs(self):
-        return self.units
+        return self.specs
 
     @specs.setter
     def specs(self, value):
@@ -19,9 +20,18 @@ class CadHeader(object):
             if len([spec for spec in value if isinstance(spec, Spec)]) == len(value):
                 self._specs = value
 
-    def add_spec(self, spec=None):
-        if isinstance(spec, Spec):
-            self._specs.append(spec)
+    def add_spec(
+        self, name="", material="", layer_type="", conductivity="", dielectric_constant="", loss_tanget="", embedded=""
+    ):
+        spec = Spec()
+        spec.name = name
+        spec.material = material
+        spec.conductivity = conductivity
+        spec.dielectric_constant = dielectric_constant
+        spec.layer_type = layer_type
+        spec.loss_tangent = loss_tanget
+        spec.embedded = embedded
+        self._specs.append(spec)
 
     def write_xml(self, ecad):
         if ecad:
