@@ -216,12 +216,12 @@ class Layer(object):
 
     @pyaedt_function_handler()
     def assign_roughness_model(
-            self,
-            model_type="huray",
-            huray_radius="0.5um",
-            huray_surface_ratio="2.9",
-            groisse_roughness="1um",
-            apply_on_surface="all",
+        self,
+        model_type="huray",
+        huray_radius="0.5um",
+        huray_surface_ratio="2.9",
+        groisse_roughness="1um",
+        apply_on_surface="all",
     ):
         """Assign roughness model on this layer.
 
