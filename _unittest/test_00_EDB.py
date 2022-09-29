@@ -475,7 +475,7 @@ if not config["skip_edb"]:
                 assert pad.hole_plating_ratio is not None or False
                 assert pad.via_start_layer is not None or False
                 assert pad.via_stop_layer is not None or False
-                assert pad.materials is not None or False
+                assert pad.material is not None or False
                 assert pad.hole_finished_size is not None or False
                 assert pad.hole_rotation is not None or False
                 assert pad.hole_offset_x is not None or False
@@ -502,7 +502,7 @@ if not config["skip_edb"]:
             assert pad.hole_plating_ratio == 90
             pad.hole_plating_thickness = 0.3
             assert abs(pad.hole_plating_thickness - 0.3) <= tol
-            pad.materials = "copper"
+            pad.material = "copper"
             assert abs(pad.hole_properties[0] - hole_pad) < tol
             offset_x = 7
             offset_y = 1
@@ -2120,4 +2120,6 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].permittivity == 1
             edbapp.materials["FR4_epoxy"].loss_tangent = 1
             assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
+            edbapp.materials.add_material("new_material", 1, 2, 3)
+            assert edbapp.materials["new_material"]
             edbapp.close_edb()
