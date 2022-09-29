@@ -467,6 +467,9 @@ class EDBPrimitives(object):
 class EDBLayer(object):
     """Manages EDB functionalities for a layer.
 
+    .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class.
+
     Examples
     --------
     >>> from pyaedt import Edb
@@ -1087,6 +1090,9 @@ class EDBLayer(object):
 
 class EDBLayers(object):
     """Manages EDB functionalities for all primitive layers.
+
+    .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class.
 
     Parameters
     ----------

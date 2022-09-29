@@ -639,7 +639,7 @@ class Edb(object):
 
     @property
     def materials(self):
-        """Material."""
+        """Material Database."""
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
