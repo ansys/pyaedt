@@ -83,11 +83,11 @@ edb = Edb(edbpath=aedb_path, edbversion="2022.2")
 # Add the stackup layers.
 #
 if edb:
-    edb.core_stackup.stackup_layers.add_layer("Virt_GND")
-    edb.core_stackup.stackup_layers.add_layer("Gap", "Virt_GND", layerType=1, thickness="0.05mm", material="Air")
-    edb.core_stackup.stackup_layers.add_layer("GND", "Gap")
-    edb.core_stackup.stackup_layers.add_layer("Substrat", "GND", layerType=1, thickness="0.5mm", material="Duroid (tm)")
-    edb.core_stackup.stackup_layers.add_layer("TOP", "Substrat")
+    edb.stackup.add_layer("Virt_GND")
+    edb.stackup.add_layer("Gap", "Virt_GND", layer_type="dielectric", thickness="0.05mm", material="Air")
+    edb.stackup.add_layer("GND", "Gap")
+    edb.stackup.add_layer("Substrat", "GND", layer_type="dielectric", thickness="0.5mm", material="Duroid (tm)")
+    edb.stackup.add_layer("TOP", "Substrat")
 
 ###############################################################################
 # Create linear array

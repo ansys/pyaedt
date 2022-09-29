@@ -327,6 +327,91 @@ class Stackup(object):
     def __init__(self, pedb):
         self._pedb = pedb
 
+    def create_symmetric_stackup(
+        self,
+        layer_count,
+        inner_layer_thickness="17um",
+        outer_layer_thickness="50um",
+        dielectric_thickness="100um",
+        dielectric_material="FR4_epoxy",
+        soldermask=True,
+        soldermask_thickness="20um",
+    ):
+        """Create a symmetric stackup.
+
+        Parameters
+        ----------
+        layer_count : int
+            Number of layer count.
+        inner_layer_thickness : str, float, optional
+            Thickness of inner conductor layer.
+        outer_layer_thickness : str, float, optional
+            Thickness of outer conductor layer.
+        dielectric_thickness : str, float, optional
+            Thickness of dielectric layer.
+        dielectric_material : str, optional
+            Material of dielectric layer.
+        soldermask : bool, optional
+            Whether to create soldermask layers. The default is``True``.
+        soldermask_thickness : str, optional
+            Thickness of soldermask layer.
+        Returns
+        -------
+        bool
+        """
+        if not layer_count % 2 == 0:
+            return False
+
+        if soldermask:
+            self.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layer_type="dielectric")
+            layer_name = "BOTTOM"
+            self.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
+        else:
+            layer_name = "BOTTOM"
+            self.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+
+        for layer in range(layer_count - 1, 1, -1):
+            new_layer_name = "D" + str(layer - 1)
+            self.add_layer(
+                new_layer_name,
+                layer_name,
+                material=dielectric_material,
+                thickness=dielectric_thickness,
+                layer_type="dielectric",
+            )
+            layer_name = new_layer_name
+            new_layer_name = "L" + str(layer - 1)
+            self.add_layer(
+                new_layer_name,
+                layer_name,
+                material="copper",
+                fillMaterial=dielectric_material,
+                thickness=inner_layer_thickness,
+            )
+            layer_name = new_layer_name
+
+        new_layer_name = "D1"
+        self.add_layer(
+            new_layer_name,
+            layer_name,
+            material=dielectric_material,
+            thickness=dielectric_thickness,
+            layer_type="dielectric",
+        )
+        layer_name = new_layer_name
+
+        if soldermask:
+            new_layer_name = "TOP"
+            self.add_layer(new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness)
+            layer_name = new_layer_name
+            self.add_layer(
+                "SMT", layer_name, material="SolderMask", thickness=soldermask_thickness, layer_type="dielectric"
+            )
+        else:
+            new_layer_name = "TOP"
+            self.add_layer(new_layer_name, layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+        return True
+
     @property
     def _layer_collection(self):
         """Copy of EDB layer collection.

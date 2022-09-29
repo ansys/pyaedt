@@ -201,7 +201,7 @@ class Materials(object):
         name : str
             Name of the new material.
         conductivity : float
-            conductivity of the new material.
+            Conductivity of the new material.
         permittivity : float
             Permittivity of the new material.
         loss_tangent : float
@@ -218,7 +218,7 @@ class Materials(object):
             new_material.loss_tangent = loss_tangent
             return new_material
         else:
-            warnings.warn("Material {} already exist in material library.".format(name))
+            warnings.warn("Material {} already exists in material library.".format(name))
             return False
 
     @pyaedt_function_handler()

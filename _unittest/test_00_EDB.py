@@ -1427,15 +1427,21 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
-            from pyaedt import Edb as local_edb
-
-            app_edb = local_edb(edbversion="2022.1")
+            app_edb = Edb(edbversion=desktop_version)
             assert not app_edb.core_stackup.create_symmetric_stackup(9)
             assert app_edb.core_stackup.create_symmetric_stackup(8)
             app_edb.close_edb()
 
-            app_edb = local_edb(edbversion="2022.1")
+            app_edb = Edb(edbversion=desktop_version)
             assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
+            app_edb.close_edb()
+            app_edb = Edb(edbversion=desktop_version)
+            assert not app_edb.stackup.create_symmetric_stackup(9)
+            assert app_edb.stackup.create_symmetric_stackup(8)
+            app_edb.close_edb()
+
+            app_edb = Edb(edbversion=desktop_version)
+            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
             app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
