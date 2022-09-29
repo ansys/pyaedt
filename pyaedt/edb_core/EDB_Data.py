@@ -2873,7 +2873,21 @@ class EDBComponentDef(object):
     @part_name.setter
     def part_name(self, name):
         self._edb_comp_def.SetName(name)
-        self._pcomponents.refresh_components()
+
+    @property
+    def components(self):
+        """Get the list of components belonging to this component definition.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBComponent`
+        """
+        return [
+            EDBComponent(self._pcomponents, l)
+            for l in self._pcomponents._edb.Cell.Hierarchy.Component.FindByComponentDef(
+                self._pcomponents._pedb.active_layout, self.part_name
+            )
+        ]
 
 
 class EDBComponent(object):

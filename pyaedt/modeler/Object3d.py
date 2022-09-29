@@ -1351,6 +1351,28 @@ class Object3d(object):
                 list_names.extend(a)
         return list_names
 
+    @pyaedt_function_handler()
+    def get_touching_faces(self, object_name):
+        """Get the objects that touch one of the face center of each face of the object.
+
+        Parameters
+        ----------
+        object_name : str, :class:`Object3d`
+            Object to check.
+        Returns
+        -------
+        list
+            list of objects and faces touching."""
+
+        _names = []
+        if isinstance(object_name, Object3d):
+            object_name = object_name.name
+        for face in self.faces:
+            body_names = self._primitives.get_bodynames_from_position(face.center)
+            if object_name in body_names:
+                _names.append(face)
+        return _names
+
     @property
     def faces(self):
         """Information for each face in the given part.
