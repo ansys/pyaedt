@@ -35,6 +35,7 @@ from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
@@ -233,6 +234,7 @@ class Edb(object):
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
+        self._materials = Materials(self)
 
         self.logger.info("Objects Initialized")
 
@@ -616,7 +618,14 @@ class Edb(object):
 
     @property
     def core_stackup(self):
-        """Core stackup."""
+        """Core stackup.
+
+        .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class .
+        """
+        mess = "`core_stackup` is deprecated.\n"
+        mess += " Use `app.stackup` directly to instantiate new stackup methods."
+        warnings.warn(mess, DeprecationWarning)
         if not self._stackup and self.builder:
             self._stackup = EdbStackup(self)
         return self._stackup
@@ -627,6 +636,13 @@ class Edb(object):
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
+
+    @property
+    def materials(self):
+        """Material Database."""
+        if not self._materials and self.builder:
+            self._materials = Materials(self)
+        return self._materials
 
     @property
     def core_padstack(self):

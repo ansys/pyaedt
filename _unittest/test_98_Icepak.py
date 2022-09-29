@@ -408,6 +408,7 @@ class TestClass(BasisTest, object):
             thermal_condtion="Fixed Temperature",
             temperature="28cel",
         )
+        assert self.aedtapp.create_source_power(self.aedtapp.modeler["boxSource"].name, input_power="20W")
 
     def test_34_import_idf(self):
         self.aedtapp.insert_design("IDF")

@@ -497,7 +497,8 @@ class DesignSolution(object):
     def solution_type(self):
         """Get/Set the Solution Type of the active Design."""
         if self._design_type in ["Circuit Design", "Twin Builder", "HFSS 3D Layout Design", "EMIT", "Q3D Extractor"]:
-            self._solution_type = solutions_defaults[self._design_type]
+            if not self._solution_type:
+                self._solution_type = solutions_defaults[self._design_type]
         elif self._odesign:
             try:
                 self._solution_type = self._odesign.GetSolutionType()
@@ -526,17 +527,18 @@ class DesignSolution(object):
                     self._solution_type = solutions_defaults[self._design_type]
             else:
                 self._solution_type = solutions_defaults[self._design_type]
-        elif value and value in self._solution_options and self._solution_options[value]["name"]:
+        elif value and value in self._solution_options:
             self._solution_type = value
-            if self._solution_options[value]["options"]:
-                self._odesign.SetSolutionType(
-                    self._solution_options[value]["name"], self._solution_options[value]["options"]
-                )
-            else:
-                try:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"])
-                except:
-                    self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
+            if self._solution_options[value]["name"]:
+                if self._solution_options[value]["options"]:
+                    self._odesign.SetSolutionType(
+                        self._solution_options[value]["name"], self._solution_options[value]["options"]
+                    )
+                else:
+                    try:
+                        self._odesign.SetSolutionType(self._solution_options[value]["name"])
+                    except:
+                        self._odesign.SetSolutionType(self._solution_options[value]["name"], "")
 
     @property
     def report_type(self):
