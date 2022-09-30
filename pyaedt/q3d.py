@@ -787,7 +787,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is ``False``.
         include_acr : bool, optional
             Flag indicates whether to export AC resistance matrix.
-            Default value is False.
+            Default value is ``False``.
         include_acl : bool, optional
             Flag indicates whether to export AC inductance matrix.
             Default value is False.
