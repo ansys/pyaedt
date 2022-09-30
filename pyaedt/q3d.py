@@ -720,13 +720,13 @@ class QExtractor(FieldAnalysis3D, object):
         user_changed_settings=True,
         include_cap=True,
         include_cond=True,
-        include_dcr=True,
-        include_dcl=True,
-        include_acr=True,
-        include_acl=True,
+        include_dcr=False,
+        include_dcl=False,
+        include_acr=False,
+        include_acl=False,
         include_r=True,
         include_l=True,
-        add_resistance=True,
+        add_resistance=False,
         parse_pin_names=False,
         export_distributed=True,
         lumped_length="1meter",
@@ -740,6 +740,7 @@ class QExtractor(FieldAnalysis3D, object):
         model_name=None,
         freq=0,
         file_type="HSPICE",
+        include_cpp=False,
     ):
         """Export matrix data.
 
@@ -780,16 +781,16 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is None.
         include_dcr : bool, optional
             Flag indicates whether to export DC resistance matrix.
-            Default value is True.
+            Default value is False.
         include_dcl : bool, optional
             Flag indicates whether to export DC Inductance matrix.
-            Default value is True.
+            Default value is False.
         include_acr : bool, optional
             Flag indicates whether to export AC resistance matrix.
-            Default value is True.
+            Default value is False.
         include_acl : bool, optional
             Flag indicates whether to export AC inductance matrix.
-            Default value is True.
+            Default value is False.
         include_r : bool, optional
             Flag indicates whether to export resistance.
             Default value is True.
@@ -846,6 +847,9 @@ class QExtractor(FieldAnalysis3D, object):
             "Welement": Nexxim/HSPICE W Element file format
             "RLGC": Nexxim/HSPICE RLGC W Element file format
             Default value is Hspice.
+        include_cpp : bool, optional
+            Whether to include chip package control.
+            Default value is False.
 
         Returns
         -------
@@ -1044,8 +1048,25 @@ class QExtractor(FieldAnalysis3D, object):
             self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
             return False
 
+        if include_cpp:
+            if settings.aedt_version >= "2023.2":
+                if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
+                    self.logger.error(
+                        "Select DC/AC resistance/inductance to include "
+                        "the chip package control data in export circuit."
+                    )
+                    return False
+                else:
+                    circuit_settings = self.oanalysis.GetCircuitSettings()
+                    for setting in circuit_settings:
+                        if isinstance(setting, tuple):
+                            if setting[0] == "NAME:CPPInfo":
+                                cpp_settings = setting
+            else:
+                include_cpp = False
+                cpp_settings = []
+
         if self.modeler._is3d:
-            # IncludeCPP always False, unable to access chip package information.
             try:
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
@@ -1077,7 +1098,8 @@ class QExtractor(FieldAnalysis3D, object):
                         "ParsePinNames:=",
                         parse_pin_names,
                         "IncludeCPP:=",
-                        False,
+                        include_cpp,
+                        cpp_settings,
                     ],
                     model_name,
                     freq,
