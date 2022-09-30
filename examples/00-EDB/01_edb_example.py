@@ -166,7 +166,13 @@ edb.core_siwave.add_siwave_dc_analysis(settings)
 edb.save_edb()
 edb.core_nets.plot(None, "TOP")
 
-edb.solve_siwave()
+siw_file = edb.solve_siwave()
+
+###############################################################################
+# Export Siwave Reports
+# ~~~~~~~~~~~~~~~~~~~~~
+# Export all DC Reports quantities.
+outputs = edb.export_siwave_dc_results(siw_file, settings.name, )
 
 ###############################################################################
 # Close EDB
