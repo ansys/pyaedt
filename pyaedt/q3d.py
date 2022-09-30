@@ -781,7 +781,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is None.
         include_dcr : bool, optional
             Flag indicates whether to export DC resistance matrix.
-            Default value is False.
+            Default value is ``False``.
         include_dcl : bool, optional
             Flag indicates whether to export DC Inductance matrix.
             Default value is False.
