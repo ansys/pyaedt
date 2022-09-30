@@ -244,8 +244,8 @@ class SiwaveSolve(object):
 
             if power_tree:
                 csv_file = os.path.join(output_folder, "powertree.csv")
-                with open(csv_file, "w") as c:
-                    pass
+                c = open(csv_file, "w")
+                c.close()
                 png_file = os.path.join(output_folder, "powertree.png")
                 f.write("proj.ScrExportDcPowerTree('{}',r'{}', r'{}' )\n".format(solution_name, csv_file, png_file))
                 output_list.append(png_file)
