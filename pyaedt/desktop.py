@@ -846,7 +846,7 @@ class Desktop:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._desktop.ClearMessages("", "", 3)
+        self.odesktop.ClearMessages("", "", 3)
         return True
 
     @pyaedt_function_handler()
