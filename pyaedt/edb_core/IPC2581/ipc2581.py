@@ -39,12 +39,42 @@ class IPC2581(object):
     @pyaedt_function_handler()
     def load_ipc_model(self):
         self.design_name = self._pedb._active_layout.GetCell().GetName()
+        self.ecad.design_name = self.design_name
+        self.ecad.cad_header.units = self.units
 
-        for layer_name in list(self._pedb.stackup.layer.keys()):
+        for layer_name in list(self._pedb.stackup.layers.keys()):
             self.content.add_layer_ref(layer_name)
-            layer_color = self._pedb.stackup.layer[layer_name].color
+            layer_color = self._pedb.stackup.layers[layer_name].color
             self.content.dict_colors.add_color(
                 "COLOR_{}".format(layer_name), str(layer_color[0]), str(layer_color[1]), str(layer_color[2])
+            )
+            # Ecad layers
+
+            layer_type = "CONDUCTOR"
+            conductivity = 5e6
+            permitivity = 1.0
+            loss_tg = 0.0
+            material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
+            edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
+            if self._pedb.stackup.layers[layer_name].type == "dielectric":
+                layer_type = "DIELECTRIC"
+                permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[
+                    1
+                ].ToDouble()
+                loss_tg = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.DielectricLossTangent)[
+                    1
+                ].ToDouble()
+            if layer_type == "CONDUCTOR":
+                conductivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Conductivity)[
+                    1
+                ].ToDouble()
+            self.ecad.cad_header.add_spec(
+                name=layer_name,
+                material=self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial(),
+                layer_type=layer_type,
+                conductivity=str(conductivity),
+                dielectric_constant=permitivity,
+                loss_tg=loss_tg,
             )
 
         for path_width in list(set([path.GetWidth() for path in self._pedb.core_primitives.paths])):
@@ -72,6 +102,3 @@ class IPC2581(object):
                 bom_item.add_refdes(cmp.refdes, cmp.placement_layer)
 
         # Ecad
-        self.ecad.design_name = self.design_name
-        self.ecad.cad_header.units = self.units
-        self.ecad.cad_header.add_spec()
