@@ -2163,3 +2163,16 @@ if not config["skip_edb"]:
             loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
             assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
             edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Not supported in IPY")
+        def test_A125_solve(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_to_be_solved.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            edbapp.core_siwave.create_exec_file(add_dc=True)
+            out = edbapp.solve_siwave()
+            assert os.path.exists(out)
+            res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
+            for i in res:
+                assert os.path.exists(i)
