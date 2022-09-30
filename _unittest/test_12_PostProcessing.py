@@ -412,7 +412,7 @@ class TestClass(BasisTest, object):
         files = self.circuit_test.export_results()
         assert len(files) > 0
         files = self.q2dtest.export_results()
-        assert len(files) == 0
+        assert len(files) > 0
         files = self.q3dtest.export_results()
         assert len(files) > 0
 

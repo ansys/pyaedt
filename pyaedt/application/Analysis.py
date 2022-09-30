@@ -656,7 +656,7 @@ class Analysis(Design, object):
             excitations = len(self.excitations)
         else:
             setups = self.oanalysis.GetSetups()
-            if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+            if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
                 excitations = len(self.oexcitation.GetAllPortsList())
             elif self.design_type == "2D Extractor":
                 excitations = self.oboundary.GetNumExcitations("SignalLine")
@@ -689,22 +689,28 @@ class Analysis(Design, object):
                     pass
                 for sweep in sweeps:
                     variation_array = self.list_of_variations(s, sweep)
-                    if len(variation_array) == 1:
-                        export_path = os.path.join(export_folder, "{}.prof".format(self.project_name))
-                        result = self.export_profile(s, variation_array[0], export_path)
+                    if not variation_array:
+                        variation_array = [""]
+                    varCount = 0
+                    for variation in variation_array:
+                        varCount += 1
+                        export_path = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
+                        result = self.export_profile(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        export_path = os.path.join(export_folder, "{}.conv".format(self.project_name))
-                        result = self.export_convergence(s, variation_array[0], export_path)
+                        export_path = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
+                        self.logger.info("Export Convergence: %s", export_path)
+                        result = self.export_convergence(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
+                        if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
                             try:
                                 export_path = os.path.join(
-                                    export_folder, "{0}.s{1}p".format(self.project_name, excitations)
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
                                 )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 self.osolution.ExportNetworkData(
-                                    variation_array[0],
+                                    variation,
                                     ["{0}:{1}".format(s, sweep)],
                                     3,
                                     export_path,
@@ -723,50 +729,6 @@ class Analysis(Design, object):
                                 self.logger.info("Exported Touchstone: %s", export_path)
                             except:
                                 self.logger.warning("Export SnP failed: no solutions found")
-
-                    else:
-                        varCount = 0
-                        for variation in variation_array:
-                            varCount += 1
-                            export_path = os.path.join(
-                                export_folder, "{0}_{1}.prof".format(self.project_name, varCount)
-                            )
-                            result = self.export_profile(s, variation, export_path)
-                            if result:
-                                exported_files.append(export_path)
-                            export_path = os.path.join(
-                                export_folder, "{0}_{1}.conv".format(self.project_name, varCount)
-                            )
-                            self.logger.info("Export Convergence: %s", export_path)
-                            result = self.export_convergence(s, variation, export_path)
-                            if result:
-                                exported_files.append(export_path)
-                            if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
-                                try:
-                                    export_path = os.path.join(
-                                        export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
-                                    )
-                                    self.logger.info("Export SnP: {}".format(export_path))
-                                    self.osolution.ExportNetworkData(
-                                        variation,
-                                        ["{0}:{1}".format(s, sweep)],
-                                        3,
-                                        export_path,
-                                        ["All"],
-                                        True,
-                                        50,
-                                        "S",
-                                        -1,
-                                        0,
-                                        15,
-                                        True,
-                                        False,
-                                        False,
-                                    )
-                                    exported_files.append(export_path)
-                                    self.logger.info("Exported Touchstone: %s", export_path)
-                                except:
-                                    self.logger.warning("Export SnP failed: no solutions found")
         return exported_files
 
     @pyaedt_function_handler()
