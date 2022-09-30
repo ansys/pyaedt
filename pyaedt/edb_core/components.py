@@ -1015,7 +1015,7 @@ class Components(object):
             edb_rlc_component_property
         ):
             return False  # pragma no cover
-        new_cmp.SetTransform(hosting_component_location[1], hosting_component_location[2])
+        new_cmp.SetTransform(hosting_component_location)
         return new_cmp
 
     @pyaedt_function_handler()
