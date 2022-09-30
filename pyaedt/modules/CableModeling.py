@@ -79,6 +79,14 @@ class Cable:
                 bundle_cables_list = self.cable_definitions.get("CableBundle")
             for x in bundle_cables_list:
                 self.existing_bundle_cables_names.append(x["BundleAttribs"]["Name"])
+                if x["Instances"]["StWireInstance"]:
+                    self.cables_in_bundle_dict = {}
+                    stwire_instances = []
+                    for stwire in x["Instances"]["StWireInstance"]:
+                        stwire_instances.append(stwire["CableInstAttribs"]["Name"])
+                    self.cables_in_bundle_dict[x["BundleAttribs"]["Name"]] = []
+                    self.cables_in_bundle_dict[x["BundleAttribs"]["Name"]].append(stwire_instances)
+
         if self.cable_definitions.get("StWireCable"):
             if not isinstance(self.cable_definitions.get("StWireCable"), list):
                 st_wire_cables_list.append(self.cable_definitions.get("StWireCable"))
@@ -656,7 +664,7 @@ class Cable:
                         "Type:=",
                         "CableHarness",
                         "Unit:=",
-                        "mm",
+                        self._app.modeler.model_units,
                         "Harness:=",
                         self.cable_harness_name,
                         "HarnessPartID:=",
@@ -1119,8 +1127,12 @@ class Cable:
                 else:
                     self.cable_harness_bundle = values["CableHarness"]["Bundle"]
 
-                unit = decompose_variable_value(values["CableHarness"]["TwistAngleAlongRoute"])[1]
-                if unit not in ["deg", "degmin", "degsec", "rad"]:
+                if decompose_variable_value(values["CableHarness"]["TwistAngleAlongRoute"])[1] not in [
+                    "deg",
+                    "degmin",
+                    "degsec",
+                    "rad",
+                ]:
                     msg = "Angle's unit provided is not valid."
                     raise ValueError(msg)
                 else:
@@ -1130,14 +1142,16 @@ class Cable:
                     msg = "Polyline doesn't exist in the current project."
                     raise ValueError(msg)
                 else:
-                    self.cable_harness_polyline = values["CableHarness"]["Polyline"]
+                    self.cable_harness_polyline = [
+                        x for x in self._app.modeler.object_names if values["CableHarness"]["Polyline"] == x.lower()
+                    ][0]
 
                 if (
                     values["CableHarness"]["AutoOrient"].lower() == "true"
                     or values["CableHarness"]["AutoOrient"].lower() == "false"
                 ):
                     self.cable_harness_auto_orient = values["CableHarness"]["AutoOrient"].title()
-                    if values["CableHarness"]["AutoOrient"].lower() == "true":
+                    if values["CableHarness"]["AutoOrient"].lower() == "false":
                         if values["CableHarness"]["XAxis"] not in ["Undefined", "NewVector"]:
                             msg = "Invalid value for cable harness x axis."
                             raise ValueError(msg)
@@ -1161,6 +1175,12 @@ class Cable:
                                 raise ValueError(msg)
                             else:
                                 self.cable_harness_x_axis_end_point = values["CableHarness"]["XAxisEnd"]
+                        elif values["CableHarness"]["XAxis"] == "Undefined":
+                            self.cable_harness_x_axis_origin = ["0mm", "0mm", "0mm"]
+                            self.cable_harness_x_axis_end_point = ["0mm", "0mm", "0mm"]
+                    elif values["CableHarness"]["AutoOrient"].lower() == "true":
+                        self.cable_harness_x_axis_origin = ["0mm", "0mm", "0mm"]
+                        self.cable_harness_x_axis_end_point = ["0mm", "0mm", "0mm"]
                 else:
                     msg = "Provide  valid value for auto orientation boolean."
                     raise ValueError(msg)
@@ -1179,11 +1199,7 @@ class Cable:
                     # check if cable to include in harness exists in current project
                     self.args = []
                     for x in cable_terminations_to_include:
-                        if x["CableName"] in [
-                            self.existing_bundle_cables_names,
-                            self.existing_twisted_pair_cables_names,
-                            self.existing_straight_wire_cables_names,
-                        ]:
+                        if x["CableName"] in self.cables_in_bundle_dict:
                             if x["Assignment"] not in [
                                 "Reference Conductor",
                                 "Input Terminations",
@@ -1192,7 +1208,7 @@ class Cable:
                                 msg = "Invalid cable harness assignment."
                                 raise ValueError(msg)
                             elif x["Assignment"] == "Reference Conductor":
-                                ref_cond = ["NAME:RefConductors", x["Name"]]
+                                ref_cond = ["NAME:RefConductors", x["CableName"]]
                                 self.args.append(ref_cond)
                             elif x["Assignment"] == "Input Terminations" or x["Assignment"] == "Output Terminations":
                                 terminations = []
@@ -1200,10 +1216,10 @@ class Cable:
                                     terminations.append("NAME:InputTerminations")
                                 elif x["Assignment"] == "Output Terminations":
                                     terminations.append("NAME:OutputTerminations")
-                                terminations.append(x["Name"])
+                                terminations.append(x["CableName"])
                                 assignment_type = []
                                 if x["AssignmentType"] == "Impedance":
-                                    if decompose_variable_value(cable_terminations_to_include["Impedance"])[1] not in [
+                                    if decompose_variable_value(x["Impedance"])[1] not in [
                                         "GOhm",
                                         "kOhm",
                                         "megohm",
@@ -1227,7 +1243,7 @@ class Cable:
                                             raise ValueError(msg)
                                         else:
                                             assignment_type.append("/'{}/'".format(x["Source"]["Name"]))
-                                    elif x["Source"]["Type"] == "Signal Value":
+                                    elif x["Source"]["Type"] == "Single Value":
                                         if decompose_variable_value(x["Source"]["Signal"])[1] not in [
                                             "fV",
                                             "pV",
@@ -1254,6 +1270,11 @@ class Cable:
                                             assignment_type.append("Imped:=")
                                             assignment_type.append(x["Source"]["ImpedanceValue"])
                                 terminations.append(assignment_type)
+                                # assignment_type = ["Imped:=", "50ohm"]
+                                # for cable in [*self.existing_straight_wire_cables_names]:
+                                #     if cable != x["CableName"]:
+                                #         terminations.append(cable)
+                                #         terminations.append(assignment_type)
                                 self.args.append(terminations)
 
             except ValueError as e:
