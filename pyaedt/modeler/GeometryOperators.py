@@ -1558,7 +1558,7 @@ class GeometryOperators(object):
             asum += a
         if abs(asum) < tol:
             return -1
-        elif abs(asum) - 2*math.pi < tol:
+        elif abs(asum - 2*math.pi) < tol:
             return 1
         else:  # pragma: no cover
             raise Exception("Unexpected error!")

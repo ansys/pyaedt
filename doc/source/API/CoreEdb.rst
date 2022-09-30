@@ -78,6 +78,7 @@ These classes are the containers of data read from the EDB file:
    :toctree: _autosummary
    :nosignatures:
 
+   stackup.LayerEdbClass
    EDB_Data.EDBLayer
    EDB_Data.EDBLayers
    EDB_Data.EDBPadProperties
