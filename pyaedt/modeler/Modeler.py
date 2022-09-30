@@ -2435,7 +2435,7 @@ class GeometryModeler(Modeler, object):
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
             orig_3d = [i for i in self.user_defined_component_names]
-        added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
+        added_objs = _retry_ntimes(5, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
         self.add_new_objects()
         if is_3d_comp:
             added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]

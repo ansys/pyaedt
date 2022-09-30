@@ -985,14 +985,22 @@ class EdbSiwave(object):
         return self.create_pin_group_terminal(dc_source)
 
     @pyaedt_function_handler()
-    def create_exec_file(self):
+    def create_exec_file(self, add_dc=False, add_ac=False, add_syz=False):
         """Create an executable file."""
         workdir = os.path.dirname(self._pedb.edbpath)
         file_name = os.path.join(workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + ".exec")
         if os.path.isfile(file_name):
             os.remove(file_name)
-        f = open(file_name, "w")
-        return f
+        with open(file_name, "w") as f:
+            if add_ac:
+                f.write("ExecAcSim\n")
+            if add_dc:
+                f.write("ExecDcSim\n")
+            if add_syz:
+                f.write("ExecSyzSim\n")
+            f.write("SaveSiw\n")
+
+        return True if os.path.exists(file_name) else False
 
     @pyaedt_function_handler()
     def add_siwave_ac_analysis(
@@ -1039,10 +1047,7 @@ class EdbSiwave(object):
             str(step_freq),
             discrete_sweep,
         )
-        exec_file = self.create_exec_file()
-        exec_file.write("ExecAcSim\n")
-        exec_file.close()
-        return True
+        return self.create_exec_file(add_ac=True)
 
     @pyaedt_function_handler()
     def add_siwave_syz_analysis(
@@ -1090,11 +1095,7 @@ class EdbSiwave(object):
             str(step_freq),
             discrete_sweep,
         )
-        exec_file = self.create_exec_file()
-        exec_file.write("ExecSyzSim\n")
-        exec_file.write("SaveSiw\n")
-        exec_file.close()
-        return True
+        return self.create_exec_file(add_syz=True)
 
     @pyaedt_function_handler()
     def get_siwave_dc_setup_template(self):
@@ -1172,17 +1173,11 @@ class EdbSiwave(object):
         sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_to_ground
         simulationSetup = self._edb.Utility.SIWaveDCIRSimulationSetup(sim_setup_info)
         if self._cell.AddSimulationSetup(simulationSetup):
-            exec_file = self.create_exec_file()
-            exec_file.write("ExecDcSim\n")
-            exec_file.close()
-            return True
+            return self.create_exec_file(add_dc=True)
         else:
             self._cell.DeleteSimulationSetup(setup_settings.name)
             if self._cell.AddSimulationSetup(simulationSetup):
-                exec_file = self.create_exec_file()
-                exec_file.write("ExecDcSim\n")
-                exec_file.close()
-                return True
+                return self.create_exec_file(add_dc=True)
         return False
 
     @pyaedt_function_handler()
