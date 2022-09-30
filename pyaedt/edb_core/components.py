@@ -973,7 +973,7 @@ class Components(object):
             self._logger.error("Failed to create component definition")
             return False
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
-        hosting_component_location = pins[0].GetComponent().GetLocation()
+        hosting_component_location = pins[0].GetComponent().GetTransform()
         for pin in pins:
             new_cmp.AddMember(pin)
         new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
@@ -1015,7 +1015,7 @@ class Components(object):
             edb_rlc_component_property
         ):
             return False  # pragma no cover
-        new_cmp.SetLocation(hosting_component_location[1], hosting_component_location[2])
+        new_cmp.SetTransform(hosting_component_location)
         return new_cmp
 
     @pyaedt_function_handler()
