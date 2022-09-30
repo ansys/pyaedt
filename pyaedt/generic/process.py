@@ -9,121 +9,9 @@ else:
     import subprocess
 
 
-class AedtSolve(object):
-    """
-    Class dedicated for calling Aedt solvers.
-
-    .. note::
-       Only solving on local machines is supported for the moment.
-
-    Examples
-    --------
-    >>> from pyaedt import AedtSolve
-    >>> solver = process.AedtSolve()
-    >>> solver.nongraphical = True
-    >>> solver.projectpath = edb_file
-    >>> solver.solve()
-    """
-
-    def __init__(self, aedt_version="2021.2", aedt_installer_path=None):
-        self._project_path = ""
-        self._command = []
-        self._nbcores = 4
-        self._ng = True
-        self._local = True
-        self._logfile = ""
-        if aedt_installer_path:
-            self.installer_path = aedt_installer_path
-        else:
-            try:
-                self.installer_path = env_path(aedt_version)
-            except:
-                raise Exception("Either a valid aedt version or full path has to be provided")
-
-    @property
-    def projectpath(self):
-        return self._project_path
-
-    @projectpath.setter
-    def projectpath(self, value):
-        self._project_path = value
-        self._logfile = os.path.splitext(self._project_path)[0] + ".log"
-
-    @property
-    def exepath(self):
-        return self._exe
-
-    @exepath.setter
-    def exepath(self, value):
-        self._exe = value
-
-    @property
-    def command(self):
-        return self._command
-
-    @command.setter
-    def command(self, value):
-        self._command = value
-
-    @property
-    def nbcores(self):
-        return self._nbcores
-
-    @nbcores.setter
-    def nbcores(self, value):
-        self._nbcores = value
-
-    @property
-    def nongraphical(self):
-        return self._ng
-
-    @nongraphical.setter
-    def nongraphical(self, value):
-        self._ng = value
-
-    @property
-    def local(self):
-        return self._local
-
-    @local.setter
-    def local(self, value):
-        self._local = value
-
-    @property
-    def logfile(self):
-        return self._logfile
-
-    @logfile.setter
-    def logfile(self, value):
-        self._logfile = value
-
-    def solve(self):
-        if os.name == "posix":
-            self.command.append(os.path.join(self.installer_path, "ansysedt"))
-        else:
-            self.command.append(os.path.join(self.installer_path, "ansysedt.exe"))
-        if self.nongraphical:
-            self.command.append("-Batchsolve")
-            self.command.append("-ng")
-            self.command.append("-Monitor")
-            self.command.append("-MachineList")
-            # TODO Add batch option support
-        if self._local:
-            pass
-
-        # self.Command.append('-Auto')
-        self.command.append("-machinelist numcores={}".format(self.nbcores))
-        self.command.append("-LogFile")
-        self.command.append(self.logfile)
-        self.command.append(self.projectpath)
-        print(self._command)
-        p = subprocess.Popen(self.command)
-        p.wait()
-
-
 class SiwaveSolve(object):
-    def __init__(self, project_path, aedt_version="2021.2", aedt_installer_path=None):
-        self._project_path = project_path
+    def __init__(self, aedb_path="", aedt_version="2021.2", aedt_installer_path=None):
+        self._project_path = aedb_path
         self._exec_path = ""
         self._nbcores = 4
         self._ng = True
@@ -272,3 +160,124 @@ class SiwaveSolve(object):
         # p1 = subprocess.call(" ".join(command))
         # p1.wait()
         return os.path.join(output_folder, aedt_file_name)
+
+    def export_dc_report(
+        self,
+        siwave_project,
+        solution_name,
+        output_folder=None,
+        html_report=True,
+        vias=True,
+        voltage_probes=True,
+        current_sources=True,
+        voltage_sources=True,
+        power_tree=True,
+        loop_res=True,
+        hidden=True,
+    ):
+        """Close EDB and solve it with Siwave.
+
+        Parameters
+        ----------
+        siwave_project : str
+            Siwave full project name.
+        solution_name : str
+            Siwave DC Analysis name.
+        output_folder : str, optional
+            Ouptu folder where files will be downloaded.
+        html_report : bool, optional
+            Either if generate or not html report. Default is `True`.
+        vias : bool, optional
+            Either if generate or not vias report. Default is `True`.
+        voltage_probes : bool, optional
+            Either if generate or not voltage probe report. Default is `True`.
+        current_sources : bool, optional
+            Either if generate or not current source report. Default is `True`.
+        voltage_sources : bool, optional
+            Either if generate or not voltage source report. Default is `True`.
+        power_tree : bool, optional
+            Either if generate or not power tree image. Default is `True`.
+        loop_res : bool, optional
+            Either if generate or not loop resistance report. Default is `True`.
+        Returns
+        -------
+        list
+            list of files generated.
+        """
+        if not output_folder:
+            output_folder = os.path.dirname(self.projectpath)
+        output_list = []
+        scriptname = os.path.join(output_folder, "export_results.py")
+        with open(scriptname, "w") as f:
+            f.write("oApp.OpenProject(r'{}')\n".format(siwave_project))
+            if html_report:
+
+                f.write("proj = oApp.GetActiveProject()\n")
+
+                f.write("proj.ScrExportDcSimReportColorBarProperties(14,2,False,True)\n")
+
+                f.write("proj.ScrExportDcSimReportScaling('All','All',-1,-1,False)\n")
+                report_name = os.path.join(output_folder, solution_name + ".htm")
+                f.write("proj.ScrExportDcSimReport('{}','White',r'{}')\n".format(solution_name, report_name))
+                output_list.append(report_name)
+            if vias:
+                via_name = os.path.join(output_folder, "vias.txt")
+                f.write("proj.ScrExportElementData('{}',r'{}','Vias')\n".format(solution_name, via_name))
+                output_list.append(via_name)
+
+            if voltage_probes:
+                probes_names = os.path.join(output_folder, "voltage_probes.txt")
+                f.write("proj.ScrExportElementData('{}',r'{}','Voltage Probes')\n".format(solution_name, probes_names))
+                output_list.append(probes_names)
+
+            if current_sources:
+                source_name = os.path.join(output_folder, "current_sources.txt")
+
+                f.write("proj.ScrExportElementData('{}',r'{}','Current Sources')\n".format(solution_name, source_name))
+                output_list.append(source_name)
+
+            if voltage_sources:
+                sources = os.path.join(output_folder, "v_sources.txt")
+
+                f.write("proj.ScrExportElementData('{}',r'{}','Voltage Sources')\n".format(solution_name, sources))
+                output_list.append(sources)
+
+            if power_tree:
+                csv_file = os.path.join(output_folder, "powertree.csv")
+                with open(csv_file, "w") as c:
+                    pass
+                png_file = os.path.join(output_folder, "powertree.png")
+                f.write("proj.ScrExportDcPowerTree('{}',r'{}', r'{}' )\n".format(solution_name, csv_file, png_file))
+                output_list.append(png_file)
+
+            if loop_res:
+                f.write("sourceNames=[]\n")
+                f.write("sourceData=[]\n")
+                f.write("proj.ScrReadDCLoopResInfo('{}', sourceNames, sourceData)\n".format(solution_name))
+                loop_res = os.path.join(output_folder, "loop_res.txt")
+                f.write("with open('{}','w') as f:\n".format(loop_res))
+
+                f.write("  f.writelines('Sources\tValue\\n')\n")
+
+                f.write("  for a, b in zip(sourceNames, sourceData):\n")
+
+                f.write("      f.writelines(a + '\t' + b + '\\n')\n")
+                output_list.append(loop_res)
+
+            f.write("proj.ScrCloseProject()\n")
+
+            f.write("oApp.Quit()\n")
+        if os.name == "posix":
+            _exe = '"' + os.path.join(self.installer_path, "siwave") + '"'
+        else:
+            _exe = '"' + os.path.join(self.installer_path, "siwave.exe") + '"'
+        command = [_exe]
+        if hidden:
+            command.append("-embedding")
+        command.append("-RunScriptAndExit")
+        command.append(scriptname)
+        print(command)
+        os.system(" ".join(command))
+        # p1 = subprocess.call(" ".join(command))
+        # p1.wait()
+        return output_list
