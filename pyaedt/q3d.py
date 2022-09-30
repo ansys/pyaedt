@@ -1062,9 +1062,9 @@ class QExtractor(FieldAnalysis3D, object):
                         if isinstance(setting, tuple):
                             if setting[0] == "NAME:CPPInfo":
                                 cpp_settings = setting
-            else:
-                include_cpp = False
-                cpp_settings = []
+        else:
+            include_cpp = False
+            cpp_settings = []
 
         if self.modeler._is3d:
             try:
