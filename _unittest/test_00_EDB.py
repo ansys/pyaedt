@@ -1427,15 +1427,21 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
-            from pyaedt import Edb as local_edb
-
-            app_edb = local_edb(edbversion="2022.1")
+            app_edb = Edb(edbversion=desktop_version)
             assert not app_edb.core_stackup.create_symmetric_stackup(9)
             assert app_edb.core_stackup.create_symmetric_stackup(8)
             app_edb.close_edb()
 
-            app_edb = local_edb(edbversion="2022.1")
+            app_edb = Edb(edbversion=desktop_version)
             assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
+            app_edb.close_edb()
+            app_edb = Edb(edbversion=desktop_version)
+            assert not app_edb.stackup.create_symmetric_stackup(9)
+            assert app_edb.stackup.create_symmetric_stackup(8)
+            app_edb.close_edb()
+
+            app_edb = Edb(edbversion=desktop_version)
+            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
             app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
@@ -2101,11 +2107,72 @@ if not config["skip_edb"]:
             edbapp.close_edb()
 
         def test_A123_comp_def(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            edbapp = Edb(target_path, edbversion=desktop_version)
-            assert edbapp.core_components.component_definition
-            comp_def = edbapp.core_components.component_definition["G83568-001"]
+            assert self.edbapp.core_components.components
+            assert self.edbapp.core_components.definitions
+            comp_def = self.edbapp.core_components.definitions["G83568-001"]
             assert comp_def
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
+            assert len(comp_def.components) > 0
+
+        def test_A124_material(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert isinstance(edbapp.materials.materials, dict)
+            edbapp.materials["FR4_epoxy"].conductivity = 1
+            assert edbapp.materials["FR4_epoxy"].conductivity == 1
+            edbapp.materials["FR4_epoxy"].permittivity = 1
+            assert edbapp.materials["FR4_epoxy"].permittivity == 1
+            edbapp.materials["FR4_epoxy"].loss_tangent = 1
+            assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
+            edbapp.materials.add("new_material", 1, 2, 3)
+            edbapp.materials["FR4_epoxy"].magnetic_loss_tangent = 0.01
+            assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == 0.01
+            edbapp.materials["FR4_epoxy"].youngs_modulus = 5000
+            assert edbapp.materials["FR4_epoxy"].youngs_modulus == 5000
+            edbapp.materials["FR4_epoxy"].mass_density = 50
+
+            assert edbapp.materials["FR4_epoxy"].mass_density == 50
+            edbapp.materials["FR4_epoxy"].thermal_conductivity = 1e-5
+
+            assert edbapp.materials["FR4_epoxy"].thermal_conductivity == 1e-5
+            edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient = 1e-7
+
+            assert edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient == 1e-7
+            edbapp.materials["FR4_epoxy"].poisson_ratio = 1e-3
+            assert edbapp.materials["FR4_epoxy"].poisson_ratio == 1e-3
+            assert edbapp.materials["new_material"]
+            assert edbapp.materials.duplicate("FR4_epoxy", "FR41")
+            assert edbapp.materials["FR41"]
+            assert edbapp.materials["FR4_epoxy"].conductivity == edbapp.materials["FR41"].conductivity
+            assert edbapp.materials["FR4_epoxy"].permittivity == edbapp.materials["FR41"].permittivity
+            assert edbapp.materials["FR4_epoxy"].loss_tangent == edbapp.materials["FR41"].loss_tangent
+            assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == edbapp.materials["FR41"].magnetic_loss_tangent
+            assert edbapp.materials["FR4_epoxy"].youngs_modulus == edbapp.materials["FR41"].youngs_modulus
+            assert edbapp.materials["FR4_epoxy"].mass_density == edbapp.materials["FR41"].mass_density
+            assert edbapp.materials["FR4_epoxy"].thermal_conductivity == edbapp.materials["FR41"].thermal_conductivity
+            assert (
+                edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient
+                == edbapp.materials["FR41"].thermal_expansion_coefficient
+            )
+            assert edbapp.materials["FR4_epoxy"].poisson_ratio == edbapp.materials["FR41"].poisson_ratio
+            assert edbapp.materials.add_debye_material("My_Debye2", 5, 3, 0.02, 0.05, 1e5, 1e9)
+            assert edbapp.materials.add_djordjevicsarkar_material("MyDjord2", 3.3, 0.02, 3.3)
+            freq = [0, 2, 3, 4, 5, 6]
+            rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
+            loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
+            assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
             edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Not supported in IPY")
+        def test_A125_solve(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_to_be_solved.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            edbapp.core_siwave.create_exec_file(add_dc=True)
+            out = edbapp.solve_siwave()
+            assert os.path.exists(out)
+            res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
+            for i in res:
+                assert os.path.exists(i)

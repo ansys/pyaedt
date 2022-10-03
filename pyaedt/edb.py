@@ -35,6 +35,7 @@ from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
@@ -233,6 +234,7 @@ class Edb(object):
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
+        self._materials = Materials(self)
 
         self.logger.info("Objects Initialized")
 
@@ -634,6 +636,13 @@ class Edb(object):
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
+
+    @property
+    def materials(self):
+        """Material Database."""
+        if not self._materials and self.builder:
+            self._materials = Materials(self)
+        return self._materials
 
     @property
     def core_padstack(self):
@@ -1517,7 +1526,8 @@ class Edb(object):
 
         Returns
         -------
-        bool
+        str
+            Siwave project path.
         """
         process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
         try:
@@ -1525,7 +1535,69 @@ class Edb(object):
         except:
             pass
         process.solve()
-        return True
+        return self.edbpath[:-5] + ".siw"
+
+    @pyaedt_function_handler()
+    def export_siwave_dc_results(
+        self,
+        siwave_project,
+        solution_name,
+        output_folder=None,
+        html_report=True,
+        vias=True,
+        voltage_probes=True,
+        current_sources=True,
+        voltage_sources=True,
+        power_tree=True,
+        loop_res=True,
+    ):
+        """Close EDB and solve it with Siwave.
+
+        Parameters
+        ----------
+        siwave_project : str
+            Siwave full project name.
+        solution_name : str
+            Siwave DC Analysis name.
+        output_folder : str, optional
+            Ouptu folder where files will be downloaded.
+        html_report : bool, optional
+            Either if generate or not html report. Default is `True`.
+        vias : bool, optional
+            Either if generate or not vias report. Default is `True`.
+        voltage_probes : bool, optional
+            Either if generate or not voltage probe report. Default is `True`.
+        current_sources : bool, optional
+            Either if generate or not current source report. Default is `True`.
+        voltage_sources : bool, optional
+            Either if generate or not voltage source report. Default is `True`.
+        power_tree : bool, optional
+            Either if generate or not power tree image. Default is `True`.
+        loop_res : bool, optional
+            Either if generate or not loop resistance report. Default is `True`.
+        Returns
+        -------
+        list
+            list of files generated.
+        """
+        process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
+        try:
+            self._db.Close()
+        except:
+            pass
+        return process.export_dc_report(
+            siwave_project,
+            solution_name,
+            output_folder,
+            html_report,
+            vias,
+            voltage_probes,
+            current_sources,
+            voltage_sources,
+            power_tree,
+            loop_res,
+            hidden=True,
+        )
 
     @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
