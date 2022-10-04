@@ -996,7 +996,7 @@ class Padstack(object):
 
     @property
     def padstacks_by_layer(self):
-        """Get the padstacks definition by layers
+        """Get the padstacks definition by layers.
 
         Returns
         -------
