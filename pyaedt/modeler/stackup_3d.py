@@ -804,7 +804,13 @@ class Layer3D(object):
                 dielectric_layer = v
                 break
         if dielectric_layer is None:
-            self._app.logger.error("There is no layer under this layer.")
+            for v in list(self._stackup._stackup.values()):
+                if v._index == self._index + 1:
+                    dielectric_layer = v
+                    break
+            if not dielectric_layer:
+                self._app.logger.error("There is no layer under or over this layer.")
+                return False
 
         created_line = Trace(
             self._app,
@@ -910,6 +916,44 @@ class PadstackLayer(object):
         self._antipad_radius = 2
         self._units = "mm"
 
+    @property
+    def layer_name(self):
+        """Get the padstack instance layer.
+
+        Returns
+        -------
+        str
+        """
+        return self._layer_name
+
+    @property
+    def pad_radius(self):
+        """Get/Set the pad layer on the specified layer.
+
+        Returns
+        -------
+        float
+        """
+        return self._pad_radius
+
+    @pad_radius.setter
+    def pad_radius(self, val):
+        self._pad_radius = val
+
+    @property
+    def antipad_radius(self):
+        """Get/Set the antipad layer on the specified layer.
+
+        Returns
+        -------
+        float
+        """
+        return self._antipad_radius
+
+    @antipad_radius.setter
+    def antipad_radius(self, val):
+        self._antipad_radius = val
+
 
 class Padstack(object):
     """Padstack Class member of Stackup3D."""
@@ -949,6 +993,16 @@ class Padstack(object):
             self._plating_ratio = val
         else:
             self._app.logger.error("Plating has to be between 0 and 1")
+
+    @property
+    def padstacks_by_layer(self):
+        """Get the padstacks definition by layers
+
+        Returns
+        -------
+        dict
+        """
+        return self._padstacks_by_layer
 
     @property
     def num_sides(self):
@@ -1047,10 +1101,10 @@ class Padstack(object):
         found = False
         new_stackup = OrderedDict({})
         for k in list(self._stackup.stackup_layers.keys()):
-            if k == layer:
-                found = True
             if not found and k in list(self._padstacks_by_layer.keys()):
                 new_stackup[k] = self._padstacks_by_layer[k]
+            if k == layer:
+                found = True
         self._padstacks_by_layer = new_stackup
         return True
 
@@ -1087,14 +1141,11 @@ class Padstack(object):
                 self._app.modeler.set_working_coordinate_system(instance_name + "_CS")
                 self._reference_system = instance_name + "_CS"
 
-            first_el = None
             cyls = []
             for v in list(self._padstacks_by_layer.values()):
-                if not first_el:
-                    first_el = v._layer_elevation
-                else:
-                    position_x = self._app.modeler._arg_with_dim(position_x)
-                    position_y = self._app.modeler._arg_with_dim(position_y)
+                position_x = self._app.modeler._arg_with_dim(position_x)
+                position_y = self._app.modeler._arg_with_dim(position_y)
+                if v._pad_radius > 0:
                     cyls.append(
                         self._app.modeler.create_cylinder(
                             "Z",
@@ -1117,6 +1168,7 @@ class Padstack(object):
                             numSides=self._num_sides,
                         )
                         cyls[-1].subtract(hole, False)
+                if v._antipad_radius > 0:
                     anti = self._app.modeler.create_cylinder(
                         "Z",
                         [position_x, position_y, v._layer_elevation.name],
@@ -1124,19 +1176,22 @@ class Padstack(object):
                         v._layer_thickness.name,
                         matname="air",
                         name=instance_name + "_antipad",
+                        numSides=self._num_sides,
                     )
                     self._app.modeler.subtract(
                         self._stackup._signal_list + self._stackup._ground_list + self._stackup._dielectric_list,
                         anti,
                         False,
                     )
-                    first_el = v._layer_elevation
             if len(cyls) > 1:
                 self._app.modeler.unite(cyls)
-            self._vias_objects.append(cyls[0])
-            cyls[0].group_name = "Vias"
-            self._stackup._vias.append(self)
-            return cyls[0]
+            if cyls:
+                self._vias_objects.append(cyls[0])
+                cyls[0].group_name = "Vias"
+                self._stackup._vias.append(self)
+                return cyls[0]
+            else:
+                return
 
 
 class Stackup3D(object):
@@ -1174,7 +1229,6 @@ class Stackup3D(object):
         self._duplicated_material_list = []
         self._object_list = []
         self._vias = []
-        self._end_of_stackup3D = NamedVariable(self._app, "StackUp_End", "0mm")
         self._z_position_offset = 0
         self._first_layer_position = "layer_1_position"
         self._shifted_index = 0
@@ -1184,11 +1238,24 @@ class Stackup3D(object):
         self._dielectric_y_position = NamedVariable(self._app, "dielectric_y_position", "0mm")
         self._dielectric_width = NamedVariable(self._app, "dielectric_width", "1000mm")
         self._dielectric_length = NamedVariable(self._app, "dielectric_length", "1000mm")
+        self._end_of_stackup3D = NamedVariable(self._app, "StackUp_End", "layer_1_position")
+        self._stackup_thickness = NamedVariable(self._app, "StackUp_Thickness", "StackUp_End-layer_1_position")
+
         if frequency:
             self._frequency = NamedVariable(self._app, "frequency", str(frequency) + "Hz")
         else:
             self._frequency = frequency
         self._padstacks = []
+
+    @property
+    def thickness(self):
+        """Get the total stackup thickness.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.stackup_3d.NamedVariable`
+        """
+        return self._stackup_thickness
 
     @property
     def application(self):
