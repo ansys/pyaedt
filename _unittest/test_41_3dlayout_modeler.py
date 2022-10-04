@@ -178,7 +178,6 @@ class TestClass(BasisTest, object):
         s2.is_negative = False
         assert s2.IsNegative is False
 
-        self.aedtapp.modeler.layers.refresh_all_layers()
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "copper"
@@ -683,3 +682,7 @@ class TestClass(BasisTest, object):
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
+
+    def test_97_mesh_settings(self):
+        assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
+        assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)

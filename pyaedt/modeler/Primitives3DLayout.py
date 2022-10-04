@@ -1017,9 +1017,39 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler
     def place_3d_component(
-        self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
-    ):  # pragma: no cover
+        self,
+        component_path,
+        number_of_terminals=1,
+        placement_layer=None,
+        component_name=None,
+        pos_x=0,
+        pos_y=0,
+        create_ports=True,
+    ):
         """Place a Hfss 3d Component in Hfss3dLayout.
+
+        Parameters
+        ----------
+        component_path : str
+            Full path to a3dcomp file.
+        number_of_terminals : int, optional
+            Number of ports in 3d component. Default is `1`.
+        placement_layer : str, optional
+            Layer on which the component will be placed. Default is None for Top Placement.
+        component_name : str, optional
+            Name of component.
+        pos_x : float, optional
+            X placement.
+        pos_y : float, optional
+            Y placement.
+        create_ports : bool, optional
+            Either if expose or not 3D Component Ports.
+
+        Returns
+        -------
+
+        """
+        """
 
         :param component_path:
         :param number_of_terminals:
@@ -1117,6 +1147,8 @@ class Primitives3DLayout(object):
         comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
+        if create_ports:
+            self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
     def create_text(self, text, position, angle=0, font_size=12):

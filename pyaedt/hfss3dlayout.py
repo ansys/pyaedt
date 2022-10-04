@@ -431,7 +431,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreatePin
         """
-        self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
             top_layer = layers[0]
@@ -737,6 +736,40 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             settings.append("NAME:options")
             settings.append("ExportAfterSolve:=")
             settings.append(False)
+        self.odesign.DesignOptions(settings, 0)
+        return True
+
+    @pyaedt_function_handler()
+    def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
+
+        """Export the Touchstone file automatically if the simulation is successful.
+
+        Parameters
+        ----------
+        mesh_method : bool
+            Mesh Method. Valid options are `"Phi"`, `"PhiPlus"` and `"Classic"`.
+        enable_intersections_check : bool, optional
+            Enable/Disable the alternative mesh intersections checks.
+        use_alternative_fallback : bool, optional
+            Enable/Disable the alternative fall back mesh method.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.DesignOptions
+        """
+        settings = []
+        settings.append("NAME:options")
+        settings.append("MeshingMethod:=")
+        settings.append(mesh_method)
+        settings.append("EnableDesignIntersectionCheck:=")
+        settings.append(enable_intersections_check)
+        settings.append("UseAlternativeMeshMethodsAsFallBack:=")
+        settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
 

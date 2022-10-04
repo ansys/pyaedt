@@ -355,7 +355,9 @@ class Layer3D(object):
             self._fill_material_name = self._fill_material.name
         self._thickness_variable = self._name + "_thickness"
         if thickness:
-            self._thickness = NamedVariable(self._app, self._thickness_variable, str(thickness) + "mm")
+            self._thickness = NamedVariable(
+                self._app, self._thickness_variable, self._app.modeler._arg_with_dim(thickness)
+            )
         else:
             self._thickness = None
         if self._layer_type == "dielectric":
@@ -1755,10 +1757,18 @@ class Stackup3D(object):
         minimum_y = min(list_of_y_coordinates)
         variation_x = abs(maximum_x - minimum_x)
         variation_y = abs(maximum_y - minimum_y)
-        self._app["dielectric_x_position"] = str(minimum_x - variation_x * percentage_offset / 100) + "mm"
-        self._app["dielectric_y_position"] = str(minimum_y - variation_y * percentage_offset / 100) + "mm"
-        self._app["dielectric_length"] = str(maximum_x - minimum_x + 2 * variation_x * percentage_offset / 100) + "mm"
-        self._app["dielectric_width"] = str(maximum_y - minimum_y + 2 * variation_y * percentage_offset / 100) + "mm"
+        self._app["dielectric_x_position"] = self._app.modeler._arg_with_dim(
+            minimum_x - variation_x * percentage_offset / 100
+        )
+        self._app["dielectric_y_position"] = self._app.modeler._arg_with_dim(
+            minimum_y - variation_y * percentage_offset / 100
+        )
+        self._app["dielectric_length"] = self._app.modeler._arg_with_dim(
+            maximum_x - minimum_x + 2 * variation_x * percentage_offset / 100
+        )
+        self._app["dielectric_width"] = self._app.modeler._arg_with_dim(
+            maximum_y - minimum_y + 2 * variation_y * percentage_offset / 100
+        )
         return True
 
     def resize_around_element(self, element, percentage_offset=0.25):

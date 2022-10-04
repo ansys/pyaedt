@@ -5,6 +5,8 @@ This module provides all layer stackup functionalities for the Circuit and HFSS 
 """
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
+
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -138,7 +140,7 @@ class Layer(object):
         self._pattern = 1
         self._drawoverride = 0
         self._thickness = 0
-        self._lowerelevation = 0
+        self._lower_elevation = 0
         self._roughness = 0
         self._botroughness = 0
         self._toprounghenss = 0
@@ -402,11 +404,11 @@ class Layer(object):
         -------
         float
         """
-        return self._lowerelevation
+        return self._lower_elevation
 
     @lower_elevation.setter
     def lower_elevation(self, val):
-        self._lowerelevation = val
+        self._lower_elevation = val
         self.update_stackup_layer()
 
     @property
@@ -843,18 +845,65 @@ class Layer(object):
         >>> oEditor.AddStackupLayer
         """
         self.remove_stackup_layer()
+        self.oeditor.AddStackupLayer(self._get_layer_arg)
+        infos = self.oeditor.GetLayerInfo(self.name)
+        infos = [i.split(": ") for i in infos]
+        infosdict = {i[0]: i[1] for i in infos}
+        self.id = int(infosdict["LayerId"])
+
+        return True
+
+    @pyaedt_function_handler()
+    def _arg_with_dim(self, value, units=None):
+        """Argument with dimensions.
+
+        Parameters
+        ----------
+        value :
+
+        units :
+             The default is ``None``.
+
+        Returns
+        -------
+
+        """
+        if isinstance(value, str):
+            val = value
+        else:
+            if units is None:
+                units = self.LengthUnit
+            val = "{0}{1}".format(value, units)
+
+        return val
+
+    @property
+    def _get_layer_arg(self):
+        if self.type in ["signal", "via", "dielectric"]:
+            args = [
+                "NAME:stackup layer",
+                "Name:=",
+                self.name,
+            ]
+        else:
+            args = [
+                "NAME:layer",
+                "Name:=",
+                self.name,
+            ]
+        if self.id > 0:
+            args.extend(
+                ["ID:=", self.id],
+            )
         if self.type == "signal":
-            self.oeditor.AddStackupLayer(
+            args.extend(
                 [
-                    "NAME:stackup layer",
-                    "Name:=",
-                    self.name,
                     "Type:=",
                     self.type,
                     "Top Bottom:=",
                     self.top_bottom,
                     "Color:=",
-                    self.color,
+                    _getIfromRGB(self.color),
                     "Transparency:=",
                     self.transparency,
                     "Pattern:=",
@@ -865,12 +914,14 @@ class Layer(object):
                     self.locked,
                     "DrawOverride:=",
                     self.draw_override,
+                    "Zones:=",
+                    self.zones,
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
                         self.thickness,
                         "LowerElevation:=",
-                        self.lower_elevation,
+                        self._arg_with_dim(self.lower_elevation, self.LengthUnit),
                         "Roughness:=",
                         self._arg_with_dim(self.roughness, self.LengthUnitRough),
                         "BotRoughness:=",
@@ -936,12 +987,9 @@ class Layer(object):
                     str(self.SHRatio),
                 ]
             )
-        else:
-            self.oeditor.AddStackupLayer(
+        elif self.type == "dielectric":
+            args.extend(
                 [
-                    "NAME:stackup layer",
-                    "Name:=",
-                    self.name,
                     "Type:=",
                     self.type,
                     "Top Bottom:=",
@@ -958,6 +1006,8 @@ class Layer(object):
                     self.locked,
                     "DrawOverride:=",
                     self.draw_override,
+                    "Zones:=",
+                    self.zones,
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
@@ -975,196 +1025,26 @@ class Layer(object):
                     ],
                 ]
             )
-        infos = self.oeditor.GetLayerInfo(self.name)
-        infos = [i.split(": ") for i in infos]
-        infosdict = {i[0]: i[1] for i in infos}
-        self.id = int(infosdict["LayerId"])
-        return True
-
-    @pyaedt_function_handler()
-    def _arg_with_dim(self, value, units=None):
-        """Argument with dimensions.
-
-        Parameters
-        ----------
-        value :
-
-        units :
-             The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        if isinstance(value, str):
-            val = value
         else:
-            if units is None:
-                units = self.LengthUnit
-            val = "{0}{1}".format(value, units)
-
-        return val
-
-    @property
-    def _get_layer_arg(self):
-        if self.type == "signal":
-            return [
-                "NAME:stackup layer",
-                "Name:=",
-                self.name,
-                "ID:=",
-                self.id,
-                "Type:=",
-                self.type,
-                "Top Bottom:=",
-                self.top_bottom,
-                "Color:=",
-                _getIfromRGB(self.color),
-                "Transparency:=",
-                self.transparency,
-                "Pattern:=",
-                self.pattern,
-                "VisFlag:=",
-                self.visflag,
-                "Locked:=",
-                self.locked,
-                "DrawOverride:=",
-                self.draw_override,
-                "Zones:=",
-                self.zones,
+            args.extend(
                 [
-                    "NAME:Sublayer",
-                    "Thickness:=",
-                    self.thickness,
-                    "LowerElevation:=",
-                    self._arg_with_dim(self.lower_elevation, self.LengthUnit),
-                    "Roughness:=",
-                    self._arg_with_dim(self.roughness, self.LengthUnitRough),
-                    "BotRoughness:=",
-                    self._arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
-                    "SideRoughness:=",
-                    self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
-                    "Material:=",
-                    self.material.lower(),
-                    "FillMaterial:=",
-                    self.fill_material.lower(),
-                ],
-                "Neg:=",
-                self.IsNegative,
-                "Usp:=",
-                self.usp,
-                [
-                    "NAME:Sp",
-                    "Sn:=",
-                    "HFSS",
-                    "Sv:=",
-                    "so(si="
-                    + str(self.hfssSp["si"]).lower()
-                    + " , dt="
-                    + str(self.hfssSp["dt"])
-                    + ", dtv='"
-                    + self._arg_with_dim(self.hfssSp["dtv"])
-                    + "')",
-                ],
-                [
-                    "NAME:Sp",
-                    "Sn:=",
-                    "PlanarEM",
-                    "Sv:=",
-                    "so(ifg="
-                    + str(self.planaremSp["ifg"]).lower()
-                    + ", vly="
-                    + str(self.planaremSp["vly"]).lower()
-                    + ")",
-                ],
-                "Etch:=",
-                str(self.etch),
-                "UseEtch:=",
-                self.use_etch,
-                "UseR:=",
-                self.user,
-                "RMdl:=",
-                self.RMdl,
-                "NR:=",
-                self._arg_with_dim(self.NR, self.LengthUnitRough),
-                "HRatio:=",
-                str(self.HRatio),
-                "BRMdl:=",
-                self.BRMdl,
-                "BNR:=",
-                self._arg_with_dim(self.BNR, self.LengthUnitRough),
-                "BHRatio:=",
-                str(self.BHRatio),
-                "SRMdl:=",
-                self.SRMdl,
-                "SNR:=",
-                self._arg_with_dim(self.SNR, self.LengthUnitRough),
-                "SHRatio:=",
-                str(self.SHRatio),
-            ]
-        elif self.type == "dielectric":
-            return [
-                "NAME:stackup layer",
-                "Name:=",
-                self.name,
-                "ID:=",
-                self.id,
-                "Type:=",
-                self.type,
-                "Top Bottom:=",
-                self.top_bottom,
-                "Color:=",
-                self.color,
-                "Transparency:=",
-                self.transparency,
-                "Pattern:=",
-                self.pattern,
-                "VisFlag:=",
-                self.visflag,
-                "Locked:=",
-                self.locked,
-                "DrawOverride:=",
-                self.draw_override,
-                "Zones:=",
-                self.zones,
-                [
-                    "NAME:Sublayer",
-                    "Thickness:=",
-                    self.thickness,
-                    "LowerElevation:=",
-                    self.lower_elevation,
-                    "Roughness:=",
-                    0,
-                    "BotRoughness:=",
-                    0,
-                    "SideRoughness:=",
-                    0,
-                    "Material:=",
-                    self.material.lower(),
-                ],
-            ]
-        else:
-            return [
-                "NAME:layer",
-                "Name:=",
-                self.name,
-                "ID:=",
-                self.id,
-                "Type:=",
-                self.type,
-                "Top Bottom:=",
-                self.top_bottom,
-                "Color:=",
-                self.color,
-                "Transparency:=",
-                self.transparency,
-                "Pattern:=",
-                self.pattern,
-                "VisFlag:=",
-                self.visflag,
-                "Locked:=",
-                self.locked,
-            ]
+                    "Type:=",
+                    self.type,
+                    "Top Bottom:=",
+                    self.top_bottom,
+                    "Color:=",
+                    self.color,
+                    "Transparency:=",
+                    self.transparency,
+                    "Pattern:=",
+                    self.pattern,
+                    "VisFlag:=",
+                    self.visflag,
+                    "Locked:=",
+                    self.locked,
+                ]
+            )
+        return args
 
     @pyaedt_function_handler()
     def update_stackup_layer(self):
@@ -1228,7 +1108,6 @@ class Layers(object):
         self._modeler = modeler
         self._app = self._modeler._app
         self._currentId = 0
-        self.layers = {}
         self.lengthUnitRough = roughnessunits
         self.logger = self._app.logger
 
@@ -1292,8 +1171,7 @@ class Layers(object):
 
         >>> oEditor.GetAllLayerNames()
         """
-        if len(self.all_layers) != len(self.layers):
-            self.refresh_all_layers()
+
         return [v.name for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
     @property
@@ -1305,8 +1183,7 @@ class Layers(object):
         list
             List of signal layers.
         """
-        if len(self.all_layers) != len(self.layers):
-            self.refresh_all_layers()
+
         return [v.name for k, v in self.layers.items() if v.type == "signal"]
 
     @property
@@ -1323,8 +1200,6 @@ class Layers(object):
         for lay in a:
             layid = self.layer_id(lay)
 
-            if layid not in self.layers:
-                self.refresh_all_layers()
             if self.layers[layid].type == "dielectric":
                 die.append(lay)
         return die
@@ -1348,8 +1223,8 @@ class Layers(object):
                 return el
         return None
 
-    @pyaedt_function_handler()
-    def refresh_all_layers(self):
+    @property
+    def layers(self):
         """Refresh all layers in the current stackup.
 
         Returns
@@ -1357,19 +1232,19 @@ class Layers(object):
         int
             Number of layers in the current stackup.
         """
-        layernames = [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
-        for el in layernames:
+        layers = OrderedDict({})
+        for el in self.all_layers:
             o = Layer(self, "signal")
             o.name = el
             infos = self.oeditor.GetLayerInfo(el)
             infos = [i.split(": ") for i in infos]
             infosdict = {i[0].strip(): i[1].strip() for i in infos}
+            o.id = int(infosdict["LayerId"])
             if infosdict["Type"] == "metalizedsignal":
                 o.type = "signal"
             else:
                 o.type = infosdict["Type"]
             o._locked = _str2bool(infosdict["IsLocked"])
-            o.id = int(infosdict["LayerId"])
             o._top_bottom = infosdict["TopBottomAssociation"].lower()
             o.IsVisible = infosdict["IsVisible"]
             if "IsVisiblePath" in infosdict:
@@ -1382,7 +1257,7 @@ class Layers(object):
             if o.type in ["signal", "dielectric", "via"]:
                 o._index = int(infosdict["Index"])
                 o._thickness = _conv_number(infosdict["LayerThickness"])
-                o._lowerelevation = _conv_number(infosdict["LowerElevation0"])
+                o._lower_elevation = _conv_number(infosdict["LowerElevation0"])
                 o._fillmaterial = infosdict["FillMaterial0"]
                 o._material = infosdict["Material0"]
                 if "EtchFactor" in infosdict:
@@ -1403,40 +1278,8 @@ class Layers(object):
                     o.SRMdl = infosdict["SideRoughness0 Type"]
                     o.SNR = infosdict["SideRoughness0"].split(", ")[0]
                     o.SHRatio = _conv_number(infosdict["SideRoughness0"].split(", ")[1])
-
-            if o.id in self.layers:  # updating the existing one
-                layer = self.layers[o.id]
-                layer.name = o.name
-                layer.type = o.type
-                layer._locked = o._locked
-                layer._top_bottom = o._top_bottom
-                layer.IsVisible = o.IsVisible
-                layer.IsVisiblePath = o.IsVisiblePath
-                layer.IsVisiblePad = o.IsVisiblePad
-                layer.IsVisibleComponent = o.IsVisibleComponent
-                layer.IsVisibleShape = o.IsVisibleShape
-                layer.IsVisibleHole = o.IsVisibleHole
-                layer._color = o._color
-                layer._index = o._index
-                layer._thickness = o._thickness
-                layer._lowerelevation = o._lowerelevation
-                layer._fillmaterial = o._fillmaterial
-                layer._material = o._material
-                layer._use_etch = o._useetch
-                layer._etch = o._etch
-                layer._user = o._user
-                layer.RMdl = o.RMdl
-                layer.NR = o.NR
-                layer.HRatio = o.HRatio
-                layer.BRMdl = o.BRMdl
-                layer.BNR = o.BNR
-                layer.BHRatio = o.BHRatio
-                layer.SRMdl = o.SRMdl
-                layer.SNR = o.SNR
-                layer.SHRatio = o.SHRatio
-            else:  # creating the new layer
-                self.layers[o.id] = o
-        return len(self.layers)
+            layers[o.id] = o
+        return layers
 
     @pyaedt_function_handler()
     def add_layer(
@@ -1466,11 +1309,31 @@ class Layers(object):
         """
         newlayer = Layer(self, layertype, isnegative)
         newlayer.name = layername
-        newlayer.thickness = thickness
-        newlayer.lower_elevation = elevation
-        newlayer.material = material
+        newlayer._thickness = thickness
+
+        if elevation == "0mm":
+            el = (
+                0
+                if list(self.layers.values())[0].type not in ["dielectric", "signal", "via"]
+                else "{}+{}".format(
+                    list(self.layers.values())[0].lower_elevation, list(self.layers.values())[0].thickness
+                )
+            )
+            if el:
+                v1 = self._app.variable_manager.set_variable(
+                    "pyaedt_evaluator",
+                    expression=el,
+                    readonly=True,
+                    hidden=True,
+                )
+                newlayer._lower_elevation = self._app.get_evaluated_value("pyaedt_evaluator")
+            else:
+                newlayer._lower_elevation = "0mm"
+        else:
+            newlayer._lower_elevation = elevation
+        newlayer._material = material
         newlayer.create_stackup_layer()
-        self.layers[newlayer.id] = newlayer
+
         return self.layers[newlayer.id]
 
     @pyaedt_function_handler()
