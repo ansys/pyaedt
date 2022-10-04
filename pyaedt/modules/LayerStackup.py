@@ -1242,8 +1242,10 @@ class Layers(object):
             o.id = int(infosdict["LayerId"])
             if infosdict["Type"] == "metalizedsignal":
                 o.type = "signal"
+                o.IsNegative = True
             else:
                 o.type = infosdict["Type"]
+                o.IsNegative = False
             o._locked = _str2bool(infosdict["IsLocked"])
             o._top_bottom = infosdict["TopBottomAssociation"].lower()
             o.IsVisible = infosdict["IsVisible"]
