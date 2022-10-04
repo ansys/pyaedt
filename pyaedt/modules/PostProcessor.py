@@ -3808,7 +3808,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         variation_list_w_value : list
             List of variations with relative values.
         unit_interval: float, optional
-            Unit interval in seconds. The default is 1e-9.
+            Unit interval in seconds. The default is ``1e-9``.
         ignore_bits: int, optional
             Number of initial bits to ignore. The default is 0.
         plot_type : str, optional
