@@ -3815,7 +3815,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             String containing the report type. Default is all quantity types: ``"InitialWave"``, ``"WaveAfterSource"``,
              ``"WaveAfterChannel"``,``"WaveAfterProbe"``.
         clock_tics : list, optional
-            List with clock tics.  Default is take the clock tics from the AMI receiver.
+            List with clock tics.  Default are the clock tics from the AMI receiver.
 
         Returns
         -------
