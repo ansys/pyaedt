@@ -5,7 +5,7 @@ class PadstackHoleDef(object):
     def __init__(self):
         self.name = ""
         self.diameter = 0.0
-        self.plating_status = PlatingStatus().PLATED
+        self.plating_status = "PLATED"
         self.plus_tol = 0.0
         self.minus_tol = 0.0
         self.x = 0.0
@@ -21,7 +21,3 @@ class PadstackHoleDef(object):
             padstack_hole.set("minusTol", self.minus_tol)
             padstack_hole.set("x", self.x)
             padstack_hole.set("y", self.y)
-
-
-class PlatingStatus(object):
-    (PLATED) = range(1)

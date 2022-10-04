@@ -10,7 +10,7 @@ class Stackup(object):
         self.tol_plus = 0.0
         self.tol_min = 0.0
         self.where_measured = "METAL"
-        self._stackup_group = []
+        self._stackup_group = StackupGroup()
 
     @property
     def stackup_group(self):
@@ -21,10 +21,6 @@ class Stackup(object):
         if isinstance(value, list):
             if len([stack_grp for stack_grp in value if isinstance(stack_grp, StackupGroup)]):
                 self._stackup_group = value
-
-    def add_stackup_group(self, stackup_group=None):
-        if isinstance(stackup_group, StackupGroup):
-            self.stackup_group.append(stackup_group)
 
     def write_xml(self, cad_data):
         if cad_data:

@@ -21,7 +21,7 @@ class CadHeader(object):
                 self._specs = value
 
     def add_spec(
-        self, name="", material="", layer_type="", conductivity="", dielectric_constant="", loss_tanget="", embedded=""
+        self, name="", material="", layer_type="", conductivity="", dielectric_constant="", loss_tg="", embedded=""
     ):
         spec = Spec()
         spec.name = name
@@ -29,7 +29,7 @@ class CadHeader(object):
         spec.conductivity = conductivity
         spec.dielectric_constant = dielectric_constant
         spec.layer_type = layer_type
-        spec.loss_tangent = loss_tanget
+        spec.loss_tangent = loss_tg
         spec.embedded = embedded
         self._specs.append(spec)
 

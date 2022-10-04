@@ -1,7 +1,9 @@
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.component.component import Component
-from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.layer_feature import LayerFeature
+from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.layer_feature import (
+    LayerFeature,
+)
 from pyaedt.edb_core.IPC2581.ecad.cad_data.logical_net.logical_net import LogicalNet
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.package import Package
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
@@ -10,7 +12,8 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.profile import Profile
 
 
 class Step(object):
-    def __init__(self):
+    def __init__(self, caddata):
+        self.design_name = caddata.design_name
         self._padstack_defs = []
         self._profile = Profile()
         self._packages = []
@@ -92,11 +95,14 @@ class Step(object):
             return True
         return False
 
-    def add_padstack_def(self, padstack_def=None):
-        if isinstance(padstack_def, PadstackDef):
-            self._padstack_defs.append(padstack_def)
-            return True
-        return False
+    def add_padstack_def(
+        self, padstack_name="", hole_name="", hole_diameter="", layer="", pad_use="REGULAR", primitive_ref=""
+    ):
+        pad_stack_def = PadstackDef()
+        pad_stack_def.name = padstack_name
+        pad_stack_def.padstack_hole_def.name = hole_name
+        pad_stack_def.padstack_hole_def.diameter = hole_diameter
+        pad_stack_def.add_padstack_pad_def(layer=layer, pad_use=pad_use, primitive_ref=primitive_ref)
 
     def add_package(self, package=None):
         if isinstance(package, Package):

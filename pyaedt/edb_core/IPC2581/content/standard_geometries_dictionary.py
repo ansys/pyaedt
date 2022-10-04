@@ -1,7 +1,6 @@
 import xml.etree.cElementTree as ET
 
 
-
 class StandardCircle(object):
     def __init__(self):
         self.diameter = ""
@@ -33,6 +32,7 @@ class Rectangle(object):
 class Oval(object):
     pass
 
+
 class Type(object):
     (Circle, Rectangle) = range(0, 2)
 
@@ -52,3 +52,11 @@ class StandardGeometriesDictionary(object):
             standard_circle.write_xml(standard_dict)
         for standard_rect in list(self.standard_rect_dict.values()):
             standard_rect.write_xml(standard_dict)
+
+    def add_circle(self, diameter):
+        circle = StandardCircle()
+        circle.diameter = diameter
+        circle.fill_id = "SOLID_FILL"
+        entry_key = "CIRCLE_{}".format(diameter)
+        if not entry_key in self.standard_circ_dict:
+            self.standard_circ_dict[entry_key] = diameter

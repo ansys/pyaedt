@@ -8,7 +8,7 @@ class StackupLayer(object):
         self.tol_minus = 0.0
         self.tol_plus = 0.0
         self.sequence = ""
-        self.spec_ref = ""
+        self.spec_ref = "SPEC_{}".format(self.layer_name)
 
     def write_xml(self, stackup_group):
         if stackup_group:

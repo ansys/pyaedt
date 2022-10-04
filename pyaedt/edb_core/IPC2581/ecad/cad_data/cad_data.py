@@ -6,10 +6,11 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.step import Step
 
 
 class CadData(object):
-    def __init__(self):
+    def __init__(self, ecad):
+        self.design_name = ecad.design_name
         self._layers = []
         self.stackup = Stackup()
-        self.cad_data_step = Step()
+        self.cad_data_step = Step(self)
 
     @property
     def layers(self):
@@ -21,11 +22,13 @@ class CadData(object):
             if len([lay for lay in value if isinstance(lay, Layer)]):
                 self._layers = value
 
-    def add_layer(self, obj):
-        if isinstance(obj, Layer):
-            self.layers.append(obj)
-            return True
-        return False
+    def add_layer(self, layer_name="", layer_function="", layer_side="internal", polarity="positive"):
+        layer = Layer()
+        layer.name = layer_name
+        layer.layer_function = layer_function
+        layer.layer_side = layer_side
+        layer.layer_polarity = polarity
+        self.layers.append(layer)
 
     def write_xml(self, ecad):
         if ecad:
