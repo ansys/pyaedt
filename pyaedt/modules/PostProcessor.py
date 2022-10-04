@@ -3810,7 +3810,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         unit_interval: float, optional
             Unit interval in seconds. The default is ``1e-9``.
         ignore_bits: int, optional
-            Number of initial bits to ignore. The default is 0.
+            Number of initial bits to ignore. The default is ``0``.
         plot_type : str, optional
             String containing the report type. Default is all quantity types: ``"InitialWave"``, ``"WaveAfterSource"``,
              ``"WaveAfterChannel"``,``"WaveAfterProbe"``.
