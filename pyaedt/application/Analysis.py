@@ -1946,7 +1946,8 @@ class Analysis(Design, object):
             variations = ""
         else:
             variations = " ".join(
-                f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
+                "{}=\\'{}\\'".format(key, value)
+                for key, value in self.available_variations.nominal_w_values_dict.items()
             )
 
         if not is_format_default:
