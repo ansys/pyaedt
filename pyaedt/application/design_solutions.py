@@ -645,8 +645,8 @@ class HFSSDesignSolution(DesignSolution, object):
         """HFSS hybrid mode for the active solution."""
         if self._aedt_version < "2021.2":
             return False
-        if self._hybrid is None and self.solution_type is not None:
-            self._hybrid = "Hybrid" in self._solution_options[self.solution_type]["name"]
+        if self.solution_type is not None:
+            self._hybrid = "Hybrid" in self._odesign.GetSolutionType()
         return self._hybrid
 
     @hybrid.setter
@@ -671,7 +671,7 @@ class HFSSDesignSolution(DesignSolution, object):
         if self._aedt_version < "2021.2":
             return False
         if self._composite is None and self.solution_type is not None:
-            self._composite = "Composite" in self._solution_options[self.solution_type]["name"]
+            self._composite = "Composite" in self._odesign.GetSolutionType()
         return self._composite
 
     @composite.setter
