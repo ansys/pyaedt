@@ -3822,7 +3822,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Returns
         -------
         list
-            Sampled waveform.
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
 
         Examples
         --------
@@ -3918,10 +3918,25 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                             input_units=waveform_unit[w],
                             output_units="V",
                         )
-                        outputdata[w].append(new_voltage)
+                        tic_in_s = unit_converter(
+                            tic, unit_system="Time", input_units=waveform_sweep_unit[0], output_units="s"
+                        )
+                        if waveform_data.enable_pandas_output:
+                            outputdata[w].append([tic_in_s, new_voltage.values.tolist()[0]])
+                        else:
+                            outputdata[w].append([tic_in_s, new_voltage])
                         del sweep_filtered[0]
                     else:
                         break
 
         self._app.solution_type = initial_solution_type
+        if waveform_data.enable_pandas_output:
+            import pandas as pd
+
+            df = []
+            cont = 0
+            for data in outputdata:
+                df.append(pd.DataFrame(data, columns=["time", "voltage"]))
+                cont += 1
+            outputdata = df
         return outputdata
