@@ -3833,7 +3833,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         initial_solution_type = self.post_solution_type
         self._app.solution_type = "NexximAMI"
 
-        if plot_type == "InitialWave" or probe_name == "WaveAfterSource":
+        if plot_type == "InitialWave" or plot_type == "WaveAfterSource":
             plot_expression = [plot_type + "<" + source_name + ".int_ami_tx>"]
         elif plot_type == "WaveAfterChannel" or plot_type == "WaveAfterProbe":
             plot_expression = [plot_type + "<" + probe_name + ".int_ami_rx>"]
