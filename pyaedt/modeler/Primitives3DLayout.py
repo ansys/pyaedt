@@ -1026,24 +1026,26 @@ class Primitives3DLayout(object):
         pos_y=0,
         create_ports=True,
     ):
-        """Place a Hfss 3d Component in Hfss3dLayout.
+        """Place an HFSS 3D component in HFSS 3D Layout.
 
         Parameters
         ----------
         component_path : str
-            Full path to a3dcomp file.
+            Full path to the A3DCOMP file.
         number_of_terminals : int, optional
-            Number of ports in 3d component. Default is `1`.
+            Number of ports in the 3D component. The default is ``1``.
         placement_layer : str, optional
-            Layer on which the component will be placed. Default is None for Top Placement.
+            Layer to place the component on. The default is ``None``, in which case it is
+            placed on top.
         component_name : str, optional
-            Name of component.
+            Name of the component. The default is ``None``, in which case a
+            default name is assigned.
         pos_x : float, optional
-            X placement.
+            X placement. The default is ``0``.
         pos_y : float, optional
-            Y placement.
+            Y placement. The default is ``0``.
         create_ports : bool, optional
-            Either if expose or not 3D Component Ports.
+            Whether to expose 3D component ports. The default is ``True``.
 
         Returns
         -------
