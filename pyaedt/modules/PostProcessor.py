@@ -3804,7 +3804,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         probe_name : str
             Name of the AMI probe.
         source_name : str
-            AMI source name to use
+            Name of the AMI source.
         variation_list_w_value : list
             List of variations with relative values.
         unit_interval: float, optional
