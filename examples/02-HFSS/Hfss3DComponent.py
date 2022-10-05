@@ -1,3 +1,9 @@
+"""
+HFSS: 3D Components
+-------------------
+This example shows how you can use PyAEDT to place 3D Components in Hfss and in Hfss 3D Layout.
+"""
+
 from pyaedt import Hfss, Hfss3dLayout
 import os
 from pyaedt.examples import download_file
