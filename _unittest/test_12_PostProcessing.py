@@ -46,6 +46,7 @@ else:
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
+ami = "ami"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
 
@@ -64,6 +65,7 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
         self.q2dtest = Q2d(projectname=self.q3dtest.project_name)
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+        self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
 
     def teardown_class(self):
@@ -1110,6 +1112,90 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
+
+    def test_73_ami_solution_data(self):
+        self.ami_test.solution_type = "NexximAMI"
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterSource<b_output4_42.int_ami_tx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="InitialWave<b_output4_42.int_ami_tx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterChannel<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="ClockTics<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Clock Times",
+            variations=self.ami_test.available_variations.nominal,
+        )
+        probe_name = "b_input_43"
+        source_name = "b_output4_42"
+        plot_type = "WaveAfterProbe"
+        setup_name = "AMIAnalysis"
+
+        ignore_bits = 1000
+        unit_interval = 0.1e-9
+        assert not self.ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            self.ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type,
+        )
+        if not is_ironpython:
+            ignore_bits = 5
+            unit_interval = 0.1e-9
+            plot_type = "InitialWave"
+            data1 = self.ami_test.post.sample_ami_waveform(
+                setup_name,
+                probe_name,
+                source_name,
+                self.ami_test.available_variations.nominal,
+                unit_interval,
+                ignore_bits,
+                plot_type,
+            )
+            assert len(data1[0]) == 45
+
+        settings.enable_pandas_output = False
+        ignore_bits = 5
+        unit_interval = 0.1e-9
+        clock_tics = [1e-9, 2e-9, 3e-9]
+        data2 = self.ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            self.ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type=None,
+            clock_tics=clock_tics,
+        )
+        assert len(data2) == 4
+        assert len(data2[0]) == 3
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()
