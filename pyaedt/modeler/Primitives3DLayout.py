@@ -1017,9 +1017,41 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler
     def place_3d_component(
-        self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
-    ):  # pragma: no cover
-        """Place a Hfss 3d Component in Hfss3dLayout.
+        self,
+        component_path,
+        number_of_terminals=1,
+        placement_layer=None,
+        component_name=None,
+        pos_x=0,
+        pos_y=0,
+        create_ports=True,
+    ):
+        """Place an HFSS 3D component in HFSS 3D Layout.
+
+        Parameters
+        ----------
+        component_path : str
+            Full path to the A3DCOMP file.
+        number_of_terminals : int, optional
+            Number of ports in the 3D component. The default is ``1``.
+        placement_layer : str, optional
+            Layer to place the component on. The default is ``None``, in which case it is
+            placed on top.
+        component_name : str, optional
+            Name of the component. The default is ``None``, in which case a
+            default name is assigned.
+        pos_x : float, optional
+            X placement. The default is ``0``.
+        pos_y : float, optional
+            Y placement. The default is ``0``.
+        create_ports : bool, optional
+            Whether to expose 3D component ports. The default is ``True``.
+
+        Returns
+        -------
+
+        """
+        """
 
         :param component_path:
         :param number_of_terminals:
@@ -1117,6 +1149,8 @@ class Primitives3DLayout(object):
         comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
+        if create_ports:
+            self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
     def create_text(self, text, position, angle=0, font_size=12):
