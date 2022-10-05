@@ -1578,7 +1578,7 @@ class Stackup3D(object):
             Layer name.
         material : str
             Material name. Material will be parametrized.
-        thickness : float, None
+        thickness : float, str, None
             Thickness value. Thickness will be parametrized.
         fill_material : str
             Fill Material name. Material will be parametrized.=
@@ -1626,7 +1626,7 @@ class Stackup3D(object):
             Layer name.
         material : str
             Material name. The default is ``"FR4_epoxy"``. The material will be parametrized.
-        thickness : float, optional
+        thickness : float, str, optional
             Thickness value. The default is ``0.035``. The thickness will be parametrized.
         frequency : float, optional
             The layer frequency, it will be common to all geometric shapes on the layer. The default is None, so each
@@ -1667,7 +1667,7 @@ class Stackup3D(object):
             Layer name.
         material : str, op
             Material name. Material will be parametrized.
-        thickness : float, None
+        thickness : float, str, None
             Thickness value. Thickness will be parametrized.
         fill_material : str
             Fill Material name. Material will be parametrized.

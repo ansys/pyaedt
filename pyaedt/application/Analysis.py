@@ -11,6 +11,7 @@ import os
 import shutil
 import tempfile
 import threading
+import time
 import warnings
 from collections import OrderedDict
 
@@ -1491,6 +1492,7 @@ class Analysis(Design, object):
 
         >>> oDesign.Analyze
         """
+        start = time.time()
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
         if acf_file:
@@ -1548,7 +1550,6 @@ class Analysis(Design, object):
                 set_custom_dso = True
             except:
                 pass
-
         if name in self.existing_analysis_setups:
             try:
                 self.logger.info("Solving design setup %s", name)
@@ -1569,7 +1570,8 @@ class Analysis(Design, object):
                 return False
         if set_custom_dso:
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-        self.logger.info("Design setup %s solved correctly", name)
+        end = (time.time() - start) / 60
+        self.logger.info("Design setup %s solved correctly in %s min", name, end)
         return True
 
     @pyaedt_function_handler()

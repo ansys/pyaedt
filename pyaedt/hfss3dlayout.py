@@ -1702,6 +1702,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_truncate_model_at_ground_layer="keep",
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
+        airbox_values_as_dim=True,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1723,6 +1724,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical positive padding. The default is ``None``.
         air_vertical_negative_padding : str, optional
             Airbox vertical negative padding. The default is ``None``.
+        airbox_values_as_dim : bool, optional
+            Either if inputs are dims or not. Default is `True`.
+
         Returns
         -------
         bool
@@ -1746,10 +1750,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             arg.append(air_truncate_model_at_ground_layer)
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
-            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])
         if air_vertical_negative_padding:
             arg.append("AirNegZExt:=")
-            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", airbox_values_as_dim])
+        arg.append("UseStackupForZExtFact:=")
+        arg.append(True)
 
         self.odesign.EditHfssExtents(arg)
         return True
