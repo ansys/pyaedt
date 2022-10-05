@@ -3816,7 +3816,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             Options for a specific report type are ``"InitialWave"``, ``"WaveAfterSource"``,
             ``"WaveAfterChannel"``, and ``"WaveAfterProbe"``.
         clock_tics : list, optional
-            List with clock tics.  Default are the clock tics from the AMI receiver.
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
 
         Returns
         -------
