@@ -997,7 +997,7 @@ class Padstack(object):
         elif isinstance(val, str):
             self._plating_ratio = val
         else:
-            self._app.logger.error("Plating has to be between 0 and 1")
+            self._app.logger.error("Plating has to be between 0 and 1.")
 
     @property
     def padstacks_by_layer(self):
