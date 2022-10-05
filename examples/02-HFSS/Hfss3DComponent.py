@@ -26,9 +26,6 @@ new_session = True
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # File to be used in the example
 component3d = download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
-
-
-#component3d = os.path.join(r'c:\ansysdev\Jupyter_examples', "SMA_RF_Jack.a3dcomp")
 component3d
 
 
