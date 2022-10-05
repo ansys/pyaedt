@@ -1572,7 +1572,9 @@ class Analysis(Design, object):
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         m, s = divmod(time.time() - start, 60)
         h, m = divmod(m, 60)
-        self.logger.info("Design setup {} solved correctly in {:d}h {:02d}m {:02d}s".format(name, h, m, s))
+        self.logger.info(
+            "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
+        )
         return True
 
     @pyaedt_function_handler()
