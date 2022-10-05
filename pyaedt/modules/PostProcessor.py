@@ -3802,7 +3802,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setupname : str
             Name of the setup.
         probe_name : str
-            AMI Probe name to use.
+            Name of the AMI probe.
         source_name : str
             AMI source name to use
         variation_list_w_value : list
