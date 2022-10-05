@@ -112,7 +112,7 @@ class TestClass(BasisTest, object):
         assert s1.top_bottom == "top"
         s1.top_bottom = "neither"
 
-        assert s1.thickness == "0.035mm"
+        assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "iron"
         assert s1.use_etch is False
         assert s1.user is False
@@ -155,7 +155,7 @@ class TestClass(BasisTest, object):
             layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
         )
         assert d1.material == "plexiglass"
-        assert d1.thickness == "1.0mm"
+        assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
         assert d1.transparency == 60
         d1.material = "fr4_epoxy"
         d1.transparency = 23
@@ -173,12 +173,11 @@ class TestClass(BasisTest, object):
         assert s2.name == "Top"
         assert s2.type == "signal"
         assert s2.material == "copper"
-        assert s2.thickness == 3.5e-5
+        assert s2.thickness == "0.035mm" or s2.thickness == 3.5e-5
         assert s2.IsNegative is True
         s2.is_negative = False
         assert s2.IsNegative is False
 
-        self.aedtapp.modeler.layers.refresh_all_layers()
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "copper"
@@ -186,13 +185,9 @@ class TestClass(BasisTest, object):
         assert s1.use_etch is True
         assert s1.etch == 1.2
         assert s1.user is True
-        assert s1.usp is True
-        assert s1.hfssSp["dt"] == 1
-        assert s1.planaremSp["ifg"] is True
         d1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Diel3")]
         assert d1.material == "fr4_epoxy"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
-        assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Top")]
         assert s2.name == "Top"
         assert s2.type == "signal"
@@ -683,3 +678,7 @@ class TestClass(BasisTest, object):
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
+
+    def test_97_mesh_settings(self):
+        assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
+        assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)

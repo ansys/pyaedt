@@ -895,7 +895,6 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Stackup3D`
-            ``True`` when delete operation is successful.
+            Stackup class.
         """
-        st = Stackup3D(self)
-        return st
+        return Stackup3D(self)

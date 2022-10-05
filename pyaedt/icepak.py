@@ -508,8 +508,8 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        face_id : int
-            Face ID.
+        face_id : int or str
+            If int, Face ID. If str, object name.
         input_power : str, float, or int, optional
             Input power. The default is ``"0W"``.
         thermal_condtion : str, optional
@@ -552,7 +552,10 @@ class Icepak(FieldAnalysis3D):
         if not source_name:
             source_name = generate_unique_name("Source")
         props = {}
-        props["Faces"] = [face_id]
+        if isinstance(face_id, int):
+            props["Faces"] = [face_id]
+        elif isinstance(face_id, str):
+            props["Objects"] = [face_id]
         props["Thermal Condition"] = thermal_condtion
         props["Total Power"] = input_power
         props["Surface Heat"] = surface_heat
