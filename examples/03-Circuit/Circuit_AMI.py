@@ -115,6 +115,7 @@ scale_time = constants.unit_converter(1, unit_system="Time", input_units="s",
                                  output_units=original_data.units_sweeps["Time"])
 scale_data = constants.unit_converter(1, unit_system="Voltage", input_units="V",
                                  output_units=original_data.units_data[plot_name])
+
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
 
