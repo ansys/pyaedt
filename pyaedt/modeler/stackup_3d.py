@@ -233,13 +233,13 @@ class DuplicatedParametrizedMaterial(object):
                 conductivity_variable = "$" + reformat_name + "_conductivity"
                 dielectric_loss_variable = "$" + reformat_name + "_dielectric_loss"
                 magnetic_loss_variable = "$" + reformat_name + "_magnetic_loss"
-                self._permittivity = NamedVariable(application, permittivity_variable, str(permittivity))
-                self._permeability = NamedVariable(application, permeability_variable, str(permeability))
-                self._conductivity = NamedVariable(application, conductivity_variable, str(conductivity))
+                self._permittivity = NamedVariable(application, permittivity_variable, permittivity)
+                self._permeability = NamedVariable(application, permeability_variable, permeability)
+                self._conductivity = NamedVariable(application, conductivity_variable, conductivity)
                 self._dielectric_loss_tangent = NamedVariable(
-                    application, dielectric_loss_variable, str(dielectric_loss_tan)
+                    application, dielectric_loss_variable, dielectric_loss_tan
                 )
-                self._magnetic_loss_tangent = NamedVariable(application, magnetic_loss_variable, str(magnetic_loss_tan))
+                self._magnetic_loss_tangent = NamedVariable(application, magnetic_loss_variable, magnetic_loss_tan)
                 cloned_material.permittivity = permittivity_variable
                 cloned_material.permeability = permeability_variable
                 cloned_material.conductivity = conductivity_variable
