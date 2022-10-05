@@ -3344,7 +3344,7 @@ class Design(AedtObjects):
                 if variable_name in self.get_oo_name(app, "Instance:{}".format(self._odesign.GetName())):
                     var_obj = self.get_oo_object(app, "Instance:{}/{}".format(self._odesign.GetName(), variable_name))
                 elif variable_name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
-                    val = self.get_oo_object(app, "DefinitionParameters").GetPropValue(variable_name)
+                    val = self.get_oo_object(app, "DefinitionParameters").GetPropEvaluatedValue(variable_name)
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:

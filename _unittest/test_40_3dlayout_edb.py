@@ -209,31 +209,6 @@ class TestClass(BasisTest, object):
             assert (comp.location[1] - 0.2) < tol
         hfss3d.close_project(saveproject=False)
 
-    @pytest.mark.skipif(
-        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
-        reason="Not running in non graphical mode. Tested only in Linux machine",
-    )
-    def test_09_3dplacement(self):  # pragma: no cover
-        assert len(self.aedtapp.modeler.components_3d) == 2
-        tol = 1e-12
-        encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "connector.a3dcomp")
-        comp = self.aedtapp.modeler.place_3d_component(
-            encrypted_model_path, 4, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
-        )
-        if config["desktopVersion"] > "2022.2":
-            assert (comp.location[0] - 1) < tol
-            assert (comp.location[1] - 2) < tol
-        else:
-            assert (comp.location[0] - 0.001) < tol
-            assert (comp.location[1] - 0.002) < tol
-        assert comp.angle == "0deg"
-        assert comp.placement_layer == "TOP"
-        comp.placement_layer = "bottom"
-        assert comp.placement_layer == "BOTTOM"
-        comp.angle = "10deg"
-        assert comp.angle == "10deg"
-        assert comp.component_name == "my_connector"
-
     def test_10_change_stackup(self):
         assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
         assert len(self.aedtapp.modeler.layers.zones) == 3
@@ -265,3 +240,28 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.components["U3B2"].solderball_enabled
         assert not self.aedtapp.modeler.components["L3A1"].set_solderball(None)
         assert self.aedtapp.modeler.components["J1"].set_solderball("Sph")
+
+    def test_15_3dplacement(self):
+        self.aedtapp.insert_design("placement_3d")
+        l1 = self.aedtapp.modeler.layers.add_layer("BOTTOM", "signal", thickness="5mil")
+        self.aedtapp.modeler.layers.add_layer("diel", "dielectric", thickness="121mil", material="FR4_epoxy")
+        self.aedtapp.modeler.layers.add_layer("TOP", "signal", thickness="5mil", isnegative=True)
+        tol = 1e-12
+        encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "SMA_RF_Jack.a3dcomp")
+        comp = self.aedtapp.modeler.place_3d_component(
+            encrypted_model_path, 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
+        )
+        if config["desktopVersion"] > "2022.2":
+            assert (comp.location[0] - 1) < tol
+            assert (comp.location[1] - 2) < tol
+        else:
+            assert (comp.location[0] - 0.001) < tol
+            assert (comp.location[1] - 0.002) < tol
+        assert comp.angle == "0deg"
+        assert comp.placement_layer == "TOP"
+        comp.placement_layer = "bottom"
+        assert comp.placement_layer == "BOTTOM"
+        comp.angle = "10deg"
+        assert comp.angle == "10deg"
+        assert comp.component_name == "my_connector"
+        assert len(self.aedtapp.modeler.components_3d) == 1
