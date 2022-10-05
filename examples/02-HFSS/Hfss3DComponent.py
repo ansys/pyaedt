@@ -18,6 +18,8 @@ trace_width = 0.6
 trace_length = 30
 diel_height = "121mil"
 sig_height = "5mil"
+max_steps =  3
+freq = "3GHz"
 desktop_version = "2022.2"
 new_session = True
 
@@ -28,6 +30,11 @@ new_session = True
 component3d = download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
 component3d
 
+###############################################################################
+# Hfss Example
+# ------------
+# This example will create a stackup in Hfss place a 3d component, build a ground plane, a trace,
+# create excitation and solve it in Hfss.
 
 
 ###############################################################################
@@ -124,8 +131,8 @@ hfss.assign_radiation_boundary_to_faces(sheets)
 
 setup1 = hfss.create_setup()
 sweep1 = hfss.create_linear_count_sweep(setup1.name, "GHz", 0.01, 8, 1601, sweep_type="Interpolating")
-setup1.props["Frequency"] = "3GHz"
-setup1.props["MaximumPasses"] = 3
+setup1.props["Frequency"] = freq
+setup1.props["MaximumPasses"] = max_steps
 
 ###############################################################################
 # Solve Setup
@@ -141,6 +148,12 @@ hfss.analyze_nominal()
 traces = hfss.get_traces_for_plot(category="S")
 solutions = hfss.post.get_solution_data(traces)
 solutions.plot(traces, math_formula="db20")
+
+###############################################################################
+# Hfss 3D Layout Example
+# ----------------------
+# Previous example will be repeated this time in Hfss 3d Layout.
+# Small differences are expected in layout but results should be similar.
 
 
 ###############################################################################
@@ -194,8 +207,8 @@ h3d.edit_hfss_extents(diel_extent_horizontal_padding="0.2", air_vertical_positiv
                       air_vertical_negative_padding="2", airbox_values_as_dim=False)
 setup1 = h3d.create_setup()
 sweep1 = h3d.create_linear_count_sweep(setup1.name, "GHz", 0.01, 8, 1601, sweep_type="Interpolating")
-setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = "3GHz"
-setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 3
+setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = freq
+setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = max_steps
 
 ###############################################################################
 # Solve Setup
