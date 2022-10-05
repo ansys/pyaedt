@@ -1570,8 +1570,9 @@ class Analysis(Design, object):
                 return False
         if set_custom_dso:
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-        end = (time.time() - start) / 60
-        self.logger.info("Design setup %s solved correctly in %s min", name, end)
+        m, s = divmod(time.time() - start, 60)
+        h, m = divmod(m, 60)
+        self.logger.info("Design setup {} solved correctly in {:d}h {:02d}m {:02d}s".format(name, h, m, s))
         return True
 
     @pyaedt_function_handler()
