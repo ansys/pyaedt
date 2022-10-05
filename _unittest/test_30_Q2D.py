@@ -254,7 +254,7 @@ class TestClass(BasisTest, object):
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
         )
         assert q2d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="q2d_q3d"
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d[:-5]
         )
         assert not q2d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"

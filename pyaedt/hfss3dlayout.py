@@ -431,7 +431,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreatePin
         """
-        self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
             top_layer = layers[0]
@@ -737,6 +736,42 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             settings.append("NAME:options")
             settings.append("ExportAfterSolve:=")
             settings.append(False)
+        self.odesign.DesignOptions(settings, 0)
+        return True
+
+    @pyaedt_function_handler()
+    def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
+
+        """Define the settings of the mesh.
+
+        Parameters
+        ----------
+        mesh_method : string
+            Mesh method. The default is ``"Phi"``. Options are ``"Phi"``, ``"PhiPlus"``,
+            and ``"Classic"``.
+        enable_intersections_check : bool, optional
+            Whether to enable the alternative mesh intersections checks. The default is
+            ``True``.
+        use_alternative_fallback : bool, optional
+            Whether to enable the alternative fall back mesh method. The default is ``True``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.DesignOptions
+        """
+        settings = []
+        settings.append("NAME:options")
+        settings.append("MeshingMethod:=")
+        settings.append(mesh_method)
+        settings.append("EnableDesignIntersectionCheck:=")
+        settings.append(enable_intersections_check)
+        settings.append("UseAlternativeMeshMethodsAsFallBack:=")
+        settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
 
@@ -1669,6 +1704,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_truncate_model_at_ground_layer="keep",
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
+        airbox_values_as_dim=True,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1690,6 +1726,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical positive padding. The default is ``None``.
         air_vertical_negative_padding : str, optional
             Airbox vertical negative padding. The default is ``None``.
+        airbox_values_as_dim : bool, optional
+            Either if inputs are dims or not. Default is `True`.
+
         Returns
         -------
         bool
@@ -1713,10 +1752,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             arg.append(air_truncate_model_at_ground_layer)
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
-            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])
         if air_vertical_negative_padding:
             arg.append("AirNegZExt:=")
-            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", airbox_values_as_dim])
+        arg.append("UseStackupForZExtFact:=")
+        arg.append(True)
 
         self.odesign.EditHfssExtents(arg)
         return True
