@@ -1322,7 +1322,7 @@ class Layers(object):
                 )
             )
             if el:
-                v1 = self._app.variable_manager.set_variable(
+                self._app.variable_manager.set_variable(
                     "pyaedt_evaluator",
                     expression=el,
                     readonly=True,
