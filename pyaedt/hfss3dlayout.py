@@ -742,16 +742,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     @pyaedt_function_handler()
     def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
 
-        """Export the Touchstone file automatically if the simulation is successful.
+        """Define the settings of the mesh.
 
         Parameters
         ----------
-        mesh_method : bool
-            Mesh Method. Valid options are `"Phi"`, `"PhiPlus"` and `"Classic"`.
+        mesh_method : string
+            Mesh method. The default is ``"Phi"``. Options are ``"Phi"``, ``"PhiPlus"``,
+            and ``"Classic"``.
         enable_intersections_check : bool, optional
-            Enable/Disable the alternative mesh intersections checks.
+            Whether to enable the alternative mesh intersections checks. The default is
+            ``True``.
         use_alternative_fallback : bool, optional
-            Enable/Disable the alternative fall back mesh method.
+            Whether to enable the alternative fall back mesh method. The default is ``True``.
         Returns
         -------
         bool

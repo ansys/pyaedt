@@ -920,45 +920,48 @@ class PadstackLayer(object):
 
     @property
     def layer_name(self):
-        """Get the padstack instance layer.
+        """Padstack instance layer.
 
         Returns
         -------
         str
+            Name of the padstack instance layer.
         """
         return self._layer_name
 
     @property
     def pad_radius(self):
-        """Get/Set the pad layer on the specified layer.
+        """Pad radius on the specified layer.
 
         Returns
         -------
         float
+            Pad radius on the specified layer.
         """
         return self._pad_radius
 
     @pad_radius.setter
-    def pad_radius(self, val):
-        self._pad_radius = val
+    def pad_radius(self, value):
+        self._pad_radius = value
 
     @property
     def antipad_radius(self):
-        """Get/Set the antipad layer on the specified layer.
+        """Antipad radius on the specified layer.
 
         Returns
         -------
         float
+            Antipad radius on the specified layer.
         """
         return self._antipad_radius
 
     @antipad_radius.setter
-    def antipad_radius(self, val):
-        self._antipad_radius = val
+    def antipad_radius(self, value):
+        self._antipad_radius = value
 
 
 class Padstack(object):
-    """Padstack Class member of Stackup3D."""
+    """Provides the ``Padstack`` class member of Stackup3D."""
 
     def __init__(self, app, stackup, name, material="copper"):
         self._app = app
@@ -998,17 +1001,18 @@ class Padstack(object):
 
     @property
     def padstacks_by_layer(self):
-        """Get the padstacks definition by layers.
+        """Get the padstack definitions by layers.
 
         Returns
         -------
         dict
+            Dictionary of padstack definitions by layers.
         """
         return self._padstacks_by_layer
 
     @property
     def num_sides(self):
-        """Number of sides on the circle, which is 0 for a true circle.
+        """Number of sides on the circle, which is ``0`` for a true circle.
 
         Returns
         -------
@@ -1251,7 +1255,7 @@ class Stackup3D(object):
 
     @property
     def thickness(self):
-        """Get the total stackup thickness.
+        """Total stackup thickness.
 
         Returns
         -------
