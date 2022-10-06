@@ -681,29 +681,40 @@ class Stackup(object):
         df = pd.read_csv(fpath, index_col=0)
         prev_layer = None
         for row, val in df[::-1].iterrows():
-            if row in self.stackup_layers.keys():
-                lyr = self.stackup_layers[row]
-                lyr.type = val.Type
-                lyr.material = val.Material
-                lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
-                lyr.thickness = val.Thickness
-                if prev_layer:
-                    self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
-            else:
-                if prev_layer and prev_layer in self.stackup_layers:
-                    layer_name = prev_layer
-                else:
-                    layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+            if not self.stackup_layers:
                 self.add_layer(
                     row,
-                    layer_name,
-                    "insert_above",
+                    None,
+                    "add_on_top",
                     val.Type,
                     val.Material,
                     val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
                     val.Thickness,
                 )
-            prev_layer = row
+            else:
+                if row in self.stackup_layers.keys():
+                    lyr = self.stackup_layers[row]
+                    lyr.type = val.Type
+                    lyr.material = val.Material
+                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
+                    lyr.thickness = val.Thickness
+                    if prev_layer:
+                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
+                else:
+                    if prev_layer and prev_layer in self.stackup_layers:
+                        layer_name = prev_layer
+                    else:
+                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+                    self.add_layer(
+                        row,
+                        layer_name,
+                        "insert_above",
+                        val.Type,
+                        val.Material,
+                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
+                        val.Thickness,
+                    )
+                prev_layer = row
         return True
 
     @pyaedt_function_handler
