@@ -1,26 +1,80 @@
 {
-    "Source": "True",
-    "ClockSource": "False",
-    "PwlSource": "True",
-    "AddClockSource": "False",
-    "UpdateClockSource": "False",
-    "AddPwlSource": "False",
-    "AddPwlSourceFromFile": "example_models/T43/cable_modeling_json_files/import_pwl.doc",
-    "UpdatePwlSource": "False",
-    "UpdatedSourceName": "",
-    "SourcesToRemove": "",
-    "Cable": "False",
-	"CableType":"bundle",
-	"IsJacketTypeInsulation": "True",
-	"IsJacketTypeBraidShield": "False",
-	"IsJacketTypeNoJacket": "False",
-	"UpdatedName": "",
-	"CablesToRemove": "",
-	"CablesToBundle": {
+    "Add_Cable": "True",
+    "Update_Cable": "False",
+    "Remove_Cable": "False",
+    "Add_CablesToBundle": "False",
+    "Add_Source": "False",
+    "Update_Source": "False",
+    "Remove_Source": "False",
+    "Add_CableHarness": "False",
+    "Cable_prop": {
+      "CableType":"bundle",
+      "IsJacketTypeInsulation": "True",
+      "IsJacketTypeBraidShield": "False",
+      "IsJacketTypeNoJacket": "False",
+      "UpdatedName": "",
+      "CablesToRemove": ""
+    },
+    "CablesToBundle_prop": {
 		"CablesToAdd": "",
 		"BundleCable": "",
 		"NumberOfCableToAdd": 1
 	},
+    "Source_prop": {
+      "AddClockSource": "False",
+      "UpdateClockSource": "False",
+      "AddPwlSource": "False",
+      "AddPwlSourceFromFile": "",
+      "UpdatePwlSource": "False",
+      "UpdatedSourceName": "update_pwl_source",
+      "SourcesToRemove": ""
+    },
+    "CableHarness_prop": {
+      "Name": "cable_harness_test",
+      "Bundle": "bundle1",
+      "TwistAngleAlongRoute": "20deg",
+      "Polyline": "polyline1",
+      "AutoOrient": "False",
+      "XAxis": "Undefined",
+      "XAxisOrigin": ["0mm", "0mm", "0mm"],
+      "XAxisEnd": ["0mm", "0mm", "0mm"],
+      "ReverseYAxisDirection": "True",
+      "CableTerminationsToInclude": [
+        {
+          "CableName": "stwire1",
+          "Assignment": "Reference Conductor",
+          "AssignmentType": "Impedance",
+          "Impedance": "40ohm",
+          "Source": {
+            "Type": "Single Value",
+            "Signal": "10V",
+            "ImpedanceValue": "23ohm"
+          }
+        },
+        {
+          "CableName": "stwire2",
+          "Assignment": "Input Terminations",
+          "AssignmentType": "Source",
+          "Impedance": "40ohm",
+          "Source": {
+            "Type": "Single Value",
+            "Signal": "4V",
+            "ImpedanceValue": "23ohm"
+          }
+        },
+        {
+        "CableName": "stwire3",
+        "Assignment": "Output Terminations",
+        "AssignmentType": "Source",
+        "Impedance": "40ohm",
+        "Source": {
+          "Type": "Transient",
+          "Signal": "clock1",
+          "ImpedanceValue": "23ohm"
+        }
+        }
+      ]
+    },
 	"CableManager": {
       "TDSources": {
         "ClockSourceDef": {
