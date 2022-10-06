@@ -19,8 +19,8 @@ plots in AEDT. They are accessible through the ``post`` property.
    :toctree: _autosummary
    :nosignatures:
 
-   AdvancedPostProcessing.PostProcessor
    PostProcessor.CircuitPostProcessor
+   AdvancedPostProcessing.PostProcessor
    solutions.SolutionData
    solutions.FieldPlot
    solutions.FfdSolutionData
