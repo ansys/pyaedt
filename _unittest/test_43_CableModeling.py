@@ -485,11 +485,16 @@ class TestClass(BasisTest, object):
         cable = Cable(self.aedtapp, self.dict_in)
         assert cable.cable_definitions["CableBundle"][0]["Instances"]["StWireInstance"]
         assert len(cable.cable_definitions["CableBundle"][0]["Instances"]["StWireInstance"]) == 3
+        self.dict_in["CablesToBundle_prop"]["NumberOfCableToAdd"] = ""
+        assert Cable(self.aedtapp, self.dict_in).add_cable_to_bundle()
+        cable = Cable(self.aedtapp, self.dict_in)
+        assert len(cable.cable_definitions["CableBundle"][0]["Instances"]["StWireInstance"]) == 5
         self.dict_in["CablesToBundle_prop"]["BundleCable"] = "New_updated_name_cable_bundle_insulation_"
         assert not Cable(self.aedtapp, self.dict_in).add_cable_to_bundle()
         # for cable harness
         self.dict_in["CablesToBundle_prop"]["CablesToAdd"] = ["stwire1", "stwire2", "stwire3"]
         self.dict_in["CablesToBundle_prop"]["BundleCable"] = "bundle1"
+        self.dict_in["CablesToBundle_prop"]["NumberOfCableToAdd"] = 3
         assert Cable(self.aedtapp, self.dict_in).add_cable_to_bundle()
 
     def test_10_remove_cables(self):
@@ -738,29 +743,58 @@ class TestClass(BasisTest, object):
         self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][2]["CableName"] = "straight_wire_cable2"
         self.dict_in["CableHarness_prop"]["Name"] = "cable_harness_test_1"
         assert Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["Name"] = ""
+        assert Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["XAxis"] = "NewVector"
+        self.dict_in["CableHarness_prop"]["XAxisOrigin"] = ["1mm", "2mm", "3mm"]
+        self.dict_in["CableHarness_prop"]["XAxisEnd"] = ["4mm", "5mm", "6mm"]
+        assert Cable(self.aedtapp, self.dict_in).create_cable_harness()
         self.dict_in["CableHarness_prop"]["Bundle"] = "non_existing_bundle"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["Bundle"] = "bundle1"
+        self.dict_in["CableHarness_prop"]["Name"] = ""
         self.dict_in["CableHarness_prop"]["TwistAngleAlongRoute"] = "20de"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["TwistAngleAlongRoute"] = "20deg"
         self.dict_in["CableHarness_prop"]["Polyline"] = "polyline2"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["Polyline"] = "polyline1"
         self.dict_in["CableHarness_prop"]["XAxis"] = "Invalid"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["XAxis"] = "Undefined"
         self.dict_in["CableHarness_prop"]["XAxisOrigin"] = ["0k", "0mm", "0mm"]
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["XAxisOrigin"] = ["0mm", "0mm", "0mm"]
         self.dict_in["CableHarness_prop"]["AutoOrient"] = ""
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["AutoOrient"] = "True"
         self.dict_in["CableHarness_prop"]["ReverseYAxisDirection"] = ""
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["ReverseYAxisDirection"] = "True"
         self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][0]["Assignment"] = "invalid_assignment"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][0]["Assignment"] = "Reference"
         self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][0]["Impedance"] = "50o"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][0]["Impedance"] = "50ohm"
         self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][1]["Source"]["Type"] = "invalid"
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
+        self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"][1]["Source"]["Type"] = "impedance"
         self.dict_in["CableHarness_prop"]["CableTerminationsToInclude"] = {}
         assert not Cable(self.aedtapp, self.dict_in).create_cable_harness()
 
     def test_16_empty_json(self):
         self.dict_in = {}
         assert not Cable(self.aedtapp, self.dict_in).create_cable()
+
+    def test_17_json_file_path(self):
+        assert Cable(
+            self.aedtapp,
+            os.path.join(
+                local_path,
+                "example_models",
+                test_subfloder,
+                "cable_modeling_json_files",
+                "set_cable_properties.json",
+            ),
+        ).create_cable()
