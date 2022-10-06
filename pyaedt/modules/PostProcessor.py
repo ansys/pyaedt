@@ -3806,10 +3806,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         source_name : str
             Name of the AMI source.
         variation_list_w_value : list
-            List of variations with relative values.
-        unit_interval: float, optional
+            Variations with relative values.
+        unit_interval : float, optional
             Unit interval in seconds. The default is ``1e-9``.
-        ignore_bits: int, optional
+        ignore_bits : int, optional
             Number of initial bits to ignore. The default is ``0``.
         plot_type : str, optional
             Report type. The default is ``None``, in which case all report types are generated.
