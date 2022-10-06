@@ -20,6 +20,7 @@ plots in AEDT. They are accessible through the ``post`` property.
    :nosignatures:
 
    AdvancedPostProcessing.PostProcessor
+   PostProcessor.CircuitPostProcessor
    solutions.SolutionData
    solutions.FieldPlot
    solutions.FfdSolutionData
