@@ -3,6 +3,7 @@ import json
 import os
 
 from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
@@ -13,8 +14,8 @@ class Cable:
     Parameters
     ----------
     app : :class:`pyaedt.hfss.Hfss`
-    json_file_name : str, optional
-        Path of the json file where the cable information are saved.
+    json_file_name : str, dict, optional
+        Full path to either the JSON file or dictionary containing the cable information.
     working_dir : str, optional
         Working directory.
 
@@ -77,8 +78,17 @@ class Cable:
                 bundle_cables_list.append(self.cable_definitions.get("CableBundle"))
             else:
                 bundle_cables_list = self.cable_definitions.get("CableBundle")
+            self.cables_in_bundle_list_dict = []
             for x in bundle_cables_list:
                 self.existing_bundle_cables_names.append(x["BundleAttribs"]["Name"])
+                if x["Instances"]:
+                    if x["Instances"]["StWireInstance"]:
+                        cables_in_bundle_dict = {}
+                        cables_in_bundle_dict[x["BundleAttribs"]["Name"]] = []
+                        for stwire in x["Instances"]["StWireInstance"]:
+                            cables_in_bundle_dict[x["BundleAttribs"]["Name"]].append(stwire["CableInstAttribs"]["Name"])
+                        self.cables_in_bundle_list_dict.append(cables_in_bundle_dict)
+
         if self.cable_definitions.get("StWireCable"):
             if not isinstance(self.cable_definitions.get("StWireCable"), list):
                 st_wire_cables_list.append(self.cable_definitions.get("StWireCable"))
@@ -196,7 +206,7 @@ class Cable:
                         [
                             "NAME:TwistedPairParams",
                             "IsLayLengthSpecified:=",
-                            self.is_lay_length_specified,
+                            True,
                             "LayLength:=",
                             self.lay_length,
                         ],
@@ -208,7 +218,7 @@ class Cable:
                         [
                             "NAME:TwistedPairParams",
                             "IsLayLengthSpecified:=",
-                            self.is_lay_length_specified,
+                            False,
                             "TurnsPerMeter:=",
                             self.turns_per_meter,
                         ],
@@ -347,7 +357,7 @@ class Cable:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        for cable_to_remove in self.cable_to_remove:
+        for cable_to_remove in self.cables_to_remove:
             if cable_to_remove not in itertools.chain(
                 self.existing_bundle_cables_names,
                 self.existing_straight_wire_cables_names,
@@ -371,19 +381,20 @@ class Cable:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if self.cables_to_add_to_bundle in self.existing_straight_wire_cables_names:
-            try:
-                self._omodule.AddCableToBundle(
-                    self.bundle_cable,
-                    self.cables_to_add_to_bundle,
-                    self.number_of_cables_to_add,
-                    ["NAME:CableInstParams", "XPos:=", "0mm", "YPos:=", "0mm", "RotX:=", "0deg"],
-                    ["NAME:CableInstAttribs", "Name:=", self.cables_to_add_to_bundle],
-                )
-                return True
-            except:
-                self._app.logger.error("Add cable to Bundle failed. Please check the provided cable names.")
-                return False
+        if [x for x in self.cables_to_add_to_bundle if x in self.existing_straight_wire_cables_names]:
+            for cable_to_add in self.cables_to_add_to_bundle:
+                try:
+                    self._omodule.AddCableToBundle(
+                        self.bundle_cable,
+                        cable_to_add,
+                        self.number_of_cables_to_add,
+                        ["NAME:CableInstParams", "XPos:=", "0mm", "YPos:=", "0mm", "RotX:=", "0deg"],
+                        ["NAME:CableInstAttribs", "Name:=", cable_to_add],
+                    )
+                    return True
+                except:
+                    self._app.logger.error("Add cable to Bundle failed. Please check the provided cable names.")
+                    return False
         else:
             self._app.logger.error("There is not any cable with the provided name.")
             return False
@@ -569,48 +580,138 @@ class Cable:
             self._app.logger.error("PWL source not created.")
             return False
 
-    def _init_from_json(self, json_file_name):
+    def create_cable_harness(self):
+        """Create cable harness.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         try:
-            with open(json_file_name, "r") as read_file:
-                values = json.load(read_file)
-        except FileNotFoundError as e:
-            self._app.logger.error(str(e))
-            return False
-        except OSError as e:
-            self._app.logger.error(str(e))
-            return False
-        except Exception as e:
-            self._app.logger.error(str(e))
+            self._omodule.CreateCableHarness(
+                [
+                    "NAME:HarnessParams",
+                    "Bundle:=",
+                    self.cable_harness_bundle,
+                    "TwistAlongPath:=",
+                    self.twist_angle_along_route,
+                    "Route:=",
+                    self.cable_harness_polyline,
+                    "AutoOrient:=",
+                    self.cable_harness_auto_orient,
+                    "Origin:=",
+                    self.cable_harness_x_axis_origin,
+                    "XAxisEnd:=",
+                    self.cable_harness_x_axis_end_point,
+                    "PlaneFlip:=",
+                    self.reverse_y_axis_direction,
+                    self.args[0],
+                    self.args[1],
+                    self.args[2],
+                ],
+                ["NAME:HarnessAttribs", "Name:=", self.cable_harness_name],
+            )
+            oEditor = self._odesign.SetActiveEditor("3D Modeler")
+            oEditor.InsertNativeComponent(
+                [
+                    "NAME:InsertNativeComponentData",
+                    "TargetCS:=",
+                    "Global",
+                    "SubmodelDefinitionName:=",
+                    self.cable_harness_name,
+                    ["NAME:ComponentPriorityLists"],
+                    "NextUniqueID:=",
+                    0,
+                    "MoveBackwards:=",
+                    False,
+                    "DatasetType:=",
+                    "ComponentDatasetType",
+                    ["NAME:DatasetDefinitions"],
+                    [
+                        "NAME:BasicComponentInfo",
+                        "ComponentName:=",
+                        self.cable_harness_name,
+                        "Company:=",
+                        "",
+                        "Company URL:=",
+                        "",
+                        "Model Number:=",
+                        "",
+                        "Help URL:=",
+                        "",
+                        "Version:=",
+                        "1.0",
+                        "Notes:=",
+                        "",
+                        "IconType:=",
+                        "CableHarness",
+                    ],
+                    ["NAME:GeometryDefinitionParameters", ["NAME:VariableOrders"]],
+                    ["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]],
+                    ["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]],
+                    "MapInstanceParameters:=",
+                    "NotVariable",
+                    "UniqueDefinitionIdentifier:=",
+                    "5c0c451d-2fc3-4800-bcac-2109a11351ee",
+                    "OriginFilePath:=",
+                    "",
+                    "IsLocal:=",
+                    False,
+                    "ChecksumString:=",
+                    "",
+                    "ChecksumHistory:=",
+                    [],
+                    "VersionHistory:=",
+                    [],
+                    [
+                        "NAME:NativeComponentDefinitionProvider",
+                        "Type:=",
+                        "CableHarness",
+                        "Unit:=",
+                        self._app.modeler.model_units,
+                        "Harness:=",
+                        self.cable_harness_name,
+                        "HarnessPartID:=",
+                        -1,
+                    ],
+                    [
+                        "NAME:InstanceParameters",
+                        "GeometryParameters:=",
+                        "",
+                        "MaterialParameters:=",
+                        "",
+                        "DesignParameters:=",
+                        "",
+                    ],
+                ]
+            )
+
+            return True
+        except:
+            self._app.logger.error("Couldn't create cable harness.")
             return False
 
+    def _init_from_json(self, json_file_name):
+        if isinstance(json_file_name, dict):
+            json_dict = json_file_name
+        else:
+            json_dict = json_to_dict(json_file_name)
+
         # Cable implementation
-        if values["Cable"].lower() == "true":
+        if json_dict["Add_Cable"].lower() == "true":
             try:
-                if values["CableType"].lower() in ["bundle", "straight wire", "twisted pair"]:
-                    self.cable_type = values["CableType"]
-                    self._app.logger.error("test")
+                if json_dict["Cable_prop"]["CableType"].lower() in ["bundle", "straight wire", "twisted pair"]:
+                    self.cable_type = json_dict["Cable_prop"]["CableType"]
                 else:
                     msg = "Cable type is not valid. Available values are: bundle, straight wire, twisted pair"
                     raise ValueError(msg)
 
-                if values["UpdatedName"]:
-                    self.updated_name = values["UpdatedName"]
-
-                if values["CablesToRemove"]:
-                    self.cable_to_remove = values["CablesToRemove"]
-
-                if values["CablesToBundle"]:
-                    if values["CablesToBundle"]["CablesToAdd"]:
-                        self.cables_to_add_to_bundle = values["CablesToBundle"]["CablesToAdd"]
-                        if values["CablesToBundle"]["BundleCable"]:
-                            self.bundle_cable = values["CablesToBundle"]["BundleCable"]
-                        if values["CablesToBundle"]["NumberOfCableToAdd"]:
-                            self.number_of_cables_to_add = values["CablesToBundle"]["NumberOfCableToAdd"]
-                        else:
-                            self.number_of_cables_to_add = 2
+                if json_dict["Update_Cable"]:
+                    self.updated_name = json_dict["Cable_prop"]["UpdatedName"]
 
                 if self.cable_type == "bundle":
-                    cable_bundle_properties = values["CableManager"]["Definitions"]["CableBundle"]
+                    cable_bundle_properties = json_dict["CableManager"]["Definitions"]["CableBundle"]
                     if cable_bundle_properties["BundleAttribs"]["Name"] is None:
                         self.cable_name = generate_unique_name("bundle")
                     else:
@@ -621,9 +722,9 @@ class Cable:
                     bool_jacket_type_list = [
                         el == "True"
                         for el in [
-                            values["IsJacketTypeInsulation"],
-                            values["IsJacketTypeBraidShield"],
-                            values["IsJacketTypeNoJacket"],
+                            json_dict["Cable_prop"]["IsJacketTypeInsulation"],
+                            json_dict["Cable_prop"]["IsJacketTypeBraidShield"],
+                            json_dict["Cable_prop"]["IsJacketTypeNoJacket"],
                         ]
                     ]
                     if bool_jacket_type_list.count(True) > 1:
@@ -725,7 +826,7 @@ class Cable:
                                     "InnerDiameter"
                                 ]
                 elif self.cable_type == "straight wire":
-                    cable_st_wire_properties = values["CableManager"]["Definitions"]["StWireCable"]
+                    cable_st_wire_properties = json_dict["CableManager"]["Definitions"]["StWireCable"]
                     if cable_st_wire_properties["StWireAttribs"]["Name"] is None:
                         self.cable_name = generate_unique_name("stwire")
                     else:
@@ -778,7 +879,7 @@ class Cable:
                                 insulation_type_options = ["Thin Wall", "Ultra-Thin Wall"]
                             elif self.wire_type in ["0.5", "0.75", "1", "1.5", "2", "2.5"]:
                                 insulation_type_options = ["Thick Wall", "Thin Wall", "Ultra-Thin Wall"]
-                            if self.wire_type in ["3", "4", "5", "6", "10", "16", "25"]:
+                            elif self.wire_type in ["3", "4", "5", "6", "10", "16", "25"]:
                                 insulation_type_options = ["Thick Wall", "Thin Wall"]
                             elif self.wire_type in ["35", "50", "70", "95", "120"]:
                                 insulation_type_options = ["Thick Wall"]
@@ -814,7 +915,7 @@ class Cable:
                         else:
                             raise ValueError("Material provided doesn't exist.")
                 else:
-                    cable_twisted_pair_properties = values["CableManager"]["Definitions"]["TwistedPairCable"]
+                    cable_twisted_pair_properties = json_dict["CableManager"]["Definitions"]["TwistedPairCable"]
                     if cable_twisted_pair_properties["TwistedPairAttribs"]["Name"] is None:
                         self.cable_name = generate_unique_name("tpair")
                     else:
@@ -862,32 +963,65 @@ class Cable:
             except ValueError as e:
                 self._app.logger.error(str(e))
 
+        # Add Cable to Bundle
+        if json_dict["Add_CablesToBundle"].lower() == "true":
+            if json_dict["CablesToBundle_prop"]["CablesToAdd"]:
+                if isinstance(json_dict["CablesToBundle_prop"]["CablesToAdd"], list):
+                    self.cables_to_add_to_bundle = json_dict["CablesToBundle_prop"]["CablesToAdd"]
+                elif isinstance(json_dict["CablesToBundle_prop"]["CablesToAdd"], str):
+                    self.cables_to_add_to_bundle = [json_dict["CablesToBundle_prop"]["CablesToAdd"]]
+                if json_dict["CablesToBundle_prop"]["BundleCable"]:
+                    self.bundle_cable = json_dict["CablesToBundle_prop"]["BundleCable"]
+                if json_dict["CablesToBundle_prop"]["NumberOfCableToAdd"]:
+                    self.number_of_cables_to_add = json_dict["CablesToBundle_prop"]["NumberOfCableToAdd"]
+                else:
+                    self.number_of_cables_to_add = 2
+
+        # Remove Cable
+        if json_dict["Remove_Cable"].lower() == "true":
+            self.cables_to_remove = [json_dict["Cable_prop"]["CablesToRemove"]]
+
         # Source implementation
-        if values["Source"].lower() == "true":
-            # Check whether both add and update source are True -> not possible.
+        # Check whether both add and update source are True -> not possible.
+        try:
+            if json_dict["Add_Source"].lower() == "true" and json_dict["Update_Source"].lower() == "true":
+                msg = "Add_Source and Update_Source fields can't have the same value."
+                raise ValueError(msg)
+        except ValueError as e:
+            self._app.logger.error(str(e))
+        if json_dict["Add_Source"].lower() == "true" or json_dict["Update_Source"].lower() == "true":
+            if json_dict["Update_Source"].lower() == "true":
+                json_dict["Source_prop"]["AddClockSource"] = "False"
+                json_dict["Source_prop"]["AddPwlSource"] = "False"
+            elif json_dict["Add_Source"].lower() == "true":
+                json_dict["Source_prop"]["UpdateClockSource"] = "False"
+                json_dict["Source_prop"]["UpdatePwlSource"] = "False"
+            # Check whether both add and update source are True in Source_prop -> not possible.
             try:
-                if values["AddClockSource"].lower() == "true" and values["UpdateClockSource"].lower() == "true":
+                if (
+                    json_dict["Source_prop"]["AddClockSource"].lower() == "true"
+                    and json_dict["Source_prop"]["UpdateClockSource"].lower() == "true"
+                ):
                     msg = "AddClockSource and UpdateClockSource fields can't have the same value."
                     raise ValueError(msg)
-                if values["AddPwlSource"].lower() == "true" and values["UpdatePwlSource"].lower() == "true":
+                if (
+                    json_dict["Source_prop"]["AddPwlSource"].lower() == "true"
+                    and json_dict["Source_prop"]["UpdatePwlSource"].lower() == "true"
+                ):
                     msg = "AddPwlSource and UpdatePwlSource fields can't have the same value."
                     raise ValueError(msg)
             except ValueError as e:
                 self._app.logger.error(str(e))
 
             try:
-                # Check if user action is to remove the source
-                if values["SourcesToRemove"]:
-                    if values["SourcesToRemove"] in self.existing_sources_names:
-                        self.source_to_remove = values["SourcesToRemove"]
-                    else:
-                        msg = "Source to remove doesn't exist in the current design."
-                        raise ValueError(msg)
-                # Check if user action is to add a clock source
-                elif values["ClockSource"].lower() == "true":
-                    source_properties = values["CableManager"]["TDSources"]["ClockSourceDef"]
-                    if values["UpdateClockSource"].lower() == "true":
-                        self.updated_source_name = values["UpdatedSourceName"]
+                # Check if user action is to add a clock source or update
+                if (
+                    json_dict["Source_prop"]["AddClockSource"].lower() == "true"
+                    or json_dict["Source_prop"]["UpdateClockSource"].lower() == "true"
+                ):
+                    source_properties = json_dict["CableManager"]["TDSources"]["ClockSourceDef"]
+                    if json_dict["Source_prop"]["UpdateClockSource"].lower() == "true":
+                        self.updated_source_name = json_dict["Source_prop"]["UpdatedSourceName"]
                         if source_properties["TDSourceAttribs"]["Name"]:
                             self.source_name = source_properties["TDSourceAttribs"]["Name"]
                         else:
@@ -901,8 +1035,17 @@ class Cable:
 
                     self.source_period = "35us"
                     if source_properties["ClockSignalParams"]["Period"]:
-                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["Period"])[1]
-                        if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
+                        if decompose_variable_value(source_properties["ClockSignalParams"]["Period"])[1] not in [
+                            "fs",
+                            "ps",
+                            "ns",
+                            "us",
+                            "ms",
+                            "s",
+                            "min",
+                            "hour",
+                            "day",
+                        ]:
                             msg = "Period's unit provided is not valid."
                             raise ValueError(msg)
                         else:
@@ -910,8 +1053,18 @@ class Cable:
 
                     self.low_pulse_value = "0V"
                     if source_properties["ClockSignalParams"]["LowPulseVal"]:
-                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["LowPulseVal"])[1]
-                        if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
+                        if decompose_variable_value(source_properties["ClockSignalParams"]["LowPulseVal"])[1] not in [
+                            "fV",
+                            "pV",
+                            "nV",
+                            "uV",
+                            "mV",
+                            "V",
+                            "kV",
+                            "megV",
+                            "gV",
+                            "dBV",
+                        ]:
                             msg = "Low Pulse Value's unit provided is not valid."
                             raise ValueError(msg)
                         else:
@@ -919,8 +1072,18 @@ class Cable:
 
                     self.high_pulse_value = "1V"
                     if source_properties["ClockSignalParams"]["HighPulseVal"]:
-                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["HighPulseVal"])[1]
-                        if unit not in ["fV", "pV", "nV", "uV", "mV", "V", "kV", "megV", "gV", "dBV"]:
+                        if decompose_variable_value(source_properties["ClockSignalParams"]["HighPulseVal"])[1] not in [
+                            "fV",
+                            "pV",
+                            "nV",
+                            "uV",
+                            "mV",
+                            "V",
+                            "kV",
+                            "megV",
+                            "gV",
+                            "dBV",
+                        ]:
                             msg = "High Pulse Value's unit provided is not valid."
                             raise ValueError(msg)
                         else:
@@ -928,8 +1091,17 @@ class Cable:
 
                     self.rise_time = "5us"
                     if source_properties["ClockSignalParams"]["Risetime"]:
-                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["Risetime"])[1]
-                        if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
+                        if decompose_variable_value(source_properties["ClockSignalParams"]["Risetime"])[1] not in [
+                            "fs",
+                            "ps",
+                            "ns",
+                            "us",
+                            "ms",
+                            "s",
+                            "min",
+                            "hour",
+                            "day",
+                        ]:
                             msg = "Rise time unit provided is not valid."
                             raise ValueError(msg)
                         else:
@@ -937,8 +1109,17 @@ class Cable:
 
                     self.fall_time = "5us"
                     if source_properties["ClockSignalParams"]["Falltime"]:
-                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["Falltime"])[1]
-                        if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
+                        if decompose_variable_value(source_properties["ClockSignalParams"]["Falltime"])[1] not in [
+                            "fs",
+                            "ps",
+                            "ns",
+                            "us",
+                            "ms",
+                            "s",
+                            "min",
+                            "hour",
+                            "day",
+                        ]:
                             msg = "Fall time unit provided is not valid."
                             raise ValueError(msg)
                         else:
@@ -946,23 +1127,34 @@ class Cable:
 
                     self.pulse_width = "20us"
                     if source_properties["ClockSignalParams"]["PulseWidth"]:
-                        unit = decompose_variable_value(source_properties["ClockSignalParams"]["PulseWidth"])[1]
-                        if unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
+                        if decompose_variable_value(source_properties["ClockSignalParams"]["PulseWidth"])[1] not in [
+                            "fs",
+                            "ps",
+                            "ns",
+                            "us",
+                            "ms",
+                            "s",
+                            "min",
+                            "hour",
+                            "day",
+                        ]:
                             msg = "Pulse width unit provided is not valid."
                             raise ValueError(msg)
                         else:
                             self.pulse_width = source_properties["ClockSignalParams"]["PulseWidth"]
-
-                # Check if user action is to add a pwl source
-                elif values["PwlSource"].lower() == "true":
-                    # Check is user wants to add pwl source from file
-                    if values["AddPwlSourceFromFile"]:
-                        self.pwl_source_file_path = values["AddPwlSourceFromFile"]
+                # Check if user action is to add a pwl source or update
+                elif (
+                    json_dict["Source_prop"]["AddPwlSource"].lower() == "true"
+                    or json_dict["Source_prop"]["UpdatePwlSource"].lower() == "true"
+                ):
+                    # Check if user wants to add pwl source from file
+                    if json_dict["Source_prop"]["AddPwlSourceFromFile"]:
+                        self.pwl_source_file_path = json_dict["Source_prop"]["AddPwlSourceFromFile"]
                     else:
-                        pwl_source_properties = values["CableManager"]["TDSources"]["PWLSourceDef"]
+                        pwl_source_properties = json_dict["CableManager"]["TDSources"]["PWLSourceDef"]
                         # Check if user wants to update pwl source
-                        if values["UpdatePwlSource"].lower() == "true":
-                            self.updated_pwl_source_name = values["UpdatedSourceName"]
+                        if json_dict["Source_prop"]["UpdatePwlSource"].lower() == "true":
+                            self.updated_pwl_source_name = json_dict["Source_prop"]["UpdatedSourceName"]
                             if (
                                 pwl_source_properties["TDSourceAttribs"]
                                 and "Name" in pwl_source_properties["TDSourceAttribs"]
@@ -979,9 +1171,9 @@ class Cable:
                             ):
                                 self.pwl_source_name = pwl_source_properties["TDSourceAttribs"]["Name"]
                             else:
-                                self.pwl_source_name = generate_unique_name("clock")
+                                self.pwl_source_name = generate_unique_name("pwl")
 
-                        # User wants to manually add pwl source values
+                        # User wants to manually add/update pwl source values
                         if (
                             pwl_source_properties["PWLSignalParams"]["SignalValues"][0]
                             != pwl_source_properties["PWLSignalParams"]["SignalValues"][-1]
@@ -991,6 +1183,197 @@ class Cable:
                         else:
                             self.signal_values = pwl_source_properties["PWLSignalParams"]["SignalValues"]
                         self.time_values = pwl_source_properties["PWLSignalParams"]["TimeValues"]
+            except ValueError as e:
+                self._app.logger.error(str(e))
+
+        # Check if user action is to remove the source
+        if json_dict["Remove_Source"].lower() == "true":
+            self.source_to_remove = json_dict["Source_prop"]["SourcesToRemove"]
+
+        # Cable Harness implementation
+        if json_dict["Add_CableHarness"].lower() == "true":
+            try:
+                if json_dict["CableHarness_prop"]["Name"]:
+                    self.cable_harness_name = json_dict["CableHarness_prop"]["Name"]
+                else:
+                    self.cable_harness_name = generate_unique_name("cable_harness")
+
+                if json_dict["CableHarness_prop"]["Bundle"] not in self.existing_bundle_cables_names:
+                    msg = "Cable bundle name doesn't exist in the current project."
+                    raise ValueError(msg)
+                else:
+                    self.cable_harness_bundle = json_dict["CableHarness_prop"]["Bundle"]
+
+                if decompose_variable_value(json_dict["CableHarness_prop"]["TwistAngleAlongRoute"])[1] not in [
+                    "deg",
+                    "degmin",
+                    "degsec",
+                    "rad",
+                ]:
+                    msg = "Angle's unit provided is not valid."
+                    raise ValueError(msg)
+                else:
+                    self.twist_angle_along_route = json_dict["CableHarness_prop"]["TwistAngleAlongRoute"]
+
+                if not [
+                    x for x in self._app.modeler.object_names if json_dict["CableHarness_prop"]["Polyline"] == x.lower()
+                ]:
+                    msg = "Polyline doesn't exist in the current project."
+                    raise ValueError(msg)
+                else:
+                    self.cable_harness_polyline = [
+                        x
+                        for x in self._app.modeler.object_names
+                        if json_dict["CableHarness_prop"]["Polyline"] == x.lower()
+                    ][0]
+
+                if (
+                    json_dict["CableHarness_prop"]["AutoOrient"].lower() == "true"
+                    or json_dict["CableHarness_prop"]["AutoOrient"].lower() == "false"
+                ):
+                    self.cable_harness_auto_orient = json_dict["CableHarness_prop"]["AutoOrient"].title()
+                    if json_dict["CableHarness_prop"]["AutoOrient"].lower() == "false":
+                        if json_dict["CableHarness_prop"]["XAxis"] not in ["Undefined", "NewVector"]:
+                            msg = "Invalid value for cable harness x axis."
+                            raise ValueError(msg)
+                        elif json_dict["CableHarness_prop"]["XAxis"] == "NewVector":
+                            if [
+                                x
+                                for x in json_dict["CableHarness_prop"]["XAxisOrigin"]
+                                if decompose_variable_value(x)[1] != self._app.modeler.model_units
+                            ]:
+                                msg = "Provided units for x axis origin point are not valid."
+                                raise ValueError(msg)
+                            else:
+                                self.cable_harness_x_axis_origin = json_dict["CableHarness_prop"]["XAxisOrigin"]
+
+                            if [
+                                x
+                                for x in json_dict["CableHarness_prop"]["XAxisEnd"]
+                                if decompose_variable_value(x)[1] != self._app.modeler.model_units
+                            ]:
+                                msg = "Provided units for x axis end point are not valid."
+                                raise ValueError(msg)
+                            else:
+                                self.cable_harness_x_axis_end_point = json_dict["CableHarness_prop"]["XAxisEnd"]
+                        elif json_dict["CableHarness_prop"]["XAxis"] == "Undefined":
+                            self.cable_harness_x_axis_origin = ["0mm", "0mm", "0mm"]
+                            self.cable_harness_x_axis_end_point = ["0mm", "0mm", "0mm"]
+                    elif json_dict["CableHarness_prop"]["AutoOrient"].lower() == "true":
+                        self.cable_harness_x_axis_origin = ["0mm", "0mm", "0mm"]
+                        self.cable_harness_x_axis_end_point = ["0mm", "0mm", "0mm"]
+                else:
+                    msg = "Provide  valid value for auto orientation boolean."
+                    raise ValueError(msg)
+
+                if (
+                    json_dict["CableHarness_prop"]["ReverseYAxisDirection"].lower() == "true"
+                    or json_dict["CableHarness_prop"]["ReverseYAxisDirection"].lower() == "false"
+                ):
+                    self.reverse_y_axis_direction = json_dict["CableHarness_prop"]["ReverseYAxisDirection"]
+                else:
+                    msg = "Provide  valid value for y axis direction boolean."
+                    raise ValueError(msg)
+
+                if [x for x in json_dict["CableHarness_prop"]["CableTerminationsToInclude"]]:
+                    cable_terminations_to_include = json_dict["CableHarness_prop"]["CableTerminationsToInclude"]
+                    # check if cable to include in harness exists in current project
+                    self.args = []
+                    for x in cable_terminations_to_include:
+                        if (
+                            x["CableName"]
+                            in [
+                                cable.get(self.cable_harness_bundle)
+                                for cable in self.cables_in_bundle_list_dict
+                                if self.cable_harness_bundle in cable.keys()
+                            ][0]
+                        ):
+                            if x["Assignment"] not in [
+                                "Reference Conductor",
+                                "Input Terminations",
+                                "Output Terminations",
+                            ]:
+                                msg = "Invalid cable harness assignment."
+                                raise ValueError(msg)
+                            elif x["Assignment"] == "Reference Conductor":
+                                ref_cond = ["NAME:RefConductors", x["CableName"]]
+                                self.args.append(ref_cond)
+                            elif x["Assignment"] == "Input Terminations" or x["Assignment"] == "Output Terminations":
+                                terminations = []
+                                if x["Assignment"] == "Input Terminations":
+                                    terminations.append("NAME:InputTerminations")
+                                elif x["Assignment"] == "Output Terminations":
+                                    terminations.append("NAME:OutputTerminations")
+                                terminations.append("{}:=".format(x["CableName"]))
+                                assignment_type = []
+                                if x["AssignmentType"] == "Impedance":
+                                    if decompose_variable_value(x["Impedance"])[1] not in [
+                                        "GOhm",
+                                        "kOhm",
+                                        "megohm",
+                                        "mohm",
+                                        "ohm",
+                                        "uohm",
+                                    ]:
+                                        msg = "Invalid impedance unit."
+                                        raise ValueError(msg)
+                                    else:
+                                        assignment_type.append("Imped:=")
+                                        assignment_type.append(x["Impedance"])
+                                elif x["AssignmentType"] == "Source":
+                                    assignment_type.append("Source:=")
+                                    if x["Source"]["Type"] not in ["Single Value", "Transient"]:
+                                        msg = "Invalid source type value."
+                                        raise ValueError(msg)
+                                    elif x["Source"]["Type"] == "Transient":
+                                        if x["Source"]["Signal"] not in self.existing_sources_names:
+                                            msg = "Source name doesn't exist in current project."
+                                            raise ValueError(msg)
+                                        else:
+                                            assignment_type.append('"{}"'.format(x["Source"]["Signal"]))
+                                            assignment_type.append("Imped:=")
+                                            assignment_type.append(x["Source"]["ImpedanceValue"])
+                                    elif x["Source"]["Type"] == "Single Value":
+                                        if decompose_variable_value(x["Source"]["Signal"])[1] not in [
+                                            "fV",
+                                            "pV",
+                                            "nV",
+                                            "uV",
+                                            "mV",
+                                            "V",
+                                            "kV",
+                                            "megV",
+                                            "gV",
+                                            "dBV",
+                                        ] and decompose_variable_value(x["Source"]["ImpedanceValue"])[1] not in [
+                                            "GOhm",
+                                            "kOhm",
+                                            "megohm",
+                                            "mohm",
+                                            "ohm",
+                                            "uohm",
+                                        ]:
+                                            msg = "Invalid source signal units."
+                                            raise ValueError(msg)
+                                        else:
+                                            assignment_type.append(x["Source"]["Signal"])
+                                            assignment_type.append("Imped:=")
+                                            assignment_type.append(x["Source"]["ImpedanceValue"])
+                                terminations.append(assignment_type)
+                                assignment_type = ["Imped:=", "50ohm"]
+                                for cable in [
+                                    x.get(self.cable_harness_bundle)
+                                    for x in self.cables_in_bundle_list_dict
+                                    if self.cable_harness_bundle in x.keys()
+                                ][0]:
+                                    if cable != x["CableName"]:
+                                        terminations.append("{}:=".format(cable))
+                                        terminations.append(assignment_type)
+                                self.args.append(terminations)
+                else:
+                    msg = "Provide at least one cable to include when creating cable harness."
+                    raise ValueError(msg)
+
             except ValueError as e:
                 self._app.logger.error(str(e))
 
