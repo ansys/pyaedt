@@ -31,7 +31,7 @@ class TestClass(BasisTest, object):
                 "example_models",
                 test_subfloder,
                 "cable_modeling_json_files",
-                "set_cable_properties_refacto.json",
+                "set_cable_properties.json",
             )
         )
 
