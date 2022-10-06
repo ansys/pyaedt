@@ -467,6 +467,9 @@ class EDBPrimitives(object):
 class EDBLayer(object):
     """Manages EDB functionalities for a layer.
 
+    .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class.
+
     Examples
     --------
     >>> from pyaedt import Edb
@@ -1087,6 +1090,9 @@ class EDBLayer(object):
 
 class EDBLayers(object):
     """Manages EDB functionalities for all primitive layers.
+
+    .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class.
 
     Parameters
     ----------
@@ -2822,11 +2828,11 @@ class EDBPadstackInstance(object):
             i = 0
             while i < polygon_data.Count:
                 point = polygon_data.GetPoint(i)
+                i += 1
                 if point.IsArc():
                     continue
                 else:
                     points.append([point.X.ToDouble(), point.Y.ToDouble()])
-                i += 1
             xpoly, ypoly = zip(*points)
             polygon = [list(xpoly), list(ypoly)]
             rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
@@ -2848,6 +2854,46 @@ class EDBPadstackInstance(object):
             path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
             created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
             return created_polygon
+
+
+class EDBComponentDef(object):
+    """Manages EDB functionalities for component definitions.
+
+    Parameters
+    ----------
+    parent : :class:`pyaedt.edb_core.components.Components`
+        Inherited AEDT object.
+    comp_def : object
+        Edb ComponentDef Object
+    """
+
+    def __init__(self, components, comp_def):
+        self._pcomponents = components
+        self._edb_comp_def = comp_def
+
+    @property
+    def part_name(self):
+        """Retrieve component definition name."""
+        return self._edb_comp_def.GetName()
+
+    @part_name.setter
+    def part_name(self, name):
+        self._edb_comp_def.SetName(name)
+
+    @property
+    def components(self):
+        """Get the list of components belonging to this component definition.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.EDB_Data.EDBComponent`
+        """
+        return [
+            EDBComponent(self._pcomponents, l)
+            for l in self._pcomponents._edb.Cell.Hierarchy.Component.FindByComponentDef(
+                self._pcomponents._pedb.active_layout, self.part_name
+            )
+        ]
 
 
 class EDBComponent(object):
@@ -2895,6 +2941,10 @@ class EDBComponent(object):
             Reference Designator Name.
         """
         return self.edbcomponent.GetName()
+
+    @refdes.setter
+    def refdes(self, name):
+        self.edbcomponent.SetName(name)
 
     @property
     def is_enabled(self):
@@ -3120,6 +3170,11 @@ class EDBComponent(object):
             Component Part Name.
         """
         return self.edbcomponent.GetComponentDef().GetName()
+
+    @partname.setter
+    def partname(self, name):
+        """Set component part name."""
+        self.edbcomponent.GetComponentDef().SetName(name)
 
     def _get_edb_value(self, value):
         return self._pcomponents._get_edb_value(value)
@@ -5401,7 +5456,7 @@ class SimulationConfiguration(object):
                                 if value.lower() == "hfss3dlayout":
                                     self.solver_type = 6
                                 elif value.lower().startswith("siwavesyz"):
-                                    self.solver_type = 6
+                                    self.solver_type = 7
                                 elif value.lower().startswith("siwavedc"):
                                     self.solver_type = 8
                                 elif value.lower().startswith("q3d"):

@@ -4,6 +4,7 @@ from warnings import warn
 
 from pyaedt import settings
 from pyaedt.edb import Edb
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
@@ -47,7 +48,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
         self.logger.info("Primitives loaded.")
-        self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
         self.rigid_flex = None
 
@@ -152,7 +152,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
     def model_units(self, units):
         assert units in AEDT_UNITS["Length"], "Invalid units string {0}.".format(units)
         """Set the model units as a string (for example, "mm")."""
-        self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
+        self.oeditor.SetActiveUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @property
     def primitives(self):

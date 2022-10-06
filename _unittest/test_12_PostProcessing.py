@@ -8,6 +8,7 @@ from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
+from pyaedt import settings
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.plot import _parse_aedtplt
@@ -45,7 +46,9 @@ else:
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
+ami = "ami"
 test_subfolder = "T12"
+settings.enable_pandas_output = True
 
 
 class TestClass(BasisTest, object):
@@ -62,6 +65,7 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
         self.q2dtest = Q2d(projectname=self.q3dtest.project_name)
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+        self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
 
     def teardown_class(self):
@@ -167,10 +171,10 @@ class TestClass(BasisTest, object):
         my_data = self.aedtapp.post.get_report_data(expression=trace_names, families_dict=families)
         assert my_data
         assert my_data.expressions
-        assert my_data.data_db(trace_names[0])
-        assert my_data.data_imag(trace_names[0])
-        assert my_data.data_real(trace_names[0])
-        assert my_data.data_magnitude(trace_names[0])
+        assert len(my_data.data_db(trace_names[0])) > 0
+        assert len(my_data.data_imag(trace_names[0])) > 0
+        assert len(my_data.data_real(trace_names[0])) > 0
+        assert len(my_data.data_magnitude(trace_names[0])) > 0
         assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
 
@@ -281,6 +285,18 @@ class TestClass(BasisTest, object):
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
+        self.field_test.set_source_context(["1"])
+        context = {"Context": "3D", "SourceContext": "1:1"}
+        assert self.field_test.post.create_report(
+            "db(GainTotal)",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            secondary_sweep_variable="Theta",
+            plot_type="3D Polar Plot",
+            context=context,
+            report_category="Far Fields",
+        )
         assert self.field_test.post.create_report(
             "db(GainTotal)",
             self.field_test.nominal_adaptive,
@@ -298,11 +314,20 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+
+        new_report2 = self.field_test.post.reports_by_category.far_field(
+            "db(RealizedGainTotal)", self.field_test.nominal_adaptive, "3D", "1:1"
+        )
+        new_report2.variations = variations
+        new_report2.report_type = "3D Polar Plot"
+        assert new_report2.create()
+
+        new_report3 = self.field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
         )
-        new_report2.report_type = "Data Table"
-        assert new_report2.create()
+        new_report3.report_type = "Data Table"
+        assert new_report3.create()
+
         self.field_test.analyze_nominal()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
@@ -310,6 +335,20 @@ class TestClass(BasisTest, object):
             variations=variations,
             primary_sweep_variable="Theta",
             context="3D",
+            report_category="Far Fields",
+        )
+        if not is_ironpython:
+            assert data.plot(is_polar=True)
+            assert data.plot_3d()
+            assert self.field_test.post.create_3d_plot(data)
+
+        context = {"Context": "3D", "SourceContext": "1:1"}
+        data = self.field_test.post.get_solution_data(
+            "GainTotal",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Theta",
+            context=context,
             report_category="Far Fields",
         )
         if not is_ironpython:
@@ -335,7 +374,7 @@ class TestClass(BasisTest, object):
         new_report.polyline = "Poly1"
         assert new_report.create()
         assert data.primary_sweep == "Theta"
-        assert data.data_magnitude("GainTotal")
+        assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
         assert self.field_test.post.create_report(
             "S(1,1)",
@@ -355,10 +394,28 @@ class TestClass(BasisTest, object):
             report_category="Fields",
         )
         assert data.units_sweeps["Phase"] == "deg"
+
+        assert self.field_test.post.get_far_field_data(
+            setup_sweep_name=self.field_test.nominal_adaptive, expression="RealizedGainTotal", domain="3D"
+        )
+        data_farfield2 = self.field_test.post.get_far_field_data(
+            setup_sweep_name=self.field_test.nominal_adaptive,
+            expression="RealizedGainTotal",
+            domain={"Context": "3D", "SourceContext": "1:1"},
+        )
+        if not is_ironpython:
+            assert data_farfield2.plot(math_formula="db20", is_polar=True)
+
         pass
 
     def test_09b_export_report(self):  # pragma: no cover
         files = self.aedtapp.export_results()
+        assert len(files) > 0
+        files = self.circuit_test.export_results()
+        assert len(files) > 0
+        files = self.q2dtest.export_results()
+        assert len(files) > 0
+        files = self.q3dtest.export_results()
         assert len(files) > 0
 
     def test_09c_import_into_report(self):
@@ -640,19 +697,23 @@ class TestClass(BasisTest, object):
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
         )
         assert new_report.create()
-        data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA")
+        data1 = self.circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
         assert data1.primary_sweep == "Freq"
+        assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        data11 = self.circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
+        assert data11.primary_sweep == "Freq"
+        assert "dB(S(Port2,Port1))" in data11.expressions
         assert self.circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
         new_report = self.circuit_test.post.reports_by_category.standard(["V(net_11)"], "Transient")
         new_report.domain = "Time"
         assert new_report.create()
         data2 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
-        assert data2.data_magnitude()
+        assert len(data2.data_magnitude()) > 0
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = self.circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
         assert data3.units_sweeps["Spectrum"] == "GHz"
-        assert data3.data_real()
+        assert len(data3.data_real()) > 0
         new_report = self.circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -769,8 +830,8 @@ class TestClass(BasisTest, object):
             report_category="Near Fields",
         )
         assert solution_data
-        assert solution_data.primary_sweep_values
-        assert solution_data.primary_sweep_variations
+        assert len(solution_data.primary_sweep_values) > 0
+        assert len(solution_data.primary_sweep_variations) > 0
         assert solution_data.set_active_variation(0)
         assert not solution_data.set_active_variation(99)
         t_matrix = solution_data.ifft("NearE", window=True)
@@ -795,11 +856,11 @@ class TestClass(BasisTest, object):
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
         assert new_report.create()
         self.q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
-        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
         assert new_report.create()
-        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Polyline1")
+        new_report = self.q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Poly1")
         assert new_report.create()
         assert len(self.q3dtest.post.plots) == 6
 
@@ -814,6 +875,12 @@ class TestClass(BasisTest, object):
         assert new_report.create()
         new_report = self.q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         assert new_report.create()
+        sol = new_report.get_solution_data()
+        sol.enable_pandas_output = True
+        data = sol.full_matrix_real_imag
+        data_mag = sol.full_matrix_mag_phase
+        sol.data_magnitude()
+        sol.enable_pandas_output = False
         assert len(self.q2dtest.post.plots) == 3
         new_report = self.q2dtest.post.reports_by_category.standard()
         assert new_report.get_solution_data()
@@ -1045,6 +1112,90 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
+
+    def test_73_ami_solution_data(self):
+        self.ami_test.solution_type = "NexximAMI"
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterSource<b_output4_42.int_ami_tx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="InitialWave<b_output4_42.int_ami_tx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterChannel<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="ClockTics<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Clock Times",
+            variations=self.ami_test.available_variations.nominal,
+        )
+        probe_name = "b_input_43"
+        source_name = "b_output4_42"
+        plot_type = "WaveAfterProbe"
+        setup_name = "AMIAnalysis"
+
+        ignore_bits = 1000
+        unit_interval = 0.1e-9
+        assert not self.ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            self.ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type,
+        )
+        if not is_ironpython:
+            ignore_bits = 5
+            unit_interval = 0.1e-9
+            plot_type = "InitialWave"
+            data1 = self.ami_test.post.sample_ami_waveform(
+                setup_name,
+                probe_name,
+                source_name,
+                self.ami_test.available_variations.nominal,
+                unit_interval,
+                ignore_bits,
+                plot_type,
+            )
+            assert len(data1[0]) == 45
+
+        settings.enable_pandas_output = False
+        ignore_bits = 5
+        unit_interval = 0.1e-9
+        clock_tics = [1e-9, 2e-9, 3e-9]
+        data2 = self.ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            self.ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type=None,
+            clock_tics=clock_tics,
+        )
+        assert len(data2) == 4
+        assert len(data2[0]) == 3
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

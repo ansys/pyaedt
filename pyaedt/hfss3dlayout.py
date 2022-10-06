@@ -2,6 +2,7 @@
 
 from __future__ import absolute_import  # noreorder
 
+import fnmatch
 import io
 import os
 import warnings
@@ -346,7 +347,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, vianame, radial_extent, layer, alignment="lower"):
+    def create_coax_port(self, vianame, radial_extent=0.1, layer=None, alignment="lower"):
         """Create a new coax port.
 
         Parameters
@@ -356,9 +357,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         radial_extent : float
             Radial coax extension.
         layer : str
-            Name of the layer.
+            Name of the layer to apply the reference to.
         alignment : str, optional
-            Port alignment on Layer.
+            Port alignment on the layer.
 
         Returns
         -------
@@ -383,11 +384,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 "Excitations:{}".format(a[0]), "Radial Extent Factor", str(radial_extent), "EM Design"
             )
             self.modeler.change_property("Excitations:{}".format(a[0]), "Layer Alignment", alignment, "EM Design")
-            self.modeler.change_property(
-                a[0],
-                "Pad Port Layer",
-                layer,
-            )
+            if layer:
+                self.modeler.change_property(
+                    a[0],
+                    "Pad Port Layer",
+                    layer,
+                )
             bound = self._update_port_info(a[0])
             if bound:
                 self.boundaries.append(bound)
@@ -429,7 +431,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreatePin
         """
-        self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
             top_layer = layers[0]
@@ -735,6 +736,42 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             settings.append("NAME:options")
             settings.append("ExportAfterSolve:=")
             settings.append(False)
+        self.odesign.DesignOptions(settings, 0)
+        return True
+
+    @pyaedt_function_handler()
+    def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
+
+        """Define the settings of the mesh.
+
+        Parameters
+        ----------
+        mesh_method : string
+            Mesh method. The default is ``"Phi"``. Options are ``"Phi"``, ``"PhiPlus"``,
+            and ``"Classic"``.
+        enable_intersections_check : bool, optional
+            Whether to enable the alternative mesh intersections checks. The default is
+            ``True``.
+        use_alternative_fallback : bool, optional
+            Whether to enable the alternative fall back mesh method. The default is ``True``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.DesignOptions
+        """
+        settings = []
+        settings.append("NAME:options")
+        settings.append("MeshingMethod:=")
+        settings.append(mesh_method)
+        settings.append("EnableDesignIntersectionCheck:=")
+        settings.append(enable_intersections_check)
+        settings.append("UseAlternativeMeshMethodsAsFallBack:=")
+        settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
 
@@ -1667,6 +1704,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_truncate_model_at_ground_layer="keep",
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
+        airbox_values_as_dim=True,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1688,6 +1726,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical positive padding. The default is ``None``.
         air_vertical_negative_padding : str, optional
             Airbox vertical negative padding. The default is ``None``.
+        airbox_values_as_dim : bool, optional
+            Either if inputs are dims or not. Default is `True`.
+
         Returns
         -------
         bool
@@ -1711,10 +1752,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             arg.append(air_truncate_model_at_ground_layer)
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
-            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])
         if air_vertical_negative_padding:
             arg.append("AirNegZExt:=")
-            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", airbox_values_as_dim])
+        arg.append("UseStackupForZExtFact:=")
+        arg.append(True)
 
         self.odesign.EditHfssExtents(arg)
         return True
@@ -1726,3 +1769,34 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         for prop in propnames:
             props[prop] = self.oeditor.GetPropertyValue("EM Design", "Excitations:{}".format(port), prop)
         return BoundaryObject3dLayout(self, port, props, "Port")
+
+    @pyaedt_function_handler()
+    def get_model_from_mesh_results(self, binary=True):
+        """Get the path for the parasolid file in the results folder.
+        The parasolid file is generated after the mesh is created in 3D Layout.
+
+        Parameters
+        ----------
+        binary : str, optional
+            Either if retrieve binary format of parasoli or not.
+        Returns
+        -------
+        str
+            Path for the parasolid file in the results folder.
+        """
+        startpath = os.path.join(self.results_directory, self.design_name)
+        if not binary:
+            model_name = "model_sm3.x_t"
+        else:
+            model_name = "model.x_b"
+
+        out_files = [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(startpath)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, model_name)
+        ]
+        if out_files:
+            out_files.sort(key=lambda x: os.path.getmtime(x))
+            return out_files[0]
+        return ""

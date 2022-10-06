@@ -17,6 +17,7 @@ class TestClass(BasisTest, object):
         self.st.dielectic_x_postion = "10mm"
         gnd = self.st.add_ground_layer("gnd1")
         self.st.add_dielectric_layer("diel1", thickness=1)
+        assert self.st.thickness.value == 1.035e-3
         lay1 = self.st.add_signal_layer("lay1", thickness=0.07)
         self.st.add_dielectric_layer("diel2", thickness=1.2)
         top = self.st.add_signal_layer("top")
@@ -67,6 +68,13 @@ class TestClass(BasisTest, object):
         assert p1.set_stop_layer("top")
         p1.set_all_pad_value(1)
         p1.set_all_antipad_value(3)
+        assert p1.padstacks_by_layer["top"].layer_name == "top"
+        assert p1.padstacks_by_layer["top"].pad_radius == 1
+        assert p1.padstacks_by_layer["top"].antipad_radius == 3
+        p1.padstacks_by_layer["top"].pad_radius = 2
+        p1.padstacks_by_layer["top"].antipad_radius = 2.5
+        assert p1.padstacks_by_layer["top"].pad_radius == 2
+        assert p1.padstacks_by_layer["top"].antipad_radius == 2.5
         p1.num_sides = 8
         assert p1.num_sides == 8
         via = p1.add_via(50, 50)

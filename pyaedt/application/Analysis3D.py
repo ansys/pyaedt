@@ -569,8 +569,12 @@ class FieldAnalysis3D(Analysis, object):
         """
 
         contexts = []
-        for i in range(number_of_modes):
-            contexts.append([s + ":" + str(i + 1) for s in sources])  # use one based indexing
+        for s in sources:
+            value = s
+            if number_of_modes > 0:
+                for i in range(number_of_modes):
+                    value += ":" + str(i + 1)
+            contexts.append(value)  # use one based indexing
         self.osolution.SetSourceContexts(contexts)
         return True
 
@@ -891,7 +895,6 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modeler.stackup_3d.Stackup3D`
-            ``True`` when delete operation is successful.
+            Stackup class.
         """
-        st = Stackup3D(self)
-        return st
+        return Stackup3D(self)

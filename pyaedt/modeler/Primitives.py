@@ -6,6 +6,8 @@ from __future__ import absolute_import  # noreorder
 import copy
 import math
 import os
+import random
+import string
 import time
 from collections import OrderedDict
 
@@ -1014,7 +1016,9 @@ class Primitives(object):
             comps3d = self.oeditor.Get3DComponentDefinitionNames()
             for comp3d in comps3d:
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
-            udm = self._get_user_defined_component_names()
+            udm = []
+            if "UserDefinedModels" in self.oeditor.GetChildTypes():
+                udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
             if self.user_defined_components:
@@ -1081,8 +1085,13 @@ class Primitives(object):
 
     @property
     def non_model_objects(self):
-        """List of names of all non-model objects."""
+        """List of objects of all non-model objects."""
         return self._get_model_objects(model=False)
+
+    @property
+    def non_model_names(self):
+        """List of names of all non-model objects."""
+        return self.oeditor.GetObjectsInGroup("Non Model")
 
     @property
     def model_consistency_report(self):
@@ -1104,6 +1113,56 @@ class Primitives(object):
                 non_existent.append(name)
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
         return report
+
+    @pyaedt_function_handler()
+    def create_point(self, position, name=None, color="(143 175 143)"):
+        """Create a point.
+
+        Parameters
+        ----------
+        position : list
+            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain less than 3 elements.
+        name : str, optional
+            Name of the point. The default is ``None``, in which case the
+            default name is assigned.
+        color : str, optional
+            String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.Point`
+            Point object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+
+        Examples
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
+
+        """
+        x_position, y_position, z_position = self._pos_with_arg(position)
+
+        if not name:
+            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
+            name = "NewPoint_" + unique_name
+
+        parameters = ["NAME:PointParameters"]
+        parameters.append("PointX:="), parameters.append(x_position)
+        parameters.append("PointY:="), parameters.append(y_position)
+        parameters.append("PointZ:="), parameters.append(z_position)
+
+        attributes = ["NAME:Attributes"]
+        attributes.append("Name:="), attributes.append(name)
+        attributes.append("Color:="), attributes.append(color)
+
+        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        return self._create_point(name)
 
     @pyaedt_function_handler()
     def _change_component_property(self, vPropChange, names_list):
@@ -2696,7 +2755,7 @@ class Primitives(object):
             return
 
     @pyaedt_function_handler()
-    def get_bodynames_from_position(self, position, units=None):
+    def get_bodynames_from_position(self, position, units=None, include_non_model=True):
         """Retrieve the names of the objects that are in contact with a given point.
 
         Parameters
@@ -2706,6 +2765,8 @@ class Primitives(object):
         units : str, optional
             Units, such as ``"m"``. The default is ``None``, in which case the
             model units are used.
+        include_non_model : bool, optional
+            Either if include or not non model objects.
 
         Returns
         -------
@@ -2724,6 +2785,9 @@ class Primitives(object):
         vArg1.append("YPosition:="), vArg1.append(YCenter)
         vArg1.append("ZPosition:="), vArg1.append(ZCenter)
         list_of_bodies = list(self.oeditor.GetBodyNamesByPosition(vArg1))
+        if not include_non_model:
+            non_models = [i for i in self.non_model_names]
+            list_of_bodies = [i for i in list_of_bodies if i not in non_models]
         return list_of_bodies
 
     @pyaedt_function_handler()
@@ -3632,31 +3696,6 @@ class Primitives(object):
                     return obj
 
         return None
-
-    @pyaedt_function_handler()
-    def _get_user_defined_component_names(self):
-        """Get list of names for user-defined models.
-
-        Returns
-        -------
-        list
-           List of names for user-defined models.
-        """
-        udm_lists = []
-        if self._app.design_properties and self._app.design_properties.get("ModelSetup", None):
-            try:
-                entity_list = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
-                    "UserDefinedModels"
-                ]
-                if entity_list:
-                    udm_entry = entity_list["UserDefinedModel"]
-                    if isinstance(udm_entry, (dict, OrderedDict)):
-                        udm_entry = [udm_entry]
-                    for data in udm_entry:
-                        udm_lists.append(data["Attributes"]["Name"])
-            except:
-                self.logger.info("User-defined models were not retrieved from the AEDT file.")
-        return udm_lists
 
     @pyaedt_function_handler()
     def _get_native_component_properties(self, name):

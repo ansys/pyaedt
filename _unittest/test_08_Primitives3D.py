@@ -1184,6 +1184,7 @@ class TestClass(BasisTest, object):
             assert box2.name not in box1.faces[3].touching_objects
         else:
             assert box2.name not in box1.faces[1].touching_objects
+        assert box2.get_touching_faces(box1)
 
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"

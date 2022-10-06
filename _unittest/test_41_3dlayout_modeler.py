@@ -112,7 +112,7 @@ class TestClass(BasisTest, object):
         assert s1.top_bottom == "top"
         s1.top_bottom = "neither"
 
-        assert s1.thickness == "0.035mm"
+        assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "iron"
         assert s1.use_etch is False
         assert s1.user is False
@@ -155,7 +155,7 @@ class TestClass(BasisTest, object):
             layername="Diel3", layertype="dielectric", thickness="1.0mm", elevation="0.035mm", material="plexiglass"
         )
         assert d1.material == "plexiglass"
-        assert d1.thickness == "1.0mm"
+        assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
         assert d1.transparency == 60
         d1.material = "fr4_epoxy"
         d1.transparency = 23
@@ -173,12 +173,11 @@ class TestClass(BasisTest, object):
         assert s2.name == "Top"
         assert s2.type == "signal"
         assert s2.material == "copper"
-        assert s2.thickness == 3.5e-5
+        assert s2.thickness == "0.035mm" or s2.thickness == 3.5e-5
         assert s2.IsNegative is True
         s2.is_negative = False
         assert s2.IsNegative is False
 
-        self.aedtapp.modeler.layers.refresh_all_layers()
         s1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Bottom")]
         assert s1.thickness == "0.035mm" or s1.thickness == 3.5e-5
         assert s1.material == "copper"
@@ -186,13 +185,9 @@ class TestClass(BasisTest, object):
         assert s1.use_etch is True
         assert s1.etch == 1.2
         assert s1.user is True
-        assert s1.usp is True
-        assert s1.hfssSp["dt"] == 1
-        assert s1.planaremSp["ifg"] is True
         d1 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Diel3")]
         assert d1.material == "fr4_epoxy"
         assert d1.thickness == "1.0mm" or d1.thickness == 1e-3
-        assert d1.transparency == 23
         s2 = self.aedtapp.modeler.layers.layers[self.aedtapp.modeler.layers.layer_id("Top")]
         assert s2.name == "Top"
         assert s2.type == "signal"
@@ -249,9 +244,36 @@ class TestClass(BasisTest, object):
 
     def test_11_create_via(self):
         via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
-        assert type(via) is str
-        via = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
-        assert via == "Via123"
+        assert isinstance(via, str)
+        assert self.aedtapp.modeler.vias[via].name == via == "port_via"
+        assert self.aedtapp.modeler.vias[via].prim_type == "via"
+        assert self.aedtapp.modeler.vias[via].location[0] == float(0)
+        assert self.aedtapp.modeler.vias[via].location[1] == float(0)
+        assert self.aedtapp.modeler.vias[via].angle == "0deg"
+        via_1 = self.aedtapp.modeler.create_via(x=1, y=1)
+        assert isinstance(via_1, str)
+        assert self.aedtapp.modeler.vias[via_1].name == via_1
+        assert self.aedtapp.modeler.vias[via_1].prim_type == "via"
+        assert self.aedtapp.modeler.vias[via_1].location[0] == float(1)
+        assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
+        assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
+        assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
+        via_2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        assert isinstance(via_2, str)
+        assert self.aedtapp.modeler.vias[via_2].name == via_2
+        assert self.aedtapp.modeler.vias[via_2].prim_type == "via"
+        assert self.aedtapp.modeler.vias[via_2].location[0] == float(10)
+        assert self.aedtapp.modeler.vias[via_2].location[1] == float(10)
+        assert self.aedtapp.modeler.vias[via_2].angle == "0deg"
+        assert "VCC" in self.aedtapp.oeditor.GetNets()
+        via_3 = self.aedtapp.modeler.create_via(
+            "My_padstack2", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
+        )
+        assert self.aedtapp.modeler.vias[via_3].location[0] == float(5)
+        assert self.aedtapp.modeler.vias[via_3].location[1] == float(5)
+        assert self.aedtapp.modeler.vias[via_3].angle == "0deg"
+        assert self.aedtapp.modeler.vias[via_3].holediam == "22mm"
+        assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
@@ -444,6 +466,7 @@ class TestClass(BasisTest, object):
 
     def test_19B_analyze_setup(self):
         self.aedtapp.save_project()
+        assert self.aedtapp.mesh.generate_mesh("RFBoardSetup3")
         assert self.aedtapp.analyze_setup("RFBoardSetup3")
         self.aedtapp.save_project()
         assert os.path.exists(self.aedtapp.export_profile("RFBoardSetup3"))
@@ -566,7 +589,6 @@ class TestClass(BasisTest, object):
         control_file = ""
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
-        assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
     @pytest.mark.skipif(os.name == "posix", reason="Failing on linux")
     def test_37_import_gerber(self):
@@ -656,3 +678,7 @@ class TestClass(BasisTest, object):
         assert not hfss3d.modeler.change_net_visibility(["test1, test2"])
         assert not hfss3d.modeler.change_net_visibility(visible="")
         assert not hfss3d.modeler.change_net_visibility(visible=0)
+
+    def test_97_mesh_settings(self):
+        assert self.aedtapp.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
+        assert self.aedtapp.set_meshing_settings(mesh_method="Classic", enable_intersections_check=True)

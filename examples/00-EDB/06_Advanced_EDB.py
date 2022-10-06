@@ -22,122 +22,6 @@ aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("vi
 # The ``StackupSimple`` class creates a stackup based on few inputs. This stackup
 # is used later.
 
-class StackupSimple:
-    """Creates a typical PCB stackup"""
-
-    def __init__(
-        self,
-        _edb,
-        layer_count,
-        diel_material_name="FR4_epoxy",
-        diel_thickness="0.15mm",
-        cond_thickness_outer="0.05mm",
-        cond_thickness_inner="0.017mm",
-        soldermask_thickness="0.05mm",
-    ):
-        """
-
-        Parameters
-        ----------
-        _edb : Edb
-        layer_count : int
-            The number of stackup layers
-        diel_material_name : str
-            The name of the dielectric material defined in material library
-        diel_thickness : str
-            Thickess os all dielectric layers
-        cond_thickness_outer : str
-            Outer layer conductor thickness
-        cond_thickness_inner : str
-            Inner layour conductor thickness
-        soldermask_thickness : str
-            Soldermask thickness
-        """
-        self._edb = _edb
-        self.layer_count = layer_count
-        self.diel_material_name = diel_material_name
-        self.diel_thickness = diel_thickness
-        self.cond_thickness_outer = cond_thickness_outer
-        self.cond_thickness_inner = cond_thickness_inner
-        self.soldermask_thickness = soldermask_thickness
-
-    def create_stackup(self):
-        self._create_stackup_layer_list()
-        self._edb_create_stackup()
-
-    def _create_stackup_layer_list(self):
-        self.stackup_list = []
-
-        # Create top soldermask layer
-        smt = {"layer_type": 1, "layer_name": "SMT", "material": "SolderMask", "thickness": self.soldermask_thickness}
-        self.stackup_list.append(smt)
-
-        for i in np.arange(1, self.layer_count + 1):
-
-            # Create conductor layer
-            fill_material = self.diel_material_name
-
-            if i in [1, self.layer_count]:
-                thickness = self.cond_thickness_outer
-                fill_material = "SolderMask"
-            else:
-                thickness = self.cond_thickness_inner
-
-            cond_layer = {
-                "layer_type": 0,
-                "layer_name": "L{}".format(str(i)),
-                "fill_material": fill_material,
-                "thickness": thickness,
-            }
-            self.stackup_list.append(cond_layer)
-
-            # Check if it is the last conductor layer
-            if i == self.layer_count:
-                break
-
-            # Create dielectric layer
-            diel_material = self.diel_material_name
-            diel_thickness = self.diel_thickness
-
-            dielectric_layer = {
-                "layer_type": 1,
-                "layer_name": "D{}".format(str(i)),
-                "material": diel_material,
-                "thickness": diel_thickness,
-            }
-            self.stackup_list.append(dielectric_layer)
-
-        # Create bottom soldermask layer
-        smb = {"layer_type": 1, "layer_name": "SMB", "material": "SolderMask", "thickness": self.soldermask_thickness}
-        self.stackup_list.append(smb)
-
-    def _edb_create_stackup(self):
-        base_layer = None
-        while len(self.stackup_list):
-
-            layer = self.stackup_list.pop(-1)
-            if layer["layer_type"] == 1:
-
-                self._edb.core_stackup.stackup_layers.add_layer(
-                    layerName=layer["layer_name"],
-                    start_layer=base_layer,
-                    material=layer["material"],
-                    thickness=layer["thickness"],
-                    layerType=1,
-                )
-                base_layer = layer["layer_name"]
-            else:
-
-                self._edb.core_stackup.stackup_layers.add_layer(
-                    layerName=layer["layer_name"],
-                    start_layer=base_layer,
-                    material="copper",
-                    fillMaterial=layer["fill_material"],
-                    thickness=layer["thickness"],
-                    layerType=0,
-                )
-                base_layer = layer["layer_name"]
-
 
 ###############################################################################
 # Create ground plane
@@ -168,20 +52,21 @@ diel_thickness = "0.15mm"
 cond_thickness_outer = "0.05mm"
 cond_thickness_inner = "0.017mm"
 soldermask_thickness = "0.05mm"
-trace_in_layer = "L1"
+trace_in_layer = "TOP"
 trace_out_layer = "L10"
 gvia_num = 10
 gvia_angle = 30
+edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner, outer_layer_thickness=cond_thickness_outer, soldermask_thickness=soldermask_thickness,dielectric_thickness=diel_thickness, dielectric_material=diel_material_name )
 
-StackupSimple(
-    edb,
-    layer_count=layout_count,
-    diel_material_name=diel_material_name,
-    diel_thickness=diel_thickness,
-    cond_thickness_outer=cond_thickness_outer,
-    cond_thickness_inner=cond_thickness_inner,
-    soldermask_thickness=soldermask_thickness,
-).create_stackup()
+# StackupSimple(
+#     edb,
+#     layer_count=layout_count,
+#     diel_material_name=diel_material_name,
+#     diel_thickness=diel_thickness,
+#     cond_thickness_outer=cond_thickness_outer,
+#     cond_thickness_inner=cond_thickness_inner,
+#     soldermask_thickness=soldermask_thickness,
+# ).create_stackup()
 
 ##################################################################################
 # Create variables
@@ -274,7 +159,7 @@ edb.core_primitives.create_path(
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Generate and place ground layers.
 
-ground_layers = ["L" + str(i + 1) for i in np.arange(layout_count)]
+ground_layers = [i for i in edb.stackup.signal_layers.keys()]
 ground_layers.remove(trace_in_layer)
 ground_layers.remove(trace_out_layer)
 _create_ground_planes(edb=edb, layers=ground_layers)

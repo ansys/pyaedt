@@ -98,10 +98,10 @@ class EdbLayout(object):
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
                 try:
-                    if el.GetLayoutObj():
-                        # prim = EDBPrimitives(el.GetLayoutObj(), self._pedb)
-                        # if prim:
-                        self._prims.append(EDBPrimitives(el.GetLayoutObj(), self._pedb))
+                    lay_obj = el.GetLayoutObj()
+                    lay_obj_str = lay_obj.ToString()
+                    if "Primitive" in lay_obj_str and "PadstackInstance" not in lay_obj_str:
+                        self._prims.append(EDBPrimitives(lay_obj, self._pedb))
                 except:
                     continue
             for lay in self.layers:

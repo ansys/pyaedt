@@ -21,6 +21,7 @@ from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
 from pyaedt.modules.SetupTemplates import SweepQ3D
+from pyaedt.modules.SetupTemplates import identify_setup
 
 
 class CommonSetup(PropsManager, object):
@@ -89,13 +90,23 @@ class CommonSetup(PropsManager, object):
         bool
             `True` if solutions are available.
         """
+
         if self.p_app.design_solutions.default_adaptive:
+            expressions = [
+                i
+                for i in self.p_app.post.available_report_quantities(
+                    solution="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive)
+                )
+            ]
             sol = self.p_app.post.reports_by_category.standard(
-                setup_name="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive)
+                setup_name="{} : {}".format(self.name, self.p_app.design_solutions.default_adaptive),
+                expressions=expressions[0],
             )
         else:
-            sol = self.p_app.post.reports_by_category.standard(setup_name=self.name)
-
+            expressions = [i for i in self.p_app.post.available_report_quantities(solution=self.name)]
+            sol = self.p_app.post.reports_by_category.standard(setup_name=self.name, expressions=expressions[0])
+        if identify_setup(self.props):
+            sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
     @property
@@ -1320,7 +1331,8 @@ class Setup3DLayout(CommonSetup):
             sol = self._app.post.reports_by_category.standard(setup_name="{} : Last Adaptive".format(self.name))
         else:
             sol = self._app.post.reports_by_category.standard(setup_name=self.name)
-
+        if identify_setup(self.props):
+            sol.domain = "Time"
         return True if sol.get_solution_data() else False
 
     @property
