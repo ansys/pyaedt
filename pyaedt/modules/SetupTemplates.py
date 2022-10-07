@@ -1,6 +1,6 @@
+import json
 import os.path
 from collections import OrderedDict
-import json
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import pyaedt_function_handler
