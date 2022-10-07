@@ -265,3 +265,23 @@ class TestClass(BasisTest, object):
         assert comp.angle == "10deg"
         assert comp.component_name == "my_connector"
         assert len(self.aedtapp.modeler.components_3d) == 1
+
+    def test_16_differential_ports(self):
+        pins = self.aedtapp.modeler.components["R3"].pins
+        assert self.aedtapp.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
+        assert "test_differential" in self.aedtapp.port_list
+
+    def test_17_ports_on_components_nets(self):
+        component = self.aedtapp.modeler.components["J1"]
+        nets = [
+            self.aedtapp.modeler.pins[i].net_name
+            for i in component.pins
+            if "GND" not in self.aedtapp.modeler.pins[i].net_name
+        ]
+        ports_before = len(self.aedtapp.port_list)
+        assert self.aedtapp.create_ports_on_component_by_nets(
+            "J1",
+            nets,
+        )
+        ports_after = len(self.aedtapp.port_list)
+        assert ports_after - ports_before == len(nets)
