@@ -2186,6 +2186,7 @@ class SetupProps(OrderedDict):
             fpath = fpath + ".json"
         with open(fpath, "w", encoding="utf-8") as f:
             f.write(json.dumps(self, indent=4, ensure_ascii=False))
+        return True
 
     def import_properties_from_json(self, fpath):
         """Import setup properties from a json file.
@@ -2206,4 +2207,4 @@ class SetupProps(OrderedDict):
         with open(fpath, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
-
+        return True
