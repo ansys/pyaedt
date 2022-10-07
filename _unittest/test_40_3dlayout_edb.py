@@ -30,6 +30,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(
             self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
         )
+        self.design_name = self.aedtapp.design_name
         self.tmp = self.aedtapp.modeler.geometries
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
@@ -267,6 +268,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.components_3d) == 1
 
     def test_16_differential_ports(self):
+        self.aedtapp.set_active_design(self.design_name)
         pins = self.aedtapp.modeler.components["R3"].pins
         assert self.aedtapp.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
         assert "test_differential" in self.aedtapp.port_list
