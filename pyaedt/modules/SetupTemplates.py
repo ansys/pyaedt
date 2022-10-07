@@ -2196,6 +2196,7 @@ class SetupProps(OrderedDict):
         fpath : str
             File path of the json file.
         """
+
         def set_props(target, source):
             for k, v in source.items():
                 if k not in target:
@@ -2204,6 +2205,7 @@ class SetupProps(OrderedDict):
                     target[k] = v
                 else:
                     set_props(target[k], v)
+
         with open(fpath, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
