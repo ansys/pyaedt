@@ -2193,7 +2193,7 @@ class SetupProps(OrderedDict):
 
         Parameters
         ----------
-        fpath : str
+        file_path : str
             File path of the json file.
         """
 
