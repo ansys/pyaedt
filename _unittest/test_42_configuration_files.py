@@ -149,12 +149,12 @@ class TestClass(BasisTest, object):
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
 
-    def test_05_hfss3dlayout_setup_props(self):
+    def test_05_hfss3dlayout_setup(self):
         setup2 = self.hfss3dl.create_setup("My_HFSS_Setup_2")
         export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
-        assert setup2.props.export_properties_to_json(export_path)
+        assert setup2.export_to_json(export_path)
         assert setup2.props["ViaNumSides"] == 6
-        assert setup2.props.import_properties_from_json(
+        assert setup2.import_from_json(
             os.path.join(local_path, "example_models", test_subfolder, "hfss3dl_setup.json")
         )
         assert setup2.props["ViaNumSides"] == 12

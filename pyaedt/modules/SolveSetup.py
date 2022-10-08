@@ -1520,7 +1520,7 @@ class Setup3DLayout(CommonSetup):
         return True
 
     def export_to_json(self, fpath):
-        return self.props.export_properties_to_json(fpath)
+        return self.props._export_properties_to_json(fpath)
 
 
 class SetupHFSS(Setup, object):
