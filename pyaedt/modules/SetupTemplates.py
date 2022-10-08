@@ -2206,7 +2206,7 @@ class SetupProps(OrderedDict):
                 else:
                     set_props(target[k], v)
 
-        with open(fpath, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
         return True
