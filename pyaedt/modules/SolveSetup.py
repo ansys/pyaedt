@@ -1520,6 +1520,13 @@ class Setup3DLayout(CommonSetup):
         return True
 
     def export_to_json(self, fpath):
+        """Export all setup properties into a json file.
+
+                Parameters
+                ----------
+                fpath : str
+                    File path of the json file.
+        """
         return self.props._export_properties_to_json(fpath)
 
 

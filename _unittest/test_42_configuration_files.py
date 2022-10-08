@@ -154,7 +154,5 @@ class TestClass(BasisTest, object):
         export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
         assert setup2.export_to_json(export_path)
         assert setup2.props["ViaNumSides"] == 6
-        assert setup2.import_from_json(
-            os.path.join(local_path, "example_models", test_subfolder, "hfss3dl_setup.json")
-        )
+        assert setup2.import_from_json(os.path.join(local_path, "example_models", test_subfolder, "hfss3dl_setup.json"))
         assert setup2.props["ViaNumSides"] == 12
