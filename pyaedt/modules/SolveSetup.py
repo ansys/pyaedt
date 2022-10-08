@@ -1499,15 +1499,15 @@ class Setup3DLayout(CommonSetup):
             return sweep_n
         return False
 
-    def import_from_json(self, fpath):
+    def import_from_json(self, file_path):
         """Import setup properties from a json file.
 
         Parameters
         ----------
-        fpath : str
+        file_path : str
             File path of the json file.
         """
-        self.props._import_properties_from_json(fpath)
+        self.props._import_properties_from_json(file_path)
         if self.props["AdaptiveSettings"]["AdaptType"] == "kBroadband":
             BroadbandFrequencyDataList = self.props["AdaptiveSettings"]["BroadbandFrequencyDataList"]
             max_delta = BroadbandFrequencyDataList["AdaptiveFrequencyData"][0]["MaxDelta"]
