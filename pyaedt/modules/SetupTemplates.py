@@ -2184,7 +2184,7 @@ class SetupProps(OrderedDict):
         """
         if not file_path.endswith(".json"):
             file_path = file_path + ".json"
-        with open(fpath, "w", encoding="utf-8") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(json.dumps(self, indent=4, ensure_ascii=False))
         return True
 
