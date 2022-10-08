@@ -2174,16 +2174,16 @@ class SetupProps(OrderedDict):
     def _setitem_without_update(self, key, value):
         OrderedDict.__setitem__(self, key, value)
 
-    def _export_properties_to_json(self, fpath):
+    def _export_properties_to_json(self, file_path):
         """Export all setup properties into a json file.
 
         Parameters
         ----------
-        fpath : str
+        file_path : str
             File path of the json file.
         """
-        if not fpath.endswith(".json"):
-            fpath = fpath + ".json"
+        if not file_path.endswith(".json"):
+            file_path = file_path + ".json"
         with open(fpath, "w", encoding="utf-8") as f:
             f.write(json.dumps(self, indent=4, ensure_ascii=False))
         return True
