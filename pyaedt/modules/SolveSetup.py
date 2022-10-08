@@ -1519,6 +1519,9 @@ class Setup3DLayout(CommonSetup):
             SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
         return True
 
+    def export_to_json(self, fpath):
+        return self.props.export_properties_to_json(fpath)
+
 
 class SetupHFSS(Setup, object):
     """Initializes, creates, and updates an HFSS setup.
