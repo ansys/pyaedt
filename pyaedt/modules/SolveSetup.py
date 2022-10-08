@@ -1499,6 +1499,29 @@ class Setup3DLayout(CommonSetup):
             return sweep_n
         return False
 
+    def import_from_json(self, fpath):
+        """Import setup properties from a json file.
+
+        Parameters
+        ----------
+        fpath : str
+            File path of the json file.
+        """
+        self.props._import_properties_from_json(fpath)
+        if self.props["AdaptiveSettings"]["AdaptType"] == "kBroadband":
+            BroadbandFrequencyDataList = self.props["AdaptiveSettings"]["BroadbandFrequencyDataList"]
+            max_delta = BroadbandFrequencyDataList["AdaptiveFrequencyData"][0]["MaxDelta"]
+            max_passes = BroadbandFrequencyDataList["AdaptiveFrequencyData"][0]["MaxPasses"]
+
+            SingleFrequencyDataList = self.props["AdaptiveSettings"]["SingleFrequencyDataList"]
+            SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxDelta"] = max_delta
+            SingleFrequencyDataList = self.props["AdaptiveSettings"]["SingleFrequencyDataList"]
+            SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
+        return True
+
+    def export_to_json(self, fpath):
+        return self.props._export_properties_to_json(fpath)
+
 
 class SetupHFSS(Setup, object):
     """Initializes, creates, and updates an HFSS setup.
