@@ -1519,14 +1519,19 @@ class Setup3DLayout(CommonSetup):
             SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
         return True
 
-    def export_to_json(self, file_path):
+    def export_to_json(self, file_path, overwrite=False):
         """Export all setup properties into a json file.
 
         Parameters
         ----------
         file_path : str
             File path of the json file.
+        overwrite: bool
+            Whether to overwrite the file if it already exists.
         """
+        if os.path.isdir(file_path):  # pragma no cover
+            if not overwrite:  # pragma no cover
+                raise FileExistsError("File {} already exists".format(file_path))
         return self.props._export_properties_to_json(file_path)
 
 
