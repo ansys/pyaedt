@@ -678,7 +678,7 @@ class Stackup(object):
         -------
 
         """
-        new_layer_collection =self._pedb.edb.Cell.LayerCollection()
+        new_layer_collection = self._pedb.edb.Cell.LayerCollection()
         for lyr in self._edb_layer_list:
             if not (lyr.GetName() == name):
                 new_layer_collection.AddLayerBottom(lyr)
