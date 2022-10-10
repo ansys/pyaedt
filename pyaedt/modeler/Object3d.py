@@ -516,7 +516,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
         float or bool
-            Edge length in model units when edge has two vertices, ``False`` othwerise.
+            Edge length in model units when edge has two vertices, ``False`` otherwise.
 
         References
         ----------
