@@ -1172,7 +1172,7 @@ class Layers(object):
         >>> oEditor.GetAllLayerNames()
         """
 
-        return [v.name for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
+        return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
 
     @property
     def stackup_layers(self):
@@ -1189,7 +1189,7 @@ class Layers(object):
         >>> oEditor.GetAllLayerNames()
         """
 
-        return [v.name for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
+        return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
     @property
     def all_signal_layers(self):
