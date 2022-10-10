@@ -581,7 +581,7 @@ class AedtLogger(object):
             msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
         else:
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
-        return self.info(msg, *args, *kwargs)
+        return self.info(msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
