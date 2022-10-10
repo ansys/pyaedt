@@ -16,6 +16,8 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
         try:
+            import dotnet
+
             runtime = os.path.join(os.path.dirname(dotnet.__path__), "bin")
         except:
             import dotnetcore2
