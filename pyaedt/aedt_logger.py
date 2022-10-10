@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+import time
 
 from pyaedt import log_handler
 from pyaedt import settings
@@ -160,6 +161,7 @@ class AedtLogger(object):
 
             self._std_out_handler.setFormatter(self.formatter)
             self._global.addHandler(self._std_out_handler)
+        self._timer = time.time()
 
     @property
     def _desktop(self):
@@ -214,6 +216,24 @@ class AedtLogger(object):
 
         """
         return self.get_messages(self._project_name, self._design_name)
+
+    def reset_timer(self, time_val=None):
+        """ "Reset actual timer to  actual time or specified time.
+
+        Parameters
+        ----------
+        time_val : float, optional
+            Value time to apply.
+
+        Returns
+        -------
+
+        """
+        """Reset actual timer from now."""
+        if time_val:
+            self._timer = time_val
+        else:
+            self._timer = time.time()
 
     def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages=False):
         """Get the message manager content for a specified project and design.
@@ -547,6 +567,21 @@ class AedtLogger(object):
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
         return self._global.info(msg, *args, **kwargs)
+
+    def info_timer(self, msg, *args, **kwargs):
+        """Write an info message to the global logger with elapsed time.
+        Message will have an appendix of type Elapsed time: time."""
+        td = time.time() - self._timer
+        m, s = divmod(time.time() - self._timer, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        if d > 0:
+            msg += " Elapsed time: {}days {}h {}m {}sec".format(round(d), round(h), round(m), round(s))
+        elif h > 0:
+            msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
+        else:
+            msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
+        return self.info(msg, *args, *kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
