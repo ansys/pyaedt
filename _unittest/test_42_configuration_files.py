@@ -4,6 +4,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
 from pyaedt import Icepak
 from pyaedt import Q2d
 from pyaedt import Q3d
@@ -11,7 +12,7 @@ from pyaedt import Q3d
 # Import required modules
 # Setup paths for module imports
 
-
+local_path = os.path.dirname(os.path.realpath(__file__))
 test_project_name = "dm boundary test"
 test_field_name = "Potter_Horn"
 ipk_name = "Icepak_test"
@@ -19,9 +20,11 @@ test_subfolder = "T42"
 if config["desktopVersion"] > "2022.2":
     q3d_file = "via_gsg_231"
     test_project_name = "dm boundary test_231"
+    diff_proj_name = "differential_pairs_231"
 else:
     q3d_file = "via_gsg"
     test_project_name = "dm boundary test"
+    diff_proj_name = "differential_pairs"
 
 
 class TestClass(BasisTest, object):
@@ -32,6 +35,9 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
         self.q2dtest = Q2d(projectname=q3d_file)
         self.icepak = BasisTest.add_app(self, project_name=ipk_name, application=Icepak)
+        self.hfss3dl = BasisTest.add_app(
+            self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -142,3 +148,11 @@ class TestClass(BasisTest, object):
         app.close_project(saveproject=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
+
+    def test_05_hfss3dlayout_setup(self):
+        setup2 = self.hfss3dl.create_setup("My_HFSS_Setup_2")
+        export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
+        assert setup2.export_to_json(export_path)
+        assert setup2.props["ViaNumSides"] == 6
+        assert setup2.import_from_json(os.path.join(local_path, "example_models", test_subfolder, "hfss3dl_setup.json"))
+        assert setup2.props["ViaNumSides"] == 12
