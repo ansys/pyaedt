@@ -432,10 +432,14 @@ class Stackup(object):
         for layer in stackup_info.layers["primary"]:
             try:
                 layer_to_check = self.layer[layer.name]
+                if layer_to_check:
+                    layer_to_check.thickness = layer.thickness
             except:
                 pass
-            if layer_to_check:
-                layer_to_check.thickness = layer.thickness
+        signal_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "conductor"]
+        dielectric_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "dielectric"]
+        for signal_layer in signal_layers:
+            signal_layer.dielectric_fill_material = dielectric_layers[1].material_name
 
 
 class EdbStackup(object):

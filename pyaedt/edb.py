@@ -33,7 +33,7 @@ from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt.edb_core.EDB_Data import InverterModel
+from pyaedt.edb_core.EDB_Data import PowerModule
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.EDB_Data import StackupInfo
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -1761,8 +1761,8 @@ class Edb(object):
         return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
 
     @pyaedt_function_handler()
-    def build_inverter_project(self, inverter_model=None):
-        if not isinstance(inverter_model, InverterModel):
+    def build_power_module_project(self, inverter_model=None):
+        if not isinstance(inverter_model, PowerModule):
             self.logger.error("No InverterModel object provided as argument")
             return False
         if inverter_model.stackup_file:
@@ -1813,5 +1813,5 @@ class Edb(object):
         self.core_siwave.configure_siw_analysis_setup(inverter_model.simulation_config)
 
     @pyaedt_function_handler()
-    def create_inverter_model(self):
-        return InverterModel()
+    def create_power_module(self):
+        return PowerModule()

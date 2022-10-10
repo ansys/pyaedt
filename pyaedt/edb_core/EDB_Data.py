@@ -6200,7 +6200,7 @@ class VoltageRegulator(object):
         self._is_floating = True
 
 
-class InverterModel:
+class PowerModule(object):
     def __init__(self):
         self._layout_file = ""
         self.simulation_config = SimulationConfiguration()
