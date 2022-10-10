@@ -16,7 +16,7 @@ MILS2METER = 39370.078740157
 
 
 def db20(x, inverse=True):
-    """Convert db20 to decimal and viceversa."""
+    """Convert db20 to decimal and vice-versa."""
     if inverse:
         return 20 * math.log10(x)
     else:
@@ -24,7 +24,7 @@ def db20(x, inverse=True):
 
 
 def db10(x, inverse=True):
-    """Convert db10 to decimal and viceversa."""
+    """Convert db10 to decimal and vice-versa."""
     if inverse:
         return 10 * math.log10(x)
     else:
