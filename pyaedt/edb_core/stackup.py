@@ -666,6 +666,24 @@ class Stackup(object):
 
         return self.layers[layer_name]
 
+    def remove_layer(self, name):
+        """Remove a layer from stackup.
+
+        Parameters
+        ----------
+        name : str
+            Name of the layer to remove.
+
+        Returns
+        -------
+
+        """
+        new_layer_collection =self._pedb.edb.Cell.LayerCollection()
+        for lyr in self._edb_layer_list:
+            if not (lyr.GetName() == name):
+                new_layer_collection.AddLayerBottom(lyr)
+        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+
     @pyaedt_function_handler
     def import_stackup(self, fpath):
         """Import stackup defnition from csv file.
@@ -715,6 +733,9 @@ class Stackup(object):
                         val.Thickness,
                     )
                 prev_layer = row
+        for name in self.stackup_layers:
+            if name not in df.index:
+                self.remove_layer(name)
         return True
 
     @pyaedt_function_handler
