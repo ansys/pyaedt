@@ -13,9 +13,8 @@ import string
 import warnings
 from collections import OrderedDict
 
-import pandas as pd
-
 import pyaedt.modules.report_templates as rt
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
@@ -27,6 +26,14 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
