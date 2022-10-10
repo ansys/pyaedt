@@ -2188,7 +2188,7 @@ class SetupProps(OrderedDict):
             f.write(json.dumps(self, indent=4, ensure_ascii=False))
         return True
 
-    def _import_properties_from_json(self, fpath):
+    def _import_properties_from_json(self, file_path):
         """Import setup properties from a json file.
 
         Parameters

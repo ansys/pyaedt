@@ -7,6 +7,7 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 from __future__ import absolute_import  # noreorder
 
+import logging
 import os.path
 import warnings
 from collections import OrderedDict
@@ -1526,12 +1527,12 @@ class Setup3DLayout(CommonSetup):
         ----------
         file_path : str
             File path of the json file.
-        overwrite: bool
+        overwrite : bool
             Whether to overwrite the file if it already exists.
         """
         if os.path.isdir(file_path):  # pragma no cover
             if not overwrite:  # pragma no cover
-                raise FileExistsError("File {} already exists".format(file_path))
+                raise logging.error("File {} already exists. Configure file is not exported".format(file_path))
         return self.props._export_properties_to_json(file_path)
 
 
