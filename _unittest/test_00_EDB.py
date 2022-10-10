@@ -2073,6 +2073,7 @@ if not config["skip_edb"]:
             assert rename_layer.material
             assert rename_layer.type
             assert rename_layer.dielectric_fill
+            assert rename_layer.conductivity
 
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled

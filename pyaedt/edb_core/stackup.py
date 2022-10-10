@@ -141,7 +141,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        if self.material in self._pclass._pedb.materials:
+        if self.material in self._pclass._pedb.materials.materials:
             return self._pclass._pedb.materials[self.material].conductivity
         return None
 
@@ -153,7 +153,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        if self.material in self._pclass._pedb.materials:
+        if self.material in self._pclass._pedb.materials.materials:
             return self._pclass._pedb.materials[self.material].permittivity
         return None
 
