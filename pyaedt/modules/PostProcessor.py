@@ -296,17 +296,19 @@ class Reports(object):
         return
 
     @pyaedt_function_handler()
-    def far_field(self, expressions=None, setup_name=None, sphere_name=None):
-        """Create a Field Report object.
+    def far_field(self, expressions=None, setup_name=None, sphere_name=None, source_context=None):
+        """Create a Far Field Report object.
 
         Parameters
         ----------
         expressions : str or list
             Expression List.
         setup_name : str, optional
-            Setup Name.
+            Setup name.
         sphere_name : str, optional
-            Name of the sphere on which create the far field.
+            Name of the sphere to create the far field on.
+        source_context : str, optional
+            Name of the active source to create the far field on.
 
         Returns
         -------
@@ -328,6 +330,7 @@ class Reports(object):
             rep = rt.FarField(self._post_app, "Far Fields", setup_name)
             rep.expressions = expressions
             rep.far_field_sphere = sphere_name
+            rep.source_context = source_context
             return rep
         return
 
@@ -1561,7 +1564,12 @@ class PostProcessorCommon(object):
             if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
-                report.far_field_sphere = context
+                if isinstance(context, dict):
+                    if "Context" in context.keys() and "SourceContext" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_context = context["SourceContext"]
+                else:
+                    report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
@@ -3032,7 +3040,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_sweep_name : str, optional
             Name of the setup for computing the report. The default is ``""``,
             in which case the nominal sweep is used.
-        domain : str, optional
+        domain : str, dict, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
         families_dict : dict, optional
             Dictionary of variables and values. The default is ``{"Freq": ["All"]}``.
@@ -3052,8 +3060,13 @@ class PostProcessor(PostProcessorCommon, object):
             setup_sweep_name = self._app.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
+        context = ["Context:=", domain]
+        if isinstance(domain, dict):
+            if "Context" in domain.keys() and "SourceContext" in domain.keys():
+                context = ["Context:=", domain["Context"], "Context:=", domain["SourceContext"]]
+
         solution_data = self.get_solution_data_per_variation(
-            "Far Fields", setup_sweep_name, ["Context:=", domain], families_dict, expression
+            "Far Fields", setup_sweep_name, context, families_dict, expression
         )
         if not solution_data:
             print("No Data Available. Check inputs")
@@ -3770,3 +3783,160 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
         return plotname
+
+    def sample_ami_waveform(
+        self,
+        setupname,
+        probe_name,
+        source_name,
+        variation_list_w_value,
+        unit_interval=1e-9,
+        ignore_bits=0,
+        plot_type=None,
+        clock_tics=None,
+    ):
+        """Sampling a waveform at clock times plus half unit interval.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        probe_name : str
+            Name of the AMI probe.
+        source_name : str
+            Name of the AMI source.
+        variation_list_w_value : list
+            Variations with relative values.
+        unit_interval : float, optional
+            Unit interval in seconds. The default is ``1e-9``.
+        ignore_bits : int, optional
+            Number of initial bits to ignore. The default is ``0``.
+        plot_type : str, optional
+            Report type. The default is ``None``, in which case all report types are generated.
+            Options for a specific report type are ``"InitialWave"``, ``"WaveAfterSource"``,
+            ``"WaveAfterChannel"``, and ``"WaveAfterProbe"``.
+        clock_tics : list, optional
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
+
+        Returns
+        -------
+        list
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
+
+        Examples
+        --------
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+
+        """
+        initial_solution_type = self.post_solution_type
+        self._app.solution_type = "NexximAMI"
+
+        if plot_type == "InitialWave" or plot_type == "WaveAfterSource":
+            plot_expression = [plot_type + "<" + source_name + ".int_ami_tx>"]
+        elif plot_type == "WaveAfterChannel" or plot_type == "WaveAfterProbe":
+            plot_expression = [plot_type + "<" + probe_name + ".int_ami_rx>"]
+        else:
+            plot_expression = [
+                "InitialWave<" + source_name + ".int_ami_tx>",
+                "WaveAfterSource<" + source_name + ".int_ami_tx>",
+                "WaveAfterChannel<" + probe_name + ".int_ami_rx>",
+                "WaveAfterProbe<" + probe_name + ".int_ami_rx>",
+            ]
+        waveform = []
+        waveform_sweep = []
+        waveform_unit = []
+        waveform_sweep_unit = []
+        for exp in plot_expression:
+            waveform_data = self.get_solution_data(
+                expressions=exp, setup_sweep_name=setupname, domain="Time", variations=variation_list_w_value
+            )
+            samples_per_bit = 0
+            for sample in waveform_data.primary_sweep_values:
+                sample_seconds = unit_converter(
+                    sample, unit_system="Time", input_units=waveform_data.units_sweeps["Time"], output_units="s"
+                )
+                if sample_seconds > unit_interval:
+                    samples_per_bit -= 1
+                    break
+                else:
+                    samples_per_bit += 1
+            if samples_per_bit * ignore_bits > len(waveform_data.data_real()):
+                self._app.solution_type = initial_solution_type
+                self.logger.warning("Ignored bits are greater than generated bits.")
+                return None
+            waveform.append(waveform_data.data_real()[samples_per_bit * ignore_bits :])
+            waveform_sweep.append(waveform_data.primary_sweep_values[samples_per_bit * ignore_bits :])
+            waveform_unit.append(waveform_data.units_data[exp])
+            waveform_sweep_unit.append(waveform_data.units_sweeps["Time"])
+
+        tics = clock_tics
+        if not clock_tics:
+            clock_expression = "ClockTics<" + probe_name + ".int_ami_rx>"
+            clock_tic = self.get_solution_data(
+                expressions=clock_expression,
+                setup_sweep_name=setupname,
+                domain="Clock Times",
+                variations=variation_list_w_value,
+            )
+            tics = clock_tic.data_real()
+
+        outputdata = [[] for i in range(len(waveform))]
+        for w in range(0, len(waveform)):
+            new_tic = []
+            for tic in tics:
+                new_tic.append(
+                    unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit[w])
+                )
+            new_ui = unit_converter(
+                unit_interval, unit_system="Time", input_units="s", output_units=waveform_sweep_unit[0]
+            )
+
+            zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
+            extraction_tic = [x + y for (x, y) in zipped_lists]
+
+            if waveform_data.enable_pandas_output:
+                sweep_filtered = waveform_sweep[w].values
+                filtered_tic = list(filter(lambda num: num >= waveform_sweep[w].values[0], extraction_tic))
+            else:
+                sweep_filtered = waveform_sweep[w]
+                filtered_tic = list(filter(lambda num: num >= waveform_sweep[w][0], extraction_tic))
+            for tic in filtered_tic:
+                if tic >= sweep_filtered[0]:
+                    sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
+                    if sweep_filtered:
+                        if waveform_data.enable_pandas_output:
+                            waveform_index = waveform_sweep[w][
+                                waveform_sweep[w].values == sweep_filtered[0]
+                            ].index.values
+                        else:
+                            waveform_index = waveform_sweep[w].index(sweep_filtered[0])
+                        new_voltage = unit_converter(
+                            waveform[w][waveform_index],
+                            unit_system="Voltage",
+                            input_units=waveform_unit[w],
+                            output_units="V",
+                        )
+                        tic_in_s = unit_converter(
+                            tic, unit_system="Time", input_units=waveform_sweep_unit[0], output_units="s"
+                        )
+                        if waveform_data.enable_pandas_output:
+                            outputdata[w].append([tic_in_s, new_voltage.values.tolist()[0]])
+                        else:
+                            outputdata[w].append([tic_in_s, new_voltage])
+                        del sweep_filtered[0]
+                    else:
+                        break
+
+        self._app.solution_type = initial_solution_type
+        if waveform_data.enable_pandas_output:
+            import pandas as pd
+
+            df = []
+            cont = 0
+            for data in outputdata:
+                df.append(pd.DataFrame(data, columns=["time", "voltage"]))
+                cont += 1
+            outputdata = df
+        return outputdata

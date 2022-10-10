@@ -543,6 +543,19 @@ if not config["skip_edb"]:
             self.edbapp.core_components.components["R2L2"].is_enabled = True
             assert self.edbapp.core_components.components["R2L2"].is_enabled
 
+        def test_53b_import_bom(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            edbapp.core_components.import_bom(
+                os.path.join(local_path, "example_models", test_subfolder, "bom_example_2.csv")
+            )
+            assert not edbapp.core_components.components["R2L2"].is_enabled
+            assert edbapp.core_components.components["U2A5"].partname == "IPD031-201x"
+
+            export_bom_path = os.path.join(self.local_scratch.path, "export_bom.csv")
+            assert edbapp.core_components.export_bom(export_bom_path)
+            edbapp.close_edb()
+
         def test_54_create_component_from_pins(self):
             pins = self.edbapp.core_components.get_pin_from_component("R13")
             component = self.edbapp.core_components.create_component_from_pins(pins, "newcomp")
@@ -633,9 +646,9 @@ if not config["skip_edb"]:
             assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             assert not self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
             self.edbapp.stackup.add_layer("new_layer_1", "TOP", "insert_below")
-            assert self.edbapp.stackup.layer["TOP"].thickness == 4.826e-05
-            self.edbapp.stackup.layer["TOP"].thickness = 4e-5
-            assert self.edbapp.stackup.layer["TOP"].thickness == 4e-05
+            assert self.edbapp.stackup.layers["TOP"].thickness == 4.826e-05
+            self.edbapp.stackup.layers["TOP"].thickness = 4e-5
+            assert self.edbapp.stackup.layers["TOP"].thickness == 4e-05
 
         def test_61_create_edb(self):
             edb = Edb(os.path.join(self.local_scratch.path, "temp.aedb"))
@@ -1414,15 +1427,21 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
-            from pyaedt import Edb as local_edb
-
-            app_edb = local_edb(edbversion="2022.1")
+            app_edb = Edb(edbversion=desktop_version)
             assert not app_edb.core_stackup.create_symmetric_stackup(9)
             assert app_edb.core_stackup.create_symmetric_stackup(8)
             app_edb.close_edb()
 
-            app_edb = local_edb(edbversion="2022.1")
+            app_edb = Edb(edbversion=desktop_version)
             assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
+            app_edb.close_edb()
+            app_edb = Edb(edbversion=desktop_version)
+            assert not app_edb.stackup.create_symmetric_stackup(9)
+            assert app_edb.stackup.create_symmetric_stackup(8)
+            app_edb.close_edb()
+
+            app_edb = Edb(edbversion=desktop_version)
+            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
             app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
@@ -2035,9 +2054,10 @@ if not config["skip_edb"]:
         def test_A122_stackup(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
-            assert isinstance(edbapp.stackup.layer, dict)
-            assert isinstance(edbapp.stackup.signal_layer, dict)
-            assert isinstance(edbapp.stackup.non_stackup_layer, dict)
+            assert isinstance(edbapp.stackup.layers, dict)
+            assert isinstance(edbapp.stackup.signal_layers, dict)
+            assert isinstance(edbapp.stackup.stackup_layers, dict)
+            assert isinstance(edbapp.stackup.non_stackup_layers, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
@@ -2050,6 +2070,10 @@ if not config["skip_edb"]:
             rename_layer.etch_factor = 0
             rename_layer.etch_factor = 2
             assert rename_layer.etch_factor == 2
+            assert rename_layer.material
+            assert rename_layer.type
+            assert rename_layer.dielectric_fill
+
             rename_layer.roughness_enabled = True
             assert rename_layer.roughness_enabled
             rename_layer.roughness_enabled = False
@@ -2061,4 +2085,94 @@ if not config["skip_edb"]:
             assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
             assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
             assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+
+            assert edbapp.stackup["TOP"].color
+            edbapp.stackup["TOP"].color = [0, 120, 0]
+            assert edbapp.stackup["TOP"].color == (0, 120, 0)
             edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")
+        def test_A122b_stackup(self):
+            edbapp = Edb(edbversion=desktop_version)
+            assert edbapp.stackup.add_layer("TOP", None, "add_on_top", material="iron")
+            assert edbapp.stackup.import_stackup(
+                os.path.join(local_path, "example_models", test_subfolder, "galileo_stackup.csv")
+            )
+            assert "TOP" in edbapp.stackup.layers.keys()
+            assert edbapp.stackup.layers["TOP"].material == "COPPER"
+            assert edbapp.stackup.layers["TOP"].thickness == 6e-5
+            export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
+            assert edbapp.stackup.export_stackup(export_stackup_path)
+            assert os.path.exists(export_stackup_path)
+            edbapp.close_edb()
+
+        def test_A123_comp_def(self):
+            assert self.edbapp.core_components.components
+            assert self.edbapp.core_components.definitions
+            comp_def = self.edbapp.core_components.definitions["G83568-001"]
+            assert comp_def
+            comp_def.part_name = "G83568-001x"
+            assert comp_def.part_name == "G83568-001x"
+            assert len(comp_def.components) > 0
+
+        def test_A124_material(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert isinstance(edbapp.materials.materials, dict)
+            edbapp.materials["FR4_epoxy"].conductivity = 1
+            assert edbapp.materials["FR4_epoxy"].conductivity == 1
+            edbapp.materials["FR4_epoxy"].permittivity = 1
+            assert edbapp.materials["FR4_epoxy"].permittivity == 1
+            edbapp.materials["FR4_epoxy"].loss_tangent = 1
+            assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
+            edbapp.materials.add("new_material", 1, 2, 3)
+            edbapp.materials["FR4_epoxy"].magnetic_loss_tangent = 0.01
+            assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == 0.01
+            edbapp.materials["FR4_epoxy"].youngs_modulus = 5000
+            assert edbapp.materials["FR4_epoxy"].youngs_modulus == 5000
+            edbapp.materials["FR4_epoxy"].mass_density = 50
+
+            assert edbapp.materials["FR4_epoxy"].mass_density == 50
+            edbapp.materials["FR4_epoxy"].thermal_conductivity = 1e-5
+
+            assert edbapp.materials["FR4_epoxy"].thermal_conductivity == 1e-5
+            edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient = 1e-7
+
+            assert edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient == 1e-7
+            edbapp.materials["FR4_epoxy"].poisson_ratio = 1e-3
+            assert edbapp.materials["FR4_epoxy"].poisson_ratio == 1e-3
+            assert edbapp.materials["new_material"]
+            assert edbapp.materials.duplicate("FR4_epoxy", "FR41")
+            assert edbapp.materials["FR41"]
+            assert edbapp.materials["FR4_epoxy"].conductivity == edbapp.materials["FR41"].conductivity
+            assert edbapp.materials["FR4_epoxy"].permittivity == edbapp.materials["FR41"].permittivity
+            assert edbapp.materials["FR4_epoxy"].loss_tangent == edbapp.materials["FR41"].loss_tangent
+            assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == edbapp.materials["FR41"].magnetic_loss_tangent
+            assert edbapp.materials["FR4_epoxy"].youngs_modulus == edbapp.materials["FR41"].youngs_modulus
+            assert edbapp.materials["FR4_epoxy"].mass_density == edbapp.materials["FR41"].mass_density
+            assert edbapp.materials["FR4_epoxy"].thermal_conductivity == edbapp.materials["FR41"].thermal_conductivity
+            assert (
+                edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient
+                == edbapp.materials["FR41"].thermal_expansion_coefficient
+            )
+            assert edbapp.materials["FR4_epoxy"].poisson_ratio == edbapp.materials["FR41"].poisson_ratio
+            assert edbapp.materials.add_debye_material("My_Debye2", 5, 3, 0.02, 0.05, 1e5, 1e9)
+            assert edbapp.materials.add_djordjevicsarkar_material("MyDjord2", 3.3, 0.02, 3.3)
+            freq = [0, 2, 3, 4, 5, 6]
+            rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
+            loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
+            assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
+            edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Not supported in IPY")
+        def test_A125_solve(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo_to_be_solved.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_to_be_solved.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            edbapp.core_siwave.create_exec_file(add_dc=True)
+            out = edbapp.solve_siwave()
+            assert os.path.exists(out)
+            res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
+            for i in res:
+                assert os.path.exists(i)

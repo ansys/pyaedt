@@ -1,0 +1,17 @@
+,Type,Material,Dielectric_Fill,Thickness
+UNNAMED_000,dielectric,AIR,,0.0
+TOP,signal,COPPER,TOP_FILL,6e-05
+UNNAMED_002,dielectric,FR-4_3,,6.731e-05
+PWR,signal,COPPER_1,PWR_FILL,3.302e-05
+Signal3,signal,copper,FR4_epoxy,3.5000000000000004e-05
+UNNAMED_004,dielectric,FR-4_2,,0.00127
+LYR_1,signal,COPPER_1,FR-4_1,3.048e-05
+UNNAMED_006,dielectric,FR-4_1,,0.0002032
+LYR_2,signal,COPPER_1,FR-4_1,3.048e-05
+UNNAMED_008,dielectric,FR-4_1,,0.0002032
+GND,signal,COPPER_1,FR-4_1,3.302e-05
+UNNAMED_010,dielectric,FR-4,,6.731e-05
+Diel1,dielectric,myMaterial,,0.001
+BOTTOM,signal,COPPER,BOTTOM_FILL,4.826e-05
+Signal1,signal,copper,FR4_epoxy,3.5000000000000004e-05
+UNNAMED_012,dielectric,AIR,,0.0

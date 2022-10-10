@@ -918,6 +918,13 @@ class SolutionData(object):
                 r.append(self.data_phase(curve, False))
             elif math_formula == "phaserad":
                 r.append(self.data_phase(curve, True))
+        active_sweep = self.active_intrinsic[self.primary_sweep]
+        position = self.variation_values(self.primary_sweep).index(active_sweep)
+        if len(self.variation_values(self.primary_sweep)) > 1:
+            new_r = []
+            for el in r:
+                new_r.append([el[position]])
+            r = new_r
         data_plot = [theta, phi, r]
         if not xlabel:
             xlabel = x_axis

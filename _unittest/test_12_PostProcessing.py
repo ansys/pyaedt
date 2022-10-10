@@ -46,6 +46,7 @@ else:
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
+ami = "ami"
 test_subfolder = "T12"
 settings.enable_pandas_output = True
 
@@ -64,6 +65,7 @@ class TestClass(BasisTest, object):
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
         self.q2dtest = Q2d(projectname=self.q3dtest.project_name)
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
+        self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
 
     def teardown_class(self):
@@ -283,6 +285,18 @@ class TestClass(BasisTest, object):
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
+        self.field_test.set_source_context(["1"])
+        context = {"Context": "3D", "SourceContext": "1:1"}
+        assert self.field_test.post.create_report(
+            "db(GainTotal)",
+            self.field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            secondary_sweep_variable="Theta",
+            plot_type="3D Polar Plot",
+            context=context,
+            report_category="Far Fields",
+        )
         assert self.field_test.post.create_report(
             "db(GainTotal)",
             self.field_test.nominal_adaptive,
@@ -300,11 +314,20 @@ class TestClass(BasisTest, object):
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        new_report2 = self.field_test.post.reports_by_category.antenna_parameters(
+
+        new_report2 = self.field_test.post.reports_by_category.far_field(
+            "db(RealizedGainTotal)", self.field_test.nominal_adaptive, "3D", "1:1"
+        )
+        new_report2.variations = variations
+        new_report2.report_type = "3D Polar Plot"
+        assert new_report2.create()
+
+        new_report3 = self.field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", self.field_test.nominal_adaptive, "3D"
         )
-        new_report2.report_type = "Data Table"
-        assert new_report2.create()
+        new_report3.report_type = "Data Table"
+        assert new_report3.create()
+
         self.field_test.analyze_nominal()
         data = self.field_test.post.get_solution_data(
             "GainTotal",
@@ -319,7 +342,6 @@ class TestClass(BasisTest, object):
             assert data.plot_3d()
             assert self.field_test.post.create_3d_plot(data)
 
-        self.field_test.set_source_context(["1"])
         context = {"Context": "3D", "SourceContext": "1:1"}
         data = self.field_test.post.get_solution_data(
             "GainTotal",
@@ -372,10 +394,28 @@ class TestClass(BasisTest, object):
             report_category="Fields",
         )
         assert data.units_sweeps["Phase"] == "deg"
+
+        assert self.field_test.post.get_far_field_data(
+            setup_sweep_name=self.field_test.nominal_adaptive, expression="RealizedGainTotal", domain="3D"
+        )
+        data_farfield2 = self.field_test.post.get_far_field_data(
+            setup_sweep_name=self.field_test.nominal_adaptive,
+            expression="RealizedGainTotal",
+            domain={"Context": "3D", "SourceContext": "1:1"},
+        )
+        if not is_ironpython:
+            assert data_farfield2.plot(math_formula="db20", is_polar=True)
+
         pass
 
     def test_09b_export_report(self):  # pragma: no cover
         files = self.aedtapp.export_results()
+        assert len(files) > 0
+        files = self.circuit_test.export_results()
+        assert len(files) > 0
+        files = self.q2dtest.export_results()
+        assert len(files) > 0
+        files = self.q3dtest.export_results()
         assert len(files) > 0
 
     def test_09c_import_into_report(self):
@@ -1072,6 +1112,90 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "contour1.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "contour1.jpg"))
+
+    def test_73_ami_solution_data(self):
+        self.ami_test.solution_type = "NexximAMI"
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterProbe<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterSource<b_output4_42.int_ami_tx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="InitialWave<b_output4_42.int_ami_tx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="WaveAfterChannel<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Time",
+            variations=self.ami_test.available_variations.nominal,
+        )
+
+        assert self.ami_test.post.get_solution_data(
+            expressions="ClockTics<b_input_43.int_ami_rx>",
+            setup_sweep_name="AMIAnalysis",
+            domain="Clock Times",
+            variations=self.ami_test.available_variations.nominal,
+        )
+        probe_name = "b_input_43"
+        source_name = "b_output4_42"
+        plot_type = "WaveAfterProbe"
+        setup_name = "AMIAnalysis"
+
+        ignore_bits = 1000
+        unit_interval = 0.1e-9
+        assert not self.ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            self.ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type,
+        )
+        if not is_ironpython:
+            ignore_bits = 5
+            unit_interval = 0.1e-9
+            plot_type = "InitialWave"
+            data1 = self.ami_test.post.sample_ami_waveform(
+                setup_name,
+                probe_name,
+                source_name,
+                self.ami_test.available_variations.nominal,
+                unit_interval,
+                ignore_bits,
+                plot_type,
+            )
+            assert len(data1[0]) == 45
+
+        settings.enable_pandas_output = False
+        ignore_bits = 5
+        unit_interval = 0.1e-9
+        clock_tics = [1e-9, 2e-9, 3e-9]
+        data2 = self.ami_test.post.sample_ami_waveform(
+            setup_name,
+            probe_name,
+            source_name,
+            self.ami_test.available_variations.nominal,
+            unit_interval,
+            ignore_bits,
+            plot_type=None,
+            clock_tics=clock_tics,
+        )
+        assert len(data2) == 4
+        assert len(data2[0]) == 3
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

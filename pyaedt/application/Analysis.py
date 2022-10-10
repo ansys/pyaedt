@@ -11,6 +11,7 @@ import os
 import shutil
 import tempfile
 import threading
+import time
 import warnings
 from collections import OrderedDict
 
@@ -651,15 +652,19 @@ class Analysis(Design, object):
             export_folder = self.working_directory
         if analyze:
             self.analyze_all()
-        setups = self.oanalysis.GetSetups()
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
-            excitations = len(self.oexcitation.GetAllPortsList())
-        elif self.design_type == "2D Extractor":
-            excitations = self.oboundary.GetNumExcitations("SignalLine")
-        elif self.design_type == "Q3D Extractor":
-            excitations = self.oboundary.GetNumExcitations("Source")
+        if self.design_type == "Circuit Design":
+            setups = self.oanalysis.GetAllSolutionSetups()
+            excitations = len(self.excitations)
         else:
-            excitations = self.oboundary.GetNumExcitations()
+            setups = self.oanalysis.GetSetups()
+            if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
+                excitations = len(self.oexcitation.GetAllPortsList())
+            elif self.design_type == "2D Extractor":
+                excitations = self.oboundary.GetNumExcitations("SignalLine")
+            elif self.design_type == "Q3D Extractor":
+                excitations = self.oboundary.GetNumExcitations("Source")
+            else:
+                excitations = self.oboundary.GetNumExcitations()
         reportnames = self.post.oreportsetup.GetAllReportNames()
         for report_name in reportnames:
             name_no_space = report_name.replace(" ", "_")
@@ -675,49 +680,18 @@ class Analysis(Design, object):
             exported_files.append(export_path)
 
         for s in setups:
-            sweeps = self.oanalysis.GetSweeps(s)
-            if len(sweeps) == 0:
-                sweeps = ["LastAdaptive"]
+            if self.design_type == "Circuit Design":
+                exported_files.append(self.browse_log_file(export_folder))
             else:
-                pass
-            for sweep in sweeps:
-                variation_array = self.list_of_variations(s, sweep)
-                if len(variation_array) == 1:
-                    export_path = os.path.join(export_folder, "{}.prof".format(self.project_name))
-                    result = self.export_profile(s, variation_array[0], export_path)
-                    if result:
-                        exported_files.append(export_path)
-                    export_path = os.path.join(export_folder, "{}.conv".format(self.project_name))
-                    result = self.export_convergence(s, variation_array[0], export_path)
-                    if result:
-                        exported_files.append(export_path)
-                    if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
-                        try:
-                            export_path = os.path.join(
-                                export_folder, "{0}.s{1}p".format(self.project_name, excitations)
-                            )
-                            self.osolution.ExportNetworkData(
-                                variation_array[0],
-                                ["{0}:{1}".format(s, sweep)],
-                                3,
-                                export_path,
-                                ["All"],
-                                True,
-                                50,
-                                "S",
-                                -1,
-                                0,
-                                15,
-                                True,
-                                False,
-                                False,
-                            )
-                            exported_files.append(export_path)
-                            self.logger.info("Exported Touchstone: %s", export_path)
-                        except:
-                            self.logger.warning("Export SnP failed: no solutions found")
-
+                sweeps = self.oanalysis.GetSweeps(s)
+                if len(sweeps) == 0:
+                    sweeps = ["LastAdaptive"]
                 else:
+                    pass
+                for sweep in sweeps:
+                    variation_array = self.list_of_variations(s, sweep)
+                    if not variation_array:
+                        variation_array = [""]
                     varCount = 0
                     for variation in variation_array:
                         varCount += 1
@@ -730,7 +704,7 @@ class Analysis(Design, object):
                         result = self.export_convergence(s, variation, export_path)
                         if result:
                             exported_files.append(export_path)
-                        if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
+                        if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
                             try:
                                 export_path = os.path.join(
                                     export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
@@ -1518,6 +1492,7 @@ class Analysis(Design, object):
 
         >>> oDesign.Analyze
         """
+        start = time.time()
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
         if acf_file:
@@ -1575,7 +1550,6 @@ class Analysis(Design, object):
                 set_custom_dso = True
             except:
                 pass
-
         if name in self.existing_analysis_setups:
             try:
                 self.logger.info("Solving design setup %s", name)
@@ -1596,7 +1570,11 @@ class Analysis(Design, object):
                 return False
         if set_custom_dso:
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-        self.logger.info("Design setup %s solved correctly", name)
+        m, s = divmod(time.time() - start, 60)
+        h, m = divmod(m, 60)
+        self.logger.info(
+            "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
+        )
         return True
 
     @pyaedt_function_handler()
@@ -1972,7 +1950,10 @@ class Analysis(Design, object):
         if not self.available_variations.nominal_w_values_dict:
             variations = ""
         else:
-            variations = self.available_variations.nominal_w_values_dict
+            variations = " ".join(
+                "{}=\\'{}\\'".format(key, value)
+                for key, value in self.available_variations.nominal_w_values_dict.items()
+            )
 
         if not is_format_default:
             try:
@@ -1998,4 +1979,76 @@ class Analysis(Design, object):
                 self.logger.error("Solutions are empty. Solve before exporting.")
                 return False
 
+        return True
+
+    @pyaedt_function_handler()
+    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
+        """Change a property.
+
+        Parameters
+        ----------
+        aedt_object :
+            Aedt object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object. It can be the name of an excitation or field reporter.
+            For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
+        property_name : str
+            Name of the property. For example, ``Rotation Angle``.
+        property_value : str, list
+            Value of the property. It is a string for a single value and a list of three elements for
+            ``[x,y,z]`` coordianates.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        if isinstance(property_value, list) and len(property_value) == 3:
+            xpos, ypos, zpos = self.modeler._pos_with_arg(property_value)
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, (str, float, int)):
+            xpos = self.modeler._arg_with_dim(property_value, self.modeler.model_units)
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
+                    ],
+                ]
+            )
+        else:
+            self.logger.error("Wrong Property Value")
+            return False
+        self.logger.info("Property {} Changed correctly.".format(property_name))
         return True

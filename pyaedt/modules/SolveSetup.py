@@ -7,6 +7,7 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 from __future__ import absolute_import  # noreorder
 
+import logging
 import os.path
 import warnings
 from collections import OrderedDict
@@ -1498,6 +1499,41 @@ class Setup3DLayout(CommonSetup):
             self.sweeps.append(sweep_n)
             return sweep_n
         return False
+
+    def import_from_json(self, file_path):
+        """Import setup properties from a json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the json file.
+        """
+        self.props._import_properties_from_json(file_path)
+        if self.props["AdaptiveSettings"]["AdaptType"] == "kBroadband":
+            BroadbandFrequencyDataList = self.props["AdaptiveSettings"]["BroadbandFrequencyDataList"]
+            max_delta = BroadbandFrequencyDataList["AdaptiveFrequencyData"][0]["MaxDelta"]
+            max_passes = BroadbandFrequencyDataList["AdaptiveFrequencyData"][0]["MaxPasses"]
+
+            SingleFrequencyDataList = self.props["AdaptiveSettings"]["SingleFrequencyDataList"]
+            SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxDelta"] = max_delta
+            SingleFrequencyDataList = self.props["AdaptiveSettings"]["SingleFrequencyDataList"]
+            SingleFrequencyDataList["AdaptiveFrequencyData"]["MaxPasses"] = max_passes
+        return True
+
+    def export_to_json(self, file_path, overwrite=False):
+        """Export all setup properties into a json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the json file.
+        overwrite : bool
+            Whether to overwrite the file if it already exists.
+        """
+        if os.path.isdir(file_path):  # pragma no cover
+            if not overwrite:  # pragma no cover
+                raise logging.error("File {} already exists. Configure file is not exported".format(file_path))
+        return self.props._export_properties_to_json(file_path)
 
 
 class SetupHFSS(Setup, object):

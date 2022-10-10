@@ -351,7 +351,7 @@ class TestClass(BasisTest, object):
             res_limit="2ohm",
         )
         assert q3d.export_equivalent_circuit(
-            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="q2d_q3d"
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d[:-5]
         )
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"

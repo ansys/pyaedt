@@ -40,6 +40,7 @@ to AEDB files.
    padstack.EdbPadstacks
    layout.EdbLayout
    stackup.EdbStackup
+   stackup.Stackup
 
 
 .. code:: python
@@ -77,6 +78,7 @@ These classes are the containers of data read from the EDB file:
    :toctree: _autosummary
    :nosignatures:
 
+   stackup.LayerEdbClass
    EDB_Data.EDBLayer
    EDB_Data.EDBLayers
    EDB_Data.EDBPadProperties

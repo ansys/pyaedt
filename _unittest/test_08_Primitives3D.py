@@ -851,6 +851,7 @@ class TestClass(BasisTest, object):
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
+        assert self.aedtapp.change_property(self.aedtapp.oeditor, "General", obj_3dcomp.name, "Name", "new_name1")
 
     def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
@@ -1184,6 +1185,7 @@ class TestClass(BasisTest, object):
             assert box2.name not in box1.faces[3].touching_objects
         else:
             assert box2.name not in box1.faces[1].touching_objects
+        assert box2.get_touching_faces(box1)
 
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"

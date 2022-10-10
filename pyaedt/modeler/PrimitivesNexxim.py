@@ -1920,7 +1920,7 @@ class NexximComponents(CircuitComponents):
         return models
 
     @pyaedt_function_handler()
-    def create_component_from_spicemodel(self, model_path, model_name=None, location=None):
+    def create_component_from_spicemodel(self, model_path, model_name=None, create_component=True, location=None):
         """Create and place a new component based on a spice .lib file.
 
         Parameters
@@ -1929,6 +1929,8 @@ class NexximComponents(CircuitComponents):
             Path to .lib file.
         model_name : str, optional
             Model name to import. If `None` the first subckt in the lib file will be placed.
+        create_component : bool, optional
+            If set to ``True``, create a spice model component. Otherwise, only import the spice model.
         location : list, optional
             Position in the schematic of the new component.
 
@@ -1951,14 +1953,17 @@ class NexximComponents(CircuitComponents):
             else:
                 arg2.append([False, "", "", False])
         arg.append(arg2)
-        self.o_component_manager.ImportModelsFromFile(model_path, arg)
+        self.o_component_manager.ImportModelsFromFile(model_path.replace("\\", "/"), arg)
 
-        return self.create_component(
-            None,
-            component_library=None,
-            component_name=model_name,
-            location=location,
-        )
+        if create_component:
+            return self.create_component(
+                None,
+                component_library=None,
+                component_name=model_name,
+                location=location,
+            )
+        else:
+            return True
 
     @pyaedt_function_handler()
     def add_siwave_dynamic_link(self, model_path, solution_name=None, simulate_solutions=False):
