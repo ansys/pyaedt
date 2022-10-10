@@ -16,7 +16,7 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
 
-        if environ.get("DOTNET_ROOT") is None:
+        if os.environ.get("DOTNET_ROOT") is None:
             try:
                 import dotnet
 
