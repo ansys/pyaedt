@@ -165,7 +165,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        if self.material in self._pclass._pedb.materials:
+        if self.material in self._pclass._pedb.materials.materials:
             return self._pclass._pedb.materials[self.material].loss_tangent
         return None
 
@@ -647,6 +647,12 @@ class Stackup(object):
         -------
 
         """
+        if material not in self._pedb.materials.materials:
+            logger.error(material + " does not exist in material library")
+
+        if fillMaterial not in self._pedb.materials.materials:
+            logger.error(fillMaterial + " does not exist in material library")
+
         if layer_type in ["signal", "dielectric"]:
             new_layer = self._create_stackup_layer(layer_name, thickness, layer_type)
             new_layer.SetMaterial(material)
