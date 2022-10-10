@@ -352,7 +352,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         component_name,
         nets,
     ):
-        """Create a new differential port.
+        """Create the ports on a component for a list of nets.
 
         Parameters
         ----------
