@@ -26,4 +26,4 @@ te
 sie
 mot
 nam
-RO
+ro
