@@ -2059,6 +2059,8 @@ if not config["skip_edb"]:
             assert isinstance(edbapp.stackup.stackup_layers, dict)
             assert isinstance(edbapp.stackup.non_stackup_layers, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
+            assert edbapp.stackup["TOP"].conductivity
+            assert edbapp.stackup["UNNAMED_002"].permittivity
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
             assert new_layer.is_stackup_layer
@@ -2085,6 +2087,8 @@ if not config["skip_edb"]:
             assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
             assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
             assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+            assert edbapp.stackup.remove_layer("new_bottom")
+            assert "new_bottom" not in edbapp.stackup.layers
 
             assert edbapp.stackup["TOP"].color
             edbapp.stackup["TOP"].color = [0, 120, 0]

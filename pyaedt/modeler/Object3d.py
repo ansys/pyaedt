@@ -225,6 +225,8 @@ def _dim_arg(value, units):
     """
     try:
         val = float(value)
+        if isinstance(value, int):
+            val = value
         return str(val) + units
     except:
         return value
