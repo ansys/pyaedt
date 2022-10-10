@@ -1164,7 +1164,7 @@ class Layers(object):
         Returns
         -------
         list
-           List of stackup layers.
+           List of drawing layers.
 
         References
         ----------
@@ -1173,6 +1173,23 @@ class Layers(object):
         """
 
         return [v.name for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
+
+    @property
+    def stackup_layers(self):
+        """All stackup layers.
+
+        Returns
+        -------
+        list
+           List of stackup layers.
+
+        References
+        ----------
+
+        >>> oEditor.GetAllLayerNames()
+        """
+
+        return [v.name for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
     @property
     def all_signal_layers(self):
