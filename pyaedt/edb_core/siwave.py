@@ -1,5 +1,5 @@
 """
-This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`,
+This module contains these classes: `CircuitPort`, `CurrentSource`, `EdbSiwave`,
 `PinGroup`, `ResistorSource`, `Source`, `SourceType`, and `VoltageSource`.
 """
 import os
