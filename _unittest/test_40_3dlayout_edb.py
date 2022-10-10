@@ -126,6 +126,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
+            self.aedtapp.modeler.layers.all_diel_layers
+        ) == len(self.aedtapp.modeler.layers.stackup_layers)
         assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0], str)
         assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0], str)
 
