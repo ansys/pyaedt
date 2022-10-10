@@ -347,6 +347,99 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @pyaedt_function_handler()
+    def create_ports_on_component_by_nets(
+        self,
+        component_name,
+        nets,
+    ):
+        """Create the ports on a component for a list of nets.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        nets : str, list
+            Nets to include.
+
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port Objects when successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        listp = self.port_list
+        if isinstance(nets, list):
+            pass
+        else:
+            nets = [nets]
+        net_array = ["NAME:Nets"] + nets
+        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component_name], net_array, "Port", "0", "0", "0")
+        listnew = self.port_list
+        a = [i for i in listnew if i not in listp]
+        ports = []
+        if len(a) > 0:
+            for port in a:
+                bound = self._update_port_info(port)
+                if bound:
+                    self.boundaries.append(bound)
+                    ports.append(bound)
+        return ports
+
+    @pyaedt_function_handler()
+    def create_differential_port(self, via_signal, via_reference, port_name, deembed=True):
+        """Create a new differential port.
+
+        Parameters
+        ----------
+        via_signal : str
+            Signal pin.
+        via_reference : float
+            Reference pin.
+        port_name : str
+            New Port Name.
+        deembed : bool, optional
+            Either to deembed parasitics or not. Default is `True`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port Object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        listp = self.port_list
+        if port_name in self.port_list:
+            self.logger.error("Port already existing on via {}".format(port_name))
+            return False
+        self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
+
+        listnew = self.port_list
+        a = [i for i in listnew if i not in listp]
+        if len(a) > 0:
+            self.modeler.change_property("Excitations:{}".format(a[0]), "Port", port_name, "EM Design")
+            self.modeler.oeditor.AssignRefPort([port_name], via_reference)
+            if deembed:
+                self.modeler.change_property(
+                    "Excitations:{}".format(port_name), "DeembedParasiticPortInductance", deembed, "EM Design"
+                )
+            bound = self._update_port_info(port_name)
+            if bound:
+                self.boundaries.append(bound)
+                return self.boundaries[-1]
+            else:
+                return False
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def create_coax_port(self, vianame, radial_extent=0.1, layer=None, alignment="lower"):
         """Create a new coax port.
 

@@ -22,6 +22,7 @@ from functools import update_wrapper
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
+main_module = sys.modules["__main__"]
 
 try:
     import ScriptEnv
@@ -69,19 +70,28 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     -------
 
     """
+    tb_data = ex_info[2]
+    tb_trace = traceback.format_tb(tb_data)
+    if len(tb_trace) > 1:
+        tblist = tb_trace[1].split("\n")
+    else:
+        tblist = tb_trace[0].split("\n")
+
     message_to_print = ""
-    if "oDesktop" in dir(sys.modules["__main__"]):
-        try:
-            messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
-        except:
-            messages = []
-        if messages and "[error] Script macro error" in messages[-1]:
-            message_to_print = messages[-1]
-    _write_mes("Method {} Failed:  {}. Please Check again".format(func.__name__, message))
-    _write_mes(ex_info[1])
+    try:
+        messages = list(main_module.oDesktop.GetMessages("", "", 2))
+    except AttributeError:
+        messages = []
+    if messages:
+        message_to_print = messages[-1]
+    for el in tblist:
+        if func.__name__ in el:
+            _write_mes("Error in : " + el)
+    _write_mes("{} - {} -  {}.".format(ex_info[1], func.__name__, message.upper()))
+
     if message_to_print:
         _write_mes(message_to_print)
-    _write_mes("Arguments Provided: ")
+    _write_mes("Arguments with values: ")
     try:
         if int(sys.version[0]) > 2:
             args_name = list(OrderedDict.fromkeys(inspect.getfullargspec(func)[0] + list(kwargs.keys())))
@@ -95,15 +105,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
                 _write_mes("    {} = {} ".format(el, args_dict[el]))
     except:
         pass
-    tb_data = ex_info[2]
-    tb_trace = traceback.format_tb(tb_data)
-    if len(tb_trace) > 1:
-        tblist = tb_trace[1].split("\n")
-    else:
-        tblist = tb_trace[0].split("\n")
-    for el in tblist:
-        if func.__name__ in el:
-            _write_mes("Error in : " + el)
+
     _write_mes("Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
 
 
@@ -314,14 +316,17 @@ def pyaedt_function_handler(direct_func=None):
 
 def _function_handler_wrapper(user_function):
     def wrapper(*args, **kwargs):
-        if is_remote_server:
-            converted_args = _remote_list_conversion(args)
-            converted_kwargs = _remote_dict_conversion(kwargs)
-            args = converted_args
-            kwargs = converted_kwargs
-        if settings.enable_debug_logger:
-            _log_method(user_function, args, kwargs)
-        if settings.enable_error_handler:
+        if not settings.enable_error_handler:
+            result = user_function(*args, **kwargs)
+            return result
+        else:
+            if is_remote_server:
+                converted_args = _remote_list_conversion(args)
+                converted_kwargs = _remote_dict_conversion(kwargs)
+                args = converted_args
+                kwargs = converted_kwargs
+            if settings.enable_debug_logger:
+                _log_method(user_function, args, kwargs)
             try:
                 out = user_function(*args, **kwargs)
                 return out
@@ -364,9 +369,6 @@ def _function_handler_wrapper(user_function):
             except BaseException:
                 _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
                 return False
-
-        result = user_function(*args, **kwargs)
-        return result
 
     return wrapper
 
