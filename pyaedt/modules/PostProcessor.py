@@ -13,6 +13,8 @@ import string
 import warnings
 from collections import OrderedDict
 
+import pandas as pd
+
 import pyaedt.modules.report_templates as rt
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
@@ -3816,7 +3818,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Returns
         -------
-        list
+        list or :class:`pandas.Series`
             Sampled waveform in ``Volts`` at different times in ``seconds``.
 
         Examples
@@ -3842,6 +3844,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
 
         outputdata = []
+        new_voltage = []
+        tic_in_s = []
         for tic in filtered_tic:
             if tic >= sweep_filtered[0]:
                 sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
@@ -3850,22 +3854,23 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                         waveform_index = waveform_sweep[waveform_sweep.values == sweep_filtered[0]].index.values
                     else:
                         waveform_index = waveform_sweep.index(sweep_filtered[0])
-                    new_voltage = unit_converter(
-                        waveform_data[waveform_index],
-                        unit_system="Voltage",
-                        input_units=waveform_unit,
-                        output_units="V",
-                    )
-                    tic_in_s = unit_converter(
-                        tic, unit_system="Time", input_units=waveform_sweep_unit, output_units="s"
-                    )
-                    if pandas_enabled:
-                        outputdata.append([tic_in_s, new_voltage.values.tolist()[0]])
+                    if not isinstance(waveform_data[waveform_index], float):
+                        voltage = waveform_data[waveform_index].values[0]
                     else:
-                        outputdata.append([tic_in_s, new_voltage])
+                        voltage = waveform_data[waveform_index]
+                    new_voltage.append(
+                        unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
+                    )
+                    tic_in_s.append(
+                        unit_converter(tic, unit_system="Time", input_units=waveform_sweep_unit, output_units="s")
+                    )
+                    if not pandas_enabled:
+                        outputdata.append([tic_in_s[-1:][0], new_voltage[-1:][0]])
                     del sweep_filtered[0]
                 else:
                     break
+        if pandas_enabled:
+            return pd.Series(new_voltage, index=tic_in_s)
         return outputdata
 
     def sample_ami_waveform(
@@ -3977,14 +3982,4 @@ class CircuitPostProcessor(PostProcessorCommon, object):
                 clock_tics=tics,
                 pandas_enabled=waveform_data.enable_pandas_output,
             )
-
-        if waveform_data.enable_pandas_output:
-            import pandas as pd
-
-            df = []
-            cont = 0
-            for data in outputdata:
-                df.append(pd.DataFrame(data, columns=["time", "voltage"]))
-                cont += 1
-            outputdata = df
         return outputdata

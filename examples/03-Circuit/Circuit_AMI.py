@@ -127,18 +127,20 @@ for time in original_data_value[plot_name][start_index_original_data:].index:
     if time[0] >= tstop_ns:
         stop_index_original_data = time[0]
         break
-for time in sample_waveform[0].time:
+for time in sample_waveform[0].index:
     if tstart <= time:
-        start_index_waveform = sample_waveform[0].time.index[sample_waveform[0].time == time].tolist()[0]
+        sample_index = sample_waveform[0].index == time
+        start_index_waveform = sample_index.tolist().index(True)
         break
-for time in sample_waveform[0].time:
+for time in sample_waveform[0].index:
     if time >= tstop:
-        stop_index_waveform = sample_waveform[0].time.index[sample_waveform[0].time == time].tolist()[0]
+        sample_index = sample_waveform[0].index == time
+        stop_index_waveform = sample_index.tolist().index(True)
         break
 
 original_data_zoom = original_data_value[start_index_original_data:stop_index_original_data]
-sampled_data_zoom = sample_waveform[0].voltage[start_index_waveform:stop_index_waveform] * scale_data
-sampled_time_zoom = sample_waveform[0].time[start_index_waveform:stop_index_waveform] * scale_time
+sampled_data_zoom = sample_waveform[0].values[start_index_waveform:stop_index_waveform] * scale_data
+sampled_time_zoom = sample_waveform[0].index[start_index_waveform:stop_index_waveform] * scale_time
 
 fig, ax = plt.subplots()
 ax.plot(sampled_time_zoom, sampled_data_zoom, "r*")
@@ -154,7 +156,7 @@ plt.show()
 # Create the plot from a start time to stop time in seconds.
 
 fig, ax2 = plt.subplots()
-ax2.plot(sample_waveform[0].time, sample_waveform[0].voltage, "r*")
+ax2.plot(sample_waveform[0].index, sample_waveform[0].values, "r*")
 ax2.set_title('Slicer Scatter: WaveAfterProbe')
 ax2.set_xlabel("s")
 ax2.set_ylabel("V")
@@ -167,7 +169,7 @@ plt.show()
 
 fig, ax4 = plt.subplots()
 ax4.set_title('Slicer Histogram: WaveAfterProbe')
-ax4.hist(sample_waveform[0].voltage, orientation='horizontal')
+ax4.hist(sample_waveform[0].values, orientation='horizontal')
 ax4.set_ylabel("V")
 ax4.grid()
 plt.show()
