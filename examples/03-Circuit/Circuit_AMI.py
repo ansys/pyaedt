@@ -58,7 +58,7 @@ NewThread = True
 # and starts the specified version in the specified mode.
 
 settings.enable_pandas_output = True
-cir = Circuit(projectname=os.path.join(project_path), non_graphical=True,
+cir = Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
               specified_version=desktopVersion, new_desktop_session=NewThread)
 
 ###############################################################################
