@@ -15,16 +15,18 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
-        try:
-            import dotnet
 
-            runtime = os.path.join(os.path.dirname(dotnet.__path__), "bin")
-        except:
-            import dotnetcore2
+        if environ.get("DOTNET_ROOT") is not None:
+            try:
+                import dotnet
 
-            runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
-        finally:
-            os.environ["DOTNET_ROOT"] = runtime
+                runtime = os.path.join(os.path.dirname(dotnet.__path__))
+            except:
+                import dotnetcore2
+
+                runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
+            finally:
+                os.environ["DOTNET_ROOT"] = runtime
 
         from pythonnet import load
 
