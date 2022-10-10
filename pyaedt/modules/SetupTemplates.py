@@ -1,3 +1,4 @@
+import json
 import os.path
 from collections import OrderedDict
 
@@ -2172,3 +2173,40 @@ class SetupProps(OrderedDict):
 
     def _setitem_without_update(self, key, value):
         OrderedDict.__setitem__(self, key, value)
+
+    def _export_properties_to_json(self, file_path):
+        """Export all setup properties into a json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the json file.
+        """
+        if not file_path.endswith(".json"):
+            file_path = file_path + ".json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(self, indent=4, ensure_ascii=False))
+        return True
+
+    def _import_properties_from_json(self, file_path):
+        """Import setup properties from a json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the json file.
+        """
+
+        def set_props(target, source):
+            for k, v in source.items():
+                if k not in target:
+                    raise Exception("{} is not a valid property name.".format(k))
+                if not isinstance(v, dict):
+                    target[k] = v
+                else:
+                    set_props(target[k], v)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            set_props(self, data)
+        return True
