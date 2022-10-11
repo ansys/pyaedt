@@ -1980,3 +1980,75 @@ class Analysis(Design, object):
                 return False
 
         return True
+
+    @pyaedt_function_handler()
+    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
+        """Change a property.
+
+        Parameters
+        ----------
+        aedt_object :
+            Aedt object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object. It can be the name of an excitation or field reporter.
+            For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
+        property_name : str
+            Name of the property. For example, ``Rotation Angle``.
+        property_value : str, list
+            Value of the property. It is a string for a single value and a list of three elements for
+            ``[x,y,z]`` coordianates.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        if isinstance(property_value, list) and len(property_value) == 3:
+            xpos, ypos, zpos = self.modeler._pos_with_arg(property_value)
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, (str, float, int)):
+            xpos = self.modeler._arg_with_dim(property_value, self.modeler.model_units)
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
+                    ],
+                ]
+            )
+        else:
+            self.logger.error("Wrong Property Value")
+            return False
+        self.logger.info("Property {} Changed correctly.".format(property_name))
+        return True

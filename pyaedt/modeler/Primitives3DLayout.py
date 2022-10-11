@@ -757,7 +757,7 @@ class Primitives3DLayout(object):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            self.oeditor.CreateVia(arg)
+            _retry_ntimes(10, self.oeditor.CreateVia, arg)
             if netname:
                 self.oeditor.ChangeProperty(
                     [
@@ -1123,8 +1123,8 @@ class Primitives3DLayout(object):
         args.append(component_path)
 
         _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
-        stack_layers = ["0:{}".format(i) for i in self.modeler.layers.all_layers]
-        drawing = ["{}:{}".format(i, i) for i in self.modeler.layers.drawing_layers]
+        stack_layers = ["0:{}".format(i.name) for i in self.modeler.layers.stackup_layers]
+        drawing = ["{}:{}".format(i.name, i.name) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
         arg_y = self.modeler._arg_with_dim(pos_y)
         args = [

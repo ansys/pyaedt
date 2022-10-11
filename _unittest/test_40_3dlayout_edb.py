@@ -30,6 +30,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(
             self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
         )
+        self.design_name = self.aedtapp.design_name
         self.tmp = self.aedtapp.modeler.geometries
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
@@ -125,6 +126,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
+        assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
+            self.aedtapp.modeler.layers.all_diel_layers
+        ) == len(self.aedtapp.modeler.layers.stackup_layers)
         assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0], str)
         assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0], str)
 
@@ -265,3 +269,24 @@ class TestClass(BasisTest, object):
         assert comp.angle == "10deg"
         assert comp.component_name == "my_connector"
         assert len(self.aedtapp.modeler.components_3d) == 1
+
+    def test_16_differential_ports(self):
+        self.aedtapp.set_active_design(self.design_name)
+        pins = self.aedtapp.modeler.components["R3"].pins
+        assert self.aedtapp.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
+        assert "test_differential" in self.aedtapp.port_list
+
+    def test_17_ports_on_components_nets(self):
+        component = self.aedtapp.modeler.components["J1"]
+        nets = [
+            self.aedtapp.modeler.pins[i].net_name
+            for i in component.pins
+            if "GND" not in self.aedtapp.modeler.pins[i].net_name
+        ]
+        ports_before = len(self.aedtapp.port_list)
+        assert self.aedtapp.create_ports_on_component_by_nets(
+            "J1",
+            nets,
+        )
+        ports_after = len(self.aedtapp.port_list)
+        assert ports_after - ports_before == len(nets)
