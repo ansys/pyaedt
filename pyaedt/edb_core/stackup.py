@@ -691,18 +691,18 @@ class Stackup(object):
         return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
     @pyaedt_function_handler
-    def import_stackup(self, file_path):
+    def import_stackup(self, fpath):
         """Import stackup defnition from csv file.
 
         Parameters
         ----------
-        file_path : str
+        fpath : str
             File path to csv file.
         """
         if is_ironpython:
             self._pedb.logger.error("Method working on CPython only.")
             return False
-        df = pd.read_csv(file_path, index_col=0)
+        df = pd.read_csv(fpath, index_col=0)
         prev_layer = None
         for row, val in df[::-1].iterrows():
             if not self.stackup_layers:
@@ -745,12 +745,12 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def export_stackup(self, file_path, file_format="csv"):
+    def export_stackup(self, fpath, file_format="csv"):
         """Export stackup definition to csv file.
 
         Parameters
         ----------
-        file_path : str
+        fpath : str
             File path to csv file.
         file_format : str, optional
             The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
@@ -771,16 +771,14 @@ class Stackup(object):
             data["Dielectric_Fill"].append(lyr.dielectric_fill)
             data["Thickness"].append(lyr.thickness)
         df = pd.DataFrame(data, index=idx, columns=["Type", "Material", "Dielectric_Fill", "Thickness"])
-        if file_path.endswith(".csv"):
-            df.to_csv(file_path)
-        elif file_path.endswith(".xlsx"):
-            df.to_excel(file_path)
-        elif file_format == "csv":
-            file_path = file_path + ".csv"
-            df.to_csv(file_path)
-        else:
-            file_path = file_path + ".xlsx"
-            df.to_excel(file_path)
+        if file_format == "csv":  # pragma: no cover
+            if not fpath.endswith(".csv"):
+                fpath = fpath + ".csv"
+            df.to_csv(fpath)
+        else:  # pragma: no cover
+            if not fpath.endswith(".xlsx"):  # pragma: no cover
+                fpath = fpath + ".xlsx"
+            df.to_excel(fpath)
         return True
 
 
