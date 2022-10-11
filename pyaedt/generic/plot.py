@@ -32,17 +32,7 @@ if not is_ironpython:
             "The PyVista module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install pyvista\n\nRequires CPython."
         )
-    try:
-        import matplotlib
 
-        matplotlib.use("TkAgg")
-    except ImportError:
-        warnings.warn(
-            "The Matplotlib module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install matplotlib\n\nRequires CPython."
-        )
-    except:
-        pass
     try:
         import matplotlib.pyplot as plt
         from matplotlib.patches import PathPatch
