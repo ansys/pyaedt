@@ -1888,7 +1888,7 @@ class Primitives(object):
         contained_string : str
             Prefix in the names of the objects to delete.
         case_sensitive : bool, optional
-            Whether the prefix is case-sensitive. The default is ``True``.
+            Whether the prefix is case sensitive. The default is ``True``.
 
         Returns
         -------
