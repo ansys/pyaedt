@@ -1,6 +1,6 @@
 Cable Modeling
 ==============
-Cable Modeling description
+Cable modeling description
 
 
 .. currentmodule:: pyaedt.modules
