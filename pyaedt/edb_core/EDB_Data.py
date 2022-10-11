@@ -2975,7 +2975,7 @@ class EDBComponent(object):
         Returns
         -------
         str
-            Resistance Value. ``None`` if not an RLC Type.
+            Resistance value or ``None`` if not an RLC type.
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
