@@ -757,7 +757,7 @@ class Primitives3DLayout(object):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            self.oeditor.CreateVia(arg)
+            _retry_ntimes(10, self.oeditor.CreateVia, arg)
             if netname:
                 self.oeditor.ChangeProperty(
                     [
