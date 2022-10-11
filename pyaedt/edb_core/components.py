@@ -1649,10 +1649,10 @@ class Components(object):
         with open(bom_file, "w") as f:
             f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
             for refdes, comp in self.components.items():
-                if not comp.is_enabled and comp.type in ["RESISTOR", "CAPACITOR", "INDUCTOR"]:
+                if not comp.is_enabled and comp.type.upper() in ["RESISTOR", "CAPACITOR", "INDUCTOR"]:
                     continue
                 part_name = comp.partname
-                comp_type = comp.type
+                comp_type = comp.type.upper()
                 if comp_type == "RESISTOR":
                     value = comp.res_value
                 elif comp_type == "CAPACITOR":
