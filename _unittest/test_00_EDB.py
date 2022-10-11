@@ -2130,7 +2130,7 @@ if not config["skip_edb"]:
             edbapp.materials["FR4_epoxy"].loss_tangent = 1
             assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
             edbapp.materials.add_conductor_material("new_conductor", 1)
-            edbapp.materials.add_conductor_material("new_dielectric", 1, 2)
+            edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
             edbapp.materials["FR4_epoxy"].magnetic_loss_tangent = 0.01
             assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == 0.01
             edbapp.materials["FR4_epoxy"].youngs_modulus = 5000
@@ -2146,7 +2146,7 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient == 1e-7
             edbapp.materials["FR4_epoxy"].poisson_ratio = 1e-3
             assert edbapp.materials["FR4_epoxy"].poisson_ratio == 1e-3
-            assert edbapp.materials["new_material"]
+            assert edbapp.materials["new_conductor"]
             assert edbapp.materials.duplicate("FR4_epoxy", "FR41")
             assert edbapp.materials["FR41"]
             assert edbapp.materials["FR4_epoxy"].conductivity == edbapp.materials["FR41"].conductivity
