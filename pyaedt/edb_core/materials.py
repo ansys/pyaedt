@@ -215,7 +215,7 @@ class Materials(object):
             new_material = self.materials[name]
             new_material.conductivity = conductivity
             return new_material
-        else:
+        else:  # pragma: no cover
             warnings.warn("Material {} already exists in material library.".format(name))
             return False
 
