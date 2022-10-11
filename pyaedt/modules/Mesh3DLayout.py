@@ -119,7 +119,7 @@ class Mesh3d(object):
     """Mesh class.
 
     Provides the main AEDT mesh functionality. The inherited class
-    `AEDTConfig` contains all `_desktop` hierarchical calls needed by this class.
+    ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.
 
     Parameters
     ----------
