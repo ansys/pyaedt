@@ -199,7 +199,7 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def add_conductor_material(self, name, conductivity):
-        """Add a new material in library.
+        """Add a new conductor material in library.
 
         Parameters
         ----------
@@ -226,7 +226,7 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def add_dielectric_material(self, name, permittivity, loss_tangent):
-        """Add a new material in library.
+        """Add a new dielectric material in library.
 
         Parameters
         ----------
