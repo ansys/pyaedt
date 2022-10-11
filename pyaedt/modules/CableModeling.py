@@ -699,16 +699,20 @@ class Cable:
             json_dict = json_to_dict(json_file_name)
 
         # Cable implementation
-        if json_dict["Add_Cable"].lower() == "true":
+        if json_dict["Add_Cable"].lower() == "true" or json_dict["Update_Cable"].lower() == "true":
             try:
                 if json_dict["Cable_prop"]["CableType"].lower() in ["bundle", "straight wire", "twisted pair"]:
                     self.cable_type = json_dict["Cable_prop"]["CableType"]
                 else:
-                    msg = "Cable type is not valid. Available values are: bundle, straight wire, twisted pair"
+                    msg = "Cable type is not valid. Available values are: bundle, straight wire, twisted pair."
                     raise ValueError(msg)
 
-                if json_dict["Update_Cable"]:
-                    self.updated_name = json_dict["Cable_prop"]["UpdatedName"]
+                if json_dict["Update_Cable"].lower() == "true":
+                    if json_dict["Cable_prop"]["UpdatedName"]:
+                        self.updated_name = json_dict["Cable_prop"]["UpdatedName"]
+                    else:
+                        msg = "Insert a valid updated name for cable."
+                        raise ValueError(msg)
 
                 if self.cable_type == "bundle":
                     cable_bundle_properties = json_dict["CableManager"]["Definitions"]["CableBundle"]
@@ -1216,7 +1220,9 @@ class Cable:
                     self.twist_angle_along_route = json_dict["CableHarness_prop"]["TwistAngleAlongRoute"]
 
                 if not [
-                    x for x in self._app.modeler.object_names if json_dict["CableHarness_prop"]["Polyline"] == x.lower()
+                    x
+                    for x in self._app.modeler.object_names
+                    if json_dict["CableHarness_prop"]["Polyline"].lower() == x.lower()
                 ]:
                     msg = "Polyline doesn't exist in the current project."
                     raise ValueError(msg)
@@ -1224,7 +1230,7 @@ class Cable:
                     self.cable_harness_polyline = [
                         x
                         for x in self._app.modeler.object_names
-                        if json_dict["CableHarness_prop"]["Polyline"] == x.lower()
+                        if json_dict["CableHarness_prop"]["Polyline"].lower() == x.lower()
                     ][0]
 
                 if (
