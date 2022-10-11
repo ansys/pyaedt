@@ -2888,12 +2888,13 @@ class EDBComponentDef(object):
         -------
         list of :class:`pyaedt.edb_core.EDB_Data.EDBComponent`
         """
-        return [
+        comp_list = [
             EDBComponent(self._pcomponents, l)
             for l in self._pcomponents._edb.Cell.Hierarchy.Component.FindByComponentDef(
                 self._pcomponents._pedb.active_layout, self.part_name
             )
         ]
+        return {comp.refdes:comp for comp in comp_list}
 
 
 class EDBComponent(object):
