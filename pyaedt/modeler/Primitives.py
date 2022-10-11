@@ -1018,7 +1018,10 @@ class Primitives(object):
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
             udm = []
             if "UserDefinedModels" in self.oeditor.GetChildTypes():
-                udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
+                try:
+                    udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
+                except:
+                    udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
             if self.user_defined_components:
