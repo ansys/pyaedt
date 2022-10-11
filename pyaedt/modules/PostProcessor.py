@@ -1834,7 +1834,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     The inherited `AEDTConfig` class contains all `_desktop`
     hierarchical calls needed for the class initialization data
-    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    ``_desktop`` and the design types ``"HFSS"``, ``"Icepak"``, and
     ``"HFSS3DLayout"``.
 
     .. note::
