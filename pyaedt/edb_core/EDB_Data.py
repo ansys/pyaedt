@@ -2970,6 +2970,24 @@ class EDBComponent(object):
             self.edbcomponent.SetComponentProperty(component_property)
 
     @property
+    def value(self):
+        """Retrieve descrete component value.
+
+        Returns
+        -------
+        str
+            Value. ``None`` if not an RLC Type.
+        """
+        if self.type == "Resistor":
+            return self.res_value
+        elif self.type == "Capacitor":
+            return self.cap_value
+        elif self.type == "Inductor":
+            return self.ind_value
+        else:
+            return None
+
+    @property
     def res_value(self):
         """Resistance value.
 

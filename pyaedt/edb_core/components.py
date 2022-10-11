@@ -6,6 +6,8 @@ import os
 import re
 import warnings
 
+import pandas as pd
+
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
@@ -1613,10 +1615,14 @@ class Components(object):
                         self.refresh_components()
                         comp = self.components[refdes]
 
-                comp_type = l[comp_type_col].upper()
-                comp.type = comp_type
-                print(comp.refdes, comp_type)
-                if comp_type in ["RESISTOR", "CAPACITOR", "INDUCTOR"]:
+
+                comp_type = l[comp_type_col]
+                if comp_type.capitalize() in ["Resistor", "Capacitor", "Inductor", "Other"]:
+                    comp.type = comp_type.capitalize()
+                else:
+                    comp.type = comp_type.upper()
+
+                if comp_type in ["Resistor", "Capacitor", "Inductor"]:
                     unmount_comp_list.remove(refdes)
                 if not value_col == None:
                     try:
@@ -1624,11 +1630,11 @@ class Components(object):
                     except:
                         value = None
                     if value:
-                        if comp_type == "RESISTOR":
+                        if comp_type == "Resistor":
                             self.set_component_rlc(refdes, res_value=value)
-                        elif comp_type == "CAPACITOR":
+                        elif comp_type == "Capacitor":
                             self.set_component_rlc(refdes, cap_value=value)
-                        elif comp_type == "INDUCTOR":
+                        elif comp_type == "Inductor":
                             self.set_component_rlc(refdes, ind_value=value)
             for comp in unmount_comp_list:
                 self.components[comp].is_enabled = False
@@ -1648,21 +1654,39 @@ class Components(object):
         with open(bom_file, "w") as f:
             f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
             for refdes, comp in self.components.items():
-                if not comp.is_enabled and comp.type.upper() in ["RESISTOR", "CAPACITOR", "INDUCTOR"]:
+                if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
                     continue
                 part_name = comp.partname
-                comp_type = comp.type.upper()
-                if comp_type == "RESISTOR":
+                comp_type = comp.type
+                if comp_type == "Resistor":
                     value = comp.res_value
-                elif comp_type == "CAPACITOR":
+                elif comp_type == "Capacitor":
                     value = comp.cap_value
-                elif comp_type == "INDUCTOR":
+                elif comp_type == "Inductor":
                     value = comp.ind_value
                 else:
                     value = ""
                 if not value:
                     value = ""
                 f.writelines([delimiter.join([refdes, part_name, comp_type, value + "\n"])])
+        return True
+
+    @pyaedt_function_handler()
+    def export_definition(self, file_path, delimiter=","):
+        with open(file_path, "w") as f:
+            f.writelines([delimiter.join(["Part name", "Type", "Value\n"])])
+
+            for name, prop in self.definitions.items():
+                if len(list(prop.components.values())):  # pragma: no cover
+                    comp = list(prop.components.values())[0]
+                else:
+                    continue
+                comp_type = comp.type
+                if comp_type in ["Resistor", "Capacitor"]:
+                    value = comp.value
+                else:
+                    value = ""
+                f.writelines([delimiter.join([name, comp_type, str(value) + "\n"])])
         return True
 
     @pyaedt_function_handler()
