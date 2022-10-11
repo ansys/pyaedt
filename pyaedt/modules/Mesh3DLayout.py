@@ -118,7 +118,7 @@ class Mesh3DOperation(PropsManager, object):
 class Mesh3d(object):
     """Mesh class.
 
-    This class provides the main AEDT mesh functionality. The inherited class
+    Provides the main AEDT mesh functionality. The inherited class
     `AEDTConfig` contains all `_desktop` hierarchical calls needed by this class.
 
     Parameters
