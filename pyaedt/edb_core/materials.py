@@ -198,7 +198,7 @@ class Materials(object):
         return {obj.GetName(): Material(self, obj) for obj in list(self._db.MaterialDefs)}
 
     @pyaedt_function_handler()
-    def add(self, name, conductivity, permittivity, loss_tangent):
+    def add_conductor_material(self, name, conductivity, permittivity, loss_tangent):
         """Add a new material in library.
 
         Parameters
