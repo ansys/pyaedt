@@ -198,7 +198,7 @@ class Materials(object):
         return {obj.GetName(): Material(self, obj) for obj in list(self._db.MaterialDefs)}
 
     @pyaedt_function_handler()
-    def add_conductor_material(self, name, conductivity, permittivity, loss_tangent):
+    def add_conductor_material(self, name, conductivity):
         """Add a new material in library.
 
         Parameters
@@ -219,6 +219,32 @@ class Materials(object):
             self._edb.Definition.MaterialDef.Create(self._db, name)
             new_material = self.materials[name]
             new_material.conductivity = conductivity
+            return new_material
+        else:
+            warnings.warn("Material {} already exists in material library.".format(name))
+            return False
+
+    @pyaedt_function_handler()
+    def add_dielectric_material(self, name, permittivity, loss_tangent):
+        """Add a new material in library.
+
+        Parameters
+        ----------
+        name : str
+            Name of the new material.
+        conductivity : float
+            Conductivity of the new material.
+        permittivity : float
+            Permittivity of the new material.
+        loss_tangent : float
+            Loss tangent of the new material.
+        Returns
+        -------
+
+        """
+        if not name in self.materials:
+            self._edb.Definition.MaterialDef.Create(self._db, name)
+            new_material = self.materials[name]
             new_material.permittivity = permittivity
             new_material.loss_tangent = loss_tangent
             return new_material
