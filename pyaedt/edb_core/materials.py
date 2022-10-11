@@ -207,11 +207,6 @@ class Materials(object):
             Name of the new material.
         conductivity : float
             Conductivity of the new material.
-        permittivity : float
-            Permittivity of the new material.
-        loss_tangent : float
-            Loss tangent of the new material.
-        Returns
         -------
 
         """
@@ -232,8 +227,6 @@ class Materials(object):
         ----------
         name : str
             Name of the new material.
-        conductivity : float
-            Conductivity of the new material.
         permittivity : float
             Permittivity of the new material.
         loss_tangent : float
