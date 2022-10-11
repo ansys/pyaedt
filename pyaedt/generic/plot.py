@@ -931,7 +931,7 @@ class ModelPlotter(object):
 
     @property
     def background_color(self):
-        """Get/Set Background Color.
+        """Background color.
         It can be a tuple of (r,g,b)  or color name."""
         return self._background_color
 
