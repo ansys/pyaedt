@@ -73,7 +73,6 @@ class Components(object):
     def __init__(self, p_edb):
         self._pedb = p_edb
         self._cmp = {}
-        self._comp_def = {}
         self._res = {}
         self._cap = {}
         self._ind = {}
