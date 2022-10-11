@@ -24,7 +24,7 @@ def db20(x, inverse=True):
 
 
 def db10(x, inverse=True):
-    """Convert db10 to decimal and vice-versa."""
+    """Convert db10 to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
     else:
