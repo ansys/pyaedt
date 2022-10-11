@@ -1219,9 +1219,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         active_project = self.project_name
         path_ext = os.path.splitext(cad_path)
-        project_name = os.path.splitext(os.path.basename(cad_path))[0]
         if not aedb_path:
             aedb_path = path_ext[0] + ".aedb"
+        project_name = os.path.splitext(os.path.basename(aedb_path))[0]
+
         if os.path.exists(aedb_path):
             old_name = project_name
             project_name = generate_unique_name(project_name)
