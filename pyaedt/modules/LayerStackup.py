@@ -1180,7 +1180,7 @@ class Layers(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modules.LayerStackup.Layer`
            List of stackup layers.
 
         References
@@ -1197,7 +1197,7 @@ class Layers(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modules.LayerStackup.Layer`
             List of signal layers.
         """
 
@@ -1209,7 +1209,7 @@ class Layers(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modules.LayerStackup.Layer`
             List of dielectric layers.
         """
         return [v for k, v in self.layers.items() if v.type == "dielectric"]
@@ -1225,8 +1225,8 @@ class Layers(object):
 
         Returns
         -------
-        type
-            Layer ID if the layer name exists.
+        :class:`pyaedt.modules.LayerStackup.Layer`
+            Layer objecy if the layer name exists.
         """
         for el in self.layers:
             if self.layers[el].name == name:
@@ -1239,7 +1239,7 @@ class Layers(object):
 
         Returns
         -------
-        int
+         Dict[int,  :class:`pyaedt.modules.LayerStackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = OrderedDict({})
