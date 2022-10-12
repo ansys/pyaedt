@@ -3495,23 +3495,27 @@ class Primitives(object):
         ]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
+                operations = el.get("Operations", None)
             else:
                 attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
+                operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                    "ToplevelParts"
+                ]["GeometryPart"]["Attributes"]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
-                if el.get("Operations", None):
-                    if isinstance(el["Operations"].get("Operation", None), (OrderedDict, dict)):
-                        try:
-                            pid = el["Operations"]["Operation"]["ParentPartID"]
-                        except:
-                            pass
-                    elif isinstance(el["Operations"].get("Operation", None), list):
-                        try:
-                            pid = el["Operations"]["Operation"][0]["ParentPartID"]
-                        except:
-                            pass
+
+                if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
+                    try:
+                        pid = operations["Operation"]["ParentPartID"]
+                    except:
+                        pass
+                elif operations and isinstance(operations.get("Operation", None), list):
+                    try:
+                        pid = operations["Operation"][0]["ParentPartID"]
+                    except:
+                        pass
                 o = self._create_object(name=attribs["Name"], pid=pid)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
