@@ -2015,8 +2015,9 @@ class Primitives(object):
         self.user_defined_components = {}
         self.object_id_dict = {}
         self._currentId = 0
+        self._refresh_object_types()
+        self._refresh_all_ids_from_aedt_file()
         self.refresh_all_ids()
-        # self._refresh_all_ids_from_aedt_file()
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
@@ -2037,11 +2038,13 @@ class Primitives(object):
         new_object_id_dict = {}
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
+        all = all_objects + all_unclassified
         for old_id, obj in self.objects.items():
-            if obj.name in all_objects or obj.name in all_unclassified:
-                updated_id = obj.id  # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = updated_id
-                new_object_dict[updated_id] = obj
+            if obj.name in all:
+                # Check if ID can change in boolean operations
+                # updated_id = obj.id  # By calling the object property we get the new id
+                new_object_id_dict[obj.name] = old_id
+                new_object_dict[old_id] = obj
 
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
@@ -2150,13 +2153,7 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        obj_lst = []
-        for el in self.objects:
-            if (
-                self.objects[el].material_name == materialname
-                or self.objects[el].material_name == '"' + materialname + '"'
-            ):
-                obj_lst.append(el)
+        obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
         return obj_lst
 
     @pyaedt_function_handler()
@@ -3445,9 +3442,12 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name):
+    def _create_object(self, name, pid=0):
         o = Object3d(self, name)
-        new_id = o.id
+        if pid:
+            new_id = pid
+        else:
+            new_id = o.id
         self.objects[new_id] = o
         self.object_id_dict[o.name] = new_id
         return o
@@ -3500,7 +3500,19 @@ class Primitives(object):
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
             if attribs["Name"] in self._all_object_names:
-                o = self._create_object(name=attribs["Name"])
+                pid = 0
+                if el.get("Operations", None):
+                    if isinstance(el["Operations"].get("Operation", None), (OrderedDict, dict)):
+                        try:
+                            pid = el["Operations"]["Operation"]["ParentPartID"]
+                        except:
+                            pass
+                    elif isinstance(el["Operations"].get("Operation", None), list):
+                        try:
+                            pid = el["Operations"]["Operation"][0]["ParentPartID"]
+                        except:
+                            pass
+                o = self._create_object(name=attribs["Name"], pid=pid)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
