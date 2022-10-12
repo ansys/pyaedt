@@ -50,27 +50,32 @@ class TestClass(BasisTest, object):
         comp["L3A1"].angle = "90deg"
         assert comp["L3A1"].angle == "90deg"
         comp["L3A1"].angle = "0deg"
-        assert comp["L3A1"].location[0] == 0.0
+        assert comp["L3A1"].location[0] == 58.8772
+        assert comp["L3A1"].location[1] == 38.1
         comp["L3A1"].location = [1.0, 0.0]
-        if config["desktopVersion"] > "2022.2":
-
-            assert comp["L3A1"].location[0] == 1000.0
-        else:
-            assert comp["L3A1"].location[0] == 1.0  # bug in component location
-        comp["L3A1"].location = [0.0, 0.0]
+        assert comp["L3A1"].location[0] == 1.0  # bug in component location
+        comp["L3A1"].location = [58.872, 38.1]
         assert comp["L3A1"].placement_layer == "TOP"
         assert comp["L3A1"].part == "A32422-019"
         assert comp["L3A1"].part_type == "Inductor"
         assert comp["L3A1"].set_property_value("Angle", "0deg")
-        assert comp["L3A1"].enabled(False)
-        assert comp["L3A1"].enabled(True)
-        assert comp["R13"].enabled(False)
-        assert comp["R13"].enabled(True)
-        assert comp["C3B14"].enabled(False)
-        assert comp["C3B14"].enabled(True)
-        assert not comp["U3B2"].enabled(False)
-        assert not comp["J2"].enabled(False)
-        assert not comp["FB1M1"].enabled(False)
+        assert comp["L3A1"].create_clearance_on_component(1e-6)
+        comp["L3A1"].enabled = False
+        assert not comp["L3A1"].enabled
+        comp["L3A1"].enabled = True
+        assert comp["L3A1"].enabled
+        comp["R13"].enabled = False
+        assert not comp["R13"].enabled
+        comp["R13"].enabled = True
+        assert comp["R13"].enabled
+        comp["C3B14"].enabled = False
+        assert not comp["C3B14"].enabled
+        comp["C3B14"].enabled = True
+
+        assert comp["U3B2"].enabled
+        assert comp["J2"].enabled
+        assert comp["FB1M1"].enabled
+
         r5 = comp["R5"]
         assert r5.model
         assert r5.model.res == "100kOhm"
@@ -255,12 +260,8 @@ class TestClass(BasisTest, object):
         comp = self.aedtapp.modeler.place_3d_component(
             encrypted_model_path, 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
         )
-        if config["desktopVersion"] > "2022.2":
-            assert (comp.location[0] - 1) < tol
-            assert (comp.location[1] - 2) < tol
-        else:
-            assert (comp.location[0] - 0.001) < tol
-            assert (comp.location[1] - 0.002) < tol
+        assert (comp.location[0] - 1.017) < tol
+        assert (comp.location[1] - 2) < tol
         assert comp.angle == "0deg"
         assert comp.placement_layer == "TOP"
         comp.placement_layer = "bottom"
