@@ -1615,7 +1615,6 @@ class Components(object):
                         self.refresh_components()
                         comp = self.components[refdes]
 
-
                 comp_type = l[comp_type_col]
                 if comp_type.capitalize() in ["Resistor", "Capacitor", "Inductor", "Other"]:
                     comp.type = comp_type.capitalize()
