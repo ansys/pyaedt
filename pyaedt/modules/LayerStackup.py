@@ -1201,7 +1201,7 @@ class Layers(object):
             List of signal layers.
         """
 
-        return [v.name for k, v in self.layers.items() if v.type == "signal"]
+        return [v for k, v in self.layers.items() if v.type == "signal"]
 
     @property
     def all_diel_layers(self):
@@ -1212,14 +1212,7 @@ class Layers(object):
         list
             List of dielectric layers.
         """
-        a = self.all_layers
-        die = []
-        for lay in a:
-            layid = self.layer_id(lay)
-
-            if self.layers[layid].type == "dielectric":
-                die.append(lay)
-        return die
+        return [v for k, v in self.layers.items() if v.type == "dielectric"]
 
     @pyaedt_function_handler()
     def layer_id(self, name):

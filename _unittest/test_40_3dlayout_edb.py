@@ -134,8 +134,8 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
             self.aedtapp.modeler.layers.all_diel_layers
         ) == len(self.aedtapp.modeler.layers.stackup_layers)
-        assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0], str)
-        assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0], str)
+        assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0].name, str)
+        assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0].name, str)
 
     def test_02d_geo_lock(self):
         self.aedtapp.modeler.geometries["line_1983"].lock_position = True
