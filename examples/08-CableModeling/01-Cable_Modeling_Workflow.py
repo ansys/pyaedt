@@ -191,7 +191,7 @@ cable.create_cable()
 
 ###############################################################################
 # Create twisted pair cable
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create twisted pair cable.
 
 cable_props["Add_Cable"] = "True"
@@ -214,7 +214,7 @@ cable.create_cable()
 
 ###############################################################################
 # Add cables to bundle
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # Add straight wire cables to bundle.
 
 cable_props["Add_Cable"] = "False"

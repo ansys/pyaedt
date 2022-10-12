@@ -1,4 +1,4 @@
-Cable Modeling
+Cable modeling
 ==============
 The ``Cable Modeling`` module includes several methods to work
 with the Cable Modeling HFSS Beta feature:
