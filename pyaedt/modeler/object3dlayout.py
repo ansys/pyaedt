@@ -213,13 +213,9 @@ class Objec3DLayout(object):
             [BB_lower_left_X, BB_lower_left_Y, BB_upper_right_X, BB_upper_right_Y].
         """
         info = self.m_Editor.GetComponentInfo(self.name)
-        loc_x = loc_y = bbllx = bblly = bburx = bbury = 0
+        bllx = bblly = bburx = bbury = 0
         for i in info:
-            if "LocationX" in i:
-                loc_x = float(i.split("=")[1])
-            elif "LocationY" in i:
-                loc_y = float(i.split("=")[1])
-            elif "BBoxLLx" in i:
+            if "BBoxLLx" in i:
                 bbllx = float(i.split("=")[1])
             elif "BBoxLLy" in i:
                 bblly = float(i.split("=")[1])

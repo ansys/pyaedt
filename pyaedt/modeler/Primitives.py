@@ -1020,7 +1020,7 @@ class Primitives(object):
             if "UserDefinedModels" in self.oeditor.GetChildTypes():
                 try:
                     udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
-                except:
+                except:  # pragma: no cover
                     udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
@@ -2038,9 +2038,9 @@ class Primitives(object):
         new_object_id_dict = {}
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
-        all = all_objects + all_unclassified
+        all_objs = all_objects + all_unclassified
         for old_id, obj in self.objects.items():
-            if obj.name in all:
+            if obj.name in all_objs:
                 # Check if ID can change in boolean operations
                 # updated_id = obj.id  # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = old_id
@@ -3509,7 +3509,7 @@ class Primitives(object):
                 if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
                     try:
                         pid = operations["Operation"]["ParentPartID"]
-                    except:
+                    except:  # pragma: no cover
                         pass
                 elif operations and isinstance(operations.get("Operation", None), list):
                     try:

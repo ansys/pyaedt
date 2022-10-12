@@ -60,6 +60,7 @@ class TestClass(BasisTest, object):
         assert comp["L3A1"].part_type == "Inductor"
         assert comp["L3A1"].set_property_value("Angle", "0deg")
         assert comp["L3A1"].create_clearance_on_component(1e-6)
+        assert comp["L3A1"].absolute_angle == 0.0
         comp["L3A1"].enabled = False
         assert not comp["L3A1"].enabled
         comp["L3A1"].enabled = True
