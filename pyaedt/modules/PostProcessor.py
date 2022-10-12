@@ -1832,9 +1832,9 @@ class PostProcessorCommon(object):
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop`
-    hierarchical calls needed for the class inititialization data
-    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    The inherited ``AEDTConfig`` class contains all ``_desktop``
+    hierarchical calls needed for the class initialization data
+    ``_desktop`` and the design types ``"HFSS"``, ``"Icepak"``, and
     ``"HFSS3DLayout"``.
 
     .. note::

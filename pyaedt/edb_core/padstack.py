@@ -846,7 +846,7 @@ class EdbPadstacks(object):
         antipad_y_offset=0,
         antipad_rotation=0,
     ):
-        """Set pad and antipad properites of the padstack.
+        """Set pad and antipad properties of the padstack.
 
         Parameters
         ----------

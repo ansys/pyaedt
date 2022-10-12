@@ -2046,8 +2046,8 @@ class GeometryModeler(Modeler, object):
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
                 obj_cent = center
                 face_ob = face
-        vertx = face_ob.vertices
-        start = vertx[0].position
+        vertex = face_ob.vertices
+        start = vertex[0].position
 
         if not groundname:
             gnd_cent = []
@@ -4608,8 +4608,8 @@ class GeometryModeler(Modeler, object):
 
                 oFaceIDs = self.oeditor.GetFaceIDs(i)
 
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
+                for face in oFaceIDs:
+                    sel.append(int(face))
         return sel
 
     @pyaedt_function_handler()
@@ -4639,8 +4639,8 @@ class GeometryModeler(Modeler, object):
 
             oFaceIDs = self.oeditor.GetFaceIDs(i)
 
-            for facce in oFaceIDs:
-                sel.append(int(facce))
+            for face in oFaceIDs:
+                sel.append(int(face))
         return sel
 
     @pyaedt_function_handler()

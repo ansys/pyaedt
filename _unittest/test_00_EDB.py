@@ -2130,7 +2130,9 @@ if not config["skip_edb"]:
             edbapp.materials["FR4_epoxy"].loss_tangent = 1
             assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
             edbapp.materials.add_conductor_material("new_conductor", 1)
+            assert not edbapp.materials.add_conductor_material("new_conductor", 1)
             edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
+            assert not edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
             edbapp.materials["FR4_epoxy"].magnetic_loss_tangent = 0.01
             assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == 0.01
             edbapp.materials["FR4_epoxy"].youngs_modulus = 5000

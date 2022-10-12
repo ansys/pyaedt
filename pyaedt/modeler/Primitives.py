@@ -1891,7 +1891,7 @@ class Primitives(object):
         contained_string : str
             Prefix in the names of the objects to delete.
         case_sensitive : bool, optional
-            Whether the prefix is case-senstive. The default is ``True``.
+            Whether the prefix is case sensitive. The default is ``True``.
 
         Returns
         -------
@@ -2857,8 +2857,8 @@ class Primitives(object):
         edgeID = []
         edges = self.get_object_edges(obj_name)
         for edge in edges:
-            vertx = self.get_edge_vertices(edge)
-            if vertexid in vertx:
+            vertices = self.get_edge_vertices(edge)
+            if vertexid in vertices:
                 edgeID.append(edge)
 
         return edgeID
