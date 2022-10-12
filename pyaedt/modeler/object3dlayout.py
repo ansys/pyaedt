@@ -253,7 +253,7 @@ class Objec3DLayout(object):
 
         dims = [bbox[2] - bbox[0] + 2 * extra_soldermask_clearance, bbox[3] - bbox[1] + 2 * extra_soldermask_clearance]
         drawings = []
-        if self.placement_layer == self._primitives.layers.all_signal_layers[0]:
+        if self.placement_layer == self._primitives.layers.all_signal_layers[0].name:
             for lay in self._primitives.layers.stackup_layers:
                 if lay.name != self.placement_layer:
                     drawings.append(lay.name)

@@ -526,9 +526,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
-            top_layer = layers[0]
+            top_layer = layers[0].name
         if not bot_layer:
-            bot_layer = layers[len(layers) - 1]
+            bot_layer = layers[len(layers) - 1].name
         self.modeler.oeditor.CreatePin(
             [
                 "NAME:Contents",

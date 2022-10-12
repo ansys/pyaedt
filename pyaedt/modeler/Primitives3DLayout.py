@@ -729,9 +729,9 @@ class Primitives3DLayout(object):
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
-            top_layer = layers[0]
+            top_layer = layers[0].name
         if not bot_layer:
-            bot_layer = layers[len(layers) - 1]
+            bot_layer = layers[len(layers) - 1].name
         if not name:
             name = generate_unique_name("via")
         else:
