@@ -10,12 +10,14 @@ from __future__ import absolute_import  # noreorder
 
 import gc
 import json
+import logging
 import os
 import random
 import re
 import shutil
 import string
 import sys
+import threading
 import time
 import warnings
 from collections import OrderedDict
@@ -156,6 +158,17 @@ class Design(AedtObjects):
         port=0,
         aedt_process_id=None,
     ):
+        def load_aedt_thread(path):
+            start = time.time()
+            settings._project_properties[path] = load_entire_aedt_file(path)
+            settings._project_time_stamp = os.path.getmtime(project_name)
+            logger = logging.getLogger("Global")
+            logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
+
+        t = None
+        if project_name and os.path.exists(project_name) and os.path.splitext(project_name)[1] == ".aedt":
+            t = threading.Thread(target=load_aedt_thread, args=(project_name,))
+            t.start()
         self._init_variables()
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
@@ -210,6 +223,9 @@ class Design(AedtObjects):
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects initialized")
+
+        if t:
+            t.join()
 
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
@@ -307,11 +323,15 @@ class Design(AedtObjects):
         """
         start = time.time()
         if (
-            os.path.exists(self.project_file) and self.project_file not in settings._project_properties
-        ) or self.project_timestamp_changed:
-            settings._project_properties[self.project_file] = load_entire_aedt_file(self.project_file)
+            self.project_timestamp_changed
+            or os.path.exists(self.project_file)
+            and os.path.normpath(self.project_file) not in settings._project_properties
+        ):
+            settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
-        return settings._project_properties[self.project_file]
+        if os.path.normpath(self.project_file) in settings._project_properties:
+            return settings._project_properties[os.path.normpath(self.project_file)]
+        return {}
 
     @property
     def design_properties(self):

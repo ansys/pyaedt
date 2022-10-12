@@ -91,9 +91,7 @@ edb.core_nets.plot(["A0_GPIO", "A0_MUX"])
 # ~~~~~~~~~~~~~~~
 # Show all layers.
 
-layers = h3d.modeler.layers.all_signal_layers
-for lay in layers:
-    layer = h3d.modeler.layers.layers[h3d.modeler.layers.layer_id(lay)]
+for layer in h3d.modeler.layers.all_signal_layers:
     layer.is_visible = True
 
 ###############################################################################

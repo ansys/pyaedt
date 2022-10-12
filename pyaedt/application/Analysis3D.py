@@ -698,12 +698,11 @@ class FieldAnalysis3D(Analysis, object):
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
         cond = self.materials.conductors
-
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in cond:
-                obj_names.append(obj_val.name)
-        return obj_names
+        for mat in cond:
+            obj_names.extend(self.modeler.get_objects_by_material(mat))
+            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
+        return list(set(obj_names))
 
     @pyaedt_function_handler()
     def get_all_dielectrics_names(self):
@@ -722,10 +721,10 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in diel:
-                obj_names.append(obj_val.name)
-        return obj_names
+        for mat in diel:
+            obj_names.extend(self.modeler.get_objects_by_material(mat))
+            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
+        return list(set(obj_names))
 
     @pyaedt_function_handler()
     def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
