@@ -711,8 +711,7 @@ class Cable:
                     if json_dict["Cable_prop"]["UpdatedName"]:
                         self.updated_name = json_dict["Cable_prop"]["UpdatedName"]
                     else:
-                        msg = "Insert a valid updated name for cable."
-                        raise ValueError(msg)
+                        raise ValueError("Insert a valid updated name for cable.")
 
                 if self.cable_type == "bundle":
                     cable_bundle_properties = json_dict["CableManager"]["Definitions"]["CableBundle"]
