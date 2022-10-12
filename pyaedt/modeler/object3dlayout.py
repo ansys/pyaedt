@@ -227,10 +227,6 @@ class Objec3DLayout(object):
                 bburx = float(i.split("=")[1])
             elif "BBoxURy" in i:
                 bbury = float(i.split("=")[1])
-        bburx += loc_x
-        bbllx += loc_x
-        bbury += loc_y
-        bblly += loc_y
         bbllx = round(unit_converter(bbllx, output_units=self._primitives.model_units), 9)
         bblly = round(unit_converter(bblly, output_units=self._primitives.model_units), 9)
         bburx = round(unit_converter(bburx, output_units=self._primitives.model_units), 9)
