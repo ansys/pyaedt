@@ -2971,12 +2971,12 @@ class EDBComponent(object):
 
     @property
     def res_value(self):
-        """Resitance value.
+        """Resistance value.
 
         Returns
         -------
         str
-            Resitance Value. ``None`` if not an RLC Type.
+            Resistance value or ``None`` if not an RLC type.
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
