@@ -213,7 +213,7 @@ class Objec3DLayout(object):
             [BB_lower_left_X, BB_lower_left_Y, BB_upper_right_X, BB_upper_right_Y].
         """
         info = self.m_Editor.GetComponentInfo(self.name)
-        bllx = bblly = bburx = bbury = 0
+        bbllx = bblly = bburx = bbury = 0
         for i in info:
             if "BBoxLLx" in i:
                 bbllx = float(i.split("=")[1])
