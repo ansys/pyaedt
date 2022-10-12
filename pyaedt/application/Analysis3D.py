@@ -698,11 +698,10 @@ class FieldAnalysis3D(Analysis, object):
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
         cond = self.materials.conductors
-
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in cond:
-                obj_names.append(obj_val.name)
+        for mat in cond:
+            obj_names.extend(self.modeler.get_objects_by_material(mat))
+            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
         return obj_names
 
     @pyaedt_function_handler()
@@ -722,9 +721,9 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in diel:
-                obj_names.append(obj_val.name)
+        for mat in diel:
+            obj_names.extend(self.modeler.get_objects_by_material(mat))
+            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
         return obj_names
 
     @pyaedt_function_handler()

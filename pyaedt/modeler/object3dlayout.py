@@ -205,7 +205,7 @@ class Objec3DLayout(object):
 
     @property
     def bounding_box(self):
-        """Get component bounding box
+        """Get component bounding box.
 
         Returns
         -------

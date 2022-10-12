@@ -3541,8 +3541,6 @@ class Primitives(object):
                     o._surface_material = o._surface_material[1:-1].lower()
                 if "MaterialValue" in attribs:
                     o._material_name = attribs["MaterialValue"][1:-1].lower()
-                else:
-                    o._material_name = attribs.get("MaterialName", None)
 
                 o._is_updated = True
         return len(self.objects)
