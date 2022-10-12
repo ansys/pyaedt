@@ -166,7 +166,7 @@ class Design(AedtObjects):
             logger.info("AEDT thread file load time {}".format(time.time() - start))
 
         t = None
-        if os.path.exists(project_name) and os.path.splitext(project_name)[1] == ".aedt":
+        if project_name and os.path.exists(project_name) and os.path.splitext(project_name)[1] == ".aedt":
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
