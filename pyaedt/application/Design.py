@@ -163,7 +163,7 @@ class Design(AedtObjects):
             settings._project_properties[path] = load_entire_aedt_file(path)
             settings._project_time_stamp = os.path.getmtime(project_name)
             logger = logging.getLogger("Global")
-            logger.info("AEDT thread file load time {}".format(time.time() - start))
+            logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
 
         t = None
         if project_name and os.path.exists(project_name) and os.path.splitext(project_name)[1] == ".aedt":
@@ -327,9 +327,11 @@ class Design(AedtObjects):
             or os.path.exists(self.project_file)
             and os.path.normpath(self.project_file) not in settings._project_properties
         ):
-            settings._project_properties[self.project_file] = load_entire_aedt_file(self.project_file)
+            settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
-        return settings._project_properties[os.path.normpath(self.project_file)]
+        if os.path.normpath(self.project_file) in settings._project_properties:
+            return settings._project_properties[os.path.normpath(self.project_file)]
+        return {}
 
     @property
     def design_properties(self):

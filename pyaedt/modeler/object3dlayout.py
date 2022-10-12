@@ -494,7 +494,7 @@ class Components3DLayout(Objec3DLayout, object):
         return True
 
     @enabled.setter
-    def enabled(self, status=True):
+    def enabled(self, status):
         if self._part_type_id in [0, 4, 5]:
             return False
         self.m_Editor.EnableComponents(["NAME:Components", self.name], status)
