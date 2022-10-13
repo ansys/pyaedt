@@ -616,7 +616,7 @@ class Maxwell(object):
             Object container.
         coordinate_system : str, optional
             Coordinate system name. The default is ``"Global"``.
-        axis :str or int, optional
+        axis : str or int, optional
             Coordinate system axis. The default is ``"Z"``.
             It can be a ``pyaedt.generic.constants.AXIS`` enumerator value.
         positive_movement : bool, optional
