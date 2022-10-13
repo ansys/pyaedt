@@ -263,6 +263,8 @@ class TestClass(BasisTest, object):
         assert (
             cable.cable_definitions["CableBundle"][2]["BundleParams"]["VirtualJacketParams"]["InnerDiameter"] == "2.5mm"
         )
+        self.dict_in["Cable_prop"]["UpdatedName"] = ""
+        assert not Cable(self.aedtapp, self.dict_in).update_cable_properties()
         # Update 4th cable bundle - Jacket type = Shielding - Name
         self.dict_in["Cable_prop"]["IsJacketTypeNoJacket"] = "False"
         self.dict_in["Cable_prop"]["IsJacketTypeBraidShield"] = "True"
