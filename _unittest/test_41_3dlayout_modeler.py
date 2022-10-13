@@ -251,6 +251,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via].location[0] == float(0)
         assert self.aedtapp.modeler.vias[via].location[1] == float(0)
         assert self.aedtapp.modeler.vias[via].angle == "0deg"
+
         via_1 = self.aedtapp.modeler.create_via(x=1, y=1)
         assert isinstance(via_1, str)
         assert self.aedtapp.modeler.vias[via_1].name == via_1
@@ -521,6 +522,7 @@ class TestClass(BasisTest, object):
 
     def test_26_duplicate(self):
         assert self.aedtapp.modeler.duplicate("myrectangle", 2, [1, 1])
+        assert self.aedtapp.modeler.duplicate_across_layers("circle_0", "Bottom")
 
     def test_27_create_pin_port(self):
         port = self.aedtapp.create_pin_port("PinPort1")

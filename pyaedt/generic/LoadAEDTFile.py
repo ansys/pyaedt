@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os.path
 import re
 
 from pyaedt.generic.general_methods import open_file
@@ -22,7 +23,7 @@ def load_entire_aedt_file(filename):
         dictionary containing the decoded AEDT file
 
     """
-    return _load_entire_aedt_file(filename)
+    return _load_entire_aedt_file(os.path.normpath(filename))
 
 
 def load_keyword_in_aedt_file(filename, keyword):

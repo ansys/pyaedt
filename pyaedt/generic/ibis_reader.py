@@ -153,7 +153,7 @@ class Pin(Component):
 
     @property
     def r_value(self):
-        """Resitance value in ohms.
+        """Resistance value in ohms.
 
         Examples
         --------

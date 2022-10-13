@@ -6,10 +6,12 @@ objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
 """
 from __future__ import absolute_import  # noreorder
 
+import math
 import re
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import unit_converter
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import clamp
 from pyaedt.modeler.Object3d import rgb_color_codes
@@ -122,6 +124,40 @@ class Objec3DLayout(object):
             self.change_property(vMaterial)
 
     @property
+    def absolute_angle(self):
+        """Get the absolute angle location for 2 pins components.
+
+        Returns
+        -------
+        float
+        """
+        if self.prim_type != "component":
+            return 0.0
+        comp_pins = self.m_Editor.GetComponentPins(self.name)
+        if len(comp_pins) == 2:
+            pin_1_name = comp_pins[0]
+            pin_2_name = comp_pins[1]
+            pin1_info = self.m_Editor.GetComponentPinInfo(self.name, pin_1_name)
+            pin2_info = self.m_Editor.GetComponentPinInfo(self.name, pin_2_name)
+            pin1_x = pin1_info[1].split("=")[1]
+            pin1_y = pin1_info[2].split("=")[1]
+            pin2_x = pin2_info[1].split("=")[1]
+            pin2_y = pin2_info[2].split("=")[1]
+            p1x = float(pin1_x)
+            p1y = float(pin1_y)
+            p2x = float(pin2_x)
+            p2y = float(pin2_y)
+            dy = float(p2y - p1y)
+            dx = float(p2x - p1x)
+            angle_deg = math.atan2(dy, dx) * 180.0 / math.pi
+            if abs(angle_deg - 90.0) < 1:
+                angle_deg = 90.0
+            if abs(angle_deg) < 1:
+                angle_deg = 0.0
+            return angle_deg
+        return 0.0
+
+    @property
     def net_name(self):
         """Get/Set the net name.
 
@@ -168,8 +204,76 @@ class Objec3DLayout(object):
             self.change_property(vMaterial)
 
     @property
+    def bounding_box(self):
+        """Get component bounding box.
+
+        Returns
+        -------
+        list
+            [BB_lower_left_X, BB_lower_left_Y, BB_upper_right_X, BB_upper_right_Y].
+        """
+        info = self.m_Editor.GetComponentInfo(self.name)
+        bbllx = bblly = bburx = bbury = 0
+        for i in info:
+            if "BBoxLLx" in i:
+                bbllx = float(i.split("=")[1])
+            elif "BBoxLLy" in i:
+                bblly = float(i.split("=")[1])
+            elif "BBoxURx" in i:
+                bburx = float(i.split("=")[1])
+            elif "BBoxURy" in i:
+                bbury = float(i.split("=")[1])
+        bbllx = round(unit_converter(bbllx, output_units=self._primitives.model_units), 9)
+        bblly = round(unit_converter(bblly, output_units=self._primitives.model_units), 9)
+        bburx = round(unit_converter(bburx, output_units=self._primitives.model_units), 9)
+        bbury = round(unit_converter(bbury, output_units=self._primitives.model_units), 9)
+        return [bbllx, bblly, bburx, bbury]
+
+    @pyaedt_function_handler()
+    def create_clearance_on_component(self, extra_soldermask_clearance=5e-3):
+        """Create a Clearance on Soldermask layer by drawing a rectangle.
+
+        Parameters
+        ----------
+        extra_soldermask_clearance : float, optional
+            Extra Soldermask value in model units to be applied on component bounding box.
+        Returns
+        -------
+            bool
+        """
+        if self.prim_type != "component":
+            self._primitives.logger.error("Clearance applies only to components.")
+            return False
+        bbox = self.bounding_box
+        start_points = [bbox[0] - extra_soldermask_clearance, bbox[1] - extra_soldermask_clearance]
+
+        dims = [bbox[2] - bbox[0] + 2 * extra_soldermask_clearance, bbox[3] - bbox[1] + 2 * extra_soldermask_clearance]
+        drawings = []
+        if self.placement_layer == self._primitives.layers.all_signal_layers[0].name:
+            for lay in self._primitives.layers.stackup_layers:
+                if lay.name != self.placement_layer:
+                    drawings.append(lay.name)
+                else:
+                    break
+        else:
+            for lay in reversed(self._primitives.layers.stackup_layers):
+                if lay.name != self.placement_layer:
+                    drawings.append(lay.name)
+                else:
+                    break
+        for layername in drawings:
+            rect = self._primitives.create_rectangle(
+                layername,
+                [self._primitives.arg_with_dim(start_points[0]), self._primitives.arg_with_dim(start_points[1])],
+                [self._primitives.arg_with_dim(dims[0]), self._primitives.arg_with_dim(dims[1])],
+            )
+            self._primitives.rectangles[rect].negative = True
+        return True
+
+    @property
     def location(self):
-        """Retrieve/Set the component location.
+        """Retrieve/Set the absolute location in model units.
+        Location is computed with combination of 3d Layout location and model center.
 
         Returns
         -------
@@ -181,7 +285,24 @@ class Objec3DLayout(object):
 
         >>> oEditor.GetPropertyValue
         """
-        if self.prim_type in ["component", "pin", "via"]:
+        if self.prim_type == "component":
+            info = self.m_Editor.GetComponentInfo(self.name)
+            bbllx = bblly = bburx = bbury = 0
+            for i in info:
+                if "BBoxLLx" in i:
+                    bbllx = float(i.split("=")[1])
+                elif "BBoxLLy" in i:
+                    bblly = float(i.split("=")[1])
+                elif "BBoxURx" in i:
+                    bburx = float(i.split("=")[1])
+                elif "BBoxURy" in i:
+                    bbury = float(i.split("=")[1])
+            loc_x = (bburx + bbllx) / 2
+            loc_y = (bbury + bblly) / 2
+            loc_x = round(unit_converter(loc_x, output_units=self._primitives.model_units), 9)
+            loc_y = round(unit_converter(loc_y, output_units=self._primitives.model_units), 9)
+            return [loc_x, loc_y]
+        elif self.prim_type in ["pin", "via"]:
             location = _retry_ntimes(
                 self._n, self.m_Editor.GetPropertyValue, "BaseElementTab", self.name, "Location"
             ).split(",")
@@ -197,8 +318,28 @@ class Objec3DLayout(object):
 
     @location.setter
     def location(self, position):
+        if self.prim_type == "component":
+            info = self.m_Editor.GetComponentInfo(self.name)
+            bbllx = bblly = bburx = bbury = 0
+            for i in info:
+                if "BBoxLLx" in i:
+                    bbllx = float(i.split("=")[1])
+                elif "BBoxLLy" in i:
+                    bblly = float(i.split("=")[1])
+                elif "BBoxURx" in i:
+                    bburx = float(i.split("=")[1])
+                elif "BBoxURy" in i:
+                    bbury = float(i.split("=")[1])
+            position[0] -= unit_converter((bburx + bbllx) / 2, output_units=self._primitives.model_units)
+            position[1] -= unit_converter((bbury + bblly) / 2, output_units=self._primitives.model_units)
         if self.prim_type in ["component", "pin", "via"]:
-            props = ["NAME:Location", "X:=", str(position[0]), "Y:=", str(position[0])]
+            props = [
+                "NAME:Location",
+                "X:=",
+                self._primitives.arg_with_dim(position[0]),
+                "Y:=",
+                self._primitives.arg_with_dim(position[1]),
+            ]
             self.change_property(props)
 
     @property
@@ -326,8 +467,8 @@ class Components3DLayout(Objec3DLayout, object):
             return parts[self.part_type]
         return -1
 
-    @pyaedt_function_handler
-    def enabled(self, status=True):
+    @property
+    def enabled(self):
         """Enable or Disable the RLC Component.
 
         Parameters
@@ -340,13 +481,19 @@ class Components3DLayout(Objec3DLayout, object):
         bool
             `True` if succeeded.
         """
+        comp_info = self.m_Editor.GetComponentInfo(self.name)
+        for el in comp_info:
+            if "ComponentProp=" in el and "CompPropEnabled=false" in el:
+                return False
+            elif "ComponentProp=" in el and "CompPropEnabled=true" in el:
+                return True
+        return True
+
+    @enabled.setter
+    def enabled(self, status):
         if self._part_type_id in [0, 4, 5]:
             return False
-        args = [
-            "NAME:Model Info",
-            ["NAME:Model", "RLCProp:=", ["CompPropEnabled:=", status], "CompType:=", self._part_type_id],
-        ]
-        return self.change_property(args)
+        self.m_Editor.EnableComponents(["NAME:Components", self.name], status)
 
     @property
     def solderball_enabled(self):
@@ -508,7 +655,7 @@ class Components3DLayout(Objec3DLayout, object):
                 if "PortProp(" in p:
                     model = p
                     break
-            s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'"
+            s = r".+PortProp\(rh='(.+?)', rsa=(.+?), rsx='(.+?)', rsy='(.+?)'\)"
             m = re.search(s, model)
             rh = "0"
             rsx = "0"
@@ -520,6 +667,18 @@ class Components3DLayout(Objec3DLayout, object):
                 rsy = m.group(4)
                 if m.group(2) == "false":
                     rsa = False
+            s = r".+DieProp\(dt=(.+?), do=(.+?), dh='(.+?)', lid=(.+?)\)"
+            m = re.search(s, model)
+            dt = 0
+            do = 0
+            dh = "0"
+            lid = -100
+            if m:
+                dt = int(m.group(1))
+                do = int(m.group(2))
+                dh = str(m.group(3))
+                lid = int(m.group(4))
+
             args = [
                 "NAME:Model Info",
                 [
@@ -539,6 +698,8 @@ class Components3DLayout(Objec3DLayout, object):
                             "sbn:=",
                             material,
                         ],
+                        "DieProp:=",
+                        ["dt:=", dt, "do:=", do, "dh:=", dh, "lid:=", lid],
                         "PortProp:=",
                         ["rh:=", rh, "rsa:=", rsa, "rsx:=", rsx, "rsy:=", rsy],
                     ],

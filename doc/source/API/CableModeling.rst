@@ -3,6 +3,7 @@ Cable modeling
 The ``Cable Modeling`` module includes several methods to work
 with the Cable Modeling HFSS Beta feature:
 
+
 * ``create_cable`` to create all available types of cables: bundle, straight wire and twisted pair.
 * ``update_cable_properties`` to update all cables properties for all cable types.
 * ``update_shielding`` to update only the shielding jacket type for bundle cable.
