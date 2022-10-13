@@ -5,7 +5,6 @@ from __future__ import absolute_import  # noreorder
 import csv
 import math
 import os
-import re
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
@@ -15,7 +14,6 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
@@ -1757,62 +1755,6 @@ class Icepak(FieldAnalysis3D):
             ]
         )
         return filename
-
-    @pyaedt_function_handler()
-    def UniteFieldsSummaryReports(self, savedir, proj_icepak):
-        """Unite the files created by a fields summary for the variations.
-
-        Parameters
-        ----------
-        savedir : str
-           Directory path for saving the file.
-        proj_icepak : str
-            Name of the Icepak project.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        newfilename = os.path.join(savedir, proj_icepak + "_HTCAndTemp.csv")
-        newfilelines = []
-        headerwriten = False
-        filetoremove = []
-        # first variation
-        i = 0
-        filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
-        # iterate the variations
-        while os.path.exists(filename) or settings.remote_rpc_session:
-            with open_file(filename, "r") as f:
-                lines = f.readlines()
-                variation = lines[1]
-                # Searching file content for temp and power
-                pattern = re.compile(r"DesignVariation,\$AmbientTemp=('.+?')\s+\$PowerIn=('.+?')")
-                m = pattern.match(variation)
-                temp = m.group(1)
-                power = m.group(2)
-                if not headerwriten:
-                    # write the new file header
-                    newfilelines.append("$AmbientTemp,$PowerIn," + lines[4])
-                    newfilelines.append("\n")
-                    headerwriten = True
-
-                # add the new lines
-                newfilelines.append(temp + "," + power + "," + lines[5])
-                newfilelines.append(temp + "," + power + "," + lines[6])
-
-            # search for next variation
-            filetoremove.append(filename)
-            i += 1
-            filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
-        # write the new file
-        with open_file(newfilename, "w") as f:
-            f.writelines(newfilelines)
-        # remove the single files variation
-        for fr in filetoremove:
-            os.remove(fr)
-        return True
 
     def export_summary(
         self,
