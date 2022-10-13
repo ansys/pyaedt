@@ -1864,7 +1864,7 @@ class SweepQ3D(object):
     ----------
     oanaysis :
 
-    setupname :str
+    setupname : str
         Name of the setup.
     sweepname : str
         Name of the sweep.

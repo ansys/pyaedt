@@ -233,7 +233,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Parameters
         ----------
-        setup_name :str
+        setup_name : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
