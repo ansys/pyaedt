@@ -192,7 +192,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        setup_name :str
+        setup_name : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
