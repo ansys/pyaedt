@@ -6,6 +6,7 @@ import csv
 import math
 import os
 import re
+import warnings
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
@@ -1762,6 +1763,8 @@ class Icepak(FieldAnalysis3D):
     def UniteFieldsSummaryReports(self, savedir, proj_icepak):
         """Unite the files created by a fields summary for the variations.
 
+        .. deprecated:: 0.7.0
+
         Parameters
         ----------
         savedir : str
@@ -1775,6 +1778,8 @@ class Icepak(FieldAnalysis3D):
             ``True`` when successful, ``False`` when failed.
 
         """
+        warnings.warn("`UniteFieldsSummaryReports` is deprecated.", DeprecationWarning)
+
         newfilename = os.path.join(savedir, proj_icepak + "_HTCAndTemp.csv")
         newfilelines = []
         headerwriten = False
