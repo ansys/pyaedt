@@ -268,13 +268,13 @@ def _log_method(func, new_args, new_kwargs):
     m, s = divmod(delta, 60)
     h, m = divmod(m, 60)
     d, h = divmod(h, 24)
-    msec = (s - round(s)) * 1000
+    msec = (s - int(s)) * 1000
     if d > 0:
-        time_msg = " {}days {}h {}m {}sec.".format(round(d), round(h), round(m), round(s))
+        time_msg = " {}days {}h {}m {}sec.".format(d, h, m, int(s))
     elif h > 0:
-        time_msg = " {}h {}m {}sec.".format(round(h), round(m), round(s))
+        time_msg = " {}h {}m {}sec.".format(h, m, int(s))
     else:
-        time_msg = "  {}m {}sec {}msec.".format(round(m), round(s), round(msec))
+        time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
     if new_args and settings.enable_debug_methods_argument_logger:
         object_name = str([new_args[0]])[1:-1]
         id = object_name.find(" object at ")
