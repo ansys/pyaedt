@@ -152,7 +152,7 @@ class TestClass(BasisTest, object):
     def test_17_unite(self):
         o1 = self.aedtapp.modeler["outer"].clone()
         o2 = self.aedtapp.modeler["inner"].clone()
-        assert self.aedtapp.modeler.unite([o1, o2]) == o1.name
+        assert self.aedtapp.modeler.unite([o1, o2], purge=True) == o1.name
 
     def test_18_chamfer(self):
         # TODO
