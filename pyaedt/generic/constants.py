@@ -16,7 +16,7 @@ MILS2METER = 39370.078740157
 
 
 def db20(x, inverse=True):
-    """Convert db20 to decimal and viceversa."""
+    """Convert db20 to decimal and vice versa."""
     if inverse:
         return 20 * math.log10(x)
     else:
@@ -24,7 +24,7 @@ def db20(x, inverse=True):
 
 
 def db10(x, inverse=True):
-    """Convert db10 to decimal and viceversa."""
+    """Convert db10 to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
     else:
@@ -126,13 +126,13 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 
-def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
+def unit_converter(values, unit_system="Length", input_units="meter", output_units="mm"):
     """Convert unit in specified unit system.
 
     Parameters
     ----------
-    value : float
-        Value to convert.
+    values : float, list
+        Values to convert.
     unit_system : str
         Unit system. Default is `"Length"`.
     input_units : str
@@ -148,11 +148,19 @@ def unit_converter(value, unit_system="Length", input_units="meter", output_unit
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
             warnings.warn("No units found")
-            return value
+            return values
         else:
-            return value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+            if isinstance(values, list):
+                converted_values = []
+                for value in values:
+                    converted_values.append(
+                        value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                    )
+                return converted_values
+            else:
+                return values * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
     warnings.warn("No system unit found")
-    return value
+    return values
 
 
 def scale_units(scale_to_unit):

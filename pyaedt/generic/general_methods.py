@@ -23,7 +23,6 @@ is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
 main_module = sys.modules["__main__"]
-
 try:
     import ScriptEnv
 
@@ -265,27 +264,39 @@ def _log_method(func, new_args, new_kwargs):
     line_begin = "    Implicit Arguments: "
     line_begin2 = "    Explicit Arguments: "
     message = []
-    if new_args:
+    delta = time.time() - settings.time_tick
+    m, s = divmod(delta, 60)
+    h, m = divmod(m, 60)
+    d, h = divmod(h, 24)
+    msec = (s - int(s)) * 1000
+    if d > 0:
+        time_msg = " {}days {}h {}m {}sec.".format(d, h, m, int(s))
+    elif h > 0:
+        time_msg = " {}h {}m {}sec.".format(h, m, int(s))
+    else:
+        time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
+    if new_args and settings.enable_debug_methods_argument_logger:
         object_name = str([new_args[0]])[1:-1]
         id = object_name.find(" object at ")
         if id >= 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been exectuted.".format(object_name + "." + str(func.__name__)))
+            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
             if new_args[1:]:
                 message.append(line_begin + str(new_args[1:])[1:-1])
             if new_kwargs:
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
 
         else:
-            message.append(" '{}' has been exectuted.".format(str(func.__name__)))
+            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
             if new_args[1:]:
                 message.append(line_begin + str(new_args[1:])[1:-1])
             if new_kwargs:
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
 
     else:
-        message.append(" '{}' has been exectuted".format(str(func.__name__)))
-        if new_kwargs:
+
+        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
+        if new_kwargs and settings.enable_debug_methods_argument_logger:
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
         settings.logger.debug(m)
@@ -299,7 +310,6 @@ def pyaedt_function_handler(direct_func=None):
     and displays errors.
 
     """
-
     if callable(direct_func):
         user_function = direct_func
         wrapper = _function_handler_wrapper(user_function)
@@ -325,10 +335,11 @@ def _function_handler_wrapper(user_function):
                 converted_kwargs = _remote_dict_conversion(kwargs)
                 args = converted_args
                 kwargs = converted_kwargs
-            if settings.enable_debug_logger:
-                _log_method(user_function, args, kwargs)
             try:
+                settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
+                if settings.enable_debug_logger:
+                    _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
                 if not is_remote_server:
@@ -1070,6 +1081,7 @@ class Settings(object):
         self._logger_formatter = "%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s"
         self._logger_datefmt = "%Y/%m/%d %H.%M.%S"
         self._enable_debug_edb_logger = False
+        self._enable_debug_methods_argument_logger = False
         self._enable_debug_geometry_operator_logger = False
         self._enable_debug_internal_methods_logger = False
         self._enable_debug_logger = False
@@ -1089,6 +1101,7 @@ class Settings(object):
         self._disable_bounding_box_sat = False
         self._force_error_on_missing_project = False
         self._enable_pandas_output = False
+        self.time_tick = time.time()
 
     @property
     def enable_pandas_output(self):
@@ -1105,6 +1118,21 @@ class Settings(object):
     @enable_pandas_output.setter
     def enable_pandas_output(self, val):
         self._enable_pandas_output = val
+
+    @property
+    def enable_debug_methods_argument_logger(self):
+        """Set/Get a flag to plot methods argument in debug logger.
+        Default is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._enable_debug_methods_argument_logger
+
+    @enable_debug_methods_argument_logger.setter
+    def enable_debug_methods_argument_logger(self, val):
+        self._enable_debug_methods_argument_logger = val
 
     @property
     def force_error_on_missing_project(self):

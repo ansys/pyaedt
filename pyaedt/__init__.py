@@ -15,14 +15,23 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
         __version__ = f.read().strip()
 if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" not in sys.version:  # pragma: no cover
     try:
-        import dotnetcore2
 
-        runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
-        os.environ["DOTNET_ROOT"] = runtime
+        if os.environ.get("DOTNET_ROOT") is None:
+            try:
+                import dotnet
+
+                runtime = os.path.join(os.path.dirname(dotnet.__path__))
+            except:
+                import dotnetcore2
+
+                runtime = os.path.join(os.path.dirname(dotnetcore2.__file__), "bin")
+            finally:
+                os.environ["DOTNET_ROOT"] = runtime
+
         from pythonnet import load
 
         json_file = os.path.abspath(os.path.join(pyaedt_path, "misc", "pyaedt.runtimeconfig.json"))
-        load("coreclr", runtime_config=json_file, dotnet_root=runtime)
+        load("coreclr", runtime_config=json_file, dotnet_root=os.environ["DOTNET_ROOT"])
         print("DotNet Core correctly loaded.")
         if "Delcross" not in os.getenv("LD_LIBRARY_PATH", "") or "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
             warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")

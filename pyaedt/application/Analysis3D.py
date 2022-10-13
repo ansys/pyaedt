@@ -698,12 +698,11 @@ class FieldAnalysis3D(Analysis, object):
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
         cond = self.materials.conductors
-
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in cond:
-                obj_names.append(obj_val.name)
-        return obj_names
+        for mat in cond:
+            obj_names.extend(self.modeler.get_objects_by_material(mat))
+            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
+        return list(set(obj_names))
 
     @pyaedt_function_handler()
     def get_all_dielectrics_names(self):
@@ -722,10 +721,10 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
-        for obj_val in list(self.modeler.objects.values()):
-            if obj_val.material_name in diel:
-                obj_names.append(obj_val.name)
-        return obj_names
+        for mat in diel:
+            obj_names.extend(self.modeler.get_objects_by_material(mat))
+            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
+        return list(set(obj_names))
 
     @pyaedt_function_handler()
     def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):
@@ -898,3 +897,43 @@ class FieldAnalysis3D(Analysis, object):
             Stackup class.
         """
         return Stackup3D(self)
+
+    @pyaedt_function_handler()
+    def flatten_3d_components(self, component_name=None, purge_history=True, password=""):
+        """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+
+        Parameters
+        ----------
+        component_name : str, list, optional
+            List of user defined components. Default is `None` for all 3d Components.
+        purge_history : bool, optional
+            Define if the 3D Component will be purged before copied.
+            This is needed when more than 1 component with the same definition is present.
+        password : str, optional
+            Password for encrypted 3d component.
+
+        Returns
+        -------
+        bool
+            `True` if succeeded.
+        """
+        if not component_name:
+            component_name = self.modeler.user_defined_component_names
+        else:
+            if isinstance(component_name, str):
+                component_name = [component_name]
+            for cmp in component_name:
+                assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
+        for cmp in component_name:
+            comp = self.modeler.user_defined_components[cmp]
+            app = comp.edit_definition(password=password)
+            for var, val in comp.parameters.items():
+                app[var] = val
+            if purge_history:
+                app.modeler.purge_history(app.modeler._all_object_names)
+            self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
+            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
+            app.close_project(saveproject=False)
+            comp.delete()
+            self.modeler.refresh_all_ids()
+        return True

@@ -1164,6 +1164,23 @@ class Layers(object):
         Returns
         -------
         list
+           List of drawing layers.
+
+        References
+        ----------
+
+        >>> oEditor.GetAllLayerNames()
+        """
+
+        return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
+
+    @property
+    def stackup_layers(self):
+        """All stackup layers.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.LayerStackup.Layer`
            List of stackup layers.
 
         References
@@ -1172,7 +1189,7 @@ class Layers(object):
         >>> oEditor.GetAllLayerNames()
         """
 
-        return [v.name for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
+        return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
 
     @property
     def all_signal_layers(self):
@@ -1180,11 +1197,11 @@ class Layers(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modules.LayerStackup.Layer`
             List of signal layers.
         """
 
-        return [v.name for k, v in self.layers.items() if v.type == "signal"]
+        return [v for k, v in self.layers.items() if v.type == "signal"]
 
     @property
     def all_diel_layers(self):
@@ -1192,17 +1209,10 @@ class Layers(object):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modules.LayerStackup.Layer`
             List of dielectric layers.
         """
-        a = self.all_layers
-        die = []
-        for lay in a:
-            layid = self.layer_id(lay)
-
-            if self.layers[layid].type == "dielectric":
-                die.append(lay)
-        return die
+        return [v for k, v in self.layers.items() if v.type == "dielectric"]
 
     @pyaedt_function_handler()
     def layer_id(self, name):
@@ -1215,8 +1225,8 @@ class Layers(object):
 
         Returns
         -------
-        type
-            Layer ID if the layer name exists.
+        :class:`pyaedt.modules.LayerStackup.Layer`
+            Layer objecy if the layer name exists.
         """
         for el in self.layers:
             if self.layers[el].name == name:
@@ -1229,7 +1239,7 @@ class Layers(object):
 
         Returns
         -------
-        int
+         Dict[int,  :class:`pyaedt.modules.LayerStackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = OrderedDict({})
