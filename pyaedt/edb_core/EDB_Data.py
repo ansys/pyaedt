@@ -1,4 +1,5 @@
 import json
+import logging
 import math
 import os
 import time
@@ -2908,6 +2909,10 @@ class EDBComponent(object):
         Edb Component Object
 
     """
+    MODEL_TYPE_MAPPING = {"Ansys.Ansoft.Edb.Cell.Hierarchy.PinPairModel": "pin_pair",
+                          "Ansys.Ansoft.Edb.Cell.Hierarchy.NetlistModel": "netlist",
+                          "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel": "spice",
+                          "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel": "s_parameter"}
 
     def __init__(self, components, cmp):
         self._pcomponents = components
@@ -2917,6 +2922,10 @@ class EDBComponent(object):
     def component_property(self):
         """Component Property Object."""
         return self.edbcomponent.GetComponentProperty().Clone()
+
+    @property
+    def _edb_model(self):
+        return self.component_property.GetModel().Clone()
 
     @property
     def solder_ball_height(self):
@@ -2970,6 +2979,25 @@ class EDBComponent(object):
             self.edbcomponent.SetComponentProperty(component_property)
 
     @property
+    def model_type(self):
+        edb_model_type = self._edb_model.ToString()
+        if edb_model_type not in self.MODEL_TYPE_MAPPING:
+            return False
+        else:
+            model_name = self.MODEL_TYPE_MAPPING[edb_model_type]
+
+        if model_name == "pin_pair":
+            if self.type not in ["Resistor", "Inductor", "Capacitor"]:
+                return False
+
+            if self.is_parallel_rlc:
+                return "parallel_rlc"
+            else:
+                return "series_rlc"
+        else:
+            return model_name
+
+    @property
     def value(self):
         """Retrieve descrete component value.
 
@@ -2978,26 +3006,53 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        if self.type == "Resistor":
-            return self.res_value
-        elif self.type == "Capacitor":
-            return self.cap_value
-        elif self.type == "Inductor":
-            return self.ind_value
-        else:
-            return None
+        model = self._edb_model
+        if self.model_type in ["parallel_rlc", "series_rlc"]:
+            pinpairs = model.PinPairs
+            try:
+                p = pinpairs[0]
+                pair_rlc = model.GetPinPairRlc(p)
+                if self.type == "Resistor":
+                    return pair_rlc.R.ToDouble()
+                elif self.type == "Inductor":
+                    return pair_rlc.L.ToDouble()
+                elif self.type == "Capacitor":
+                    return pair_rlc.C.ToDouble()
+                else:
+                    return False
+            except:
+                return False
 
     @value.setter
     def value(self, value):
-        componentProperty = self.edbcomponent.GetComponentProperty()
-        model = componentProperty.GetModel().Clone()
-        pinpairs = model.PinPairs
-        for pinpair in pinpairs:
-            pair = model.GetPinPairRlc(pinpair)
-            rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+        try:
+            pinpair = self._edb_model.PinPairs[0]
+        except:
+            logging.error("Failed to set RLC model on {}".format(self.refdes))
 
-            #rlc_model.SetPinPairRlc(pin_pair, rlc)
-            pair.R.ToString()
+        rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+        rlc = self._edb.Utility.Rlc()
+        if self.type == "Resistor":
+            rlc.REnable = True
+            rlc.LEnable = False
+            rlc.CEnable = False
+            rlc.R = self._get_edb_value(value)
+        elif self.type == "Inductor":
+            rlc.REnable = False
+            rlc.LEnable = True
+            rlc.CEnable = False
+            rlc.L = self._get_edb_value(value)
+        elif self.type == "Capacitor":
+            rlc.REnable = False
+            rlc.LEnable = False
+            rlc.CEnable = True
+            rlc.C = self._get_edb_value(value)
+        else:
+            logging.error("Failed to set RLC model on {}".format(self.refdes))
+        rlc_model.SetPinPairRlc(pinpair, rlc)
+        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+        edb_rlc_component_property.SetModel(rlc_model)
+        self.edbcomponent.SetComponentProperty(edb_rlc_component_property)
 
     @property
     def res_value(self):
