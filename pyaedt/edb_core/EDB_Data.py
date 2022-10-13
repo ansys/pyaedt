@@ -2987,6 +2987,18 @@ class EDBComponent(object):
         else:
             return None
 
+    @value.setter
+    def value(self, value):
+        componentProperty = self.edbcomponent.GetComponentProperty()
+        model = componentProperty.GetModel().Clone()
+        pinpairs = model.PinPairs
+        for pinpair in pinpairs:
+            pair = model.GetPinPairRlc(pinpair)
+            rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
+
+            #rlc_model.SetPinPairRlc(pin_pair, rlc)
+            pair.R.ToString()
+
     @property
     def res_value(self):
         """Resistance value.
