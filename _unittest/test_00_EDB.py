@@ -886,10 +886,13 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
                 isreadonly=True,
             )
-            for i in range(7):
-                padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            padstack_instances = list(edb_padstacks.core_padstack.padstack_instances.values())
+            for padstack_instance in padstack_instances:
                 result = padstack_instance.create_rectangle_in_pad("s")
-                assert result
+                if padstack_instance.padstack_definition != "Padstack_None":
+                    assert result
+                else:
+                    assert result is False
             edb_padstacks.close_edb()
 
         def test_81_edb_with_dxf(self):
