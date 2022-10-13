@@ -771,12 +771,12 @@ class Stackup(object):
             data["Dielectric_Fill"].append(lyr.dielectric_fill)
             data["Thickness"].append(lyr.thickness)
         df = pd.DataFrame(data, index=idx, columns=["Type", "Material", "Dielectric_Fill", "Thickness"])
-        if file_format == "csv":
+        if file_format == "csv":  # pragma: no cover
             if not fpath.endswith(".csv"):
                 fpath = fpath + ".csv"
             df.to_csv(fpath)
-        else:
-            if not fpath.endswith(".xlsx"):
+        else:  # pragma: no cover
+            if not fpath.endswith(".xlsx"):  # pragma: no cover
                 fpath = fpath + ".xlsx"
             df.to_excel(fpath)
         return True

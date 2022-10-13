@@ -270,21 +270,21 @@ def _log_method(func, new_args, new_kwargs):
         id = object_name.find(" object at ")
         if id >= 0:
             object_name = object_name[1:id]
-            message.append(" '{}' has been exectuted.".format(object_name + "." + str(func.__name__)))
+            message.append(" '{}' has been executed.".format(object_name + "." + str(func.__name__)))
             if new_args[1:]:
                 message.append(line_begin + str(new_args[1:])[1:-1])
             if new_kwargs:
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
 
         else:
-            message.append(" '{}' has been exectuted.".format(str(func.__name__)))
+            message.append(" '{}' has been executed.".format(str(func.__name__)))
             if new_args[1:]:
                 message.append(line_begin + str(new_args[1:])[1:-1])
             if new_kwargs:
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
 
     else:
-        message.append(" '{}' has been exectuted".format(str(func.__name__)))
+        message.append(" '{}' has been executed".format(str(func.__name__)))
         if new_kwargs:
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:

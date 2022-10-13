@@ -518,7 +518,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
         float or bool
-            Edge length in model units when edge has two vertices, ``False`` othwerise.
+            Edge length in model units when edge has two vertices, ``False`` otherwise.
 
         References
         ----------
@@ -4604,3 +4604,30 @@ class UserDefinedComponent(object):
             self.parameters,
             self.target_coordinate_system,
         )
+
+    @pyaedt_function_handler()
+    def edit_definition(self, password=""):
+        """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
+
+        Parameters
+        ----------
+        password : str, optional
+            Password for encrypted models.
+
+        Returns
+        -------
+        :class:`pyaedt.hfss.Hfss` or :class:`pyaedt.Icepak.Icepak`
+            Pyaedt object.
+        """
+        from pyaedt.generic.design_types import get_pyaedt_app
+
+        self._primitives.oeditor.Edit3DComponentDefinition(
+            [
+                "NAME:EditDefinitionData",
+                ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
+            ]
+        )
+        proj = self._primitives._app.odesktop.GetActiveProject()
+        proj_name = proj.GetName()
+        des_name = proj.GetActiveDesign().GetName()
+        return get_pyaedt_app(proj_name, des_name)

@@ -2871,5 +2871,5 @@ class FieldPlot:
                 scale_max=scale_max,
             )
         else:
-            self._postprocessor.logger.info("This method wors only on CPython with PyVista")
+            self._postprocessor.logger.info("This method works only on CPython with PyVista")
             return False
