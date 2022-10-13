@@ -135,6 +135,22 @@ class LayerEdbClass(object):
         self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
     @property
+    def filling_material(self):
+        """Get/Set  the filling material.
+
+        Returns
+        -------
+        Edb material.
+        """
+        return self._edb_layer.GetFillMaterial()
+
+    @filling_material.setter
+    def filling_material(self, name):
+        cloned_layer = self._edb_layer
+        cloned_layer.SetFillMaterial(name)
+        self._pclass._set_layout_stackup(cloned_layer, "change_attribute")
+
+    @property
     def conductivity(self):
         """Get the material conductivity.
 
@@ -761,7 +777,7 @@ class Stackup(object):
             return False
         for layer in stackup_info.layers["primary"]:
             try:
-                layer_to_check = self.layer[layer.name]
+                layer_to_check = self.layers[layer.name]
                 if layer_to_check:
                     layer_to_check.thickness = layer.thickness
             except:
@@ -769,7 +785,9 @@ class Stackup(object):
         signal_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "conductor"]
         dielectric_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "dielectric"]
         for signal_layer in signal_layers:
-            signal_layer.dielectric_fill_material = dielectric_layers[1].material_name
+            layer_to_check = self.layers[signal_layer.name]
+            if layer_to_check:
+                layer_to_check.filling_material = dielectric_layers[1].material_name
 
 
 class EdbStackup(object):

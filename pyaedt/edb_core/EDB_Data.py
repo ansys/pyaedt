@@ -6104,6 +6104,9 @@ class MostfetModel(object):
         self._source_pin = ""
         self._gate_pin = ""
         self._drain_pin = ""
+        self._circuit_source_pin = None
+        self._circuit_gate_pin = None
+        self._circuit_drain_pin = None
         self._rds = 0.3
         self._isd = 10.0
         self._isdm = 15.0
@@ -6148,6 +6151,30 @@ class MostfetModel(object):
     def drain_pin(self, value):
         if isinstance(value, str):
             self._drain_pin = value
+
+    @property
+    def circuit_source_pin(self):
+        return self._circuit_source_pin
+
+    @circuit_source_pin.setter
+    def circuit_source_pin(self, pin):
+        self._circuit_source_pin = pin
+
+    @property
+    def circuit_drain_pin(self):
+        return self._circuit_drain_pin
+
+    @circuit_drain_pin.setter
+    def circuit_drain_pin(self, pin):
+        self._circuit_drain_pin = pin
+
+    @property
+    def circuit_gate_pin(self):
+        return self._circuit_gate_pin
+
+    @circuit_gate_pin.setter
+    def circuit_gate_pin(self, pin):
+        self._circuit_gate_pin = pin
 
     @property
     def rds(self):
