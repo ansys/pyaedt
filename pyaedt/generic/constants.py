@@ -132,7 +132,7 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
     Parameters
     ----------
     values : float, list
-        Value to convert.
+        Values to convert.
     unit_system : str
         Unit system. Default is `"Length"`.
     input_units : str
