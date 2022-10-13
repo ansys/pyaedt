@@ -2924,8 +2924,12 @@ class EDBComponent(object):
         return self.edbcomponent.GetComponentProperty().Clone()
 
     @property
-    def _edb_model(self):
+    def _edb_model_clone(self):
         return self.component_property.GetModel().Clone()
+
+    @property
+    def _pin_pairs(self):
+        return list(self._edb_model_clone.PinPairs)
 
     @property
     def solder_ball_height(self):
@@ -2980,7 +2984,7 @@ class EDBComponent(object):
 
     @property
     def model_type(self):
-        edb_model_type = self._edb_model.ToString()
+        edb_model_type = self._edb_model_clone.ToString()
         if edb_model_type not in self.MODEL_TYPE_MAPPING:
             return False
         else:
@@ -3006,12 +3010,11 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        model = self._edb_model
+        model = self._edb_model_clone
         if self.model_type in ["parallel_rlc", "series_rlc"]:
-            pinpairs = model.PinPairs
             try:
-                p = pinpairs[0]
-                pair_rlc = model.GetPinPairRlc(p)
+                pinpair = list(self._edb_model_clone.PinPairs)[0]
+                pair_rlc = model.GetPinPairRlc(pinpair)
                 if self.type == "Resistor":
                     return pair_rlc.R.ToDouble()
                 elif self.type == "Inductor":
@@ -3025,34 +3028,33 @@ class EDBComponent(object):
 
     @value.setter
     def value(self, value):
-        try:
-            pinpair = self._edb_model.PinPairs[0]
-        except:
+        if not len(self._pin_pairs):
             logging.error("Failed to set RLC model on {}".format(self.refdes))
-
-        rlc_model = self._edb.Cell.Hierarchy.PinPairModel()
-        rlc = self._edb.Utility.Rlc()
-        if self.type == "Resistor":
-            rlc.REnable = True
-            rlc.LEnable = False
-            rlc.CEnable = False
-            rlc.R = self._get_edb_value(value)
-        elif self.type == "Inductor":
-            rlc.REnable = False
-            rlc.LEnable = True
-            rlc.CEnable = False
-            rlc.L = self._get_edb_value(value)
-        elif self.type == "Capacitor":
-            rlc.REnable = False
-            rlc.LEnable = False
-            rlc.CEnable = True
-            rlc.C = self._get_edb_value(value)
         else:
-            logging.error("Failed to set RLC model on {}".format(self.refdes))
-        rlc_model.SetPinPairRlc(pinpair, rlc)
-        edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
-        edb_rlc_component_property.SetModel(rlc_model)
-        self.edbcomponent.SetComponentProperty(edb_rlc_component_property)
+            pin_pair = self._pin_pairs[0]
+            pin_pair_model = self._edb.Cell.Hierarchy.PinPairModel()
+            rlc = self._edb.Utility.Rlc()
+            if self.type == "Resistor":
+                rlc.REnable = True
+                rlc.LEnable = False
+                rlc.CEnable = False
+                rlc.R = self._get_edb_value(value)
+            elif self.type == "Inductor":
+                rlc.REnable = False
+                rlc.LEnable = True
+                rlc.CEnable = False
+                rlc.L = self._get_edb_value(value)
+            elif self.type == "Capacitor":
+                rlc.REnable = False
+                rlc.LEnable = False
+                rlc.CEnable = True
+                rlc.C = self._get_edb_value(value)
+            else:
+                logging.error("Failed to set RLC model on {}".format(self.refdes))
+            pin_pair_model.SetPinPairRlc(pin_pair, rlc)
+            edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
+            edb_rlc_component_property.SetModel(pin_pair_model)
+            self.edbcomponent.SetComponentProperty(edb_rlc_component_property)
 
     @property
     def res_value(self):
@@ -3134,6 +3136,20 @@ class EDBComponent(object):
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.IsParallel
         return None
+
+    @is_parallel_rlc.setter
+    def is_parallel_rlc(self, value):
+        if not len(self._pin_pairs):
+            logging.warning(self.refdes, " has no pin pair.")
+        else:
+            pin_pair = self._pin_pairs[0]
+            pin_pair_rlc = self._edb_model_clone.GetPinPairRlc(pin_pair)
+            pin_pair_rlc.IsParallel = value
+            pin_pair_model = self._edb_model_clone
+            pin_pair_model.SetPinPairRlc(pin_pair, pin_pair_rlc)
+            comp_prop = self.component_property
+            comp_prop.SetModel(pin_pair_model)
+            self.edbcomponent.SetComponentProperty(comp_prop)
 
     @property
     def center(self):

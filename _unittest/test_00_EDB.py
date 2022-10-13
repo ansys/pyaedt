@@ -2186,3 +2186,13 @@ if not config["skip_edb"]:
             res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
             for i in res:
                 assert os.path.exists(i)
+
+        def test_A126_component(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            r5 = edbapp.core_components.components["R5"]
+            r5.value = 100
+            assert r5.value == 100
+            assert r5.model_type == "parallel_rlc" and r5.is_parallel_rlc
+            r5.is_parallel_rlc = False
+            assert r5.model_type == "series_rlc"
