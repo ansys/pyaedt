@@ -21,7 +21,7 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
-from pyaedt.modules.SetupTemplates import SweepQ3D
+from pyaedt.modules.SetupTemplates import SweepMatrix
 from pyaedt.modules.SetupTemplates import identify_setup
 
 
@@ -76,7 +76,7 @@ class CommonSetup(PropsManager, object):
                             app = setup_data["Sweeps"]
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepQ3D(self, self.name, el, props=app[el]))
+                                    self.sweeps.append(SweepMatrix(self, self.name, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -476,7 +476,7 @@ class Setup(CommonSetup):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepQ3D`
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
             Sweep object.
 
         References
@@ -487,12 +487,15 @@ class Setup(CommonSetup):
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
         if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3d. Use add_eddy_current_sweep method.")
+            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
             sweep_n = SweepHFSS(self, self.name, sweepname, sweeptype)
+        elif self.setuptype in [14, 30, 31]:
+            sweep_n = SweepMatrix(self, self.name, sweepname, sweeptype)
         else:
-            sweep_n = SweepQ3D(self, self.name, sweepname, sweeptype)
+            self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
+            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
