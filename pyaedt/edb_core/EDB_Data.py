@@ -6,6 +6,8 @@ import time
 import warnings
 from collections import OrderedDict
 
+import pandas as pd
+
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import BasisOrder
@@ -2924,6 +2926,9 @@ class EDBComponent(object):
 
             self._pair_type = "simple"
 
+        def _edb_value(self, value):
+            return self._pedb_comp._get_edb_value(value)
+
         @property
         def type(self):
             return self._pedb_comp.type
@@ -2936,29 +2941,31 @@ class EDBComponent(object):
         def pair_type(self, value):
             if value in ["simple", "parallel_rlc", "series_rlc"]:
                 self._pair_type = value
-                if self.type == ["Resistor"]:
-                    self._rlc_enable = [True, False, False]
-                elif self.type == ["Inductor"]:
-                    self._rlc_enable = [False, True, False]
+                if self.type == "Resistor":
+                    self.rlc_enable = [True, False, False]
+                elif self.type == "Inductor":
+                    self.rlc_enable = [False, True, False]
                 else:
-                    self._rlc_enable = [False, False, True]
+                    self.rlc_enable = [False, False, True]
             if value in ["parallel_rlc", "series_rlc"]:
-                self._rlc_enable = [True, True, True]
+                self.rlc_enable = [True, True, True]
 
         @property
         def _pin_pair_rlc(self):
             return self._edb_model.GetPinPairRlc(self._edb_pin_pair)
 
         @property
-        def _rlc_enable(self):
-            return [self._pin_pair_rlc.REnable, self._pin_pair_rlc.LEnable, self._pin_pair_rlc.CEnable]
+        def rlc_enable(self):
+            rlc = self._pin_pair_rlc
+            return [rlc.REnabled, rlc.LEnabled, rlc.CEnabled]
 
-        @_rlc_enable.setter
-        def _rlc_enable(self, value):
-            self._pin_pair_rlc.REnable = value[0]
-            self._pin_pair_rlc.LEnable = value[1]
-            self._pin_pair_rlc.CEnable = value[2]
-            self._set_comp_prop()
+        @rlc_enable.setter
+        def rlc_enable(self, value):
+            rlc = self._pin_pair_rlc
+            rlc.REnabled = value[0]
+            rlc.LEnabled = value[1]
+            rlc.CEnabled = value[2]
+            self._set_comp_prop(rlc)
 
         @property
         def resistance(self):
@@ -2987,14 +2994,21 @@ class EDBComponent(object):
             self._pin_pair_rlc.C = value
             self._set_comp_prop()
 
-        def set_rlc_values(self, values):
-            self._pin_pair_rlc.R = values[0]
-            self._pin_pair_rlc.L = values[1]
-            self._pin_pair_rlc.C = values[2]
-            self._set_comp_prop()
+        @property
+        def rlc_values(self):
+            rlc = self._pin_pair_rlc
+            return [rlc.R.ToDouble(), rlc.L.ToDouble(), rlc.C.ToDouble()]
 
-        def _set_comp_prop(self):
-            self._edb_model.SetPinPairRlc(self._edb_pin_pair, self._pin_pair_rlc)
+        @rlc_values.setter
+        def rlc_values(self, values):
+            rlc = self._pin_pair_rlc
+            rlc.R = self._edb_value(values[0])
+            rlc.L = self._edb_value(values[1])
+            rlc.C = self._edb_value(values[2])
+            self._set_comp_prop(rlc)
+
+        def _set_comp_prop(self, rlc):
+            self._edb_model.SetPinPairRlc(self._edb_pin_pair, rlc)
             self._edb_comp_prop.SetModel(self._edb_model)
             self._edb_comp.SetComponentProperty(self._edb_comp_prop)
 
@@ -3430,11 +3444,16 @@ class EDBComponent(object):
         return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler
+    def model_info(self):
+        model_type = self.model_type
+
+
+    @pyaedt_function_handler
     def assign_model(self, model_type, file_path=None, resistance=0, capacitance=0, inductance=0):
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
             for pin_pair in self._pin_pairs:
                 pin_pair.pair_type = model_type
-                pin_pair.set_rlc_values([resistance, inductance, capacitance])
+                pin_pair.rlc_values = [resistance, inductance, capacitance]
 
         elif model_type == "spice":
             pass
