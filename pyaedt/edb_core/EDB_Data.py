@@ -3113,49 +3113,20 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        model = self._edb_model
         if self.model_type == "simple":
-
-            if self.type == "Resistor":
-                return self._rlc.R.ToDouble()
-            elif self.type == "Inductor":
-                return self._rlc.L.ToDouble()
-            elif self.type == "Capacitor":
-                return self._rlc.C.ToDouble()
-            else:
-                return False
+            pin_pair = self._pin_pairs[0]
+            return [pin_pair.rlc_values[idx]for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
+        elif self.model_type in ["parallel_rlc", "series_rlc"]:
+            pin_pair = self._pin_pairs[0]
+            return [self.model_type] + [pin_pair.rlc_values[i] for i in pin_pair.rlc_enable if i]
         else:
             return self.model_type
 
     @value.setter
     def value(self, value):
-        if not len(self._pin_pairs):
-            logging.error("Failed to set RLC model on {}".format(self.refdes))
-        else:
-            pin_pair = self._pin_pairs[0]
-            pin_pair_model = self._edb.Cell.Hierarchy.PinPairModel()
-            rlc = self._edb.Utility.Rlc()
-            if self.type == "Resistor":
-                rlc.REnabled = True
-                rlc.LEnabled = False
-                rlc.CEnabled = False
-                rlc.R = self._get_edb_value(value)
-            elif self.type == "Inductor":
-                rlc.REnabled = False
-                rlc.LEnabled = True
-                rlc.CEnabled = False
-                rlc.L = self._get_edb_value(value)
-            elif self.type == "Capacitor":
-                rlc.REnabled = False
-                rlc.LEnabled = False
-                rlc.CEnabled = True
-                rlc.C = self._get_edb_value(value)
-            else:
-                logging.error("Failed to set RLC model on {}".format(self.refdes))
-            pin_pair_model.SetPinPairRlc(pin_pair, rlc)
-            edb_rlc_component_property = self._edb.Cell.Hierarchy.RLCComponentProperty()
-            edb_rlc_component_property.SetModel(pin_pair_model)
-            self.edbcomponent.SetComponentProperty(edb_rlc_component_property)
+        for pin_pair in self._pin_pairs:
+            pin_pair.pair_type = "simple"
+            pin_pair.rlc_values = [value if val else 0 for idx, val in enumerate(pin_pair.rlc_enable)]
 
     @property
     def res_value(self):
@@ -3444,11 +3415,6 @@ class EDBComponent(object):
         return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler
-    def model_info(self):
-        model_type = self.model_type
-
-
-    @pyaedt_function_handler
     def assign_model(self, model_type, file_path=None, resistance=0, capacitance=0, inductance=0):
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
             for pin_pair in self._pin_pairs:
@@ -3461,6 +3427,8 @@ class EDBComponent(object):
             pass
         elif model_type == "netlist":
             pass
+        else:
+            logging.error(model_type, " is not valid")
 
 class EdbBuilder(object):
     """Data Class to Overcome EdbLib in Linux."""

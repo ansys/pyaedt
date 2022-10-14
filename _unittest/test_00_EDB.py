@@ -2190,9 +2190,10 @@ if not config["skip_edb"]:
         def test_A126_component(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             edbapp = Edb(target_path, edbversion=desktop_version)
-            r5 = edbapp.core_components.components["R5"]
-            a = r5.value
-            r5.value = 100
-            assert r5.value == 100
+            comp = edbapp.core_components.components["R6"]
+            comp.type = "Inductor"
+            comp.value = 10
+            assert comp.type == "Inductor" and comp.value == 10 and comp.ind_value == 10
+            comp.assign_model("series_rlc", resistance )
             assert r5.model_type == "simple"
             assert r5.model_type == "series_rlc"
