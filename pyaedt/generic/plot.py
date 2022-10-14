@@ -711,7 +711,10 @@ class ModelPlotter(object):
         self.gif_file = None
         self._background_color = (255, 255, 255)
         self.off_screen = False
-        self.windows_size = [1024, 768]
+        if self.is_notebook:
+            self.windows_size = [600, 600]
+        else:
+            self.windows_size = [1024, 768]
         self.pv = None
         self._orientation = ["xy", 0, 0, 0]
         self.units = "meter"
