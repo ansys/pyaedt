@@ -2875,6 +2875,10 @@ class EDBComponentDef(object):
         self._edb_comp_def = comp_def
 
     @property
+    def _comp_model(self):
+        return list(self._edb_comp_def.GetComponentModels())
+
+    @property
     def part_name(self):
         """Retrieve component definition name."""
         return self._edb_comp_def.GetName()
@@ -2884,12 +2888,41 @@ class EDBComponentDef(object):
         self._edb_comp_def.SetName(name)
 
     @property
+    def type(self):
+        num = len(set(comp.type for refdes, comp in self.components.items()))
+        if num == 0:
+            return None
+        elif num == 1:
+            return list(self.components.values())[0].type
+        else:
+            return "mixed"
+        
+    @type.setter
+    def type(self, value):
+        for refdes, comp in self.components.items():
+            comp.type = value
+    
+    @property
+    def model_type(self):
+        if len(set(comp.model_type for refdes, comp in self.components.items())) == 1:
+            return list(self.components.values())[0].model_type
+        else:
+            return "mixed"
+
+    @property
+    def rlc_values(self):
+        if self.model_type in ["simple", "parallel_rlc", "series_rlc"]:
+            return list(self.components.values())[0]._pin_pairs[0].rlc_values
+        else:
+            return ["", "", ""]
+
+    @property
     def components(self):
         """Get the list of components belonging to this component definition.
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBComponent`
+        dict of :class:`pyaedt.edb_core.EDB_Data.EDBComponent`
         """
         comp_list = [
             EDBComponent(self._pcomponents, l)
@@ -2898,6 +2931,11 @@ class EDBComponentDef(object):
             )
         ]
         return {comp.refdes: comp for comp in comp_list}
+
+    @pyaedt_function_handler
+    def assign_model(self, model_type, file_path=None, reference_net=None, res=0, cap=0, ind=0, model_name=None):
+        for refdes, comp in self.components.items():
+            comp.assign_model(model_type, file_path, reference_net, res, cap, ind, model_name)
 
 
 class EDBComponent(object):
@@ -3431,20 +3469,21 @@ class EDBComponent(object):
         return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler
-    def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0):
+    def assign_model(self, model_type, file_path=None, reference_net=None, res=0, cap=0, ind=0, model_name=None):
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
             for pin_pair in self._pin_pairs:
                 pin_pair.pair_type = model_type
                 pin_pair.rlc_values = [res, ind, cap]
 
         elif model_type == "spice":
-            pass
+            self._pcomponents.set_component_model(self.refdes, "Spice", file_path, model_name)
         elif model_type == "s_parameter":
-            pass
+            self._pcomponents.set_component_model(self.refdes, "Touchstone", file_path, model_name)
         elif model_type == "netlist":
             pass
         else:
             logging.error(model_type, " is not valid")
+
 
 class EdbBuilder(object):
     """Data Class to Overcome EdbLib in Linux."""

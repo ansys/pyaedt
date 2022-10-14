@@ -159,6 +159,11 @@ class Components(object):
         dict of :class:`pyaedt.edb_core.EDB_Data.EDBComponentDef`"""
         return {l.GetName(): EDBComponentDef(self, l) for l in list(self._db.ComponentDefs)}
 
+    @property
+    def nport_comp_definition(self):
+        m = "Ansys.Ansoft.Edb.Definition.NPortComponentModel"
+        return {name: l for name, l in self.definitions.items() if m in [i.ToString() for i in l._comp_model]}
+
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
@@ -1672,9 +1677,18 @@ class Components(object):
 
     @pyaedt_function_handler()
     def export_definition(self, file_path, delimiter=","):
+        cols = ["PART_NAME", "TYPE", "VALUE", "MODEL_TYPE", "RESISTANCE", "INDUCTANCE", "CAPACITANCE", "FILE_PATH"]
+        part_names = []
+        types = []
+        values = []
+        model_types = []
+        res_values = []
+        ind_values = []
+        cap_values = []
+        file_paths = []
+
         with open(file_path, "w") as f:
             f.writelines([delimiter.join(["Part name", "Type", "Value\n"])])
-
             for name, prop in self.definitions.items():
                 if len(list(prop.components.values())):  # pragma: no cover
                     comp = list(prop.components.values())[0]
