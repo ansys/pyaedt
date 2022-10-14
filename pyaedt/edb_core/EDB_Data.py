@@ -2924,8 +2924,6 @@ class EDBComponent(object):
             self._edb_model = edb_model
             self._edb_pin_pair = edb_pin_pair
 
-            self._pair_type = "simple"
-
         def _edb_value(self, value):
             return self._pedb_comp._get_edb_value(value)
 
@@ -2935,20 +2933,38 @@ class EDBComponent(object):
 
         @property
         def pair_type(self):
-            return self._pair_type
+            if len([i for i in self.rlc_enable if i]) == 1:
+                return "sample"
+            elif self.is_parallel:
+                return "parallel_rlc"
+            else:
+                return "series_rlc"
 
         @pair_type.setter
         def pair_type(self, value):
-            if value in ["simple", "parallel_rlc", "series_rlc"]:
-                self._pair_type = value
+            if value == "simple":
                 if self.type == "Resistor":
                     self.rlc_enable = [True, False, False]
                 elif self.type == "Inductor":
                     self.rlc_enable = [False, True, False]
                 else:
                     self.rlc_enable = [False, False, True]
-            if value in ["parallel_rlc", "series_rlc"]:
+            elif value == "parallel_rlc":
                 self.rlc_enable = [True, True, True]
+                self.is_parallel = True
+            else:
+                self.rlc_enable = [True, True, True]
+                self.is_parallel = False
+
+        @property
+        def is_parallel(self):
+            return self._pin_pair_rlc.IsParallel
+
+        @is_parallel.setter
+        def is_parallel(self, value):
+            rlc = self._pin_pair_rlc
+            rlc.IsParallel = value
+            self._set_comp_prop(rlc)
 
         @property
         def _pin_pair_rlc(self):
@@ -3118,7 +3134,7 @@ class EDBComponent(object):
             return [pin_pair.rlc_values[idx]for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
         elif self.model_type in ["parallel_rlc", "series_rlc"]:
             pin_pair = self._pin_pairs[0]
-            return [self.model_type] + [pin_pair.rlc_values[i] for i in pin_pair.rlc_enable if i]
+            return [self.model_type] + pin_pair.rlc_values
         else:
             return self.model_type
 
@@ -3415,11 +3431,11 @@ class EDBComponent(object):
         return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler
-    def assign_model(self, model_type, file_path=None, resistance=0, capacitance=0, inductance=0):
+    def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0):
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
             for pin_pair in self._pin_pairs:
                 pin_pair.pair_type = model_type
-                pin_pair.rlc_values = [resistance, inductance, capacitance]
+                pin_pair.rlc_values = [res, ind, cap]
 
         elif model_type == "spice":
             pass
