@@ -2914,6 +2914,90 @@ class EDBComponent(object):
                           "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel": "spice",
                           "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel": "s_parameter"}
 
+    class _PinPair:
+        def __init__(self, pedb_comp, edb_comp, edb_comp_prop, edb_model, edb_pin_pair):
+            self._pedb_comp = pedb_comp
+            self._edb_comp = edb_comp
+            self._edb_comp_prop = edb_comp_prop
+            self._edb_model = edb_model
+            self._edb_pin_pair = edb_pin_pair
+
+            self._pair_type = "simple"
+
+        @property
+        def type(self):
+            return self._pedb_comp.type
+
+        @property
+        def pair_type(self):
+            return self._pair_type
+
+        @pair_type.setter
+        def pair_type(self, value):
+            if value in ["simple", "parallel_rlc", "series_rlc"]:
+                self._pair_type = value
+                if self.type == ["Resistor"]:
+                    self._rlc_enable = [True, False, False]
+                elif self.type == ["Inductor"]:
+                    self._rlc_enable = [False, True, False]
+                else:
+                    self._rlc_enable = [False, False, True]
+            if value in ["parallel_rlc", "series_rlc"]:
+                self._rlc_enable = [True, True, True]
+
+        @property
+        def _pin_pair_rlc(self):
+            return self._edb_model.GetPinPairRlc(self._edb_pin_pair)
+
+        @property
+        def _rlc_enable(self):
+            return [self._pin_pair_rlc.REnable, self._pin_pair_rlc.LEnable, self._pin_pair_rlc.CEnable]
+
+        @_rlc_enable.setter
+        def _rlc_enable(self, value):
+            self._pin_pair_rlc.REnable = value[0]
+            self._pin_pair_rlc.LEnable = value[1]
+            self._pin_pair_rlc.CEnable = value[2]
+            self._set_comp_prop()
+
+        @property
+        def resistance(self):
+            return self._pin_pair_rlc.R.ToDouble()
+
+        @resistance.setter
+        def resistance(self, value):
+            self._pin_pair_rlc.R = value
+            self._set_comp_prop()
+
+        @property
+        def inductance(self):
+            return self._pin_pair_rlc.L.ToDouble()
+
+        @inductance.setter
+        def inductance(self, value):
+            self._pin_pair_rlc.L = value
+            self._set_comp_prop()
+
+        @property
+        def capacitance(self):
+            return self._pin_pair_rlc.C.ToDouble()
+
+        @capacitance.setter
+        def capacitance(self, value):
+            self._pin_pair_rlc.C = value
+            self._set_comp_prop()
+
+        def set_rlc_values(self, values):
+            self._pin_pair_rlc.R = values[0]
+            self._pin_pair_rlc.L = values[1]
+            self._pin_pair_rlc.C = values[2]
+            self._set_comp_prop()
+
+        def _set_comp_prop(self):
+            self._edb_model.SetPinPairRlc(self._edb_pin_pair, self._pin_pair_rlc)
+            self._edb_comp_prop.SetModel(self._edb_model)
+            self._edb_comp.SetComponentProperty(self._edb_comp_prop)
+
     def __init__(self, components, cmp):
         self._pcomponents = components
         self.edbcomponent = cmp
@@ -2929,11 +3013,9 @@ class EDBComponent(object):
 
     @property
     def _pin_pairs(self):
-        return list(self._edb_model.PinPairs)
-
-    @property
-    def _rlc(self):
-        return [self._edb_model.GetPinPairRlc(pp) for pp in self._pin_pairs]
+        edb_comp_prop = self.component_property
+        edb_model = self._edb_model
+        return [self._PinPair(self, self.edbcomponent, edb_comp_prop, edb_model, pin_pair) for pin_pair in list(edb_model.PinPairs)]
 
     @property
     def solder_ball_height(self):
@@ -3001,19 +3083,10 @@ class EDBComponent(object):
             model_name = self.MODEL_TYPE_MAPPING[edb_model_type]
 
         if model_name == "pin_pair":
-            pair_rlc = self._edb_model.GetPinPairRlc(self._pin_pairs[0])
             if self.type not in ["Resistor", "Inductor", "Capacitor"]:
-                return False
-            elif self.type == "Resistor" and pair_rlc.REnabled and not pair_rlc.LEnabled and not pair_rlc.CEnabled:
-                return "simple"
-            elif self.type == "Capacitor" and not pair_rlc.REnabled and not pair_rlc.LEnabled and pair_rlc.CEnabled:
-                return "simple"
-            elif self.type == "Inductor" and not pair_rlc.REnabled and pair_rlc.LEnabled and not pair_rlc.CEnabled:
-                return "simple"
-            elif self.is_parallel_rlc:
-                return "parallel_rlc"
+                return None
             else:
-                return "series_rlc"
+                return self._pin_pairs[0].pair_type
         else:
             return model_name
 
@@ -3029,19 +3102,16 @@ class EDBComponent(object):
         model = self._edb_model
         if self.model_type == "simple":
 
-            pinpair = self._pin_pairs[0]
-            pair_rlc = model.GetPinPairRlc(pinpair)
             if self.type == "Resistor":
-                return pair_rlc.R.ToDouble()
+                return self._rlc.R.ToDouble()
             elif self.type == "Inductor":
-                return pair_rlc.L.ToDouble()
+                return self._rlc.L.ToDouble()
             elif self.type == "Capacitor":
-                return pair_rlc.C.ToDouble()
+                return self._rlc.C.ToDouble()
             else:
                 return False
         else:
             return self.model_type
-
 
     @value.setter
     def value(self, value):
@@ -3361,11 +3431,16 @@ class EDBComponent(object):
 
     @pyaedt_function_handler
     def assign_model(self, model_type, file_path=None, resistance=0, capacitance=0, inductance=0):
-        if model_type == "parallel_rlc":
+        if model_type in ["simple", "parallel_rlc", "series_rlc"]:
+            for pin_pair in self._pin_pairs:
+                pin_pair.pair_type = model_type
+                pin_pair.set_rlc_values([resistance, inductance, capacitance])
+
+        elif model_type == "spice":
             pass
-        elif model_type == "series_rlc":
+        elif model_type == "s_parameter":
             pass
-        elif 1:
+        elif model_type == "netlist":
             pass
 
 class EdbBuilder(object):
