@@ -1496,9 +1496,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        va : list
+        va : List
             List of ``[x, y]`` coordinates for the first vector.
-        vb : list
+        vb : List
             List of ``[x, y]`` coordinates for the second vector.
 
         right_handed : bool
@@ -1558,7 +1558,7 @@ class GeometryOperators(object):
             asum += a
         if abs(asum) < tol:
             return -1
-        elif abs(asum - 2*math.pi) < tol:
+        elif abs(abs(asum) - 2*math.pi) < tol:
             return 1
         else:  # pragma: no cover
             raise Exception("Unexpected error!")

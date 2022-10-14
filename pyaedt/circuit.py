@@ -592,7 +592,7 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         source_design_name : str
             Name of the source design.
-        source_project_name :str, optional
+        source_project_name : str, optional
             Name of the source project. The default is ``None``.
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.

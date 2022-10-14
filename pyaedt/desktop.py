@@ -883,7 +883,7 @@ class Desktop:
 
         Parameters
         ----------
-        project_name :str, optional
+        project_name : str, optional
             Project name. The default is ``None``, in which case the active project
             is used.
         design_name : str, optional

@@ -373,7 +373,7 @@ class TestClass(BasisTest, object):
 
     def test_27_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
-        assert sorted(conductors) == ["Inductor", "Paddle", "box", "network_box", "network_box2"]
+        assert sorted(conductors) == ["box", "network_box", "network_box2"]
 
     def test_28_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
