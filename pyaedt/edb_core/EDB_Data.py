@@ -2934,7 +2934,7 @@ class EDBComponent(object):
         @property
         def pair_type(self):
             if len([i for i in self.rlc_enable if i]) == 1:
-                return "sample"
+                return "simple"
             elif self.is_parallel:
                 return "parallel_rlc"
             else:

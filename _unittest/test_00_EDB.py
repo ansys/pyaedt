@@ -2195,5 +2195,4 @@ if not config["skip_edb"]:
             comp.value = 10
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
             comp.assign_model("series_rlc", res=1, ind=2, cap=3 )
-            assert comp.model_type == "series_rlc" and float(comp.res_value)==1 and float(comp.ind_value)==2 and float(comp).cap_value==3
-
+            assert comp.model_type == "series_rlc" and float(comp.res_value)==1 and float(comp.ind_value)==2 and float(comp.cap_value)==3
