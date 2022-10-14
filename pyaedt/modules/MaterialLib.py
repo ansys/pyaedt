@@ -811,9 +811,9 @@ class Materials(object):
                     and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
                 ):
                     props[prop] = val[keys.index(prop)]
-            newmat = Material(self, newname, props)
-            newmat.update()
-            self.material_keys[newname] = newmat
-            materials_added.append(newmat)
+            new_material = Material(self, newname, props)
+            new_material.update()
+            self.material_keys[newname] = new_material
+            materials_added.append(new_material)
 
         return materials_added
