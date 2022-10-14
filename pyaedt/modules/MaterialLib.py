@@ -7,9 +7,12 @@ from __future__ import absolute_import  # noreorder
 import copy
 import fnmatch
 import json
+import math
 import os
 import re
+import warnings
 
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
@@ -21,6 +24,14 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
+
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
 
 
 class Materials(object):
@@ -718,10 +729,10 @@ class Materials(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        List of :class:`pyaedt.modules.Material.Material`
 
         """
+        materials_added = []
         with open_file(full_json_path, "r") as json_file:
             data = json.load(json_file)
 
@@ -755,4 +766,54 @@ class Materials(object):
             newmat = Material(self, newname, val)
             newmat.update()
             self.material_keys[newname] = newmat
-        return True
+            materials_added.append(newmat)
+        return materials_added
+
+    @pyaedt_function_handler()
+    def import_materials_from_excel(self, material_file):
+        """Import and create materials from a csv or excel file.
+
+        Parameters
+        ----------
+        material_file : str
+            Full path and name for the csv or xlsx file.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.Material.Material`
+
+        """
+        materials_added = []
+        props = {}
+        if is_ironpython:
+            self.logger.error("Method working on CPython only.")
+            return False
+        if os.path.splitext(material_file)[1] == ".csv":
+            df = pd.read_csv(material_file, index_col=0)
+        elif os.path.splitext(material_file)[1] == ".xlsx":
+            df = pd.read_excel(material_file, index_col=0)
+        else:
+            self.logger.error("Only csv and xlsx are supported.")
+            return False
+        keys = [i.lower() for i in list(df.keys())]
+        for el, val in df[::-1].iterrows():
+            if isinstance(el, float):
+                break
+            if el.lower() in list(self.material_keys.keys()):
+                newname = generate_unique_name(el)
+                self.logger.warning("Material %s already exists. Renaming to %s", el, newname)
+            else:
+                newname = el
+            for prop in MatProperties.aedtname:
+                if (
+                    prop in keys
+                    and val[keys.index(prop)]
+                    and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
+                ):
+                    props[prop] = val[keys.index(prop)]
+            newmat = Material(self, newname, props)
+            newmat.update()
+            self.material_keys[newname] = newmat
+            materials_added.append(newmat)
+
+        return materials_added
