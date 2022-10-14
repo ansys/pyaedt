@@ -2835,8 +2835,7 @@ class FieldPlot:
             Path where image will be saved.
             The default is ``None`` which export file in working_directory.
         view : str, optional
-            View of the exported plot. Options are ``isometric``,
-            ``top``, ``front``, ``left``, and ``all``.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_mesh : bool, optional
             Plot mesh.
         scale_min : float, optional

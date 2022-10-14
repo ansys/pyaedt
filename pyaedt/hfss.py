@@ -3918,12 +3918,13 @@ class Hfss(FieldAnalysis3D, object):
         tol = 1e-6
         ports_ID = {}
         aedt_bounding_box = self.modeler.get_model_bounding_box()
+        aedt_bounding_dim = self.modeler.get_bounding_dimension()
         directions = {}
         for el in inputlist:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             faceCenter = self.modeler.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
-            l = 10
+            l = min(aedt_bounding_dim) / 2
             while not directionfound:
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
@@ -3948,7 +3949,7 @@ class Hfss(FieldAnalysis3D, object):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + 10
+                    l = l + min(aedt_bounding_dim) / 2
         for el in inputlist:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             maxarea = 0
