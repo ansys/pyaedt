@@ -664,3 +664,6 @@ class TestClass(BasisTest, object):
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )
         assert self.m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
+
+    def test_43_eddy_effect_transient(self):
+        assert self.m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
