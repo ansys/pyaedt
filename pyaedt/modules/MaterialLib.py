@@ -786,7 +786,7 @@ class Materials(object):
         materials_added = []
         props = {}
         if is_ironpython:
-            self.logger.error("Method working on CPython only.")
+            self.logger.error("This method only works with CPython.")
             return False
         if os.path.splitext(material_file)[1] == ".csv":
             df = pd.read_csv(material_file, index_col=0)
