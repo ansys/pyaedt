@@ -2933,9 +2933,9 @@ class EDBComponentDef(object):
         return {comp.refdes: comp for comp in comp_list}
 
     @pyaedt_function_handler
-    def assign_model(self, model_type, file_path=None, reference_net=None, res=0, cap=0, ind=0, model_name=None):
+    def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0, model_name=None):
         for refdes, comp in self.components.items():
-            comp.assign_model(model_type, file_path, reference_net, res, cap, ind, model_name)
+            comp.assign_model(model_type, file_path, res, cap, ind, model_name)
 
 
 class EDBComponent(object):
@@ -3469,7 +3469,7 @@ class EDBComponent(object):
         return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler
-    def assign_model(self, model_type, file_path=None, reference_net=None, res=0, cap=0, ind=0, model_name=None):
+    def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0, model_name=None):
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
             for pin_pair in self._pin_pairs:
                 pin_pair.pair_type = model_type

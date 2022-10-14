@@ -1158,10 +1158,9 @@ class Components(object):
                 edbComponentDef.AddComponentModel(nPortModel)
 
             sParameterMod = self._edb.Cell.Hierarchy.SParameterModel()
-            sParameterMod.SetComponentModelName(nPortModel)
+            sParameterMod.SetComponentModelName(nPortModelName)
             gndnets = filter(lambda x: "gnd" in x.lower(), componentNets)
-            if len(gndnets) > 0:
-
+            if len(list(gndnets)) > 0:
                 net = gndnets[0]
             else:
                 net = componentNets[len(componentNets) - 1]
