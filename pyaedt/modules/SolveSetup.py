@@ -484,7 +484,6 @@ class Setup(CommonSetup):
 
         >>> oModule.InsertFrequencySweep
         """
-
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
         if self.setuptype == 7:

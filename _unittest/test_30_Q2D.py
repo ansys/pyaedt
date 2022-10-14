@@ -182,6 +182,8 @@ class TestClass(BasisTest, object):
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
         q2d.matrices[1].name == "Test1"
         q2d.analyze_setup(q2d.analysis_setup)
+        assert len(q2d.setups[0].sweeps[0].frequencies) > 0
+        assert q2d.setups[0].sweeps[0].basis_frequencies == []
         assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
         assert not q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
         assert q2d.export_equivalent_circuit(

@@ -220,7 +220,10 @@ class TestClass(BasisTest, object):
         q3d.matrices[2].name == "JointTest2"
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         q3d.matrices[3].name == "JointTest3"
+        sweep = q3d.setups[0].add_sweep()
         q3d.analyze_setup(q3d.analysis_setup)
+        assert len(sweep.frequencies) > 0
+        assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
         assert not q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.pdf"))
         assert not q3d.export_matrix_data(
