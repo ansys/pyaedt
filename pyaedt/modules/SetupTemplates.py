@@ -2176,6 +2176,7 @@ class SetupKeys(object):
         "HSPICE",
         "HFSS3DLayout",
         "2DMatrix",
+        "2DMatrix",
         "MechThermal",
         "MechModal",
         "GRM",
