@@ -147,12 +147,12 @@ jobs:
           echo Clean up build directories after the process is completed.
           rm -rf doc-json doc-flatten-json;
 
-      - name: Upload json Documentation
-        uses: actions/upload-artifact@v3
-        with:
-          name: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
-          path: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
-          retention-days: 7
+      # - name: Upload json Documentation
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
+      #     path: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
+      #     retention-days: 7
 
       - name: Get Bot Application Token
         id: get_workflow_token
