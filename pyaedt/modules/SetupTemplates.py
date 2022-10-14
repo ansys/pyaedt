@@ -1864,7 +1864,7 @@ class SweepMatrix(object):
     ----------
     oanalysis :
 
-    setupname :str
+    setupname : str
         Name of the setup.
     sweepname : str
         Name of the sweep.

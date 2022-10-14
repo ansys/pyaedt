@@ -10,6 +10,8 @@ from pyaedt.maxwell import Maxwell2d
 # Setup paths for module imports
 
 try:
+    import filecmp
+
     import pytest  # noqa: F401
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
@@ -136,6 +138,10 @@ class TestClass(BasisTest, object):
         )
         obj = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
+        obj2 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy")
+        assert os.path.exists(obj2.image_file)
+        obj3 = self.aedtapp.plot(show=False, export_path=os.path.join(self.local_scratch.path, "image.jpg"), view="xy1")
+        assert filecmp.cmp(obj.image_file, obj3.image_file)
 
     def test_10_edit_menu_commands(self):
         rect1 = self.aedtapp.modeler.create_rectangle([1, 0, -2], [8, 3])

@@ -1767,7 +1767,7 @@ class Components(object):
 
         Parameters
         ----------
-        pin :str
+        pin : str
             Name of the pin.
 
         Returns

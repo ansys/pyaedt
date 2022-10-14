@@ -285,7 +285,7 @@ class Layer3D(object):
 
     Parameters
     ----------
-    stackup: :class:`pyaedt.modeler.stackup_3d.Stackup3D`
+    stackup : :class:`pyaedt.modeler.stackup_3d.Stackup3D`
         The stackup where the layers will be added.
     app : :class:`pyaedt.hfss.Hfss
         HFSS design or project where the variable is to be created.

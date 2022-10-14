@@ -2487,7 +2487,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        name :str
+        name : str
             Name of the dataset (without a prefix for a project dataset).
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.

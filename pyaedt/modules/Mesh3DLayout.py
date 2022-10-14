@@ -180,7 +180,7 @@ class Mesh3d(object):
         ----------
         setup_name : str
             Name of the setup.
-        mesh_name :str
+        mesh_name : str
             Name of the mesh.
 
         Returns

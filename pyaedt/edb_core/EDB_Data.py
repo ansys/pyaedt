@@ -2983,6 +2983,8 @@ class EDBComponent(object):
             componentProperty = self.edbcomponent.GetComponentProperty()
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
+            if not list(pinpairs):
+                return "0"
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.R.ToString()
@@ -3002,6 +3004,8 @@ class EDBComponent(object):
             componentProperty = self.edbcomponent.GetComponentProperty()
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
+            if not list(pinpairs):
+                return "0"
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.C.ToString()
@@ -3021,6 +3025,8 @@ class EDBComponent(object):
             componentProperty = self.edbcomponent.GetComponentProperty()
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
+            if not list(pinpairs):
+                return "0"
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.L.ToString()
