@@ -122,9 +122,9 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
         messenger = sys.modules["__main__"].aedt_logger
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        messenger.error(str(ex_value), "Global")
+        messenger.error(str(ex_value))
         for el in tblist:
-            messenger.error(el, "Global")
+            messenger.error(el)
     else:
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
@@ -1094,9 +1094,9 @@ class Desktop:
         """
         tb_trace = traceback.format_tb(tb_data)
         tblist = tb_trace[0].split("\n")
-        self.logger.error(str(ex_value), "Global")
+        self.logger.error(str(ex_value))
         for el in tblist:
-            self.logger.error(el, "Global")
+            self.logger.error(el)
 
         return str(ex_value)
 
