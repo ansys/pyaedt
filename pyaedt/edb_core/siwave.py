@@ -1438,6 +1438,25 @@ class EdbSiwave(object):
     def create_port_between_pin_and_layer(
         self, component_name=None, pins_name=[], layer_name=None, reference_net=None, impedance=50.0
     ):
+        """
+
+        Parameters
+        ----------
+        component_name:
+            str, component name.
+        pins_name:
+            str, pin name or list of pin name.
+        layer_name:
+            str, layer name
+        reference_net:
+            str, reference net name.
+        impedance:
+            float, port impedance.
+
+        Returns
+        -------
+
+        """
         if pins_name:
             if not isinstance(pins_name, list):
                 pins_name = [pins_name]
