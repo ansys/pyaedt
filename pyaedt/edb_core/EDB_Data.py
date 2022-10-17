@@ -3072,6 +3072,7 @@ class EDBComponent(object):
 
     @property
     def spice_model(self):
+        """Retrieve assigned spice model properties."""
         if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel":
             logging.warning(self.refdes, " has no Spice model assigned.")
             return None
@@ -3080,6 +3081,7 @@ class EDBComponent(object):
 
     @property
     def s_param_model(self):
+        """Retrieve assigned S-parameter model properties."""
         if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel":
             logging.warning(self.refdes, " has no S-param model assigned.")
             return None
@@ -3088,6 +3090,7 @@ class EDBComponent(object):
 
     @property
     def netlist_model(self):
+        """Retrieve assigned netlist model properties."""
         return self._NetlistModel(self._edb_model)
 
     @property
@@ -3535,6 +3538,19 @@ class EDBComponent(object):
 
     @pyaedt_function_handler
     def assign_rlc_model(self, res, ind, cap, is_parallel=False):
+        """Assign RLC to this component.
+
+        Parameters
+        ----------
+        res : int, float
+            Resistance.
+        ind : int, float
+            Inductance.
+        cap : int, float
+            Capacitance.
+        is_parallel : bool
+            Whether it is parallel or series RLC component.
+        """
         res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
         model = self._edb.Cell.Hierarchy.PinPairModel()
 
