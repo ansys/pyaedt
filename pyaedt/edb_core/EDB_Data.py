@@ -2905,20 +2905,6 @@ class EDBComponentDef(object):
             comp.type = value
 
     @property
-    def model_type(self):
-        if len(set(comp.model_type for refdes, comp in self.components.items())) == 1:
-            return list(self.components.values())[0].model_type
-        else:
-            return "mixed"
-
-    @property
-    def rlc_values(self):
-        if self.model_type in ["simple", "parallel_rlc", "series_rlc"]:
-            return list(self.components.values())[0]._pin_pairs[0].rlc_values
-        else:
-            return ["", "", ""]
-
-    @property
     def components(self):
         """Get the list of components belonging to this component definition.
 
@@ -2934,11 +2920,6 @@ class EDBComponentDef(object):
         ]
         return {comp.refdes: comp for comp in comp_list}
 
-    @pyaedt_function_handler
-    def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0, model_name=None):
-        for refdes, comp in self.components.items():
-            comp.assign_model(model_type, file_path, res, cap, ind, model_name)
-
 
 class EDBComponent(object):
     """Manages EDB functionalities for components.
@@ -2952,16 +2933,9 @@ class EDBComponent(object):
 
     """
 
-    MODEL_TYPE_MAPPING = {
-        "Ansys.Ansoft.Edb.Cell.Hierarchy.PinPairModel": "pin_pair",
-        "Ansys.Ansoft.Edb.Cell.Hierarchy.NetlistModel": "netlist",
-        "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel": "spice",
-        "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel": "s_parameter",
-    }
-
     class _PinPair:
-        def __init__(self, pedb_comp, edb_comp, edb_comp_prop, edb_model, edb_pin_pair):
-            self._pedb_comp = pedb_comp
+        def __init__(self, pcomp, edb_comp, edb_comp_prop, edb_model, edb_pin_pair):
+            self._pedb_comp = pcomp
             self._edb_comp = edb_comp
             self._edb_comp_prop = edb_comp_prop
             self._edb_model = edb_model
@@ -2969,35 +2943,6 @@ class EDBComponent(object):
 
         def _edb_value(self, value):
             return self._pedb_comp._get_edb_value(value)
-
-        @property
-        def type(self):
-            return self._pedb_comp.type
-
-        @property
-        def pair_type(self):
-            if len([i for i in self.rlc_enable if i]) == 1:
-                return "simple"
-            elif self.is_parallel:
-                return "parallel_rlc"
-            else:
-                return "series_rlc"
-
-        @pair_type.setter
-        def pair_type(self, value):
-            if value == "simple":
-                if self.type == "Resistor":
-                    self.rlc_enable = [True, False, False]
-                elif self.type == "Inductor":
-                    self.rlc_enable = [False, True, False]
-                else:
-                    self.rlc_enable = [False, False, True]
-            elif value == "parallel_rlc":
-                self.rlc_enable = [True, True, True]
-                self.is_parallel = True
-            else:
-                self.rlc_enable = [True, True, True]
-                self.is_parallel = False
 
         @property
         def is_parallel(self):
@@ -3071,6 +3016,40 @@ class EDBComponent(object):
             self._edb_comp_prop.SetModel(self._edb_model)
             self._edb_comp.SetComponentProperty(self._edb_comp_prop)
 
+    class _SpiceModel:
+
+        def __init__(self, edb_model):
+            self._edb_model = edb_model
+
+        @property
+        def file_path(self):
+            return self._edb_model.GetSPICEFilePath()
+
+        @property
+        def name(self):
+            return self._edb_model.GetSPICEName()
+
+    class _SparamModel:
+
+        def __init__(self, edb_model):
+            self._edb_model = edb_model
+
+        @property
+        def name(self):
+            return self._edb_model.GetComponentModelName()
+
+        @property
+        def reference_net(self):
+            return self._edb_model.GetReferenceNet()
+
+    class _NetlistModel:
+        def __init__(self, edb_model):
+            self._edb_model = edb_model
+
+        @property
+        def netlist(self):
+            return self._edb_model.GetNetlist()
+
     def __init__(self, components, cmp):
         self._pcomponents = components
         self.edbcomponent = cmp
@@ -3092,6 +3071,26 @@ class EDBComponent(object):
             self._PinPair(self, self.edbcomponent, edb_comp_prop, edb_model, pin_pair)
             for pin_pair in list(edb_model.PinPairs)
         ]
+
+    @property
+    def spice_model(self):
+        if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel":
+            logging.warning(self.refdes, " has no Spice model assigned.")
+            return None
+        else:
+            return self._SpiceModel(self._edb_model)
+
+    @property
+    def s_param_model(self):
+        if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel":
+            logging.warning(self.refdes, " has no S-param model assigned.")
+            return None
+        else:
+            return self._SparamModel(self._edb_model)
+
+    @property
+    def netlist_model(self):
+        return self._NetlistModel(self._edb_model)
 
     @property
     def solder_ball_height(self):
@@ -3145,28 +3144,6 @@ class EDBComponent(object):
             self.edbcomponent.SetComponentProperty(component_property)
 
     @property
-    def model_type(self):
-        """Check the model
-
-        Returns
-        -------
-
-        """
-        edb_model_type = self._edb_model.ToString()
-        if edb_model_type not in self.MODEL_TYPE_MAPPING:
-            return False
-        else:
-            model_name = self.MODEL_TYPE_MAPPING[edb_model_type]
-
-        if model_name == "pin_pair":
-            if self.type not in ["Resistor", "Inductor", "Capacitor"]:
-                return None
-            else:
-                return self._pin_pairs[0].pair_type
-        else:
-            return model_name
-
-    @property
     def value(self):
         """Retrieve descrete component value.
 
@@ -3175,20 +3152,38 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        if self.model_type == "simple":
+        model_name = self._edb_model.ToString()
+        if model_name == "Ansys.Ansoft.Edb.Cell.Hierarchy.PinPairModel":
             pin_pair = self._pin_pairs[0]
-            return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
-        elif self.model_type in ["parallel_rlc", "series_rlc"]:
-            pin_pair = self._pin_pairs[0]
-            return [self.model_type] + pin_pair.rlc_values
+            if len([i for i in pin_pair.rlc_enable if i]) == 1:
+                return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
+            else:
+                return pin_pair.rlc_values
+        elif model_name == "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel":
+            return self.spice_model.file_path
+        elif model_name == "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel":
+            return self.s_param_model.name
         else:
-            return self.model_type
+            return self.netlist_model.netlist
 
     @value.setter
     def value(self, value):
-        for pin_pair in self._pin_pairs:
-            pin_pair.pair_type = "simple"
-            pin_pair.rlc_values = [value if val else 0 for idx, val in enumerate(pin_pair.rlc_enable)]
+        rlc_enabled = [True if i == self.type else False for i in ["Resistor", "Inductor", "Capacitor"]]
+        rlc_values = [value if i == self.type else 0 for i in ["Resistor", "Inductor", "Capacitor"]]
+        rlc_values = [self._get_edb_value(i) for i in rlc_values]
+
+        model = self._edb.Cell.Hierarchy.PinPairModel()
+        pin_names = list(self.pins.keys())
+        for idx, i in enumerate(np.arange(len(pin_names) // 2)):
+            pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
+            rlc = self._edb.Utility.Rlc(
+                rlc_values[0], rlc_enabled[0],
+                rlc_values[1], rlc_enabled[1],
+                rlc_values[2], rlc_enabled[2],
+                False
+            )
+            model.SetPinPairRlc(pin_pair, rlc)
+        self._set_model(model)
 
     @property
     def res_value(self):
@@ -3434,9 +3429,6 @@ class EDBComponent(object):
         """Set component part name."""
         self.edbcomponent.GetComponentDef().SetName(name)
 
-    def _get_edb_value(self, value):
-        return self._pcomponents._get_edb_value(value)
-
     @property
     def _edb(self):
         return self._pcomponents._edb
@@ -3493,91 +3485,70 @@ class EDBComponent(object):
         return int(self.edbcomponent.GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler
-    def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0, model_name=None):
-        """Assign a model to RLC component.
+    def _get_edb_value(self, value):
+        return self._pcomponents._get_edb_value(value)
 
-        Parameters
-        ----------
-        model_type : str
-            The type of model. Options are ``"simple"``, ``"parallel_rlc"``, ``"series_rlc"``,
-            ``"spice"``, ``"s_parameter"``,
-        file_path : str, optinal
-            Path to spice or s-parameter model file.
-        res : int, float
-            Resistance of the component.
-        cap : int, float
-            Capacitance of the component.
-        ind : int, float
-            Inductance of the component.
-        model_name : str
-            Name of the spice or s-parameter model.
-        Returns
-        -------
-
-        """
+    @pyaedt_function_handler
+    def _set_model(self, model):
         comp_prop = self.component_property
-        model = None
-        if model_type in ["simple", "parallel_rlc", "series_rlc"]:
-            res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
-            model = self._edb.Cell.Hierarchy.PinPairModel()
-
-            pin_names = list(self.pins.keys())
-            for idx, i in enumerate(np.arange(len(pin_names) // 2)):
-                if model_type == "simple":
-                    rlc_enabled = [True if i == self.type else False for i in ["Resistor", "Inductor", "Capacitor"]]
-                    is_parallel = False
-                elif model_type == "parallel_rlc":
-                    rlc_enabled = [True, True, True]
-                    is_parallel = True
-                else:
-                    rlc_enabled = [True, True, True]
-                    is_parallel = False
-                pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
-                rlc = self._edb.Utility.Rlc(res, rlc_enabled[0], ind, rlc_enabled[1], cap, rlc_enabled[2], is_parallel)
-                model.SetPinPairRlc(pin_pair, rlc)
-        else:
-            if not model_name:
-                model_name = get_filename_without_extension(file_path)
-            if model_type == "spice":
-                with open(file_path, "r") as f:
-                    for line in f:
-                        if "subckt" in line.lower():
-                            pinNames = [i.strip() for i in re.split(" |\t", line) if i]
-                            pinNames.remove(pinNames[0])
-                            pinNames.remove(pinNames[0])
-                            break
-                if len(pinNames) == self.numpins:
-                    model = self._edb.Cell.Hierarchy.SPICEModel()
-                    model.SetModelPath(file_path)
-                    model.SetModelName(model_name)
-                    terminal = 1
-                    for pn in pinNames:
-                        model.AddTerminalPinPair(pn, str(terminal))
-                        terminal += 1
-                else:
-                    logging.error("Wrong number of Pins")
-                    return False
-            elif model_type == "s_parameter":
-                edbComponentDef = self.edbcomponent.GetComponentDef()
-                nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, model_name)
-                if nPortModel.IsNull():
-                    nPortModel = self._edb.Definition.NPortComponentModel.Create(model_name)
-                    nPortModel.SetReferenceFile(file_path)
-                    edbComponentDef.AddComponentModel(nPortModel)
-
-                model = self._edb.Cell.Hierarchy.SParameterModel()
-                model.SetComponentModelName(model_name)
-
-            elif model_type == "netlist":
-                pass
-            else:
-                logging.error(model_type, " is not valid")
-                return False
-
         comp_prop.SetModel(model)
         if not self.edbcomponent.SetComponentProperty(comp_prop):
             logging.error("Fail to assign model on {}.".format(self.refdes))
             return False
+        return True
+
+    @pyaedt_function_handler
+    def assign_spice_model(self, file_path, name=None):
+        if not name:
+            name = get_filename_without_extension(file_path)
+
+        with open(file_path, "r") as f:
+            for line in f:
+                if "subckt" in line.lower():
+                    pinNames = [i.strip() for i in re.split(" |\t", line) if i]
+                    pinNames.remove(pinNames[0])
+                    pinNames.remove(pinNames[0])
+                    break
+        if len(pinNames) == self.numpins:
+            model = self._edb.Cell.Hierarchy.SPICEModel()
+            model.SetModelPath(file_path)
+            model.SetModelName(name)
+            terminal = 1
+            for pn in pinNames:
+                model.AddTerminalPinPair(pn, str(terminal))
+                terminal += 1
+        else:
+            logging.error("Wrong number of Pins")
+            return False
+        return self._set_model(model)
+
+    @pyaedt_function_handler
+    def assign_s_param_model(self, file_path, name=None):
+        if not name:
+            name = get_filename_without_extension(file_path)
+
+        edbComponentDef = self.edbcomponent.GetComponentDef()
+        nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, name)
+        if nPortModel.IsNull():
+            nPortModel = self._edb.Definition.NPortComponentModel.Create(name)
+            nPortModel.SetReferenceFile(file_path)
+            edbComponentDef.AddComponentModel(nPortModel)
+
+        model = self._edb.Cell.Hierarchy.SParameterModel()
+        model.SetComponentModelName(name)
+        return self._set_model(model)
+
+    @pyaedt_function_handler
+    def assign_rlc_model(self, res, ind, cap, is_parallel=False):
+        res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
+        model = self._edb.Cell.Hierarchy.PinPairModel()
+
+        pin_names = list(self.pins.keys())
+        for idx, i in enumerate(np.arange(len(pin_names) // 2)):
+            pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
+            rlc = self._edb.Utility.Rlc(res, True, ind, True, cap, True, is_parallel)
+            model.SetPinPairRlc(pin_pair, rlc)
+        self._set_model(model)
 
 
 class EdbBuilder(object):

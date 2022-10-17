@@ -2194,17 +2194,23 @@ if not config["skip_edb"]:
 
             edbapp = Edb(edb_path, edbversion=desktop_version)
             comp = edbapp.core_components.components["R6"]
-            comp.type = "Inductor"
-            comp.value = 10
-            assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
-            comp.assign_model("series_rlc", res=1, ind=2, cap=3)
+            comp.assign_rlc_model(1, 2, 3, False)
             assert (
-                comp.model_type == "series_rlc"
+                not comp.is_parallel_rlc
                 and float(comp.res_value) == 1
                 and float(comp.ind_value) == 2
                 and float(comp.cap_value) == 3
             )
-            comp.assign_model("s_parameter", sparam_path)
-            comp.assign_model("spice", spice_path)
-            comp.assign_model("simple", ind=1)
-            assert comp.type == "Inductor" and comp.value == 1
+            comp.assign_rlc_model(1, 2, 3, True)
+            assert (
+                    comp.is_parallel_rlc
+                    and float(comp.res_value) == 1
+                    and float(comp.ind_value) == 2
+                    and float(comp.cap_value) == 3
+            )
+            assert comp.assign_s_param_model(sparam_path)
+            assert comp.assign_spice_model(spice_path)
+            comp.type = "Inductor"
+            comp.value = 10
+            assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
+
