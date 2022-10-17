@@ -3479,7 +3479,29 @@ class EDBComponent(object):
 
     @pyaedt_function_handler
     def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0, model_name=None):
+        """Assign a model to RLC component.
+
+        Parameters
+        ----------
+        model_type : str
+            The type of model. Options are ``"simple"``, ``"parallel_rlc"``, ``"series_rlc"``,
+            ``"spice"``, ``"s_parameter"``,
+        file_path : str, optinal
+            Path to spice or s-parameter model file.
+        res : int, float
+            Resistance of the component.
+        cap : int, float
+            Capacitance of the component.
+        ind : int, float
+            Inductance of the component.
+        model_name : str
+            Name of the spice or s-parameter model.
+        Returns
+        -------
+
+        """
         comp_prop = self.component_property
+        model = None
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
             res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
             model = self._edb.Cell.Hierarchy.PinPairModel()
