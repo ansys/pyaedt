@@ -729,9 +729,9 @@ class Primitives3DLayout(object):
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
-            top_layer = layers[0]
+            top_layer = layers[0].name
         if not bot_layer:
-            bot_layer = layers[len(layers) - 1]
+            bot_layer = layers[len(layers) - 1].name
         if not name:
             name = generate_unique_name("via")
         else:
@@ -757,7 +757,7 @@ class Primitives3DLayout(object):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            self.oeditor.CreateVia(arg)
+            _retry_ntimes(10, self.oeditor.CreateVia, arg)
             if netname:
                 self.oeditor.ChangeProperty(
                     [
@@ -890,8 +890,8 @@ class Primitives3DLayout(object):
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("Ax:="), vArg2.append(self.arg_with_dim(origin[0]))
         vArg2.append("Ay:="), vArg2.append(self.arg_with_dim(origin[1]))
-        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(dimensions[0]))
-        vArg2.append("By:="), vArg2.append(self.arg_with_dim(dimensions[1]))
+        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(origin[0]) + "+" + self.arg_with_dim(dimensions[0]))
+        vArg2.append("By:="), vArg2.append(self.arg_with_dim(origin[1]) + "+" + self.arg_with_dim(dimensions[1]))
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
@@ -1123,8 +1123,8 @@ class Primitives3DLayout(object):
         args.append(component_path)
 
         _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
-        stack_layers = ["0:{}".format(i) for i in self.modeler.layers.all_layers]
-        drawing = ["{}:{}".format(i, i) for i in self.modeler.layers.drawing_layers]
+        stack_layers = ["0:{}".format(i.name) for i in self.modeler.layers.stackup_layers]
+        drawing = ["{}:{}".format(i.name, i.name) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
         arg_y = self.modeler._arg_with_dim(pos_y)
         args = [

@@ -152,7 +152,7 @@ class TestClass(BasisTest, object):
     def test_17_unite(self):
         o1 = self.aedtapp.modeler["outer"].clone()
         o2 = self.aedtapp.modeler["inner"].clone()
-        assert self.aedtapp.modeler.unite([o1, o2]) == o1.name
+        assert self.aedtapp.modeler.unite([o1, o2], purge=True) == o1.name
 
     def test_18_chamfer(self):
         # TODO
@@ -644,7 +644,7 @@ class TestClass(BasisTest, object):
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "wrap")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp2")
         box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp3")
         assert self.aedtapp.modeler.wrap_sheet(rect, box1)

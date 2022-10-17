@@ -884,7 +884,7 @@ class TestClass(BasisTest, object):
         assert bound.slant_angle == "30deg"
         assert bound.polarization == "Slant"
         bound.azimuth_start = 20
-        assert bound.azimuth_start == "20.0deg"
+        assert bound.azimuth_start == "20deg"
         assert bound.delete()
         bound = self.aedtapp.insert_infinite_sphere(
             definition="Az Over El",

@@ -2889,12 +2889,13 @@ class EDBComponentDef(object):
         -------
         list of :class:`pyaedt.edb_core.EDB_Data.EDBComponent`
         """
-        return [
+        comp_list = [
             EDBComponent(self._pcomponents, l)
             for l in self._pcomponents._edb.Cell.Hierarchy.Component.FindByComponentDef(
                 self._pcomponents._pedb.active_layout, self.part_name
             )
         ]
+        return {comp.refdes: comp for comp in comp_list}
 
 
 class EDBComponent(object):
@@ -2971,18 +2972,20 @@ class EDBComponent(object):
 
     @property
     def res_value(self):
-        """Resitance value.
+        """Resistance value.
 
         Returns
         -------
         str
-            Resitance Value. ``None`` if not an RLC Type.
+            Resistance value or ``None`` if not an RLC type.
         """
         cmp_type = int(self.edbcomponent.GetComponentType())
         if 0 < cmp_type < 4:
             componentProperty = self.edbcomponent.GetComponentProperty()
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
+            if not list(pinpairs):
+                return "0"
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.R.ToString()
@@ -3002,6 +3005,8 @@ class EDBComponent(object):
             componentProperty = self.edbcomponent.GetComponentProperty()
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
+            if not list(pinpairs):
+                return "0"
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.C.ToString()
@@ -3021,6 +3026,8 @@ class EDBComponent(object):
             componentProperty = self.edbcomponent.GetComponentProperty()
             model = componentProperty.GetModel().Clone()
             pinpairs = model.PinPairs
+            if not list(pinpairs):
+                return "0"
             for pinpair in pinpairs:
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.L.ToString()

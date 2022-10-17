@@ -25,3 +25,5 @@ fo
 te
 sie
 mot
+nam
+ro

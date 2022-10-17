@@ -886,10 +886,13 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
                 isreadonly=True,
             )
-            for i in range(7):
-                padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            padstack_instances = list(edb_padstacks.core_padstack.padstack_instances.values())
+            for padstack_instance in padstack_instances:
                 result = padstack_instance.create_rectangle_in_pad("s")
-                assert result
+                if padstack_instance.padstack_definition != "Padstack_None":
+                    assert result
+                else:
+                    assert result is False
             edb_padstacks.close_edb()
 
         def test_81_edb_with_dxf(self):
@@ -2059,6 +2062,8 @@ if not config["skip_edb"]:
             assert isinstance(edbapp.stackup.stackup_layers, dict)
             assert isinstance(edbapp.stackup.non_stackup_layers, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
+            assert edbapp.stackup["TOP"].conductivity
+            assert edbapp.stackup["UNNAMED_002"].permittivity
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
             assert new_layer.is_stackup_layer
@@ -2085,6 +2090,8 @@ if not config["skip_edb"]:
             assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
             assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
             assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+            assert edbapp.stackup.remove_layer("new_bottom")
+            assert "new_bottom" not in edbapp.stackup.layers
 
             assert edbapp.stackup["TOP"].color
             edbapp.stackup["TOP"].color = [0, 120, 0]
@@ -2125,7 +2132,10 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].permittivity == 1
             edbapp.materials["FR4_epoxy"].loss_tangent = 1
             assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
-            edbapp.materials.add("new_material", 1, 2, 3)
+            edbapp.materials.add_conductor_material("new_conductor", 1)
+            assert not edbapp.materials.add_conductor_material("new_conductor", 1)
+            edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
+            assert not edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
             edbapp.materials["FR4_epoxy"].magnetic_loss_tangent = 0.01
             assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == 0.01
             edbapp.materials["FR4_epoxy"].youngs_modulus = 5000
@@ -2141,7 +2151,7 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient == 1e-7
             edbapp.materials["FR4_epoxy"].poisson_ratio = 1e-3
             assert edbapp.materials["FR4_epoxy"].poisson_ratio == 1e-3
-            assert edbapp.materials["new_material"]
+            assert edbapp.materials["new_conductor"]
             assert edbapp.materials.duplicate("FR4_epoxy", "FR41")
             assert edbapp.materials["FR41"]
             assert edbapp.materials["FR4_epoxy"].conductivity == edbapp.materials["FR41"].conductivity

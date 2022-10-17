@@ -1,10 +1,17 @@
 import json
 import os.path
+import sys
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+
+open3 = open
+if sys.version_info < (3, 0):
+    import io
+
+    open3 = io.open
 
 
 @pyaedt_function_handler()
@@ -1857,7 +1864,7 @@ class SweepQ3D(object):
     ----------
     oanaysis :
 
-    setupname :str
+    setupname : str
         Name of the setup.
     sweepname : str
         Name of the sweep.
@@ -2184,7 +2191,7 @@ class SetupProps(OrderedDict):
         """
         if not file_path.endswith(".json"):
             file_path = file_path + ".json"
-        with open(file_path, "w", encoding="utf-8") as f:
+        with open3(file_path, "w", encoding="utf-8") as f:
             f.write(json.dumps(self, indent=4, ensure_ascii=False))
         return True
 
@@ -2206,7 +2213,7 @@ class SetupProps(OrderedDict):
                 else:
                     set_props(target[k], v)
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open3(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             set_props(self, data)
         return True
