@@ -813,6 +813,7 @@ class Stackup(object):
         dielectric_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "dielectric"]
         for signal_layer in signal_layers:
             layer_to_check = self.layers[signal_layer.name]
+
             if layer_to_check:
                 layer_to_check.filling_material = dielectric_layers[1].material_name
 

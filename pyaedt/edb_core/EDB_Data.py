@@ -5975,8 +5975,58 @@ class StackupInfo(object):
         return layer
 
     def add_layer(self, new_layer=None):
+        """Add layer to the StackupInfo object.
+
+        Parameters
+        ----------
+        new_layer:
+            Layer object
+
+        Returns
+        -------
+            None
+
+        """
         if isinstance(new_layer, Layer):
-            self.layers["primary"].append(new_layer)
+            if not any(layer for layer in self.layers["primary"] if layer.name == new_layer.name):
+                self.layers["primary"].append(new_layer)
+
+    def get_layer(self, layer_name=None):
+        if layer_name:
+            return next(layer for layer in self.layers["primary"] if layer.name == layer_name)
+
+    def set_layer_roughness(self, layer=None, top_roughness=True, nodule_radius="0.5um", surface_ratio="2.9"):
+        if isinstance(layer, Layer):
+            if top_roughness:
+                layer.enable_top_roughness = True
+            else:
+                layer.enable_bottom_roughness = True
+            layer.hurray_nodule_radius = nodule_radius
+            layer.hurray_surface_ratio = surface_ratio
+
+    def set_djordjevic_sarkar_model(
+        self,
+        layer=None,
+        dc_conductivity=1e-12,
+        dc_permittivity=5.0,
+        frequency=1e9,
+        loss_tangent_at_frequency=0.02,
+        permittivity_at_frequency=4.0,
+        use_dc_permittivity=False,
+    ):
+        if isinstance(layer, Layer):
+            layer.enable_djordjevic_sarkar = True
+            layer.dc_permittivity = dc_permittivity
+            layer.dc_conductivity = dc_conductivity
+            layer.frequency = frequency
+            layer.loss_tangent_at_frequency = loss_tangent_at_frequency
+            layer.permittivity_at_frequency = permittivity_at_frequency
+            layer.use_dc_permittivity = use_dc_permittivity
+
+    def set_etching_factor(self, etching_facor=None, layer=None):
+        if isinstance(layer, Layer):
+            layer.etching_factor = etching_facor
+            layer.enable_etching_factor = True
 
     def export_json(self, output_file):
         dict_out = {}
@@ -6015,6 +6065,20 @@ class Layer(object):
         self._dielectric_constant = 1.0
         self._loss_tangent = 0.0
         self._conductivity = 5.9e7
+        self._color = []
+        self._enable_etching_factor = False
+        self._etching_factor = 0.0
+        self._enable_top_roughness = False
+        self._enable_bottom_roughness = False
+        self._hurray_nodule_radius = "0.5um"
+        self._hurray_surface_ratio = "2.9"
+        self._enable_djordjevic_sarkar = False
+        self._dc_conductivity = 1e-12
+        self._dc_permittivity = 5
+        self._frequency = 1e9
+        self._loss_tangent_at_frequency = 0.02
+        self._permittivity_at_frequency = 4.0
+        self._use_dc_permittivity = False
 
     @property
     def name(self):
@@ -6062,7 +6126,7 @@ class Layer(object):
     def dielectric_constant(self):
         return self._dielectric_constant
 
-    @dielectric_fill_material.setter
+    @dielectric_constant.setter
     def dielectric_constant(self, value):
         self._dielectric_constant = value
 
@@ -6081,6 +6145,116 @@ class Layer(object):
     @conductivity.setter
     def conductivity(self, value):
         self._conductivity = value
+
+    @property
+    def etching_factor(self):
+        return self._etching_factor
+
+    @property
+    def enable_etching_factor(self):
+        return self._enable_etching_factor
+
+    @enable_etching_factor.setter
+    def enable_etching_factor(self, value):
+        if isinstance(value, bool):
+            self._enable_etching_factor = value
+
+    @etching_factor.setter
+    def etching_factor(self, value):
+        if isinstance(value, bool):
+            self._etching_factor = value
+
+    @property
+    def enable_top_roughness(self):
+        return self._enable_top_roughness
+
+    @enable_top_roughness.setter
+    def enable_top_roughness(self, value):
+        if isinstance(value, bool):
+            self._enable_top_roughness = value
+
+    @property
+    def enable_bottom_roughness(self):
+        return self._enable_bottom_roughness
+
+    @enable_bottom_roughness.setter
+    def enable_bottom_roughness(self, value):
+        if isinstance(value, bool):
+            self.enable_bottom_roughness = value
+
+    @property
+    def hurray_nodule_radius(self):
+        return self._hurray_nodule_radius
+
+    @hurray_nodule_radius.setter
+    def hurray_nodule_radius(self, value):
+        self._hurray_nodule_radius = value
+
+    @property
+    def hurray_surface_ratio(self):
+        return self._hurray_surface_ratio
+
+    @hurray_surface_ratio.setter
+    def hurray_surface_ratio(self, value):
+        self._hurray_surface_ratio = value
+
+    @property
+    def enable_djordjevic_sarkar(self):
+        return self._enable_djordjevic_sarkar
+
+    @enable_djordjevic_sarkar.setter
+    def enable_djordjevic_sarkar(self, value):
+        if isinstance(value, bool):
+            self._enable_djordjevic_sarkar = value
+
+    @property
+    def dc_conductivity(self):
+        return self._dc_conductivity
+
+    @dc_conductivity.setter
+    def dc_conductivity(self, value):
+        self._dc_conductivity = value
+
+    @property
+    def dc_permittivity(self):
+        return self._dc_permittivity
+
+    @dc_permittivity.setter
+    def dc_permittivity(self, value):
+        self._dc_permittivity = value
+
+    @property
+    def frequency(self):
+        return self._frequency
+
+    @frequency.setter
+    def frequency(self, value):
+        self._frequency = value
+
+    @property
+    def loss_tangent_at_frequency(self):
+        return self._loss_tangent_at_frequency
+
+    @loss_tangent_at_frequency.setter
+    def loss_tangent_at_frequency(self, value):
+        self._loss_tangent_at_frequency = value
+
+    @property
+    def permittivity_at_frequency(self):
+        return self._permittivity_at_frequency
+
+    @permittivity_at_frequency.setter
+    def permittivity_at_frequency(self, value):
+        self._permittivity_at_frequency = value
+
+    @property
+    def use_dc_permittivity(self):
+        return self._use_dc_permittivity
+
+    @use_dc_permittivity.setter
+    def use_dc_permittivity(self, value):
+        if isinstance(value, bool):
+            self._use_dc_permittivity = value
 
     def _json_format(self):
         """Export Json file from SimulationConfiguration object.
