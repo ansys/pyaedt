@@ -3017,7 +3017,6 @@ class EDBComponent(object):
             self._edb_comp.SetComponentProperty(self._edb_comp_prop)
 
     class _SpiceModel:
-
         def __init__(self, edb_model):
             self._edb_model = edb_model
 
@@ -3030,7 +3029,6 @@ class EDBComponent(object):
             return self._edb_model.GetSPICEName()
 
     class _SparamModel:
-
         def __init__(self, edb_model):
             self._edb_model = edb_model
 
@@ -3177,10 +3175,7 @@ class EDBComponent(object):
         for idx, i in enumerate(np.arange(len(pin_names) // 2)):
             pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
             rlc = self._edb.Utility.Rlc(
-                rlc_values[0], rlc_enabled[0],
-                rlc_values[1], rlc_enabled[1],
-                rlc_values[2], rlc_enabled[2],
-                False
+                rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
             )
             model.SetPinPairRlc(pin_pair, rlc)
         self._set_model(model)
