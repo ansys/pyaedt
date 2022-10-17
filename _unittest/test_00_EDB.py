@@ -2203,14 +2203,13 @@ if not config["skip_edb"]:
             )
             comp.assign_rlc_model(1, 2, 3, True)
             assert (
-                    comp.is_parallel_rlc
-                    and float(comp.res_value) == 1
-                    and float(comp.ind_value) == 2
-                    and float(comp.cap_value) == 3
+                comp.is_parallel_rlc
+                and float(comp.res_value) == 1
+                and float(comp.ind_value) == 2
+                and float(comp.cap_value) == 3
             )
             assert comp.assign_s_param_model(sparam_path)
             assert comp.assign_spice_model(spice_path)
             comp.type = "Inductor"
-            comp.value = 10 # This command set the model back to ideal RLC
+            comp.value = 10  # This command set the model back to ideal RLC
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
-
