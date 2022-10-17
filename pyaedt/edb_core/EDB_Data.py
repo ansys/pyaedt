@@ -2,10 +2,12 @@ import json
 import logging
 import math
 import os
+import re
 import time
 import warnings
 from collections import OrderedDict
 
+import numpy as np
 import pandas as pd
 
 from pyaedt import generate_unique_name
@@ -18,6 +20,7 @@ from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import validate_enum_class_value
+from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 
@@ -3470,20 +3473,68 @@ class EDBComponent(object):
 
     @pyaedt_function_handler
     def assign_model(self, model_type, file_path=None, res=0, cap=0, ind=0, model_name=None):
+        comp_prop = self.component_property
         if model_type in ["simple", "parallel_rlc", "series_rlc"]:
-            for pin_pair in self._pin_pairs:
-                pin_pair.pair_type = model_type
-                pin_pair.rlc_values = [res, ind, cap]
+            res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
+            model = self._edb.Cell.Hierarchy.PinPairModel()
 
-        elif model_type == "spice":
-            self._pcomponents.set_component_model(self.refdes, "Spice", file_path, model_name)
-        elif model_type == "s_parameter":
-            self._pcomponents.set_component_model(self.refdes, "Touchstone", file_path, model_name)
-        elif model_type == "netlist":
-            pass
+            pin_names = list(self.pins.keys())
+            for idx, i in enumerate(np.arange(len(pin_names)//2)):
+                if model_type == "simple":
+                    rlc_enabled = [True  if i == self.type else False for i in ["Resistor", "Inductor", "Capacitor"]]
+                    is_parallel = False
+                elif model_type == "parallel_rlc":
+                    rlc_enabled = [True, True, True]
+                    is_parallel = True
+                else:
+                    rlc_enabled = [True, True, True]
+                    is_parallel = False
+                pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
+                rlc = self._edb.Utility.Rlc(res, rlc_enabled[0], ind, rlc_enabled[1], cap, rlc_enabled[2], is_parallel)
+                model.SetPinPairRlc(pin_pair, rlc)
         else:
-            logging.error(model_type, " is not valid")
+            if not model_name:
+                model_name = get_filename_without_extension(file_path)
+            if model_type == "spice":
+                with open(file_path, "r") as f:
+                    for line in f:
+                        if "subckt" in line.lower():
+                            pinNames = [i.strip() for i in re.split(" |\t", line) if i]
+                            pinNames.remove(pinNames[0])
+                            pinNames.remove(pinNames[0])
+                            break
+                if len(pinNames) == self.numpins:
+                    model = self._edb.Cell.Hierarchy.SPICEModel()
+                    model.SetModelPath(file_path)
+                    model.SetModelName(model_name)
+                    terminal = 1
+                    for pn in pinNames:
+                        model.AddTerminalPinPair(pn, str(terminal))
+                        terminal += 1
+                else:
+                    logging.error("Wrong number of Pins")
+                    return False
+            elif model_type == "s_parameter":
+                edbComponentDef = self.edbcomponent.GetComponentDef()
+                nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, model_name)
+                if nPortModel.IsNull():
+                    nPortModel = self._edb.Definition.NPortComponentModel.Create(model_name)
+                    nPortModel.SetReferenceFile(file_path)
+                    edbComponentDef.AddComponentModel(nPortModel)
 
+                model = self._edb.Cell.Hierarchy.SParameterModel()
+                model.SetComponentModelName(model_name)
+
+            elif model_type == "netlist":
+                pass
+            else:
+                logging.error(model_type, " is not valid")
+                return False
+
+        comp_prop.SetModel(model)
+        if not self.edbcomponent.SetComponentProperty(comp_prop):
+            logging.error("Fail to assign model on {}.".format(self.refdes))
+            return False
 
 class EdbBuilder(object):
     """Data Class to Overcome EdbLib in Linux."""

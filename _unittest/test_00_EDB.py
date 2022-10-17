@@ -2188,11 +2188,23 @@ if not config["skip_edb"]:
                 assert os.path.exists(i)
 
         def test_A126_component(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            edbapp = Edb(target_path, edbversion=desktop_version)
+            edb_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
+            spice_path = os.path.join(local_path, "example_models", test_subfolder,
+                                                       "GRM32_DC0V_25degC.mod")
+
+            edbapp = Edb(edb_path, edbversion=desktop_version)
             comp = edbapp.core_components.components["R6"]
             comp.type = "Inductor"
             comp.value = 10
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
             comp.assign_model("series_rlc", res=1, ind=2, cap=3 )
             assert comp.model_type == "series_rlc" and float(comp.res_value)==1 and float(comp.ind_value)==2 and float(comp.cap_value)==3
+            comp.assign_model("s_parameter",
+               sparam_path,
+              )
+            comp.assign_model("spice",
+                              spice_path,
+                              )
+            comp.assign_model("simple", ind=1)
+            assert comp.type == "Inductor" and comp.value == 1
