@@ -1675,33 +1675,6 @@ class Components(object):
         return True
 
     @pyaedt_function_handler()
-    def export_definition(self, file_path, delimiter=","):
-        cols = ["PART_NAME", "TYPE", "VALUE", "MODEL_TYPE", "RESISTANCE", "INDUCTANCE", "CAPACITANCE", "FILE_PATH"]
-        part_names = []
-        types = []
-        values = []
-        model_types = []
-        res_values = []
-        ind_values = []
-        cap_values = []
-        file_paths = []
-
-        with open(file_path, "w") as f:
-            f.writelines([delimiter.join(["Part name", "Type", "Value\n"])])
-            for name, prop in self.definitions.items():
-                if len(list(prop.components.values())):  # pragma: no cover
-                    comp = list(prop.components.values())[0]
-                else:
-                    continue
-                comp_type = comp.type
-                if comp_type in ["Resistor", "Capacitor"]:
-                    value = comp.value
-                else:
-                    value = ""
-                f.writelines([delimiter.join([name, comp_type, str(value) + "\n"])])
-        return True
-
-    @pyaedt_function_handler()
     def get_pin_from_component(self, component, netName=None, pinName=None):
         """Retrieve the pins of a component.
 

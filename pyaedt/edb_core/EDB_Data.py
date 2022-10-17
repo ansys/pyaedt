@@ -8,7 +8,6 @@ import warnings
 from collections import OrderedDict
 
 import numpy as np
-import pandas as pd
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -3412,10 +3411,26 @@ class EDBComponent(object):
         str
             Component Part Name.
         """
-        return self.edbcomponent.GetComponentDef().GetName()
+        return self.part_name
 
     @partname.setter
     def partname(self, name):
+        """Set component part name."""
+        self.part_name = name
+
+    @property
+    def part_name(self):
+        """Component Part Name.
+
+        Returns
+        -------
+        str
+            Component Part Name.
+        """
+        return self.edbcomponent.GetComponentDef().GetName()
+
+    @part_name.setter
+    def part_name(self, name):
         """Set component part name."""
         self.edbcomponent.GetComponentDef().SetName(name)
 
