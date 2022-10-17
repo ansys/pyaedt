@@ -2933,7 +2933,7 @@ class EDBComponent(object):
 
     """
 
-    class _PinPair:
+    class _PinPair(object):
         def __init__(self, pcomp, edb_comp, edb_comp_prop, edb_model, edb_pin_pair):
             self._pedb_comp = pcomp
             self._edb_comp = edb_comp
@@ -3016,7 +3016,7 @@ class EDBComponent(object):
             self._edb_comp_prop.SetModel(self._edb_model)
             self._edb_comp.SetComponentProperty(self._edb_comp_prop)
 
-    class _SpiceModel:
+    class _SpiceModel(object):
         def __init__(self, edb_model):
             self._edb_model = edb_model
 
@@ -3028,7 +3028,7 @@ class EDBComponent(object):
         def name(self):
             return self._edb_model.GetSPICEName()
 
-    class _SparamModel:
+    class _SparamModel(object):
         def __init__(self, edb_model):
             self._edb_model = edb_model
 
@@ -3040,7 +3040,7 @@ class EDBComponent(object):
         def reference_net(self):
             return self._edb_model.GetReferenceNet()
 
-    class _NetlistModel:
+    class _NetlistModel(object):
         def __init__(self, edb_model):
             self._edb_model = edb_model
 
