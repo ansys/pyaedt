@@ -2204,9 +2204,7 @@ if not config["skip_edb"]:
                 and float(comp.ind_value) == 2
                 and float(comp.cap_value) == 3
             )
-            comp.assign_model(                "s_parameter",                sparam_path,
-            )
-            comp.assign_model(                "spice",                spice_path,
-            )
+            comp.assign_model("s_parameter", sparam_path)
+            comp.assign_model("spice", spice_path)
             comp.assign_model("simple", ind=1)
             assert comp.type == "Inductor" and comp.value == 1
