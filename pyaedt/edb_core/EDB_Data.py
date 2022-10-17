@@ -2899,12 +2899,12 @@ class EDBComponentDef(object):
             return list(self.components.values())[0].type
         else:
             return "mixed"
-        
+
     @type.setter
     def type(self, value):
         for refdes, comp in self.components.items():
             comp.type = value
-    
+
     @property
     def model_type(self):
         if len(set(comp.model_type for refdes, comp in self.components.items())) == 1:
@@ -2952,10 +2952,13 @@ class EDBComponent(object):
         Edb Component Object
 
     """
-    MODEL_TYPE_MAPPING = {"Ansys.Ansoft.Edb.Cell.Hierarchy.PinPairModel": "pin_pair",
-                          "Ansys.Ansoft.Edb.Cell.Hierarchy.NetlistModel": "netlist",
-                          "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel": "spice",
-                          "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel": "s_parameter"}
+
+    MODEL_TYPE_MAPPING = {
+        "Ansys.Ansoft.Edb.Cell.Hierarchy.PinPairModel": "pin_pair",
+        "Ansys.Ansoft.Edb.Cell.Hierarchy.NetlistModel": "netlist",
+        "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel": "spice",
+        "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel": "s_parameter",
+    }
 
     class _PinPair:
         def __init__(self, pedb_comp, edb_comp, edb_comp_prop, edb_model, edb_pin_pair):
@@ -3086,7 +3089,10 @@ class EDBComponent(object):
     def _pin_pairs(self):
         edb_comp_prop = self.component_property
         edb_model = self._edb_model
-        return [self._PinPair(self, self.edbcomponent, edb_comp_prop, edb_model, pin_pair) for pin_pair in list(edb_model.PinPairs)]
+        return [
+            self._PinPair(self, self.edbcomponent, edb_comp_prop, edb_model, pin_pair)
+            for pin_pair in list(edb_model.PinPairs)
+        ]
 
     @property
     def solder_ball_height(self):
@@ -3172,7 +3178,7 @@ class EDBComponent(object):
         """
         if self.model_type == "simple":
             pin_pair = self._pin_pairs[0]
-            return [pin_pair.rlc_values[idx]for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
+            return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
         elif self.model_type in ["parallel_rlc", "series_rlc"]:
             pin_pair = self._pin_pairs[0]
             return [self.model_type] + pin_pair.rlc_values
@@ -3479,9 +3485,9 @@ class EDBComponent(object):
             model = self._edb.Cell.Hierarchy.PinPairModel()
 
             pin_names = list(self.pins.keys())
-            for idx, i in enumerate(np.arange(len(pin_names)//2)):
+            for idx, i in enumerate(np.arange(len(pin_names) // 2)):
                 if model_type == "simple":
-                    rlc_enabled = [True  if i == self.type else False for i in ["Resistor", "Inductor", "Capacitor"]]
+                    rlc_enabled = [True if i == self.type else False for i in ["Resistor", "Inductor", "Capacitor"]]
                     is_parallel = False
                 elif model_type == "parallel_rlc":
                     rlc_enabled = [True, True, True]
@@ -3535,6 +3541,7 @@ class EDBComponent(object):
         if not self.edbcomponent.SetComponentProperty(comp_prop):
             logging.error("Fail to assign model on {}.".format(self.refdes))
             return False
+
 
 class EdbBuilder(object):
     """Data Class to Overcome EdbLib in Linux."""
