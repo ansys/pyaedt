@@ -1450,12 +1450,12 @@ class SweepHFSS(object):
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
-        """Add a subrange to the sweep.
+        """Add a range to the sweep.
 
         Parameters
         ----------
         rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``,
+            Type of the range. Options are ``"LinearCount"``,
             ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
         start : float
             Starting frequency.
@@ -1511,23 +1511,21 @@ class SweepHFSS(object):
             self.props["SweepRanges"] = {"Subrange": []}
             return self.update()
 
-        range = {}
-        range["RangeType"] = rangetype
-        range["RangeStart"] = str(start) + unit
+        interval = {"RangeType": rangetype, "RangeStart": str(start) + unit}
         if rangetype == "LinearCount":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = count
+            interval["RangeEnd"] = str(end) + unit
+            interval["RangeCount"] = count
         elif rangetype == "LinearStep":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeStep"] = str(count) + unit
+            interval["RangeEnd"] = str(end) + unit
+            interval["RangeStep"] = str(count) + unit
         elif rangetype == "LogScale":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = self.props["RangeCount"]
-            range["RangeSamples"] = count
+            interval["RangeEnd"] = str(end) + unit
+            interval["RangeCount"] = self.props["RangeCount"]
+            interval["RangeSamples"] = count
         elif rangetype == "SinglePoints":
-            range["RangeEnd"] = str(start) + unit
-            range["SaveSingleField"] = save_single_fields
-        self.props["SweepRanges"]["Subrange"].append(range)
+            interval["RangeEnd"] = str(start) + unit
+            interval["SaveSingleField"] = save_single_fields
+        self.props["SweepRanges"]["Subrange"].append(interval)
 
         return self.update()
 
