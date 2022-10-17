@@ -6,8 +6,6 @@ import os
 import re
 import warnings
 
-import pandas as pd
-
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.EDB_Data import EDBComponent
