@@ -1479,29 +1479,30 @@ class EdbSiwave(object):
                 ][0]
                 term_name = "{}_{}_{}".format(pin.GetComponent().GetName(), pin.GetNet().GetName(), pin.GetName())
                 res, start_layer, stop_layer = pin.GetLayerRange()
-                pin_instance = pin._edb_padstackinstance
-                positive_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
-                    self._active_layout, pin_instance.GetNet(), term_name, pin_instance, start_layer
-                )
-                positive_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                positive_terminal.SetImpedance(self._edb.Utility.Value(impedance))
-                positive_terminal.SetIsCircuitPort(True)
-                pos = self._pedb.core_components.get_pin_position(pin_instance)
-                position = self._edb.Geometry.PointData(
-                    self._edb.Utility.Value(pos[0]), self._edb.Utility.Value(pos[1])
-                )
-                negative_terminal = self._edb.Cell.Terminal.PointTerminal.Create(
-                    self._active_layout,
-                    reference_net,
-                    "{}_ref".format(term_name),
-                    position,
-                    self._pedb.core_stackup.signal_layers[layer_name]._layer,
-                )
-                negative_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                negative_terminal.SetImpedance(self._edb.Utility.Value(impedance))
-                negative_terminal.SetIsCircuitPort(True)
-                if positive_terminal.SetReferenceTerminal(negative_terminal):
-                    self._logger.info("Port {} successfully created".format(term_name))
+                if res:
+                    pin_instance = pin._edb_padstackinstance
+                    positive_terminal = self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
+                        self._active_layout, pin_instance.GetNet(), term_name, pin_instance, start_layer
+                    )
+                    positive_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                    positive_terminal.SetImpedance(self._edb.Utility.Value(impedance))
+                    positive_terminal.SetIsCircuitPort(True)
+                    pos = self._pedb.core_components.get_pin_position(pin_instance)
+                    position = self._edb.Geometry.PointData(
+                        self._edb.Utility.Value(pos[0]), self._edb.Utility.Value(pos[1])
+                    )
+                    negative_terminal = self._edb.Cell.Terminal.PointTerminal.Create(
+                        self._active_layout,
+                        reference_net,
+                        "{}_ref".format(term_name),
+                        position,
+                        self._pedb.core_stackup.signal_layers[layer_name]._layer,
+                    )
+                    negative_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                    negative_terminal.SetImpedance(self._edb.Utility.Value(impedance))
+                    negative_terminal.SetIsCircuitPort(True)
+                    if positive_terminal.SetReferenceTerminal(negative_terminal):
+                        self._logger.info("Port {} successfully created".format(term_name))
 
     @pyaedt_function_handler()
     def create_rlc_component(
