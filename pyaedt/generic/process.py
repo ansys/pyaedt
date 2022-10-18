@@ -255,7 +255,7 @@ class SiwaveSolve(object):
                 f.write("sourceData=[]\n")
                 f.write("proj.ScrReadDCLoopResInfo('{}', sourceNames, sourceData)\n".format(solution_name))
                 loop_res = os.path.join(output_folder, "loop_res.txt")
-                f.write("with open('{}','w') as f:\n".format(loop_res))
+                f.write("with open(r'{}','w') as f:\n".format(loop_res))
 
                 f.write("  f.writelines('Sources\tValue\\n')\n")
 
