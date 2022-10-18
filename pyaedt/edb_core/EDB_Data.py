@@ -3203,7 +3203,7 @@ class EDBComponent(object):
 
     @property
     def model_type(self):
-        """Retrieve assiged model type."""
+        """Retrieve assigned model type."""
         _model_type = self._edb_model.ToString().split(".")[-1]
         if _model_type == "PinPairModel":
             return "RLC"
