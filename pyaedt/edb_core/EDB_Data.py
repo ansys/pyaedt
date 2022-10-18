@@ -3575,8 +3575,8 @@ class EDBComponent(object):
             Inductance.
         cap : int, float
             Capacitance.
-        is_parallel : bool
-            Whether it is parallel or series RLC component.
+        is_parallel : bool, optional
+            Whether it is a parallel or series RLC component. The default is ``False``.
         """
         res, ind, cap = self._get_edb_value(res), self._get_edb_value(ind), self._get_edb_value(cap)
         model = self._edb.Cell.Hierarchy.PinPairModel()
