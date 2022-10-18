@@ -2125,6 +2125,8 @@ if not config["skip_edb"]:
             assert cap.type == "Capacitor"
             cap.type = "Resistor"
             assert cap.type == "Resistor"
+            sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
+            self.edbapp.core_components.add_s_parameter_definition("new_sparam", sparam_path)
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")

@@ -3558,6 +3558,8 @@ class EDBComponent(object):
 
         model = self._edb.Cell.Hierarchy.SParameterModel()
         model.SetComponentModelName(name)
+        if reference_net:
+            model.SetReferenceNet(reference_net)
         return self._set_model(model)
 
     @pyaedt_function_handler
