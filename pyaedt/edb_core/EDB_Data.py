@@ -3543,6 +3543,7 @@ class EDBComponent(object):
             File path of the S-parameter model.
         name : str, optional
             Name of the S-parameter model.
+        
         Returns
         -------
 
