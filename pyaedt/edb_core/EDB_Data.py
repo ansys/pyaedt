@@ -3054,7 +3054,7 @@ class EDBComponent(object):
 
     @property
     def component_property(self):
-        """Component Property Object."""
+        """``ComponentProperty`` object."""
         return self.edbcomponent.GetComponentProperty().Clone()
 
     @property
