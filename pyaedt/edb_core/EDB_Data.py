@@ -3505,6 +3505,7 @@ class EDBComponent(object):
             File path of the Spice model.
         name : str, optional
             Name of the Spice model.
+      
         Returns
         -------
 
