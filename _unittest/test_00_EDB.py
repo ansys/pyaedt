@@ -2121,6 +2121,10 @@ if not config["skip_edb"]:
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
             assert len(comp_def.components) > 0
+            cap = self.edbapp.core_components.definitions["602431-005"]
+            assert cap.type == "Capacitor"
+            cap.type = "Resistor"
+            assert cap.type == "Resistor"
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
