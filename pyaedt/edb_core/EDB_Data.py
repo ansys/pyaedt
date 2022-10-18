@@ -3397,7 +3397,7 @@ class EDBComponent(object):
 
     @property
     def partname(self):  # pragma: no cover
-        """Component Part Name.
+        """Component part name.
 
         Returns
         -------
