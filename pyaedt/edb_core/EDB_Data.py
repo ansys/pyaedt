@@ -3146,7 +3146,7 @@ class EDBComponent(object):
 
     @property
     def value(self):
-        """Retrieve descrete component value.
+        """Retrieve discrete component value.
 
         Returns
         -------
