@@ -3663,7 +3663,7 @@ class EDBComponent(object):
 
 
 class EdbBuilder(object):
-    """Data Class to Overcome EdbLib in Linux."""
+    """Provides a data class to overcome EdbLib class limitations in Linux."""
 
     def __init__(self, edbutils, db, cell):
         self.EdbHandler = edbutils.EdbHandler()
