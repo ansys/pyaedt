@@ -173,7 +173,7 @@ class Components(object):
         file_path : str
             File path of json file.
         """
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             for part_name, p in data["Definitions"].items():
                 model_type = p["Model_type"]
@@ -213,7 +213,7 @@ class Components(object):
             "SParameterModel": {},
             "SPICEModel": {},
             "Definitions": {},
-                }
+        }
         for part_name, props in self.definitions.items():
             comp_list = list(props.components.values())
             if comp_list:
@@ -243,7 +243,7 @@ class Components(object):
                         model = comp.netlist_model
                         data["Definitions"][part_name]["Model_name"] = model.netlist
 
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         return file_path
 

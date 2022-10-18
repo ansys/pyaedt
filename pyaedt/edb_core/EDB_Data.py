@@ -3212,6 +3212,7 @@ class EDBComponent(object):
 
     @property
     def rlc_values(self):
+        """Get component rlc values."""
         if not len(self._pin_pairs):
             return [None, None, None]
         pin_pair = self._pin_pairs[0]
