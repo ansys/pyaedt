@@ -3418,7 +3418,7 @@ class EDBComponent(object):
         Returns
         -------
         str
-            Component Part Name.
+            Component part name.
         """
         return self.edbcomponent.GetComponentDef().GetName()
 
