@@ -3072,7 +3072,7 @@ class EDBComponent(object):
 
     @property
     def spice_model(self):
-        """Retrieve assigned spice model properties."""
+        """Get assigned Spice model properties."""
         if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel":
             logging.warning(self.refdes, " has no Spice model assigned.")
             return None
