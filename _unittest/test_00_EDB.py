@@ -2206,14 +2206,20 @@ if not config["skip_edb"]:
                 and float(comp.cap_value) == 3
             )
             comp.assign_rlc_model(1, 2, 3, True)
+            assert comp.is_parallel_rlc
             assert (
                 comp.is_parallel_rlc
                 and float(comp.res_value) == 1
                 and float(comp.ind_value) == 2
                 and float(comp.cap_value) == 3
             )
-            assert comp.assign_s_param_model(sparam_path)
-            assert comp.assign_spice_model(spice_path)
+            assert comp.value
+            assert not comp.spice_model and not comp.s_param_model and not comp.netlist_model
+            assert comp.assign_s_param_model(sparam_path) and comp.value
+            assert comp.spice_model
+            assert comp.assign_spice_model(spice_path) and comp.value
+            assert comp.s_param_model
+            assert edbapp.core_components.nport_comp_definition
             comp.type = "Inductor"
             comp.value = 10  # This command set the model back to ideal RLC
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10

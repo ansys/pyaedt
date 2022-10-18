@@ -1146,7 +1146,7 @@ class Components(object):
                 self._logger.error("Wrong number of Pins")
                 return False
 
-        elif model_type == "Touchstone":
+        elif model_type == "Touchstone":  # pragma: no cover
 
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
@@ -1159,9 +1159,9 @@ class Components(object):
             sParameterMod = self._edb.Cell.Hierarchy.SParameterModel()
             sParameterMod.SetComponentModelName(nPortModelName)
             gndnets = filter(lambda x: "gnd" in x.lower(), componentNets)
-            if len(list(gndnets)) > 0:
+            if len(list(gndnets)) > 0:  # pragma: no cover
                 net = gndnets[0]
-            else:
+            else:  # pragma: no cover
                 net = componentNets[len(componentNets) - 1]
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)

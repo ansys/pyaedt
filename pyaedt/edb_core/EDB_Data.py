@@ -3396,7 +3396,7 @@ class EDBComponent(object):
         return self.edbcomponent.GetNumberOfPins()
 
     @property
-    def partname(self):
+    def partname(self):  # pragma: no cover
         """Component Part Name.
 
         Returns
@@ -3407,7 +3407,7 @@ class EDBComponent(object):
         return self.part_name
 
     @partname.setter
-    def partname(self, name):
+    def partname(self, name):  # pragma: no cover
         """Set component part name."""
         self.part_name = name
 
@@ -3423,7 +3423,7 @@ class EDBComponent(object):
         return self.edbcomponent.GetComponentDef().GetName()
 
     @part_name.setter
-    def part_name(self, name):
+    def part_name(self, name):  # pragma: no cover
         """Set component part name."""
         self.edbcomponent.GetComponentDef().SetName(name)
 
@@ -3487,7 +3487,7 @@ class EDBComponent(object):
         return self._pcomponents._get_edb_value(value)
 
     @pyaedt_function_handler
-    def _set_model(self, model):
+    def _set_model(self, model):  # pragma: no cover
         comp_prop = self.component_property
         comp_prop.SetModel(model)
         if not self.edbcomponent.SetComponentProperty(comp_prop):
@@ -3527,13 +3527,13 @@ class EDBComponent(object):
             for pn in pinNames:
                 model.AddTerminalPinPair(pn, str(terminal))
                 terminal += 1
-        else:
+        else:  # pragma: no cover
             logging.error("Wrong number of Pins")
             return False
         return self._set_model(model)
 
     @pyaedt_function_handler
-    def assign_s_param_model(self, file_path, name=None):
+    def assign_s_param_model(self, file_path, name=None, reference_net=None):
         """Assign S-parameter to this component.
 
         Parameters
