@@ -3413,7 +3413,7 @@ class EDBComponent(object):
 
     @property
     def part_name(self):
-        """Component Part Name.
+        """Component part name.
 
         Returns
         -------
