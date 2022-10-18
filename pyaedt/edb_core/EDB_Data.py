@@ -2920,6 +2920,62 @@ class EDBComponentDef(object):
         ]
         return {comp.refdes: comp for comp in comp_list}
 
+    @pyaedt_function_handler
+    def assign_rlc_model(self, res, ind, cap, is_parallel=False):
+        """Assign RLC to all components under this part name.
+
+        Parameters
+        ----------
+        res : int, float
+            Resistance.
+        ind : int, float
+            Inductance.
+        cap : int, float
+            Capacitance.
+        is_parallel : bool, optional
+            Whether it is parallel or series RLC component.
+        """
+        for refdes, comp in self.components.items():
+            res, ind, cap = res, ind, cap
+            comp.assign_rlc_model(res, ind, cap, is_parallel)
+        return True
+
+    @pyaedt_function_handler
+    def assign_s_param_model(self, file_path, model_name=None, reference_net=None):
+        """Assign S-parameter to all components under this part name.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the S-parameter model.
+        name : str, optional
+            Name of the S-parameter model.
+        Returns
+        -------
+
+        """
+        for refdes, comp in self.components.items():
+            comp.assign_s_param_model(file_path, model_name, reference_net)
+        return True
+
+    @pyaedt_function_handler
+    def assign_spice_model(self, file_path, model_name=None):
+        """Assign Spice model to all components under this part name.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the Spice model.
+        name : str, optional
+            Name of the Spice model.
+        Returns
+        -------
+
+        """
+        for refdes, comp in self.components.items():
+            comp.assign_spice_model(file_path, model_name)
+        return True
+
 
 class EDBComponent(object):
     """Manages EDB functionalities for components.
@@ -3073,25 +3129,26 @@ class EDBComponent(object):
     @property
     def spice_model(self):
         """Get assigned Spice model properties."""
-        if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel":
-            logging.warning(self.refdes, " has no Spice model assigned.")
+        if not self.model_type == "SPICEModel":
             return None
         else:
             return self._SpiceModel(self._edb_model)
 
     @property
     def s_param_model(self):
-        """Retrieve assigned S-parameter model properties."""
-        if not self._edb_model.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel":
-            logging.warning(self.refdes, " has no S-param model assigned.")
+        """Get assigned S-parameter model properties."""
+        if not self.model_type == "SParameterModel":
             return None
         else:
             return self._SparamModel(self._edb_model)
 
     @property
     def netlist_model(self):
-        """Retrieve assigned netlist model properties."""
-        return self._NetlistModel(self._edb_model)
+        """Get assigned netlist model properties."""
+        if not self.model_type == "NetlistModel":
+            return None
+        else:
+            return self._NetlistModel(self._edb_model)
 
     @property
     def solder_ball_height(self):
@@ -3145,6 +3202,22 @@ class EDBComponent(object):
             self.edbcomponent.SetComponentProperty(component_property)
 
     @property
+    def model_type(self):
+        """Retrieve assiged model type."""
+        _model_type = self._edb_model.ToString().split(".")[-1]
+        if _model_type == "PinPairModel":
+            return "RLC"
+        else:
+            return _model_type
+
+    @property
+    def rlc_values(self):
+        if not len(self._pin_pairs):
+            return [None, None, None]
+        pin_pair = self._pin_pairs[0]
+        return pin_pair.rlc_values
+
+    @property
     def value(self):
         """Retrieve discrete component value.
 
@@ -3153,16 +3226,15 @@ class EDBComponent(object):
         str
             Value. ``None`` if not an RLC Type.
         """
-        model_name = self._edb_model.ToString()
-        if model_name == "Ansys.Ansoft.Edb.Cell.Hierarchy.PinPairModel":
+        if self.model_type == "RLC":
             pin_pair = self._pin_pairs[0]
             if len([i for i in pin_pair.rlc_enable if i]) == 1:
                 return [pin_pair.rlc_values[idx] for idx, val in enumerate(pin_pair.rlc_enable) if val][0]
             else:
                 return pin_pair.rlc_values
-        elif model_name == "Ansys.Ansoft.Edb.Cell.Hierarchy.SPICEModel":
+        elif self.model_type == "SPICEModel":
             return self.spice_model.file_path
-        elif model_name == "Ansys.Ansoft.Edb.Cell.Hierarchy.SParameterModel":
+        elif self.model_type == "SParameterModel":
             return self.s_param_model.name
         else:
             return self.netlist_model.netlist
@@ -3505,7 +3577,7 @@ class EDBComponent(object):
             File path of the Spice model.
         name : str, optional
             Name of the Spice model.
-      
+
         Returns
         -------
 
@@ -3543,7 +3615,7 @@ class EDBComponent(object):
             File path of the S-parameter model.
         name : str, optional
             Name of the S-parameter model.
-        
+
         Returns
         -------
 
@@ -3587,7 +3659,7 @@ class EDBComponent(object):
             pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
             rlc = self._edb.Utility.Rlc(res, True, ind, True, cap, True, is_parallel)
             model.SetPinPairRlc(pin_pair, rlc)
-        self._set_model(model)
+        return self._set_model(model)
 
 
 class EdbBuilder(object):

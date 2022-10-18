@@ -2125,8 +2125,16 @@ if not config["skip_edb"]:
             assert cap.type == "Capacitor"
             cap.type = "Resistor"
             assert cap.type == "Resistor"
+
+            export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
+            assert self.edbapp.core_components.export_definition(export_path)
+            assert self.edbapp.core_components.import_definition(export_path)
+
+            assert self.edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
             sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
-            self.edbapp.core_components.add_s_parameter_definition("new_sparam", sparam_path)
+            assert self.edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
+            spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
+            assert self.edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2218,9 +2226,9 @@ if not config["skip_edb"]:
             assert comp.value
             assert not comp.spice_model and not comp.s_param_model and not comp.netlist_model
             assert comp.assign_s_param_model(sparam_path) and comp.value
-            assert comp.spice_model
-            assert comp.assign_spice_model(spice_path) and comp.value
             assert comp.s_param_model
+            assert comp.assign_spice_model(spice_path) and comp.value
+            assert comp.spice_model
             assert edbapp.core_components.nport_comp_definition
             comp.type = "Inductor"
             comp.value = 10  # This command set the model back to ideal RLC

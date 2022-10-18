@@ -1,6 +1,7 @@
 """This module contains the `Components` class.
 
 """
+import json
 import math
 import os
 import re
@@ -162,6 +163,89 @@ class Components(object):
         """Retrieve Nport component definition list."""
         m = "Ansys.Ansoft.Edb.Definition.NPortComponentModel"
         return {name: l for name, l in self.definitions.items() if m in [i.ToString() for i in l._comp_model]}
+
+    @pyaedt_function_handler()
+    def import_definition(self, file_path):
+        """Import component definition from json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of json file.
+        """
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            for part_name, p in data["Definitions"].items():
+                model_type = p["Model_type"]
+                comp_definition = self.definitions[part_name]
+                comp_definition.type = p["Component_type"]
+
+                if model_type == "RLC":
+                    comp_definition.assign_rlc_model(p["Res"], p["Ind"], p["Cap"], p["Is_parallel"])
+                else:
+                    model_name = p["Model_name"]
+                    file_path = data[model_type][model_name]
+                    if model_type == "SParameterModel":
+                        if "Reference_net" in p:
+                            reference_net = p["Reference_net"]
+                        else:
+                            reference_net = None
+                        comp_definition.assign_s_param_model(file_path, model_name, reference_net)
+                    elif model_type == "SPICEModel":
+                        comp_definition.assign_spice_model(file_path, model_name)
+                    else:
+                        pass
+        return True
+
+    @pyaedt_function_handler()
+    def export_definition(self, file_path):
+        """Export component definitions to json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of json file.
+        Returns
+        -------
+
+        """
+        data = {
+            "SParameterModel": {},
+            "SPICEModel": {},
+            "Definitions": {},
+                }
+        for part_name, props in self.definitions.items():
+            comp_list = list(props.components.values())
+            if comp_list:
+                data["Definitions"][part_name] = {}
+                data["Definitions"][part_name]["Component_type"] = props.type
+                comp = comp_list[0]
+                data["Definitions"][part_name]["Model_type"] = comp.model_type
+                if comp.model_type == "RLC":
+                    rlc_values = [i if i else 0 for i in comp.rlc_values]
+                    data["Definitions"][part_name]["Res"] = rlc_values[0]
+                    data["Definitions"][part_name]["Ind"] = rlc_values[1]
+                    data["Definitions"][part_name]["Cap"] = rlc_values[2]
+                    data["Definitions"][part_name]["Is_parallel"] = True if comp.is_parallel_rlc else False
+                else:
+                    if comp.model_type == "SParameterModel":
+                        model = comp.s_param_model
+                        data["Definitions"][part_name]["Model_name"] = model.name
+                        data["Definitions"][part_name]["Reference_net"] = model.reference_net
+                        if not model.name in data["SParameterModel"]:
+                            data["SParameterModel"][model.name] = model.file_path
+                    elif comp.model_type == "SPICEModel":
+                        model = comp.spice_model
+                        data["Definitions"][part_name]["Model_name"] = model.name
+                        if not model.name in data["SPICEModel"]:
+                            data["SPICEModel"][model.name] = model.file_path
+                    else:
+                        model = comp.netlist_model
+                        data["Definitions"][part_name]["Model_name"] = model.netlist
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        return file_path
 
     @pyaedt_function_handler()
     def refresh_components(self):
