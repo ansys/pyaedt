@@ -357,3 +357,8 @@ class TestClass(BasisTest, object):
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
         )
         self.aedtapp.close_project(q3d.project_name, False)
+
+    def test_15_export_results_q3d(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        exported_files = q3d.export_results()
+        assert len(exported_files) > 0

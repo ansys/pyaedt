@@ -1060,3 +1060,8 @@ class TestClass(BasisTest, object):
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
+
+    def test_54_export_results_q3d(self):
+        self.aedtapp.set_active_design("Microstrip")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0

@@ -667,3 +667,9 @@ class TestClass(BasisTest, object):
 
     def test_43_eddy_effect_transient(self):
         assert self.m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
+
+    def test_44_export_results_maxwell(self):
+        design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
+        self.aedtapp.set_active_design(design_to_activate[0])
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0

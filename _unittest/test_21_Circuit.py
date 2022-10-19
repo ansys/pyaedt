@@ -480,3 +480,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.browse_log_file()
         assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
         assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
+
+    def test_39_export_results_circuit(self):
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0

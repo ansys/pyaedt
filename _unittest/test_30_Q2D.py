@@ -260,3 +260,8 @@ class TestClass(BasisTest, object):
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
         )
         self.aedtapp.close_project(q2d.project_name, False)
+
+    def test_16_export_results_q2d(self):
+        q2d = Q2d(self.test_matrix, specified_version=desktop_version)
+        exported_files = q2d.export_results()
+        assert len(exported_files) > 0
