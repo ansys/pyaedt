@@ -7,6 +7,8 @@ import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt.generic.general_methods import is_ironpython
+
 if not is_ironpython:
     try:
         import numpy as np
