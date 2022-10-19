@@ -178,7 +178,7 @@ class TestClass(BasisTest, object):
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, False)
+        q3d.close_project(saveproject=False)
 
     def test_14_edit_sources(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -210,7 +210,7 @@ class TestClass(BasisTest, object):
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
-        self.aedtapp.close_project(q3d.project_name, False)
+        q3d.close_project(saveproject=False)
 
     def test_13a_export_matrix_data(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -302,7 +302,7 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, False)
+        q3d.close_project(saveproject=False)
 
     def test_14_export_equivalent_circuit(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -356,9 +356,10 @@ class TestClass(BasisTest, object):
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
         )
-        self.aedtapp.close_project(q3d.project_name, False)
+        q3d.close_project(saveproject=False)
 
     def test_15_export_results_q3d(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
+        q3d.close_project(saveproject=False)
