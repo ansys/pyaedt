@@ -2768,6 +2768,9 @@ class Design(AedtObjects):
             else:
                 i += 0.2
                 time.sleep(0.2)
+
+        if os.path.normpath(proj_path) in settings._project_properties:
+            del settings._project_properties[os.path.normpath(proj_path)]
         return True
 
     @pyaedt_function_handler()
