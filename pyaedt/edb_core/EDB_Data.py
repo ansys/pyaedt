@@ -7,7 +7,14 @@ import time
 import warnings
 from collections import OrderedDict
 
-import numpy as np
+if not is_ironpython:
+    try:
+        import numpy as np
+    except ImportError:
+        warnings.warn(
+            "The NumPy module is required to run some functionalities of EDB.\n"
+            "Install with \n\npip install numpy\n\nRequires CPython."
+        )
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
