@@ -1925,7 +1925,7 @@ class SweepMatrix(object):
     @property
     def frequencies(self):
         """Get the list of all frequencies of the active sweep.
-        The project has to be saved and solved in order to see values.
+        The project has to be saved and solved to see values.
 
         Returns
         -------
