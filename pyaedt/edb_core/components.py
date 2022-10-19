@@ -1,6 +1,7 @@
 """This module contains the `Components` class.
 
 """
+import codecs
 import json
 import math
 import os
@@ -173,7 +174,7 @@ class Components(object):
         file_path : str
             File path of json file.
         """
-        with open(file_path, "r", encoding="utf-8") as f:
+        with codecs.open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
             for part_name, p in data["Definitions"].items():
                 model_type = p["Model_type"]
