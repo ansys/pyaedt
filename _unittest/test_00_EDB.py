@@ -2201,6 +2201,7 @@ if not config["skip_edb"]:
             for i in res:
                 assert os.path.exists(i)
 
+        @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
         def test_A126_component(self):
             edb_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
