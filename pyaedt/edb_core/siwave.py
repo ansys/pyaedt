@@ -1442,16 +1442,16 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        component_name:
-            str, component name.
-        pins_name:
-            str, pin name or list of pin name.
-        layer_name:
-            str, layer name
-        reference_net:
-            str, reference net name.
-        impedance:
-            float, port impedance.
+        component_name : str, optional
+            Component name. The default is ``None``.
+        pins_name : str, list, optional
+            Pin name or list of pin names. The default is ``[]``.
+        layer_name : str, optional
+            Layer name. The default is ``None``.
+        reference_net : str, optional
+            Reference net name. The default is ``None``.
+        impedance : float, optional
+            Port impedance. The default is ``50.0``.
 
         Returns
         -------
