@@ -302,7 +302,7 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, True)
+        self.aedtapp.close_project(q3d.project_name, False)
 
     def test_14_export_equivalent_circuit(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
