@@ -1456,7 +1456,7 @@ class SweepHFSS(object):
         ----------
         rangetype : str
             Type of the range. Options are ``"LinearCount"``,
-            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
+            ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
         start : float
             Starting frequency.
         end : float, optional
