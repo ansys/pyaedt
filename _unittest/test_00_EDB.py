@@ -886,10 +886,13 @@ if not config["skip_edb"]:
                 edbversion=desktop_version,
                 isreadonly=True,
             )
-            for i in range(7):
-                padstack_instance = list(edb_padstacks.core_padstack.padstack_instances.values())[i]
+            padstack_instances = list(edb_padstacks.core_padstack.padstack_instances.values())
+            for padstack_instance in padstack_instances:
                 result = padstack_instance.create_rectangle_in_pad("s")
-                assert result
+                if padstack_instance.padstack_definition != "Padstack_None":
+                    assert result
+                else:
+                    assert result is False
             edb_padstacks.close_edb()
 
         def test_81_edb_with_dxf(self):
@@ -2059,6 +2062,8 @@ if not config["skip_edb"]:
             assert isinstance(edbapp.stackup.stackup_layers, dict)
             assert isinstance(edbapp.stackup.non_stackup_layers, dict)
             assert not edbapp.stackup["Outline"].is_stackup_layer
+            assert edbapp.stackup["TOP"].conductivity
+            assert edbapp.stackup["UNNAMED_002"].permittivity
             assert edbapp.stackup.add_layer("new_layer")
             new_layer = edbapp.stackup["new_layer"]
             assert new_layer.is_stackup_layer
@@ -2085,6 +2090,8 @@ if not config["skip_edb"]:
             assert edbapp.stackup.add_layer("new_above", "TOP", "insert_above")
             assert edbapp.stackup.add_layer("new_below", "TOP", "insert_below")
             assert edbapp.stackup.add_layer("new_bottom", "TOP", "add_on_bottom", "dielectric")
+            assert edbapp.stackup.remove_layer("new_bottom")
+            assert "new_bottom" not in edbapp.stackup.layers
 
             assert edbapp.stackup["TOP"].color
             edbapp.stackup["TOP"].color = [0, 120, 0]
@@ -2106,6 +2113,7 @@ if not config["skip_edb"]:
             assert os.path.exists(export_stackup_path)
             edbapp.close_edb()
 
+        @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
         def test_A123_comp_def(self):
             assert self.edbapp.core_components.components
             assert self.edbapp.core_components.definitions
@@ -2114,6 +2122,20 @@ if not config["skip_edb"]:
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
             assert len(comp_def.components) > 0
+            cap = self.edbapp.core_components.definitions["602431-005"]
+            assert cap.type == "Capacitor"
+            cap.type = "Resistor"
+            assert cap.type == "Resistor"
+
+            export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
+            assert self.edbapp.core_components.export_definition(export_path)
+            assert self.edbapp.core_components.import_definition(export_path)
+
+            assert self.edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
+            sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
+            assert self.edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
+            spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
+            assert self.edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2125,7 +2147,10 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].permittivity == 1
             edbapp.materials["FR4_epoxy"].loss_tangent = 1
             assert edbapp.materials["FR4_epoxy"].loss_tangent == 1
-            edbapp.materials.add("new_material", 1, 2, 3)
+            edbapp.materials.add_conductor_material("new_conductor", 1)
+            assert not edbapp.materials.add_conductor_material("new_conductor", 1)
+            edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
+            assert not edbapp.materials.add_dielectric_material("new_dielectric", 1, 2)
             edbapp.materials["FR4_epoxy"].magnetic_loss_tangent = 0.01
             assert edbapp.materials["FR4_epoxy"].magnetic_loss_tangent == 0.01
             edbapp.materials["FR4_epoxy"].youngs_modulus = 5000
@@ -2141,7 +2166,7 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient == 1e-7
             edbapp.materials["FR4_epoxy"].poisson_ratio = 1e-3
             assert edbapp.materials["FR4_epoxy"].poisson_ratio == 1e-3
-            assert edbapp.materials["new_material"]
+            assert edbapp.materials["new_conductor"]
             assert edbapp.materials.duplicate("FR4_epoxy", "FR41")
             assert edbapp.materials["FR41"]
             assert edbapp.materials["FR4_epoxy"].conductivity == edbapp.materials["FR41"].conductivity
@@ -2176,3 +2201,37 @@ if not config["skip_edb"]:
             res = edbapp.export_siwave_dc_results(out, "myDCIR_4")
             for i in res:
                 assert os.path.exists(i)
+
+        @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
+        def test_A126_component(self):
+            edb_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
+            spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
+
+            edbapp = Edb(edb_path, edbversion=desktop_version)
+            comp = edbapp.core_components.components["R6"]
+            comp.assign_rlc_model(1, 2, 3, False)
+            assert (
+                not comp.is_parallel_rlc
+                and float(comp.res_value) == 1
+                and float(comp.ind_value) == 2
+                and float(comp.cap_value) == 3
+            )
+            comp.assign_rlc_model(1, 2, 3, True)
+            assert comp.is_parallel_rlc
+            assert (
+                comp.is_parallel_rlc
+                and float(comp.res_value) == 1
+                and float(comp.ind_value) == 2
+                and float(comp.cap_value) == 3
+            )
+            assert comp.value
+            assert not comp.spice_model and not comp.s_param_model and not comp.netlist_model
+            assert comp.assign_s_param_model(sparam_path) and comp.value
+            assert comp.s_param_model
+            assert comp.assign_spice_model(spice_path) and comp.value
+            assert comp.spice_model
+            assert edbapp.core_components.nport_comp_definition
+            comp.type = "Inductor"
+            comp.value = 10  # This command set the model back to ideal RLC
+            assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10

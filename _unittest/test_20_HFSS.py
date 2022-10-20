@@ -884,7 +884,7 @@ class TestClass(BasisTest, object):
         assert bound.slant_angle == "30deg"
         assert bound.polarization == "Slant"
         bound.azimuth_start = 20
-        assert bound.azimuth_start == "20.0deg"
+        assert bound.azimuth_start == "20deg"
         assert bound.delete()
         bound = self.aedtapp.insert_infinite_sphere(
             definition="Az Over El",
@@ -1060,3 +1060,8 @@ class TestClass(BasisTest, object):
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
+
+    def test_54_export_results_q3d(self):
+        self.aedtapp.set_active_design("Microstrip")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0

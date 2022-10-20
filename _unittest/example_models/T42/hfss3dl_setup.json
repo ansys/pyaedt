@@ -1,0 +1,28 @@
+{
+  "ViaNumSides": 12,
+  "CurveApproximation": {
+    "ArcAngle": "30deg",
+    "MaxPoints": 16
+  },
+  "AdaptiveSettings": {
+    "MaxRefinePerPass": 10,
+    "AdaptType": "kBroadband",
+    "Basic": true,
+    "BroadbandFrequencyDataList": {
+      "AdaptiveFrequencyData": [
+        {
+          "AdaptiveFrequency": "1GHz",
+          "MaxDelta": "0.008",
+          "MaxPasses": 8,
+          "Expressions": []
+        },
+        {
+          "AdaptiveFrequency": "30GHz",
+          "MaxDelta": "0.008",
+          "MaxPasses": 2,
+          "Expressions": []
+        }
+      ]
+    }
+  }
+}

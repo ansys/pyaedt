@@ -2002,7 +2002,7 @@ class NexximComponents(CircuitComponents):
             for line in lines:
                 if line[:4] == "PORT":
                     line_spit = line.split(" ")
-                    pin_names.append(line_spit[1])
+                    pin_names.append(line_spit[1].strip('"'))
 
         return self._add_subcircuit_link(
             comp_name,

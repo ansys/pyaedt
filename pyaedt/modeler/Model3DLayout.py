@@ -48,7 +48,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Primitives3DLayout.__init__(self, app)
         self._primitives = self
         self.logger.info("Primitives loaded.")
-        self.layers.refresh_all_layers()
         self.o_def_manager = self._app.odefinition_manager
         self.rigid_flex = None
 
@@ -664,6 +663,38 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         self.oeditor.Duplicate(
             ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
         )
+        self._init_prims()
+        return True
+
+    @pyaedt_function_handler()
+    def duplicate_across_layers(self, objects, layers):
+        """Duplicate one or more elements along a vector.
+
+        Parameters
+        ----------
+        objects : list
+            List of elements to duplicate.
+        layers : str, list
+            Layer name on which duplicate object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.DuplicateAcrossLyrs
+        """
+        if isinstance(objects, str):
+            objects = [objects]
+        if isinstance(layers, str):
+            layers = [layers]
+        varg1 = ["NAME:elements"] + objects
+        varg2 = ["NAME:layers"] + layers
+
+        self.oeditor.DuplicateAcrossLyrs(varg1, varg2)
         self._init_prims()
         return True
 

@@ -1018,7 +1018,10 @@ class Primitives(object):
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
             udm = []
             if "UserDefinedModels" in self.oeditor.GetChildTypes():
-                udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
+                try:
+                    udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
+                except:  # pragma: no cover
+                    udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
             if self.user_defined_components:
@@ -1888,7 +1891,7 @@ class Primitives(object):
         contained_string : str
             Prefix in the names of the objects to delete.
         case_sensitive : bool, optional
-            Whether the prefix is case-senstive. The default is ``True``.
+            Whether the prefix is case sensitive. The default is ``True``.
 
         Returns
         -------
@@ -2012,8 +2015,9 @@ class Primitives(object):
         self.user_defined_components = {}
         self.object_id_dict = {}
         self._currentId = 0
+        self._refresh_object_types()
+        self._refresh_all_ids_from_aedt_file()
         self.refresh_all_ids()
-        # self._refresh_all_ids_from_aedt_file()
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
@@ -2034,11 +2038,13 @@ class Primitives(object):
         new_object_id_dict = {}
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
+        all_objs = all_objects + all_unclassified
         for old_id, obj in self.objects.items():
-            if obj.name in all_objects or obj.name in all_unclassified:
-                updated_id = obj.id  # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = updated_id
-                new_object_dict[updated_id] = obj
+            if obj.name in all_objs:
+                # Check if ID can change in boolean operations
+                # updated_id = obj.id  # By calling the object property we get the new id
+                new_object_id_dict[obj.name] = old_id
+                new_object_dict[old_id] = obj
 
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
@@ -2147,13 +2153,7 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        obj_lst = []
-        for el in self.objects:
-            if (
-                self.objects[el].material_name == materialname
-                or self.objects[el].material_name == '"' + materialname + '"'
-            ):
-                obj_lst.append(el)
+        obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
         return obj_lst
 
     @pyaedt_function_handler()
@@ -2857,8 +2857,8 @@ class Primitives(object):
         edgeID = []
         edges = self.get_object_edges(obj_name)
         for edge in edges:
-            vertx = self.get_edge_vertices(edge)
-            if vertexid in vertx:
+            vertices = self.get_edge_vertices(edge)
+            if vertexid in vertices:
                 edgeID.append(edge)
 
         return edgeID
@@ -3442,9 +3442,12 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name):
+    def _create_object(self, name, pid=0):
         o = Object3d(self, name)
-        new_id = o.id
+        if pid:
+            new_id = pid
+        else:
+            new_id = o.id
         self.objects[new_id] = o
         self.object_id_dict[o.name] = new_id
         return o
@@ -3492,12 +3495,28 @@ class Primitives(object):
         ]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
+                operations = el.get("Operations", None)
             else:
                 attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
+                operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                    "ToplevelParts"
+                ]["GeometryPart"]["Attributes"]
             if attribs["Name"] in self._all_object_names:
-                o = self._create_object(name=attribs["Name"])
+                pid = 0
+
+                if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
+                    try:
+                        pid = operations["Operation"]["ParentPartID"]
+                    except:  # pragma: no cover
+                        pass
+                elif operations and isinstance(operations.get("Operation", None), list):
+                    try:
+                        pid = operations["Operation"][0]["ParentPartID"]
+                    except:
+                        pass
+                o = self._create_object(name=attribs["Name"], pid=pid)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
@@ -3522,8 +3541,6 @@ class Primitives(object):
                     o._surface_material = o._surface_material[1:-1].lower()
                 if "MaterialValue" in attribs:
                     o._material_name = attribs["MaterialValue"][1:-1].lower()
-                else:
-                    o._material_name = attribs.get("MaterialName", None)
 
                 o._is_updated = True
         return len(self.objects)

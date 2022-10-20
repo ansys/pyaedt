@@ -14,6 +14,7 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
@@ -25,6 +26,14 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -1823,9 +1832,9 @@ class PostProcessorCommon(object):
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop`
-    hierarchical calls needed for the class inititialization data
-    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    The inherited ``AEDTConfig`` class contains all ``_desktop``
+    hierarchical calls needed for the class initialization data
+    ``_desktop`` and the design types ``"HFSS"``, ``"Icepak"``, and
     ``"HFSS3DLayout"``.
 
     .. note::
@@ -2871,8 +2880,7 @@ class PostProcessor(PostProcessorCommon, object):
         exportFilePath :
             Path for exporting the image file.
         view : str, optional
-            View to export. Options are ``"isometric"``, ``"top"``, ``"bottom"``, ``"right"``, ``"left"`` and any
-            custom orientation.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
             The default is ``"isometric"``.
         wireframe : bool, optional
             Whether to put the objects in the wireframe mode. The default is ``True``.
@@ -3783,3 +3791,201 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
         return plotname
+
+    def sample_waveform(
+        self,
+        waveform_data,
+        waveform_sweep,
+        waveform_unit="V",
+        waveform_sweep_unit="s",
+        unit_interval=1e-9,
+        clock_tics=None,
+        pandas_enabled=False,
+    ):
+        """Sampling a waveform at clock times plus half unit interval.
+
+        Parameters
+        ----------
+        waveform_data : list
+            Waveform data
+        waveform_sweep : list
+            Waveform sweep data
+        waveform_unit : str, optional
+            Waveform units. The default values is ``V``.
+        waveform_sweep_unit : str, optional
+            Time units. The default value is ``s``.
+        unit_interval : float, optional
+            Unit interval in seconds. The default is ``1e-9``.
+        clock_tics : list, optional
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
+        pandas_enabled : bool, optional
+            ``True`` if data format is pandas. The default is `False``
+
+        Returns
+        -------
+        list or :class:`pandas.Series`
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
+
+        Examples
+        --------
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+
+        """
+
+        new_tic = []
+        for tic in clock_tics:
+            new_tic.append(unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit))
+        new_ui = unit_converter(unit_interval, unit_system="Time", input_units="s", output_units=waveform_sweep_unit)
+
+        zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
+        extraction_tic = [x + y for (x, y) in zipped_lists]
+
+        if pandas_enabled:
+            sweep_filtered = waveform_sweep.values
+            filtered_tic = list(filter(lambda num: num >= waveform_sweep.values[0], extraction_tic))
+        else:
+            sweep_filtered = waveform_sweep
+            filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
+
+        outputdata = []
+        new_voltage = []
+        tic_in_s = []
+        for tic in filtered_tic:
+            if tic >= sweep_filtered[0]:
+                sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
+                if sweep_filtered:
+                    if pandas_enabled:
+                        waveform_index = waveform_sweep[waveform_sweep.values == sweep_filtered[0]].index.values
+                    else:
+                        waveform_index = waveform_sweep.index(sweep_filtered[0])
+                    if not isinstance(waveform_data[waveform_index], float):
+                        voltage = waveform_data[waveform_index].values[0]
+                    else:
+                        voltage = waveform_data[waveform_index]
+                    new_voltage.append(
+                        unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
+                    )
+                    tic_in_s.append(
+                        unit_converter(tic, unit_system="Time", input_units=waveform_sweep_unit, output_units="s")
+                    )
+                    if not pandas_enabled:
+                        outputdata.append([tic_in_s[-1:][0], new_voltage[-1:][0]])
+                    del sweep_filtered[0]
+                else:
+                    break
+        if pandas_enabled:
+            return pd.Series(new_voltage, index=tic_in_s)
+        return outputdata
+
+    def sample_ami_waveform(
+        self,
+        setupname,
+        probe_name,
+        source_name,
+        variation_list_w_value,
+        unit_interval=1e-9,
+        ignore_bits=0,
+        plot_type=None,
+        clock_tics=None,
+    ):
+        """Sampling a waveform at clock times plus half unit interval.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        probe_name : str
+            Name of the AMI probe.
+        source_name : str
+            Name of the AMI source.
+        variation_list_w_value : list
+            Variations with relative values.
+        unit_interval : float, optional
+            Unit interval in seconds. The default is ``1e-9``.
+        ignore_bits : int, optional
+            Number of initial bits to ignore. The default is ``0``.
+        plot_type : str, optional
+            Report type. The default is ``None``, in which case all report types are generated.
+            Options for a specific report type are ``"InitialWave"``, ``"WaveAfterSource"``,
+            ``"WaveAfterChannel"``, and ``"WaveAfterProbe"``.
+        clock_tics : list, optional
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
+
+        Returns
+        -------
+        list
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
+
+        Examples
+        --------
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+
+        """
+        initial_solution_type = self.post_solution_type
+        self._app.solution_type = "NexximAMI"
+
+        if plot_type == "InitialWave" or plot_type == "WaveAfterSource":
+            plot_expression = [plot_type + "<" + source_name + ".int_ami_tx>"]
+        elif plot_type == "WaveAfterChannel" or plot_type == "WaveAfterProbe":
+            plot_expression = [plot_type + "<" + probe_name + ".int_ami_rx>"]
+        else:
+            plot_expression = [
+                "InitialWave<" + source_name + ".int_ami_tx>",
+                "WaveAfterSource<" + source_name + ".int_ami_tx>",
+                "WaveAfterChannel<" + probe_name + ".int_ami_rx>",
+                "WaveAfterProbe<" + probe_name + ".int_ami_rx>",
+            ]
+        waveform = []
+        waveform_sweep = []
+        waveform_unit = []
+        waveform_sweep_unit = []
+        for exp in plot_expression:
+            waveform_data = self.get_solution_data(
+                expressions=exp, setup_sweep_name=setupname, domain="Time", variations=variation_list_w_value
+            )
+            samples_per_bit = 0
+            for sample in waveform_data.primary_sweep_values:
+                sample_seconds = unit_converter(
+                    sample, unit_system="Time", input_units=waveform_data.units_sweeps["Time"], output_units="s"
+                )
+                if sample_seconds > unit_interval:
+                    samples_per_bit -= 1
+                    break
+                else:
+                    samples_per_bit += 1
+            if samples_per_bit * ignore_bits > len(waveform_data.data_real()):
+                self._app.solution_type = initial_solution_type
+                self.logger.warning("Ignored bits are greater than generated bits.")
+                return None
+            waveform.append(waveform_data.data_real()[samples_per_bit * ignore_bits :])
+            waveform_sweep.append(waveform_data.primary_sweep_values[samples_per_bit * ignore_bits :])
+            waveform_unit.append(waveform_data.units_data[exp])
+            waveform_sweep_unit.append(waveform_data.units_sweeps["Time"])
+
+        tics = clock_tics
+        if not clock_tics:
+            clock_expression = "ClockTics<" + probe_name + ".int_ami_rx>"
+            clock_tic = self.get_solution_data(
+                expressions=clock_expression,
+                setup_sweep_name=setupname,
+                domain="Clock Times",
+                variations=variation_list_w_value,
+            )
+            tics = clock_tic.data_real()
+
+        outputdata = [[] for i in range(len(waveform))]
+        for w in range(0, len(waveform)):
+            outputdata[w] = self.sample_waveform(
+                waveform_data=waveform[w],
+                waveform_sweep=waveform_sweep[w],
+                waveform_unit=waveform_unit[w],
+                waveform_sweep_unit=waveform_sweep_unit[w],
+                unit_interval=unit_interval,
+                clock_tics=tics,
+                pandas_enabled=waveform_data.enable_pandas_output,
+            )
+        return outputdata

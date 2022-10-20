@@ -347,6 +347,99 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
 
     @pyaedt_function_handler()
+    def create_ports_on_component_by_nets(
+        self,
+        component_name,
+        nets,
+    ):
+        """Create the ports on a component for a list of nets.
+
+        Parameters
+        ----------
+        component_name : str
+            Component name.
+        nets : str, list
+            Nets to include.
+
+
+        Returns
+        -------
+        list of :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port Objects when successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        listp = self.port_list
+        if isinstance(nets, list):
+            pass
+        else:
+            nets = [nets]
+        net_array = ["NAME:Nets"] + nets
+        self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", component_name], net_array, "Port", "0", "0", "0")
+        listnew = self.port_list
+        a = [i for i in listnew if i not in listp]
+        ports = []
+        if len(a) > 0:
+            for port in a:
+                bound = self._update_port_info(port)
+                if bound:
+                    self.boundaries.append(bound)
+                    ports.append(bound)
+        return ports
+
+    @pyaedt_function_handler()
+    def create_differential_port(self, via_signal, via_reference, port_name, deembed=True):
+        """Create a new differential port.
+
+        Parameters
+        ----------
+        via_signal : str
+            Signal pin.
+        via_reference : float
+            Reference pin.
+        port_name : str
+            New Port Name.
+        deembed : bool, optional
+            Either to deembed parasitics or not. Default is `True`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject3dLayout`
+            Port Object when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateEdgePort
+        """
+        listp = self.port_list
+        if port_name in self.port_list:
+            self.logger.error("Port already existing on via {}".format(port_name))
+            return False
+        self.oeditor.ToggleViaPin(["NAME:elements", via_signal])
+
+        listnew = self.port_list
+        a = [i for i in listnew if i not in listp]
+        if len(a) > 0:
+            self.modeler.change_property("Excitations:{}".format(a[0]), "Port", port_name, "EM Design")
+            self.modeler.oeditor.AssignRefPort([port_name], via_reference)
+            if deembed:
+                self.modeler.change_property(
+                    "Excitations:{}".format(port_name), "DeembedParasiticPortInductance", deembed, "EM Design"
+                )
+            bound = self._update_port_info(port_name)
+            if bound:
+                self.boundaries.append(bound)
+                return self.boundaries[-1]
+            else:
+                return False
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def create_coax_port(self, vianame, radial_extent=0.1, layer=None, alignment="lower"):
         """Create a new coax port.
 
@@ -431,12 +524,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreatePin
         """
-        self.modeler.layers.refresh_all_layers()
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
-            top_layer = layers[0]
+            top_layer = layers[0].name
         if not bot_layer:
-            bot_layer = layers[len(layers) - 1]
+            bot_layer = layers[len(layers) - 1].name
         self.modeler.oeditor.CreatePin(
             [
                 "NAME:Contents",
@@ -737,6 +829,42 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             settings.append("NAME:options")
             settings.append("ExportAfterSolve:=")
             settings.append(False)
+        self.odesign.DesignOptions(settings, 0)
+        return True
+
+    @pyaedt_function_handler()
+    def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
+
+        """Define the settings of the mesh.
+
+        Parameters
+        ----------
+        mesh_method : string
+            Mesh method. The default is ``"Phi"``. Options are ``"Phi"``, ``"PhiPlus"``,
+            and ``"Classic"``.
+        enable_intersections_check : bool, optional
+            Whether to enable the alternative mesh intersections checks. The default is
+            ``True``.
+        use_alternative_fallback : bool, optional
+            Whether to enable the alternative fall back mesh method. The default is ``True``.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.DesignOptions
+        """
+        settings = []
+        settings.append("NAME:options")
+        settings.append("MeshingMethod:=")
+        settings.append(mesh_method)
+        settings.append("EnableDesignIntersectionCheck:=")
+        settings.append(enable_intersections_check)
+        settings.append("UseAlternativeMeshMethodsAsFallBack:=")
+        settings.append(use_alternative_fallback)
         self.odesign.DesignOptions(settings, 0)
         return True
 
@@ -1091,9 +1219,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             return False
         active_project = self.project_name
         path_ext = os.path.splitext(cad_path)
-        project_name = os.path.splitext(os.path.basename(cad_path))[0]
         if not aedb_path:
             aedb_path = path_ext[0] + ".aedb"
+        project_name = os.path.splitext(os.path.basename(aedb_path))[0]
+
         if os.path.exists(aedb_path):
             old_name = project_name
             project_name = generate_unique_name(project_name)
@@ -1669,6 +1798,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         air_truncate_model_at_ground_layer="keep",
         air_vertical_positive_padding=None,
         air_vertical_negative_padding=None,
+        airbox_values_as_dim=True,
     ):
         """Edit HFSS 3D Layout extents.
 
@@ -1690,6 +1820,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Airbox vertical positive padding. The default is ``None``.
         air_vertical_negative_padding : str, optional
             Airbox vertical negative padding. The default is ``None``.
+        airbox_values_as_dim : bool, optional
+            Either if inputs are dims or not. Default is `True`.
+
         Returns
         -------
         bool
@@ -1713,10 +1846,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             arg.append(air_truncate_model_at_ground_layer)
         if air_vertical_positive_padding:
             arg.append("AirPosZExt:=")
-            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_positive_padding, "Dim:=", airbox_values_as_dim])
         if air_vertical_negative_padding:
             arg.append("AirNegZExt:=")
-            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", True])
+            arg.append(["Ext:=", air_vertical_negative_padding, "Dim:=", airbox_values_as_dim])
+        arg.append("UseStackupForZExtFact:=")
+        arg.append(True)
 
         self.odesign.EditHfssExtents(arg)
         return True

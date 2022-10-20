@@ -57,6 +57,53 @@ jobs:
           echo $'Examples\n========' > doc/source/examples/index.rst
           make -C doc html SPHINXOPTS="-j auto -w build_errors.txt -N"
 
+      - name: Build json documentation
+        run: |
+          # Export the documentation files to JSON files.
+          sphinx-build -M json doc/source doc-json -j auto -w build_errors.txt -N;
+
+      - name: Flatten the generated nested files into a single directory
+        run: |
+          echo Flattening a nested directory
+          mkdir doc-flatten-json;
+          echo Move all the JSON file to the flatten directory.
+          find . -name "*.fjson" -exec mv "{}" --backup=numbered ./doc-flatten-json \;
+          echo Make sure all the file has .json extensions instead of the .fjson
+          for file in doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
+          echo Move all static image files to the JSON flatten folder.
+          mv doc-json/json/_images doc-flatten-json/_images;
+
+      - name: zip the flattened JSON directory
+        run: |
+          zip -r pyaedt-doc-flatten-json.zip doc-flatten-json;
+          mkdir pyaedt-doc-flatten-json;
+          mv pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
+          echo Clean up build directories after the process is completed.
+          rm -rf doc-json doc-flatten-json;
+
+      - name: Upload json Documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: pyaedt-doc-flatten-json.zip
+          path: pyaedt-doc-flatten-json.zip
+          retention-days: 7
+
+      - name: Get Bot Application Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.BOT_APPLICATION_ID }}
+          application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        with:
+          repository-name: pyansys/devportal-doc-archive
+          branch: drupal
+          folder: pyaedt-doc-flatten-json
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          clean: false
+
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |

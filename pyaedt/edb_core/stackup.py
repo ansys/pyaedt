@@ -141,7 +141,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        if self.material in self._pclass._pedb.materials:
+        if self.material in self._pclass._pedb.materials.materials:
             return self._pclass._pedb.materials[self.material].conductivity
         return None
 
@@ -153,7 +153,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        if self.material in self._pclass._pedb.materials:
+        if self.material in self._pclass._pedb.materials.materials:
             return self._pclass._pedb.materials[self.material].permittivity
         return None
 
@@ -165,7 +165,7 @@ class LayerEdbClass(object):
         -------
         float
         """
-        if self.material in self._pclass._pedb.materials:
+        if self.material in self._pclass._pedb.materials.materials:
             return self._pclass._pedb.materials[self.material].loss_tangent
         return None
 
@@ -647,6 +647,12 @@ class Stackup(object):
         -------
 
         """
+        if material not in self._pedb.materials.materials:
+            logger.error(material + " does not exist in material library")
+
+        if fillMaterial not in self._pedb.materials.materials:
+            logger.error(fillMaterial + " does not exist in material library")
+
         if layer_type in ["signal", "dielectric"]:
             new_layer = self._create_stackup_layer(layer_name, thickness, layer_type)
             new_layer.SetMaterial(material)
@@ -666,6 +672,24 @@ class Stackup(object):
 
         return self.layers[layer_name]
 
+    def remove_layer(self, name):
+        """Remove a layer from stackup.
+
+        Parameters
+        ----------
+        name : str
+            Name of the layer to remove.
+
+        Returns
+        -------
+
+        """
+        new_layer_collection = self._pedb.edb.Cell.LayerCollection()
+        for lyr in self._edb_layer_list:
+            if not (lyr.GetName() == name):
+                new_layer_collection.AddLayerBottom(lyr)
+        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+
     @pyaedt_function_handler
     def import_stackup(self, fpath):
         """Import stackup defnition from csv file.
@@ -681,29 +705,43 @@ class Stackup(object):
         df = pd.read_csv(fpath, index_col=0)
         prev_layer = None
         for row, val in df[::-1].iterrows():
-            if row in self.stackup_layers.keys():
-                lyr = self.stackup_layers[row]
-                lyr.type = val.Type
-                lyr.material = val.Material
-                lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
-                lyr.thickness = val.Thickness
-                if prev_layer:
-                    self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
-            else:
-                if prev_layer and prev_layer in self.stackup_layers:
-                    layer_name = prev_layer
-                else:
-                    layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+            if not self.stackup_layers:
                 self.add_layer(
                     row,
-                    layer_name,
-                    "insert_above",
+                    None,
+                    "add_on_top",
                     val.Type,
                     val.Material,
                     val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
                     val.Thickness,
                 )
-            prev_layer = row
+            else:
+                if row in self.stackup_layers.keys():
+                    lyr = self.stackup_layers[row]
+                    lyr.type = val.Type
+                    lyr.material = val.Material
+                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
+                    lyr.thickness = val.Thickness
+                    if prev_layer:
+                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
+                else:
+                    if prev_layer and prev_layer in self.stackup_layers:
+                        layer_name = prev_layer
+                    else:
+                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+                    self.add_layer(
+                        row,
+                        layer_name,
+                        "insert_above",
+                        val.Type,
+                        val.Material,
+                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
+                        val.Thickness,
+                    )
+                prev_layer = row
+        for name in self.stackup_layers:
+            if name not in df.index:
+                self.remove_layer(name)
         return True
 
     @pyaedt_function_handler
@@ -733,12 +771,12 @@ class Stackup(object):
             data["Dielectric_Fill"].append(lyr.dielectric_fill)
             data["Thickness"].append(lyr.thickness)
         df = pd.DataFrame(data, index=idx, columns=["Type", "Material", "Dielectric_Fill", "Thickness"])
-        if file_format == "csv":
+        if file_format == "csv":  # pragma: no cover
             if not fpath.endswith(".csv"):
                 fpath = fpath + ".csv"
             df.to_csv(fpath)
-        else:
-            if not fpath.endswith(".xlsx"):
+        else:  # pragma: no cover
+            if not fpath.endswith(".xlsx"):  # pragma: no cover
                 fpath = fpath + ".xlsx"
             df.to_excel(fpath)
         return True
