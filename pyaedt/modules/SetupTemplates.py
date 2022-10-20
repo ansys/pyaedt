@@ -1621,15 +1621,7 @@ class SweepHFSS3DLayout(object):
 
     """
 
-    def __init__(
-        self,
-        setup,
-        sweepname,
-        sweeptype="Interpolating",
-        save_fields=True,
-        props=None,
-        **kwargs,
-    ):
+    def __init__(self, setup, sweepname, sweeptype="Interpolating", save_fields=True, props=None, **kwargs):
 
         if "app" in kwargs:
             warnings.warn(
