@@ -1,6 +1,7 @@
 import json
 import os.path
 import sys
+import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -1329,10 +1330,12 @@ class SweepHFSS(object):
 
     Parameters
     ----------
-    oanalysis :
-
+    app : :class 'pyaedt.modules.SolveSetup.Setup'
+        The setup used for the analysis.
     setupname : str
         Name of the setup.
+    sweepname : str
+        The name of the sweep.
     sweeptype : str, optional
         Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
         and ``"Discrete"``. The default is ``"Interpolating"``.
@@ -1340,9 +1343,27 @@ class SweepHFSS(object):
         Dictionary of the properties. The default is ``None``, in which case
         the default properties are retrieved.
 
+    Examples
+    --------
+    >>> hfss = Hfss(specified_version=version, projectname=proj, designname=gtemDesign, solution_type=solutiontype,
+                    setup_name=setupname, new_desktop_session=False, close_on_exit=False)
+    >>> hfss_setup = hfss.setups[0]
+    >>> hfss_sweep = SweepHFSS(hfss_setup, "Setup1", 'Sweep', sweeptype ='Interpolating', props=None)
+
     """
 
-    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
+    def __init__(self, setup, setupname, sweepname, sweeptype="Interpolating", props=None, **kwargs):
+        if "app" in kwargs:
+            warnings.warn(
+                "`app` is deprecated. Use `setup` instead.",
+                DeprecationWarning,
+            )
+            setup = kwargs["app"]
+        if "setupname" in kwargs:
+            warnings.warn(
+                "`setupname` is deprecated and not required anymore.",
+                DeprecationWarning,
+            )
         self._app = app
         self.oanalysis = app.omodule
         self.props = {}
@@ -1585,8 +1606,8 @@ class SweepHFSS3DLayout(object):
 
     Parameters
     ----------
-    oanaysis :
-
+    app : :class 'pyaedt.modules.SolveSetup.Setup'
+        The setup used for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
@@ -1862,8 +1883,8 @@ class SweepQ3D(object):
 
     Parameters
     ----------
-    oanaysis :
-
+    app : :class 'pyaedt.modules.SolveSetup.Setup'
+        The setup used for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
