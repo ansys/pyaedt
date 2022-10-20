@@ -2109,7 +2109,7 @@ class Design(AedtObjects):
             return False
 
     @pyaedt_function_handler()
-    def load_project(self, project_file, design_name=None, close_active_proj=False):
+    def load_project(self, project_file, design_name=None, close_active_proj=False, save_active_project=False):
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -2120,6 +2120,8 @@ class Design(AedtObjects):
             Design name. The default is ``None``.
         close_active_proj : bool, optional
             Whether to close the active project. The default is ``False``.
+        save_active_project : bool, optional
+            Whether to save the active project. The default is ``False``.
 
         Returns
         -------
@@ -2134,7 +2136,7 @@ class Design(AedtObjects):
         proj = self.odesktop.OpenProject(project_file)
         if close_active_proj and self.oproject:
             self._close_edb()
-            self.close_project(self.project_name)
+            self.close_project(self.project_name, save_project=save_active_project)
         if proj:
             self._init_design(project_name=proj.GetName(), design_name=design_name)
             return True
@@ -2713,7 +2715,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name=None, saveproject=True):
+    def close_project(self, name=None, save_project=True):
         """Close an AEDT project.
 
         Parameters
@@ -2721,7 +2723,7 @@ class Design(AedtObjects):
         name : str, optional
             Name of the project. The default is ``None``, in which case the
             active project is closed.
-        saveproject : bool, optional
+        save_project : bool, optional
             Whether to save the project before closing it. The default is
             ``True``.
 
@@ -2745,7 +2747,7 @@ class Design(AedtObjects):
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
         proj_file = os.path.join(proj_path, name + ".aedt")
-        if saveproject:
+        if save_project:
             oproj.Save()
         self.odesktop.CloseProject(name)
         if name == legacy_name:

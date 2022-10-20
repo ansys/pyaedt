@@ -2251,7 +2251,7 @@ class Icepak(FieldAnalysis3D):
 
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
-            self.close_project(prjname, saveproject=False)
+            self.close_project(prjname, save_project=False)
         self.logger.info("PCB component correctly created in Icepak.")
         return status
 
