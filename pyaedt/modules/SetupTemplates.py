@@ -1348,7 +1348,7 @@ class SweepHFSS(object):
     >>> hfss = Hfss(specified_version=version, projectname=proj, designname=gtemDesign, solution_type=solutiontype,
                     setup_name=setupname, new_desktop_session=False, close_on_exit=False)
     >>> hfss_setup = hfss.setups[0]
-    >>> hfss_sweep = SweepHFSS(hfss_setup, "Setup1", 'Sweep', sweeptype ='Interpolating', props=None)
+    >>> hfss_sweep = SweepHFSS(hfss_setup, 'Sweep', sweeptype ='Interpolating', props=None)
 
     """
 
@@ -1651,7 +1651,7 @@ class SweepHFSS3DLayout(object):
         if props:
             self.props = props
         else:
-            self.setupname = setupname
+            self.setupname = setup.name
             self.name = sweepname
 
             self.props["Properties"] = OrderedDict({"Enable": True})

@@ -70,13 +70,13 @@ class CommonSetup(PropsManager, object):
                             app.pop("MoveBackwards", None)
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepHFSS(self, self.name, el, props=app[el]))
+                                    self.sweeps.append(SweepHFSS(self, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepMatrix(self, self.name, el, props=app[el]))
+                                    self.sweeps.append(SweepMatrix(self, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -490,9 +490,9 @@ class Setup(CommonSetup):
             self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, self.name, sweepname, sweeptype)
+            sweep_n = SweepHFSS(self, sweepname, sweeptype)
         elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, self.name, sweepname, sweeptype)
+            sweep_n = SweepMatrix(self, sweepname, sweeptype)
         else:
             self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
             return False
