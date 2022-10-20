@@ -1304,9 +1304,9 @@ class Primitives(object):
 
         Parameters
         ----------
-        pad_percent : float or list of floats, optional
+        pad_percent : float or list of floats or list of str, optional
             If a float, use padding in percent for all dimensions. The default is ``300``.
-            If a list of floats, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
+            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
 
         Returns
         -------
@@ -1327,10 +1327,13 @@ class Primitives(object):
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
         for pval in p:
+            region_type = "Percentage Offset"
+            if isinstance(pad_percent[i], str):
+                region_type = "Absolute Offset"
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
-            arg.append("Percentage Offset")
+            arg.append(region_type)
             arg.append(qvalstr)
             arg.append(str(pad_percent[i]))
             i += 1

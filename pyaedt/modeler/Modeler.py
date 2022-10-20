@@ -3609,20 +3609,30 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        x_pos : float, optional
-            Padding in percent in the +X direction (+R for 2D RZ).
+        x_pos : float or str, optional
+            If a float, use padding in percent in the +X direction.
+            If a str, use padding in absolute value in the +X direction.
             The default is ``0``.
-        y_pos : float, optional
-            Padding in percent in the +Y direction. The default is ``0``.
-        z_pos : float, optional
-            Padding in percent in the +Z direction. The default is ``0``.
-        x_neg : float, optional
-            Padding in percent in the -X direction (-R for 2D RZ).
+        y_pos : float or str, optional
+            If a float, use padding in percent in the +Y direction.
+            If a str, use padding in absolute value in the +Y direction.
             The default is ``0``.
-        y_neg : float, optional
-            Padding in percent in the -Y direction. The default is ``0``.
-        z_neg : float, optional
-            Padding in percent in the -Z direction. The default is ``0``.
+        z_pos : float or str, optional
+            If a float, use padding in percent in the +Z direction.
+            If a str, use padding in absolute value in the +Z direction.
+            The default is ``0``.
+        x_neg : float or str, optional
+            If a float, use padding in percent in the +Z direction (-R for 2D RZ).
+            If a str, use padding in absolute value in the +Z direction (-R for 2D RZ).
+            The default is ``0``.
+        y_neg : float or str, optional
+            If a float, use padding in percent in the -Y direction.
+            If a str, use padding in absolute value in the -Y direction.
+            The default is ``0``.
+        z_neg : float or str, optional
+            If a float, use padding in percent in the -Z direction.
+            If a str, use padding in absolute value in the -Z direction.
+            The default is ``0``.
 
         Returns
         -------
