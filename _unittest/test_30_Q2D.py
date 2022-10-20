@@ -180,7 +180,7 @@ class TestClass(BasisTest, object):
     def test_15_export_equivalent_circuit(self):
         q2d = Q2d(self.test_matrix, specified_version=desktop_version)
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
-        q2d.matrices[1].name == "Test1"
+        assert q2d.matrices[4].name == "Test4"
         assert len(q2d.setups[0].sweeps[0].frequencies) > 0
         assert q2d.setups[0].sweeps[0].basis_frequencies == []
         assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
