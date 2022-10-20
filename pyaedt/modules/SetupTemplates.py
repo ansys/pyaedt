@@ -1355,17 +1355,18 @@ class SweepHFSS(object):
     def __init__(self, setup, setupname, sweepname, sweeptype="Interpolating", props=None, **kwargs):
         if "app" in kwargs:
             warnings.warn(
-                "`app` is deprecated. Use `setup` instead.",
+                "`app` is deprecated since v0.6.22. Use `setup` instead.",
                 DeprecationWarning,
             )
             setup = kwargs["app"]
         if "setupname" in kwargs:
             warnings.warn(
-                "`setupname` is deprecated and not required anymore.",
+                "`setupname` is deprecated since v0.6.22 and not required anymore.",
                 DeprecationWarning,
             )
-        self._app = app
-        self.oanalysis = app.omodule
+
+        self._app = setup
+        self.oanalysis = setup.omodule
         self.props = {}
         self.setupname = setupname
         self.name = sweepname
@@ -1622,17 +1623,30 @@ class SweepHFSS3DLayout(object):
 
     def __init__(
         self,
-        app,
-        setupname,
+        setup,
         sweepname,
         sweeptype="Interpolating",
         save_fields=True,
         props=None,
+        **kwargs,
     ):
-        self._app = app
-        self.oanalysis = app.omodule
+
+        if "app" in kwargs:
+            warnings.warn(
+                "`app` is deprecated since v0.6.22. Use `setup` instead.",
+                DeprecationWarning,
+            )
+            setup = kwargs["app"]
+        if "setupname" in kwargs:
+            warnings.warn(
+                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                DeprecationWarning,
+            )
+
+        self._app = setup
+        self.oanalysis = setup.omodule
         self.props = {}
-        self.setupname = setupname
+        self.setupname = setup.name
         self.name = sweepname
         if props:
             self.props = props
@@ -1896,10 +1910,21 @@ class SweepMatrix(object):
 
     """
 
-    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self._app = app
-        self.oanalysis = app.omodule
-        self.setupname = setupname
+    def __init__(self, setup, sweepname, sweeptype="Interpolating", props=None, **kwargs):
+        if "app" in kwargs:
+            warnings.warn(
+                "`app` is deprecated since v0.6.22. Use `setup` instead.",
+                DeprecationWarning,
+            )
+            setup = kwargs["app"]
+        if "setupname" in kwargs:
+            warnings.warn(
+                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                DeprecationWarning,
+            )
+        self._app = setup
+        self.oanalysis = setup.omodule
+        self.setupname = setup.name
         self.name = sweepname
         self.props = {}
         if props:
