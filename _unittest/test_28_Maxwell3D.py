@@ -163,6 +163,7 @@ class TestClass(BasisTest, object):
     def test_05_draw_region(self):
         assert self.aedtapp.modeler.create_air_region(*["200mm"] * 6)
         self.aedtapp.modeler["Region"].delete()
+
         assert self.aedtapp.modeler.create_air_region(*[300] * 6)
 
     def test_06_eddycurrent(self):
