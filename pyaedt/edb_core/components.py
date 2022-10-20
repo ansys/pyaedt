@@ -244,7 +244,7 @@ class Components(object):
                         model = comp.netlist_model
                         data["Definitions"][part_name]["Model_name"] = model.netlist
 
-        with open(file_path, "w", encoding="utf-8") as f:
+        with codecs.open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
         return file_path
 
