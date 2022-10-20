@@ -269,7 +269,7 @@ class Material(object):
     def _json_format(self):
         out_dict = {}
         self._name = self.name
-        self._conductivty = self.conductivity
+        self._conductivity = self.conductivity
         self._loss_tangent = self.loss_tangent
         self._magnetic_loss_tangent = self.magnetic_loss_tangent
         self._mass_density = self.mass_density
@@ -289,6 +289,26 @@ class Material(object):
             if not k == "_pclass" and not k == "_edb_material_def":
                 out_dict[k[1:]] = v
         return out_dict
+
+    @pyaedt_function_handler()
+    def _load(self, input_dict):
+        if input_dict:
+            self.conductivity = input_dict["conductivity"]
+            self.loss_tangent = input_dict["loss_tangent"]
+            self.magnetic_loss_tangent = input_dict["magnetic_loss_tangent"]
+            self.mass_density = input_dict["mass_density"]
+            self.permittivity = input_dict["permittivity"]
+            self.permeability = input_dict["permeability"]
+            self.poisson_ratio = input_dict["poisson_ratio"]
+            self.specific_heat = input_dict["specific_heat"]
+            self.thermal_conductivity = input_dict["thermal_conductivity"]
+            self.youngs_modulus = input_dict["youngs_modulus"]
+            self.thermal_expansion_coefficient = input_dict["thermal_expansion_coefficient"]
+            self.dc_conductivity = input_dict["dc_conductivity"]
+            self.dc_permittivity = input_dict["dc_permittivity"]
+            self.dielectric_model_frequency = input_dict["dielectric_model_frequency"]
+            self.loss_tangent_at_frequency = input_dict["loss_tangent_at_frequency"]
+            self.permittivity_at_frequency = input_dict["permittivity_at_frequency"]
 
 
 class Materials(object):
@@ -566,3 +586,13 @@ class Materials(object):
             edb_material.SetDielectricMaterialModel(material_model)
 
             return edb_material
+
+    @pyaedt_function_handler()
+    def _load_materials(self, material=None):
+        if material:
+            if not material["name"] in self.materials:
+                if material["conductivity"] > 1e4:
+                    self.add_conductor_material(material["name"], material["conductivity"])
+                else:
+                    self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
+            self.materials[material["name"]]._load(material)

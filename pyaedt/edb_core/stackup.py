@@ -288,6 +288,54 @@ class LayerEdbClass(object):
             layer_clone.SetRoughnessEnabled(False)
             self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
+    @property
+    def top_hallhuray_nodule_radius(self):
+        return self._top_hallhuray_nodule_radius
+
+    @top_hallhuray_nodule_radius.setter
+    def top_hallhuray_nodule_radius(self, value):
+        self._top_hallhuray_nodule_radius = value
+
+    @property
+    def top_hallhuray_surface_ratio(self):
+        return self._top_hallhuray_surface_ratio
+
+    @top_hallhuray_surface_ratio.setter
+    def top_hallhuray_surface_ratio(self, value):
+        self._top_hallhuray_surface_ratio = value
+
+    @property
+    def bottom_hallhuray_nodule_radius(self):
+        return self._bottom_hallhuray_nodule_radius
+
+    @bottom_hallhuray_nodule_radius.setter
+    def bottom_hallhuray_nodule_radius(self, value):
+        self._bottom_hallhuray_nodule_radius = value
+
+    @property
+    def bottom_hallhuray_surface_ratio(self):
+        return self._bottom_hallhuray_surface_ratio
+
+    @bottom_hallhuray_surface_ratio.setter
+    def bottom_hallhuray_surface_ratio(self, value):
+        self._bottom_hallhuray_surface_ratio = value
+
+    @property
+    def side_hallhuray_nodule_radius(self):
+        return self._side_hallhuray_nodule_radius
+
+    @side_hallhuray_nodule_radius.setter
+    def side_hallhuray_nodule_radius(self, value):
+        self._side_hallhuray_nodule_radius = value
+
+    @property
+    def side_hallhuray_surface_ratio(self):
+        return self._side_hallhuray_surface_ratio
+
+    @side_hallhuray_surface_ratio.setter
+    def side_hallhuray_surface_ratio(self, value):
+        self._side_hallhuray_surface_ratio = value
+
     @pyaedt_function_handler()
     def get_roughness_model(self):
         if not self.is_stackup_layer:  # pragma: no cover
@@ -393,6 +441,22 @@ class LayerEdbClass(object):
             if not k == "_pclass":
                 dict_out[k[1:]] = v
         return dict_out
+
+    def _load_layer(self, layer):
+        if layer:
+            self.color = layer["color"]
+            self.type = layer["type"]
+            self.material = layer["material"]
+            self.dielectric_fill = layer["dielectric_fill"]
+            self.thickness = layer["thickness"]
+            self.etch_factor = layer["etch_factor"]
+            self.roughness_enabled = layer["roughness_enabled"]
+            self.top_hallhuray_nodule_radius = layer["top_hallhuray_nodule_radius"]
+            self.top_hallhuray_surface_ratio = layer["top_hallhuray_surface_ratio"]
+            self.bottom_hallhuray_nodule_radius = layer["bottom_hallhuray_nodule_radius"]
+            self.bottom_hallhuray_surface_ratio = layer["bottom_hallhuray_surface_ratio"]
+            self.side_hallhuray_nodule_radius = layer["side_hallhuray_nodule_radius"]
+            self.side_hallhuray_surface_ratio = layer["side_hallhuray_surface_ratio"]
 
 
 class Stackup(object):
@@ -874,6 +938,21 @@ class Stackup(object):
             return True
         else:
             return False
+
+    @pyaedt_function_handler()
+    def _import_layer_stackup(self, input_file=None):
+        if input_file:
+            f = open(input_file)
+            json_dict = json.load(f)  # pragma: no cover
+            for k, v in json_dict.items():
+                if k == "materials":
+                    for material in v.values():
+                        self._pedb.materials._load_materials(material)
+                if k == "layers":
+                    for layer_name, layer in v.items():
+                        if layer_name in self.stackup_layers:
+                            self.stackup_layers[layer["name"]]._load_layer(layer)
+            return True
 
 
 class EdbStackup(object):
