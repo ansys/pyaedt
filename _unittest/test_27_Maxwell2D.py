@@ -357,3 +357,8 @@ class TestClass(BasisTest, object):
                     assert bound.props["CoordinateSystem"] == ""
         self.aedtapp.set_active_design("Motion")
         assert not self.aedtapp.assign_current_density("Circle_inner", "CurrentDensity_1")
+
+    def test_27_export_results_maxwell(self):
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0
