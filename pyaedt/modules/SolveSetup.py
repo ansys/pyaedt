@@ -490,9 +490,9 @@ class Setup(CommonSetup):
             self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, sweepname, sweeptype)
+            sweep_n = SweepHFSS(self, sweepname=sweepname, sweeptype=sweeptype)
         elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, sweepname, sweeptype)
+            sweep_n = SweepMatrix(self, sweepname=sweepname, sweeptype=sweeptype)
         else:
             self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
             return False
@@ -1497,7 +1497,7 @@ class Setup3DLayout(CommonSetup):
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
-        sweep_n = SweepHFSS3DLayout(self, self.name, sweepname, sweeptype)
+        sweep_n = SweepHFSS3DLayout(self, sweepname, sweeptype)
         if sweep_n.create():
             self.sweeps.append(sweep_n)
             return sweep_n

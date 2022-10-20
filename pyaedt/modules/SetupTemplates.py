@@ -1352,7 +1352,7 @@ class SweepHFSS(object):
 
     """
 
-    def __init__(self, setup, setupname, sweepname, sweeptype="Interpolating", props=None, **kwargs):
+    def __init__(self, setup, sweepname, sweeptype="Interpolating", props=None, **kwargs):
         if "app" in kwargs:
             warnings.warn(
                 "`app` is deprecated since v0.6.22. Use `setup` instead.",
@@ -1368,12 +1368,12 @@ class SweepHFSS(object):
         self._app = setup
         self.oanalysis = setup.omodule
         self.props = {}
-        self.setupname = setupname
+        self.setupname = setup.name
         self.name = sweepname
         if props:
             self.props = props
         else:
-            self.setupname = setupname
+            self.setupname = setup.name
             self.name = sweepname
             self.props["Type"] = sweeptype
             self.props["IsEnabled"] = True
