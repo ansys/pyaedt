@@ -1941,7 +1941,7 @@ class SweepMatrix(object):
     @property
     def basis_frequencies(self):
         """Get the list of all frequencies that have fields available.
-        The project has to be saved and solved in order to see values.
+        The project has to be saved and solved to see values.
 
         Returns
         -------
