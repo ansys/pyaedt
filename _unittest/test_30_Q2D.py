@@ -88,7 +88,7 @@ class TestClass(BasisTest, object):
         assert q2d.matrices[4].name == "Test4"
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5")
         assert q2d.matrices[5].name == "Test5"
-        self.aedtapp.close_project(q2d.project_name, False)
+        self.aedtapp.close_project(q2d.project_name, save_project=False)
 
     def test_12_edit_sources(self):
         q2d = Q2d(self.test_matrix, specified_version=desktop_version)
@@ -105,7 +105,7 @@ class TestClass(BasisTest, object):
 
         sources_ac = {"Circle5": "40A"}
         assert not q2d.edit_sources(sources_cg, sources_ac)
-        self.aedtapp.close_project(q2d.project_name, False)
+        self.aedtapp.close_project(q2d.project_name, save_project=False)
 
     def test_13_get_all_conductors(self):
         self.aedtapp.insert_design("condcutors")
@@ -175,13 +175,14 @@ class TestClass(BasisTest, object):
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), c_unit="H")
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="fSie")
         assert not q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), g_unit="A")
-        self.aedtapp.close_project(q2d.project_name, False)
+        self.aedtapp.close_project(q2d.project_name, save_project=True)
 
     def test_15_export_equivalent_circuit(self):
         q2d = Q2d(self.test_matrix, specified_version=desktop_version)
-        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1")
-        q2d.matrices[1].name == "Test1"
-        q2d.analyze_setup(q2d.analysis_setup)
+        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
+        assert q2d.matrices[4].name == "Test4"
+        assert len(q2d.setups[0].sweeps[0].frequencies) > 0
+        assert q2d.setups[0].sweeps[0].basis_frequencies == []
         assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
         assert not q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
         assert q2d.export_equivalent_circuit(
@@ -259,4 +260,4 @@ class TestClass(BasisTest, object):
         assert not q2d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
         )
-        self.aedtapp.close_project(q2d.project_name, False)
+        self.aedtapp.close_project(q2d.project_name, save_project=False)

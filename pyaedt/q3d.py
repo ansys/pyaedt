@@ -1679,7 +1679,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        SweepQ3D
+        SweepMatrix
             Sweep option.
 
         References

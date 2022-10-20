@@ -106,7 +106,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.net_sinks("PGND")) == 0
 
     def test_08_create_faceted_bondwire(self):
-        self.aedtapp.load_project(self.test_project, close_active_proj=True)
+        self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
         test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
             "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
         )
@@ -178,7 +178,7 @@ class TestClass(BasisTest, object):
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_edit_sources(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -210,7 +210,7 @@ class TestClass(BasisTest, object):
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_13a_export_matrix_data(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -220,7 +220,10 @@ class TestClass(BasisTest, object):
         q3d.matrices[2].name == "JointTest2"
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         q3d.matrices[3].name == "JointTest3"
+        sweep = q3d.setups[0].add_sweep()
         q3d.analyze_setup(q3d.analysis_setup)
+        assert len(sweep.frequencies) > 0
+        assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
         assert not q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.pdf"))
         assert not q3d.export_matrix_data(
@@ -302,7 +305,7 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_export_equivalent_circuit(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -356,4 +359,4 @@ class TestClass(BasisTest, object):
         assert not q3d.export_equivalent_circuit(
             file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
         )
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
