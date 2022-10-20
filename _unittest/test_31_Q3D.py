@@ -365,4 +365,4 @@ class TestClass(BasisTest, object):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
-        q3d.close_project(saveproject=False)
+        q3d.close_project(q3d.project_name, save_project=False)
