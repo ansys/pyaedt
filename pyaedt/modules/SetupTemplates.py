@@ -2014,20 +2014,20 @@ class SweepMatrix(object):
                 self.props["RangeSamples"] = count
             self.props["SweepRanges"] = {"Subrange": []}
             return self.update()
-        range = {"RangeType": type, "RangeStart": str(start) + unit}
+        sweep_range = {"RangeType": type, "RangeStart": str(start) + unit}
         if type == "LinearCount":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = count
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = count
         elif type == "LinearStep":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeStep"] = str(count) + unit
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeStep"] = str(count) + unit
         elif type == "LogScale":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = self.props["RangeCount"]
-            range["RangeSamples"] = count
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = self.props["RangeCount"]
+            sweep_range["RangeSamples"] = count
         if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
             self.props["SweepRanges"] = {"Subrange": []}
-        self.props["SweepRanges"]["Subrange"].append(range)
+        self.props["SweepRanges"]["Subrange"].append(sweep_range)
         return self.update()
 
     @pyaedt_function_handler()
