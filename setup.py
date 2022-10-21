@@ -43,7 +43,7 @@ if sys.version_info == (3, 7):
         "numpy",
         "matplotlib",
         "psutil",
-        "pandas==1.3.5",
+        "pandas==1.5.1",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif sys.version_info > (3, 7):
