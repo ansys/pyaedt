@@ -2113,6 +2113,7 @@ if not config["skip_edb"]:
             assert os.path.exists(export_stackup_path)
             edbapp.close_edb()
 
+        @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
         def test_A123_comp_def(self):
             assert self.edbapp.core_components.components
             assert self.edbapp.core_components.definitions

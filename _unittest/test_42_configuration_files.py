@@ -52,7 +52,7 @@ class TestClass(BasisTest, object):
         app = Hfss(projectname="new_proj", solution_type=self.aedtapp.solution_type)
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(saveproject=False)
+        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
 
@@ -65,7 +65,7 @@ class TestClass(BasisTest, object):
         app = Q3d(projectname="new_proj_Q3d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(saveproject=False)
+        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
 
@@ -79,7 +79,7 @@ class TestClass(BasisTest, object):
         app = Q2d(projectname="new_proj_Q2d")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(saveproject=False)
+        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         self.q2dtest.configurations.options.unset_all_export()
@@ -145,7 +145,7 @@ class TestClass(BasisTest, object):
         app = Icepak(projectname="new_proj_Ipk")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(saveproject=False)
+        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
 

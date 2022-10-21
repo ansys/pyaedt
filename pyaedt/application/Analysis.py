@@ -652,19 +652,18 @@ class Analysis(Design, object):
             export_folder = self.working_directory
         if analyze:
             self.analyze_all()
-        if self.design_type == "Circuit Design":
-            setups = self.oanalysis.GetAllSolutionSetups()
+        # excitations
+        if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
+            excitations = len(self.oexcitation.GetAllPortsList())
+        elif self.design_type == "2D Extractor":
+            excitations = self.oboundary.GetNumExcitations("SignalLine")
+        elif self.design_type == "Q3D Extractor":
+            excitations = self.oboundary.GetNumExcitations("Source")
+        elif self.design_type == "Circuit Design":
             excitations = len(self.excitations)
         else:
-            setups = self.oanalysis.GetSetups()
-            if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
-                excitations = len(self.oexcitation.GetAllPortsList())
-            elif self.design_type == "2D Extractor":
-                excitations = self.oboundary.GetNumExcitations("SignalLine")
-            elif self.design_type == "Q3D Extractor":
-                excitations = self.oboundary.GetNumExcitations("Source")
-            else:
-                excitations = self.oboundary.GetNumExcitations()
+            excitations = self.oboundary.GetNumExcitations()
+        # reports
         reportnames = self.post.oreportsetup.GetAllReportNames()
         for report_name in reportnames:
             name_no_space = report_name.replace(" ", "_")
@@ -679,29 +678,31 @@ class Analysis(Design, object):
                 pass
             exported_files.append(export_path)
 
+        # setups
+        setups = self.setups
         for s in setups:
             if self.design_type == "Circuit Design":
                 exported_files.append(self.browse_log_file(export_folder))
             else:
-                sweeps = self.oanalysis.GetSweeps(s)
+                setup_name = s.name
+                sweeps = s.sweeps
                 if len(sweeps) == 0:
                     sweeps = ["LastAdaptive"]
-                else:
-                    pass
+                # sweeps
                 for sweep in sweeps:
-                    variation_array = self.list_of_variations(s, sweep)
+                    variation_array = self.available_variations.nominal_w_values_dict
                     if not variation_array:
                         variation_array = [""]
                     varCount = 0
                     for variation in variation_array:
                         varCount += 1
                         export_path = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
-                        result = self.export_profile(s, variation, export_path)
+                        result = self.export_profile(setup_name, variation, export_path)
                         if result:
                             exported_files.append(export_path)
                         export_path = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
                         self.logger.info("Export Convergence: %s", export_path)
-                        result = self.export_convergence(s, variation, export_path)
+                        result = self.export_convergence(setup_name, variation, export_path)
                         if result:
                             exported_files.append(export_path)
                         if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
@@ -712,7 +713,7 @@ class Analysis(Design, object):
                                 self.logger.info("Export SnP: {}".format(export_path))
                                 self.osolution.ExportNetworkData(
                                     variation,
-                                    ["{0}:{1}".format(s, sweep)],
+                                    ["{0}:{1}".format(setup_name, sweep)],
                                     3,
                                     export_path,
                                     ["All"],

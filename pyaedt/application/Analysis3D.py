@@ -938,7 +938,7 @@ class FieldAnalysis3D(Analysis, object):
                 app.modeler.purge_history(app.modeler._all_object_names)
             self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
             self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
-            app.close_project(saveproject=False)
+            app.close_project(save_project=False)
             comp.delete()
             self.modeler.refresh_all_ids()
         return True
