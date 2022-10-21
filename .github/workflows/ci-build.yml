@@ -74,6 +74,8 @@ jobs:
               y=${x// /-};
               mv -n ${x// /\ } "./doc-flatten-json/${y////-}";
           done
+          # echo Make sure all the file has .json extensions instead of the .fjson
+          # for file in doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
           # Move all static image files to the JSON flatten folder.
           mv -n doc-json/json/_images doc-flatten-json/_images;
 
