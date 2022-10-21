@@ -560,7 +560,9 @@ class TestClass(BasisTest, object):
         assert len(list1) + len(list2) == len(list3)
 
     def test_41a_create_rect_sheet_to_region(self):
-        self.aedtapp.modeler.create_region()
+        assert self.aedtapp.modeler.create_region("20mm", False)
+        self.aedtapp.modeler["Region"].delete()
+        assert self.aedtapp.modeler.create_region()
         self.create_copper_box(name="MyBox_to_gnd")
         groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox_to_gnd")
         assert groundplane.id > 0

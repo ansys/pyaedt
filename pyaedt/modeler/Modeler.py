@@ -3604,48 +3604,49 @@ class GeometryModeler(Modeler, object):
         return airid
 
     @pyaedt_function_handler()
-    def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0):
+    def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0, is_percentage=True):
         """Create an air region.
 
         Parameters
         ----------
         x_pos : float or str, optional
-            If a float, use padding in percent in the +X direction.
-            If a str, use padding in absolute value in the +X direction.
+            If float, padding in the +X direction in modeler units.
+            If str, padding with units in the +X direction.
             The default is ``0``.
         y_pos : float or str, optional
-            If a float, use padding in percent in the +Y direction.
-            If a str, use padding in absolute value in the +Y direction.
+            If float, padding in the +Y direction in modeler units.
+            If str, padding with units in the +Y direction.
             The default is ``0``.
         z_pos : float or str, optional
-            If a float, use padding in percent in the +Z direction.
-            If a str, use padding in absolute value in the +Z direction.
+            If float, padding in the +Z direction in modeler units.
+            If str, padding with units in the +Z direction.
             The default is ``0``.
         x_neg : float or str, optional
-            If a float, use padding in percent in the +Z direction (-R for 2D RZ).
-            If a str, use padding in absolute value in the +Z direction (-R for 2D RZ).
+            If float, padding in the -X direction in modeler units.
+            If str, padding with units in the -X direction.
             The default is ``0``.
         y_neg : float or str, optional
-            If a float, use padding in percent in the -Y direction.
-            If a str, use padding in absolute value in the -Y direction.
+            If float, padding in the -Y direction in modeler units.
+            If str, padding with units in the -Y direction.
             The default is ``0``.
         z_neg : float or str, optional
-            If a float, use padding in percent in the -Z direction.
-            If a str, use padding in absolute value in the -Z direction.
+            If float, padding in the -Z direction in modeler units.
+            If str, padding with units in the -Z direction.
             The default is ``0``.
+        is_percentage : bool, optional
+            Region definition in percentage or absolute value. The default is `True``.
 
         Returns
         -------
-        list
-            List of ``[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg]``
-            coordinates for the region created.
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
+        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage)
 
     @pyaedt_function_handler()
     def edit_region_dimensions(self, listvalues):
