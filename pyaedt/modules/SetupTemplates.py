@@ -1606,7 +1606,7 @@ class SweepHFSS3DLayout(object):
     Parameters
     ----------
     app : :class 'pyaedt.modules.SolveSetup.Setup'
-        The setup used for the analysis.
+        Setup used for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
