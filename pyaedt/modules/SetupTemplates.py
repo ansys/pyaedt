@@ -1335,7 +1335,7 @@ class SweepHFSS(object):
     setupname : str
         Name of the setup.
     sweepname : str
-        The name of the sweep.
+        Name of the sweep.
     sweeptype : str, optional
         Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
         and ``"Discrete"``. The default is ``"Interpolating"``.
