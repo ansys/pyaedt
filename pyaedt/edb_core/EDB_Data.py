@@ -20,6 +20,7 @@ if not is_ironpython:
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.pingroups import PinGroup
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import NodeType
@@ -2625,7 +2626,10 @@ class EDBPadstackInstance(object):
         list
             List of pin groups that the pin belongs to.
         """
-        return self._edb_padstackinstance.GetPinGroups()
+        pingroups = {}
+        for el in self._edb_padstackinstance.GetPinGroups():
+            pingroups[el.GetName()] = PinGroup(self._pedb, el)
+        return pingroups
 
     @property
     def placement_layer(self):
@@ -3573,8 +3577,16 @@ class EDBComponent(object):
         comp_prop = self.component_property
         comp_prop.SetModel(model)
         if not self.edbcomponent.SetComponentProperty(comp_prop):
-            logging.error("Fail to assign model on {}.".format(self.refdes))
+            self._pcomponents._pedb.logger.error("Fail to assign model on {}.".format(self.refdes))
             return False
+        model_type = "Unrecognized"
+        if "SPICE" in str(model):
+            model_type = "Spice"
+        elif "SParameter" in str(model):
+            model_type = "SParameter"
+        elif "PinPair" in str(model):
+            model_type = "RLC"
+        self._pcomponents._pedb.logger.info("{} model assigned to {}.".format(model_type, self.refdes))
         return True
 
     @pyaedt_function_handler
