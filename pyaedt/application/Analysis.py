@@ -714,11 +714,11 @@ class Analysis(Design, object):
                 pass
             exported_files.append(export_path)
 
-        if touchstone_format is "MagPhase":
+        if touchstone_format == "MagPhase":
             touchstone_format_value = 0
-        elif touchstone_format is "RealImag":
+        elif touchstone_format == "RealImag":
             touchstone_format_value = 1
-        elif touchstone_format is "DbPhase":
+        elif touchstone_format == "DbPhase":
             touchstone_format_value = 2
         else:
             self.logger.warning("Touchstone format not valid. ``MagPhase`` will be set as default")
