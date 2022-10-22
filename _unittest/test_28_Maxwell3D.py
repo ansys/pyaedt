@@ -672,4 +672,4 @@ class TestClass(BasisTest, object):
         design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
         self.aedtapp.set_active_design(design_to_activate[0])
         exported_files = self.aedtapp.export_results()
-        assert len(exported_files) > 0
+        assert len(exported_files) == 0

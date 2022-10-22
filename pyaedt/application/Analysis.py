@@ -782,7 +782,7 @@ class Analysis(Design, object):
                                     # the default range freq is [10MHz, 100MHz, step: 10MHz]
                                     # Q2D and Q3D don't accept in ExportNetworkData ["All"]
                                     # as frequency array
-                                    freq_range = range(10, 100, 11)
+                                    freq_range = range(10, 100, 10)
                                     for freq in freq_range:
                                         v = Variable("{}{}".format("{0:.12f}".format(freq), "MHz"))
                                         freq_array.append(v.rescale_to("Hz").numeric_value)
