@@ -662,7 +662,7 @@ class Analysis(Design, object):
             Real impedance value in ohms, for renormalization. The default is ``50``.
         touchstone_number_precision : int, optional
             Touchstone number of digits precision. The default is ``15``.
-        use_export_freq: bool, optional
+        use_export_freq : bool, optional
             Specifies whether to use export frequencies. The default is ``True``.
         include_gamma_comment : bool, optional
             Specifies whether to include Gamma and Impedance comments. The default is ``True``.
@@ -782,7 +782,7 @@ class Analysis(Design, object):
                                     # the default range freq is [10MHz, 100MHz, step: 10MHz]
                                     # Q2D and Q3D don't accept in ExportNetworkData ["All"]
                                     # as frequency array
-                                    freq_range = range(10, 100, 10)
+                                    freq_range = range(10.0, 100.0, 10)
                                     for freq in freq_range:
                                         v = Variable("{}{}".format("{0:.12f}".format(freq), "MHz"))
                                         freq_array.append(v.rescale_to("Hz").numeric_value)
