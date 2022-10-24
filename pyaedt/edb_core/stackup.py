@@ -773,7 +773,7 @@ class Stackup(object):
 
     def check_and_fix_stackup(self, stackup_info=None):
         if not isinstance(stackup_info, StackupInfo):
-            logger.error("Argument must be an instance of StackInfo")
+            logger.error("Argument must be an instance of StackInfo.")
             return False
         for layer in stackup_info.layers["primary"]:
             try:
