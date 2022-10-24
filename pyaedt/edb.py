@@ -32,8 +32,8 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
-from pyaedt.edb_core.EDB_Data.edb_builder import EdbBuilder
-from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.stackup import Stackup
@@ -990,7 +990,7 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
-        simulation_setup : EDB_Data.SimulationConfiguration object, optional
+        simulation_setup : edb_data.SimulationConfiguration object, optional
             Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
@@ -1745,7 +1745,7 @@ class Edb(object):
 
         Parameters
         ----------
-        simulation_setup : EDB_Data.SimulationConfiguratiom object.
+        simulation_setup : edb_data.SimulationConfiguratiom object.
             SimulationConfiguration object that can be instantiated or directly loaded with a
             configuration file.
 
@@ -1758,7 +1758,7 @@ class Edb(object):
         --------
 
         >>> from pyaedt import Edb
-        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data import SimulationConfiguration
         >>> config_file = path_configuration_file
         >>> source_file = path_to_edb_folder
         >>> edb = Edb(source_file)

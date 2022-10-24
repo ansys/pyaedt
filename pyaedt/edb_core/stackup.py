@@ -10,8 +10,8 @@ import logging
 import math
 import warnings
 
-from pyaedt.edb_core.EDB_Data.layer_stackup import EDBLayers
-from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.layer_stackup import EDBLayers
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -507,7 +507,7 @@ class Stackup(object):
 
         Parameters
         ----------
-        layer_clone : :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+        layer_clone : :class:`pyaedt.edb_core.edb_data.EDBLayer`
         operation : str
             Options are ``"change_attribute"``, ``"change_name"``,``"change_position"``, ``"insert_below"``,
              ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
@@ -851,7 +851,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBLayer`]
             List of signal layers.
         """
         return self.stackup_layers.signal_layers

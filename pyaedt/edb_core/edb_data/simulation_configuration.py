@@ -3,8 +3,8 @@ import os
 from collections import OrderedDict
 
 from pyaedt import generate_unique_name
-from pyaedt.edb_core.EDB_Data.sources import Source
-from pyaedt.edb_core.EDB_Data.sources import SourceType
+from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
@@ -1823,7 +1823,7 @@ class SimulationConfiguration(object):
         --------
 
         >>> from pyaedt import Edb
-        >>> from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
         >>> config_file = path_configuration_file
         >>> source_file = path_to_edb_folder
         >>> edb = Edb(source_file)
@@ -2042,7 +2042,7 @@ class SimulationConfiguration(object):
         Examples
         --------
 
-        >>> from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
         >>> config = SimulationConfiguration()
         >>> config.export_json(r"C:\Temp\test_json\test.json")
         """
@@ -2083,7 +2083,7 @@ class SimulationConfiguration(object):
 
         Examples
         --------
-        >>> from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
         >>> test = SimulationConfiguration()
         >>> test.import_json(r"C:\Temp\test_json\test.json")
         """

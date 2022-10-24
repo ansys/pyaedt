@@ -695,7 +695,7 @@ class EDBLayers(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBLayer`]
             Dictionary of layers.
         """
         if not self._edb_object:
@@ -731,7 +731,7 @@ class EDBLayers(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBLayer`]
             Dictionary of signal layers.
         """
         self._signal_layers = OrderedDict({})
@@ -962,7 +962,7 @@ class EDBLayers(object):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+        :class:`pyaedt.edb_core.edb_data.EDBLayer`
             Layer Object for stackup layers.
         """
 
@@ -1040,7 +1040,7 @@ class EDBLayers(object):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+        :class:`pyaedt.edb_core.edb_data.EDBLayer`
             Layer Object for stackup layers. Boolean otherwise (True in case of success).
         """
         thisLC = self._pedbstackup._active_layout.GetLayerCollection()

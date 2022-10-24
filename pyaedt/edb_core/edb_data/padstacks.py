@@ -1025,7 +1025,7 @@ class EDBPadstackInstance(object):
 
         Returns
         -------
-        bool, List,  :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        bool, List,  :class:`pyaedt.edb_core.edb_data.EDBPrimitives`
             Polygon when successful, ``False`` when failed, list of list if `return_points=True`.
 
         Examples
