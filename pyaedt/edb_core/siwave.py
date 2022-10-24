@@ -8,11 +8,12 @@ import time
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.simulation_configuration import SiwaveDCSetupTemplate
 from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
+
+# from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.sources import CircuitPort
 from pyaedt.edb_core.edb_data.sources import CurrentSource
 from pyaedt.edb_core.edb_data.sources import DCTerminal
 from pyaedt.edb_core.edb_data.sources import ResistorSource
-from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.edb_data.sources import VoltageSource
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
@@ -114,12 +115,13 @@ class EdbSiwave(object):
             neg_pin,
             toLayer_neg,
         )
-        if source.type == SourceType.Port:
+        if source.type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
+            if source.type == SourceType.CircPort:
+                pos_pingroup_terminal.SetIsCircuitPort(True)
+                neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -127,7 +129,7 @@ class EdbSiwave(object):
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
-        elif source.type == SourceType.CurrentSource:
+        elif source.type == SourceType.Isource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -140,7 +142,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.VoltageSource:
+        elif source.type == SourceType.Vsource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -153,7 +155,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Resistor:
+        elif source.type == SourceType.Rlc:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -873,12 +875,13 @@ class EdbSiwave(object):
                 False,
             )
 
-        if source.type == SourceType.Port:
+        if source.type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
+            if source._type == SourceType.CircPort:
+                pos_pingroup_terminal.SetIsCircuitPort(True)
+                neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -887,7 +890,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.CurrentSource:
+        elif source.type == SourceType.Isource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -900,7 +903,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.VoltageSource:
+        elif source.type == SourceType.Vsource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -913,7 +916,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Resistor:
+        elif source.type == SourceType.Rlc:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)

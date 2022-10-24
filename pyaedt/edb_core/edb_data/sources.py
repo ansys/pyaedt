@@ -221,12 +221,6 @@ class Source(object):
                 self.__setattr__(k, v)
 
 
-class SourceType(object):
-    """Manages source types."""
-
-    (Port, CurrentSource, VoltageSource, Resistor, DcTerminal) = (1, 2, 3, 4, 5)
-
-
 class PinGroup(object):
     """Manages pin groups."""
 
@@ -279,7 +273,7 @@ class CircuitPort(Source):
     def __init(self):
         super(CircuitPort, self).__init__()
         self._impedance = "50"
-        self._type = SourceType.Port
+        self._type = SourceType.CircPort
 
     @property
     def impedance(self):
@@ -304,7 +298,7 @@ class VoltageSource(Source):
         self._magnitude = "1V"
         self._phase = "0Deg"
         self._impedance = "0.05"
-        self._type = SourceType.VoltageSource
+        self._type = SourceType.Vsource
 
     @property
     def magnitude(self):
@@ -347,7 +341,7 @@ class CurrentSource(Source):
         self._magnitude = "0.1A"
         self._phase = "0Deg"
         self._impedance = "1e7"
-        self._type = SourceType.CurrentSource
+        self._type = SourceType.Isource
 
     @property
     def magnitude(self):
@@ -402,7 +396,7 @@ class ResistorSource(Source):
     def __init__(self):
         super(ResistorSource, self).__init__()
         self._rvalue = "50"
-        self._type = SourceType.Resistor
+        self._type = SourceType.Rlc
 
     @property
     def rvalue(self):

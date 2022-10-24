@@ -16,9 +16,9 @@ from pyaedt.edb_core.edb_data.components_data import EDBComponent
 from pyaedt.edb_core.edb_data.components_data import EDBComponentDef
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
-from pyaedt.generic.constants import SourceType
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
