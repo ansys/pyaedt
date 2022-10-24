@@ -152,7 +152,7 @@ class LayerEdbClass(object):
 
     @property
     def conductivity(self):
-        """Get the material conductivity.
+        """Material conductivity.
 
         Returns
         -------
