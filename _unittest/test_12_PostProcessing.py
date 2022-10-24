@@ -406,15 +406,15 @@ class TestClass(BasisTest, object):
         if not is_ironpython:
             assert data_farfield2.plot(math_formula="db20", is_polar=True)
 
-        pass
-
     def test_09b_export_report(self):  # pragma: no cover
         files = self.aedtapp.export_results()
         assert len(files) > 0
         files = self.circuit_test.export_results()
         assert len(files) > 0
+        self.q2dtest.analyze_all()
         files = self.q2dtest.export_results()
         assert len(files) > 0
+        self.q3dtest.analyze_setup("Setup1")
         files = self.q3dtest.export_results()
         assert len(files) > 0
 
