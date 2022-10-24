@@ -6086,7 +6086,7 @@ class Layer(object):
         Returns
         -------
         bool
-            True when succeeded False when file name not provided.
+            ``True`` when successful, ``False`` when file name is not provided.
 
         """
         dict_out = {}
