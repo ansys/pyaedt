@@ -234,9 +234,7 @@ class Components(object):
                         data["Definitions"][part_name]["Model_name"] = model.name
                         data["Definitions"][part_name]["Reference_net"] = model.reference_net
                         if not model.name in data["SParameterModel"]:
-                            data["SParameterModel"][model.name] = self._edb.Definition.NPortComponentModel.FindByName(
-                                comp.edbcomponent.GetComponentDef(), model.name
-                            ).GetReferenceFile()
+                            data["SParameterModel"][model.name] = model.file_path
                     elif comp.model_type == "SPICEModel":
                         model = comp.spice_model
                         data["Definitions"][part_name]["Model_name"] = model.name
