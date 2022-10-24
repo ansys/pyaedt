@@ -879,7 +879,7 @@ class EdbSiwave(object):
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            if source._type == SourceType.CircPort:
+            if source.source_type == SourceType.CircPort:
                 pos_pingroup_terminal.SetIsCircuitPort(True)
                 neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)

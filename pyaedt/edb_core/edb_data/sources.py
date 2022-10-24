@@ -68,8 +68,8 @@ class Source(object):
     def __init__(self):
         self._name = ""
         self._source_type = SourceType.Vsource
-        self._positive_node = Node()
-        self._negative_node = Node()
+        self._positive_node = PinGroup()
+        self._negative_node = PinGroup()
         self._amplitude = 1.0
         self._phase = 0.0
         self._impedance = 1.0
@@ -77,9 +77,6 @@ class Source(object):
         self._l = 0.0
         self._c = 0.0
         self._create_physical_resistor = True
-        self._config_init()
-
-    def _config_init(self):
         self._positive_node.node_type = int(NodeType.Positive)
         self._positive_node.name = "pos_term"
         self._negative_node.node_type = int(NodeType.Negative)
@@ -120,7 +117,7 @@ class Source(object):
 
     @positive_node.setter
     def positive_node(self, value):  # pragma: no cover
-        if isinstance(value, Node):
+        if isinstance(value, (Node, PinGroup)):
             self._positive_node = value
 
     @property
@@ -130,7 +127,7 @@ class Source(object):
 
     @negative_node.setter
     def negative_node(self, value):  # pragma: no cover
-        if isinstance(value, Node):
+        if isinstance(value, (Node, PinGroup)):
             self._negative_node = value
             #
 
@@ -267,13 +264,13 @@ class PinGroup(object):
         self._net = value
 
 
-class CircuitPort(Source):
+class CircuitPort(Source, object):
     """Manages a circuit port."""
 
-    def __init(self):
-        super(CircuitPort, self).__init__()
-        self._impedance = "50"
-        self._type = SourceType.CircPort
+    def __init__(self, impedance="50"):
+        self._impedance = impedance
+        Source.__init__(self)
+        self._source_type = SourceType.CircPort
 
     @property
     def impedance(self):
@@ -287,7 +284,7 @@ class CircuitPort(Source):
     @property
     def get_type(self):
         """Get type."""
-        return self._type
+        return self._source_type
 
 
 class VoltageSource(Source):
@@ -298,7 +295,7 @@ class VoltageSource(Source):
         self._magnitude = "1V"
         self._phase = "0Deg"
         self._impedance = "0.05"
-        self._type = SourceType.Vsource
+        self._source_type = SourceType.Vsource
 
     @property
     def magnitude(self):
@@ -330,7 +327,7 @@ class VoltageSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self._type
+        return self._source_type
 
 
 class CurrentSource(Source):
@@ -341,7 +338,7 @@ class CurrentSource(Source):
         self._magnitude = "0.1A"
         self._phase = "0Deg"
         self._impedance = "1e7"
-        self._type = SourceType.Isource
+        self._source_type = SourceType.Isource
 
     @property
     def magnitude(self):
@@ -373,7 +370,7 @@ class CurrentSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self._type
+        return self._source_type
 
 
 class DCTerminal(Source):
@@ -382,12 +379,12 @@ class DCTerminal(Source):
     def __init__(self):
         super(DCTerminal, self).__init__()
 
-        self._type = SourceType.DcTerminal
+        self._source_type = SourceType.DcTerminal
 
     @property
     def source_type(self):
         """Source type."""
-        return self._type
+        return self._source_type
 
 
 class ResistorSource(Source):
@@ -396,7 +393,7 @@ class ResistorSource(Source):
     def __init__(self):
         super(ResistorSource, self).__init__()
         self._rvalue = "50"
-        self._type = SourceType.Rlc
+        self._source_type = SourceType.Rlc
 
     @property
     def rvalue(self):
@@ -410,4 +407,4 @@ class ResistorSource(Source):
     @property
     def source_type(self):
         """Source type."""
-        return self._type
+        return self._source_type
