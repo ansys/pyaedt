@@ -5,15 +5,15 @@ This module contains these classes: ``CircuitPort``, ``CurrentSource``, ``EdbSiw
 import os
 import time
 
-from pyaedt.edb_core.edb_data.simulation_configuration import CircuitPort
-from pyaedt.edb_core.edb_data.simulation_configuration import CurrentSource
-from pyaedt.edb_core.edb_data.simulation_configuration import DCTerminal
-from pyaedt.edb_core.edb_data.simulation_configuration import ResistorSource
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.simulation_configuration import SiwaveDCSetupTemplate
 from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
-from pyaedt.edb_core.edb_data.simulation_configuration import VoltageSource
+from pyaedt.edb_core.edb_data.sources import CircuitPort
+from pyaedt.edb_core.edb_data.sources import CurrentSource
+from pyaedt.edb_core.edb_data.sources import DCTerminal
+from pyaedt.edb_core.edb_data.sources import ResistorSource
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.sources import VoltageSource
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes

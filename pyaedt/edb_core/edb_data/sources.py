@@ -219,3 +219,201 @@ class Source(object):
                 self.negative_node._read_json(v)
             else:
                 self.__setattr__(k, v)
+
+
+class SourceType(object):
+    """Manages source types."""
+
+    (Port, CurrentSource, VoltageSource, Resistor, DcTerminal) = (1, 2, 3, 4, 5)
+
+
+class PinGroup(object):
+    """Manages pin groups."""
+
+    def __init__(self):
+        self._name = ""
+        self._component = ""
+        self._node_pins = []
+        self._net = ""
+
+    @property
+    def name(self):
+        """Name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def component(self):
+        """Component."""
+        return self._component
+
+    @component.setter
+    def component(self, value):
+        self._component = value
+
+    @property
+    def node_pins(self):
+        """Node pins."""
+        return self._node_pins
+
+    @node_pins.setter
+    def node_pins(self, value):
+        self._node_pins = value
+
+    @property
+    def net(self):
+        """Net."""
+        return self._net
+
+    @net.setter
+    def net(self, value):
+        self._net = value
+
+
+class CircuitPort(Source):
+    """Manages a circuit port."""
+
+    def __init(self):
+        super(CircuitPort, self).__init__()
+        self._impedance = "50"
+        self._type = SourceType.Port
+
+    @property
+    def impedance(self):
+        """Impedance."""
+        return self._impedance
+
+    @impedance.setter
+    def impedance(self, value):
+        self._impedance = value
+
+    @property
+    def get_type(self):
+        """Get type."""
+        return self._type
+
+
+class VoltageSource(Source):
+    """Manages a voltage source."""
+
+    def __init__(self):
+        super(VoltageSource, self).__init__()
+        self._magnitude = "1V"
+        self._phase = "0Deg"
+        self._impedance = "0.05"
+        self._type = SourceType.VoltageSource
+
+    @property
+    def magnitude(self):
+        """Magnitude."""
+        return self._magnitude
+
+    @magnitude.setter
+    def magnitude(self, value):
+        self._magnitude = value
+
+    @property
+    def phase(self):
+        """Phase."""
+        return self._phase
+
+    @phase.setter
+    def phase(self, value):
+        self._phase = value
+
+    @property
+    def impedance(self):
+        """Impedance."""
+        return self._impedance
+
+    @impedance.setter
+    def impedance(self, value):
+        self._impedance = value
+
+    @property
+    def source_type(self):
+        """Source type."""
+        return self._type
+
+
+class CurrentSource(Source):
+    """Manages a current source."""
+
+    def __init__(self):
+        super(CurrentSource, self).__init__()
+        self._magnitude = "0.1A"
+        self._phase = "0Deg"
+        self._impedance = "1e7"
+        self._type = SourceType.CurrentSource
+
+    @property
+    def magnitude(self):
+        """Magnitude."""
+        return self._magnitude
+
+    @magnitude.setter
+    def magnitude(self, value):
+        self._magnitude = value
+
+    @property
+    def phase(self):
+        """Phase."""
+        return self._phase
+
+    @phase.setter
+    def phase(self, value):
+        self._phase = value
+
+    @property
+    def impedance(self):
+        """Impedance."""
+        return self._impedance
+
+    @impedance.setter
+    def impedance(self, value):
+        self._impedance = value
+
+    @property
+    def source_type(self):
+        """Source type."""
+        return self._type
+
+
+class DCTerminal(Source):
+    """Manages a dc terminal source."""
+
+    def __init__(self):
+        super(DCTerminal, self).__init__()
+
+        self._type = SourceType.DcTerminal
+
+    @property
+    def source_type(self):
+        """Source type."""
+        return self._type
+
+
+class ResistorSource(Source):
+    """Manages a resistor source."""
+
+    def __init__(self):
+        super(ResistorSource, self).__init__()
+        self._rvalue = "50"
+        self._type = SourceType.Resistor
+
+    @property
+    def rvalue(self):
+        """Resistance value."""
+        return self._rvalue
+
+    @rvalue.setter
+    def rvalue(self, value):
+        self._rvalue = value
+
+    @property
+    def source_type(self):
+        """Source type."""
+        return self._type
