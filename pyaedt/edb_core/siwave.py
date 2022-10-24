@@ -115,11 +115,11 @@ class EdbSiwave(object):
             neg_pin,
             toLayer_neg,
         )
-        if source.type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
+        if source.source_type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            if source.type == SourceType.CircPort:
+            if source.source_type == SourceType.CircPort:
                 pos_pingroup_terminal.SetIsCircuitPort(True)
                 neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -129,7 +129,7 @@ class EdbSiwave(object):
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
-        elif source.type == SourceType.Isource:
+        elif source.source_type == SourceType.Isource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -142,7 +142,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Vsource:
+        elif source.source_type == SourceType.Vsource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -155,7 +155,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Rlc:
+        elif source.source_type == SourceType.Rlc:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -875,7 +875,7 @@ class EdbSiwave(object):
                 False,
             )
 
-        if source.type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
+        if source.source_type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
@@ -890,7 +890,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Isource:
+        elif source.source_type == SourceType.Isource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -903,7 +903,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Vsource:
+        elif source.source_type == SourceType.Vsource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -916,7 +916,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Rlc:
+        elif source.source_type == SourceType.Rlc:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -927,7 +927,7 @@ class EdbSiwave(object):
             Rlc.REnabled = True
             Rlc.R = self._get_edb_value(source.rvalue)
             pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
-        elif source.type == SourceType.DcTerminal:
+        elif source.source_type == SourceType.DcTerminal:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kDcTerminal)
         else:
             pass

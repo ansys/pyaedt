@@ -12,6 +12,7 @@ from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import validate_enum_class_value
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 try:
     from System import String
@@ -538,11 +539,6 @@ class SimulationConfiguration(object):
             str
             The name of the frequency sweep defined in the project.
         """
-        if isinstance(value, str):
-            self._sweep_name = value
-
-    @sweep_name.setter
-    def sweep_name(self, value):
         if isinstance(value, str):
             self._sweep_name = value
 
@@ -1103,7 +1099,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_use_dc_custom_settings(self):
-        """Retrieve the value for using DC custom settings
+        """Retrieve the value for using DC custom settings.
 
         Returns
         -------
@@ -1484,7 +1480,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_per_pin_use_pin_format(self):
-        """Retrieve the value for using pin format
+        """Retrieve the value for using pin format.
 
         Returns
         -------
@@ -1499,7 +1495,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_use_loop_res_for_per_pin(self):
-        """Retrieve the value for using the loop resistor per pin
+        """Retrieve the value for using the loop resistor per pin.
 
         Returns
         -------
@@ -1536,7 +1532,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_source_terms_to_ground(self):
-        """Retrieve the dictionary of grounded terminals
+        """Retrieve the dictionary of grounded terminals.
 
         Returns
         -------
@@ -1755,6 +1751,12 @@ class SimulationConfiguration(object):
 
     @property
     def mesh_sizefactor(self):
+        """Retrieve the Mesh Size factor value.
+
+        Returns
+        -------
+        float
+        """
         return self._mesh_sizefactor
 
     @mesh_sizefactor.setter
@@ -1776,7 +1778,18 @@ class SimulationConfiguration(object):
             if len([src for src in value if isinstance(src, Source)]) == len(value):
                 self._sources = value
 
+    @pyaedt_function_handler()
     def add_source(self, source=None):  # pragma: no cover
+        """Add a new source to configuration.
+
+        Parameters
+        ----------
+        source :  :class:`pyaedt.edb_core.edb_data.sources.Source`
+
+        Returns
+        -------
+
+        """
         if isinstance(source, Source):
             self._sources.append(source)
 
@@ -1801,6 +1814,7 @@ class SimulationConfiguration(object):
                 prop_values = [value.strip()]
             return prop_values
 
+    @pyaedt_function_handler()
     def add_dc_ground_source_term(self, source_name=None, node_to_ground=1):
         """Add a dc ground source terminal for Siwave.
 
@@ -2036,6 +2050,7 @@ class SimulationConfiguration(object):
             print("Error reading cfg file: {}".format(e.message))
             raise
 
+    @pyaedt_function_handler()
     def export_json(self, output_file):
         """Export Json file from SimulationConfiguration object.
 
@@ -2078,6 +2093,7 @@ class SimulationConfiguration(object):
         else:
             return False
 
+    @pyaedt_function_handler()
     def import_json(self, input_file):
         """Import Json file into SimulationConfiguration object instance.
 
@@ -2117,6 +2133,7 @@ class SimulationConfiguration(object):
         else:
             return False
 
+    @pyaedt_function_handler()
     def add_voltage_source(
         self,
         name="",
@@ -2188,6 +2205,7 @@ class SimulationConfiguration(object):
         except:  # pragma: no cover
             return False
 
+    @pyaedt_function_handler()
     def add_current_source(
         self,
         name="",
@@ -2259,6 +2277,7 @@ class SimulationConfiguration(object):
         except:  # pragma: no cover
             return False
 
+    @pyaedt_function_handler()
     def add_rlc(
         self,
         name="",
