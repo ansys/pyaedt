@@ -22,9 +22,11 @@ except ImportError:
 
 
 class SimulationConfiguration(object):
-    """ASCII simulation configuration file parser, which supports all types of inputs
-    for setting up and automating any kind of SI or PI simulation with HFSS 3D Layout
-    or Siwave. If fields are omitted, default values are applied. This class can be instantiated directly from
+    """Provides an ASCII simulation configuration file parser.
+
+    This parser supports all types of inputs for setting up and automating any kind
+    of SI or PI simulation with HFSS 3D Layout or Siwave. If fields are omitted, default
+    values are applied. This class can be instantiated directly from
     Configuration file. example:
     SolverType = 'Hfss3DLayout'
     GenerateSolerdBalls = 'True'
