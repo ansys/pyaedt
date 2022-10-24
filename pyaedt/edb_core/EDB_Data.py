@@ -6076,7 +6076,7 @@ class Layer(object):
         self._conductivity = value
 
     def _json_format(self):
-        """Export Json file from SimulationConfiguration object.
+        """Export JSON file from the ``SimulationConfiguration`` object.
 
         Parameters
         ----------
