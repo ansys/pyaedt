@@ -1768,6 +1768,12 @@ class SimulationConfiguration(object):
 
     @property
     def sources(self):  # pragma: no cover
+        """Retrieve the source list.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.sources.Source`
+        """
         return self._sources
 
     @sources.setter
