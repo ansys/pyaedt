@@ -1373,8 +1373,6 @@ class SweepHFSS(object):
         if props:
             self.props = props
         else:
-            self.setupname = setup.name
-            self.name = sweepname
             self.props["Type"] = sweeptype
             self.props["IsEnabled"] = True
             self.props["RangeType"] = "LinearCount"
@@ -1643,9 +1641,6 @@ class SweepHFSS3DLayout(object):
         if props:
             self.props = props
         else:
-            self.setupname = setup.name
-            self.name = sweepname
-
             self.props["Properties"] = OrderedDict({"Enable": True})
             self.props["Sweeps"] = OrderedDict(
                 {"Variable": "Sweep 1", "Data": "LIN 1Hz 20GHz 0.05GHz", "OffsetF1": False, "Synchronize": 0}
