@@ -2130,7 +2130,7 @@ if not config["skip_edb"]:
             cap.type = "Resistor"
             assert cap.type == "Resistor"
 
-            export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
+            export_path = os.path.join(self.local_scratch.path, "comp_definition.json")
             assert self.edbapp.core_components.export_definition(export_path)
             assert self.edbapp.core_components.import_definition(export_path)
 
@@ -2139,6 +2139,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
             spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
             assert self.edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
+            assert self.edbapp.core_components.export_definition(export_path)
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
