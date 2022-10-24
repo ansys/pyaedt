@@ -49,7 +49,7 @@ class EDBNetsData(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.edb_data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
         prims = []
         for el in self._core_primitive.primitives:
@@ -80,7 +80,7 @@ class EDBNetsData(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
         """
         comps = {}
         for el, val in self._core_components.components.items():
