@@ -6081,7 +6081,7 @@ class Layer(object):
         Parameters
         ----------
         output_file : str
-            Json file name.
+            Name of the JSON file.
 
         Returns
         -------
