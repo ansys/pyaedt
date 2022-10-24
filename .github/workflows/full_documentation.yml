@@ -126,18 +126,24 @@ jobs:
       - name: Build json documentation
         run: |
           # Export the documentation files to JSON files.
-          sphinx-build -M json doc/source doc-json -j auto -w build_errors.txt -N;
+          sphinx-build -M json doc/source doc-json -j auto -D release=${{ steps.version.outputs.PYAEDT_VERSION }} -D version=${{ steps.version.outputs.PYAEDT_VERSION }}; -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
         run: |
           echo Flattening a nested directory
-          mkdir doc-flatten-json;
-          echo Move all the JSON file to the flatten directory.
-          find . -name "*.fjson" -exec mv "{}" --backup=numbered ./doc-flatten-json \;
-          echo Make sure all the file has .json extensions instead of the .fjson
-          for file in doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
-          echo Move all static image files to the JSON flatten folder.
-          mv doc-json/json/_images doc-flatten-json/_images;
+          mkdir -p doc-flatten-json;
+          # Move all the JSON file to the flatten directory.
+          JSON_FILES=$(find doc-json/json -type f -name "*.fjson" -o -name "*.json*");
+          for filename in $JSON_FILES
+          do
+              x=${filename#./};
+              y=${x// /-};
+              mv -n ${x// /\ } "./doc-flatten-json/${y////-}";
+          done
+          # echo Make sure all the file has .json extensions instead of the .fjson
+          # for file in doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
+          # Move all static image files to the JSON flatten folder.
+          mv -n doc-json/json/_images doc-flatten-json/_images;
 
       - name: zip the flattened JSON directory
         run: |
