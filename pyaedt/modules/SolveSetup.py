@@ -91,7 +91,6 @@ class CommonSetup(PropsManager, object):
         bool
             `True` if solutions are available.
         """
-
         if self.p_app.design_solutions.default_adaptive:
             expressions = [
                 i

@@ -1027,7 +1027,7 @@ class TestClass(BasisTest, object):
         is_ironpython or config["desktopVersion"] < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
-    def test_51_array(self):
+    def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
@@ -1039,29 +1039,40 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
         dict_in["cells"][(3, 3)]["rotation"] = 90
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
-        pass
 
-    def test_52_set_material_threshold(self):
+    def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()
         threshold = 123123123
         assert self.aedtapp.set_material_threshold(threshold)
         assert self.aedtapp.set_material_threshold(str(threshold))
         assert not self.aedtapp.set_material_threshold("e")
 
-    def test_53_crate_setup_hybrid_sbr(self):
-        hfss1 = self.aedtapp.insert_design()
+    @pytest.mark.skipif(
+        is_ironpython or config["desktopVersion"] < "2022.2",
+        reason="Not working in non-graphical in version lower than 2022.2",
+    )
+    def test_51c_export_results(self):
+        self.aedtapp.set_active_design("Array_simple")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) == 0
+        setup = self.aedtapp.create_setup(setupname="test")
+        setup.props["Frequency"] = "1GHz"
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) == 0
+        self.aedtapp.analyze_setup(name="test")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0
+
+    def test_52_crate_setup_hybrid_sbr(self):
+        self.aedtapp.insert_design()
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
-        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
         self.aedtapp.hybrid = True
         assert self.aedtapp.assign_hybrid_region(["inner"])
         bound = self.aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-
-    def test_54_export_results_q3d(self):
-        self.aedtapp.set_active_design("Microstrip")
-        exported_files = self.aedtapp.export_results()
-        assert len(exported_files) > 0
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
