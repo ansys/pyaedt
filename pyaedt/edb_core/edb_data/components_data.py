@@ -47,6 +47,12 @@ class EDBComponentDef(object):
 
     @property
     def type(self):
+        """Retryve the Component definition type.
+
+        Returns
+        -------
+        str
+        """
         num = len(set(comp.type for refdes, comp in self.components.items()))
         if num == 0:  # pragma: no cover
             return None

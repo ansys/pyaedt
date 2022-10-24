@@ -8,6 +8,7 @@ import os
 import re
 import warnings
 
+import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.components_data import EDBComponent
@@ -1283,10 +1284,10 @@ class Components(object):
             self._logger.error("No pins specified for pin group %s", group_name)
             return (False, None)
         if group_name is None:
-            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+            group_name = pyaedt.edb_core.edb_data.simulation_configuration.PinGroup.GetUniqueName(self._active_layout)
         pingroup = _retry_ntimes(
             10,
-            self._edb.Cell.Hierarchy.PinGroup.Create,
+            pyaedt.edb_core.edb_data.simulation_configuration.PinGroup.Create,
             self._active_layout,
             group_name,
             convert_py_list_to_net_list(pins),

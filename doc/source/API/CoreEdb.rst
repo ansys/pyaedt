@@ -89,6 +89,7 @@ These classes are the containers of data read from the EDB file:
    nets_data.EDBNetsData
    primitives_data.EDBPrimitives
    simulation_configuration.SiwaveDCSetupTemplate
+   simulation_configuration.SimulationConfiguration
 
 
 .. code:: python
