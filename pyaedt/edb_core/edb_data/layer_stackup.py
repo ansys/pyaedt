@@ -1,5 +1,19 @@
+import os
+import sys
 import time
+import warnings
 from collections import OrderedDict
+
+try:
+    import clr
+
+    clr.AddReference("System.Collections")
+    from System.Collections.Generic import List
+except ImportError:  # pragma: no cover
+    if os.name != "posix":
+        warnings.warn("PythonNET is needed to run PyAEDT.")
+    elif sys.version[0] == 3 and sys.version[1] < 7:
+        warnings.warn("EDB requires Linux Python 3.7 or later.")
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 

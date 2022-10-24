@@ -1758,7 +1758,7 @@ class Edb(object):
         --------
 
         >>> from pyaedt import Edb
-        >>> from pyaedt.edb_core.edb_data import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
         >>> config_file = path_configuration_file
         >>> source_file = path_to_edb_folder
         >>> edb = Edb(source_file)

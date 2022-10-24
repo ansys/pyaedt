@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from collections import OrderedDict
 
 from pyaedt import generate_unique_name
@@ -11,6 +12,12 @@ from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import validate_enum_class_value
+
+try:
+    from System.Collections.Generic import Dictionary
+except ImportError:
+    if os.name != "posix":
+        warnings.warn("This module requires pythonnet.")
 
 
 class SimulationConfiguration(object):

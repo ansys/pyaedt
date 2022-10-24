@@ -191,7 +191,7 @@ class EDBPrimitives(object):
             xt, yt = self._get_points_for_plot(my_net_points, arc_segments)
             if not xt:
                 return []
-            x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
+            x, y = GeometryOperators.GeometryOperators.orient_polygon(xt, yt, clockwise=True)
             return x, y
         except:
             x = []

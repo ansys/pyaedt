@@ -10,10 +10,10 @@ import warnings
 
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
-from pyaedt.edb_core.EDB_Data import EDBComponent
-from pyaedt.edb_core.EDB_Data import EDBComponentDef
-from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
-from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.edb_core.edb_data.components import EDBComponent
+from pyaedt.edb_core.edb_data.components import EDBComponentDef
+from pyaedt.edb_core.edb_data.padstacks import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.generic.constants import SourceType
