@@ -424,6 +424,194 @@ class Components(object):
         return self._comps_by_part
 
     @pyaedt_function_handler()
+    def create_source_on_component(self, sources=None):
+        """Create voltage, current source, or resistor on component.
+
+        Parameters
+        ----------
+        sources : list[Source]
+            List of ``EDB_Data.Source`` objects.
+
+        Returns
+        -------
+        double, bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        if not sources:  # pragma: no cover
+            return False
+        if isinstance(sources, Source):  # pragma: no cover
+            sources = [sources]
+        if isinstance(sources, list):  # pragma: no cover
+            for src in sources:
+                if not isinstance(src, Source):  # pragma: no cover
+                    self._logger.error("List of source objects must be passed as an argument.")
+                    return False
+        for source in sources:
+            positive_pins = self.get_pin_from_component(source.positive_node.component, source.positive_node.net)
+            negative_pins = self.get_pin_from_component(source.negative_node.component, source.negative_node.net)
+            positive_pin_group = self.create_pingroup_from_pins(positive_pins)
+            if not positive_pin_group:  # pragma: no cover
+                return False
+            negative_pin_group = self.create_pingroup_from_pins(negative_pins)
+            if not negative_pin_group:  # pragma: no cover
+                return False
+            if source.source_type == SourceType.Vsource:  # pragma: no cover
+                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
+                term_name = source.name
+                positive_pin_group_term.SetName(term_name)
+                negative_pin_group_term.SetName("{}_ref".format(term_name))
+                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+            elif source.source_type == SourceType.Isource:  # pragma: no cover
+                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
+                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
+                term_name = source.name
+                positive_pin_group_term.SetName(term_name)
+                negative_pin_group_term.SetName("{}_ref".format(term_name))
+                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
+                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
+                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
+                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
+            elif source.source_type == SourceType.Rlc:  # pragma: no cover
+                self.create_rlc_component(
+                    pins=[positive_pins[0], negative_pins[0]],
+                    component_name=source.name,
+                    r_value=source.r_value,
+                    l_value=source.l_value,
+                    c_value=source.c_value,
+                )
+        return True
+
+    @pyaedt_function_handler()
+    def create_port_on_component(
+        self,
+        component,
+        net_list,
+        port_type=SourceType.CoaxPort,
+        do_pingroup=True,
+        reference_net="gnd",
+    ):
+        """Create ports on given component.
+
+        Parameters
+        ----------
+        component : str or self._edb.Cell.Hierarchy.Component
+            EDB component or str component name.
+
+        net_list : str or list of string.
+            List of nets where ports must be created on the component.
+            If the net is not part of the component, this parameter is skipped.
+
+        port_type : SourceType enumerator, CoaxPort or CircuitPort
+            Type of port to create. ``CoaxPort`` generates solder balls.
+            ``CircuitPort`` generates circuit ports on pins belonging to the net list.
+
+        do_pingroup : bool
+            True activate pingroup during port creation (only used with combination of CoaxPort),
+            False will take the closest reference pin and generate one port per signal pin.
+
+        refnet : string or list of string.
+            list of the reference net.
+
+        Returns
+        -------
+        double, bool
+            Salder ball height vale, ``False`` when failed.
+
+        Examples
+        --------
+
+        >>> from pyaedt import Edb
+        >>> edbapp = Edb("myaedbfolder")
+        >>> net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
+        >>> edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
+        >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
+
+        """
+        if isinstance(component, self._edb.Cell.Hierarchy.Component):
+            cmp = component.GetName()
+        if not isinstance(net_list, list):
+            net_list = [net_list]
+        for net in net_list:
+            if not isinstance(net, str):
+                try:
+                    net_name = net.GetName()
+                    if net_name != "":
+                        net_list.append(net_name)
+                except:
+                    pass
+        if reference_net in net_list:
+            net_list.remove(reference_net)
+        cmp_pins = self.get_pin_from_component(component, net_list)
+        if len(cmp_pins) == 0:
+            return False
+        pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
+
+        if port_type == SourceType.CoaxPort:
+            pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
+            sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
+            solder_ball_height = sball_diam
+            self.set_solder_ball(component, solder_ball_height, sball_diam)
+            for pin in cmp_pins:
+                self._padstack.create_coax_port(pin)
+
+        elif port_type == SourceType.CircPort:
+            ref_pins = self.get_pin_from_component(component, reference_net)
+            if do_pingroup:
+                pingroups = []
+                if len(ref_pins) == 1:
+                    self.create_terminal = self._create_terminal(ref_pins[0])
+                    self.terminal = self.create_terminal
+                    ref_pin_group_term = self.terminal
+                else:
+                    ref_pin_group = self.create_pingroup_from_pins(ref_pins)
+                    if not ref_pin_group:
+                        return False
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
+                    if not ref_pin_group_term:
+                        return False
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
+                    if pins:
+                        pin_group = self.create_pingroup_from_pins(pins)
+                        if not pin_group:
+                            return False
+                        pin_group_term = self._create_pin_group_terminal(pin_group)
+                        if pin_group_term:
+                            pin_group_term.SetReferenceTerminal(ref_pin_group_term)
+                    else:
+                        self._logger.info("No pins found on component {} for the net {}".format(component, net))
+
+            else:
+                for net in net_list:
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
+                    for pin in pins:
+                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
+                        ref_pin_term = self._create_terminal(ref_pin)
+                        term = self._create_terminal(pin)
+                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        ref_pin_term.SetIsCircuitPort(True)
+                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
+                        term.SetIsCircuitPort(True)
+                        term.SetReferenceTerminal(ref_pin_term)
+        return True
+
+    @pyaedt_function_handler()
     def get_component_list(self):
         """Retrieve conponent setup information.
 
@@ -615,194 +803,6 @@ class Components(object):
             cmp_prop = cmp.GetComponentProperty().Clone()
             return cmp_prop.GetSolderBallProperty().GetHeight()
         return False
-
-    @pyaedt_function_handler()
-    def create_source_on_component(self, sources=None):
-        """Create voltage, current source, or resistor on component.
-
-        Parameters
-        ----------
-        sources : list[Source]
-            List of ``EDB_Data.Source`` objects.
-
-        Returns
-        -------
-        double, bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-
-        if not sources:  # pragma: no cover
-            return False
-        if isinstance(sources, Source):  # pragma: no cover
-            sources = [sources]
-        if isinstance(sources, list):  # pragma: no cover
-            for src in sources:
-                if not isinstance(src, Source):  # pragma: no cover
-                    self._logger.error("List of source objects must be passed as an argument.")
-                    return False
-        for source in sources:
-            positive_pins = self.get_pin_from_component(source.positive_node.component, source.positive_node.net)
-            negative_pins = self.get_pin_from_component(source.negative_node.component, source.negative_node.net)
-            positive_pin_group = self.create_pingroup_from_pins(positive_pins)
-            if not positive_pin_group:  # pragma: no cover
-                return False
-            negative_pin_group = self.create_pingroup_from_pins(negative_pins)
-            if not negative_pin_group:  # pragma: no cover
-                return False
-            if source.source_type == SourceType.Vsource:  # pragma: no cover
-                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
-                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
-                term_name = source.name
-                positive_pin_group_term.SetName(term_name)
-                negative_pin_group_term.SetName("{}_ref".format(term_name))
-                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
-                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
-                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
-            elif source.source_type == SourceType.Isource:  # pragma: no cover
-                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
-                positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
-                term_name = source.name
-                positive_pin_group_term.SetName(term_name)
-                negative_pin_group_term.SetName("{}_ref".format(term_name))
-                positive_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                negative_pin_group_term.SetSourceAmplitude(self._get_edb_value(source.amplitude))
-                positive_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                negative_pin_group_term.SetSourcePhase(self._get_edb_value(source.phase))
-                positive_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
-                negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
-                positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
-            elif source.source_type == SourceType.Rlc:  # pragma: no cover
-                self.create_rlc_component(
-                    pins=[positive_pins[0], negative_pins[0]],
-                    component_name=source.name,
-                    r_value=source.r_value,
-                    l_value=source.l_value,
-                    c_value=source.c_value,
-                )
-        return True
-
-    @pyaedt_function_handler()
-    def create_port_on_component(
-        self,
-        component,
-        net_list,
-        port_type=SourceType.CoaxPort,
-        do_pingroup=True,
-        reference_net="gnd",
-    ):
-        """Create ports on given component.
-
-        Parameters
-        ----------
-        component : str or self._edb.Cell.Hierarchy.Component
-            EDB component or str component name.
-
-        net_list : str or list of string.
-            List of nets where ports must be created on the component.
-            If the net is not part of the component, this parameter is skipped.
-
-        port_type : SourceType enumerator, CoaxPort or CircuitPort
-            Type of port to create. ``CoaxPort`` generates solder balls.
-            ``CircuitPort`` generates circuit ports on pins belonging to the net list.
-
-        do_pingroup : bool
-            True activate pingroup during port creation (only used with combination of CoaxPort),
-            False will take the closest reference pin and generate one port per signal pin.
-
-        refnet : string or list of string.
-            list of the reference net.
-
-        Returns
-        -------
-        double, bool
-            Salder ball height vale, ``False`` when failed.
-
-        Examples
-        --------
-
-        >>> from pyaedt import Edb
-        >>> edbapp = Edb("myaedbfolder")
-        >>> net_list = ["M_DQ<1>", "M_DQ<2>", "M_DQ<3>", "M_DQ<4>", "M_DQ<5>"]
-        >>> edbapp.core_components.create_port_on_component(cmp="U2A5", net_list=net_list,
-        >>> port_type=SourceType.CoaxPort, do_pingroup=False, refnet="GND")
-
-        """
-        if isinstance(component, self._edb.Cell.Hierarchy.Component):
-            cmp = component.GetName()
-        if not isinstance(net_list, list):
-            net_list = [net_list]
-        for net in net_list:
-            if not isinstance(net, str):
-                try:
-                    net_name = net.GetName()
-                    if net_name != "":
-                        net_list.append(net_name)
-                except:
-                    pass
-        if reference_net in net_list:
-            net_list.remove(reference_net)
-        cmp_pins = self.get_pin_from_component(component, net_list)
-        if len(cmp_pins) == 0:
-            return False
-        pin_layers = cmp_pins[0].GetPadstackDef().GetData().GetLayerNames()
-
-        if port_type == SourceType.CoaxPort:
-            pad_params = self._padstack.get_pad_parameters(pin=cmp_pins[0], layername=pin_layers[0], pad_type=0)
-            sball_diam = min([self._pedb.edb_value(val).ToDouble() for val in pad_params[1]])
-            solder_ball_height = sball_diam
-            self.set_solder_ball(component, solder_ball_height, sball_diam)
-            for pin in cmp_pins:
-                self._padstack.create_coax_port(pin)
-
-        elif port_type == SourceType.CircPort:
-            ref_pins = self.get_pin_from_component(component, reference_net)
-            if do_pingroup:
-                pingroups = []
-                if len(ref_pins) == 1:
-                    self.create_terminal = self._create_terminal(ref_pins[0])
-                    self.terminal = self.create_terminal
-                    ref_pin_group_term = self.terminal
-                else:
-                    ref_pin_group = self.create_pingroup_from_pins(ref_pins)
-                    if not ref_pin_group:
-                        return False
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
-                    if not ref_pin_group_term:
-                        return False
-                for net in net_list:
-                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
-                    if pins:
-                        pin_group = self.create_pingroup_from_pins(pins)
-                        if not pin_group:
-                            return False
-                        pin_group_term = self._create_pin_group_terminal(pin_group)
-                        if pin_group_term:
-                            pin_group_term.SetReferenceTerminal(ref_pin_group_term)
-                    else:
-                        self._logger.info("No pins found on component {} for the net {}".format(component, net))
-
-            else:
-                for net in net_list:
-                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
-                    for pin in pins:
-                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
-                        ref_pin_term = self._create_terminal(ref_pin)
-                        term = self._create_terminal(pin)
-                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                        ref_pin_term.SetIsCircuitPort(True)
-                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                        term.SetIsCircuitPort(True)
-                        term.SetReferenceTerminal(ref_pin_term)
-        return True
 
     @pyaedt_function_handler()
     def _create_terminal(self, pin):
