@@ -2334,10 +2334,10 @@ class SimulationConfiguration(object):
 
 
 class SiwaveDCSetupTemplate(object):
-    """Siwave DC Settings Data Class.
+    """Manages Siwave DC settings data.
 
-    This class contains all the settings for a Siwave DC Analysis and
-    is used as input
+    This class contains all the settings for a Siwave DC analysis and
+    is used as input.
 
     Examples
     --------
