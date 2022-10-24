@@ -1047,6 +1047,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.set_material_threshold(str(threshold))
         assert not self.aedtapp.set_material_threshold("e")
 
+    @pytest.mark.skipif(
+        is_ironpython or config["desktopVersion"] < "2022.2",
+        reason="Not working in non-graphical in version lower than 2022.2",
+    )
     def test_51c_export_results(self):
         self.aedtapp.set_active_design("Array_simple")
         exported_files = self.aedtapp.export_results()

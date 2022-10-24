@@ -833,7 +833,6 @@ class Analysis(Design, object):
                                     self.logger.info("Exported Touchstone: %s", export_path)
                                 except:
                                     self.logger.warning("Export SnP failed: no solutions found")
-                                pass
                             elif self.design_type == "Q3D Extractor":
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
