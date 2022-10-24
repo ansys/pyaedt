@@ -181,6 +181,7 @@ class FieldAnalysis3D(Analysis, object):
         plot_air_objects=True,
         force_opacity_value=None,
         clean_files=False,
+        view="isometric",
     ):
         """Plot the model or a subset of objects.
 
@@ -206,6 +207,9 @@ class FieldAnalysis3D(Analysis, object):
         clean_files : bool, optional
             Whether to clean created files after plot generation. The default is ``False``,
             which means that the cache is maintained in the model object that is returned.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+           The default is ``"isometric"``.
 
         Returns
         -------
@@ -225,6 +229,7 @@ class FieldAnalysis3D(Analysis, object):
                 plot_air_objects=plot_air_objects,
                 force_opacity_value=force_opacity_value,
                 clean_files=clean_files,
+                view=view,
             )
 
     @pyaedt_function_handler()
@@ -233,7 +238,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Parameters
         ----------
-        setup_name :str
+        setup_name : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
@@ -933,7 +938,7 @@ class FieldAnalysis3D(Analysis, object):
                 app.modeler.purge_history(app.modeler._all_object_names)
             self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
             self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
-            app.close_project(saveproject=False)
+            app.close_project(save_project=False)
             comp.delete()
             self.modeler.refresh_all_ids()
         return True

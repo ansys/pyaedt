@@ -1344,7 +1344,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -1511,7 +1511,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -2474,7 +2474,7 @@ class EyeDiagram(CommonReport):
             Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
         xunits : str, optional
             X points units. The default is ``"ns"``.
-        yunits :  str, optional
+        yunits : str, optional
             Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
             Whether to enable the upper and lower limits. The default is ``False``.

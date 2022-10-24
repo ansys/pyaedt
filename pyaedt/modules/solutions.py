@@ -152,7 +152,7 @@ class SolutionData(object):
 
     @property
     def intrinsics(self):
-        "Get intrinics dictionary on active variation."
+        """Get intrinsics dictionary on active variation."""
         _sweeps = OrderedDict({})
         intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
         for el in intrinsics:
@@ -2835,8 +2835,7 @@ class FieldPlot:
             Path where image will be saved.
             The default is ``None`` which export file in working_directory.
         view : str, optional
-            View of the exported plot. Options are ``isometric``,
-            ``top``, ``front``, ``left``, and ``all``.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_mesh : bool, optional
             Plot mesh.
         scale_min : float, optional

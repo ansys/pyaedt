@@ -166,7 +166,12 @@ class Design(AedtObjects):
             logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
 
         t = None
-        if project_name and os.path.exists(project_name) and os.path.splitext(project_name)[1] == ".aedt":
+        if (
+            not is_ironpython
+            and project_name
+            and os.path.exists(project_name)
+            and os.path.splitext(project_name)[1] == ".aedt"
+        ):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
@@ -2104,7 +2109,7 @@ class Design(AedtObjects):
             return False
 
     @pyaedt_function_handler()
-    def load_project(self, project_file, design_name=None, close_active_proj=False):
+    def load_project(self, project_file, design_name=None, close_active_proj=False, save_active_project=False):
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -2115,6 +2120,8 @@ class Design(AedtObjects):
             Design name. The default is ``None``.
         close_active_proj : bool, optional
             Whether to close the active project. The default is ``False``.
+        save_active_project : bool, optional
+            Whether to save the active project. The default is ``False``.
 
         Returns
         -------
@@ -2129,7 +2136,7 @@ class Design(AedtObjects):
         proj = self.odesktop.OpenProject(project_file)
         if close_active_proj and self.oproject:
             self._close_edb()
-            self.close_project(self.project_name)
+            self.close_project(self.project_name, save_project=save_active_project)
         if proj:
             self._init_design(project_name=proj.GetName(), design_name=design_name)
             return True
@@ -2487,7 +2494,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        name :str
+        name : str
             Name of the dataset (without a prefix for a project dataset).
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
@@ -2708,7 +2715,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name=None, saveproject=True):
+    def close_project(self, name=None, save_project=True):
         """Close an AEDT project.
 
         Parameters
@@ -2716,7 +2723,7 @@ class Design(AedtObjects):
         name : str, optional
             Name of the project. The default is ``None``, in which case the
             active project is closed.
-        saveproject : bool, optional
+        save_project : bool, optional
             Whether to save the project before closing it. The default is
             ``True``.
 
@@ -2739,7 +2746,8 @@ class Design(AedtObjects):
         self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
-        if saveproject:
+        proj_file = os.path.join(proj_path, name + ".aedt")
+        if save_project:
             oproj.Save()
         self.odesktop.CloseProject(name)
         if name == legacy_name:
@@ -2763,6 +2771,9 @@ class Design(AedtObjects):
             else:
                 i += 0.2
                 time.sleep(0.2)
+
+        if os.path.normpath(proj_file) in settings._project_properties:
+            del settings._project_properties[os.path.normpath(proj_file)]
         return True
 
     @pyaedt_function_handler()

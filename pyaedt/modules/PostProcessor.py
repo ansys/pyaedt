@@ -2880,8 +2880,7 @@ class PostProcessor(PostProcessorCommon, object):
         exportFilePath :
             Path for exporting the image file.
         view : str, optional
-            View to export. Options are ``"isometric"``, ``"top"``, ``"bottom"``, ``"right"``, ``"left"`` and any
-            custom orientation.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
             The default is ``"isometric"``.
         wireframe : bool, optional
             Whether to put the objects in the wireframe mode. The default is ``True``.

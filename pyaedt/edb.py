@@ -33,9 +33,11 @@ from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.EDB_Data import EdbBuilder
+from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
 from pyaedt.edb_core.EDB_Data import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
+from pyaedt.edb_core.pingroups import Terminal
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
@@ -259,6 +261,20 @@ class Edb(object):
         for cell in list(self._db.TopCircuitCells):
             names.append(cell.GetName())
         return names
+
+    @property
+    def excitations(self):
+        """Retrieve the Terminals of the active edb.
+
+        Returns
+        -------
+        dict
+        """
+        terminals = {}
+        for terminal in list(self.active_layout.Terminals):
+            if not terminal.IsReferenceTerminal():
+                terminals[terminal.GetName()] = Terminal(self, terminal)
+        return terminals
 
     @pyaedt_function_handler()
     def _init_dlls(self):
@@ -689,15 +705,14 @@ class Edb(object):
 
     @property
     def pins(self):
-        """Pins.
+        """EDBPadstackInstance of Component.
 
         Returns
         -------
-        list
-            List of all pins.
+        dic[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
         """
-
-        pins = []
+        pins = {}
         if self.core_components:
             for el in self.core_components.components:
                 comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
@@ -706,7 +721,8 @@ class Edb(object):
                     for p in comp.LayoutObjs
                     if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
                 ]
-                pins += temp
+                for p in temp:
+                    pins[p.GetId()] = EDBPadstackInstance(p, self)
         return pins
 
     class Boundaries:
@@ -870,6 +886,7 @@ class Edb(object):
 
         """
         self._db.SaveAs(fname)
+        self.edbpath = self._db.GetDirectory()
         return True
 
     @pyaedt_function_handler()
@@ -1072,6 +1089,7 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
                 dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()
@@ -1338,6 +1356,7 @@ class Edb(object):
                 self.edbpath = output_aedb_path
                 self._active_cell = cell
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()

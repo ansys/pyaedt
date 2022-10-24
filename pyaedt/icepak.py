@@ -619,13 +619,12 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         if object_name in self.modeler.object_names:
-            faces = self.modeler.get_object_faces(object_name)
-            k = 0
+            if gravity_dir > 2:
+                gravity_dir = gravity_dir - 2
+            faces_dict = self.modeler[object_name].faces
             faceCenter = {}
-            for f in faces:
-                faceCenter[f] = self.modeler.oeditor.GetFaceCenter(int(f))
-                faceCenter[f] = [round(float(i), 1) for i in faceCenter[f]]
-                k = k + 1
+            for f in faces_dict:
+                faceCenter[f.id] = f.center
             fcmax = -1e9
             fcmin = 1e9
             fcrjc = None
@@ -634,10 +633,10 @@ class Icepak(FieldAnalysis3D):
                 fc1 = faceCenter[fc]
                 if fc1[gravity_dir] < fcmin:
                     fcmin = fc1[gravity_dir]
-                    fcrjc = int(fc)
+                    fcrjb = int(fc)
                 if fc1[gravity_dir] > fcmax:
                     fcmax = fc1[gravity_dir]
-                    fcrjb = int(fc)
+                    fcrjc = int(fc)
             if fcmax < float(top):
                 app = fcrjc
                 fcrjc = fcrjb
@@ -2251,7 +2250,7 @@ class Icepak(FieldAnalysis3D):
 
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
-            self.close_project(prjname, saveproject=False)
+            self.close_project(prjname, save_project=False)
         self.logger.info("PCB component correctly created in Icepak.")
         return status
 
