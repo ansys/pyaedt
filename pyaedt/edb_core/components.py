@@ -233,12 +233,14 @@ class Components(object):
                         model = comp.s_param_model
                         data["Definitions"][part_name]["Model_name"] = model.name
                         data["Definitions"][part_name]["Reference_net"] = model.reference_net
-                        if not model.name in data["SParameterModel"]:
-                            data["SParameterModel"][model.name] = model.file_path
+                        if model.name not in data["SParameterModel"]:
+                            data["SParameterModel"][model.name] = self._edb.Definition.NPortComponentModel.FindByName(
+                                comp.edbcomponent.GetComponentDef(), model.name
+                            ).GetReferenceFile()
                     elif comp.model_type == "SPICEModel":
                         model = comp.spice_model
                         data["Definitions"][part_name]["Model_name"] = model.name
-                        if not model.name in data["SPICEModel"]:
+                        if model.name not in data["SPICEModel"]:
                             data["SPICEModel"][model.name] = model.file_path
                     else:
                         model = comp.netlist_model
@@ -768,9 +770,8 @@ class Components(object):
             if do_pingroup:
                 pingroups = []
                 if len(ref_pins) == 1:
-                    self.create_terminal = self._create_terminal(ref_pins[0])
-                    self.terminal = self.create_terminal
-                    ref_pin_group_term = self.terminal
+                    ref_pin_group_term = self._create_terminal(ref_pins[0])
+
                 else:
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                     if not ref_pin_group:
@@ -788,7 +789,7 @@ class Components(object):
                         if pin_group_term:
                             pin_group_term.SetReferenceTerminal(ref_pin_group_term)
                     else:
-                        self._logger.info("No pins found on component {} for the net {}".format(component, net))
+                        self._logger.warning("No pins found on component {} for the net {}".format(component, net))
 
             else:
                 for net in net_list:
@@ -978,12 +979,15 @@ class Components(object):
         """
 
         layout = pingroup.GetLayout()
-        cmp_name = pingroup.GetComponent().GetName()
+        cmp_name = pingroup.GetPins()[0].GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
+        term_name = "Pingroup_{0}_{1}".format(cmp_name, net_name)
+        if term_name in self._pedb.excitations:
+            term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
+        self._pedb.logger.info("Terminal %s created.", term_name)
         return pingroup_term
 
     @pyaedt_function_handler()
@@ -1021,8 +1025,9 @@ class Components(object):
                 if componentDefinitionPin.IsNull():
                     self._logger.error("Failed to create component definition pin {}-{}".format(name, pin.GetName()))
                     return None
+            self._logger.info("Created new component definition for footprint {}".format(name))
         else:
-            self._logger.warning("Found existing component definition for footprint {}".format(name))
+            self._logger.info("Found existing component definition for footprint {}".format(name))
         return componentDefinition
 
     @pyaedt_function_handler()
@@ -1564,7 +1569,7 @@ class Components(object):
                 componentname,
             )
             return False
-        self._logger.warning("RLC properties for Component %s has been assigned.", componentname)
+        self._logger.info("RLC properties for Component %s has been assigned.", componentname)
         return True
 
     @pyaedt_function_handler()
@@ -1695,7 +1700,6 @@ class Components(object):
                         p_layer = comp.placement_layer
                         refdes_temp = comp.refdes + "_temp"
                         comp.refdes = refdes_temp
-
                         unmount_comp_list.remove(refdes)
                         comp.edbcomponent.Ungroup(True)
 
@@ -1709,7 +1713,7 @@ class Components(object):
                 else:
                     comp.type = comp_type.upper()
 
-                if comp_type in ["Resistor", "Capacitor", "Inductor"]:
+                if comp_type in ["Resistor", "Capacitor", "Inductor"] and refdes in unmount_comp_list:
                     unmount_comp_list.remove(refdes)
                 if not value_col == None:
                     try:
@@ -1760,7 +1764,7 @@ class Components(object):
 
     @pyaedt_function_handler()
     def get_pin_from_component(self, component, netName=None, pinName=None):
-        """Retrieve the pins of a component.
+        """Retrieve the pins object of a component.
 
         Parameters
         ----------
