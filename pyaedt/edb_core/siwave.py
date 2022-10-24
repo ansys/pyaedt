@@ -1438,7 +1438,7 @@ class EdbSiwave(object):
     def create_port_between_pin_and_layer(
         self, component_name=None, pins_name=[], layer_name=None, reference_net=None, impedance=50.0
     ):
-        """
+        """Create a port between a pin and a layer.
 
         Parameters
         ----------
