@@ -14,6 +14,7 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import unit_converter
@@ -25,6 +26,14 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -1823,9 +1832,9 @@ class PostProcessorCommon(object):
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop`
-    hierarchical calls needed for the class inititialization data
-    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    The inherited ``AEDTConfig`` class contains all ``_desktop``
+    hierarchical calls needed for the class initialization data
+    ``_desktop`` and the design types ``"HFSS"``, ``"Icepak"``, and
     ``"HFSS3DLayout"``.
 
     .. note::
@@ -2871,8 +2880,7 @@ class PostProcessor(PostProcessorCommon, object):
         exportFilePath :
             Path for exporting the image file.
         view : str, optional
-            View to export. Options are ``"isometric"``, ``"top"``, ``"bottom"``, ``"right"``, ``"left"`` and any
-            custom orientation.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
             The default is ``"isometric"``.
         wireframe : bool, optional
             Whether to put the objects in the wireframe mode. The default is ``True``.
@@ -3784,6 +3792,93 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         )
         return plotname
 
+    def sample_waveform(
+        self,
+        waveform_data,
+        waveform_sweep,
+        waveform_unit="V",
+        waveform_sweep_unit="s",
+        unit_interval=1e-9,
+        clock_tics=None,
+        pandas_enabled=False,
+    ):
+        """Sampling a waveform at clock times plus half unit interval.
+
+        Parameters
+        ----------
+        waveform_data : list
+            Waveform data
+        waveform_sweep : list
+            Waveform sweep data
+        waveform_unit : str, optional
+            Waveform units. The default values is ``V``.
+        waveform_sweep_unit : str, optional
+            Time units. The default value is ``s``.
+        unit_interval : float, optional
+            Unit interval in seconds. The default is ``1e-9``.
+        clock_tics : list, optional
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
+        pandas_enabled : bool, optional
+            ``True`` if data format is pandas. The default is `False``
+
+        Returns
+        -------
+        list or :class:`pandas.Series`
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
+
+        Examples
+        --------
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+
+        """
+
+        new_tic = []
+        for tic in clock_tics:
+            new_tic.append(unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit))
+        new_ui = unit_converter(unit_interval, unit_system="Time", input_units="s", output_units=waveform_sweep_unit)
+
+        zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
+        extraction_tic = [x + y for (x, y) in zipped_lists]
+
+        if pandas_enabled:
+            sweep_filtered = waveform_sweep.values
+            filtered_tic = list(filter(lambda num: num >= waveform_sweep.values[0], extraction_tic))
+        else:
+            sweep_filtered = waveform_sweep
+            filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
+
+        outputdata = []
+        new_voltage = []
+        tic_in_s = []
+        for tic in filtered_tic:
+            if tic >= sweep_filtered[0]:
+                sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
+                if sweep_filtered:
+                    if pandas_enabled:
+                        waveform_index = waveform_sweep[waveform_sweep.values == sweep_filtered[0]].index.values
+                    else:
+                        waveform_index = waveform_sweep.index(sweep_filtered[0])
+                    if not isinstance(waveform_data[waveform_index], float):
+                        voltage = waveform_data[waveform_index].values[0]
+                    else:
+                        voltage = waveform_data[waveform_index]
+                    new_voltage.append(
+                        unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
+                    )
+                    tic_in_s.append(
+                        unit_converter(tic, unit_system="Time", input_units=waveform_sweep_unit, output_units="s")
+                    )
+                    if not pandas_enabled:
+                        outputdata.append([tic_in_s[-1:][0], new_voltage[-1:][0]])
+                    del sweep_filtered[0]
+                else:
+                    break
+        if pandas_enabled:
+            return pd.Series(new_voltage, index=tic_in_s)
+        return outputdata
+
     def sample_ami_waveform(
         self,
         setupname,
@@ -3884,59 +3979,13 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         outputdata = [[] for i in range(len(waveform))]
         for w in range(0, len(waveform)):
-            new_tic = []
-            for tic in tics:
-                new_tic.append(
-                    unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit[w])
-                )
-            new_ui = unit_converter(
-                unit_interval, unit_system="Time", input_units="s", output_units=waveform_sweep_unit[0]
+            outputdata[w] = self.sample_waveform(
+                waveform_data=waveform[w],
+                waveform_sweep=waveform_sweep[w],
+                waveform_unit=waveform_unit[w],
+                waveform_sweep_unit=waveform_sweep_unit[w],
+                unit_interval=unit_interval,
+                clock_tics=tics,
+                pandas_enabled=waveform_data.enable_pandas_output,
             )
-
-            zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
-            extraction_tic = [x + y for (x, y) in zipped_lists]
-
-            if waveform_data.enable_pandas_output:
-                sweep_filtered = waveform_sweep[w].values
-                filtered_tic = list(filter(lambda num: num >= waveform_sweep[w].values[0], extraction_tic))
-            else:
-                sweep_filtered = waveform_sweep[w]
-                filtered_tic = list(filter(lambda num: num >= waveform_sweep[w][0], extraction_tic))
-            for tic in filtered_tic:
-                if tic >= sweep_filtered[0]:
-                    sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
-                    if sweep_filtered:
-                        if waveform_data.enable_pandas_output:
-                            waveform_index = waveform_sweep[w][
-                                waveform_sweep[w].values == sweep_filtered[0]
-                            ].index.values
-                        else:
-                            waveform_index = waveform_sweep[w].index(sweep_filtered[0])
-                        new_voltage = unit_converter(
-                            waveform[w][waveform_index],
-                            unit_system="Voltage",
-                            input_units=waveform_unit[w],
-                            output_units="V",
-                        )
-                        tic_in_s = unit_converter(
-                            tic, unit_system="Time", input_units=waveform_sweep_unit[0], output_units="s"
-                        )
-                        if waveform_data.enable_pandas_output:
-                            outputdata[w].append([tic_in_s, new_voltage.values.tolist()[0]])
-                        else:
-                            outputdata[w].append([tic_in_s, new_voltage])
-                        del sweep_filtered[0]
-                    else:
-                        break
-
-        self._app.solution_type = initial_solution_type
-        if waveform_data.enable_pandas_output:
-            import pandas as pd
-
-            df = []
-            cont = 0
-            for data in outputdata:
-                df.append(pd.DataFrame(data, columns=["time", "voltage"]))
-                cont += 1
-            outputdata = df
         return outputdata

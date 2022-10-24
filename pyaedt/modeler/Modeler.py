@@ -2046,8 +2046,8 @@ class GeometryModeler(Modeler, object):
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
                 obj_cent = center
                 face_ob = face
-        vertx = face_ob.vertices
-        start = vertx[0].position
+        vertex = face_ob.vertices
+        start = vertex[0].position
 
         if not groundname:
             gnd_cent = []
@@ -3188,13 +3188,15 @@ class GeometryModeler(Modeler, object):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, theList):
+    def unite(self, theList, purge=False):
         """Unite objects from a list.
 
         Parameters
         ----------
         theList : list
             List of objects.
+        purge : bool, optional
+            Purge history after unite.
 
         Returns
         -------
@@ -3206,7 +3208,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Unite
         """
-        slice = min(20, len(theList))
+        slice = min(100, len(theList))
         num_objects = len(theList)
         remaining = num_objects
         objs_groups = []
@@ -3216,6 +3218,13 @@ class GeometryModeler(Modeler, object):
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
             self.oeditor.Unite(vArg1, vArg2)
+            if objs[0] in self.unclassified_names:
+                self.logger.error("Error in uniting objects.")
+                self._odesign.Undo()
+                self.cleanup_objects()
+                return False
+            elif purge:
+                self.purge_history(objs[0])
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
@@ -3224,7 +3233,7 @@ class GeometryModeler(Modeler, object):
             objs_groups.extend(theList)
         self.cleanup_objects()
         if len(objs_groups) > 1:
-            return self.unite(objs_groups)
+            return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
         return self.convert_to_selections(theList[0], False)
 
@@ -4608,8 +4617,8 @@ class GeometryModeler(Modeler, object):
 
                 oFaceIDs = self.oeditor.GetFaceIDs(i)
 
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
+                for face in oFaceIDs:
+                    sel.append(int(face))
         return sel
 
     @pyaedt_function_handler()
@@ -4639,8 +4648,8 @@ class GeometryModeler(Modeler, object):
 
             oFaceIDs = self.oeditor.GetFaceIDs(i)
 
-            for facce in oFaceIDs:
-                sel.append(int(facce))
+            for face in oFaceIDs:
+                sel.append(int(face))
         return sel
 
     @pyaedt_function_handler()

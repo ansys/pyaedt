@@ -198,8 +198,8 @@ class Materials(object):
         return {obj.GetName(): Material(self, obj) for obj in list(self._db.MaterialDefs)}
 
     @pyaedt_function_handler()
-    def add(self, name, conductivity, permittivity, loss_tangent):
-        """Add a new material in library.
+    def add_conductor_material(self, name, conductivity):
+        """Add a new conductor material in library.
 
         Parameters
         ----------
@@ -207,6 +207,26 @@ class Materials(object):
             Name of the new material.
         conductivity : float
             Conductivity of the new material.
+        -------
+
+        """
+        if not name in self.materials:
+            self._edb.Definition.MaterialDef.Create(self._db, name)
+            new_material = self.materials[name]
+            new_material.conductivity = conductivity
+            return new_material
+        else:  # pragma: no cover
+            warnings.warn("Material {} already exists in material library.".format(name))
+            return False
+
+    @pyaedt_function_handler()
+    def add_dielectric_material(self, name, permittivity, loss_tangent):
+        """Add a new dielectric material in library.
+
+        Parameters
+        ----------
+        name : str
+            Name of the new material.
         permittivity : float
             Permittivity of the new material.
         loss_tangent : float
@@ -218,7 +238,6 @@ class Materials(object):
         if not name in self.materials:
             self._edb.Definition.MaterialDef.Create(self._db, name)
             new_material = self.materials[name]
-            new_material.conductivity = conductivity
             new_material.permittivity = permittivity
             new_material.loss_tangent = loss_tangent
             return new_material
@@ -227,14 +246,14 @@ class Materials(object):
             return False
 
     @pyaedt_function_handler()
-    def add_djordjevicsarkar_material(self, name, relative_permittivity, loss_tangent, test_frequency):
+    def add_djordjevicsarkar_material(self, name, permittivity, loss_tangent, test_frequency):
         """Create a Djordjevic_Sarkar dielectric.
 
         Parameters
         ----------
         name : str
             Name of the dielectic.
-        relative_permittivity : float
+        permittivity : float
             Relative permittivity of the dielectric.
         loss_tangent : float
             Loss tangent for the material.
@@ -249,15 +268,15 @@ class Materials(object):
         material_def = self._edb.Definition.DjordjecvicSarkarModel()
         material_def.SetFrequency(test_frequency)
         material_def.SetLossTangentAtFrequency(self._edb_value(loss_tangent))
-        material_def.SetRelativePermitivityAtFrequency(relative_permittivity)
+        material_def.SetRelativePermitivityAtFrequency(permittivity)
         return self._add_dielectric_material_model(name, material_def)
 
     @pyaedt_function_handler()
     def add_debye_material(
         self,
         name,
-        relative_permittivity_low,
-        relative_permittivity_high,
+        permittivity_low,
+        permittivity_high,
         loss_tangent_low,
         loss_tangent_high,
         lower_freqency,
@@ -269,10 +288,10 @@ class Materials(object):
         ----------
         name : str
             Name of the dielectic.
-        relative_permittivity_low : float
+        permittivity_low : float
             Relative permittivity of the dielectric at the frequency specified
             for ``lower_frequency``.
-        relative_permittivity_high : float
+        permittivity_high : float
             Relative ermittivity of the dielectric at the frequency specified
             for ``higher_frequency``.
         loss_tangent_low : float
@@ -295,7 +314,7 @@ class Materials(object):
         material_def.SetFrequencyRange(lower_freqency, higher_frequency)
         material_def.SetLossTangentAtHighLowFrequency(loss_tangent_low, loss_tangent_high)
         material_def.SetRelativePermitivityAtHighLowFrequency(
-            self._edb_value(relative_permittivity_low), self._edb_value(relative_permittivity_high)
+            self._edb_value(permittivity_low), self._edb_value(permittivity_high)
         )
         return self._add_dielectric_material_model(name, material_def)
 
@@ -304,7 +323,7 @@ class Materials(object):
         self,
         name,
         frequencies,
-        relative_permittivities,
+        permittivities,
         loss_tangents,
     ):
         """Create a dielectric with the Multipole Debye model.
@@ -315,7 +334,7 @@ class Materials(object):
             Name of the dielectic.
         frequencies : list
             Frequencies in GHz.
-        relative_permittivities : list
+        permittivities : list
             Relative permittivities at each frequency.
         loss_tangents : list
             Loss tangents at each frequency.
@@ -335,12 +354,12 @@ class Materials(object):
         >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
         """
         frequencies = [float(i) for i in frequencies]
-        relative_permittivities = [float(i) for i in relative_permittivities]
+        permittivities = [float(i) for i in permittivities]
         loss_tangents = [float(i) for i in loss_tangents]
         material_def = self._edb.Definition.MultipoleDebyeModel()
         material_def.SetParameters(
             convert_py_list_to_net_list(frequencies),
-            convert_py_list_to_net_list(relative_permittivities),
+            convert_py_list_to_net_list(permittivities),
             convert_py_list_to_net_list(loss_tangents),
         )
         return self._add_dielectric_material_model(name, material_def)

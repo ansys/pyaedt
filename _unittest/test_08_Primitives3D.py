@@ -29,9 +29,11 @@ test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
+    components_flatten = "components_flatten_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
+    components_flatten = "components_flatten"
 
 
 class TestClass(BasisTest, object):
@@ -46,6 +48,7 @@ class TestClass(BasisTest, object):
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
         test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
+        self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -792,7 +795,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
     def test_60_get_edges_on_bounding_box(self):
-        self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
         self.aedtapp.load_project(self.test_99_project)
         edges = self.aedtapp.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=True, tol=1e-6)
         assert len(edges) == 2
@@ -1300,3 +1303,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
         )
+
+    def test_82_flatten_3d_components(self):
+        assert self.flatten.flatten_3d_components()
+        pass

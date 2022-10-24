@@ -182,7 +182,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         Parameters
         ----------
-        setup_name :str
+        setup_name : str
             Setup name.
         variation_string : str, optional
             Variation List.

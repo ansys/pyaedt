@@ -62,7 +62,7 @@ class TestClass(BasisTest, object):
 
     def test_02_copy_project(self):
         assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
-        assert self.aedtapp.copy_project(self.local_scratch.path, "Coax_HFSS")
+        assert self.aedtapp.copy_project(self.local_scratch.path, test_project_name)
 
     def test_02_use_causalmaterial(self):
         assert self.aedtapp.change_automatically_use_causal_materials(True)
@@ -76,7 +76,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.design_type == "HFSS"
 
     def test_04_projectname(self):
-        assert self.aedtapp.project_name == "Coax_HFSS"
+        assert self.aedtapp.project_name == test_project_name
 
     def test_05_lock(self):
         assert os.path.exists(self.aedtapp.lock_file)
@@ -331,10 +331,10 @@ class TestClass(BasisTest, object):
     def test_35_get_app(self):
         d = Desktop(desktop_version, new_desktop_session=False)
         assert d[[0, 0]]
-        assert d[["Coax_HFSS", "myname"]]
+        assert d[[test_project_name, "myname"]]
         assert d[[0, "mydesign"]]
-        assert d[["Coax_HFSS", 2]]
-        assert not d[["Coax_HFSS", 5]]
+        assert d[[test_project_name, 2]]
+        assert not d[[test_project_name, 5]]
         assert not d[[1, 0]]
         assert not d[[1, 0, 3]]
         self.aedtapp.create_new_project("Test")

@@ -872,6 +872,7 @@ class Edb(object):
 
         """
         self._db.SaveAs(fname)
+        self.edbpath = self._db.GetDirectory()
         return True
 
     @pyaedt_function_handler()
@@ -1074,6 +1075,7 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
                 dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()
@@ -1340,6 +1342,7 @@ class Edb(object):
                 self.edbpath = output_aedb_path
                 self._active_cell = cell
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()

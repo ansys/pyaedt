@@ -224,6 +224,7 @@ class PostProcessor(Post):
         force_opacity_value=None,
         clean_files=False,
         array_coordinates=None,
+        view="isometric",
     ):
         """Plot the model or a substet of objects.
 
@@ -248,6 +249,9 @@ class PostProcessor(Post):
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+            The default is ``"isometric"``.
 
         Returns
         -------
@@ -264,6 +268,10 @@ class PostProcessor(Post):
         )
 
         model.off_screen = not show
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        else:
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
         if export_path:
             model.plot(export_path)
         elif show:
@@ -305,8 +313,7 @@ class PostProcessor(Post):
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
         view : str, optional
-            View to export. Options are ``isometric``, ``top``, ``front``,
-             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
@@ -341,7 +348,10 @@ class PostProcessor(Post):
             if plot_label:
                 model.fields[0].label = plot_label
 
-        model.view = view
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        else:
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
 
         if scale_min and scale_max:
             model.range_min = scale_min

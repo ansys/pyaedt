@@ -38,7 +38,7 @@ class TestClass(BasisTest, object):
                     assert ext == ".sp"
                     assert os.path.isfile(file)
             finally:
-                q2d.close_project(saveproject=False)
+                q2d.close_project(save_project=False)
 
     def test_02_export_w_elements_from_nominal(self):
         test_project = self.local_scratch.copyfile(
@@ -54,7 +54,7 @@ class TestClass(BasisTest, object):
                     assert ext == ".sp"
                     assert os.path.isfile(file)
             finally:
-                q2d.close_project(saveproject=False)
+                q2d.close_project(save_project=False)
 
     def test_03_export_w_elements_to_working_directory(self):
         test_project = self.local_scratch.copyfile(
@@ -71,4 +71,4 @@ class TestClass(BasisTest, object):
                     file_dir = os.path.abspath(os.path.dirname(file))
                     assert file_dir == os.path.abspath(q2d.working_directory)
             finally:
-                q2d.close_project(saveproject=False)
+                q2d.close_project(save_project=False)
