@@ -203,13 +203,13 @@ class TestClass(BasisTest, object):
 
     def test_27_create_region(self):
         assert not self.aedtapp.modeler.create_air_region(*["20mm", 20, "30mm", "50", 50, 100])
-        assert self.aedtapp.modeler.create_air_region(*[20, 20, 30, 50, 50, 100], False)
+        assert self.aedtapp.modeler.create_air_region(20, 20, 30, 50, 50, 100, False)
         self.aedtapp.modeler["Region"].delete()
         self.aedtapp["region_param"] = "20mm"
-        assert self.aedtapp.modeler.create_air_region(*["region_param", 20, "30mm", "50", 50, 100], False)
+        assert self.aedtapp.modeler.create_air_region("region_param", 20, "30mm", "50", 50, 100, False)
         assert self.aedtapp.modeler.edit_region_dimensions(["40mm", "30mm", 30, 50, 50, 100])
         self.aedtapp.modeler["Region"].delete()
-        assert self.aedtapp.modeler.create_air_region(*["20", 20, 30, 50, 50, 100])
+        assert self.aedtapp.modeler.create_air_region("20", 20, 30, 50, 50, 100)
         assert self.aedtapp.modeler.edit_region_dimensions([40, 30, 30, 50, 50, 100])
 
     def test_28A_create_face_list(self):
