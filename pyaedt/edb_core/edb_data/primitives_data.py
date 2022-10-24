@@ -204,7 +204,7 @@ class EDBPrimitives(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.edb_data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
         voids = []
         for void in self.primitive_object.Voids:

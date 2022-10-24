@@ -5,8 +5,8 @@ import math
 import os
 import warnings
 
-from pyaedt.edb_core.edb_data.padstacks import EDBPadstack
-from pyaedt.edb_core.edb_data.padstacks import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstack
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -141,7 +141,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EdbPadstack`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EdbPadstack`]
             List of padstacks via padstack definitions.
 
         """
@@ -156,7 +156,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`]
             List of padstack instances.
 
         """

@@ -2,7 +2,7 @@ import logging
 import re
 import warnings
 
-from pyaedt.edb_core.edb_data.padstacks import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
@@ -47,6 +47,12 @@ class EDBComponentDef(object):
 
     @property
     def type(self):
+        """Retrieve the component definition type.
+
+        Returns
+        -------
+        str
+        """
         num = len(set(comp.type for refdes, comp in self.components.items()))
         if num == 0:  # pragma: no cover
             return None
@@ -66,7 +72,7 @@ class EDBComponentDef(object):
 
         Returns
         -------
-        dict of :class:`pyaedt.edb_core.edb_data.EDBComponent`
+        dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`
         """
         comp_list = [
             EDBComponent(self._pcomponents, l)
@@ -556,7 +562,7 @@ class EDBComponent(object):
 
         Returns
         -------
-        dic[str, :class:`pyaedt.edb_core.edb_data.EDBPadstackInstance`]
+        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
         """
         pins = {}

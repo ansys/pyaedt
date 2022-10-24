@@ -1,4 +1,3 @@
-from pyaedt.generic.general_methods import is_number
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Primitives import Primitives
 
@@ -254,27 +253,28 @@ class Primitives2D(Primitives, object):
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
-    def create_region(self, pad_percent=300):
+    def create_region(self, pad_percent=300, is_percentage=True):
         """Create an air region.
 
         Parameters
         ----------
-        pad_percent : float or list of float, default=300
-            If float, use padding in per-cent for all dimensions
-            If list, then interpret as adding for  ``["+X", "+Y", "-X", "-Y"]`` or
-            ``["+R", "+Z", "-R", "-Z"]`` depending if the solution is XY or RZ.
+        pad_percent : float, str, list of floats or list of str, optional
+            Same padding is applied if not a list. The default is ``300``.
+            If a list of floats or str, interpret as adding for ``["+X", "+Y", "-X", "-Y"]``.
+        is_percentage : bool, optional
+            Region definition in percentage or absolute value. The default is `True``.
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            Region object.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
-
         """
-        if is_number(pad_percent):
+        if not isinstance(pad_percent, list):
             if self._app.xy_plane:
                 pad_percent = [pad_percent, pad_percent, 0, pad_percent, pad_percent, 0]
             else:
@@ -287,4 +287,4 @@ class Primitives2D(Primitives, object):
             else:
                 pad_percent = [pad_percent[0], 0, pad_percent[1], pad_percent[2], 0, pad_percent[3]]
 
-        return Primitives.create_region(self, pad_percent)
+        return Primitives.create_region(self, pad_percent, is_percentage)

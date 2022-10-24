@@ -10,13 +10,13 @@ import warnings
 
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
-from pyaedt.edb_core.edb_data.components import EDBComponent
-from pyaedt.edb_core.edb_data.components import EDBComponentDef
-from pyaedt.edb_core.edb_data.padstacks import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.components_data import EDBComponent
+from pyaedt.edb_core.edb_data.components_data import EDBComponentDef
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
-from pyaedt.generic.constants import SourceType
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -135,7 +135,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Default dictionary for the EDB component.
 
         Examples
@@ -156,7 +156,7 @@ class Components(object):
 
         Returns
         -------
-        dict of :class:`pyaedt.edb_core.EDB_Data.EDBComponentDef`"""
+        dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponentDef`"""
         return {l.GetName(): EDBComponentDef(self, l) for l in list(self._db.ComponentDefs)}
 
     @property
@@ -265,7 +265,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of resistors.
 
         Examples
@@ -287,7 +287,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of capacitors.
 
         Examples
@@ -309,7 +309,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of inductors.
 
         Examples
@@ -332,7 +332,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of integrated circuits.
 
         Examples
@@ -355,7 +355,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of circuit inputs and outputs.
 
         Examples
@@ -381,7 +381,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of other core components.
 
         Examples
@@ -623,7 +623,7 @@ class Components(object):
         Parameters
         ----------
         sources : list[Source]
-            List of ``EDB_Data.Source`` objects.
+            List of ``edb_data.sources.Source`` objects.
 
         Returns
         -------

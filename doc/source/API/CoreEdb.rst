@@ -72,22 +72,24 @@ EDB data classes
 These classes are the containers of data read from the EDB file:
 
 
-.. currentmodule:: pyaedt.edb_core
+.. currentmodule:: pyaedt.edb_core.edb_data
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   stackup.LayerEdbClass
-   EDB_Data.EDBLayer
-   EDB_Data.EDBLayers
-   EDB_Data.EDBPadProperties
-   EDB_Data.EDBPadstack
-   EDB_Data.EDBPadstackInstance
-   EDB_Data.EDBComponent
-   EDB_Data.EDBNetsData
-   EDB_Data.EDBPrimitives
-   siwave.SiwaveDCSetupTemplate
+   layer_data.LayerEdbClass
+   layer_data.EDBLayer
+   layer_data.EDBLayers
+   padstacks_data.EDBPadProperties
+   padstacks_data.EDBPadstack
+   padstacks_data.EDBPadstackInstance
+   components_data.EDBComponent
+   components_data.EDBComponentDef
+   nets_data.EDBNetsData
+   primitives_data.EDBPrimitives
+   simulation_configuration.SiwaveDCSetupTemplate
+   simulation_configuration.SimulationConfiguration
 
 
 .. code:: python
