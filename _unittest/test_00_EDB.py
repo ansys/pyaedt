@@ -270,6 +270,7 @@ if not config["skip_edb"]:
             )
             assert self.edbapp.core_components.components["R1"].pins[pinname].position
             assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
+            assert self.edbapp.core_components.components["R1"].pins[pinname].id in self.edbapp.pins
 
         def test_18_components_from_net(self):
             assert self.edbapp.core_components.get_components_from_nets("A0_N")
@@ -2031,8 +2032,8 @@ if not config["skip_edb"]:
             assert edb.core_hfss.create_edge_port_horizontal(
                 prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
             )
-            assert "port_ver" in edb.terminals
-            assert "port_hori" in edb.terminals
+            assert "port_ver" in edb.excitations
+            assert "port_hori" in edb.excitations
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2227,6 +2228,8 @@ if not config["skip_edb"]:
                 and float(comp.ind_value) == 2
                 and float(comp.cap_value) == 3
             )
+            comp.is_parallel_rlc = False
+            assert not comp.is_parallel_rlc
             assert comp.value
             assert not comp.spice_model and not comp.s_param_model and not comp.netlist_model
             assert comp.assign_s_param_model(sparam_path) and comp.value

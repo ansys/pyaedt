@@ -3355,14 +3355,16 @@ class EDBComponent(object):
         if not len(self._pin_pairs):
             logging.warning(self.refdes, " has no pin pair.")
         else:
-            pin_pair = self._pin_pairs[0]
-            pin_pair_rlc = self._edb_model.GetPinPairRlc(pin_pair)
-            pin_pair_rlc.IsParallel = value
-            pin_pair_model = self._edb_model
-            pin_pair_model.SetPinPairRlc(pin_pair, pin_pair_rlc)
-            comp_prop = self.component_property
-            comp_prop.SetModel(pin_pair_model)
-            self.edbcomponent.SetComponentProperty(comp_prop)
+            if 0 < int(self.edbcomponent.GetComponentType()) < 4:
+                pin_pair_model = self.component_property.GetModel().Clone()
+                pinpairs = pin_pair_model.PinPairs
+                for pin_pair in pinpairs:
+                    pin_pair_rlc = pin_pair_model.GetPinPairRlc(pin_pair)
+                    pin_pair_rlc.IsParallel = value
+                    pin_pair_model.SetPinPairRlc(pin_pair, pin_pair_rlc)
+                    comp_prop = self.component_property
+                    comp_prop.SetModel(pin_pair_model)
+                    self.edbcomponent.SetComponentProperty(comp_prop)
 
     @property
     def center(self):

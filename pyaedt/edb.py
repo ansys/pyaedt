@@ -263,7 +263,7 @@ class Edb(object):
         return names
 
     @property
-    def terminals(self):
+    def excitations(self):
         """Retrieve the Terminals of the active edb.
 
         Returns
