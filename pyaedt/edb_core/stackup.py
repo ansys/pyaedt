@@ -140,7 +140,7 @@ class LayerEdbClass(object):
 
         Returns
         -------
-        Edb material.
+        EDB material.
         """
         return self._edb_layer.GetFillMaterial()
 
