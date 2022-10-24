@@ -47,7 +47,7 @@ class EDBComponentDef(object):
 
     @property
     def type(self):
-        """Retryve the Component definition type.
+        """Retrieve the component definition type.
 
         Returns
         -------
