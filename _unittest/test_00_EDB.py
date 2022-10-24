@@ -20,6 +20,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
+from pyaedt.generic.constants import SourceType
 
 try:
     import unittest.mock
