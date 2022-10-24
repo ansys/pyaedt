@@ -4,8 +4,8 @@ import math
 import os
 import time
 
-from pyaedt.edb_core.EDB_Data import EDBNetsData
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.nets import EDBNetsData
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -63,7 +63,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
             Dictionary of nets.
         """
         nets = {}
@@ -77,7 +77,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
             Dictionary of signal nets.
         """
         nets = {}
@@ -92,7 +92,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
             Dictionary of power nets.
         """
         nets = {}
@@ -364,7 +364,7 @@ class EdbNets(object):
 
         Parameters
         ----------
-        simulation_configuration_object : :class:`pyaedt.edb_core.EDB_Data.SimulationConfiguration`
+        simulation_configuration_object : :class:`pyaedt.edb_core.edb_data.SimulationConfiguration`
 
         Returns
         -------

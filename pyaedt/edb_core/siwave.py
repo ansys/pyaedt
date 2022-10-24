@@ -6,8 +6,8 @@ import os
 import time
 import warnings
 
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.edb_core.EDB_Data import SourceType
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
