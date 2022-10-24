@@ -272,7 +272,8 @@ class Edb(object):
         """
         terminals = {}
         for terminal in list(self.active_layout.Terminals):
-            terminals[terminal.GetName()] = Terminal(self, terminal)
+            if not terminal.IsReferenceTerminal():
+                terminals[terminal.GetName()] = Terminal(self, terminal)
         return terminals
 
     @pyaedt_function_handler()
