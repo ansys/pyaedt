@@ -3,7 +3,7 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple

@@ -32,8 +32,8 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data.edb_builder import EdbBuilder
+from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.stackup import Stackup

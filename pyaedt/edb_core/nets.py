@@ -4,8 +4,8 @@ import math
 import os
 import time
 
-from pyaedt.edb_core.EDB_Data import EDBNetsData
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.EDB_Data.nets import EDBNetsData
+from pyaedt.edb_core.EDB_Data.simulation_configuration import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
