@@ -1073,14 +1073,14 @@ class Icepak(FieldAnalysis3D):
             Length of the heat sink. The default is ``40``.
         height : optional
             Height of the heat sink. The default is ``40``.
-        draftangle : optional
+        draftangle : int, float, optional
             Draft angle in degrees. The default is ``0``.
-        patternangle : optional
+        patternangle : int, float, optional
             Pattern angle in degrees. The default is ``10``.
         separation : optional
             The default is ``5``.
         symmetric : bool, optional
-            Whether the heat sink is symmetric.  The default is ``True``.
+            Whether the heat sink is symmetric. The default is ``True``.
         symmetric_separation : optional
             The default is ``20``.
         numcolumn_perside : int, optional
@@ -1092,12 +1092,26 @@ class Icepak(FieldAnalysis3D):
         center : list, optional
            List of ``[x, y, z]`` coordinates for the center of
            the heatsink. The default is ``[0, 0, 0]``.
-        plane_enum : optional
+        plane_enum : str, int, optional
+            Plane for orienting the heat sink.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
             The default is ``0``.
-        rotation : optional
+        rotation : int, float, optional
             The default is ``0``.
-        tolerance : optional
+        tolerance : int, float, optional
             Tolerance value. The default is ``0.001``.
+
+        Examples
+        --------
+
+        Create a symmetric fin heat sink.
+
+        >>> from pyaedt import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.insert_design("Heat_Sink_Example")
+        >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
+        ...                                        vertical_separation=5.5, matname="Steel", center=[10, 0, 0],
+        ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         Returns
         -------
