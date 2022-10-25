@@ -312,6 +312,16 @@ class TestClass(BasisTest, object):
             len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3
         )  # two face nodes plus one internal
 
+        self.aedtapp.modeler.create_box([14, 15, 16], [10, 10, 10], "network_box3", "Steel-Chrome")
+        self.aedtapp.modeler.create_box([17, 18, 19], [10, 10, 10], "network_box4", "Steel-Chrome")
+        network_block_result = self.aedtapp.create_network_blocks(
+            [["network_box3", 20, 10, 3], ["network_box4", 4, 10, 3]], 4, 1.05918, True
+        )
+        assert (
+            len(network_block_result[0].props["Nodes"]) == 3 and len(network_block_result[1].props["Nodes"]) == 3
+        )  # two face nodes plus one internal
+        assert network_block_result[1].props["Nodes"]["Internal"][0] == "3W"
+
     def test_24_get_boundary_property_value(self):
         assert self.aedtapp.get_property_value("BoundarySetup:box2", "Total Power", "Boundary") == "2W"
 
@@ -327,6 +337,8 @@ class TestClass(BasisTest, object):
             "box3",
             "network_box",
             "network_box2",
+            "network_box3",
+            "network_box4",
         ]
         new_design.delete_design(design_name)
         new_design.close_project(project_name)
@@ -377,7 +389,14 @@ class TestClass(BasisTest, object):
 
     def test_28_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
-        assert sorted(dielectrics) == ["ADDA_AB0305MB_GA0_1_Box", "Region", "box2", "box3"]
+        assert sorted(dielectrics) == [
+            "ADDA_AB0305MB_GA0_1_Box",
+            "Region",
+            "box2",
+            "box3",
+            "network_box3",
+            "network_box4",
+        ]
 
     def test_29_assign_surface_material(self):
         self.aedtapp.materials.add_surface_material("my_surface", 0.5)
