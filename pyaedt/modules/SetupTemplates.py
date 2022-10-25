@@ -1724,7 +1724,14 @@ class SweepHFSS3DLayout(object):
                 props = Sweep3DLayout
             for t in props:
                 _tuple2dict(t, self.props)
-            self.props["Type"] = sweeptype
+            if sweeptype.lower() in "kinterpolating":
+                sweeptype = "kInterpolating"
+            elif sweeptype.lower() in "kdiscrete":
+                sweeptype = "kDiscrete"
+            else:
+                warnings.warn("Invalid sweep type. `kInterpolating` will be set as default.")
+                sweeptype = "kInterpolating"
+            self.props["FreqSweepType"] = sweeptype
             self.props["GenerateSurfaceCurrent"] = save_fields
 
     @property
