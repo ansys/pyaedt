@@ -19,8 +19,6 @@ except ImportError:  # pragma: no cover
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
 
-from pyaedt.generic.general_methods import pyaedt_function_handler
-
 
 class EDBLayer(object):
     """Manages EDB functionalities for a layer.

@@ -63,7 +63,7 @@ class EDBComponentDef(object):
 
     @type.setter
     def type(self, value):
-        for refdes, comp in self.components.items():
+        for comp in list(self.components.values()):
             comp.type = value
 
     @property
@@ -97,7 +97,7 @@ class EDBComponentDef(object):
         is_parallel : bool, optional
             Whether it is parallel or series RLC component.
         """
-        for refdes, comp in self.components.items():
+        for comp in list(self.components.values()):
             res, ind, cap = res, ind, cap
             comp.assign_rlc_model(res, ind, cap, is_parallel)
         return True
@@ -116,7 +116,7 @@ class EDBComponentDef(object):
         -------
 
         """
-        for refdes, comp in self.components.items():
+        for comp in list(self.components.values()):
             comp.assign_s_param_model(file_path, model_name, reference_net)
         return True
 
@@ -134,7 +134,7 @@ class EDBComponentDef(object):
         -------
 
         """
-        for refdes, comp in self.components.items():
+        for comp in list(self.components.values()):
             comp.assign_spice_model(file_path, model_name)
         return True
 
@@ -196,7 +196,7 @@ class EDBComponent(object):
         @resistance.setter
         def resistance(self, value):
             self._pin_pair_rlc.R = value
-            self._set_comp_prop()  # pragma: no cover
+            self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
 
         @property
         def inductance(self):
@@ -205,7 +205,7 @@ class EDBComponent(object):
         @inductance.setter
         def inductance(self, value):
             self._pin_pair_rlc.L = value
-            self._set_comp_prop()  # pragma: no cover
+            self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
 
         @property
         def capacitance(self):
@@ -214,7 +214,7 @@ class EDBComponent(object):
         @capacitance.setter
         def capacitance(self, value):
             self._pin_pair_rlc.C = value
-            self._set_comp_prop()  # pragma: no cover
+            self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
 
         @property
         def rlc_values(self):  # pragma: no cover
