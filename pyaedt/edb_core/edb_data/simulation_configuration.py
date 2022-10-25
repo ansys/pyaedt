@@ -528,10 +528,6 @@ class SimulationConfiguration(object):
 
     @property
     def sweep_name(self):  # pragma: no cover
-        return self._sweep_name
-
-    @sweep_name.setter
-    def sweep_name(self, value):  # pragma: no cover
         """Retrieve frequency sweep name.
 
         Returns
@@ -539,6 +535,10 @@ class SimulationConfiguration(object):
             str
             The name of the frequency sweep defined in the project.
         """
+        return self._sweep_name
+
+    @sweep_name.setter
+    def sweep_name(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._sweep_name = value
 

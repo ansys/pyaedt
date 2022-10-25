@@ -228,7 +228,7 @@ class EdbNets(object):
         list, str
             list of data to be used in plot.
             In case of remote session it will be returned a string that could be converted to list
-             using ast.literal_eval().
+            using ast.literal_eval().
         """
         start_time = time.time()
         color_index = 0
