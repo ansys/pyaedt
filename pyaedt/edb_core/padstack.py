@@ -5,10 +5,9 @@ import math
 import os
 import warnings
 
-from pyaedt.edb_core.EDB_Data import EDBPadstack
-from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstack
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.edb_core.pingroups import PinGroup
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -142,7 +141,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EdbPadstack`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EdbPadstack`]
             List of padstacks via padstack definitions.
 
         """
@@ -157,7 +156,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`]
             List of padstack instances.
 
         """
@@ -172,12 +171,12 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict
-            All layout pin groups.
+        list
+            List of all layout pin groups.
         """
-        pingroups = {}
+        pingroups = []
         for el in self._active_layout.PinGroups:
-            pingroups[el.GetName()] = PinGroup(self._pedb, el)
+            pingroups.append(el)
         return pingroups
 
     @property
