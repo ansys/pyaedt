@@ -170,7 +170,7 @@ class EDBComponent(object):
         def is_parallel(self, value):
             rlc = self._pin_pair_rlc
             rlc.IsParallel = value
-            self._set_comp_prop(rlc)  # pragma: no cover
+            self._set_comp_prop()  # pragma: no cover
 
         @property
         def _pin_pair_rlc(self):
@@ -187,7 +187,7 @@ class EDBComponent(object):
             rlc.REnabled = value[0]
             rlc.LEnabled = value[1]
             rlc.CEnabled = value[2]
-            self._set_comp_prop(rlc)  # pragma: no cover
+            self._set_comp_prop()  # pragma: no cover
 
         @property
         def resistance(self):
@@ -227,10 +227,10 @@ class EDBComponent(object):
             rlc.R = self._edb_value(values[0])
             rlc.L = self._edb_value(values[1])
             rlc.C = self._edb_value(values[2])
-            self._set_comp_prop(rlc)  # pragma: no cover
+            self._set_comp_prop()  # pragma: no cover
 
-        def _set_comp_prop(self, rlc):  # pragma: no cover
-            self._edb_model.SetPinPairRlc(self._edb_pin_pair, rlc)
+        def _set_comp_prop(self):  # pragma: no cover
+            self._edb_model.SetPinPairRlc(self._edb_pin_pair, self._pin_pair_rlc)
             self._edb_comp_prop.SetModel(self._edb_model)
             self._edb_comp.SetComponentProperty(self._edb_comp_prop)
 
