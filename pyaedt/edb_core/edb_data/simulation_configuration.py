@@ -1061,7 +1061,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_contact_radius(self):
-        """Retrieve the value for SIwave DC contact radius
+        """Retrieve the value for SIwave DC contact radius.
 
         Returns
         -------
@@ -1116,7 +1116,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_plot_jv(self):
-        """Retrieve the value for computing current density and voltage distribution
+        """Retrieve the value for computing current density and voltage distribution.
 
         Returns
         -------
