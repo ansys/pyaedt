@@ -5,6 +5,7 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.DataHandlers import _tuple2dict
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
@@ -1140,24 +1141,24 @@ HFSS3DLayout_ACSimulationSettings = [
     ("SIWDCSettings", HFSS3DLayout_SIWDCSettings),
     ("SIWDCAdvancedSettings", HFSS3DLayout_SIWDCAdvancedSettings),
 ]
-SiwaveDC3DLayout = [
+SiwaveAC3DLayout = [
     ("Properties", HFSS3DLayout_Properties),
     ("CustomSetup", False),
     ("SolveSetupType", "SIwave"),
     ("Color", ["R:=", 0, "G:=", 0, "B:=", 0]),
     ("Position", 0),
     ("SimSetupType", "kSIwave"),
-    ("SimulationSettings", HFSS3DLayout_SimulationSettings),
+    ("SimulationSettings", HFSS3DLayout_ACSimulationSettings),
     ("SweepDataList", HFSS3DLayout_SweepDataList),
 ]
 
-SiwaveAC3DLayout = [
+SiwaveDC3DLayout = [
     ("Properties", HFSS3DLayout_Properties),
     ("CustomSetup", False),
     ("SolveSetupType", "SIwaveDCIR"),
     ("Position", 0),
     ("SimSetupType", "kSIwaveDCIR"),
-    ("SimulationSettings", HFSS3DLayout_ACSimulationSettings),
+    ("SimulationSettings", HFSS3DLayout_SimulationSettings),
     ("SweepDataList", HFSS3DLayout_SweepDataList),
 ]
 
@@ -1324,6 +1325,108 @@ CPSM = [
 
 TR = []
 
+SweepHfss3D = [
+    ("Type", "Interpolating"),
+    ("IsEnabled", True),
+    ("RangeType", "LinearCount"),
+    ("RangeStart", "2.5GHz"),
+    ("RangeEnd", "7.5GHz"),
+    ("SaveSingleField", False),
+    ("RangeCount", 401),
+    ("RangeStep", "1MHz"),
+    ("RangeSamples", 11),
+    ("SaveFields", True),
+    ("SaveRadFields", True),
+    ("GenerateFieldsForAllFreqs", False),
+    ("InterpTolerance", 0.5),
+    ("InterpMaxSolns", 250),
+    ("InterpMinSolns", 0),
+    ("InterpMinSubranges", 1),
+    ("InterpUseS", True),
+    ("InterpUsePortImped", False),
+    ("InterpUsePropConst", True),
+    ("UseDerivativeConvergence", False),
+    ("InterpDerivTolerance", 0.2),
+    ("EnforcePassivity", True),
+    ("UseFullBasis", True),
+    ("PassivityErrorTolerance", 0.0001),
+    ("EnforceCausality", False),
+    ("UseQ3DForDCSolve", False),
+    ("SMatrixOnlySolveMode", "Auto"),
+    ("SMatrixOnlySolveAbove", "1MHz"),
+    ("SweepRanges", subranges),
+]
+
+enabled = [("Enable", "true")]
+
+Sweep3DLayout = [
+    ("Properties", enabled),
+    ("Sweeps", SweepDefinition),
+    ("GenerateSurfaceCurrent", False),
+    ("SaveRadFieldsOnly", False),
+    ("ZoSelected", False),
+    ("SAbsError", 0.005),
+    ("ZoPercentError", 1),
+    ("GenerateStateSpace", False),
+    ("EnforcePassivity", True),
+    ("PassivityTolerance", 0.0001),
+    ("UseQ3DForDC", False),
+    ("ResimulateDC", False),
+    ("MaxSolutions", 250),
+    ("InterpUseSMatrix", True),
+    ("InterpUsePortImpedance", True),
+    ("InterpUsePropConst", True),
+    ("InterpUseFullBasis", True),
+    ("AdvDCExtrapolation", False),
+    ("MinSolvedFreq", "0.01GHz"),
+    ("AutoSMatOnlySolve", True),
+    ("MinFreqSMatrixOnlySolve", "1MHz"),
+    ("CustomFrequencyString", ""),
+    ("AllEntries", False),
+    ("AllDiagEntries", False),
+    ("AllOffDiagEntries", False),
+    ("MagMinThreshold", 0.01),
+    ("FreqSweepType", "kInterpolating"),
+]
+
+SweepSiwave = [
+    ("Properties", enabled),
+    ("Sweeps", SweepDefinition),
+    ("Name", "Sweep1"),
+    ("Enabled", True),
+    ("FreqSweepType", "kInterpolating"),
+    ("IsDiscrete", False),
+    ("UseQ3DForDC", False),
+    ("SaveFields", False),
+    ("SaveRadFieldsOnly", False),
+    ("RelativeSError", 0.005),
+    ("EnforceCausality", False),
+    ("EnforcePassivity", True),
+    ("PassivityTolerance", 0.0001),
+    ("ComputeDCPoint", False),
+    ("SIwaveWith3DDDM", False),
+    ("UseHFSSSolverRegions", False),
+    ("UseHFSSSolverRegionSchGen", False),
+    ("UseHFSSSolverRegionParallelSolve", False),
+    ("NumParallelHFSSRegions", 1),
+    ("HFSSSolverRegionsSetupName", "<default>"),
+    ("HFSSSolverRegionsSweepName", "<default>"),
+    ("AutoSMatOnlySolve", True),
+    ("MinFreqSMatOnlySolve", "1MHz"),
+    ("MaxSolutions", 250),
+    ("InterpUseSMatrix", True),
+    ("InterpUsePortImpedance", True),
+    ("InterpUsePropConst", True),
+    ("InterpUseFullBasis", True),
+    ("FastSweep", False),
+    ("AdaptiveSampling", False),
+    ("EnforceDCAndCausality", False),
+    ("AdvDCExtrapolation", False),
+    ("MinSolvedFreq", "0.01GHz"),
+    ("MatrixConvEntryList", []),
+    ("HFSSRegionsParallelSimConfig", []),
+]
+
 
 class SweepHFSS(object):
     """Initializes, creates, and updates sweeps in HFSS.
@@ -1373,35 +1476,9 @@ class SweepHFSS(object):
         if props:
             self.props = props
         else:
+            for t in SweepHfss3D:
+                _tuple2dict(t, self.props)
             self.props["Type"] = sweeptype
-            self.props["IsEnabled"] = True
-            self.props["RangeType"] = "LinearCount"
-            self.props["RangeStart"] = "2.5GHz"
-            self.props["RangeEnd"] = "7.5GHz"
-            self.props["SaveSingleField"] = False
-            self.props["RangeCount"] = 401
-            self.props["RangeStep"] = "1MHz"
-            self.props["RangeSamples"] = 11
-            self.props["SaveFields"] = True
-            self.props["SaveRadFields"] = True
-            self.props["GenerateFieldsForAllFreqs"] = False
-            self.props["InterpTolerance"] = 0.5
-            self.props["InterpMaxSolns"] = 250
-            self.props["InterpMinSolns"] = 0
-            self.props["InterpMinSubranges"] = 1
-            self.props["InterpUseS"] = True
-            self.props["InterpUsePortImped"] = False
-            self.props["InterpUsePropConst"] = True
-            self.props["UseDerivativeConvergence"] = False
-            self.props["InterpDerivTolerance"] = 0.2
-            self.props["EnforcePassivity"] = True
-            self.props["UseFullBasis"] = True
-            self.props["PassivityErrorTolerance"] = 0.0001
-            self.props["EnforceCausality"] = False
-            self.props["UseQ3DForDCSolve"] = False
-            self.props["SMatrixOnlySolveMode"] = "Auto"
-            self.props["SMatrixOnlySolveAbove"] = "1MHz"
-            self.props["SweepRanges"] = {"Subrange": []}
 
     @property
     def is_solved(self):
@@ -1641,39 +1718,14 @@ class SweepHFSS3DLayout(object):
         if props:
             self.props = props
         else:
-            self.props["Properties"] = OrderedDict({"Enable": True})
-            self.props["Sweeps"] = OrderedDict(
-                {"Variable": "Sweep 1", "Data": "LIN 1Hz 20GHz 0.05GHz", "OffsetF1": False, "Synchronize": 0}
-            )
-            self.props["GenerateSurfaceCurrent"] = save_fields
-            self.props["SaveRadFieldsOnly"] = False
-            if sweeptype == "Interpolating":
-                self.props["FastSweep"] = True
-            elif sweeptype == "Discrete":
-                self.props["FastSweep"] = False
+            if setup.setuptype in [40, 41]:
+                props = SweepSiwave
             else:
-                raise AttributeError("Allowed sweeptype options are 'Interpolating' and 'Discrete'.")
-            # self.props["SaveSingleField"] = False
-            self.props["ZoSelected"] = False
-            self.props["SAbsError"] = 0.005
-            self.props["ZoPercentError"] = 1
-            self.props["GenerateStateSpace"] = False
-            self.props["EnforcePassivity"] = False
-            self.props["PassivityTolerance"] = 0.0001
-            self.props["UseQ3DForDC"] = False
-            self.props["ResimulateDC"] = False
-            self.props["MaxSolutions"] = 250
-            self.props["InterpUseSMatrix"] = True
-            self.props["InterpUsePortImpedance"] = True
-            self.props["InterpUsePropConst"] = True
-            self.props["InterpUseFullBasis"] = True
-            self.props["AdvDCExtrapolation"] = False
-            self.props["MinSolvedFreq"] = "0.01GHz"
-            self.props["CustomFrequencyString"] = ""
-            self.props["AllEntries"] = False
-            self.props["AllDiagEntries"] = False
-            self.props["AllOffDiagEntries"] = False
-            self.props["MagMinThreshold"] = 0.01
+                props = Sweep3DLayout
+            for t in props:
+                _tuple2dict(t, self.props)
+            self.props["Type"] = sweeptype
+            self.props["GenerateSurfaceCurrent"] = save_fields
 
     @property
     def combined_name(self):

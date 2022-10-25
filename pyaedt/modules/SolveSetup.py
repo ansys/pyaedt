@@ -1315,7 +1315,7 @@ class Setup3DLayout(CommonSetup):
                         app = setup_data["Data"]
                         for el in app:
                             if isinstance(app[el], (OrderedDict, dict)):
-                                self.sweeps.append(SweepHFSS3DLayout(self, self.name, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
 
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -1332,6 +1332,10 @@ class Setup3DLayout(CommonSetup):
         """
         if self.props.get("SolveSetupType", "HFSS") == "HFSS":
             sol = self._app.post.reports_by_category.standard(setup_name="{} : Last Adaptive".format(self.name))
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwave":
+            sol = self._app.post.reports_by_category.standard(
+                setup_name="{} : {}".format(self.name, self.sweeps[0].name)
+            )
         else:
             sol = self._app.post.reports_by_category.standard(setup_name=self.name)
         if identify_setup(self.props):
