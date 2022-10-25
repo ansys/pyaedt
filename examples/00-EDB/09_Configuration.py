@@ -62,7 +62,7 @@ edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
 # A definitions file is a json containing, for each part name the model associated.
 # Model can be RLC, Sparameter or Spice.
 # Once imported the definition is applied to the board.
-# Json file is store for convenience in aedb folder.
+# Json file is stored for convenience in aedb folder.
 
 edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
