@@ -21,6 +21,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Emit)
+        self.aedtapp2 = BasisTest.add_app(self, application=Emit)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -96,6 +97,84 @@ class TestClass(BasisTest, object):
         position = antenna.get_position()
         assert position == (0.0, 0.0, 0.0)
 
+    def test_revision_generation(self):
+        assert len(self.aedtapp2.revisions_list) == 0
+        # place components and generate the appropriate number of revisions
+        rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp2.modeler.components.create_component("Bluetooth")
+        ant2 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp2.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+        self.aedtapp2.analyze()
+        assert len(self.aedtapp2.revisions_list) == 1
+        self.aedtapp2.analyze()
+        assert len(self.aedtapp2.revisions_list) == 1
+        rad4 = self.aedtapp2.modeler.components.create_component("Bluetooth")
+        ant4 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad4 and ant4:
+            ant4.move_and_connect_to(rad4)
+        self.aedtapp2.analyze()
+        assert len(self.aedtapp2.revisions_list) == 2
+    
+    def test_manual_revision_access(self):
+        rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp2.modeler.components.create_component("Bluetooth")
+        ant2 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp2.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp2.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+        self.aedtapp2.analyze()
+        domain = Emit.interaction_domain()
+        eng = self.aedtapp2.get_engine()
+        self.aedtapp2.revisions_list[-1].run(domain, eng)
+        radiosRX = self.aedtapp2.get_radios(Emit.tx_rx_mode('rx'))
+        assert radiosRX[0] == 'Bluetooth'
+        assert radiosRX[1] == 'Bluetooth 2'
+        radiosTX = self.aedtapp2.get_radios(Emit.tx_rx_mode('tx'))
+        assert len(radiosTX) == 0
+
+    def test_get_radio_band_frequencies(self):
+        test_project = "C:\\Users\\cchandel\\Downloads\\Final Demo\\Final Demo\\emit\\RA_5G_Demo_RevG.aedtresults\\EmitDesign1\\Revision 156.emit"
+        self.aedtapp2._emit_api.load_result(test_project)
+        self.aedtapp2._result_loaded = True
+        radiosRX = self.aedtapp2.get_radios(Emit.tx_rx_mode('rx'))
+        bandsRX = self.aedtapp2.get_bands(radiosRX[0], Emit.tx_rx_mode('rx'))
+        rx_frequencies = self.aedtapp2.get_band_frequencies(radiosRX[0], bandsRX[0],  Emit.tx_rx_mode('rx'))
+        print(rx_frequencies)
+        assert radiosRX[0] == 'RadarAlt - Radio'
+        assert bandsRX[0] == 'Band'
+        assert rx_frequencies[0] == 4300000000.0
+
+    def test_type_generation(self):
+        domain = Emit.interaction_domain()
+        assert str(type(domain)) == "<class 'EmitApiPython.InteractionDomain'>"
+        mode = Emit.tx_rx_mode()
+        mode_emi = Emit.tx_rx_mode('emi')
+        assert str(type(mode)) == "<class 'type'>"
+        assert str(type(mode_emi)) == "<class 'type'>"
+        result_type = Emit.result_type()
+        result_type_sensitivity =  Emit.result_type('sensitivity')
+        assert str(type(result_type)) == "<class 'type'>"
+        assert str(type(result_type_sensitivity)) == "<class 'EmitApiPython.result_type'>"
+    
+    """
+    Please note: The test below should be maintained as the last test within this file to ensure,
+    aedtapp functions as intended.
+
+    """
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2021.2"
     )
@@ -108,43 +187,3 @@ class TestClass(BasisTest, object):
         for link in self.aedtapp.couplings.coupling_names:
             assert link == "ATA_Analysis"
             self.aedtapp.couplings.update_link(link)
-
-    def test_revision_generation(self):
-        assert len(self.aedtapp.revisions_list) == 0
-        # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad1 and ant1:
-            ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad2 and ant2:
-            ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad3 and ant3:
-            ant3.move_and_connect_to(rad3)
-        
-        project = self.aedtapp.odesktop.GetActiveProject()
-        design = project.GetActiveDesign()
-        if(not self.aedtapp.curr_design == design.getRevision()):
-            design.AddResult()
-        assert (not design==None)
-        assert len(self.aedtapp.revisions_list) == 0
-        '''
-        if(not self.aedtapp.curr_design == design.getRevision()):
-            #design.AddResult()
-            self.aedtapp.location = self.aedtapp.oproject.GetPath()
-            self.aedtapp.revisions_list.append(Revision(self))
-            self.aedtapp.curr_design = design.getRevision()
-            print("checkpoint - revision generated successfully")
-        assert len(self.aedtapp.revisions_list) == 1
-        self.aedtapp.analyze()
-        assert len(self.aedtapp.revisions_list) == 1
-        rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
-        if rad4 and ant4:
-            ant4.move_and_connect_to(rad4)
-        self.aedtapp.analyze()
-        assert len(self.aedtapp.revisions_list) == 2
-        '''
