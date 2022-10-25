@@ -1129,30 +1129,30 @@ class Icepak(FieldAnalysis3D):
             "HSBase",
             matname,
         )
-        Fin_Line = []
-        Fin_Line.append(self.Position(0, 0, 0))
-        Fin_Line.append(self.Position(0, "FinThickness", 0))
-        Fin_Line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
-        Fin_Line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
-        Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.create_polyline(Fin_Line, cover_surface=True, name="Fin")
-        Fin_Line2 = []
-        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        Fin_Line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        Fin_Line2.append(
+        fin_line = []
+        fin_line.append(self.Position(0, 0, 0))
+        fin_line.append(self.Position(0, "FinThickness", 0))
+        fin_line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
+        fin_line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
+        fin_line.append(self.Position(0, 0, 0))
+        self.modeler.create_polyline(fin_line, cover_surface=True, name="Fin")
+        fin_line2 = []
+        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        fin_line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        fin_line2.append(
             self.Position(
                 "FinLength",
                 "FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness",
                 "FinHeight",
             )
         )
-        Fin_Line2.append(
+        fin_line2.append(
             self.Position(
                 "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
             )
         )
-        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        self.modeler.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
+        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        self.modeler.create_polyline(fin_line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.modeler["Fin"].material_name = matname
         num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
@@ -1196,13 +1196,13 @@ class Icepak(FieldAnalysis3D):
                 reference_cs="CenterRightSep",
             )
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
-            Center_Line = []
-            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            self.modeler.create_polyline(Center_Line, cover_surface=True, name="Center")
+            center_line = []
+            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            center_line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
+            center_line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            center_line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            self.modeler.create_polyline(center_line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", "-FinHeight-2*Tolerance")
             all_names = self.modeler.object_names
             list = [i for i in all_names if "Fin" in i]
