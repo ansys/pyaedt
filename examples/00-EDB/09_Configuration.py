@@ -96,7 +96,7 @@ edbapp.save_edb()
 # This step allows to define the project. It includes:
 #  - Definition of nets to be included into the cutout
 #  - Cutout details
-#  - Components on which create the ports
+#  - Components on which to create the ports
 #  - Simulation settings
 
 sim_setup = SimulationConfiguration()
