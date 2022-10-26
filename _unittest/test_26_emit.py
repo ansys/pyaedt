@@ -3,12 +3,10 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
-from pyaedt import Desktop
-from pyaedt.emit import Revision
+from pyaedt.emit import Results
 from pyaedt.modeler.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
-import os
 try:
     import pytest
 except ImportError:
@@ -98,7 +96,7 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     def test_revision_generation(self):
-        assert len(self.aedtapp2.revisions_list) == 0
+        assert len(self.aedtapp2.results.revisions_list) == 0
         # place components and generate the appropriate number of revisions
         rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
         ant1 = self.aedtapp2.modeler.components.create_component("Antenna")
@@ -113,15 +111,15 @@ class TestClass(BasisTest, object):
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
         self.aedtapp2.analyze()
-        assert len(self.aedtapp2.revisions_list) == 1
+        assert len(self.aedtapp2.results.revisions_list) == 1
         self.aedtapp2.analyze()
-        assert len(self.aedtapp2.revisions_list) == 1
+        assert len(self.aedtapp2.results.revisions_list) == 1
         rad4 = self.aedtapp2.modeler.components.create_component("Bluetooth")
         ant4 = self.aedtapp2.modeler.components.create_component("Antenna")
         if rad4 and ant4:
             ant4.move_and_connect_to(rad4)
         self.aedtapp2.analyze()
-        assert len(self.aedtapp2.revisions_list) == 2
+        assert len(self.aedtapp2.results.revisions_list) == 2
     
     def test_manual_revision_access(self):
         rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
@@ -137,37 +135,35 @@ class TestClass(BasisTest, object):
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
         self.aedtapp2.analyze()
-        domain = Emit.interaction_domain()
-        eng = self.aedtapp2.get_engine()
-        self.aedtapp2.revisions_list[-1].run(domain, eng)
-        radiosRX = self.aedtapp2.get_radios(Emit.tx_rx_mode('rx'))
+        domain = Results.interaction_domain()
+        self.aedtapp2.results.revisions_list[-1].run(domain)
+        radiosRX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().rx)
         assert radiosRX[0] == 'Bluetooth'
         assert radiosRX[1] == 'Bluetooth 2'
-        radiosTX = self.aedtapp2.get_radios(Emit.tx_rx_mode('tx'))
+        radiosTX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().tx)
         assert len(radiosTX) == 0
-
+    
     def test_get_radio_band_frequencies(self):
         test_project = "C:\\Users\\cchandel\\Downloads\\Final Demo\\Final Demo\\emit\\RA_5G_Demo_RevG.aedtresults\\EmitDesign1\\Revision 156.emit"
-        self.aedtapp2._emit_api.load_result(test_project)
-        self.aedtapp2._result_loaded = True
-        radiosRX = self.aedtapp2.get_radios(Emit.tx_rx_mode('rx'))
-        bandsRX = self.aedtapp2.get_bands(radiosRX[0], Emit.tx_rx_mode('rx'))
-        rx_frequencies = self.aedtapp2.get_band_frequencies(radiosRX[0], bandsRX[0],  Emit.tx_rx_mode('rx'))
+        self.aedtapp2._load_revision(test_project)
+        radiosRX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().rx)
+        bandsRX = self.aedtapp2.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp2.results.get_active_frequencies(radiosRX[0], bandsRX[0],  Emit.tx_rx_mode().rx)
         print(rx_frequencies)
         assert radiosRX[0] == 'RadarAlt - Radio'
         assert bandsRX[0] == 'Band'
         assert rx_frequencies[0] == 4300000000.0
-
+    
     def test_type_generation(self):
-        domain = Emit.interaction_domain()
+        domain = Results.interaction_domain()
         assert str(type(domain)) == "<class 'EmitApiPython.InteractionDomain'>"
         mode = Emit.tx_rx_mode()
-        mode_emi = Emit.tx_rx_mode('emi')
-        assert str(type(mode)) == "<class 'type'>"
-        assert str(type(mode_emi)) == "<class 'type'>"
+        mode_rx = Emit.tx_rx_mode().rx
+        assert str(type(mode)) == "<class 'EmitApiPython.tx_rx_mode'>"
+        assert str(type(mode_rx)) == "<class 'EmitApiPython.tx_rx_mode'>"
         result_type = Emit.result_type()
-        result_type_sensitivity =  Emit.result_type('sensitivity')
-        assert str(type(result_type)) == "<class 'type'>"
+        result_type_sensitivity =  Emit.result_type().sensitivity
+        assert str(type(result_type)) == "<class 'EmitApiPython.result_type'>"
         assert str(type(result_type_sensitivity)) == "<class 'EmitApiPython.result_type'>"
     
     """
