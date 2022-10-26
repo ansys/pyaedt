@@ -1325,14 +1325,13 @@ CPSM = [
 
 TR = []
 
-subrange_hfss = [
-    ("RangeType", "LinearCount"),
-    ("RangeStart", "1100MHz"),
-    ("RangeEnd", "1200MHz"),
-    ("RangeCount", 10),
-]
-subranges_hfss = [("Subrange", subrange_hfss)]
-# {"Subrange": [subrange_hfss]}
+subrange_hfss = {
+    "RangeType": "LinearCount",
+    "RangeStart": "1100MHz",
+    "RangeEnd": "1200MHz",
+    "RangeCount": 10,
+}
+subranges_hfss = {"Subrange": [subrange_hfss]}
 
 SweepHfss3D = [
     ("Type", "Interpolating"),
@@ -1631,10 +1630,16 @@ class SweepHFSS(object):
         elif rangetype == "SinglePoints":
             interval["RangeEnd"] = str(start) + unit
             interval["SaveSingleField"] = save_single_fields
-        new_dict = {"Subrange": interval}
+        if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
+            self.props["SweepRanges"] = {"Subrange": []}
         self.props["SweepRanges"]["Subrange"].append(interval)
 
-        return self.update()
+        try:
+            self.update()
+            self.props["SweepRanges"]["Subrange"].pop()
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def create(self):
@@ -1660,6 +1665,7 @@ class SweepHFSS(object):
 
         """
         self.oanalysis.EditFrequencySweep(self.setupname, self.name, self._get_args())
+
         return True
 
     @pyaedt_function_handler()
