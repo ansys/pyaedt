@@ -2,23 +2,61 @@ from __future__ import absolute_import
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt import generate_unique_project_name
+from importlib import import_module
 import sys
 import os
-
-sys.path.append("C:\\Users\\cchandel\\workspace\\build_output\\64Release\\Delcross")
-import EmitApiPython
 class Result:
+    '''
+    Provides the Result object.
+
+    Parameters
+    ----------
+
+    Examples
+    --------
+    Create an instance of Result.
+    >>> aedtapp.results = Result()
+    >>> mode = Emit.tx_rx_mode().rx
+    >>> radio_RX = aedtapp.results.get_radio_names(mode)
+    '''
     @pyaedt_function_handler()
-    def __init__(self, api):
+    def __init__(self):
         self.__result_loaded = False
-        self.__emit_api_python = api
+        self.emit_api = mod.EmitApi()
         self.revisions_list = []
     @pyaedt_function_handler()
     def set_result_loaded(self):
+        """
+        set __result_loaded status to True.
+
+        Parameters
+        ----------
+       
+        Returns
+        -------
+
+        References
+        ----------
+        >>> aedtapp.results.set_result_loaded():
+        """
         self.__result_loaded = True
     @pyaedt_function_handler()
     def get_result_loaded(self):
-       return self.__result_loaded
+        """
+        Return __result_loaded status.
+
+        Parameters
+        ----------
+       
+        Returns
+        -------
+        :class:`bool`
+
+        References
+        ----------
+        >>>  if aedtapp.results.get_result_loaded():
+        """
+        return self.__result_loaded
     @pyaedt_function_handler()
     def interaction_domain():
         """
@@ -35,13 +73,25 @@ class Result:
         ----------
         >>> domain = Result.interaction_domain()
         """
-        interaction_domain = EmitApiPython.InteractionDomain()
+        interaction_domain = mod.InteractionDomain()
         return interaction_domain
+
+    def result_mode_error():
+        """ 
+        prints error message
+        
+        Parameters
+        ----------
+       
+        Returns
+        -------
+        """
+        print("This function is inaccessible when the Emit object has no revisions")
 
     @pyaedt_function_handler()
     def get_radio_names(self, tx_rx):
         """
-       Return a list of all tx/rx radios in the project.
+        Return a list of all tx/rx radios in the project.
 
         Parameters
         ----------
@@ -53,10 +103,9 @@ class Result:
         References
         ----------
         >>> radios = aedtapp.results.get_radio_names(Emit.tx_rx_mode.rx)
-
         """
         if self.get_result_loaded():
-            radios = self.__emit_api_python.radio_names(tx_rx)
+            radios = self.emit_api.radio_names(tx_rx)
         else:
             radios = None
             Emit.result_mode_error()
@@ -80,7 +129,7 @@ class Result:
         >>> bands = aedtapp.results.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
         """
         if self.get_result_loaded():
-            bands = self.__emit_api_python.band_names(radio_name, tx_rx_mode)
+            bands = self.emit_api.band_names(radio_name, tx_rx_mode)
         else:
             bands = None
             Emit.result_mode_error()
@@ -107,7 +156,7 @@ class Result:
         >>> bands = aedtapp.results.get_band_names('Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
         if self.get_result_loaded():
-            freq = self.__emit_api_python.active_frequencies(radio_name, band_name, tx_rx_mode)
+            freq = self.emit_api.active_frequencies(radio_name, band_name, tx_rx_mode)
         else:
             freq = None
             Emit.result_mode_error()
@@ -129,7 +178,7 @@ class Revision:
     Create an instance of Emit, you can choose to define any of the parameters of Emit here.
     >>> aedtapp = Emit()
     >>> rev = Revision(aedtapp, "Revision 1")
-    >>> domain = Results.interaction_domain()
+    >>> domain = Result.interaction_domain()
     >>> rev.run(domain)
     '''
     @pyaedt_function_handler()
@@ -166,7 +215,7 @@ class Revision:
 
         References
         ----------
-        >>> domain = Results.interaction_domain()
+        >>> domain = Result.interaction_domain()
         >>> rev.run(domain)
 
         """
@@ -245,9 +294,9 @@ class Emit(FieldAnalysisEmit, object):
 
     A Revision within PYAEDT is analogous to a Revision in AEDT. An Interaction Domain must defined
     and then used as the input to the run command used on that Revision.
-    >>> domain = Result.interaction_domain()
+    >>> domain = Emit.interaction_domain()
     >>> domain.rx_radio_name = "UE - HandHeld"
-    >>> interaction = aedtapp.results.revisions_list[0].run(domain)
+    >>> interaction = aedtapp.revisions_list[0].run(domain)
 
     The output of the run command is an interaction type object. An interaction summarizes the interaction data
     of whatever was defined in the interaction domain.
@@ -272,10 +321,7 @@ class Emit(FieldAnalysisEmit, object):
     ):
         if(projectname == None):
             projectname = generate_unique_project_name()
-        self._emit_api = EmitApiPython.EmitApi()
-        self.results = Result(self._emit_api)
-        self.location =""
-        self.curr_design = 0
+        self.__emit_api_enabled = False
         """Constructor."""
         FieldAnalysisEmit.__init__(
             self,
@@ -293,8 +339,19 @@ class Emit(FieldAnalysisEmit, object):
             port=port,
             aedt_process_id=aedt_process_id,
         )
-        if(self._aedt_version < 2023.1):
-           raise ValueError("This version of AEDT is unsupported for PYAEDT.")
+        if(self._aedt_version >= "2023.1"):
+            self.location =""
+            self.curr_design = 0
+            desktop_path = self.desktop_install_dir
+            path = os.path.join(desktop_path, "Delcross")
+            sys.path.append(path)
+            global mod
+            mod = import_module("EmitApiPython")
+            self._emit_api = mod.EmitApi()
+            self.lib = mod
+            self.results = Result()
+            self.__emit_api_enabled = True
+        
     @pyaedt_function_handler() 
     def __enter__(self):
         return self
@@ -317,14 +374,15 @@ class Emit(FieldAnalysisEmit, object):
         >>> rev = aedtapp.analyze()
 
         """
-        design = self.odesktop.GetActiveProject().GetActiveDesign()
-        if(not self.curr_design == design.getRevision()):
-            design.AddResult()
-            self.location = self.oproject.GetPath()
-            self.results.revisions_list.append(Revision(self))
-            self.curr_design = design.getRevision()
-            print("checkpoint - revision generated successfully")
-            return self.results.revisions_list[-1]
+        if self.__emit_api_enabled:
+            design = self.odesktop.GetActiveProject().GetActiveDesign()
+            if(not self.curr_design == design.getRevision()):
+                design.AddResult()
+                self.location = self.oproject.GetPath()
+                self.results.revisions_list.append(Revision(self))
+                self.curr_design = design.getRevision()
+                print("checkpoint - revision generated successfully")
+                return self.results.revisions_list[-1]
 
     @pyaedt_function_handler()
     def _load_revision(self, path) :
@@ -345,12 +403,9 @@ class Emit(FieldAnalysisEmit, object):
         >>> aedtapp._load_revision(path)
 
         """
-        self._emit_api.load_result(path)
-        self.results.set_result_loaded()
-
-    def result_mode_error():
-        """ prints error message"""
-        print("This function is inaccessible when the Emit object has no revisions")
+        if self.__emit_api_enabled:
+            self._emit_api.load_result(path)
+            self.results.set_result_loaded()
 
     @pyaedt_function_handler()
     def result_type(): 
@@ -369,7 +424,7 @@ class Emit(FieldAnalysisEmit, object):
         >>> Emit.result_type()
 
         """
-        result = EmitApiPython.result_type()
+        result = mod.result_type()
         return result
     @pyaedt_function_handler()
     def tx_rx_mode(): 
@@ -388,7 +443,7 @@ class Emit(FieldAnalysisEmit, object):
         >>> tx_rx = Emit.tx_rx_mode()
 
         """
-        tx_rx = EmitApiPython.tx_rx_mode()
+        tx_rx = mod.tx_rx_mode()
         return tx_rx 
     @pyaedt_function_handler()
     def version(self, detailed = False):
@@ -408,5 +463,6 @@ class Emit(FieldAnalysisEmit, object):
         >>> print(aedtapp.version())
 
         """
-        ver = self._emit_api.version(detailed)
-        return ver
+        if self.__emit_api_enabled:
+            ver = self._emit_api.version(detailed)
+            return ver
