@@ -173,7 +173,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_boundaries = False  # Disable the boundaries export
@@ -193,7 +193,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_mesh_operations = False  # Disable the mesh operations export
@@ -213,7 +213,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_coordinate_systems = False  # Disable the coordinate systems export
@@ -253,7 +253,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_export_materials = False  # Disable the materials export
@@ -273,7 +273,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_object_properties = False  # Disable the object properties export
@@ -293,7 +293,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_variables = False  # Disable the variables import
@@ -313,7 +313,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_setups = False  # Disable the setup import
@@ -333,7 +333,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_optimizations = False  # Disable the optimization import
@@ -353,7 +353,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_parametrics = False  # Disable the parametrics import
@@ -373,7 +373,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_boundaries = False  # Disable the boundaries import
@@ -393,7 +393,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_mesh_operations = False  # Disable the mesh operations import
@@ -413,7 +413,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_coordinate_systems = False  # Disable the coordinate systems import
@@ -453,7 +453,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_import_materials = False  # Disable the materials import
@@ -473,7 +473,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.import_object_properties = False  # Disable the object properties import
@@ -493,7 +493,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.skip_import_if_exists = False  # Disable the update of existing properties
