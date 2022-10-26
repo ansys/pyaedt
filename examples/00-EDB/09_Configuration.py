@@ -41,6 +41,15 @@ print("Project folder will be", target_aedb)
 # Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
 
 edbapp = Edb(target_aedb, edbversion="2022.2")
+###############################################################################
+# Import Definitions
+# ~~~~~~~~~~~~~~~~~~
+# A definitions file is a json containing, for each part name the model associated.
+# Model can be RLC, Sparameter or Spice.
+# Once imported the definition is applied to the board.
+# Json file is stored for convenience in aedb folder.
+
+edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
 ###############################################################################
 # Import BOM
@@ -56,15 +65,7 @@ edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),
                                   comp_type_col=2,
                                   value_col=3)
 
-###############################################################################
-# Import Definitions
-# ~~~~~~~~~~~~~~~~~~
-# A definitions file is a json containing, for each part name the model associated.
-# Model can be RLC, Sparameter or Spice.
-# Once imported the definition is applied to the board.
-# Json file is stored for convenience in aedb folder.
 
-edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
 ###############################################################################
 # Check Component Values
