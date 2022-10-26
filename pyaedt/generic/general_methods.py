@@ -16,6 +16,7 @@ import sys
 import tempfile
 import time
 import traceback
+import warnings
 from collections import OrderedDict
 from functools import update_wrapper
 
@@ -34,6 +35,23 @@ is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("t
 
 if not is_ironpython:
     import psutil
+
+pd = None
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
+        pd = None
+    try:
+        import numpy as np
+    except ImportError:
+        warnings.warn(
+            "The NumPy module is required to run some functionalities of PostProcess.\n"
+            "Install with \n\npip install numpy\n"
+        )
 
 
 class MethodNotSupportedError(Exception):
@@ -744,6 +762,29 @@ def read_csv(filename, encoding="utf-8"):
 
 
 @pyaedt_function_handler()
+def read_csv_pandas(filename, encoding="utf-8"):
+    """Read information from a CSV file and return a list.
+
+    Parameters
+    ----------
+    filename : str
+            Full path and name for the CSV file.
+    encoding : str, optional
+            File encoding for the CSV file. The default is ``"utf-8"``.
+
+    Returns
+    -------
+    :class:`pandas.DataFrame`
+
+    """
+    if pd:
+        return pd.read_csv(filename, encoding=encoding, header=0, na_values=".")
+    else:
+        logging.error("Pandas is not available. Install it.")
+        return None
+
+
+@pyaedt_function_handler()
 def read_tab(filename):
     """Read information from a TAB file and return a list.
 
@@ -777,8 +818,6 @@ def read_xlsx(filename):
 
     """
     try:
-        import pandas as pd
-
         lines = pd.read_excel(filename)
         return lines
     except:
@@ -958,6 +997,94 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
         except:
             pass
     return sessions
+
+
+@pyaedt_function_handler()
+def compute_fft(time, value, num_points=501, sampling_interval=None):
+    """Compute FFT of input transient data.
+
+    Parameters
+    ----------
+    time : `pandas.Series`
+    value : `pandas.Series`
+    windowing : str, optional
+
+    Returns
+    -------
+    tuple
+        Frequency and Values.
+    """
+    if not sampling_interval:
+        sampling_interval = np.mean([time[n] - time[n - 1] for n in range(1, len(time))])
+    sampling_rate = 0.5 / sampling_interval
+    X = np.fft.fft(value, num_points)
+    N = int(len(X) / 2 + 1)
+    X = X[1 : N + 1]
+    n = np.arange(N)
+    T = 2 * N / sampling_rate
+    freq = n / T
+    return freq, X
+
+
+def parse_excitation_file(
+    file_name,
+    is_time_domain=True,
+    x_scale=1,
+    y_scale=1,
+    impedance=50,
+    data_format="Power",
+    sampling_interval=None,
+    encoding="utf-8",
+):
+    """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
+
+    Parameters
+    ----------
+    file_name : str
+        Full name of the input file.
+    is_time_domain : bool, optional
+        Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+    x_scale : float, optional
+        Scaling factor for x axis.
+    data_format : str, optional
+        Either `"Power"`, `"Current"` or `"Voltage"`.
+    impedance : float, optional
+        Excitation impedance. Default is `50`.
+    sampling_interval : float, optional
+        Time interval for transient data. If None it will be computed as delta of first 2 samples.
+    encoding : str, optional
+        Csv file encoding.
+
+    Returns
+    -------
+    tuple
+        Frequency, magnitude and phase.
+    """
+    df = read_csv_pandas(file_name, encoding=encoding)
+    if is_time_domain:
+        time = df[df.keys()[0]].values * x_scale
+        if data_format.lower() == "current":
+            val = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
+        elif data_format.lower() == "voltage":
+            val = df[df.keys()[1]].values * df[df.keys()[1]].values / impedance * y_scale * y_scale
+        else:
+            val = df[df.keys()[1]].values * y_scale
+
+        freq, fval = compute_fft(time, val, sampling_interval=sampling_interval)
+        mag = [math.sqrt(i * i + j * j) for i, j in zip(list(fval.real), list(fval.imag))]
+        phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
+
+    else:
+        freq = list(df[df.keys()[0]].values * x_scale)
+        if data_format.lower() == "current":
+            mag = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
+        elif data_format.lower() == "voltage":
+            mag = df[df.keys()[1]].values * df[df.keys()[1]].values / impedance * y_scale * y_scale
+        else:
+            mag = df[df.keys()[1]].values * y_scale
+        mag = list(mag)
+        phase = list(df[df.keys()[2]].values)
+    return freq, mag, phase
 
 
 class PropsManager(object):

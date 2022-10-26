@@ -16,6 +16,7 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -3866,6 +3867,87 @@ class Hfss(FieldAnalysis3D, object):
             self.osolution.EditSources(
                 [["FieldType:=", "EigenStoredEnergy"], ["Name:=", "Modes", "Magnitudes:=", [powerin]]]
             )
+        return True
+
+    @pyaedt_function_handler()
+    def edit_source_from_file(
+        self,
+        portandmode,
+        file_name,
+        is_time_domain=True,
+        x_scale=1,
+        y_scale=1,
+        impedance=50,
+        data_format="Power",
+        sampling_interval=None,
+        encoding="utf-8",
+    ):
+        """Edit a source from file data.
+        File data is a csv containing either frequency data or time domain data that will be converted through FFT.
+
+        Parameters
+        ----------
+        portandmode : str
+            Port name and mode. For example, ``"Port1:1"``.
+            The port name must be defined if the solution type is other than Eigenmodal.
+        file_name : str
+            Full name of the input file.
+        is_time_domain : bool, optional
+            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+        x_scale : float, optional
+            Scaling factor for x axis.
+        impedance : float, optional
+            Excitation impedance. Default is `50`.
+        data_format : str, optional
+            Either `"Power"`, `"Current"` or `"Voltage"`.
+        sampling_interval : float, optional
+            Time interval for transient data. If None it will be computed as delta of first 2 samples.
+        encoding : str, optional
+            Csv file encoding.
+
+
+        Returns
+        -------
+        bool
+        """
+        freq, mag, phase = parse_excitation_file(
+            file_name=file_name,
+            is_time_domain=is_time_domain,
+            x_scale=x_scale,
+            y_scale=y_scale,
+            impedance=impedance,
+            data_format=data_format,
+            sampling_interval=sampling_interval,
+            encoding=encoding,
+        )
+        ds_name_mag = "ds_" + portandmode.replace(":", "_mode_") + "_Mag"
+        ds_name_phase = "ds_" + portandmode.replace(":", "_mode_") + "_Angle"
+        if self.dataset_exists(ds_name_mag, False):
+            self.design_datasets[ds_name_mag].x = freq
+            self.design_datasets[ds_name_mag].y = mag
+            self.design_datasets[ds_name_mag].update()
+        else:
+            self.create_dataset1d_design(ds_name_mag, freq, mag, xunit="Hz")
+        if self.dataset_exists(ds_name_phase, False):
+            self.design_datasets[ds_name_phase].x = freq
+            self.design_datasets[ds_name_phase].y = phase
+            self.design_datasets[ds_name_phase].update()
+
+        else:
+            self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
+        self.osolution.EditSources(
+            [
+                ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
+                [
+                    "Name:=",
+                    portandmode,
+                    "Magnitude:=",
+                    "pwl({}, Freq)".format(ds_name_mag),
+                    "Phase:=",
+                    "pwl({}, Freq)".format(ds_name_phase),
+                ],
+            ]
+        )
         return True
 
     @pyaedt_function_handler()
