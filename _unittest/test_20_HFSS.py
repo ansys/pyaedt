@@ -1076,3 +1076,24 @@ class TestClass(BasisTest, object):
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
         self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+
+    def test_53_import_source_excitation(self):
+        self.aedtapp.insert_design()
+        self.aedtapp.solution_type = "Modal"
+        freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
+        time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
+
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        self.aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
+        self.aedtapp.create_setup()
+        assert self.aedtapp.edit_source_from_file(
+            self.aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9
+        )
+        assert self.aedtapp.edit_source_from_file(
+            self.aedtapp.excitations[0],
+            time_domain,
+            is_time_domain=True,
+            data_format="Voltage",
+            x_scale=1e-6,
+            y_scale=1e-3,
+        )
