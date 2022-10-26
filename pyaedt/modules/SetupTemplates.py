@@ -3,6 +3,7 @@ import os.path
 import sys
 import warnings
 from collections import OrderedDict
+from difflib import SequenceMatcher
 
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import _tuple2dict
@@ -1740,9 +1741,9 @@ class SweepHFSS3DLayout(object):
                 props = Sweep3DLayout
             for t in props:
                 _tuple2dict(t, self.props)
-            if sweeptype.lower() in "kinterpolating":
+            if SequenceMatcher(None, sweeptype.lower(), "kinterpolating").ratio() > 0.8:
                 sweeptype = "kInterpolating"
-            elif sweeptype.lower() in "kdiscrete":
+            elif SequenceMatcher(None, sweeptype.lower(), "kdiscrete").ratio() > 0.8:
                 sweeptype = "kDiscrete"
             else:
                 warnings.warn("Invalid sweep type. `kInterpolating` will be set as default.")
@@ -1845,24 +1846,29 @@ class SweepHFSS3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if rangetype == "SinglePoint" and self.props["FastSweep"]:
-            raise AttributeError("'SinglePoint is allowed only when sweeptype is 'Discrete'.'")
-        if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
-            if not end or not count:
-                raise AttributeError("Parameters 'end' and 'count' must be present.")
+        try:
+            if rangetype == "SinglePoint" and self.props["FreqSweepType"] == "kInterpolating":
+                raise AttributeError("'SinglePoint is allowed only when sweeptype is 'Discrete'.'")
+            if rangetype == "LinearCount" or rangetype == "LinearStep" or rangetype == "LogScale":
+                if not end or not count:
+                    raise AttributeError("Parameters 'end' and 'count' must be present.")
 
-        if rangetype == "LinearCount":
-            sweep_range = " LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
-        elif rangetype == "LinearStep":
-            sweep_range = " LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
-        elif rangetype == "LogScale":
-            sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
-        elif rangetype == "SinglePoint":
-            sweep_range = " " + str(start) + unit
-        else:
-            raise AttributeError('Allowed rangetype are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".')
-        self.props["Sweeps"]["Data"] += sweep_range
-        return self.update()
+            if rangetype == "LinearCount":
+                sweep_range = " LINC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
+            elif rangetype == "LinearStep":
+                sweep_range = " LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
+            elif rangetype == "LogScale":
+                sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
+            elif rangetype == "SinglePoint":
+                sweep_range = " " + str(start) + unit
+            else:
+                raise AttributeError(
+                    'Allowed rangetype are "LinearCount", "SinglePoint", "LinearStep", and "LogScale".'
+                )
+            self.props["Sweeps"]["Data"] += sweep_range
+            return self.update()
+        except:
+            return False
 
     @pyaedt_function_handler()
     def change_range(self, rangetype, start, end=None, count=None, unit="GHz"):
