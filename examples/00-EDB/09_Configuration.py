@@ -155,12 +155,12 @@ solutions = h3d.post.get_solution_data()
 ###############################################################################
 # Plot Results
 # ~~~~~~~~~~~~
-# S Parameter data will be plotted at the end of simulation.
+# Plot S Parameter data.
 solutions.plot(solutions.expressions, "db20")
 
 ###############################################################################
 # Save and Close AEDT
 # ~~~~~~~~~~~~~~~~~~~
-# S Parameter data will be plotted at the end of simulation.
+# Hfss3dLayout is saved and closed.
 h3d.save_project()
 h3d.release_desktop()
