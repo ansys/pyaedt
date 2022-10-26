@@ -4,11 +4,10 @@ import time
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.generic.constants import RadiationBoxType
-from pyaedt.generic.constants import SolverType
-from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
 # Import required modules
@@ -21,6 +20,8 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
+from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SourceType
 
 try:
     import unittest.mock
@@ -270,7 +271,6 @@ if not config["skip_edb"]:
             )
             assert self.edbapp.core_components.components["R1"].pins[pinname].position
             assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
-            assert self.edbapp.core_components.components["R1"].pins[pinname].id in self.edbapp.pins
 
         def test_18_components_from_net(self):
             assert self.edbapp.core_components.get_components_from_nets("A0_N")
@@ -2032,8 +2032,6 @@ if not config["skip_edb"]:
             assert edb.core_hfss.create_edge_port_horizontal(
                 prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
             )
-            assert "port_ver" in edb.excitations
-            assert "port_hori" in edb.excitations
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2130,7 +2128,7 @@ if not config["skip_edb"]:
             cap.type = "Resistor"
             assert cap.type == "Resistor"
 
-            export_path = os.path.join(self.local_scratch.path, "comp_definition.json")
+            export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
             assert self.edbapp.core_components.export_definition(export_path)
             assert self.edbapp.core_components.import_definition(export_path)
 
@@ -2139,7 +2137,6 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
             spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
             assert self.edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
-            assert self.edbapp.core_components.export_definition(export_path)
 
         def test_A124_material(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2229,8 +2226,6 @@ if not config["skip_edb"]:
                 and float(comp.ind_value) == 2
                 and float(comp.cap_value) == 3
             )
-            comp.is_parallel_rlc = False
-            assert not comp.is_parallel_rlc
             assert comp.value
             assert not comp.spice_model and not comp.s_param_model and not comp.netlist_model
             assert comp.assign_s_param_model(sparam_path) and comp.value

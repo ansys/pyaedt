@@ -3,7 +3,7 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
@@ -826,7 +826,7 @@ class EdbHfss(object):
             if not isinstance(simulation_setup, SimulationConfiguration):
                 self._logger.error(
                     "simulation setup was provided but must be an instance of \
-                    EDB_Data.SimulationConfiguration"
+                    edb_data.simulation_configuration.SimulationConfiguration"
                 )
                 return False
             signal_nets = simulation_setup.signal_nets
@@ -917,7 +917,9 @@ class EdbHfss(object):
         """
 
         if not isinstance(simulation_setup, SimulationConfiguration):
-            self._logger.error("Configure HFSS extent requires EDB_Data.SimulationConfiguration object")
+            self._logger.error(
+                "Configure HFSS extent requires edb_data.simulation_configuration.SimulationConfiguration object"
+            )
             return False
         hfss_extent = self._edb.Utility.HFSSExtentInfo()
         if simulation_setup.radiation_box == RadiationBoxType.BoundingBox:
@@ -959,7 +961,7 @@ class EdbHfss(object):
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
             self._logger.error(
-                "Configure HFSS analysis requires and EDB_Data.SimulationConfiguration object as \
+                "Configure HFSS analysis requires and edb_data.simulation_configuration.SimulationConfiguration object as \
                                argument"
             )
             return False
@@ -1071,7 +1073,7 @@ class EdbHfss(object):
 
         if not isinstance(simulation_setup, SimulationConfiguration):
             self._logger.error(
-                "Trim component reference size requires an EDB_Data.SimulationConfiguration object \
+                "Trim component reference size requires an edb_data.simulation_configuration.SimulationConfiguration object \
                                as argument"
             )
             return False
@@ -1135,7 +1137,7 @@ class EdbHfss(object):
 
         if not isinstance(simulation_setup, SimulationConfiguration):
             self._logger.error(
-                "Set coax port attribute requires an EDB_Data.SimulationConfiguration object \
+                "Set coax port attribute requires an edb_data.simulation_configuration.SimulationConfiguration object \
             as argument."
             )
             return False
@@ -1249,7 +1251,9 @@ class EdbHfss(object):
 
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
-            self._logger.error("Layout defeaturing requires an EDB_Data.SimulationConfiguration object as argument.")
+            self._logger.error(
+                "Layout defeaturing requires an edb_data.simulation_configuration.SimulationConfiguration object."
+            )
             return False
         self._logger.info("Starting Layout Defeaturing")
         polygon_list = self._pedb.core_primitives.polygons
