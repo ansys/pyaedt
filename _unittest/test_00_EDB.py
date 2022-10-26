@@ -4,11 +4,10 @@ import time
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.generic.constants import RadiationBoxType
-from pyaedt.generic.constants import SolverType
-from pyaedt.generic.constants import SourceType
 
 # Setup paths for module imports
 # Import required modules
@@ -21,6 +20,8 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
+from pyaedt.generic.constants import SolverType
+from pyaedt.generic.constants import SourceType
 
 try:
     import unittest.mock

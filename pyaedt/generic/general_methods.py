@@ -105,7 +105,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
     except:
         pass
 
-    _write_mes("Check Online documentation on: https://aedtdocs.pyansys.com/search.html?q={}".format(func.__name__))
+    _write_mes("Check Online documentation on: https://aedt.docs.pyansys.com/search.html?q={}".format(func.__name__))
 
 
 def _check_types(arg):

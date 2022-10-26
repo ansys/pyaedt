@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from collections import OrderedDict
 
 from pyaedt import generate_unique_name
@@ -11,13 +12,23 @@ from pyaedt.generic.constants import RadiationBoxType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import validate_enum_class_value
+from pyaedt.generic.general_methods import pyaedt_function_handler
+
+try:
+    from System import String
+    from System.Collections.Generic import Dictionary
+except ImportError:
+    if os.name != "posix":
+        warnings.warn("This module requires pythonnet.")
 
 
 class SimulationConfiguration(object):
-    """Parses an ASCII simulation configuration file, which supports all types of inputs
-    for setting up and automating any kind of SI or PI simulation with HFSS 3D Layout
-    or Siwave. If fields are omitted, default values are applied. This class can be instantiated directly from
-    Configuration file example:
+    """Provides an ASCII simulation configuration file parser.
+
+    This parser supports all types of inputs for setting up and automating any kind
+    of SI or PI simulation with HFSS 3D Layout or Siwave. If fields are omitted, default
+    values are applied. This class can be instantiated directly from
+    Configuration file. example:
     SolverType = 'Hfss3DLayout'
     GenerateSolerdBalls = 'True'
     SignalNets = ['net1', 'net2']
@@ -517,10 +528,6 @@ class SimulationConfiguration(object):
 
     @property
     def sweep_name(self):  # pragma: no cover
-        return self._sweep_name
-
-    @sweep_name.setter
-    def sweep_name(self, value):  # pragma: no cover
         """Retrieve frequency sweep name.
 
         Returns
@@ -528,11 +535,10 @@ class SimulationConfiguration(object):
             str
             The name of the frequency sweep defined in the project.
         """
-        if isinstance(value, str):
-            self._sweep_name = value
+        return self._sweep_name
 
     @sweep_name.setter
-    def sweep_name(self, value):
+    def sweep_name(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._sweep_name = value
 
@@ -1055,7 +1061,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_contact_radius(self):
-        """Retrieve the value for SIwave DC contact radius
+        """Retrieve the value for SIwave DC contact radius.
 
         Returns
         -------
@@ -1093,7 +1099,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_use_dc_custom_settings(self):
-        """Retrieve the value for using DC custom settings
+        """Retrieve the value for using DC custom settings.
 
         Returns
         -------
@@ -1110,7 +1116,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_plot_jv(self):
-        """Retrieve the value for computing current density and voltage distribution
+        """Retrieve the value for computing current density and voltage distribution.
 
         Returns
         -------
@@ -1474,7 +1480,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_per_pin_use_pin_format(self):
-        """Retrieve the value for using pin format
+        """Retrieve the value for using pin format.
 
         Returns
         -------
@@ -1489,7 +1495,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_use_loop_res_for_per_pin(self):
-        """Retrieve the value for using the loop resistor per pin
+        """Retrieve the value for using the loop resistor per pin.
 
         Returns
         -------
@@ -1526,7 +1532,7 @@ class SimulationConfiguration(object):
 
     @property
     def dc_source_terms_to_ground(self):
-        """Retrieve the dictionary of grounded terminals
+        """Retrieve the dictionary of grounded terminals.
 
         Returns
         -------
@@ -1745,6 +1751,12 @@ class SimulationConfiguration(object):
 
     @property
     def mesh_sizefactor(self):
+        """Retrieve the Mesh Size factor value.
+
+        Returns
+        -------
+        float
+        """
         return self._mesh_sizefactor
 
     @mesh_sizefactor.setter
@@ -1756,6 +1768,12 @@ class SimulationConfiguration(object):
 
     @property
     def sources(self):  # pragma: no cover
+        """Retrieve the source list.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.sources.Source`
+        """
         return self._sources
 
     @sources.setter
@@ -1766,7 +1784,18 @@ class SimulationConfiguration(object):
             if len([src for src in value if isinstance(src, Source)]) == len(value):
                 self._sources = value
 
+    @pyaedt_function_handler()
     def add_source(self, source=None):  # pragma: no cover
+        """Add a new source to configuration.
+
+        Parameters
+        ----------
+        source :  :class:`pyaedt.edb_core.edb_data.sources.Source`
+
+        Returns
+        -------
+
+        """
         if isinstance(source, Source):
             self._sources.append(source)
 
@@ -1791,6 +1820,7 @@ class SimulationConfiguration(object):
                 prop_values = [value.strip()]
             return prop_values
 
+    @pyaedt_function_handler()
     def add_dc_ground_source_term(self, source_name=None, node_to_ground=1):
         """Add a dc ground source terminal for Siwave.
 
@@ -2026,6 +2056,7 @@ class SimulationConfiguration(object):
             print("Error reading cfg file: {}".format(e.message))
             raise
 
+    @pyaedt_function_handler()
     def export_json(self, output_file):
         """Export Json file from SimulationConfiguration object.
 
@@ -2068,6 +2099,7 @@ class SimulationConfiguration(object):
         else:
             return False
 
+    @pyaedt_function_handler()
     def import_json(self, input_file):
         """Import Json file into SimulationConfiguration object instance.
 
@@ -2107,6 +2139,7 @@ class SimulationConfiguration(object):
         else:
             return False
 
+    @pyaedt_function_handler()
     def add_voltage_source(
         self,
         name="",
@@ -2178,6 +2211,7 @@ class SimulationConfiguration(object):
         except:  # pragma: no cover
             return False
 
+    @pyaedt_function_handler()
     def add_current_source(
         self,
         name="",
@@ -2249,6 +2283,7 @@ class SimulationConfiguration(object):
         except:  # pragma: no cover
             return False
 
+    @pyaedt_function_handler()
     def add_rlc(
         self,
         name="",
@@ -2323,3 +2358,96 @@ class SimulationConfiguration(object):
             return True
         except:  # pragma: no cover
             return False
+
+
+class SiwaveDCSetupTemplate(object):
+    """Manages Siwave DC settings data.
+
+    This class contains all the settings for a Siwave DC analysis and
+    is used as input.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
+    >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
+    >>> settings.accuracy_level = 0
+    >>> settings.use_dc_custom_settings  = True
+    >>> settings.name = "myDCIR_3"
+    >>> settings.pos_term_to_ground = "I1"
+    >>> settings.neg_term_to_ground = "V1"
+    >>> edb.core_siwave.add_siwave_dc_analysis(settings)
+    """
+
+    def __init__(self):
+        self.name = "DC IR 1"
+        self.dcreport_show_active_devices = True
+        self.export_dcthermal_data = False
+        self.full_dcreport_path = ""
+        self.use_loopres_forperpin = True
+        self.via_report_path = ""
+        self.compute_inductance = True
+        self.accuracy_level = 1
+        self.plotjv = True
+        self.min_passes = 1
+        self.max_passes = 5
+        self.percent_localrefinement = 20
+        self.energy_error = 2
+        self.refine_bondwires = False
+        self.refine_vias = False
+        self.num_bondwire_sides = 8
+        self.num_via_sides = 8
+        self.mesh_bondwires = False
+        self.mesh_vias = False
+        self.perform_adaptive_refinement = False
+        self.use_dc_custom_settings = False
+        self._source_terms_to_ground = None
+        self._pos_term_to_ground = []
+        self._neg_term_to_ground = []
+
+    @property
+    def pos_term_to_ground(self):
+        """Set positive terminals to ground.
+
+        Parameters
+        ----------
+        terms : list, str
+            List of terminals with positive nodes to ground.
+        """
+        return self._pos_term_to_ground
+
+    @pos_term_to_ground.setter
+    def pos_term_to_ground(self, terms):
+        if not isinstance(terms, list):
+            self._pos_term_to_ground = [terms]
+        else:
+            self._pos_term_to_ground = terms
+
+    @property
+    def neg_term_to_ground(self):
+        """Set negative terminals to ground.
+
+        Parameters
+        ----------
+        terms : list, str
+            List of terminals with negative nodes to ground.
+        """
+        return self._neg_term_to_ground
+
+    @neg_term_to_ground.setter
+    def neg_term_to_ground(self, terms):
+        if not isinstance(terms, list):
+            self._neg_term_to_ground = [terms]
+        else:
+            self._neg_term_to_ground = terms
+
+    @property
+    def source_terms_to_ground(self):
+        """Terminals with positive or negative grounded terminals."""
+        a = Dictionary[String, int]()
+        for el in self._neg_term_to_ground:
+            a[el] = 1
+        for el in self._pos_term_to_ground:
+            a[el] = 2
+        self._source_terms_to_ground = a
+        return self._source_terms_to_ground

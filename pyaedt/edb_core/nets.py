@@ -4,7 +4,7 @@ import math
 import os
 import time
 
-from pyaedt.edb_core.edb_data.nets import EDBNetsData
+from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -63,7 +63,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`]
             Dictionary of nets.
         """
         nets = {}
@@ -228,7 +228,7 @@ class EdbNets(object):
         list, str
             list of data to be used in plot.
             In case of remote session it will be returned a string that could be converted to list
-             using ast.literal_eval().
+            using ast.literal_eval().
         """
         start_time = time.time()
         color_index = 0
@@ -364,7 +364,8 @@ class EdbNets(object):
 
         Parameters
         ----------
-        simulation_configuration_object : :class:`pyaedt.edb_core.edb_data.SimulationConfiguration`
+        simulation_configuration_object :
+                         :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration`.
 
         Returns
         -------
