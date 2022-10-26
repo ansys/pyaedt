@@ -1487,6 +1487,15 @@ class SweepHFSS(object):
         else:
             for t in SweepHfss3D:
                 _tuple2dict(t, self.props)
+            if SequenceMatcher(None, sweeptype.lower(), "interpolating").ratio() > 0.8:
+                sweeptype = "Interpolating"
+            elif SequenceMatcher(None, sweeptype.lower(), "discrete").ratio() > 0.8:
+                sweeptype = "Discrete"
+            elif SequenceMatcher(None, sweeptype.lower(), "fast").ratio() > 0.8:
+                sweeptype = "Fast"
+            else:
+                warnings.warn("Invalid sweep type. `Interpolating` will be set as default.")
+                sweeptype = "Interpolating"
             self.props["Type"] = sweeptype
 
     @property
