@@ -620,7 +620,7 @@ class Icepak(FieldAnalysis3D):
         """
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
-                gravity_dir = gravity_dir - 2
+                gravity_dir = gravity_dir - 3
             faces_dict = self.modeler[object_name].faces
             faceCenter = {}
             for f in faces_dict:
