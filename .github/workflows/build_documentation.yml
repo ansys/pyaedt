@@ -57,7 +57,6 @@ jobs:
       - name: Retrieve PyAEDT version
         id: version
         run: |
-          testenv\Scripts\Activate.ps1
           echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
