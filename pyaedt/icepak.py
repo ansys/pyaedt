@@ -1101,6 +1101,11 @@ class Icepak(FieldAnalysis3D):
         tolerance : int, float, optional
             Tolerance value. The default is ``0.001``.
 
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
         Examples
         --------
 
@@ -1112,11 +1117,6 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
         ...                                        vertical_separation=5.5, matname="Steel", center=[10, 0, 0],
         ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
 
         """
         all_objs = self.modeler.object_names
