@@ -217,7 +217,7 @@ class TestClass(BasisTest, object):
         else:
             assert (comp.location[0] - 0.1) < tol
             assert (comp.location[1] - 0.2) < tol
-        hfss3d.close_project(saveproject=False)
+        hfss3d.close_project(save_project=False)
 
     def test_10_change_stackup(self):
         assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)

@@ -1,6 +1,7 @@
 import json
 import os.path
 import sys
+import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -1329,10 +1330,12 @@ class SweepHFSS(object):
 
     Parameters
     ----------
-    oanalysis :
-
+    app : :class 'pyaedt.modules.SolveSetup.Setup'
+        Setup used for the analysis.
     setupname : str
         Name of the setup.
+    sweepname : str
+        Name of the sweep.
     sweeptype : str, optional
         Type of the sweep. Options are ``"Fast"``, ``"Interpolating"``,
         and ``"Discrete"``. The default is ``"Interpolating"``.
@@ -1340,19 +1343,36 @@ class SweepHFSS(object):
         Dictionary of the properties. The default is ``None``, in which case
         the default properties are retrieved.
 
+    Examples
+    --------
+    >>> hfss = Hfss(specified_version=version, projectname=proj, designname=gtemDesign, solution_type=solutiontype,
+                    setup_name=setupname, new_desktop_session=False, close_on_exit=False)
+    >>> hfss_setup = hfss.setups[0]
+    >>> hfss_sweep = SweepHFSS(hfss_setup, 'Sweep', sweeptype ='Interpolating', props=None)
+
     """
 
-    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self._app = app
-        self.oanalysis = app.omodule
+    def __init__(self, setup, sweepname, sweeptype="Interpolating", props=None, **kwargs):
+        if "app" in kwargs:
+            warnings.warn(
+                "`app` is deprecated since v0.6.22. Use `setup` instead.",
+                DeprecationWarning,
+            )
+            setup = kwargs["app"]
+        if "setupname" in kwargs:
+            warnings.warn(
+                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                DeprecationWarning,
+            )
+
+        self._app = setup
+        self.oanalysis = setup.omodule
         self.props = {}
-        self.setupname = setupname
+        self.setupname = setup.name
         self.name = sweepname
         if props:
             self.props = props
         else:
-            self.setupname = setupname
-            self.name = sweepname
             self.props["Type"] = sweeptype
             self.props["IsEnabled"] = True
             self.props["RangeType"] = "LinearCount"
@@ -1450,13 +1470,13 @@ class SweepHFSS(object):
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", save_single_fields=False, clear=False):
-        """Add a subrange to the sweep.
+        """Add a range to the sweep.
 
         Parameters
         ----------
         rangetype : str
-            Type of the subrange. Options are ``"LinearCount"``,
-            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
+            Type of the range. Options are ``"LinearCount"``,
+            ``"LinearStep"``, ``"LogScale"``, and ``"SinglePoints"``.
         start : float
             Starting frequency.
         end : float, optional
@@ -1511,23 +1531,21 @@ class SweepHFSS(object):
             self.props["SweepRanges"] = {"Subrange": []}
             return self.update()
 
-        range = {}
-        range["RangeType"] = rangetype
-        range["RangeStart"] = str(start) + unit
+        interval = {"RangeType": rangetype, "RangeStart": str(start) + unit}
         if rangetype == "LinearCount":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = count
+            interval["RangeEnd"] = str(end) + unit
+            interval["RangeCount"] = count
         elif rangetype == "LinearStep":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeStep"] = str(count) + unit
+            interval["RangeEnd"] = str(end) + unit
+            interval["RangeStep"] = str(count) + unit
         elif rangetype == "LogScale":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = self.props["RangeCount"]
-            range["RangeSamples"] = count
+            interval["RangeEnd"] = str(end) + unit
+            interval["RangeCount"] = self.props["RangeCount"]
+            interval["RangeSamples"] = count
         elif rangetype == "SinglePoints":
-            range["RangeEnd"] = str(start) + unit
-            range["SaveSingleField"] = save_single_fields
-        self.props["SweepRanges"]["Subrange"].append(range)
+            interval["RangeEnd"] = str(start) + unit
+            interval["SaveSingleField"] = save_single_fields
+        self.props["SweepRanges"]["Subrange"].append(interval)
 
         return self.update()
 
@@ -1585,8 +1603,8 @@ class SweepHFSS3DLayout(object):
 
     Parameters
     ----------
-    oanaysis :
-
+    app : :class 'pyaedt.modules.SolveSetup.Setup'
+        Setup used for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
@@ -1601,26 +1619,28 @@ class SweepHFSS3DLayout(object):
 
     """
 
-    def __init__(
-        self,
-        app,
-        setupname,
-        sweepname,
-        sweeptype="Interpolating",
-        save_fields=True,
-        props=None,
-    ):
-        self._app = app
-        self.oanalysis = app.omodule
+    def __init__(self, setup, sweepname, sweeptype="Interpolating", save_fields=True, props=None, **kwargs):
+
+        if "app" in kwargs:
+            warnings.warn(
+                "`app` is deprecated since v0.6.22. Use `setup` instead.",
+                DeprecationWarning,
+            )
+            setup = kwargs["app"]
+        if "setupname" in kwargs:
+            warnings.warn(
+                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                DeprecationWarning,
+            )
+
+        self._app = setup
+        self.oanalysis = setup.omodule
         self.props = {}
-        self.setupname = setupname
+        self.setupname = setup.name
         self.name = sweepname
         if props:
             self.props = props
         else:
-            self.setupname = setupname
-            self.name = sweepname
-
             self.props["Properties"] = OrderedDict({"Enable": True})
             self.props["Sweeps"] = OrderedDict(
                 {"Variable": "Sweep 1", "Data": "LIN 1Hz 20GHz 0.05GHz", "OffsetF1": False, "Synchronize": 0}
@@ -1857,13 +1877,13 @@ class SweepHFSS3DLayout(object):
         return arg
 
 
-class SweepQ3D(object):
+class SweepMatrix(object):
     """Initializes, creates, and updates sweeps in Q3D.
 
     Parameters
     ----------
-    oanaysis :
-
+    app : :class 'pyaedt.modules.SolveSetup.Setup'
+        Setup used for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
@@ -1877,10 +1897,21 @@ class SweepQ3D(object):
 
     """
 
-    def __init__(self, app, setupname, sweepname, sweeptype="Interpolating", props=None):
-        self._app = app
-        self.oanalysis = app.omodule
-        self.setupname = setupname
+    def __init__(self, setup, sweepname, sweeptype="Interpolating", props=None, **kwargs):
+        if "app" in kwargs:
+            warnings.warn(
+                "`app` is deprecated since v0.6.22. Use `setup` instead.",
+                DeprecationWarning,
+            )
+            setup = kwargs["app"]
+        if "setupname" in kwargs:
+            warnings.warn(
+                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                DeprecationWarning,
+            )
+        self._app = setup
+        self.oanalysis = setup.omodule
+        self.setupname = setup.name
         self.name = sweepname
         self.props = {}
         if props:
@@ -1924,6 +1955,57 @@ class SweepQ3D(object):
         sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
         return True if sol.get_solution_data() else False
 
+    @property
+    def frequencies(self):
+        """Get the list of all frequencies of the active sweep.
+        The project has to be saved and solved to see values.
+
+        Returns
+        -------
+        list of float
+            Frequency points.
+        """
+        sol = self._app.p_app.post.reports_by_category.standard(setup_name="{} : {}".format(self.setupname, self.name))
+        soldata = sol.get_solution_data()
+        if soldata and "Freq" in soldata.intrinsics:
+            return soldata.intrinsics["Freq"]
+        return []
+
+    @property
+    def basis_frequencies(self):
+        """Get the list of all frequencies that have fields available.
+        The project has to be saved and solved to see values.
+
+        Returns
+        -------
+        list of float
+            Frequency points.
+        """
+        solutions_file = os.path.join(self._app.p_app.results_directory, "{}.asol".format(self._app.p_app.design_name))
+        fr = []
+        if os.path.exists(solutions_file):
+            solutions = load_entire_aedt_file(solutions_file)
+            for k, v in solutions.items():
+                if "SolutionBlock" in k and "SolutionName" in v and v["SolutionName"] == self.name and "Fields" in v:
+                    try:
+                        new_list = [float(i) for i in v["Fields"]["IDDblMap"][1::2]]
+                        new_list.sort()
+                        fr.append(new_list)
+                    except (KeyError, NameError, IndexError):
+                        pass
+
+        count = 0
+        for el in self._app.p_app.setups:
+            if el.name == self.setupname:
+                for sweep in el.sweeps:
+                    if sweep.name == self.name:
+                        return fr[count] if len(fr) >= count + 1 else []
+            else:
+                for sweep in el.sweeps:
+                    if sweep.name == self.name:
+                        count += 1
+        return []
+
     @pyaedt_function_handler()
     def add_subrange(self, type, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
@@ -1965,22 +2047,20 @@ class SweepQ3D(object):
                 self.props["RangeSamples"] = count
             self.props["SweepRanges"] = {"Subrange": []}
             return self.update()
-        range = {}
-        range["RangeType"] = type
-        range["RangeStart"] = str(start) + unit
+        sweep_range = {"RangeType": type, "RangeStart": str(start) + unit}
         if type == "LinearCount":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = count
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = count
         elif type == "LinearStep":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeStep"] = str(count) + unit
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeStep"] = str(count) + unit
         elif type == "LogScale":
-            range["RangeEnd"] = str(end) + unit
-            range["RangeCount"] = self.props["RangeCount"]
-            range["RangeSamples"] = count
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = self.props["RangeCount"]
+            sweep_range["RangeSamples"] = count
         if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
             self.props["SweepRanges"] = {"Subrange": []}
-        self.props["SweepRanges"]["Subrange"].append(range)
+        self.props["SweepRanges"]["Subrange"].append(sweep_range)
         return self.update()
 
     @pyaedt_function_handler()

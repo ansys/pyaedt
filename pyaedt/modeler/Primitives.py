@@ -12,6 +12,7 @@ import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_number
@@ -1299,14 +1300,16 @@ class Primitives(object):
         return False
 
     @pyaedt_function_handler()
-    def create_region(self, pad_percent=300):
+    def create_region(self, pad_percent=300, is_percentage=True):
         """Create an air region.
 
         Parameters
         ----------
-        pad_percent : float or list of floats, optional
-            If a float, use padding in percent for all dimensions. The default is ``300``.
-            If a list of floats, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
+        pad_percent : float, str, list of floats or list of str, optional
+            Same padding is applied if not a list. The default is ``300``.
+            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
+        is_percentage : bool, optional
+            Region definition in percentage or absolute value. The default is `True``.
 
         Returns
         -------
@@ -1320,18 +1323,34 @@ class Primitives(object):
         """
         if "Region" in self.object_names:
             return None
-        if is_number(pad_percent):
+        if not isinstance(pad_percent, list):
             pad_percent = [pad_percent] * 6
 
         arg = ["NAME:RegionParameters"]
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
         for pval in p:
+            region_type = "Percentage Offset"
+            if not is_percentage:
+                region_type = "Absolute Offset"
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
-            arg.append("Percentage Offset")
+            arg.append(region_type)
             arg.append(qvalstr)
+            if isinstance(pad_percent[i], str):
+                units = decompose_variable_value(pad_percent[i])[1]
+                if not units and pad_percent[i].isnumeric():
+                    if not is_percentage:
+                        units = self.modeler.model_units
+                        pad_percent[i] += units
+                elif is_percentage:
+                    self.logger.error("Percentage input must not have units")
+                    return False
+            elif not is_percentage:
+                units = self.modeler.model_units
+                pad_percent[i] = str(pad_percent[i])
+                pad_percent[i] += units
             arg.append(str(pad_percent[i]))
             i += 1
         arg2 = [

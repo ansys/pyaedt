@@ -78,6 +78,7 @@ from zipfile import ZipFile
 
 import clr
 
+import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt import is_ironpython
 from pyaedt.desktop import Desktop
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1064,7 +1065,7 @@ class WPFToolkit(Window):
         self.read_settings()
         uri = Uri(os.path.join(self.image_path, "pyansys-logo-black-cropped.png"))
         logo = self.get_ui_object("logo")
-        logo.Source = BitmapImage(uri)
+        pyaedt.edb_core.edb_data.simulation_configuration.Source = BitmapImage(uri)
         if self._callbacks:
             for el in self._callbacks:
                 self.set_callback(el[0], el[1], el[2])
@@ -1402,7 +1403,7 @@ class WPFToolkit(Window):
         bi.CreateOptions = BitmapCreateOptions.IgnoreImageCache
         bi.UriSource = Uri(image_file, UriKind.RelativeOrAbsolute)
         bi.EndInit()
-        self.ui[ui_object_name].Source = bi
+        pyaedt.edb_core.edb_data.simulation_configuration.Source = bi
 
     @pyaedt_function_handler()
     def set_visible(self, object_list):
