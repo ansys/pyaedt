@@ -3879,7 +3879,6 @@ class Hfss(FieldAnalysis3D, object):
         y_scale=1,
         impedance=50,
         data_format="Power",
-        sampling_interval=None,
         encoding="utf-8",
     ):
         """Edit a source from file data.
@@ -3900,8 +3899,6 @@ class Hfss(FieldAnalysis3D, object):
             Excitation impedance. Default is `50`.
         data_format : str, optional
             Either `"Power"`, `"Current"` or `"Voltage"`.
-        sampling_interval : float, optional
-            Time interval for transient data. If None it will be computed as delta of first 2 samples.
         encoding : str, optional
             Csv file encoding.
 
@@ -3921,7 +3918,6 @@ class Hfss(FieldAnalysis3D, object):
             y_scale=y_scale,
             impedance=impedance,
             data_format=data_format,
-            sampling_interval=sampling_interval,
             encoding=encoding,
             out_mag=out,
         )
