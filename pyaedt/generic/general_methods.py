@@ -1001,7 +1001,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time, value, num_points=501, sampling_interval=None):
+def compute_fft(time, value, num_points=10000, sampling_interval=None):
     """Compute FFT of input transient data.
 
     Parameters
@@ -1017,12 +1017,14 @@ def compute_fft(time, value, num_points=501, sampling_interval=None):
     """
     if not sampling_interval:
         sampling_interval = np.mean([time[n] - time[n - 1] for n in range(1, len(time))])
-    sampling_rate = 0.5 / sampling_interval
+    sampling_rate = 1.0 / sampling_interval
     X = np.fft.fft(value, num_points)
-    N = int(len(X) / 2 + 1)
-    X = X[1 : N + 1]
+    # X = np.fft.fft(value)
+    N = int(len(X) / 2)
+    X = X[:N]
+    X = X / len(X)
     n = np.arange(N)
-    T = 2 * N / sampling_rate
+    T = N / sampling_rate
     freq = n / T
     return freq, X
 
@@ -1036,6 +1038,7 @@ def parse_excitation_file(
     data_format="Power",
     sampling_interval=None,
     encoding="utf-8",
+    out_mag="Voltage",
 ):
     """Parse a csv file and convert data in list that can be applied to Hfss and Hfss3dLayout sources.
 
@@ -1064,15 +1067,21 @@ def parse_excitation_file(
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
-        if data_format.lower() == "current":
-            val = df[df.keys()[1]].values * df[df.keys()[1]].values * impedance * y_scale * y_scale
-        elif data_format.lower() == "voltage":
-            val = df[df.keys()[1]].values * df[df.keys()[1]].values / impedance * y_scale * y_scale
-        else:
-            val = df[df.keys()[1]].values * y_scale
-
+        val = df[df.keys()[1]].values * y_scale
         freq, fval = compute_fft(time, val, sampling_interval=sampling_interval)
-        mag = [math.sqrt(i * i + j * j) for i, j in zip(list(fval.real), list(fval.imag))]
+
+        if data_format.lower() == "current":
+            if out_mag == "Voltage":
+                fval = fval * impedance
+            else:
+                fval = fval * fval * impedance
+        elif data_format.lower() == "voltage":
+            if out_mag == "Power":
+                fval = fval * fval / (2 * impedance)
+        else:
+            if out_mag == "Voltage":
+                fval = np.sqrt(fval * impedance)
+        mag = list(np.abs(fval))
         phase = [math.atan2(j, i) * 180 / math.pi for i, j in zip(list(fval.real), list(fval.imag))]
 
     else:

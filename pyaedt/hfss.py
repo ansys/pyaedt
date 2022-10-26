@@ -3910,6 +3910,10 @@ class Hfss(FieldAnalysis3D, object):
         -------
         bool
         """
+        if self.solution_type == "Modal":
+            out = "Power"
+        else:
+            out = "Voltage"
         freq, mag, phase = parse_excitation_file(
             file_name=file_name,
             is_time_domain=is_time_domain,
@@ -3919,6 +3923,7 @@ class Hfss(FieldAnalysis3D, object):
             data_format=data_format,
             sampling_interval=sampling_interval,
             encoding=encoding,
+            out_mag=out,
         )
         ds_name_mag = "ds_" + portandmode.replace(":", "_mode_") + "_Mag"
         ds_name_phase = "ds_" + portandmode.replace(":", "_mode_") + "_Angle"
