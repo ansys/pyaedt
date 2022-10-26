@@ -315,7 +315,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_box([14, 15, 16], [10, 10, 10], "network_box3", "Steel-Chrome")
         self.aedtapp.modeler.create_box([17, 18, 19], [10, 10, 10], "network_box4", "Steel-Chrome")
         network_block_result = self.aedtapp.create_network_blocks(
-            [["network_box3", 20, 10, 3], ["network_box4", 4, 10, 3]], 4, 1.05918, True
+            [["network_box3", 20, 10, 3], ["network_box4", 4, 10, 3]], 5, 1.05918, True
         )
         assert (
             len(network_block_result[0].props["Nodes"]) == 3 and len(network_block_result[1].props["Nodes"]) == 3
