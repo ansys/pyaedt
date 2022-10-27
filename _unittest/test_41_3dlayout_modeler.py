@@ -337,8 +337,8 @@ class TestClass(BasisTest, object):
         assert sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
         assert sweep.add_subrange("LinearCount", 1, 1.5, 3, "MHz")
         assert sweep.change_type("Discrete")
-        assert sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
-        assert sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
+        assert not sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
+        assert not sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
         assert sweep.set_save_fields(True, True)
         assert sweep.set_save_fields(False, False)
 

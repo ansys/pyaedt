@@ -292,9 +292,9 @@ class TestClass(BasisTest, object):
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
 
     def test_06f_sweep_add_subrange(self):
-        box_sweep = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
-        box_sweep2 = self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
-        port = self.aedtapp.create_wave_port_between_objects(
+        self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
+        self.aedtapp.create_wave_port_between_objects(
             "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
@@ -306,9 +306,9 @@ class TestClass(BasisTest, object):
         assert sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
 
     def test_06g_sweep_clear_subrange(self):
-        box_sweep3 = self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
-        box_sweep4 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
-        port = self.aedtapp.create_wave_port_between_objects(
+        self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
+        self.aedtapp.create_wave_port_between_objects(
             "box_sweep3", "box_sweep4", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweepWithClear", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
