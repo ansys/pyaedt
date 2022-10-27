@@ -1196,7 +1196,7 @@ class EdbSiwave(object):
             References designator of the component.
         net_name : str
             Name of the net.
-        group_name : str, optinal
+        group_name : str, optional
             Name of the pin group.
         Returns
         -------
