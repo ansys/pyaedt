@@ -271,7 +271,7 @@ class Emit(FieldAnalysisEmit, object):
 
     Examples
     --------
-    Create an instance of Emit. You can choose to define parameters for Emit here.
+    Create an instance of Emit. You can also choose to define parameters for Emit here.
     >>> from pyaedt import Emit
     >>> aedtapp = Emit()
 
@@ -336,7 +336,7 @@ class Emit(FieldAnalysisEmit, object):
             port=port,
             aedt_process_id=aedt_process_id,
         )
-        if(self._aedt_version >= "2022.1"):
+        if(self._aedt_version >= "2023.1"):
             self.location =""
             self.curr_design = 0
             desktop_path = self.desktop_install_dir
