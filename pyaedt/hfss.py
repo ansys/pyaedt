@@ -3895,6 +3895,8 @@ class Hfss(FieldAnalysis3D, object):
             Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
         x_scale : float, optional
             Scaling factor for x axis.
+        y_scale : float, optional
+            Scaling factor for x axis.
         impedance : float, optional
             Excitation impedance. Default is `50`.
         data_format : str, optional
@@ -3949,6 +3951,7 @@ class Hfss(FieldAnalysis3D, object):
                 ],
             ]
         )
+        self.logger.info("Source Excitation updated with Dataset.")
         return True
 
     @pyaedt_function_handler()

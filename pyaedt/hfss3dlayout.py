@@ -12,6 +12,7 @@ from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
@@ -1894,3 +1895,80 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             out_files.sort(key=lambda x: os.path.getmtime(x))
             return out_files[0]
         return ""
+
+    @pyaedt_function_handler()
+    def edit_source_from_file(
+        self,
+        source_name,
+        file_name,
+        is_time_domain=True,
+        x_scale=1,
+        y_scale=1,
+        impedance=50,
+        data_format="Power",
+        encoding="utf-8",
+    ):
+        """Edit a source from file data.
+        File data is a csv containing either frequency data or time domain data that will be converted through FFT.
+
+        Parameters
+        ----------
+        source_name : str
+            Source Name.
+        file_name : str
+            Full name of the input file.
+        is_time_domain : bool, optional
+            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+        x_scale : float, optional
+            Scaling factor for x axis.
+        y_scale : float, optional
+            Scaling factor for x axis.
+        impedance : float, optional
+            Excitation impedance. Default is `50`.
+        data_format : str, optional
+            Either `"Power"`, `"Current"` or `"Voltage"`.
+        encoding : str, optional
+            Csv file encoding.
+
+
+        Returns
+        -------
+        bool
+        """
+        if self.solution_type == "Modal":
+            out = "Power"
+        else:
+            out = "Voltage"
+        freq, mag, phase = parse_excitation_file(
+            file_name=file_name,
+            is_time_domain=is_time_domain,
+            x_scale=x_scale,
+            y_scale=y_scale,
+            impedance=impedance,
+            data_format=data_format,
+            encoding=encoding,
+            out_mag=out,
+        )
+        ds_name_mag = "ds_" + source_name.replace(":", "_mode_") + "_Mag"
+        ds_name_phase = "ds_" + source_name.replace(":", "_mode_") + "_Angle"
+        if self.dataset_exists(ds_name_mag, False):
+            self.design_datasets[ds_name_mag].x = freq
+            self.design_datasets[ds_name_mag].y = mag
+            self.design_datasets[ds_name_mag].update()
+        else:
+            self.create_dataset1d_design(ds_name_mag, freq, mag, xunit="Hz")
+        if self.dataset_exists(ds_name_phase, False):
+            self.design_datasets[ds_name_phase].x = freq
+            self.design_datasets[ds_name_phase].y = phase
+            self.design_datasets[ds_name_phase].update()
+
+        else:
+            self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
+        for p in self.boundaries:
+            if p.name == source_name:
+                p.props["Magnitude"] = "pwl({}, Freq)".format(ds_name_mag)
+                p.props["Phase"] = "pwl({}, Freq)".format(ds_name_phase)
+                self.logger.info("Source Excitation updated with Dataset.")
+                return True
+        self.logger.error("Port not found.")
+        return False

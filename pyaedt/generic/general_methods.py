@@ -1001,12 +1001,12 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time, value, num_points=10000):
+def compute_fft(time_vals, value):
     """Compute FFT of input transient data.
 
     Parameters
     ----------
-    time : `pandas.Series`
+    time_vals : `pandas.Series`
     value : `pandas.Series`
 
     Returns
@@ -1014,15 +1014,16 @@ def compute_fft(time, value, num_points=10000):
     tuple
         Frequency and Values.
     """
-    X = np.fft.fft(value, min(len(time), num_points))
-    N = int(len(X) / 2)
-    X = X[1 : N + 1]
-    X = X / len(X)
-    n = np.arange(N)
-    T = time[-1] - time[0]
-    # T = N / sampling_rate
-    freq = n / T
-    return freq, X
+
+    deltaT = time_vals[-1] - time_vals[0]
+    num_points = len(time_vals)
+    valueFFT = np.fft.fft(value, num_points)
+    Npoints = int(len(valueFFT) / 2)
+    valueFFT = valueFFT[1 : Npoints + 1]
+    valueFFT = valueFFT / len(valueFFT)
+    n = np.arange(num_points)
+    freq = n / deltaT
+    return freq, valueFFT
 
 
 def parse_excitation_file(
@@ -1045,12 +1046,16 @@ def parse_excitation_file(
         Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
     x_scale : float, optional
         Scaling factor for x axis.
+    y_scale : float, optional
+        Scaling factor for x axis.
     data_format : str, optional
         Either `"Power"`, `"Current"` or `"Voltage"`.
     impedance : float, optional
         Excitation impedance. Default is `50`.
     encoding : str, optional
         Csv file encoding.
+    out_mag : str, optional
+        Output magnitude format. It can be `"Voltage"` or `"Power"` depending on Hfss solution.
 
     Returns
     -------
