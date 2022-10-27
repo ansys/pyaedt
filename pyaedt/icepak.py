@@ -620,7 +620,7 @@ class Icepak(FieldAnalysis3D):
         """
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
-                gravity_dir = gravity_dir - 2
+                gravity_dir = gravity_dir - 3
             faces_dict = self.modeler[object_name].faces
             faceCenter = {}
             for f in faces_dict:
@@ -1073,14 +1073,14 @@ class Icepak(FieldAnalysis3D):
             Length of the heat sink. The default is ``40``.
         height : optional
             Height of the heat sink. The default is ``40``.
-        draftangle : optional
+        draftangle : int, float, optional
             Draft angle in degrees. The default is ``0``.
-        patternangle : optional
+        patternangle : int, float, optional
             Pattern angle in degrees. The default is ``10``.
         separation : optional
             The default is ``5``.
         symmetric : bool, optional
-            Whether the heat sink is symmetric.  The default is ``True``.
+            Whether the heat sink is symmetric. The default is ``True``.
         symmetric_separation : optional
             The default is ``20``.
         numcolumn_perside : int, optional
@@ -1092,17 +1092,30 @@ class Icepak(FieldAnalysis3D):
         center : list, optional
            List of ``[x, y, z]`` coordinates for the center of
            the heatsink. The default is ``[0, 0, 0]``.
-        plane_enum : optional
+        plane_enum : str, int, optional
+            Plane for orienting the heat sink.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
             The default is ``0``.
-        rotation : optional
+        rotation : int, float, optional
             The default is ``0``.
-        tolerance : optional
+        tolerance : int, float, optional
             Tolerance value. The default is ``0.001``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a symmetric fin heat sink.
+
+        >>> from pyaedt import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.insert_design("Heat_Sink_Example")
+        >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
+        ...                                        vertical_separation=5.5, matname="Steel", center=[10, 0, 0],
+        ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         """
         all_objs = self.modeler.object_names
@@ -1129,30 +1142,30 @@ class Icepak(FieldAnalysis3D):
             "HSBase",
             matname,
         )
-        Fin_Line = []
-        Fin_Line.append(self.Position(0, 0, 0))
-        Fin_Line.append(self.Position(0, "FinThickness", 0))
-        Fin_Line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
-        Fin_Line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
-        Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.create_polyline(Fin_Line, cover_surface=True, name="Fin")
-        Fin_Line2 = []
-        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        Fin_Line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        Fin_Line2.append(
+        fin_line = []
+        fin_line.append(self.Position(0, 0, 0))
+        fin_line.append(self.Position(0, "FinThickness", 0))
+        fin_line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
+        fin_line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
+        fin_line.append(self.Position(0, 0, 0))
+        self.modeler.create_polyline(fin_line, cover_surface=True, name="Fin")
+        fin_line2 = []
+        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        fin_line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        fin_line2.append(
             self.Position(
                 "FinLength",
                 "FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness",
                 "FinHeight",
             )
         )
-        Fin_Line2.append(
+        fin_line2.append(
             self.Position(
                 "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
             )
         )
-        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        self.modeler.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
+        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        self.modeler.create_polyline(fin_line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.modeler["Fin"].material_name = matname
         num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
@@ -1196,13 +1209,13 @@ class Icepak(FieldAnalysis3D):
                 reference_cs="CenterRightSep",
             )
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
-            Center_Line = []
-            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            self.modeler.create_polyline(Center_Line, cover_surface=True, name="Center")
+            center_line = []
+            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            center_line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
+            center_line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            center_line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            self.modeler.create_polyline(center_line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", "-FinHeight-2*Tolerance")
             all_names = self.modeler.object_names
             list = [i for i in all_names if "Fin" in i]

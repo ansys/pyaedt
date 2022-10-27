@@ -750,8 +750,9 @@ class EdbStackup(object):
         """Return the layout thickness.
 
         Returns
-        --------
-        Float, the thickness value.
+        -------
+        float
+            The thickness value.
         """
         layers_name = list(self.stackup_layers.layers.keys())
         bottom_layer = self.stackup_layers.layers[layers_name[0]]
