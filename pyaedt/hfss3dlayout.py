@@ -1924,7 +1924,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         x_scale : float, optional
             Scaling factor for x axis.
         y_scale : float, optional
-            Scaling factor for x axis.
+            Scaling factor for y axis.
         impedance : float, optional
             Excitation impedance. Default is `50`.
         data_format : str, optional
@@ -1941,10 +1941,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         bool
         """
-        if self.solution_type == "Modal":
-            out = "Power"
-        else:
-            out = "Voltage"
+        out = "Voltage"
         freq, mag, phase = parse_excitation_file(
             file_name=file_name,
             is_time_domain=is_time_domain,
