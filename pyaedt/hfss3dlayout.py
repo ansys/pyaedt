@@ -1932,7 +1932,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         encoding : str, optional
             Csv file encoding.
         include_post_effects : bool, optional
-            Either if include or not post processing effects. Default is `True`,
+            Either if include or not post-processing effects. Default is `True`,
         incident_voltage : bool, optional
             Either if include or incident or total voltage. Default is `True`, for incident voltage.
 

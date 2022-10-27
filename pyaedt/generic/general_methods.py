@@ -1047,7 +1047,7 @@ def parse_excitation_file(
     x_scale : float, optional
         Scaling factor for x axis.
     y_scale : float, optional
-        Scaling factor for x axis.
+        Scaling factor for y axis.
     data_format : str, optional
         Either `"Power"`, `"Current"` or `"Voltage"`.
     impedance : float, optional

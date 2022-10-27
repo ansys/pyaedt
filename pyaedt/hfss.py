@@ -3896,7 +3896,7 @@ class Hfss(FieldAnalysis3D, object):
         x_scale : float, optional
             Scaling factor for x axis.
         y_scale : float, optional
-            Scaling factor for x axis.
+            Scaling factor for y axis.
         impedance : float, optional
             Excitation impedance. Default is `50`.
         data_format : str, optional
