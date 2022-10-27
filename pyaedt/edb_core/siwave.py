@@ -13,8 +13,8 @@ from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
 from pyaedt.edb_core.edb_data.sources import CircuitPort
 from pyaedt.edb_core.edb_data.sources import CurrentSource
 from pyaedt.edb_core.edb_data.sources import DCTerminal
-from pyaedt.edb_core.edb_data.sources import ResistorSource
 from pyaedt.edb_core.edb_data.sources import PinGroup
+from pyaedt.edb_core.edb_data.sources import ResistorSource
 from pyaedt.edb_core.edb_data.sources import VoltageSource
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SolverType
