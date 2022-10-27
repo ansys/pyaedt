@@ -1641,13 +1641,6 @@ class SweepHFSS(object):
 
         return self.update()
 
-        # try:
-        #     self.update()
-        #     self.props["SweepRanges"]["Subrange"].pop()
-        #     return True
-        # except:
-        #     return False
-
     @pyaedt_function_handler()
     def create(self):
         """Create a sweep.
