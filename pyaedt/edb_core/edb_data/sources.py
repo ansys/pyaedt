@@ -271,11 +271,11 @@ class PinGroup(object):
 
     def _create_terminal(self, is_reference=False):
         return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
-                self._active_layout,
-                self._edb_pin_group.GetNet(),
-                self.name,
-                self._edb_pin_group,
-                is_reference,
+            self._active_layout,
+            self._edb_pin_group.GetNet(),
+            self.name,
+            self._edb_pin_group,
+            is_reference,
         )
 
     def create_current_source_terminal(self, magnitude=1, phase=0):
