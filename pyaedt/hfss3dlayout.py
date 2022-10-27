@@ -1907,6 +1907,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         impedance=50,
         data_format="Power",
         encoding="utf-8",
+        include_post_effects=True,
+        incident_voltage=True,
     ):
         """Edit a source from file data.
         File data is a csv containing either frequency data or time domain data that will be converted through FFT.
@@ -1929,6 +1931,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Either `"Power"`, `"Current"` or `"Voltage"`.
         encoding : str, optional
             Csv file encoding.
+        include_post_effects : bool, optional
+            Either if include or not post processing effects. Default is `True`,
+        incident_voltage : bool, optional
+            Either if include or incident or total voltage. Default is `True`, for incident voltage.
 
 
         Returns
@@ -1966,8 +1972,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
         for p in self.boundaries:
             if p.name == source_name:
-                p.props["Magnitude"] = "pwl({}, Freq)".format(ds_name_mag)
-                p.props["Phase"] = "pwl({}, Freq)".format(ds_name_phase)
+                str_val = ["TotalVoltage"]
+                if incident_voltage:
+                    str_val = ["IncidentVoltage"]
+                if include_post_effects:
+                    str_val.append("IncludePortPostProcess")
+                self.oboundary.EditExcitations(
+                    [
+                        "NAME:Excitations",
+                        [source_name, "pwl({}, Freq)".format(ds_name_mag), "pwl({}, Freq)".format(ds_name_phase)],
+                    ],
+                    ["NAME:Terminations", [source_name, False, str(impedance) + "ohm", "0ohm"]],
+                    ",".join(str_val),
+                    [],
+                )
+
                 self.logger.info("Source Excitation updated with Dataset.")
                 return True
         self.logger.error("Port not found.")
