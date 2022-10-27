@@ -1108,7 +1108,6 @@ class Icepak(FieldAnalysis3D):
 
         Examples
         --------
-
         Create a symmetric fin heat sink.
 
         >>> from pyaedt import Icepak
