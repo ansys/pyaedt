@@ -3145,7 +3145,6 @@ class Primitives(object):
             return selected_edges
         else:
             return []
-        pass
 
     @pyaedt_function_handler()
     def get_edges_for_circuit_port(
@@ -3289,7 +3288,6 @@ class Primitives(object):
             return selected_edges
         else:
             return []
-        pass
 
     @pyaedt_function_handler()
     def get_closest_edgeid_to_position(self, position, units=None):
