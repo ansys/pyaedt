@@ -1326,13 +1326,8 @@ CPSM = [
 
 TR = []
 
-subrange_hfss = {
-    "RangeType": "LinearCount",
-    "RangeStart": "1100MHz",
-    "RangeEnd": "1200MHz",
-    "RangeCount": 10,
-}
-subranges_hfss = {"Subrange": [subrange_hfss]}
+subrange_hfss = []
+subranges_hfss = [("Subrange", subrange_hfss)]
 
 SweepHfss3D = [
     ("Type", "Interpolating"),
@@ -1640,16 +1635,18 @@ class SweepHFSS(object):
         elif rangetype == "SinglePoints":
             interval["RangeEnd"] = str(start) + unit
             interval["SaveSingleField"] = save_single_fields
-        if not self.props.get("SweepRanges") or not self.props["SweepRanges"].get("Subrange"):
-            self.props["SweepRanges"] = {"Subrange": []}
+        if not isinstance(self.props["SweepRanges"]["Subrange"], list):
+            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"]]
         self.props["SweepRanges"]["Subrange"].append(interval)
 
-        try:
-            self.update()
-            self.props["SweepRanges"]["Subrange"].pop()
-            return True
-        except:
-            return False
+        self.update()
+
+        # try:
+        #     self.update()
+        #     self.props["SweepRanges"]["Subrange"].pop()
+        #     return True
+        # except:
+        #     return False
 
     @pyaedt_function_handler()
     def create(self):
