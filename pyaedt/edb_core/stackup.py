@@ -56,6 +56,7 @@ class LayerEdbClass(object):
         self._bottom_hallhuray_surface_ratio = 2.9
         self._side_hallhuray_nodule_radius = 0.5e-6
         self._side_hallhuray_surface_ratio = 2.9
+        self._material = None
 
     @property
     def _edb(self):
@@ -413,13 +414,10 @@ class LayerEdbClass(object):
     def _json_format(self):
         dict_out = {}
         self._color = self.color
-        self._conductivity = self.conductivity
         self._dielectric_fill = self.dielectric_fill
         self._etch_factor = self.etch_factor
-        self._loss_tangent = self.loss_tangent
         self._material = self.material
         self._name = self.name
-        self._permittivity = self.permittivity
         self._roughness_enabled = self.roughness_enabled
         self._thickness = self.thickness
         self._type = self.type
@@ -438,7 +436,12 @@ class LayerEdbClass(object):
             self._bottom_hallhuray_nodule_radius = bottom_roughness_model.get_NoduleRadius().ToDouble()
             self._bottom_hallhuray_surface_ratio = bottom_roughness_model.get_SurfaceRatio().ToDouble()
         for k, v in self.__dict__.items():
-            if not k == "_pclass":
+            if (
+                not k == "_pclass"
+                and not k == "_conductivity"
+                and not k == "_permittivity"
+                and not k == "_loss_tangent"
+            ):
                 dict_out[k[1:]] = v
         return dict_out
 
@@ -446,8 +449,13 @@ class LayerEdbClass(object):
         if layer:
             self.color = layer["color"]
             self.type = layer["type"]
-            self.material = layer["material"]
-            self.dielectric_fill = layer["dielectric_fill"]
+            if isinstance(layer["material"], str):
+                self.material = layer["material"]
+            else:
+                self._pclass._pedb.materials._load_materials(layer["material"])
+                self.material = layer["material"]["name"]
+            if layer["dielectric_fill"]:
+                self.dielectric_fill = layer["dielectric_fill"]
             self.thickness = layer["thickness"]
             self.etch_factor = layer["etch_factor"]
             self.roughness_enabled = layer["roughness_enabled"]
@@ -923,14 +931,22 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def _export_layer_stackup_to_json(self, output_file=None):
-        material_out = {}
-        for k, v in self._pedb.materials.materials.items():
-            material_out[k] = v._json_format()
+    def _export_layer_stackup_to_json(self, output_file=None, include_material_with_layer=False):
+        if not include_material_with_layer:
+            material_out = {}
+            for k, v in self._pedb.materials.materials.items():
+                material_out[k] = v._json_format()
         layers_out = {}
         for k, v in self.stackup_layers.items():
             layers_out[k] = v._json_format()
-        stackup_out = {"materials": material_out, "layers": layers_out}
+            if v.material in self._pedb.materials.materials:
+                layer_material = self._pedb.materials.materials[v.material]
+                if include_material_with_layer:
+                    layers_out[k]["material"] = layer_material._json_format()
+        if not include_material_with_layer:
+            stackup_out = {"materials": material_out, "layers": layers_out}
+        else:
+            stackup_out = {"layers": layers_out}
         if output_file:
             with open(output_file, "w") as write_file:
                 json.dump(stackup_out, write_file, indent=4)
