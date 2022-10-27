@@ -11,7 +11,7 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -98,7 +98,7 @@ numpydoc_validation_exclude = {  # set of regex
 }
 
 # Favicon
-html_favicon = "favicon.png"
+html_favicon = ansys_favicon
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -215,12 +215,28 @@ html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
 
+# specify the location of your github repo
+html_context = {
+    "github_user": "pyansys",
+    "github_repo": "pyaedt",
+    "github_version": "main",
+}
+
 html_theme_options = {
     "github_url": "https://github.com/pyansys/pyaedt",
     "show_prev_next": False,
     "show_breadcrumbs": True,
+    "collapse_navigation": True,
+    "use_edit_page_button": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
+    ],
+    "icon_links": [
+        {
+            "name": "Support",
+            "url": "https://github.com/pyansys/pyaedt/discussions",
+            "icon": "fa fa-comment fa-fw",
+        },
     ],
 }
 

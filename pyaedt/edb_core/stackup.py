@@ -10,8 +10,9 @@ import logging
 import math
 import warnings
 
-from pyaedt.edb_core.EDB_Data import EDBLayers
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.layer_data import EDBLayers
+from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -31,291 +32,6 @@ except ImportError:
     warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
-
-
-class LayerEdbClass(object):
-    """New Edb Layer management class. Replaces EDBLayer."""
-
-    def __init__(self, pclass, name):
-        self._pclass = pclass
-        self._name = name
-
-    @property
-    def _edb(self):
-        return self._pclass._pedb.edb
-
-    @property
-    def _edb_layer(self):
-        for l in self._pclass._edb_layer_list:
-            if l.GetName() == self._name:
-                return l.Clone()
-
-    @property
-    def is_stackup_layer(self):
-        """Determine whether this layer is a stackup layer.
-
-        Returns
-        -------
-        bool
-            True if this layer is a stackup layer, False otherwise.
-        """
-        return self._edb_layer.IsStackupLayer()
-
-    @property
-    def color(self):
-        """Retrieve color of the layer.
-
-        Returns
-        -------
-        tuple
-            RGB.
-        """
-        layer_color = self._edb_layer.GetColor()
-        return layer_color.Item1, layer_color.Item2, layer_color.Item3
-
-    @color.setter
-    def color(self, rgb):
-        layer_clone = self._edb_layer
-        layer_clone.SetColor(*rgb)
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-
-    @property
-    def name(self):
-        """Retrieve name of the layer.
-
-        Returns
-        -------
-        str
-        """
-        return self._edb_layer.GetName()
-
-    @name.setter
-    def name(self, name):
-        layer_clone = self._edb_layer
-        layer_clone.SetName(name)
-        self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
-        self._name = name
-
-    @property
-    def type(self):
-        """Retrieve type of the layer."""
-        if self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.SignalLayer:
-            return "signal"
-        elif self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer:
-            return "dielectric"
-        else:
-            return
-
-    @type.setter
-    def type(self, new_type):
-        if new_type == self.type:
-            return
-        if new_type == "signal":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.SignalLayer)
-        elif new_type == "dielectric":
-            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.DielectricLayer)
-        else:
-            return
-
-    @property
-    def material(self):
-        """Get/Set the material loss_tangent.
-
-        Returns
-        -------
-        float
-        """
-        return self._edb_layer.GetMaterial()
-
-    @material.setter
-    def material(self, name):
-        layer_clone = self._edb_layer
-        layer_clone.SetMaterial(name)
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-
-    @property
-    def conductivity(self):
-        """Get the material conductivity.
-
-        Returns
-        -------
-        float
-        """
-        if self.material in self._pclass._pedb.materials.materials:
-            return self._pclass._pedb.materials[self.material].conductivity
-        return None
-
-    @property
-    def permittivity(self):
-        """Get the material permittivity.
-
-        Returns
-        -------
-        float
-        """
-        if self.material in self._pclass._pedb.materials.materials:
-            return self._pclass._pedb.materials[self.material].permittivity
-        return None
-
-    @property
-    def loss_tangent(self):
-        """Get the material loss_tangent.
-
-        Returns
-        -------
-        float
-        """
-        if self.material in self._pclass._pedb.materials.materials:
-            return self._pclass._pedb.materials[self.material].loss_tangent
-        return None
-
-    @property
-    def dielectric_fill(self):
-        """Retrieve material name of the layer dielectric fill."""
-        if self.type == "signal":
-            return self._edb_layer.GetFillMaterial()
-        else:
-            return
-
-    @dielectric_fill.setter
-    def dielectric_fill(self, name):
-        if self.type == "signal":
-            layer_clone = self._edb_layer
-            layer_clone.SetFillMaterial(name)
-            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-        else:
-            pass
-
-    @property
-    def thickness(self):
-        """Retrieve thickness of the layer.
-
-        Returns
-        -------
-        float
-        """
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        return self._edb_layer.GetThicknessValue().ToDouble()
-
-    @thickness.setter
-    def thickness(self, value):
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        layer_clone = self._edb_layer
-        layer_clone.SetThickness(self._pclass._edb_value(value))
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-
-    @property
-    def etch_factor(self):
-        """Retrieve etch factor of this layer.
-
-        Returns
-        -------
-        float
-        """
-        return self._edb_layer.GetEtchFactor().ToDouble()
-
-    @etch_factor.setter
-    def etch_factor(self, value):
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        if not value:
-            layer_clone = self._edb_layer
-            layer_clone.SetEtchFactorEnabled(False)
-        else:
-            layer_clone = self._edb_layer
-            layer_clone.SetEtchFactorEnabled(True)
-            layer_clone.SetEtchFactor(self._pclass._edb_value(value))
-        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-
-    @property
-    def roughness_enabled(self):
-        """Determine whether roughness is enabled on this layer.
-
-        Returns
-        -------
-        bool
-        """
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        return self._edb_layer.IsRoughnessEnabled()
-
-    @roughness_enabled.setter
-    def roughness_enabled(self, set_enable):
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        if set_enable:
-            layer_clone = self._edb_layer
-            layer_clone.SetRoughnessEnabled(True)
-            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-            self.assign_roughness_model()
-        else:
-            layer_clone = self._edb_layer
-            layer_clone.SetRoughnessEnabled(False)
-            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
-
-    @pyaedt_function_handler()
-    def assign_roughness_model(
-        self,
-        model_type="huray",
-        huray_radius="0.5um",
-        huray_surface_ratio="2.9",
-        groisse_roughness="1um",
-        apply_on_surface="all",
-    ):
-        """Assign roughness model on this layer.
-
-        Parameters
-        ----------
-        model_type : str, optional
-            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
-        huray_radius : str, optional
-            Radius of huray model. The default is ``"0.5um"``.
-        huray_surface_ratio : str, float, optional.
-            Surface ratio of huray model. The default is ``"2.9"``.
-        groisse_roughness : str, float, optional
-            Roughness of groisse model. The default is ``"1um"``.
-        apply_on_surface : str, optional.
-            Where to assign roughness model. The default is ``"all"``. Options are ``"top"``, ``"bottom"``,
-             ``"side"``.
-        Returns
-        -------
-
-        """
-        if not self.is_stackup_layer:  # pragma: no cover
-            return
-        radius = self._pclass._edb_value(huray_radius)
-        surface_ratio = self._pclass._edb_value(huray_surface_ratio)
-        groisse_roughness = self._pclass._edb_value(groisse_roughness)
-        regions = []
-        if apply_on_surface == "all":
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
-            ]
-        elif apply_on_surface == "top":
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
-            ]
-        elif apply_on_surface == "bottom":
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
-            ]
-        elif apply_on_surface == "side":
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
-            ]
-
-        layer_clone = self._edb_layer
-        for r in regions:
-            if model_type == "huray":
-                model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
-            else:
-                model = self._pclass._pedb.edb.Cell.GroisseRoughnessModel(groisse_roughness)
-            layer_clone.SetRoughnessModel(r, model)
-        return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
 
 
 class Stackup(object):
@@ -507,7 +223,7 @@ class Stackup(object):
 
         Parameters
         ----------
-        layer_clone : :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
+        layer_clone : :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`
         operation : str
             Options are ``"change_attribute"``, ``"change_name"``,``"change_position"``, ``"insert_below"``,
              ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
@@ -851,7 +567,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`]
             List of signal layers.
         """
         return self.stackup_layers.signal_layers
@@ -1034,8 +750,9 @@ class EdbStackup(object):
         """Return the layout thickness.
 
         Returns
-        --------
-        Float, the thickness value.
+        -------
+        float
+            The thickness value.
         """
         layers_name = list(self.stackup_layers.layers.keys())
         bottom_layer = self.stackup_layers.layers[layers_name[0]]

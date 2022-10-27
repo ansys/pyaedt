@@ -29,17 +29,17 @@ from pyaedt.edb_core import Components
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
-from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
+from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
-from pyaedt.generic.constants import SourceType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
 from pyaedt.generic.general_methods import env_value
@@ -689,15 +689,14 @@ class Edb(object):
 
     @property
     def pins(self):
-        """Pins.
+        """EDBPadstackInstance of Component.
 
         Returns
         -------
-        list
-            List of all pins.
+        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
         """
-
-        pins = []
+        pins = {}
         if self.core_components:
             for el in self.core_components.components:
                 comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
@@ -706,7 +705,8 @@ class Edb(object):
                     for p in comp.LayoutObjs
                     if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
                 ]
-                pins += temp
+                for p in temp:
+                    pins[p.GetId()] = EDBPadstackInstance(p, self)
         return pins
 
     class Boundaries:
@@ -870,6 +870,7 @@ class Edb(object):
 
         """
         self._db.SaveAs(fname)
+        self.edbpath = self._db.GetDirectory()
         return True
 
     @pyaedt_function_handler()
@@ -989,7 +990,7 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
-        simulation_setup : EDB_Data.SimulationConfiguration object, optional
+        simulation_setup : edb_data.simulation_configuration.SimulationConfiguration object, optional
             Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
@@ -1072,6 +1073,7 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
                 dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()
@@ -1338,6 +1340,7 @@ class Edb(object):
                 self.edbpath = output_aedb_path
                 self._active_cell = cell
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()
@@ -1742,7 +1745,7 @@ class Edb(object):
 
         Parameters
         ----------
-        simulation_setup : EDB_Data.SimulationConfiguratiom object.
+        simulation_setup : edb_data.SimulationConfiguratiom object.
             SimulationConfiguration object that can be instantiated or directly loaded with a
             configuration file.
 
@@ -1755,7 +1758,7 @@ class Edb(object):
         --------
 
         >>> from pyaedt import Edb
-        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
         >>> config_file = path_configuration_file
         >>> source_file = path_to_edb_folder
         >>> edb = Edb(source_file)
