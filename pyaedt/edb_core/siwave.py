@@ -14,7 +14,9 @@ from pyaedt.edb_core.edb_data.sources import CircuitPort
 from pyaedt.edb_core.edb_data.sources import CurrentSource
 from pyaedt.edb_core.edb_data.sources import DCTerminal
 from pyaedt.edb_core.edb_data.sources import ResistorSource
+from pyaedt.edb_core.edb_data.sources import PinGroup
 from pyaedt.edb_core.edb_data.sources import VoltageSource
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -79,6 +81,20 @@ class EdbSiwave(object):
     def _db(self):
         """ """
         return self._pedb.db
+
+    @property
+    def pin_groups(self):
+        """All Layout Pin groups.
+
+        Returns
+        -------
+        list
+            List of all layout pin groups.
+        """
+        pingroups = {}
+        for el in self._active_layout.PinGroups:
+            pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
+        return pingroups
 
     @pyaedt_function_handler()
     def _create_terminal_on_pins(self, source):
@@ -1136,3 +1152,46 @@ class EdbSiwave(object):
             l_value=l_value,
             is_parallel=is_parallel,
         )  # pragma no cover
+
+    @pyaedt_function_handler
+    def create_pin_group(self, reference_designator, pin_numbers, group_name=None):
+        if not isinstance(pin_numbers, list):
+            pin_numbers = [pin_numbers]
+        pin_numbers = [str(p) for p in pin_numbers]
+        if group_name is None:
+            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+        comp = self._pedb.core_components.components[reference_designator]
+        pins = [pin.pin for name, pin in comp.pins.items() if name in pin_numbers]
+        edb_pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(self._active_layout,
+                                                 group_name,
+                                                 convert_py_list_to_net_list(pins))
+
+        if edb_pingroup.IsNull():
+            return False
+        else:
+            edb_pingroup.SetNet(pins[0].GetNet())
+            return self.pin_groups[group_name]
+
+    @pyaedt_function_handler
+    def create_pin_group_on_net(self, reference_designator, net_name, group_name=None):
+        pins = self._pedb.core_components.get_pin_from_component(reference_designator, net_name)
+        pins = [p.GetName() for p in pins]
+        return self.create_pin_group(reference_designator, pins, group_name)
+
+    @pyaedt_function_handler
+    def create_current_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_current_source_terminal(magnitude, phase)
+
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_current_source_terminal()
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+
+    @pyaedt_function_handler
+    def create_voltage_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
+
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_voltage_source_terminal()
+        pos_terminal.SetReferenceTerminal(neg_terminal)

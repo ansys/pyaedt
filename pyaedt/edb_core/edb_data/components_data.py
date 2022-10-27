@@ -271,6 +271,14 @@ class EDBComponent(object):
         self.edbcomponent = cmp
 
     @property
+    def _pedb(self):
+        return self._pcomponents._pedb
+
+    @property
+    def _active_layout(self):
+        return self._pedb.active_layout
+
+    @property
     def component_property(self):
         """``ComponentProperty`` object."""
         return self.edbcomponent.GetComponentProperty().Clone()
