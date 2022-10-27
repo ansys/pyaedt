@@ -1326,8 +1326,6 @@ CPSM = [
 
 TR = []
 
-subrange_hfss = []
-subranges_hfss = [("Subrange", subrange_hfss)]
 
 SweepHfss3D = [
     ("Type", "Interpolating"),
@@ -1358,7 +1356,6 @@ SweepHfss3D = [
     ("UseQ3DForDCSolve", False),
     ("SMatrixOnlySolveMode", "Auto"),
     ("SMatrixOnlySolveAbove", "1MHz"),
-    ("SweepRanges", subranges_hfss),
 ]
 
 enabled = [("Enable", "true")]
@@ -1635,11 +1632,14 @@ class SweepHFSS(object):
         elif rangetype == "SinglePoints":
             interval["RangeEnd"] = str(start) + unit
             interval["SaveSingleField"] = save_single_fields
+        if not self.props.get("SweepRanges", None):
+            self.props["SweepRanges"] = {"Subrange": []}
+
         if not isinstance(self.props["SweepRanges"]["Subrange"], list):
             self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"]]
         self.props["SweepRanges"]["Subrange"].append(interval)
 
-        self.update()
+        return self.update()
 
         # try:
         #     self.update()
