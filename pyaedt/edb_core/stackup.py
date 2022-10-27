@@ -455,7 +455,11 @@ class LayerEdbClass(object):
                 self._pclass._pedb.materials._load_materials(layer["material"])
                 self.material = layer["material"]["name"]
             if layer["dielectric_fill"]:
-                self.dielectric_fill = layer["dielectric_fill"]
+                if isinstance(layer["dielectric_fill"], str):
+                    self.dielectric_fill = layer["dielectric_fill"]
+                else:
+                    self._pclass._pedb.materials._load_materials(layer["dielectric_fill"])
+                    self.material = layer["dielectric_fill"]["name"]
             self.thickness = layer["thickness"]
             self.etch_factor = layer["etch_factor"]
             self.roughness_enabled = layer["roughness_enabled"]
@@ -941,8 +945,14 @@ class Stackup(object):
             layers_out[k] = v._json_format()
             if v.material in self._pedb.materials.materials:
                 layer_material = self._pedb.materials.materials[v.material]
+                if not v.dielectric_fill:
+                    dielectric_fill = False
+                else:
+                    dielectric_fill = self._pedb.materials.materials[v.dielectric_fill]
                 if include_material_with_layer:
                     layers_out[k]["material"] = layer_material._json_format()
+                    if dielectric_fill:
+                        layers_out[k]["dielectric_fill"] = dielectric_fill._json_format()
         if not include_material_with_layer:
             stackup_out = {"materials": material_out, "layers": layers_out}
         else:
