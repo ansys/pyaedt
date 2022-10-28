@@ -5,6 +5,8 @@ from pyaedt import generate_unique_project_name
 from importlib import import_module
 import sys
 import os
+#global variable used to store module import
+mod = None
 
 
 class Result:
@@ -77,7 +79,7 @@ class Result:
     def result_mode_error():
         """
         Prints error message.
-       
+
         Returns
         -------
         """
