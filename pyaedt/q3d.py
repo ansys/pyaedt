@@ -98,7 +98,15 @@ class QExtractor(FieldAnalysis3D, object):
         return self.matrices[0].sources(False)
 
     @pyaedt_function_handler()
-    def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
+    def insert_reduced_matrix(
+        self,
+        operation_name,
+        source_names=None,
+        rm_name=None,
+        new_net_name=None,
+        new_source_name=None,
+        new_sink_name=None,
+    ):
         """Insert a new reduced matrix.
 
         Parameters
@@ -110,6 +118,12 @@ class QExtractor(FieldAnalysis3D, object):
             is ``None``.
         rm_name : str, optional
             Name of the reduced matrix. The default is ``None``.
+        new_net_name : str, optional
+            Name of the new net. The default is ``None``.
+        new_source_name : str, optional
+            Name of the new source. The default is ``None``.
+        new_sink_name : str, optional
+            Name of the new sink. The default is ``None``.
 
         Returns
         -------
@@ -119,7 +133,17 @@ class QExtractor(FieldAnalysis3D, object):
         if not rm_name:
             rm_name = generate_unique_name(operation_name)
         matrix = Matrix(self, rm_name, operation_name)
-        if matrix.create(source_names):
+
+        if not new_net_name:
+            new_net_name = generate_unique_name("Net")
+
+        if not new_source_name:
+            new_source_name = generate_unique_name("Source")
+
+        if not new_sink_name:
+            new_sink_name = generate_unique_name("Sink")
+
+        if matrix.create(source_names, new_net_name, new_source_name, new_sink_name):
             self.matrices.append(matrix)
         return matrix
 
