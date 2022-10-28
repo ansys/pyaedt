@@ -19,16 +19,17 @@ class Result:
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
     '''
     @pyaedt_function_handler()
-    def __init__(self):
+    def __init__(self, emit_obj):
         self.__result_loaded = False
         self.emit_api = mod.EmitApi()
         self.revisions_list = []
-
+        self.location = emit_obj.oproject.GetPath()
+        self.curr_design = 0
     @pyaedt_function_handler()
     def set_result_loaded(self):
         """
         set __result_loaded status to True.
-       
+
         Returns
         -------
 
@@ -53,7 +54,7 @@ class Result:
         """
         return self.__result_loaded
 
-    @pyaedt_function_handler()
+    @staticmethod
     def interaction_domain():
         """
         Return a generic interaction domain.
@@ -66,11 +67,15 @@ class Result:
         ----------
         >>> domain = Result.interaction_domain()
         """
-        interaction_domain = mod.InteractionDomain()
+        try:
+            interaction_domain = mod.InteractionDomain()
+        except NameError:
+            raise ValueError('An Emit object must be initialized, before any static member of Result or Emit can be accessed.')
         return interaction_domain
 
+    @staticmethod
     def result_mode_error():
-        """ 
+        """
         Prints error message.
        
         Returns
@@ -175,9 +180,9 @@ class Revision:
     >>> rev.run(domain)
     '''
     @pyaedt_function_handler()
-    def __init__(self, Emit_obj, name = ""):
+    def __init__(self, emit_obj, name = ""):
         subfolder =''
-        for f in os.scandir(Emit_obj.location):
+        for f in os.scandir(emit_obj.results.location):
             if os.path.splitext(f.name)[1].lower() in '.aedtresults':
                 subfolder = os.path.join(f.path, "EmitDesign1")
         default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
@@ -191,7 +196,7 @@ class Revision:
             full = subfolder + '/{}.emit'.format(name)
         self.name = name
         self.path = full
-        self.emit_obj = Emit_obj
+        self.emit_obj = emit_obj
 
     @pyaedt_function_handler()
     def run(self, domain):
@@ -316,7 +321,7 @@ class Emit(FieldAnalysisEmit, object):
         port=0,
         aedt_process_id=None,
     ):
-        if(projectname == None):
+        if projectname is None:
             projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
         """Constructor."""
@@ -336,20 +341,17 @@ class Emit(FieldAnalysisEmit, object):
             port=port,
             aedt_process_id=aedt_process_id,
         )
-        if(self._aedt_version >= "2022.1"):
-            self.location =""
-            self.curr_design = 0
-            desktop_path = self.desktop_install_dir
-            path = os.path.join(desktop_path, "Delcross")
-            sys.path.append(path)
-            global mod
-            mod = import_module("EmitApiPython")
-            self._emit_api = mod.EmitApi()
-            self.lib = mod
-            self.results = Result()
+        desktop_path = self.desktop_install_dir
+        path = os.path.join(desktop_path, "Delcross")
+        sys.path.append(path)
+        global mod
+        mod = import_module("EmitApiPython")
+        self._emit_api = mod.EmitApi()
+        if(self._aedt_version >= "2023.1"):
+            self.results = Result(self)
             self.__emit_api_enabled = True
         
-    @pyaedt_function_handler() 
+    @pyaedt_function_handler()
     def __enter__(self):
         return self
 
@@ -370,11 +372,10 @@ class Emit(FieldAnalysisEmit, object):
         """
         if self.__emit_api_enabled:
             design = self.odesktop.GetActiveProject().GetActiveDesign()
-            if(not self.curr_design == design.getRevision()):
+            if(not self.results.curr_design == design.getRevision()):
                 design.AddResult()
-                self.location = self.oproject.GetPath()
                 self.results.revisions_list.append(Revision(self))
-                self.curr_design = design.getRevision()
+                self.results.curr_design = design.getRevision()
                 print("checkpoint - revision generated successfully")
                 return self.results.revisions_list[-1]
 
@@ -401,8 +402,8 @@ class Emit(FieldAnalysisEmit, object):
             self._emit_api.load_result(path)
             self.results.set_result_loaded()
 
-    @pyaedt_function_handler()
-    def result_type(): 
+    @staticmethod
+    def result_type():
         """
         Return a ``result_type`` object.
 
@@ -415,11 +416,14 @@ class Emit(FieldAnalysisEmit, object):
         >>> Emit.result_type()
 
         """
-        result = mod.result_type()
+        try:
+            result = mod.result_type()
+        except NameError:
+            raise ValueError('An Emit object must be initialized, before any static member of Result or Emit can be accessed.')
         return result
 
-    @pyaedt_function_handler()
-    def tx_rx_mode(): 
+    @staticmethod
+    def tx_rx_mode():
         """
         Return a ``tx_rx_mode`` object.
 
@@ -432,7 +436,10 @@ class Emit(FieldAnalysisEmit, object):
         >>> tx_rx = Emit.tx_rx_mode()
 
         """
-        tx_rx = mod.tx_rx_mode()
+        try:
+            tx_rx = mod.tx_rx_mode()
+        except NameError:
+            raise ValueError('An Emit object must be initialized, before any static member of Result or Emit can be accessed.')
         return tx_rx
 
     @pyaedt_function_handler()

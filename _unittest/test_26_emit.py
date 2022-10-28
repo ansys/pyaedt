@@ -155,11 +155,11 @@ class TestClass(BasisTest, object):
         assert rx_frequencies[1] == 2403000000.0
         radiosTX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().tx)
         assert len(radiosTX) == 0
-
+    
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
-    def test_type_generation(self):
+    def test_static_type_generation(self):
         domain = Result.interaction_domain()
         assert str(type(domain)) == "<class 'EmitApiPython.InteractionDomain'>"
         mode = Emit.tx_rx_mode()
