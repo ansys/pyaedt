@@ -2236,3 +2236,10 @@ if not config["skip_edb"]:
             comp.type = "Inductor"
             comp.value = 10  # This command set the model back to ideal RLC
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
+
+            pg_name, _ = edbapp.core_siwave.create_pin_group("U3A1", 2)
+            assert edbapp.core_siwave.create_pin_group("U3A1", [5, 34, 35], "pos")
+            assert "pos" in edbapp.core_siwave.pin_groups
+            edbapp.core_siwave.create_pin_group_on_net("U3A1", "GND", "gnd")
+            edbapp.core_siwave.create_current_source_on_pin_group("pos", "gnd")
+            edbapp.core_siwave.create_voltage_source_on_pin_group(pg_name, "gnd")
