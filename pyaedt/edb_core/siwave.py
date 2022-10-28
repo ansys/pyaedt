@@ -1180,11 +1180,11 @@ class EdbSiwave(object):
             self._active_layout, group_name, convert_py_list_to_net_list(pins)
         )
 
-        if edb_pingroup.IsNull():
+        if edb_pingroup.IsNull():  # pragma: no cover
             return False
         else:
             edb_pingroup.SetNet(pins[0].GetNet())
-            return self.pin_groups[group_name]
+            return group_name, self.pin_groups[group_name]
 
     @pyaedt_function_handler
     def create_pin_group_on_net(self, reference_designator, net_name, group_name=None):
