@@ -1203,8 +1203,8 @@ class EdbSiwave(object):
         PinGroup
         """
         pins = self._pedb.core_components.get_pin_from_component(reference_designator, net_name)
-        pins = [p.GetName() for p in pins]
-        return self.create_pin_group(reference_designator, pins, group_name)
+        pin_names = [p.GetName() for p in pins]
+        return self.create_pin_group(reference_designator, pin_names, group_name)
 
     @pyaedt_function_handler
     def create_current_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
