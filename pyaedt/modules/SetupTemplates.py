@@ -1393,7 +1393,6 @@ Sweep3DLayout = [
 SweepSiwave = [
     ("Properties", enabled),
     ("Sweeps", SweepDefinition),
-    ("Name", "Sweep1"),
     ("Enabled", True),
     ("FreqSweepType", "kInterpolating"),
     ("IsDiscrete", False),
