@@ -1197,7 +1197,7 @@ class EdbSiwave(object):
         net_name : str
             Name of the net.
         group_name : str, optional
-            Name of the pin group.
+            Name of the pin group. The default value is ``None``.
         Returns
         -------
         PinGroup
