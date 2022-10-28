@@ -1075,7 +1075,6 @@ class TestClass(BasisTest, object):
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
 
     @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
     def test_53_import_source_excitation(self):
