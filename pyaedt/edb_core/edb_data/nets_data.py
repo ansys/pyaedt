@@ -90,6 +90,7 @@ class EDBNetsData(object):
 
     @pyaedt_function_handler
     def delete(self):
+        """Delete this net from layout."""
         for i in self.primitives:
             i.delete()
         self.net_object.Delete()
