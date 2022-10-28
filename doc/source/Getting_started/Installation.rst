@@ -53,7 +53,7 @@ Install from a batch file
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 AEDT already includes CPython 3.7, which can be used to run PyAEDT.
 If you are running on Windows, you can download
-:download:`PyAEDT Environment with IDE bat file <pyaedt_with_IDE.bat>`
+:download:`PyAEDT Environment with IDE bat file <../Resources/pyaedt_with_IDE.bat>`
 and run this batch file on your local machine. Using this approach
 provides you with a complete integrated development environment (IDE)
 for writing PyAEDT scripts in Windows with a simple batch file.

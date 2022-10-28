@@ -10,12 +10,14 @@ from __future__ import absolute_import  # noreorder
 
 import gc
 import json
+import logging
 import os
 import random
 import re
 import shutil
 import string
 import sys
+import threading
 import time
 import warnings
 from collections import OrderedDict
@@ -156,6 +158,22 @@ class Design(AedtObjects):
         port=0,
         aedt_process_id=None,
     ):
+        def load_aedt_thread(path):
+            start = time.time()
+            settings._project_properties[path] = load_entire_aedt_file(path)
+            settings._project_time_stamp = os.path.getmtime(project_name)
+            logger = logging.getLogger("Global")
+            logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
+
+        t = None
+        if (
+            not is_ironpython
+            and project_name
+            and os.path.exists(project_name)
+            and os.path.splitext(project_name)[1] == ".aedt"
+        ):
+            t = threading.Thread(target=load_aedt_thread, args=(project_name,))
+            t.start()
         self._init_variables()
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
@@ -210,6 +228,9 @@ class Design(AedtObjects):
         self.odesign = design_name
         AedtObjects.__init__(self, is_inherithed=True)
         self.logger.info("Aedt Objects initialized")
+
+        if t:
+            t.join()
 
         self._variable_manager = VariableManager(self)
         self._project_datasets = []
@@ -307,11 +328,15 @@ class Design(AedtObjects):
         """
         start = time.time()
         if (
-            os.path.exists(self.project_file) and self.project_file not in settings._project_properties
-        ) or self.project_timestamp_changed:
-            settings._project_properties[self.project_file] = load_entire_aedt_file(self.project_file)
+            self.project_timestamp_changed
+            or os.path.exists(self.project_file)
+            and os.path.normpath(self.project_file) not in settings._project_properties
+        ):
+            settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
-        return settings._project_properties[self.project_file]
+        if os.path.normpath(self.project_file) in settings._project_properties:
+            return settings._project_properties[os.path.normpath(self.project_file)]
+        return {}
 
     @property
     def design_properties(self):
@@ -1967,7 +1992,7 @@ class Design(AedtObjects):
         datasets = {}
         try:
             for ds in self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"]:
-                datas = self.project_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
+                datas = self.design_properties["ModelSetup"]["DesignDatasets"]["DatasetDefinitions"][ds]["Coordinates"]
                 datasets[ds] = self._get_ds_data(ds, datas)
         except:
             pass
@@ -2084,7 +2109,7 @@ class Design(AedtObjects):
             return False
 
     @pyaedt_function_handler()
-    def load_project(self, project_file, design_name=None, close_active_proj=False):
+    def load_project(self, project_file, design_name=None, close_active_proj=False, save_active_project=False):
         """Open an AEDT project based on a project and optional design.
 
         Parameters
@@ -2095,6 +2120,8 @@ class Design(AedtObjects):
             Design name. The default is ``None``.
         close_active_proj : bool, optional
             Whether to close the active project. The default is ``False``.
+        save_active_project : bool, optional
+            Whether to save the active project. The default is ``False``.
 
         Returns
         -------
@@ -2109,7 +2136,7 @@ class Design(AedtObjects):
         proj = self.odesktop.OpenProject(project_file)
         if close_active_proj and self.oproject:
             self._close_edb()
-            self.close_project(self.project_name)
+            self.close_project(self.project_name, save_project=save_active_project)
         if proj:
             self._init_design(project_name=proj.GetName(), design_name=design_name)
             return True
@@ -2467,7 +2494,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        name :str
+        name : str
             Name of the dataset (without a prefix for a project dataset).
         is_project_dataset : bool, optional
             Whether it is a project data set. The default is ``True``.
@@ -2688,7 +2715,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def close_project(self, name=None, saveproject=True):
+    def close_project(self, name=None, save_project=True):
         """Close an AEDT project.
 
         Parameters
@@ -2696,7 +2723,7 @@ class Design(AedtObjects):
         name : str, optional
             Name of the project. The default is ``None``, in which case the
             active project is closed.
-        saveproject : bool, optional
+        save_project : bool, optional
             Whether to save the project before closing it. The default is
             ``True``.
 
@@ -2719,7 +2746,8 @@ class Design(AedtObjects):
         self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
-        if saveproject:
+        proj_file = os.path.join(proj_path, name + ".aedt")
+        if save_project:
             oproj.Save()
         self.odesktop.CloseProject(name)
         if name == legacy_name:
@@ -2727,6 +2755,8 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
+            AedtObjects.__init__(self, is_inherithed=True)
+
         else:
             self.odesktop.SetActiveProject(legacy_name)
         i = 0
@@ -2741,6 +2771,9 @@ class Design(AedtObjects):
             else:
                 i += 0.2
                 time.sleep(0.2)
+
+        if os.path.normpath(proj_file) in settings._project_properties:
+            del settings._project_properties[os.path.normpath(proj_file)]
         return True
 
     @pyaedt_function_handler()
@@ -3344,7 +3377,7 @@ class Design(AedtObjects):
                 if variable_name in self.get_oo_name(app, "Instance:{}".format(self._odesign.GetName())):
                     var_obj = self.get_oo_object(app, "Instance:{}/{}".format(self._odesign.GetName(), variable_name))
                 elif variable_name in self.get_oo_object(app, "DefinitionParameters").GetPropNames():
-                    val = self.get_oo_object(app, "DefinitionParameters").GetPropValue(variable_name)
+                    val = self.get_oo_object(app, "DefinitionParameters").GetPropEvaluatedValue(variable_name)
             else:
                 var_obj = self.get_oo_object(app, "Variables/{}".format(variable_name))
         if var_obj:

@@ -2046,8 +2046,8 @@ class GeometryModeler(Modeler, object):
             elif axisdir <= 2 and center[axisdir] < obj_cent[axisdir]:
                 obj_cent = center
                 face_ob = face
-        vertx = face_ob.vertices
-        start = vertx[0].position
+        vertex = face_ob.vertices
+        start = vertex[0].position
 
         if not groundname:
             gnd_cent = []
@@ -2435,7 +2435,7 @@ class GeometryModeler(Modeler, object):
         vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
         if is_3d_comp:
             orig_3d = [i for i in self.user_defined_component_names]
-        added_objs = self.oeditor.DuplicateMirror(vArg1, vArg2, vArg3)
+        added_objs = _retry_ntimes(5, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
         self.add_new_objects()
         if is_3d_comp:
             added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
@@ -3188,13 +3188,15 @@ class GeometryModeler(Modeler, object):
         return bound
 
     @pyaedt_function_handler()
-    def unite(self, theList):
+    def unite(self, theList, purge=False):
         """Unite objects from a list.
 
         Parameters
         ----------
         theList : list
             List of objects.
+        purge : bool, optional
+            Purge history after unite.
 
         Returns
         -------
@@ -3206,7 +3208,7 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.Unite
         """
-        slice = min(20, len(theList))
+        slice = min(100, len(theList))
         num_objects = len(theList)
         remaining = num_objects
         objs_groups = []
@@ -3216,6 +3218,13 @@ class GeometryModeler(Modeler, object):
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
             self.oeditor.Unite(vArg1, vArg2)
+            if objs[0] in self.unclassified_names:
+                self.logger.error("Error in uniting objects.")
+                self._odesign.Undo()
+                self.cleanup_objects()
+                return False
+            elif purge:
+                self.purge_history(objs[0])
             objs_groups.append(objs[0])
             remaining -= slice
             if remaining > 0:
@@ -3224,7 +3233,7 @@ class GeometryModeler(Modeler, object):
             objs_groups.extend(theList)
         self.cleanup_objects()
         if len(objs_groups) > 1:
-            return self.unite(objs_groups)
+            return self.unite(objs_groups, purge=purge)
         self.logger.info("Union of {} objects has been executed.".format(num_objects))
         return self.convert_to_selections(theList[0], False)
 
@@ -3595,38 +3604,49 @@ class GeometryModeler(Modeler, object):
         return airid
 
     @pyaedt_function_handler()
-    def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0):
+    def create_air_region(self, x_pos=0, y_pos=0, z_pos=0, x_neg=0, y_neg=0, z_neg=0, is_percentage=True):
         """Create an air region.
 
         Parameters
         ----------
-        x_pos : float, optional
-            Padding in percent in the +X direction (+R for 2D RZ).
+        x_pos : float or str, optional
+            If float, padding in the +X direction in modeler units.
+            If str, padding with units in the +X direction.
             The default is ``0``.
-        y_pos : float, optional
-            Padding in percent in the +Y direction. The default is ``0``.
-        z_pos : float, optional
-            Padding in percent in the +Z direction. The default is ``0``.
-        x_neg : float, optional
-            Padding in percent in the -X direction (-R for 2D RZ).
+        y_pos : float or str, optional
+            If float, padding in the +Y direction in modeler units.
+            If str, padding with units in the +Y direction.
             The default is ``0``.
-        y_neg : float, optional
-            Padding in percent in the -Y direction. The default is ``0``.
-        z_neg : float, optional
-            Padding in percent in the -Z direction. The default is ``0``.
+        z_pos : float or str, optional
+            If float, padding in the +Z direction in modeler units.
+            If str, padding with units in the +Z direction.
+            The default is ``0``.
+        x_neg : float or str, optional
+            If float, padding in the -X direction in modeler units.
+            If str, padding with units in the -X direction.
+            The default is ``0``.
+        y_neg : float or str, optional
+            If float, padding in the -Y direction in modeler units.
+            If str, padding with units in the -Y direction.
+            The default is ``0``.
+        z_neg : float or str, optional
+            If float, padding in the -Z direction in modeler units.
+            If str, padding with units in the -Z direction.
+            The default is ``0``.
+        is_percentage : bool, optional
+            Region definition in percentage or absolute value. The default is `True``.
 
         Returns
         -------
-        list
-            List of ``[x_pos, y_pos, z_pos, x_neg, y_neg, z_neg]``
-            coordinates for the region created.
+        :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
 
         References
         ----------
 
         >>> oEditor.CreateRegion
         """
-        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg])
+        return self.create_region([x_pos, y_pos, z_pos, x_neg, y_neg, z_neg], is_percentage)
 
     @pyaedt_function_handler()
     def edit_region_dimensions(self, listvalues):
@@ -4608,8 +4628,8 @@ class GeometryModeler(Modeler, object):
 
                 oFaceIDs = self.oeditor.GetFaceIDs(i)
 
-                for facce in oFaceIDs:
-                    sel.append(int(facce))
+                for face in oFaceIDs:
+                    sel.append(int(face))
         return sel
 
     @pyaedt_function_handler()
@@ -4639,8 +4659,8 @@ class GeometryModeler(Modeler, object):
 
             oFaceIDs = self.oeditor.GetFaceIDs(i)
 
-            for facce in oFaceIDs:
-                sel.append(int(facce))
+            for face in oFaceIDs:
+                sel.append(int(face))
         return sel
 
     @pyaedt_function_handler()

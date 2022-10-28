@@ -74,6 +74,9 @@ res.pins[1].connect_to_component(gnd1.pins[0])
 pr1 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("vout")
 pr1.parameters["Name"] = "Vout"
 pr1.pins[0].connect_to_component(res.pins[0])
+pr2 = cir.modeler.components.components_catalog["Probes:VPROBE"].place("Vin")
+pr2.parameters["Name"] = "Vin"
+pr2.pins[0].connect_to_component(ibs.pins[0])
 
 ###############################################################################
 # Create setup and analyze
@@ -95,8 +98,8 @@ cir.analyze_setup("TransientRun")
 report = cir.post.create_report("V(Vout)", domain="Time")
 if not non_graphical:
     report.add_cartesian_y_marker(0)
-solutions = cir.post.get_solution_data("V(Vout)", domain="Time")
-solutions.plot()
+solutions = cir.post.get_solution_data( domain="Time")
+solutions.plot("V(Vout)")
 
 ###############################################################################
 # Create report inside AEDT

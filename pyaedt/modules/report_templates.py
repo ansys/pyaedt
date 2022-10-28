@@ -1,5 +1,6 @@
 import copy
 import os
+import re
 from collections import OrderedDict
 
 from pyaedt.generic.constants import LineStyle
@@ -1343,7 +1344,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -1364,6 +1365,7 @@ class CommonReport(object):
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
         if units:
+            props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
         return self._change_property("Scaling", "AxisX", props)
 
@@ -1509,7 +1511,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -1530,6 +1532,7 @@ class CommonReport(object):
         if min_spacing:
             props.append(["NAME:Spacing", "Value:=", min_spacing])
         if units:
+            props.append((["NAME:Auto Units", "Value:=", False]))
             props.append(["NAME:Units", "Value:=", units])
         return self._change_property("Scaling", "Axis" + axis_name, props)
 
@@ -1885,6 +1888,8 @@ class Standard(CommonReport):
     def _did(self):
         if self.domain == "Sweep":
             return 3
+        elif self.domain == "Clock Times":
+            return 55827
         else:
             return 1
 
@@ -1951,6 +1956,60 @@ class Standard(CommonReport):
                     ctxt[2].extend(["WS", False, self.time_start])
                 if self.time_stop:
                     ctxt[2].extend(["WE", False, self.time_stop])
+        elif self._post.post_solution_type in ["NexximAMI"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1"],
+            ]
+            qty = re.sub("<[^>]+>", "", self.expressions[0])
+            if qty == "InitialWave":
+                ctxt_temp = ["QTID", False, "0", "SCID", False, "-1", "SID", False, "0"]
+            elif qty == "WaveAfterSource":
+                ctxt_temp = ["QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
+            elif qty == "WaveAfterChannel":
+                ctxt_temp = [
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "0",
+                    "QTID",
+                    False,
+                    "2",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ]
+            elif qty == "WaveAfterProbe":
+                ctxt_temp = [
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "0",
+                    "QTID",
+                    False,
+                    "3",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ]
+            elif qty == "ClockTics":
+                ctxt_temp = ["PCID", False, "-1", "PID", False, "0"]
+            else:
+                return None
+            for el in ctxt_temp:
+                ctxt[2].append(el)
+
         elif self.differential_pairs:
             ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
         else:
@@ -2051,6 +2110,7 @@ class FarField(CommonReport):
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
+        self.source_context = None
         if "Phi" not in self.variations:
             self.variations["Phi"] = ["All"]
         if "Theta" not in self.variations:
@@ -2074,6 +2134,8 @@ class FarField(CommonReport):
 
     @property
     def _context(self):
+        if self.source_context:
+            return ["Context:=", self.far_field_sphere, "SourceContext:=", self.source_context]
         return ["Context:=", self.far_field_sphere]
 
 
@@ -2412,7 +2474,7 @@ class EyeDiagram(CommonReport):
             Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
         xunits : str, optional
             X points units. The default is ``"ns"``.
-        yunits :  str, optional
+        yunits : str, optional
             Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
             Whether to enable the upper and lower limits. The default is ``False``.

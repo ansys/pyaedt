@@ -1,6 +1,8 @@
 """This module contains the `Components` class.
 
 """
+import codecs
+import json
 import math
 import os
 import re
@@ -8,12 +10,13 @@ import warnings
 
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
-from pyaedt.edb_core.EDB_Data import EDBComponent
-from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
-from pyaedt.edb_core.EDB_Data import Source
+from pyaedt.edb_core.edb_data.components_data import EDBComponent
+from pyaedt.edb_core.edb_data.components_data import EDBComponentDef
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.sources import Source
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
-from pyaedt.generic.constants import SourceType
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -132,7 +135,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Default dictionary for the EDB component.
 
         Examples
@@ -147,15 +150,114 @@ class Components(object):
             self.refresh_components()
         return self._cmp
 
+    @property
+    def definitions(self):
+        """Retrieve component definition list.
+
+        Returns
+        -------
+        dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponentDef`"""
+        return {l.GetName(): EDBComponentDef(self, l) for l in list(self._db.ComponentDefs)}
+
+    @property
+    def nport_comp_definition(self):
+        """Retrieve Nport component definition list."""
+        m = "Ansys.Ansoft.Edb.Definition.NPortComponentModel"
+        return {name: l for name, l in self.definitions.items() if m in [i.ToString() for i in l._comp_model]}
+
+    @pyaedt_function_handler()
+    def import_definition(self, file_path):
+        """Import component definition from json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of json file.
+        """
+        with codecs.open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            for part_name, p in data["Definitions"].items():
+                model_type = p["Model_type"]
+                comp_definition = self.definitions[part_name]
+                comp_definition.type = p["Component_type"]
+
+                if model_type == "RLC":
+                    comp_definition.assign_rlc_model(p["Res"], p["Ind"], p["Cap"], p["Is_parallel"])
+                else:
+                    model_name = p["Model_name"]
+                    file_path = data[model_type][model_name]
+                    if model_type == "SParameterModel":
+                        if "Reference_net" in p:
+                            reference_net = p["Reference_net"]
+                        else:
+                            reference_net = None
+                        comp_definition.assign_s_param_model(file_path, model_name, reference_net)
+                    elif model_type == "SPICEModel":
+                        comp_definition.assign_spice_model(file_path, model_name)
+                    else:
+                        pass
+        return True
+
+    @pyaedt_function_handler()
+    def export_definition(self, file_path):
+        """Export component definitions to json file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of json file.
+        Returns
+        -------
+
+        """
+        data = {
+            "SParameterModel": {},
+            "SPICEModel": {},
+            "Definitions": {},
+        }
+        for part_name, props in self.definitions.items():
+            comp_list = list(props.components.values())
+            if comp_list:
+                data["Definitions"][part_name] = {}
+                data["Definitions"][part_name]["Component_type"] = props.type
+                comp = comp_list[0]
+                data["Definitions"][part_name]["Model_type"] = comp.model_type
+                if comp.model_type == "RLC":
+                    rlc_values = [i if i else 0 for i in comp.rlc_values]
+                    data["Definitions"][part_name]["Res"] = rlc_values[0]
+                    data["Definitions"][part_name]["Ind"] = rlc_values[1]
+                    data["Definitions"][part_name]["Cap"] = rlc_values[2]
+                    data["Definitions"][part_name]["Is_parallel"] = True if comp.is_parallel_rlc else False
+                else:
+                    if comp.model_type == "SParameterModel":
+                        model = comp.s_param_model
+                        data["Definitions"][part_name]["Model_name"] = model.name
+                        data["Definitions"][part_name]["Reference_net"] = model.reference_net
+                        if not model.name in data["SParameterModel"]:
+                            data["SParameterModel"][model.name] = model.file_path
+                    elif comp.model_type == "SPICEModel":
+                        model = comp.spice_model
+                        data["Definitions"][part_name]["Model_name"] = model.name
+                        if not model.name in data["SPICEModel"]:
+                            data["SPICEModel"][model.name] = model.file_path
+                    else:
+                        model = comp.netlist_model
+                        data["Definitions"][part_name]["Model_name"] = model.netlist
+
+        with codecs.open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        return file_path
+
     @pyaedt_function_handler()
     def refresh_components(self):
         """Refresh the component dictionary."""
-        self._cmp = {}
         self._logger.info("Refreshing the Components dictionary.")
-        if self._active_layout:
-            for cmp in self._active_layout.Groups:
-                if cmp.GetType().ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component":
-                    self._cmp[cmp.GetName()] = EDBComponent(self, cmp)
+        self._cmp = {
+            l.GetName(): EDBComponent(self, l)
+            for l in self._active_layout.Groups
+            if l.ToString() == "Ansys.Ansoft.Edb.Cell.Hierarchy.Component"
+        }
+        return True
 
     @property
     def resistors(self):
@@ -163,7 +265,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of resistors.
 
         Examples
@@ -185,7 +287,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of capacitors.
 
         Examples
@@ -207,7 +309,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of inductors.
 
         Examples
@@ -230,7 +332,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of integrated circuits.
 
         Examples
@@ -253,7 +355,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of circuit inputs and outputs.
 
         Examples
@@ -279,7 +381,7 @@ class Components(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
             Dictionary of other core components.
 
         Examples
@@ -521,7 +623,7 @@ class Components(object):
         Parameters
         ----------
         sources : list[Source]
-            List of ``EDB_Data.Source`` objects.
+            List of ``edb_data.sources.Source`` objects.
 
         Returns
         -------
@@ -961,7 +1063,7 @@ class Components(object):
             self._logger.error("Failed to create component definition")
             return False
         new_cmp = self._edb.Cell.Hierarchy.Component.Create(self._active_layout, component_name, comp_def.GetName())
-        hosting_component_location = pins[0].GetComponent().GetLocation()
+        hosting_component_location = pins[0].GetComponent().GetTransform()
         for pin in pins:
             new_cmp.AddMember(pin)
         new_cmp_layer_name = pins[0].GetPadstackDef().GetData().GetLayerNames()[0]
@@ -1003,7 +1105,7 @@ class Components(object):
             edb_rlc_component_property
         ):
             return False  # pragma no cover
-        new_cmp.SetLocation(hosting_component_location[1], hosting_component_location[2])
+        new_cmp.SetTransform(hosting_component_location)
         return new_cmp
 
     @pyaedt_function_handler()
@@ -1129,7 +1231,7 @@ class Components(object):
                 self._logger.error("Wrong number of Pins")
                 return False
 
-        elif model_type == "Touchstone":
+        elif model_type == "Touchstone":  # pragma: no cover
 
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
@@ -1140,12 +1242,11 @@ class Components(object):
                 edbComponentDef.AddComponentModel(nPortModel)
 
             sParameterMod = self._edb.Cell.Hierarchy.SParameterModel()
-            sParameterMod.SetComponentModelName(nPortModel)
+            sParameterMod.SetComponentModelName(nPortModelName)
             gndnets = filter(lambda x: "gnd" in x.lower(), componentNets)
-            if len(gndnets) > 0:
-
+            if len(list(gndnets)) > 0:  # pragma: no cover
                 net = gndnets[0]
-            else:
+            else:  # pragma: no cover
                 net = componentNets[len(componentNets) - 1]
             sParameterMod.SetReferenceNet(net)
             edbRlcComponentProperty.SetModel(sParameterMod)
@@ -1295,7 +1396,13 @@ class Components(object):
 
     @pyaedt_function_handler()
     def set_solder_ball(
-        self, component="", sball_diam="100um", sball_height="150um", shape="Cylinder", sball_mid_diam=None
+        self,
+        component="",
+        sball_diam="100um",
+        sball_height="150um",
+        shape="Cylinder",
+        sball_mid_diam=None,
+        chip_orientation="chip_down",
     ):
         """Set cylindrical solder balls on a given component.
 
@@ -1312,6 +1419,9 @@ class Components(object):
             ``"Spheroid"``. The default is ``"Cylinder"``.
         sball_mid_diam : str, float, optional
             Mid diameter of the solder ball.
+        chip_orientation : str
+            Give the chip orientation, ``"chip_down"`` or ``"chip_up"``. Default is ``"chip_down"``. Only applicable on
+            IC model.
         Returns
         -------
         bool
@@ -1353,7 +1463,12 @@ class Components(object):
             if cmp_type == self._edb.Definition.ComponentType.IC:
                 ic_die_prop = cmp_property.GetDieProperty().Clone()
                 ic_die_prop.SetType(self._edb.Definition.DieType.FlipChip)
-                ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                if chip_orientation.lower() == "chip_down":
+                    ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
+                if chip_orientation.lower() == "chip_up":
+                    ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipUp)
+                else:
+                    ic_die_prop.SetOrientation(self._edb.Definition.DieOrientation.ChipDown)
                 cmp_property.SetDieProperty(ic_die_prop)
 
             solder_ball_prop = cmp_property.GetSolderBallProperty().Clone()
@@ -1523,6 +1638,127 @@ class Components(object):
         return found
 
     @pyaedt_function_handler()
+    def import_bom(
+        self,
+        bom_file,
+        delimiter=",",
+        refdes_col=0,
+        part_name_col=1,
+        comp_type_col=2,
+        value_col=3,
+    ):
+        """Load external BOM file.
+
+        Parameters
+        ----------
+        bom_file : str
+            Full path to the BOM file, which is a delimited text file.
+        delimiter : str, optional
+            Value to use for the delimiter. The default is ``","``.
+        refdes_col : int, optional
+            Column index of reference designator. The default is ``"0"``.
+        part_name_col : int, optional
+             Column index of part name. The default is ``"1"``. Set to ``None`` if
+             the column does not exist.
+        comp_type_col : int, optional
+            Column index of component type. The default is ``"2"``.
+        value_col : int, optional
+            Column index of value. The default is ``"3"``. Set to ``None``
+            if the column does not exist.
+        Returns
+        -------
+        bool
+        """
+        with open(bom_file, "r") as f:
+            lines = f.readlines()
+            unmount_comp_list = list(self.components.keys())
+            for l in lines[1:]:
+                l = l.replace(" ", "").replace("\n", "")
+                if not l:
+                    continue
+                l = l.split(delimiter)
+
+                refdes = l[refdes_col]
+                comp = self.components[refdes]
+                if not part_name_col == None:
+                    part_name = l[part_name_col]
+                    if comp.partname == part_name:
+                        pass
+                    else:
+                        pinlist = self.get_pin_from_component(refdes)
+                        if not part_name in self.definitions:
+                            footprint_cell = self.definitions[comp.partname]._edb_comp_def.GetFootprintCell()
+                            comp_def = self._edb.Definition.ComponentDef.Create(self._db, part_name, footprint_cell)
+                            for pin in pinlist:
+                                self._edb.Definition.ComponentDefPin.Create(comp_def, pin.GetName())
+
+                        p_layer = comp.placement_layer
+                        refdes_temp = comp.refdes + "_temp"
+                        comp.refdes = refdes_temp
+
+                        unmount_comp_list.remove(refdes)
+                        comp.edbcomponent.Ungroup(True)
+
+                        self.create_component_from_pins(pinlist, refdes, p_layer, part_name)
+                        self.refresh_components()
+                        comp = self.components[refdes]
+
+                comp_type = l[comp_type_col]
+                if comp_type.capitalize() in ["Resistor", "Capacitor", "Inductor", "Other"]:
+                    comp.type = comp_type.capitalize()
+                else:
+                    comp.type = comp_type.upper()
+
+                if comp_type.capitalize() in ["Resistor", "Capacitor", "Inductor"] and refdes in unmount_comp_list:
+                    unmount_comp_list.remove(refdes)
+                if not value_col == None:
+                    try:
+                        value = l[value_col]
+                    except:
+                        value = None
+                    if value:
+                        if comp_type == "Resistor":
+                            self.set_component_rlc(refdes, res_value=value)
+                        elif comp_type == "Capacitor":
+                            self.set_component_rlc(refdes, cap_value=value)
+                        elif comp_type == "Inductor":
+                            self.set_component_rlc(refdes, ind_value=value)
+            for comp in unmount_comp_list:
+                self.components[comp].is_enabled = False
+        return True
+
+    @pyaedt_function_handler()
+    def export_bom(self, bom_file, delimiter=","):
+        """Export Bom file from layout.
+
+        Parameters
+        ----------
+        bom_file : str
+            Full path to the BOM file, which is a delimited text file.
+        delimiter : str, optional
+            Value to use for the delimiter. The default is ``","``.
+        """
+        with open(bom_file, "w") as f:
+            f.writelines([delimiter.join(["RefDes", "Part name", "Type", "Value\n"])])
+            for refdes, comp in self.components.items():
+                if not comp.is_enabled and comp.type in ["Resistor", "Capacitor", "Inductor"]:
+                    continue
+                part_name = comp.partname
+                comp_type = comp.type
+                if comp_type == "Resistor":
+                    value = comp.res_value
+                elif comp_type == "Capacitor":
+                    value = comp.cap_value
+                elif comp_type == "Inductor":
+                    value = comp.ind_value
+                else:
+                    value = ""
+                if not value:
+                    value = ""
+                f.writelines([delimiter.join([refdes, part_name, comp_type, value + "\n"])])
+        return True
+
+    @pyaedt_function_handler()
     def get_pin_from_component(self, component, netName=None, pinName=None):
         """Retrieve the pins of a component.
 
@@ -1624,7 +1860,7 @@ class Components(object):
 
         Parameters
         ----------
-        pin :str
+        pin : str
             Name of the pin.
 
         Returns

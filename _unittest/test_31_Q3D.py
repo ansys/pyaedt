@@ -106,7 +106,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.net_sinks("PGND")) == 0
 
     def test_08_create_faceted_bondwire(self):
-        self.aedtapp.load_project(self.test_project, close_active_proj=True)
+        self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)
         test = self.aedtapp.modeler.create_faceted_bondwire_from_true_surface(
             "bondwire_example", self.aedtapp.AXIS.Z, min_size=0.2, numberofsegments=8
         )
@@ -155,8 +155,21 @@ class TestClass(BasisTest, object):
         assert len(q3d.matrices[0].sources(False)) > 0
         assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         assert q3d.matrices[1].name == "JointTest"
+        q3d.matrices[1].delete()
+        assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest", "New_net")
+        assert "New_net" in q3d.matrices[1].sources()
         assert q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
         assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].delete()
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
+        assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].delete()
+        assert q3d.insert_reduced_matrix(
+            "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
+        )
+        assert "New_net" in q3d.matrices[2].sources()
+        assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert len(q3d.matrices[2].operations) == 2
         assert q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         assert q3d.matrices[3].name == "JointTest3"
         assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4")
@@ -178,7 +191,7 @@ class TestClass(BasisTest, object):
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
             "C(Box1,Box1_2)"
         ]
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_14_edit_sources(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -210,7 +223,7 @@ class TestClass(BasisTest, object):
         assert not q3d.edit_sources(sources_dc)
         sources = q3d.get_all_sources()
         assert sources[0] == "Box1:Source1"
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
 
     def test_13a_export_matrix_data(self):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
@@ -220,7 +233,10 @@ class TestClass(BasisTest, object):
         q3d.matrices[2].name == "JointTest2"
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         q3d.matrices[3].name == "JointTest3"
+        sweep = q3d.setups[0].add_sweep()
         q3d.analyze_setup(q3d.analysis_setup)
+        assert len(sweep.frequencies) > 0
+        assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
         assert not q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.pdf"))
         assert not q3d.export_matrix_data(
@@ -302,4 +318,72 @@ class TestClass(BasisTest, object):
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), c_unit="H")
         assert q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="fSie")
         assert not q3d.export_matrix_data(file_name=os.path.join(self.local_scratch.path, "test.txt"), g_unit="A")
-        self.aedtapp.close_project(q3d.project_name, False)
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
+
+    def test_14_export_equivalent_circuit(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
+        q3d.matrices[1].name == "JointTest"
+        q3d.analyze_setup(q3d.analysis_setup)
+        assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
+        assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="LastAdaptive",
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup_name="Setup2"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            setup_name="Setup1",
+            sweep="Sweep1",
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="Original"
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="JointTest"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix_name="JointTest1"
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            coupling_limit_type=0,
+            cond_limit="3Sie",
+            cap_limit="4uF",
+            ind_limit="9uH",
+            res_limit="2ohm",
+        )
+        assert q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name=q2d_q3d[:-5]
+        )
+        assert not q3d.export_equivalent_circuit(
+            file_name=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model_name="test"
+        )
+        self.aedtapp.close_project(q3d.project_name, save_project=False)
+
+    def test_15_export_results_q3d(self):
+        q3d = Q3d(self.test_matrix, specified_version=desktop_version)
+        exported_files = q3d.export_results()
+        assert len(exported_files) == 0
+        for setup_name in q3d.setup_names:
+            q3d.analyze_setup(setup_name)
+        exported_files = q3d.export_results()
+        assert len(exported_files) > 0
+        q3d.setups[0].add_sweep()
+        q3d.analyze_setup(q3d.analysis_setup)
+        exported_files = q3d.export_results()
+        assert len(exported_files) > 0
+        q3d.close_project(q3d.project_name, save_project=False)

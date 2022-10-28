@@ -27,7 +27,7 @@ class Mesh3DOperation(PropsManager, object):
     name :
 
     props : dict
-        Dictionary of the properites.
+        Dictionary of the properties.
 
     """
 
@@ -118,8 +118,8 @@ class Mesh3DOperation(PropsManager, object):
 class Mesh3d(object):
     """Mesh class.
 
-    This class provides the main AEDT mesh functionaility. The inherited class
-    `AEDTConfig` contains all `_desktop` hierarchical calls needed by this class.
+    Provides the main AEDT mesh functionality. The inherited class
+    ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.
 
     Parameters
     ----------
@@ -138,6 +138,28 @@ class Mesh3d(object):
         self.meshoperations = self._get_design_mesh_operations()
 
         pass
+
+    @pyaedt_function_handler()
+    def generate_mesh(self, name):
+        """Generate the mesh for a design.
+
+        Parameters
+        ----------
+        name : str
+            Name of the design.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.GenerateMesh
+        """
+        self._app.oanalysis.GenerateMesh([name])
+        return True
 
     @property
     def omeshmodule(self):
@@ -158,7 +180,7 @@ class Mesh3d(object):
         ----------
         setup_name : str
             Name of the setup.
-        mesh_name :str
+        mesh_name : str
             Name of the mesh.
 
         Returns

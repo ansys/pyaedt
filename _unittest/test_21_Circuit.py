@@ -379,7 +379,7 @@ class TestClass(BasisTest, object):
     def test_29_create_circuit_from_spice(self):
         model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
-        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
     def test_30_create_subcircuit(self):
@@ -461,3 +461,26 @@ class TestClass(BasisTest, object):
     def test_37_draw_graphical_primitives(self):
         line = self.aedtapp.modeler.components.create_line([[0, 0], [1, 1]])
         assert line
+
+    def test_38_browse_log_file(self):
+        self.aedtapp.insert_design("data_block1")
+        with open(os.path.join(self.local_scratch.path, "lc.net"), "w") as f:
+            for i in range(10):
+                f.write("L{} net_{} net_{} 1e-9\n".format(i, i, i + 1))
+                f.write("C{} net_{} 0 5e-12\n".format(i, i + 1))
+        self.aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
+        self.aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
+        lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
+        lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
+
+        assert not self.aedtapp.browse_log_file()
+        self.aedtapp.analyze_nominal()
+        assert self.aedtapp.browse_log_file()
+        self.aedtapp.save_project()
+        assert self.aedtapp.browse_log_file()
+        assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
+        assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
+
+    def test_39_export_results_circuit(self):
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0

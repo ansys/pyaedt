@@ -16,7 +16,7 @@ MILS2METER = 39370.078740157
 
 
 def db20(x, inverse=True):
-    """Convert db20 to decimal and viceversa."""
+    """Convert db20 to decimal and vice versa."""
     if inverse:
         return 20 * math.log10(x)
     else:
@@ -24,7 +24,7 @@ def db20(x, inverse=True):
 
 
 def db10(x, inverse=True):
-    """Convert db10 to decimal and viceversa."""
+    """Convert db10 to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
     else:
@@ -126,13 +126,13 @@ def _resolve_unit_system(unit_system_1, unit_system_2, operation):
         return ""
 
 
-def unit_converter(value, unit_system="Length", input_units="meter", output_units="mm"):
+def unit_converter(values, unit_system="Length", input_units="meter", output_units="mm"):
     """Convert unit in specified unit system.
 
     Parameters
     ----------
-    value : float
-        Value to convert.
+    values : float, list
+        Values to convert.
     unit_system : str
         Unit system. Default is `"Length"`.
     input_units : str
@@ -148,11 +148,19 @@ def unit_converter(value, unit_system="Length", input_units="meter", output_unit
     if unit_system in AEDT_UNITS:
         if input_units not in AEDT_UNITS[unit_system] or output_units not in AEDT_UNITS[unit_system]:
             warnings.warn("No units found")
-            return value
+            return values
         else:
-            return value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+            if isinstance(values, list):
+                converted_values = []
+                for value in values:
+                    converted_values.append(
+                        value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                    )
+                return converted_values
+            else:
+                return values * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
     warnings.warn("No system unit found")
-    return value
+    return values
 
 
 def scale_units(scale_to_unit):
@@ -211,6 +219,23 @@ AEDT_UNITS = {
         "rpm": SEC2MIN * V2PI,
     },
     "Angle": {"deg": DEG2RAD, "rad": 1.0, "degmin": DEG2RAD * SEC2MIN, "degsec": DEG2RAD * SEC2HOUR},
+    "Area": {
+        "fm2": 1e-30,
+        "pm2": 1e-24,
+        "nm2": 1e-18,
+        "um2": 1e-12,
+        "mm2": 1e-6,
+        "cm2": 1e-4,
+        "dm2": 1e-2,
+        "m2": 1.0,
+        "meter2": 1.0,
+        "km2": 1e6,
+        "uin2": METER2IN * 1e-12,
+        "mil2": METER2IN * 1e-6,
+        "in2": METER2IN,
+        "ft2": METER2IN * 24,
+        "yd2": METER2IN * 288,
+    },
     "Capacitance": {"fF": 1e-15, "pF": 1e-12, "nF": 1e-9, "uF": 1e-6, "mF": 1e-3, "F": 1.0},
     "Conductance": {"fSie": 1e-15, "pSie": 1e-12, "nSie": 1e-9, "uSie": 1e-6, "mSie": 1e-3, "Sie": 1.0},
     "Current": {
@@ -333,6 +358,12 @@ AEDT_UNITS = {
         "kW": 1e3,
         "megW": 1e6,
         "gW": 1e9,
+        "Btu_per_hr": 3.4129693,
+        "Btu_per_sec": 9.48047e-4,
+        "dBm": 30,
+        "dBW": 0,
+        "HP": 1.34102e-3,
+        "erg_per_sec": 1e7,
     },
     "B-field": {
         "ftesla": 1e-15,
@@ -385,6 +416,22 @@ AEDT_UNITS = {
         "megA_per_meter": 1e6,
         "gA_per_meter": 1e9,
     },
+    "SurfaceHeat": {
+        "uW_per_m2": 1e-6,
+        "mW_per_m2": 1e-3,
+        "irrad_W_per_m2": 1.0,
+        "W_per_m2": 1.0,
+        "kW_per_m2": 1e3,
+        "megW_per_m2": 1e6,
+        "irrad_W_per_cm2": 1e4,
+        "W_per_cm2": 1e4,
+        "W_per_in2": 1550,
+        "erg_per_s_per_cm2": 1e-3,
+        "btu_per_hr_per_ft2": 3.15,
+        "btu_per_s_per_ft2": 11356.53,
+        "irrad_W_per_mm2": 1e6,
+        "irrad_met": 1.0,
+    },
     "J-field": {
         "fA_per_m2": 1e-15,
         "pA_per_m2": 1e-12,
@@ -409,6 +456,7 @@ AEDT_UNITS = {
 SI_UNITS = {
     "AngularSpeed": "rad_per_sec",
     "Angle": "rad",
+    "Area": "m2",
     "Capacitance": "F",
     "Conductance": "Sie",
     "Current": "A",
@@ -421,6 +469,7 @@ SI_UNITS = {
     "None": "",
     "Resistance": "ohm",
     "Speed": "m_per_sec",
+    "SurfaceHeat": "W_per_m2",
     "Time": "s",
     "Torque": "NewtonMeter",
     "Voltage": "V",
@@ -618,7 +667,7 @@ class NodeType(object):
 class SourceType(object):
     """Type of excitation enumerator."""
 
-    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc) = range(0, 6)
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
 
 
 class SOLUTIONS(object):

@@ -29,15 +29,17 @@ from pyaedt.edb_core import Components
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
-from pyaedt.edb_core import EdbPadstacks
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
-from pyaedt.edb_core.EDB_Data import EdbBuilder
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.materials import Materials
+from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
-from pyaedt.generic.constants import SourceType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
 from pyaedt.generic.general_methods import env_value
@@ -231,6 +233,9 @@ class Edb(object):
         self._hfss = EdbHfss(self)
         self._nets = EdbNets(self)
         self._core_primitives = EdbLayout(self)
+        self._stackup2 = Stackup(self)
+        self._materials = Materials(self)
+
         self.logger.info("Objects Initialized")
 
     @property
@@ -613,10 +618,31 @@ class Edb(object):
 
     @property
     def core_stackup(self):
-        """Core stackup."""
+        """Core stackup.
+
+        .. deprecated:: 0.6.5
+        There is no need to use core_stackup anymore. You can instantiate new class stackup directly from edb class .
+        """
+        mess = "`core_stackup` is deprecated.\n"
+        mess += " Use `app.stackup` directly to instantiate new stackup methods."
+        warnings.warn(mess, DeprecationWarning)
         if not self._stackup and self.builder:
             self._stackup = EdbStackup(self)
         return self._stackup
+
+    @property
+    def stackup(self):
+        """Stackup."""
+        if not self._stackup2 and self.builder:
+            self._stackup2 = Stackup(self)
+        return self._stackup2
+
+    @property
+    def materials(self):
+        """Material Database."""
+        if not self._materials and self.builder:
+            self._materials = Materials(self)
+        return self._materials
 
     @property
     def core_padstack(self):
@@ -663,15 +689,14 @@ class Edb(object):
 
     @property
     def pins(self):
-        """Pins.
+        """EDBPadstackInstance of Component.
 
         Returns
         -------
-        list
-            List of all pins.
+        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+            Dictionary of EDBPadstackInstance Components.
         """
-
-        pins = []
+        pins = {}
         if self.core_components:
             for el in self.core_components.components:
                 comp = self.edb.Cell.Hierarchy.Component.FindByName(self.active_layout, el)
@@ -680,7 +705,8 @@ class Edb(object):
                     for p in comp.LayoutObjs
                     if p.GetObjType() == self.edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
                 ]
-                pins += temp
+                for p in temp:
+                    pins[p.GetId()] = EDBPadstackInstance(p, self)
         return pins
 
     class Boundaries:
@@ -844,6 +870,7 @@ class Edb(object):
 
         """
         self._db.SaveAs(fname)
+        self.edbpath = self._db.GetDirectory()
         return True
 
     @pyaedt_function_handler()
@@ -963,7 +990,7 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
-        simulation_setup : EDB_Data.SimulationConfiguration object, optional
+        simulation_setup : edb_data.simulation_configuration.SimulationConfiguration object, optional
             Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
@@ -1046,6 +1073,7 @@ class Edb(object):
                 self._active_cell = list(self._db.TopCircuitCells)[0]
                 dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()
@@ -1312,6 +1340,7 @@ class Edb(object):
                 self.edbpath = output_aedb_path
                 self._active_cell = cell
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
+                self.edbpath = self._db.GetDirectory()
                 self._init_objects()
             else:
                 db2.Close()
@@ -1500,7 +1529,8 @@ class Edb(object):
 
         Returns
         -------
-        bool
+        str
+            Siwave project path.
         """
         process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
         try:
@@ -1508,7 +1538,69 @@ class Edb(object):
         except:
             pass
         process.solve()
-        return True
+        return self.edbpath[:-5] + ".siw"
+
+    @pyaedt_function_handler()
+    def export_siwave_dc_results(
+        self,
+        siwave_project,
+        solution_name,
+        output_folder=None,
+        html_report=True,
+        vias=True,
+        voltage_probes=True,
+        current_sources=True,
+        voltage_sources=True,
+        power_tree=True,
+        loop_res=True,
+    ):
+        """Close EDB and solve it with Siwave.
+
+        Parameters
+        ----------
+        siwave_project : str
+            Siwave full project name.
+        solution_name : str
+            Siwave DC Analysis name.
+        output_folder : str, optional
+            Ouptu folder where files will be downloaded.
+        html_report : bool, optional
+            Either if generate or not html report. Default is `True`.
+        vias : bool, optional
+            Either if generate or not vias report. Default is `True`.
+        voltage_probes : bool, optional
+            Either if generate or not voltage probe report. Default is `True`.
+        current_sources : bool, optional
+            Either if generate or not current source report. Default is `True`.
+        voltage_sources : bool, optional
+            Either if generate or not voltage source report. Default is `True`.
+        power_tree : bool, optional
+            Either if generate or not power tree image. Default is `True`.
+        loop_res : bool, optional
+            Either if generate or not loop resistance report. Default is `True`.
+        Returns
+        -------
+        list
+            list of files generated.
+        """
+        process = SiwaveSolve(self.edbpath, aedt_version=self.edbversion)
+        try:
+            self._db.Close()
+        except:
+            pass
+        return process.export_dc_report(
+            siwave_project,
+            solution_name,
+            output_folder,
+            html_report,
+            vias,
+            voltage_probes,
+            current_sources,
+            voltage_sources,
+            power_tree,
+            loop_res,
+            hidden=True,
+        )
 
     @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
@@ -1653,7 +1745,7 @@ class Edb(object):
 
         Parameters
         ----------
-        simulation_setup : EDB_Data.SimulationConfiguratiom object.
+        simulation_setup : edb_data.SimulationConfiguratiom object.
             SimulationConfiguration object that can be instantiated or directly loaded with a
             configuration file.
 
@@ -1666,7 +1758,7 @@ class Edb(object):
         --------
 
         >>> from pyaedt import Edb
-        >>> from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+        >>> from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
         >>> config_file = path_configuration_file
         >>> source_file = path_to_edb_folder
         >>> edb = Edb(source_file)

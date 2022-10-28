@@ -22,6 +22,9 @@ from pyaedt.modules.Boundary import MaxwellParameters
 
 
 class Maxwell(object):
+    def __enter__(self):
+        return self
+
     def __init__(self):
         pass
 
@@ -421,30 +424,52 @@ class Maxwell(object):
             if not activate_eddy_effects:
                 activate_displacement_current = False
             for obj in solid_objects_names:
-                if obj in object_list:
-                    EddyVector.append(
-                        [
-                            "NAME:Data",
-                            "Object Name:=",
-                            obj,
-                            "Eddy Effect:=",
-                            activate_eddy_effects,
-                            "Displacement Current:=",
-                            activate_displacement_current,
-                        ]
-                    )
-                else:
-                    EddyVector.append(
-                        [
-                            "NAME:Data",
-                            "Object Name:=",
-                            obj,
-                            "Eddy Effect:=",
-                            bool(self.oboundary.GetEddyEffect(obj)),
-                            "Displacement Current:=",
-                            bool(self.oboundary.GetDisplacementCurrent(obj)),
-                        ]
-                    )
+                if self.solution_type == "EddyCurrent":
+                    if obj in object_list:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                activate_eddy_effects,
+                                "Displacement Current:=",
+                                activate_displacement_current,
+                            ]
+                        )
+                    else:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                bool(self.oboundary.GetEddyEffect(obj)),
+                                "Displacement Current:=",
+                                bool(self.oboundary.GetDisplacementCurrent(obj)),
+                            ]
+                        )
+                if self.solution_type == "Transient":
+                    if obj in object_list:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                activate_eddy_effects,
+                            ]
+                        )
+                    else:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                bool(self.oboundary.GetEddyEffect(obj)),
+                            ]
+                        )
         else:
             for obj in solid_objects_names:
                 if obj in object_list:
@@ -572,8 +597,8 @@ class Maxwell(object):
                 "TransientAPhiFormulation",
             ]:
                 props["Phase"] = phase
-                if self.solution_type not in ["DCConduction", "ElectricTransient"]:
-                    props["IsSolid"] = solid
+            if self.solution_type not in ["DCConduction", "ElectricTransient"]:
+                props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
             if type(object_list[0]) is str:
@@ -613,7 +638,7 @@ class Maxwell(object):
             Object container.
         coordinate_system : str, optional
             Coordinate system name. The default is ``"Global"``.
-        axis :str or int, optional
+        axis : str or int, optional
             Coordinate system axis. The default is ``"Z"``.
             It can be a ``pyaedt.generic.constants.AXIS`` enumerator value.
         positive_movement : bool, optional
@@ -1396,7 +1421,6 @@ class Maxwell(object):
                             }
                         )
                         bound = BoundaryObject(self, current_density_name, props, "CurrentDensity")
-                    return True
                 else:
                     if len(objects_list) > 1:
                         current_density_group_names = []
@@ -1435,8 +1459,117 @@ class Maxwell(object):
             self.logger.error("Current density can only be applied to Eddy current or magnetostatic solution types.")
             return False
 
-    def __enter__(self):
-        return self
+    @pyaedt_function_handler()
+    def enable_harmonic_force(
+        self,
+        objects,
+        force_type=0,
+        window_function="Rectangular",
+        use_number_of_last_cycles=True,
+        last_cycles_number=1,
+        calculate_force="Harmonic",
+    ):
+        """Set the Harmonic Force for Transient Analysis.
+
+        Parameters
+        ----------
+        objects : list
+            Object list to enable force computation.
+        force_type : int, optional
+            Force Type. `0` for Objects, `1` for Surface, `2` for volumetric.
+        window_function : str, optional
+            Windowing function. Default is `"Rectangular"`.
+        use_number_of_last_cycles : bool, optional
+            Either to use or not the last cycle. Default is `True`.
+        last_cycles_number : int, optional
+            Defines the number of cycles to compute if `use_number_of_last_cycle` is `True`.
+        calculate_force : sr, optional
+            Either `"Harmonic"` or `"Transient"`. Default is `"Harmonic"`.
+
+        Returns
+        -------
+
+        """
+        if self.solution_type != "Transient":
+            self.logger.error("This methods work only with Maxwell Transient Analysis.")
+            return False
+        objects = self.modeler.convert_to_selections(objects, True)
+        self.odesign.EnableHarmonicForceCalculation(
+            [
+                "EnabledObjects:=",
+                objects,
+                "ForceType:=",
+                force_type,
+                "WindowFunctionType:=",
+                window_function,
+                "UseNumberOfLastCycles:=",
+                use_number_of_last_cycles,
+                "NumberOfLastCycles:=",
+                last_cycles_number,
+                "StartTime:=",
+                "0s",
+                "UseNumberOfCyclesForStopTime:=",
+                True,
+                "NumberOfCyclesForStopTime:=",
+                1,
+                "StopTime:=",
+                "0.01s",
+                "OutputFreqRangeType:=",
+                "Use All",
+                "CaculateForceType:=",
+                calculate_force + " Force",
+            ]
+        )
+        return True
+
+    @pyaedt_function_handler()
+    def export_element_based_harmonic_force(
+        self,
+        output_directory=None,
+        setup_name=None,
+        start_frequency=None,
+        stop_frequency=None,
+        number_of_frequency=None,
+    ):
+        """Export Element Based Harmonic Forces csv to file.
+
+        Parameters
+        ----------
+        output_directory : str, optional
+            Path to export. If ``None`` pyaedt working dir will be used.
+        setup_name : str, optional
+            Setup name. If ``None`` pyaedt will use nominal setup.
+        start_frequency : float, optional
+            When a float is entered the Start-Stop Frequency approach is used.
+        stop_frequency : float, optional
+            A float must be entered when the Start-Stop Frequency approach is used.
+        number_of_frequency : int, optional
+            When a number is entered, the number of frequencies approach is used.
+
+        Returns
+        -------
+        str
+            Path to the export directory.
+        """
+        if self.solution_type != "Transient":
+            self.logger.error("This methods work only with Maxwell Transient Analysis.")
+            return False
+        if not output_directory:
+            output_directory = self.working_directory
+        if not setup_name:
+            setup_name = self.setups[0].name
+        freq_option = 1
+        f1 = -1
+        f2 = -1
+        if start_frequency and stop_frequency:
+            freq_option = 2
+            f1 = start_frequency
+            f2 = stop_frequency
+        elif number_of_frequency:
+            freq_option = 3
+            f1 = number_of_frequency
+        self.odesign.ExportElementBasedHarmonicForce(output_directory, setup_name, freq_option, f1, f2)
+        return output_directory
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
@@ -1765,6 +1898,26 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         self.logger.error("Error in boundary creation for %s %s.", boundary_type, name)
         return result
+
+    @pyaedt_function_handler()
+    def get_conduction_paths(self):
+        """Get a dictionary of all conduction paths with relative objects. It works from AEDT 23R1.
+
+        Returns
+        -------
+        dict
+            Dictionary of all conduction paths with relative objects.
+
+        """
+        conduction_paths = {}
+
+        try:
+            paths = list(self.oboundary.GetConductionPaths())
+            for path in paths:
+                conduction_paths[path] = list(self.oboundary.GetConductionPathObjects(path))
+            return conduction_paths
+        except:
+            return conduction_paths
 
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):

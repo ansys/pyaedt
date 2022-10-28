@@ -3,10 +3,12 @@
 
 from __future__ import absolute_import  # noreorder
 
+import glob
 import io
 import math
 import os
 import re
+import shutil
 
 from pyaedt.application.AnalysisNexxim import FieldAnalysisCircuit
 from pyaedt.generic import ibis_reader
@@ -590,7 +592,7 @@ class Circuit(FieldAnalysisCircuit, object):
         ----------
         source_design_name : str
             Name of the source design.
-        source_project_name :str, optional
+        source_project_name : str, optional
             Name of the source project. The default is ``None``.
         source_project_path : str, optional
             Path to the source project if different than the existing path. The default is ``None``.
@@ -1722,3 +1724,45 @@ class Circuit(FieldAnalysisCircuit, object):
             ["NAME:DataBlock", "name:=", datablock_name, "filename:=", netlist_file, "filelocation:=", 0]
         )
         return True
+
+    @pyaedt_function_handler()
+    def browse_log_file(self, filepath=None):
+        """Save most recent log file into a new directory.
+
+        Parameters
+        ----------
+        filepath : str, optional
+            New log file path. The default is the pyaedt folder.
+
+        Returns
+        -------
+        str
+            File Path
+        """
+        if filepath and not os.path.exists(os.path.normpath(filepath)):
+            self.logger.error("Path does not exist.")
+            return None
+        elif not filepath:
+            filepath = os.path.join(os.path.normpath(self.working_directory), "logfile")
+            if not os.path.exists(filepath):
+                os.mkdir(filepath)
+
+        results_path = os.path.join(os.path.normpath(self.results_directory), self.design_name)
+        results_temp_path = os.path.join(results_path, "temp")
+
+        # Check if .log exist in temp folder
+        if os.path.exists(results_temp_path) and glob.glob(os.path.join(results_temp_path, "*.log")):
+            # Check the most recent
+            files = glob.glob(os.path.join(results_temp_path, "*.log"))
+            latest_file = max(files, key=os.path.getctime)
+        elif os.path.exists(results_path) and glob.glob(os.path.join(results_path, "*.log")):
+            # Check the most recent
+            files = glob.glob(os.path.join(results_path, "*.log"))
+            latest_file = max(files, key=os.path.getctime)
+        else:
+            self.logger.error("Design not solved")
+            return None
+
+        shutil.copy(latest_file, filepath)
+        filename = os.path.basename(latest_file)
+        return os.path.join(filepath, filename)

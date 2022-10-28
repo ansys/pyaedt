@@ -23,7 +23,6 @@ from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic import DataHandlers
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import is_ironpython
@@ -226,6 +225,8 @@ def _dim_arg(value, units):
     """
     try:
         val = float(value)
+        if isinstance(value, int):
+            val = value
         return str(val) + units
     except:
         return value
@@ -517,7 +518,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
         float or bool
-            Edge length in model units when edge has two vertices, ``False`` othwerise.
+            Edge length in model units when edge has two vertices, ``False`` otherwise.
 
         References
         ----------
@@ -626,16 +627,18 @@ class FacePrimitive(object):
         """
         list_names = []
         for vertex in self.vertices:
-            body_names = self._object3d._primitives.get_bodynames_from_position(vertex.position)
+            body_names = self._object3d._primitives.get_bodynames_from_position(
+                vertex.position, include_non_model=False
+            )
             a = [i for i in body_names if i != self._object3d.name and i not in list_names]
             if a:
                 list_names.extend(a)
         for edge in self.edges:
-            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint)
+            body_names = self._object3d._primitives.get_bodynames_from_position(edge.midpoint, include_non_model=False)
             a = [i for i in body_names if i != self._object3d.name and i not in list_names]
             if a:
                 list_names.extend(a)
-        body_names = self._object3d._primitives.get_bodynames_from_position(self.center)
+        body_names = self._object3d._primitives.get_bodynames_from_position(self.center, include_non_model=False)
         a = [i for i in body_names if i != self._object3d.name and i not in list_names]
         if a:
             list_names.extend(a)
@@ -1349,6 +1352,28 @@ class Object3d(object):
             if a:
                 list_names.extend(a)
         return list_names
+
+    @pyaedt_function_handler()
+    def get_touching_faces(self, object_name):
+        """Get the objects that touch one of the face center of each face of the object.
+
+        Parameters
+        ----------
+        object_name : str, :class:`Object3d`
+            Object to check.
+        Returns
+        -------
+        list
+            list of objects and faces touching."""
+
+        _names = []
+        if isinstance(object_name, Object3d):
+            object_name = object_name.name
+        for face in self.faces:
+            body_names = self._primitives.get_bodynames_from_position(face.center)
+            if object_name in body_names:
+                _names.append(face)
+        return _names
 
     @property
     def faces(self):
@@ -4036,7 +4061,7 @@ class UserDefinedComponent(object):
                         "MaterialDefinitionParameters": OrderedDict({"VariableOrders": OrderedDict({})}),
                         "MapInstanceParameters": "DesignVariable",
                         "UniqueDefinitionIdentifier": "89d26167-fb77-480e-a7ab-"
-                        + DataHandlers.random_string(12, char_set="abcdef0123456789"),
+                        + "".join(random.choice("abcdef0123456789") for _ in range(int(12))),
                         "OriginFilePath": "",
                         "IsLocal": False,
                         "ChecksumString": "",
@@ -4053,7 +4078,6 @@ class UserDefinedComponent(object):
                 self._update_props(self._props["NativeComponentDefinitionProvider"], props)
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
-        # self.props = UserDefinedComponentProps(self, props)
 
     @property
     def group_name(self):
@@ -4580,3 +4604,30 @@ class UserDefinedComponent(object):
             self.parameters,
             self.target_coordinate_system,
         )
+
+    @pyaedt_function_handler()
+    def edit_definition(self, password=""):
+        """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
+
+        Parameters
+        ----------
+        password : str, optional
+            Password for encrypted models.
+
+        Returns
+        -------
+        :class:`pyaedt.hfss.Hfss` or :class:`pyaedt.Icepak.Icepak`
+            Pyaedt object.
+        """
+        from pyaedt.generic.design_types import get_pyaedt_app
+
+        self._primitives.oeditor.Edit3DComponentDefinition(
+            [
+                "NAME:EditDefinitionData",
+                ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
+            ]
+        )
+        proj = self._primitives._app.odesktop.GetActiveProject()
+        proj_name = proj.GetName()
+        des_name = proj.GetActiveDesign().GetName()
+        return get_pyaedt_app(proj_name, des_name)

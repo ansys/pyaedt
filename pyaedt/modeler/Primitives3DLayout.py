@@ -3,6 +3,7 @@ import sys
 import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import Padstack
@@ -410,9 +411,9 @@ class Primitives3DLayout(object):
         dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
             Vias Dictionary.
         """
-        if self._vias:
-            return self._vias
         objs = self.modeler.oeditor.FindObjects("Type", "via")
+        if self._vias and len(objs) == len(self._vias):
+            return self._vias
         for obj in objs:
             self._vias[obj] = Pins3DLayout(self, obj, is_pin=False)
         return self._vias
@@ -623,8 +624,9 @@ class Primitives3DLayout(object):
         ----------
         netlist : str  or list, optional
             One or more nets to visualize. The default is ``None``.
+            If no nets are provided all the nets in the design will be selected.
         visible : bool, optional
-            Whether to make the selected nets visible. The
+            Whether to make the selected nets visible.
             The default value is ``False``.
 
         Returns
@@ -637,19 +639,45 @@ class Primitives3DLayout(object):
 
         >>> oEditor.SetNetVisible
         """
+        nets_dictionary = {}
         if not netlist:
             netlist = self.nets
-
-        if type(netlist) is str:
+        elif [x for x in netlist if x not in self.nets]:
+            self.logger.error("Selected net doesn't exist in current design.")
+            return False
+        if isinstance(netlist, str):
             netlist = [netlist]
+
+        if isinstance(visible, str):
+            if visible.lower() == "true":
+                visible = True
+            elif visible.lower() == "false":
+                visible = False
+            else:
+                self.logger.error("Provide a valid string value for visibility.")
+                return False
+        elif not isinstance(visible, bool):
+            self.logger.error("Provide a valid type value for visibility.")
+            return False
+
+        for net in self.nets:
+            if net not in netlist:
+                nets_dictionary[net] = not visible
+            else:
+                nets_dictionary[net] = visible
+
         args = ["NAME:Args"]
-        for net in netlist:
-            args.append("Name:=")
-            args.append(net)
-            args.append("Vis:=")
-            args.append(visible)
-        self.oeditor.SetNetVisible(args)
-        return True
+        try:
+            for key in nets_dictionary:
+                args.append("Name:=")
+                args.append(key)
+                args.append("Vis:=")
+                args.append(nets_dictionary[key])
+            self.oeditor.SetNetVisible(args)
+            return True
+        except:
+            self.logger.error("Couldn't change nets visibility.")
+            return False
 
     @pyaedt_function_handler()
     def create_via(
@@ -676,24 +704,23 @@ class Primitives3DLayout(object):
             Position on the Y axis. The default is ``0``.
         rotation : float, optional
             Angle rotation in degrees. The default is ``0``.
-        hole_diam :
-            Diameter of the hole. The default is ``None``, in which case
-            the override is disabled.
+        hole_diam : float, optional
+            Diameter of the hole. If ``None`` the default is ``1``,
+            in which case the override is disabled.
         top_layer : str, optional
-            Top layer. The default is ``None``.
+            Top layer. If ``None`` the first layer is taken.
         bot_layer : str, optional
-            Bottom layer. The default is ``None``.
+            Bottom layer. If ``None`` the last layer is taken.
         name : str, optional
-            Name of the via. The default is ``None``, in which case the
-            default name is assigned.
+            Name of the via. If ``None`` a random name is generated.
         netname : str, optional
-            Name of the net. The default is ``None``, in which case the
-            default name is assigned.
+            Name of the net. The default is ``None``, in which case no
+            name is assigned.
 
         Returns
         -------
-        str
-            Name of the via created when successful.
+        str or bool
+            Name of the via created when successful, ``False`` when failed.
 
         References
         ----------
@@ -702,38 +729,50 @@ class Primitives3DLayout(object):
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
-            top_layer = layers[0]
+            top_layer = layers[0].name
         if not bot_layer:
-            bot_layer = layers[len(layers) - 1]
+            bot_layer = layers[len(layers) - 1].name
         if not name:
-            name = _uname()
+            name = generate_unique_name("via")
         else:
             listnames = self.oeditor.FindObjects("Name", name)
             if listnames:
                 name = _uname(name)
-        arg = ["NAME:Contents"]
-        arg.append("name:="), arg.append(name)
-        arg.append("ReferencedPadstack:="), arg.append(padstack),
-        arg.append("vposition:="),
-        arg.append(["x:=", self.arg_with_dim(x), "y:=", self.arg_with_dim(y)])
-        arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
-        if hole_diam:
-            arg.append("overrides hole:="), arg.append(True)
-            arg.append("hole diameter:="), arg.append([self.arg_with_dim(hole_diam)])
+        try:
+            arg = ["NAME:Contents"]
+            arg.append("name:="), arg.append(name)
+            arg.append("ReferencedPadstack:="), arg.append(padstack),
+            arg.append("vposition:="),
+            arg.append(["x:=", self.arg_with_dim(x), "y:=", self.arg_with_dim(y)])
+            arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
+            if hole_diam:
+                arg.append("overrides hole:="), arg.append(True)
+                arg.append("hole diameter:="), arg.append([self.arg_with_dim(hole_diam)])
 
-        else:
-            arg.append("overrides hole:="), arg.append(False)
-            arg.append("hole diameter:="), arg.append([self.arg_with_dim(1)])
+            else:
+                arg.append("overrides hole:="), arg.append(False)
+                arg.append("hole diameter:="), arg.append([self.arg_with_dim(1)])
 
-        arg.append("Pin:="), arg.append(False)
-        arg.append("highest_layer:="), arg.append(top_layer)
-        arg.append("lowest_layer:="), arg.append(bot_layer)
-        self.oeditor.CreateVia(arg)
-        # self.objects[name] = Object3dlayout(self)
-        # self.objects[name].name = name
-        # if netname:
-        #     self.objects[name].set_net_name(netname)
-        return name
+            arg.append("Pin:="), arg.append(False)
+            arg.append("highest_layer:="), arg.append(top_layer)
+            arg.append("lowest_layer:="), arg.append(bot_layer)
+
+            _retry_ntimes(10, self.oeditor.CreateVia, arg)
+            if netname:
+                self.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:BaseElementTab",
+                            ["NAME:PropServers", name],
+                            ["NAME:ChangedProps", ["NAME:Net", "Value:=", netname]],
+                        ],
+                    ]
+                )
+            return name
+        except ValueError as e:
+            self.logger.error(str(e))
+            return False
 
     @pyaedt_function_handler()
     def create_circle(self, layername, x, y, radius, name=None, net_name=None, **kwargs):
@@ -851,8 +890,8 @@ class Primitives3DLayout(object):
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("Ax:="), vArg2.append(self.arg_with_dim(origin[0]))
         vArg2.append("Ay:="), vArg2.append(self.arg_with_dim(origin[1]))
-        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(dimensions[0]))
-        vArg2.append("By:="), vArg2.append(self.arg_with_dim(dimensions[1]))
+        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(origin[0]) + "+" + self.arg_with_dim(dimensions[0]))
+        vArg2.append("By:="), vArg2.append(self.arg_with_dim(origin[1]) + "+" + self.arg_with_dim(dimensions[1]))
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
@@ -978,9 +1017,41 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler
     def place_3d_component(
-        self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
-    ):  # pragma: no cover
-        """Place a Hfss 3d Component in Hfss3dLayout.
+        self,
+        component_path,
+        number_of_terminals=1,
+        placement_layer=None,
+        component_name=None,
+        pos_x=0,
+        pos_y=0,
+        create_ports=True,
+    ):
+        """Place an HFSS 3D component in HFSS 3D Layout.
+
+        Parameters
+        ----------
+        component_path : str
+            Full path to the A3DCOMP file.
+        number_of_terminals : int, optional
+            Number of ports in the 3D component. The default is ``1``.
+        placement_layer : str, optional
+            Layer to place the component on. The default is ``None``, in which case it is
+            placed on top.
+        component_name : str, optional
+            Name of the component. The default is ``None``, in which case a
+            default name is assigned.
+        pos_x : float, optional
+            X placement. The default is ``0``.
+        pos_y : float, optional
+            Y placement. The default is ``0``.
+        create_ports : bool, optional
+            Whether to expose 3D component ports. The default is ``True``.
+
+        Returns
+        -------
+
+        """
+        """
 
         :param component_path:
         :param number_of_terminals:
@@ -1052,8 +1123,8 @@ class Primitives3DLayout(object):
         args.append(component_path)
 
         _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
-        stack_layers = ["0:{}".format(i) for i in self.modeler.layers.all_layers]
-        drawing = ["{}:{}".format(i, i) for i in self.modeler.layers.drawing_layers]
+        stack_layers = ["0:{}".format(i.name) for i in self.modeler.layers.stackup_layers]
+        drawing = ["{}:{}".format(i.name, i.name) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
         arg_y = self.modeler._arg_with_dim(pos_y)
         args = [
@@ -1078,6 +1149,8 @@ class Primitives3DLayout(object):
         comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
+        if create_ports:
+            self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
     def create_text(self, text, position, angle=0, font_size=12):

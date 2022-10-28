@@ -142,6 +142,8 @@ class TestClass(BasisTest, object):
         design_logger.debug("Debug for Design")
         design_logger.warning("Warning for Design")
         design_logger.error("Error for Design")
+        logger.info_timer("Info with message")
+        logger.reset_timer()
 
         # Close every handlers to make sure that the
         # file handler on every logger has been released properly.
@@ -176,6 +178,7 @@ class TestClass(BasisTest, object):
         assert ":DEBUG   :Debug for Design" in content[9]
         assert ":WARNING :Warning for Design" in content[10]
         assert ":ERROR   :Error for Design" in content[11]
+        assert "Elapsed time:" in content[12]
         # self.aedtapp.logger.handlers.pop()
         # self.aedtapp.logger.project.handlers.pop()
         # if len(self.aedtapp.logger.design.handlers) > 0:

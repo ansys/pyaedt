@@ -114,7 +114,7 @@ class Siwave:
                 # but doesn't return the wrapper of oApp
                 print("Launching Siwave with module win32com.")
 
-                self._main.oSiwave = win32com.client.Dispatch("Siwave.Application.2021.2")
+                self._main.oSiwave = win32com.client.Dispatch(version)
 
             self._main.AEDTVersion = version_key
             self.oSiwave = self._main.oSiwave
@@ -233,12 +233,17 @@ class Siwave:
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 
         if os.path.exists(proj_path):
-            self.oSiwave.OpenProject(proj_path)
+            open_result = self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
+            return open_result
+        else:
+            return False
 
     @pyaedt_function_handler()
     def save_project(self, projectpath=None, projectName=None):

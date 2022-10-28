@@ -29,9 +29,11 @@ test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
+    components_flatten = "components_flatten_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
+    components_flatten = "components_flatten"
 
 
 class TestClass(BasisTest, object):
@@ -46,6 +48,7 @@ class TestClass(BasisTest, object):
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
         test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
+        self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -557,7 +560,9 @@ class TestClass(BasisTest, object):
         assert len(list1) + len(list2) == len(list3)
 
     def test_41a_create_rect_sheet_to_region(self):
-        self.aedtapp.modeler.create_region()
+        assert self.aedtapp.modeler.create_region("20mm", False)
+        self.aedtapp.modeler["Region"].delete()
+        assert self.aedtapp.modeler.create_region()
         self.create_copper_box(name="MyBox_to_gnd")
         groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox_to_gnd")
         assert groundplane.id > 0
@@ -792,7 +797,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
     def test_60_get_edges_on_bounding_box(self):
-        self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
         self.aedtapp.load_project(self.test_99_project)
         edges = self.aedtapp.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=True, tol=1e-6)
         assert len(edges) == 2
@@ -851,6 +856,7 @@ class TestClass(BasisTest, object):
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
+        assert self.aedtapp.change_property(self.aedtapp.oeditor, "General", obj_3dcomp.name, "Name", "new_name1")
 
     def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
@@ -1184,6 +1190,7 @@ class TestClass(BasisTest, object):
             assert box2.name not in box1.faces[3].touching_objects
         else:
             assert box2.name not in box1.faces[1].touching_objects
+        assert box2.get_touching_faces(box1)
 
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"
@@ -1298,3 +1305,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
         )
+
+    def test_82_flatten_3d_components(self):
+        assert self.flatten.flatten_3d_components()
+        pass

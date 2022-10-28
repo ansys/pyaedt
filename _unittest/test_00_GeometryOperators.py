@@ -374,6 +374,21 @@ class TestClass:
         assert unit_converter(10) == 10000
         assert unit_converter(10, "Lengths") == 10
         assert unit_converter(10, "Length", "metersi") == 10
+        values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        assert unit_converter(values, "Length", "meter", "mm") == [
+            0,
+            1000,
+            2000,
+            3000,
+            4000,
+            5000,
+            6000,
+            7000,
+            8000,
+            9000,
+            10000,
+        ]
+        assert unit_converter(values, "Length", "m", "mm") == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     def test_are_segments_intersecting(self):
         # crossing

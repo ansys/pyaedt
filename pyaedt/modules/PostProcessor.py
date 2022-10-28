@@ -6,6 +6,7 @@ This module provides all functionalities for creating and editing plots in the 3
 """
 from __future__ import absolute_import  # noreorder
 
+import ast
 import os
 import random
 import string
@@ -13,7 +14,10 @@ import warnings
 from collections import OrderedDict
 
 import pyaedt.modules.report_templates as rt
+from pyaedt import is_ironpython
 from pyaedt import settings
+from pyaedt.application.Variables import decompose_variable_value
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
@@ -22,6 +26,14 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -293,17 +305,19 @@ class Reports(object):
         return
 
     @pyaedt_function_handler()
-    def far_field(self, expressions=None, setup_name=None, sphere_name=None):
-        """Create a Field Report object.
+    def far_field(self, expressions=None, setup_name=None, sphere_name=None, source_context=None):
+        """Create a Far Field Report object.
 
         Parameters
         ----------
         expressions : str or list
             Expression List.
         setup_name : str, optional
-            Setup Name.
+            Setup name.
         sphere_name : str, optional
-            Name of the sphere on which create the far field.
+            Name of the sphere to create the far field on.
+        source_context : str, optional
+            Name of the active source to create the far field on.
 
         Returns
         -------
@@ -325,6 +339,7 @@ class Reports(object):
             rep = rt.FarField(self._post_app, "Far Fields", setup_name)
             rep.expressions = expressions
             rep.far_field_sphere = sphere_name
+            rep.source_context = source_context
             return rep
         return
 
@@ -709,9 +724,13 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
+        if not context:
+            context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
-            quantities_category = categories[0] if categories else None
+            quantities_category = ""
+            if categories:
+                quantities_category = "All" if "All" in categories else categories[0]
         if quantities_category and display_type and report_category and solution:
             return list(
                 self.oreportsetup.GetAllQuantities(
@@ -1554,7 +1573,12 @@ class PostProcessorCommon(object):
             if not context and self._app._field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
-                report.far_field_sphere = context
+                if isinstance(context, dict):
+                    if "Context" in context.keys() and "SourceContext" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_context = context["SourceContext"]
+                else:
+                    report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
@@ -1595,7 +1619,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def get_solution_data(
         self,
-        expressions,
+        expressions=None,
         setup_sweep_name=None,
         domain="Sweep",
         variations=None,
@@ -1604,6 +1628,7 @@ class PostProcessorCommon(object):
         context=None,
         subdesign_id=None,
         polyline_points=1001,
+        math_formula=None,
     ):
         """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
 
@@ -1611,6 +1636,7 @@ class PostProcessorCommon(object):
         ----------
         expressions : str or list, optional
             One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+            Default is `None` which will return all traces.
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
         domain : str, optional
@@ -1635,6 +1661,8 @@ class PostProcessorCommon(object):
             The default value is ``None``.
         polyline_points : int, optional,
             Number of points on which create the report for plots on polylines.
+        math_formula : str, optional
+            It is one of the available AEDT mathematical formulas. Example abs, dB.
 
 
         Returns
@@ -1690,6 +1718,7 @@ class PostProcessorCommon(object):
         ...     context=context
         ...)
         """
+        expressions = [expressions] if isinstance(expressions, str) else expressions
         if domain in ["Spectral", "Spectrum"]:
             report_category = "Spectrum"
         if not report_category and not self._app.design_solutions.report_type:
@@ -1706,6 +1735,12 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         report = report_class(self, report_category, setup_sweep_name)
+        if not expressions:
+            expressions = [
+                i for i in self.available_report_quantities(report_category=report_category, context=context)
+            ]
+        if math_formula:
+            expressions = ["{}({})".format(math_formula, i) for i in expressions]
         report.expressions = expressions
         report.domain = domain
         if primary_sweep_variable:
@@ -1722,7 +1757,12 @@ class PostProcessorCommon(object):
             if not context and self._app.field_setups:
                 report.far_field_sphere = self._app.field_setups[0].name
             else:
-                report.far_field_sphere = context
+                if isinstance(context, dict):
+                    if "Context" in context.keys() and "SourceContext" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_context = context["SourceContext"]
+                else:
+                    report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context and isinstance(context, dict):
@@ -1792,9 +1832,9 @@ class PostProcessorCommon(object):
 class PostProcessor(PostProcessorCommon, object):
     """Manages the main AEDT postprocessing functions.
 
-    The inherited `AEDTConfig` class contains all `_desktop`
-    hierarchical calls needed for the class inititialization data
-    `_desktop` and the design types ``"HFSS"``, ``"Icepak"``, and
+    The inherited ``AEDTConfig`` class contains all ``_desktop``
+    hierarchical calls needed for the class initialization data
+    ``_desktop`` and the design types ``"HFSS"``, ``"Icepak"``, and
     ``"HFSS3DLayout"``.
 
     .. note::
@@ -2840,8 +2880,7 @@ class PostProcessor(PostProcessorCommon, object):
         exportFilePath :
             Path for exporting the image file.
         view : str, optional
-            View to export. Options are ``"isometric"``, ``"top"``, ``"bottom"``, ``"right"``, ``"left"`` and any
-            custom orientation.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
             The default is ``"isometric"``.
         wireframe : bool, optional
             Whether to put the objects in the wireframe mode. The default is ``True``.
@@ -3009,7 +3048,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_sweep_name : str, optional
             Name of the setup for computing the report. The default is ``""``,
             in which case the nominal sweep is used.
-        domain : str, optional
+        domain : str, dict, optional
             Context type (sweep or time). The default is ``"Infinite Sphere1"``.
         families_dict : dict, optional
             Dictionary of variables and values. The default is ``{"Freq": ["All"]}``.
@@ -3029,8 +3068,13 @@ class PostProcessor(PostProcessorCommon, object):
             setup_sweep_name = self._app.nominal_adaptive
         if families_dict is None:
             families_dict = {"Theta": ["All"], "Phi": ["All"], "Freq": ["All"]}
+        context = ["Context:=", domain]
+        if isinstance(domain, dict):
+            if "Context" in domain.keys() and "SourceContext" in domain.keys():
+                context = ["Context:=", domain["Context"], "Context:=", domain["SourceContext"]]
+
         solution_data = self.get_solution_data_per_variation(
-            "Far Fields", setup_sweep_name, ["Context:=", domain], families_dict, expression
+            "Far Fields", setup_sweep_name, context, families_dict, expression
         )
         if not solution_data:
             print("No Data Available. Check inputs")
@@ -3132,6 +3176,292 @@ class PostProcessor(PostProcessorCommon, object):
             plot.delete()
             return file_to_add
         return None
+
+    @pyaedt_function_handler()
+    def power_budget(self, units="W", temperature=22):
+        """Power budget calculation.
+
+        Parameters
+        ----------
+        units : str
+            Output power units.
+        temperature : float
+            Temperature to calculate the power.
+
+        Returns
+        -------
+        dict, float
+            Dictionary with the power introduced on each boundary and total power.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        available_bcs = self._app.boundaries
+        power_dict = {}
+
+        def multiplier_from_dataset(expression, valuein):
+            multiplier = 0
+            if expression in self._app.design_datasets:
+                dataset = self._app.design_datasets[expression]
+            elif expression in self._app.project_datasets:
+                dataset = self._app.design_datasets[expression]
+            else:
+                return multiplier
+            if valuein >= max(dataset.x):
+                multiplier = dataset.y[-1]
+            elif valuein <= min(dataset.x):
+                multiplier = dataset.y[0]
+            else:
+                start_x = 0
+                start_y = 0
+                end_x = 0
+                end_y = 0
+                for i, y in enumerate(dataset.x):
+                    if y > valuein:
+                        start_x = dataset.x[i - 1]
+                        start_y = dataset.y[i - 1]
+                        end_x = dataset.x[i]
+                        end_y = dataset.y[i]
+                if end_x - start_x == 0:
+                    multiplier = 0
+                else:
+                    multiplier = start_y + (valuein - start_x) * ((end_y - start_y) / (end_x - start_x))
+            return multiplier
+
+        def extract_dataset_info(boundary_obj, units_input="W", boundary="Power"):
+            if boundary == "Power":
+                prop = "Total Power Variation Data"
+            else:
+                prop = "Surface Heat Variation Data"
+                units_input = "irrad_W_per_m2"
+            value_bound = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[0]
+            expression = ast.literal_eval(boundary_obj.props[prop]["Variation Value"])[1]
+            value = list(decompose_variable_value(value_bound))
+            if isinstance(value[0], str):
+                new_value = self._app[value[0]]
+                value = list(decompose_variable_value(new_value))
+            value = unit_converter(
+                value[0],
+                unit_system=boundary,
+                input_units=value[1],
+                output_units=units_input,
+            )
+            expression = expression.split(",")[0].split("(")[1]
+            return value, expression
+
+        if not available_bcs:
+            self.logger.warning("No boundaries defined")
+            return True
+        for bc_obj in available_bcs:
+            if bc_obj.type == "Block":
+                n = len(bc_obj.props["Objects"])
+                if "Total Power Variation Data" not in bc_obj.props:
+                    mult = 1
+                    power_value = list(decompose_variable_value(bc_obj.props["Total Power"]))
+                    power_value = unit_converter(
+                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                    )
+
+                else:
+                    power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
+                    mult = multiplier_from_dataset(exp, temperature)
+
+                power_dict[bc_obj.name] = power_value * n * mult
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Source":
+                if bc_obj.props["Thermal Condition"] == "Total Power":
+                    n = 0
+                    if "Faces" in bc_obj.props:
+                        n += len(bc_obj.props["Faces"])
+                    if "Objects" in bc_obj.props:
+                        n += len(bc_obj.props["Objects"])
+
+                    if "Total Power Variation Data" not in bc_obj.props:
+                        mult = 1
+                        power_value = list(decompose_variable_value(bc_obj.props["Total Power"]))
+                        power_value = unit_converter(
+                            power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                        )
+                    else:
+                        power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
+                        mult = multiplier_from_dataset(exp, temperature)
+
+                    power_dict[bc_obj.name] = power_value * n * mult
+                    self.logger.info(
+                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
+                    )
+
+                elif bc_obj.props["Thermal Condition"] == "Surface Flux":
+                    if "Surface Heat Variation Data" not in bc_obj.props:
+                        mult = 1
+                        heat_value = list(decompose_variable_value(bc_obj.props["Surface Heat"]))
+                        if isinstance(heat_value[0], str):
+                            new_value = self._app[heat_value[0]]
+                            heat_value = list(decompose_variable_value(new_value))
+                        heat_value = unit_converter(
+                            heat_value[0],
+                            unit_system="SurfaceHeat",
+                            input_units=heat_value[1],
+                            output_units="irrad_W_per_m2",
+                        )
+                    else:
+                        mult = 0
+                        if bc_obj.props["Surface Heat Variation Data"]["Variation Type"] == "Temp Dep":
+                            heat_value, exp = extract_dataset_info(bc_obj, boundary="SurfaceHeat")
+                            mult = multiplier_from_dataset(exp, temperature)
+                        else:
+                            heat_value = 0
+
+                    power_value = 0.0
+                    if "Faces" in bc_obj.props:
+                        for component in bc_obj.props["Faces"]:
+                            area = self.modeler.get_face_area(component)
+                            area = unit_converter(
+                                area,
+                                unit_system="Area",
+                                input_units=self.modeler.model_units + "2",
+                                output_units="m2",
+                            )
+                            power_value += heat_value * area * mult
+                    if "Objects" in bc_obj.props:
+                        for component in bc_obj.props["Objects"]:
+                            object_assigned = self.modeler[component]
+                            for f in object_assigned.faces:
+                                area = unit_converter(
+                                    f.area,
+                                    unit_system="Area",
+                                    input_units=self.modeler.model_units + "2",
+                                    output_units="m2",
+                                )
+                                power_value += heat_value * area * mult
+
+                    power_value = unit_converter(power_value, unit_system="Power", input_units="W", output_units=units)
+                    power_dict[bc_obj.name] = power_value
+                    self.logger.info(
+                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
+                    )
+
+            elif bc_obj.type == "Network":
+                nodes = bc_obj.props["Nodes"]
+                power_value = 0
+                for node in nodes:
+                    if "Power" in nodes[node]:
+                        value = nodes[node]["Power"]
+                        value = list(decompose_variable_value(value))
+                        value = unit_converter(value[0], unit_system="Power", input_units=value[1], output_units=units)
+                        power_value += value
+                power_dict[bc_obj.name] = power_value
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Conducting Plate":
+                n = 0
+                if "Faces" in bc_obj.props:
+                    n += len(bc_obj.props["Faces"])
+                if "Objects" in bc_obj.props:
+                    n += len(bc_obj.props["Objects"])
+
+                if "Total Power Variation Data" not in bc_obj.props:
+                    mult = 1
+                    power_value = list(decompose_variable_value(bc_obj.props["Total Power"]))
+                    power_value = unit_converter(
+                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                    )
+
+                else:
+                    power_value, exp = extract_dataset_info(bc_obj, units_input=units, boundary="Power")
+                    mult = multiplier_from_dataset(exp, temperature)
+
+                power_dict[bc_obj.name] = power_value * n * mult
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Stationary Wall":
+                if bc_obj.props["External Condition"] == "Heat Flux":
+                    mult = 1
+                    heat_value = list(decompose_variable_value(bc_obj.props["Heat Flux"]))
+                    heat_value = unit_converter(
+                        heat_value[0],
+                        unit_system="SurfaceHeat",
+                        input_units=heat_value[1],
+                        output_units="irrad_W_per_m2",
+                    )
+
+                    power_value = 0.0
+                    if "Faces" in bc_obj.props:
+                        for component in bc_obj.props["Faces"]:
+                            area = self.modeler.get_face_area(component)
+                            area = unit_converter(
+                                area,
+                                unit_system="Area",
+                                input_units=self.modeler.model_units + "2",
+                                output_units="m2",
+                            )
+                            power_value += heat_value * area * mult
+                    if "Objects" in bc_obj.props:
+                        for component in bc_obj.props["Objects"]:
+                            object_assigned = self.modeler[component]
+                            for f in object_assigned.faces:
+                                area = unit_converter(
+                                    f.area,
+                                    unit_system="Area",
+                                    input_units=self.modeler.model_units + "2",
+                                    output_units="m2",
+                                )
+                                power_value += heat_value * area * mult
+
+                    power_value = unit_converter(power_value, unit_system="Power", input_units="W", output_units=units)
+                    power_dict[bc_obj.name] = power_value
+                    self.logger.info(
+                        "The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units)
+                    )
+
+            elif bc_obj.type == "Resistance":
+                n = len(bc_obj.props["Objects"])
+                mult = 1
+                power_value = list(decompose_variable_value(bc_obj.props["Thermal Power"]))
+                power_value = unit_converter(
+                    power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                )
+
+                power_dict[bc_obj.name] = power_value * n * mult
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+            elif bc_obj.type == "Blower":
+                power_value = list(decompose_variable_value(bc_obj.props["Blower Power"]))
+                power_value = unit_converter(
+                    power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                )
+
+                power_dict[bc_obj.name] = power_value
+                self.logger.info("The power of {} is {} {}".format(bc_obj.name, str(power_dict[bc_obj.name]), units))
+
+        for native_comps in self.modeler.user_defined_components:
+            if hasattr(self.modeler.user_defined_components[native_comps], "native_properties"):
+                native_key = "NativeComponentDefinitionProvider"
+                if native_key in self.modeler.user_defined_components[native_comps].native_properties:
+                    power_key = self.modeler.user_defined_components[native_comps].native_properties[native_key]
+                else:
+                    power_key = self.modeler.user_defined_components[native_comps].native_properties
+                power_value = None
+                if "Power" in power_key:
+                    power_value = list(decompose_variable_value(power_key["Power"]))
+                elif "HubPower" in power_key:
+                    power_value = list(decompose_variable_value(power_key["HubPower"]))
+
+                if power_value:
+                    power_value = unit_converter(
+                        power_value[0], unit_system="Power", input_units=power_value[1], output_units=units
+                    )
+
+                    power_dict[native_comps] = power_value
+                    self.logger.info(
+                        "The power of {} is {} {}".format(native_comps, str(power_dict[native_comps]), units)
+                    )
+
+        self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
+        return power_dict, sum(power_dict.values())
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):
@@ -3461,3 +3791,201 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
         return plotname
+
+    def sample_waveform(
+        self,
+        waveform_data,
+        waveform_sweep,
+        waveform_unit="V",
+        waveform_sweep_unit="s",
+        unit_interval=1e-9,
+        clock_tics=None,
+        pandas_enabled=False,
+    ):
+        """Sampling a waveform at clock times plus half unit interval.
+
+        Parameters
+        ----------
+        waveform_data : list
+            Waveform data
+        waveform_sweep : list
+            Waveform sweep data
+        waveform_unit : str, optional
+            Waveform units. The default values is ``V``.
+        waveform_sweep_unit : str, optional
+            Time units. The default value is ``s``.
+        unit_interval : float, optional
+            Unit interval in seconds. The default is ``1e-9``.
+        clock_tics : list, optional
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
+        pandas_enabled : bool, optional
+            ``True`` if data format is pandas. The default is `False``
+
+        Returns
+        -------
+        list or :class:`pandas.Series`
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
+
+        Examples
+        --------
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+
+        """
+
+        new_tic = []
+        for tic in clock_tics:
+            new_tic.append(unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit))
+        new_ui = unit_converter(unit_interval, unit_system="Time", input_units="s", output_units=waveform_sweep_unit)
+
+        zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
+        extraction_tic = [x + y for (x, y) in zipped_lists]
+
+        if pandas_enabled:
+            sweep_filtered = waveform_sweep.values
+            filtered_tic = list(filter(lambda num: num >= waveform_sweep.values[0], extraction_tic))
+        else:
+            sweep_filtered = waveform_sweep
+            filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
+
+        outputdata = []
+        new_voltage = []
+        tic_in_s = []
+        for tic in filtered_tic:
+            if tic >= sweep_filtered[0]:
+                sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
+                if sweep_filtered:
+                    if pandas_enabled:
+                        waveform_index = waveform_sweep[waveform_sweep.values == sweep_filtered[0]].index.values
+                    else:
+                        waveform_index = waveform_sweep.index(sweep_filtered[0])
+                    if not isinstance(waveform_data[waveform_index], float):
+                        voltage = waveform_data[waveform_index].values[0]
+                    else:
+                        voltage = waveform_data[waveform_index]
+                    new_voltage.append(
+                        unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
+                    )
+                    tic_in_s.append(
+                        unit_converter(tic, unit_system="Time", input_units=waveform_sweep_unit, output_units="s")
+                    )
+                    if not pandas_enabled:
+                        outputdata.append([tic_in_s[-1:][0], new_voltage[-1:][0]])
+                    del sweep_filtered[0]
+                else:
+                    break
+        if pandas_enabled:
+            return pd.Series(new_voltage, index=tic_in_s)
+        return outputdata
+
+    def sample_ami_waveform(
+        self,
+        setupname,
+        probe_name,
+        source_name,
+        variation_list_w_value,
+        unit_interval=1e-9,
+        ignore_bits=0,
+        plot_type=None,
+        clock_tics=None,
+    ):
+        """Sampling a waveform at clock times plus half unit interval.
+
+        Parameters
+        ----------
+        setupname : str
+            Name of the setup.
+        probe_name : str
+            Name of the AMI probe.
+        source_name : str
+            Name of the AMI source.
+        variation_list_w_value : list
+            Variations with relative values.
+        unit_interval : float, optional
+            Unit interval in seconds. The default is ``1e-9``.
+        ignore_bits : int, optional
+            Number of initial bits to ignore. The default is ``0``.
+        plot_type : str, optional
+            Report type. The default is ``None``, in which case all report types are generated.
+            Options for a specific report type are ``"InitialWave"``, ``"WaveAfterSource"``,
+            ``"WaveAfterChannel"``, and ``"WaveAfterProbe"``.
+        clock_tics : list, optional
+            List with clock tics. The default is ``None``, in which case the clock tics from
+            the AMI receiver are used.
+
+        Returns
+        -------
+        list
+            Sampled waveform in ``Volts`` at different times in ``seconds``.
+
+        Examples
+        --------
+        >>> aedtapp = Circuit()
+        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+
+        """
+        initial_solution_type = self.post_solution_type
+        self._app.solution_type = "NexximAMI"
+
+        if plot_type == "InitialWave" or plot_type == "WaveAfterSource":
+            plot_expression = [plot_type + "<" + source_name + ".int_ami_tx>"]
+        elif plot_type == "WaveAfterChannel" or plot_type == "WaveAfterProbe":
+            plot_expression = [plot_type + "<" + probe_name + ".int_ami_rx>"]
+        else:
+            plot_expression = [
+                "InitialWave<" + source_name + ".int_ami_tx>",
+                "WaveAfterSource<" + source_name + ".int_ami_tx>",
+                "WaveAfterChannel<" + probe_name + ".int_ami_rx>",
+                "WaveAfterProbe<" + probe_name + ".int_ami_rx>",
+            ]
+        waveform = []
+        waveform_sweep = []
+        waveform_unit = []
+        waveform_sweep_unit = []
+        for exp in plot_expression:
+            waveform_data = self.get_solution_data(
+                expressions=exp, setup_sweep_name=setupname, domain="Time", variations=variation_list_w_value
+            )
+            samples_per_bit = 0
+            for sample in waveform_data.primary_sweep_values:
+                sample_seconds = unit_converter(
+                    sample, unit_system="Time", input_units=waveform_data.units_sweeps["Time"], output_units="s"
+                )
+                if sample_seconds > unit_interval:
+                    samples_per_bit -= 1
+                    break
+                else:
+                    samples_per_bit += 1
+            if samples_per_bit * ignore_bits > len(waveform_data.data_real()):
+                self._app.solution_type = initial_solution_type
+                self.logger.warning("Ignored bits are greater than generated bits.")
+                return None
+            waveform.append(waveform_data.data_real()[samples_per_bit * ignore_bits :])
+            waveform_sweep.append(waveform_data.primary_sweep_values[samples_per_bit * ignore_bits :])
+            waveform_unit.append(waveform_data.units_data[exp])
+            waveform_sweep_unit.append(waveform_data.units_sweeps["Time"])
+
+        tics = clock_tics
+        if not clock_tics:
+            clock_expression = "ClockTics<" + probe_name + ".int_ami_rx>"
+            clock_tic = self.get_solution_data(
+                expressions=clock_expression,
+                setup_sweep_name=setupname,
+                domain="Clock Times",
+                variations=variation_list_w_value,
+            )
+            tics = clock_tic.data_real()
+
+        outputdata = [[] for i in range(len(waveform))]
+        for w in range(0, len(waveform)):
+            outputdata[w] = self.sample_waveform(
+                waveform_data=waveform[w],
+                waveform_sweep=waveform_sweep[w],
+                waveform_unit=waveform_unit[w],
+                waveform_sweep_unit=waveform_sweep_unit[w],
+                unit_interval=unit_interval,
+                clock_tics=tics,
+                pandas_enabled=waveform_data.enable_pandas_output,
+            )
+        return outputdata

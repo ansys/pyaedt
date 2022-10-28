@@ -292,9 +292,9 @@ class TestClass(BasisTest, object):
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
 
     def test_06f_sweep_add_subrange(self):
-        box_sweep = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
-        box_sweep2 = self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
-        port = self.aedtapp.create_wave_port_between_objects(
+        self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
+        self.aedtapp.create_wave_port_between_objects(
             "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
@@ -306,9 +306,9 @@ class TestClass(BasisTest, object):
         assert sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
 
     def test_06g_sweep_clear_subrange(self):
-        box_sweep3 = self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
-        box_sweep4 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
-        port = self.aedtapp.create_wave_port_between_objects(
+        self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
+        self.aedtapp.create_wave_port_between_objects(
             "box_sweep3", "box_sweep4", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweepWithClear", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
@@ -393,6 +393,14 @@ class TestClass(BasisTest, object):
             == "port11"
         )
         assert self.aedtapp.set_source_context(["port10", "port11"])
+
+        assert self.aedtapp.set_source_context([])
+
+        assert self.aedtapp.set_source_context(["port10", "port11"], 0)
+
+        assert self.aedtapp.set_source_context(["port10", "port11", "sheet1_Port"])
+
+        assert self.aedtapp.set_source_context(["port10", "port11", "sheet1_Port"], 0)
 
         self.aedtapp.solution_type = "Terminal"
         assert (
@@ -547,6 +555,10 @@ class TestClass(BasisTest, object):
         )
         names = self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
+        assert self.aedtapp.assign_lumped_rlc_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], Lvalue=1e-9
+        )
+        assert not self.aedtapp.assign_lumped_rlc_to_sheet(rect.name, [rect.bottom_edge_x.midpoint], Lvalue=1e-9)
 
     def test_17B_update_assignment(self):
         bound = self.aedtapp.assign_perfecth_to_sheets(self.aedtapp.modeler["My_Box"].faces[0].id)
@@ -576,6 +588,14 @@ class TestClass(BasisTest, object):
             rect.name, self.aedtapp.AxisDir.XNeg, 50, "Lump_sheet2", True, True
         )
         assert port2.name + ":1" in self.aedtapp.excitations
+        port3 = self.aedtapp.create_lumped_port_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], 50, "Lump_sheet3", True, True
+        )
+        assert port3.name + ":1" in self.aedtapp.excitations
+        port4 = self.aedtapp.create_lumped_port_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint], 50, "Lump_sheet4", True, True
+        )
+        assert not port4
 
     def test_20_create_voltage_on_sheet(self):
         rect = self.aedtapp.modeler.create_rectangle(
@@ -584,6 +604,12 @@ class TestClass(BasisTest, object):
         port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, self.aedtapp.AxisDir.XNeg, "LumpVolt1")
         assert port.name in self.aedtapp.excitations
         assert self.aedtapp.get_property_value("BoundarySetup:LumpVolt1", "VoltageMag", "Excitation") == "1V"
+        port = self.aedtapp.assign_voltage_source_to_sheet(
+            rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], "LumpVolt2"
+        )
+        assert port.name in self.aedtapp.excitations
+        port = self.aedtapp.assign_voltage_source_to_sheet(rect.name, [rect.bottom_edge_x.midpoint], "LumpVolt2")
+        assert not port
 
     def test_21_create_open_region(self):
         assert self.aedtapp.create_open_region("1GHz")
@@ -780,6 +806,10 @@ class TestClass(BasisTest, object):
             self.aedtapp.PLANE.XY, [0, 0, 0], [5, 1], name="RectangleForSource", matname="Copper"
         )
         assert self.aedtapp.assign_current_source_to_sheet(sheet.name)
+        assert self.aedtapp.assign_current_source_to_sheet(
+            sheet.name, [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint]
+        )
+        assert not self.aedtapp.assign_current_source_to_sheet(sheet.name, [sheet.bottom_edge_x.midpoint])
 
     @pytest.mark.skipif(is_ironpython, reason="Float overflow in Ironpython")
     def test_41_export_step(self):
@@ -854,7 +884,7 @@ class TestClass(BasisTest, object):
         assert bound.slant_angle == "30deg"
         assert bound.polarization == "Slant"
         bound.azimuth_start = 20
-        assert bound.azimuth_start == "20.0deg"
+        assert bound.azimuth_start == "20deg"
         assert bound.delete()
         bound = self.aedtapp.insert_infinite_sphere(
             definition="Az Over El",
@@ -997,7 +1027,7 @@ class TestClass(BasisTest, object):
         is_ironpython or config["desktopVersion"] < "2022.2",
         reason="Not working in non-graphical in version lower than 2022.2",
     )
-    def test_51_array(self):
+    def test_51a_array(self):
         self.aedtapp.insert_design("Array_simple", "Modal")
         from pyaedt.generic.DataHandlers import json_to_dict
 
@@ -1009,24 +1039,62 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
         dict_in["cells"][(3, 3)]["rotation"] = 90
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
-        pass
 
-    def test_52_set_material_threshold(self):
+    def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()
         threshold = 123123123
         assert self.aedtapp.set_material_threshold(threshold)
         assert self.aedtapp.set_material_threshold(str(threshold))
         assert not self.aedtapp.set_material_threshold("e")
 
-    def test_53_crate_setup_hybrid_sbr(self):
-        hfss1 = self.aedtapp.insert_design()
+    @pytest.mark.skipif(
+        is_ironpython or config["desktopVersion"] < "2022.2",
+        reason="Not working in non-graphical in version lower than 2022.2",
+    )
+    def test_51c_export_results(self):
+        self.aedtapp.set_active_design("Array_simple")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) == 0
+        setup = self.aedtapp.create_setup(setupname="test")
+        setup.props["Frequency"] = "1GHz"
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) == 0
+        self.aedtapp.analyze_setup(name="test")
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0
+
+    def test_52_crate_setup_hybrid_sbr(self):
+        self.aedtapp.insert_design()
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o1 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
-        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
         self.aedtapp.hybrid = True
         assert self.aedtapp.assign_hybrid_region(["inner"])
         bound = self.aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+
+    @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
+    def test_53_import_source_excitation(self):
+        self.aedtapp.insert_design()
+        self.aedtapp.solution_type = "Modal"
+        freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
+        time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
+
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        self.aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
+        self.aedtapp.create_setup()
+        assert self.aedtapp.edit_source_from_file(
+            self.aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9
+        )
+        assert self.aedtapp.edit_source_from_file(
+            self.aedtapp.excitations[0],
+            time_domain,
+            is_time_domain=True,
+            data_format="Voltage",
+            x_scale=1e-6,
+            y_scale=1e-3,
+        )

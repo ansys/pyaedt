@@ -10,11 +10,21 @@ import logging
 import math
 import warnings
 
-from pyaedt.edb_core.EDB_Data import EDBLayers
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.layer_data import EDBLayers
+from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
+pd = None
+if not is_ironpython:
+    try:
+        import pandas as pd
+    except ImportError:
+        warnings.warn(
+            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
+        )
 
 try:
     import clr
@@ -24,8 +34,475 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+class Stackup(object):
+    """Manages EDB methods for stackup accessible from `Edb.stackup` property."""
+
+    def __getitem__(self, item):
+        return self.layers[item]
+
+    def __init__(self, pedb):
+        self._pedb = pedb
+
+    def create_symmetric_stackup(
+        self,
+        layer_count,
+        inner_layer_thickness="17um",
+        outer_layer_thickness="50um",
+        dielectric_thickness="100um",
+        dielectric_material="FR4_epoxy",
+        soldermask=True,
+        soldermask_thickness="20um",
+    ):
+        """Create a symmetric stackup.
+
+        Parameters
+        ----------
+        layer_count : int
+            Number of layer count.
+        inner_layer_thickness : str, float, optional
+            Thickness of inner conductor layer.
+        outer_layer_thickness : str, float, optional
+            Thickness of outer conductor layer.
+        dielectric_thickness : str, float, optional
+            Thickness of dielectric layer.
+        dielectric_material : str, optional
+            Material of dielectric layer.
+        soldermask : bool, optional
+            Whether to create soldermask layers. The default is``True``.
+        soldermask_thickness : str, optional
+            Thickness of soldermask layer.
+        Returns
+        -------
+        bool
+        """
+        if not layer_count % 2 == 0:
+            return False
+
+        if soldermask:
+            self.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layer_type="dielectric")
+            layer_name = "BOTTOM"
+            self.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
+        else:
+            layer_name = "BOTTOM"
+            self.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+
+        for layer in range(layer_count - 1, 1, -1):
+            new_layer_name = "D" + str(layer - 1)
+            self.add_layer(
+                new_layer_name,
+                layer_name,
+                material=dielectric_material,
+                thickness=dielectric_thickness,
+                layer_type="dielectric",
+            )
+            layer_name = new_layer_name
+            new_layer_name = "L" + str(layer - 1)
+            self.add_layer(
+                new_layer_name,
+                layer_name,
+                material="copper",
+                fillMaterial=dielectric_material,
+                thickness=inner_layer_thickness,
+            )
+            layer_name = new_layer_name
+
+        new_layer_name = "D1"
+        self.add_layer(
+            new_layer_name,
+            layer_name,
+            material=dielectric_material,
+            thickness=dielectric_thickness,
+            layer_type="dielectric",
+        )
+        layer_name = new_layer_name
+
+        if soldermask:
+            new_layer_name = "TOP"
+            self.add_layer(new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness)
+            layer_name = new_layer_name
+            self.add_layer(
+                "SMT", layer_name, material="SolderMask", thickness=soldermask_thickness, layer_type="dielectric"
+            )
+        else:
+            new_layer_name = "TOP"
+            self.add_layer(new_layer_name, layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+        return True
+
+    @property
+    def _layer_collection(self):
+        """Copy of EDB layer collection.
+
+        Returns
+        -------
+        class : Ansys.Ansoft.Edb.Cell.LayerCollection
+            Collection of layers.
+        """
+
+        lc_readonly = self._pedb._active_layout.GetLayerCollection()
+        layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
+        layer_collection = self._pedb.edb.Cell.LayerCollection()
+
+        flag_first_layer = True
+        for lyr in layers:
+            if not lyr.IsStackupLayer():
+                continue
+            lyr_clone = lyr.Clone()
+            lyr_name = lyr.GetName()
+            if flag_first_layer:
+                layer_collection.AddLayerTop(lyr_clone)
+                flag_first_layer = False
+            else:
+                layer_collection.AddLayerAbove(lyr_clone, lyr_name)
+
+        for lyr in layers:
+            if not lyr.IsStackupLayer():
+                layer_collection.AddLayerTop(lyr.Clone())
+
+        return layer_collection
+
+    @property
+    def _edb_layer_list(self):
+        return list(self._layer_collection.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet))
+
+    @property
+    def _edb_layer_list_nonstackup(self):
+        return list(self._layer_collection.Layers(self._pedb.edb.Cell.LayerTypeSet.NonStackupLayerSet))
+
+    @property
+    def layers(self):
+        """Retrieve the dictionary of layers.
+
+        Returns
+        -------
+        dict
+        """
+        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list}
+
+    @property
+    def signal_layers(self):
+        """Retrieve the dictionary of signal layers.
+
+        Returns
+        -------
+        dict
+        """
+        layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
+        return {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() == layer_type}
+
+    @property
+    def stackup_layers(self):
+        """Retrieve the dictionary of signal and dielectric layers.
+
+        Returns
+        -------
+        dict
+        """
+        layer_type = [
+            self._pedb.edb.Cell.LayerType.SignalLayer,
+            self._pedb.edb.Cell.LayerType.DielectricLayer,
+        ]
+        return {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() in layer_type}
+
+    @property
+    def non_stackup_layers(self):
+        """Retrieve the dictionary of signal layers.
+
+        Returns
+        -------
+        dict
+        """
+        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list_nonstackup}
+
+    @pyaedt_function_handler()
+    def _edb_value(self, value):
+        return self._pedb.edb_value(value)
+
+    @pyaedt_function_handler()
+    def _set_layout_stackup(self, layer_clone, operation, base_layer=None):
+        """Internal method. Apply stackup change into EDB.
+
+        Parameters
+        ----------
+        layer_clone : :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`
+        operation : str
+            Options are ``"change_attribute"``, ``"change_name"``,``"change_position"``, ``"insert_below"``,
+             ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
+        base_layer : str, optional
+            Name of the base layer. The default value is ``None``.
+        Returns
+        -------
+
+        """
+        edb_layers = self._edb_layer_list
+        if operation in ["change_attribute", "change_name", "change_position"]:
+            new_layer_collection = self._pedb.edb.Cell.LayerCollection()
+        else:
+            new_layer_collection = self._layer_collection
+        if operation == "change_position":
+            for lyr in edb_layers:
+                if not (layer_clone.GetName() == lyr.GetName()):
+                    if base_layer == lyr.GetName():
+                        new_layer_collection.AddLayerBottom(layer_clone)
+                    new_layer_collection.AddLayerBottom(lyr)
+        elif operation == "change_attribute":
+            for lyr in edb_layers:
+                if not (layer_clone.GetName() == lyr.GetName()):
+                    new_layer_collection.AddLayerBottom(lyr)
+                else:
+                    new_layer_collection.AddLayerBottom(layer_clone)
+        elif operation == "change_name":
+            for lyr in edb_layers:
+                if not (base_layer == lyr.GetName()):
+                    new_layer_collection.AddLayerBottom(lyr)
+                else:
+                    new_layer_collection.AddLayerBottom(layer_clone)
+
+        elif operation == "insert_below":
+            new_layer_collection.AddLayerBelow(layer_clone, base_layer)
+        elif operation == "insert_above":
+            new_layer_collection.AddLayerAbove(layer_clone, base_layer)
+        elif operation == "add_on_top":
+            new_layer_collection.AddLayerTop(layer_clone)
+        elif operation == "add_on_bottom":
+            new_layer_collection.AddLayerBottom(layer_clone)
+        else:
+            new_layer_collection.AddLayerTop(layer_clone)
+
+        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+
+    @pyaedt_function_handler()
+    def _create_stackup_layer(self, layer_name, thickness, layer_type="signal"):
+        if layer_type == "signal":
+            _layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
+        else:
+            _layer_type = self._pedb.edb.Cell.LayerType.DielectricLayer
+
+        return self._pedb.edb.Cell.StackupLayer(
+            layer_name,
+            _layer_type,
+            self._edb_value(thickness),
+            self._edb_value(0),
+            "",
+        )
+
+    @pyaedt_function_handler()
+    def _create_nonstackup_layer(self, layer_name, layer_type):
+        if layer_type == "conducting":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.ConductingLayer
+        elif layer_type == "air_lines":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.AirlinesLayer
+        elif layer_type == "error":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.ErrorsLayer
+        elif layer_type == "symbol":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.SymbolLayer
+        elif layer_type == "measure":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.MeasureLayer
+        elif layer_type == "assembly":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.AssemblyLayer
+        elif layer_type == "silkscreen":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.SilkscreenLayer
+        elif layer_type == "solder_mask":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.SolderMaskLayer
+        elif layer_type == "solder_paste":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.SolderPasteLayer
+        elif layer_type == "glue":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.GlueLayer
+        elif layer_type == "wirebond":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.WirebondLayer
+        elif layer_type == "user":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.UserLayer
+        elif layer_type == "hfss_region":  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.SIwaveHFSSSolverRegions
+        else:  # pragma: no cover
+            _layer_type = self._pedb.edb.Cell.LayerType.OutlineLayer
+
+        return self._pedb.edb.Cell.Layer(layer_name, _layer_type)
+
+    @pyaedt_function_handler()
+    def add_layer(
+        self,
+        layer_name,
+        base_layer=None,
+        method="add_on_top",
+        layer_type="signal",
+        material="copper",
+        fillMaterial="fr4_epoxy",
+        thickness="35um",
+        etch_factor=None,
+        is_negative=False,
+        enable_roughness=False,
+    ):
+        """Insert a layer into stackup.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer.
+        base_layer : str, optional
+            Name of the base layer.
+        method : str, optional
+            Where to insert the new layer. The default is ``"add_on_top"``. Options are ``"add_on_top"``,
+            ``"add_on_bottom"``, ``"insert_above"``, ``"insert_below"``.
+        layer_type : str, optional
+            Type of layer. The default is ``"signal"``. Options are ``"signal"``, ``"dielectric"``, ``"conducting"``,
+             ``"air_lines"``, ``"error"``, ``"symbol"``, ``"measure"``, ``"assembly"``, ``"silkscreen"``,
+             ``"solder_mask"``, ``"solder_paste"``, ``"glue"``, ``"wirebond"``, ``"hfss_region"``, ``"user"``.
+        material : str, optional
+            Material of the layer.
+        fillMaterial : str, optional
+            Fill material of the layer.
+        thickness : str, float, optional
+            Thickness of the layer.
+        etch_factor : int, float, optional
+            Etch factor of the layer.
+        is_negative : bool, optional
+            Whether the layer is negative.
+        enable_roughness : bool, optional
+            Whether roughness is enabled.
+        Returns
+        -------
+
+        """
+        if material not in self._pedb.materials.materials:
+            logger.error(material + " does not exist in material library")
+
+        if fillMaterial not in self._pedb.materials.materials:
+            logger.error(fillMaterial + " does not exist in material library")
+
+        if layer_type in ["signal", "dielectric"]:
+            new_layer = self._create_stackup_layer(layer_name, thickness, layer_type)
+            new_layer.SetMaterial(material)
+            new_layer.SetFillMaterial(fillMaterial)
+            new_layer.SetNegative(is_negative)
+            self._set_layout_stackup(new_layer, method, base_layer)
+
+            if etch_factor:
+                new_layer = self.layers[layer_name]
+                new_layer.etch_factor = etch_factor
+            if enable_roughness:
+                new_layer = self.layers[layer_name]
+                new_layer.roughness_enabled = True
+        else:
+            new_layer = self._create_nonstackup_layer(layer_name, layer_type)
+            self._set_layout_stackup(new_layer, "non_stackup")
+
+        return self.layers[layer_name]
+
+    def remove_layer(self, name):
+        """Remove a layer from stackup.
+
+        Parameters
+        ----------
+        name : str
+            Name of the layer to remove.
+
+        Returns
+        -------
+
+        """
+        new_layer_collection = self._pedb.edb.Cell.LayerCollection()
+        for lyr in self._edb_layer_list:
+            if not (lyr.GetName() == name):
+                new_layer_collection.AddLayerBottom(lyr)
+        return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
+
+    @pyaedt_function_handler
+    def import_stackup(self, fpath):
+        """Import stackup defnition from csv file.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to csv file.
+        """
+        if is_ironpython:
+            self._pedb.logger.error("Method working on CPython only.")
+            return False
+        df = pd.read_csv(fpath, index_col=0)
+        prev_layer = None
+        for row, val in df[::-1].iterrows():
+            if not self.stackup_layers:
+                self.add_layer(
+                    row,
+                    None,
+                    "add_on_top",
+                    val.Type,
+                    val.Material,
+                    val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
+                    val.Thickness,
+                )
+            else:
+                if row in self.stackup_layers.keys():
+                    lyr = self.stackup_layers[row]
+                    lyr.type = val.Type
+                    lyr.material = val.Material
+                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
+                    lyr.thickness = val.Thickness
+                    if prev_layer:
+                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
+                else:
+                    if prev_layer and prev_layer in self.stackup_layers:
+                        layer_name = prev_layer
+                    else:
+                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+                    self.add_layer(
+                        row,
+                        layer_name,
+                        "insert_above",
+                        val.Type,
+                        val.Material,
+                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
+                        val.Thickness,
+                    )
+                prev_layer = row
+        for name in self.stackup_layers:
+            if name not in df.index:
+                self.remove_layer(name)
+        return True
+
+    @pyaedt_function_handler
+    def export_stackup(self, fpath, file_format="csv"):
+        """Export stackup definition to csv file.
+
+        Parameters
+        ----------
+        fpath : str
+            File path to csv file.
+        file_format : str, optional
+            The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
+        """
+        if is_ironpython:
+            return
+        data = {
+            "Type": [],
+            "Material": [],
+            "Dielectric_Fill": [],
+            "Thickness": [],
+        }
+        idx = []
+        for lyr in self.stackup_layers.values():
+            idx.append(lyr.name)
+            data["Type"].append(lyr.type)
+            data["Material"].append(lyr.material)
+            data["Dielectric_Fill"].append(lyr.dielectric_fill)
+            data["Thickness"].append(lyr.thickness)
+        df = pd.DataFrame(data, index=idx, columns=["Type", "Material", "Dielectric_Fill", "Thickness"])
+        if file_format == "csv":  # pragma: no cover
+            if not fpath.endswith(".csv"):
+                fpath = fpath + ".csv"
+            df.to_csv(fpath)
+        else:  # pragma: no cover
+            if not fpath.endswith(".xlsx"):  # pragma: no cover
+                fpath = fpath + ".xlsx"
+            df.to_excel(fpath)
+        return True
+
+
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
+
+    .. deprecated:: 0.6.5
+    This class has been deprecated and replaced by Stackup class.
 
     Examples
     --------
@@ -90,7 +567,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`]
             List of signal layers.
         """
         return self.stackup_layers.signal_layers
@@ -273,8 +750,9 @@ class EdbStackup(object):
         """Return the layout thickness.
 
         Returns
-        --------
-        Float, the thickness value.
+        -------
+        float
+            The thickness value.
         """
         layers_name = list(self.stackup_layers.layers.keys())
         bottom_layer = self.stackup_layers.layers[layers_name[0]]

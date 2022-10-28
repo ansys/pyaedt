@@ -11,12 +11,15 @@ import os
 import shutil
 import tempfile
 import threading
+import time
 import warnings
 from collections import OrderedDict
 
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
+from pyaedt.application.Variables import Variable
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import GRAVITY
 from pyaedt.generic.constants import PLANE
@@ -621,7 +624,20 @@ class Analysis(Design, object):
                 return [""]
 
     @pyaedt_function_handler()
-    def export_results(self, analyze=False, export_folder=None):
+    def export_results(
+        self,
+        analyze=False,
+        export_folder=None,
+        matrix_name=None,
+        matrix_type="S",
+        touchstone_format="MagPhase",
+        touchstone_number_precision=15,
+        length="1meter",
+        impedance=50,
+        use_export_freq=True,
+        include_gamma_comment=True,
+        support_non_standard_touchstone_extension=False,
+    ):
         """Export all available reports to a file, including sNp, profile, and convergence.
 
         Parameters
@@ -631,6 +647,27 @@ class Analysis(Design, object):
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
+        matrix_name : str, optional
+            Matrix to specify to export touchstone file. The default is ``None``, in which case
+            the first matrix is taken.
+        matrix_type : str, optional
+            Type of matrix to export. The default is ``S``.
+            Available values are ``S``, ``Y``, ``Z``.
+        touchstone_format : str, optional
+            Touchstone format. The default is ``MagPahse``.
+            Available values are: ``MagPahse``, ``DbPhase``, ``RealImag``.
+        length : str, optional
+            Length of the model to export. The default is ``1meter``.
+        impedance : float, optional
+            Real impedance value in ohms, for renormalization. The default is ``50``.
+        touchstone_number_precision : int, optional
+            Touchstone number of digits precision. The default is ``15``.
+        use_export_freq : bool, optional
+            Specifies whether to use export frequencies. The default is ``True``.
+        include_gamma_comment : bool, optional
+            Specifies whether to include Gamma and Impedance comments. The default is ``True``.
+        support_non_standard_touchstone_extension : bool, optional
+            Specifies whether to include Gamma and Impedance comments. The default is ``True``.
 
         Returns
         -------
@@ -651,15 +688,18 @@ class Analysis(Design, object):
             export_folder = self.working_directory
         if analyze:
             self.analyze_all()
-        setups = self.oanalysis.GetSetups()
-        if self.solution_type == "HFSS3DLayout" or self.solution_type == "HFSS 3D Layout Design":
+        # excitations
+        if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())
         elif self.design_type == "2D Extractor":
             excitations = self.oboundary.GetNumExcitations("SignalLine")
         elif self.design_type == "Q3D Extractor":
             excitations = self.oboundary.GetNumExcitations("Source")
+        elif self.design_type == "Circuit Design":
+            excitations = len(self.excitations)
         else:
             excitations = self.oboundary.GetNumExcitations()
+        # reports
         reportnames = self.post.oreportsetup.GetAllReportNames()
         for report_name in reportnames:
             name_no_space = report_name.replace(" ", "_")
@@ -674,88 +714,144 @@ class Analysis(Design, object):
                 pass
             exported_files.append(export_path)
 
-        for s in setups:
-            sweeps = self.oanalysis.GetSweeps(s)
-            if len(sweeps) == 0:
-                sweeps = ["LastAdaptive"]
-            else:
-                pass
-            for sweep in sweeps:
-                variation_array = self.list_of_variations(s, sweep)
-                if len(variation_array) == 1:
-                    export_path = os.path.join(export_folder, "{}.prof".format(self.project_name))
-                    result = self.export_profile(s, variation_array[0], export_path)
-                    if result:
-                        exported_files.append(export_path)
-                    export_path = os.path.join(export_folder, "{}.conv".format(self.project_name))
-                    result = self.export_convergence(s, variation_array[0], export_path)
-                    if result:
-                        exported_files.append(export_path)
-                    if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
-                        try:
-                            export_path = os.path.join(
-                                export_folder, "{0}.s{1}p".format(self.project_name, excitations)
-                            )
-                            self.osolution.ExportNetworkData(
-                                variation_array[0],
-                                ["{0}:{1}".format(s, sweep)],
-                                3,
-                                export_path,
-                                ["All"],
-                                True,
-                                50,
-                                "S",
-                                -1,
-                                0,
-                                15,
-                                True,
-                                False,
-                                False,
-                            )
-                            exported_files.append(export_path)
-                            self.logger.info("Exported Touchstone: %s", export_path)
-                        except:
-                            self.logger.warning("Export SnP failed: no solutions found")
+        if touchstone_format == "MagPhase":
+            touchstone_format_value = 0
+        elif touchstone_format == "RealImag":
+            touchstone_format_value = 1
+        elif touchstone_format == "DbPhase":
+            touchstone_format_value = 2
+        else:
+            self.logger.warning("Touchstone format not valid. ``MagPhase`` will be set as default")
+            touchstone_format_value = 0
 
-                else:
-                    varCount = 0
-                    for variation in variation_array:
-                        varCount += 1
-                        export_path = os.path.join(export_folder, "{0}_{1}.prof".format(self.project_name, varCount))
-                        result = self.export_profile(s, variation, export_path)
-                        if result:
-                            exported_files.append(export_path)
-                        export_path = os.path.join(export_folder, "{0}_{1}.conv".format(self.project_name, varCount))
-                        self.logger.info("Export Convergence: %s", export_path)
-                        result = self.export_convergence(s, variation, export_path)
-                        if result:
-                            exported_files.append(export_path)
-                        if self.solution_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS", "Circuit"]:
-                            try:
-                                export_path = os.path.join(
-                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
-                                )
-                                self.logger.info("Export SnP: {}".format(export_path))
-                                self.osolution.ExportNetworkData(
-                                    variation,
-                                    ["{0}:{1}".format(s, sweep)],
-                                    3,
-                                    export_path,
-                                    ["All"],
-                                    True,
-                                    50,
-                                    "S",
-                                    -1,
-                                    0,
-                                    15,
-                                    True,
-                                    False,
-                                    False,
-                                )
+        # setups
+        setups = self.setups
+        for s in setups:
+            if self.design_type == "Circuit Design":
+                exported_files.append(self.browse_log_file(export_folder))
+            else:
+                if s.is_solved:
+                    setup_name = s.name
+                    sweeps = s.sweeps
+                    if len(sweeps) == 0:
+                        sweeps = ["LastAdaptive"]
+                    # variations
+                    variations_list = []
+                    if not self.available_variations.nominal_w_values_dict:
+                        variations_list.append("")
+                    else:
+                        for x in range(0, len(self.available_variations.nominal_w_values_dict)):
+                            variation = "{}='{}'".format(
+                                list(self.available_variations.nominal_w_values_dict.keys())[x],
+                                list(self.available_variations.nominal_w_values_dict.values())[x],
+                            )
+                            variations_list.append(variation)
+                    # sweeps
+                    for sweep in sweeps:
+                        if sweep == "LastAdaptive":
+                            sweep_name = sweep
+                        else:
+                            sweep_name = sweep.name
+                        varCount = 0
+                        for variation in variations_list:
+                            varCount += 1
+                            export_path = os.path.join(
+                                export_folder, "{0}_{1}.prof".format(self.project_name, varCount)
+                            )
+                            result = self.export_profile(setup_name, variation, export_path)
+                            if result:
                                 exported_files.append(export_path)
-                                self.logger.info("Exported Touchstone: %s", export_path)
-                            except:
-                                self.logger.warning("Export SnP failed: no solutions found")
+                            export_path = os.path.join(
+                                export_folder, "{0}_{1}.conv".format(self.project_name, varCount)
+                            )
+                            self.logger.info("Export Convergence: %s", export_path)
+                            result = self.export_convergence(setup_name, variation, export_path)
+                            if result:
+                                exported_files.append(export_path)
+
+                            export_path = os.path.join(
+                                export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
+                            )
+                            self.logger.info("Export SnP: {}".format(export_path))
+
+                            if self.design_type in ["2D Extractor", "Q3D Extractor"]:
+                                freq_model_unit = decompose_variable_value(s.props["AdaptiveFreq"])[1]
+                                freq_array = []
+                                if sweep == "LastAdaptive":
+                                    # If sweep is Last Adaptive for Q2D and Q3D
+                                    # the default range freq is [10MHz, 100MHz, step: 10MHz]
+                                    # Q2D and Q3D don't accept in ExportNetworkData ["All"]
+                                    # as frequency array
+                                    freq_range = range(10, 100, 10)
+                                    for freq in freq_range:
+                                        v = Variable("{}{}".format(freq, "MHz"))
+                                        freq_array.append(v.rescale_to("Hz").numeric_value)
+                                else:
+                                    for freq in sweep.frequencies:
+                                        v = Variable("{}{}".format("{0:.12f}".format(freq), freq_model_unit))
+                                        freq_array.append(v.rescale_to("Hz").numeric_value)
+
+                            # export touchstone as .sNp file
+                            if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
+                                try:
+                                    self.logger.info("Export SnP: {}".format(export_path))
+                                    self.osolution.ExportNetworkData(
+                                        variation,
+                                        ["{0}:{1}".format(setup_name, sweep_name)],
+                                        3,
+                                        export_path,
+                                        ["All"],
+                                        True,
+                                        impedance,
+                                        matrix_type,
+                                        -1,
+                                        touchstone_format_value,
+                                        touchstone_number_precision,
+                                        use_export_freq,
+                                        include_gamma_comment,
+                                        support_non_standard_touchstone_extension,
+                                    )
+                                    exported_files.append(export_path)
+                                    self.logger.info("Exported Touchstone: %s", export_path)
+                                except:
+                                    self.logger.warning("Export SnP failed: no solutions found")
+                            elif self.design_type == "2D Extractor":
+                                try:
+                                    self.logger.info("Export SnP: {}".format(export_path))
+                                    self.odesign.ExportNetworkData(
+                                        variation,
+                                        "{0}:{1}".format(setup_name, sweep_name),
+                                        export_path,
+                                        matrix_name,
+                                        impedance,
+                                        freq_array,
+                                        touchstone_format,
+                                        length,
+                                        0,
+                                    )
+                                    exported_files.append(export_path)
+                                    self.logger.info("Exported Touchstone: %s", export_path)
+                                except:
+                                    self.logger.warning("Export SnP failed: no solutions found")
+                            elif self.design_type == "Q3D Extractor":
+                                try:
+                                    self.logger.info("Export SnP: {}".format(export_path))
+                                    self.odesign.ExportNetworkData(
+                                        variation,
+                                        "{0}:{1}".format(setup_name, sweep_name),
+                                        export_path,
+                                        matrix_name,
+                                        impedance,
+                                        freq_array,
+                                        touchstone_format,
+                                        0,
+                                    )
+                                    exported_files.append(export_path)
+                                    self.logger.info("Exported Touchstone: %s", export_path)
+                                except:
+                                    self.logger.warning("Export SnP failed: no solutions found")
+                else:
+                    self.logger.warning("Setup is not solved. To export results please analyze setup first.")
         return exported_files
 
     @pyaedt_function_handler()
@@ -1518,6 +1614,7 @@ class Analysis(Design, object):
 
         >>> oDesign.Analyze
         """
+        start = time.time()
         set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
         if acf_file:
@@ -1575,7 +1672,6 @@ class Analysis(Design, object):
                 set_custom_dso = True
             except:
                 pass
-
         if name in self.existing_analysis_setups:
             try:
                 self.logger.info("Solving design setup %s", name)
@@ -1596,7 +1692,11 @@ class Analysis(Design, object):
                 return False
         if set_custom_dso:
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
-        self.logger.info("Design setup %s solved correctly", name)
+        m, s = divmod(time.time() - start, 60)
+        h, m = divmod(m, 60)
+        self.logger.info(
+            "Design setup {} solved correctly in {}h {}m {}s".format(name, round(h, 0), round(m, 0), round(s, 0))
+        )
         return True
 
     @pyaedt_function_handler()
@@ -1972,7 +2072,10 @@ class Analysis(Design, object):
         if not self.available_variations.nominal_w_values_dict:
             variations = ""
         else:
-            variations = self.available_variations.nominal_w_values_dict
+            variations = " ".join(
+                "{}=\\'{}\\'".format(key, value)
+                for key, value in self.available_variations.nominal_w_values_dict.items()
+            )
 
         if not is_format_default:
             try:
@@ -1998,4 +2101,76 @@ class Analysis(Design, object):
                 self.logger.error("Solutions are empty. Solve before exporting.")
                 return False
 
+        return True
+
+    @pyaedt_function_handler()
+    def change_property(self, aedt_object, tab_name, property_object, property_name, property_value):
+        """Change a property.
+
+        Parameters
+        ----------
+        aedt_object :
+            Aedt object. It can be oproject, odesign, oeditor or any of the objects to which the property belongs.
+        tab_name : str
+            Name of the tab to update. Options are ``BaseElementTab``, ``EM Design``, and
+            ``FieldsPostProcessorTab``. The default is ``BaseElementTab``.
+        property_object : str
+            Name of the property object. It can be the name of an excitation or field reporter.
+            For example, ``Excitations:Port1`` or ``FieldsReporter:Mag_H``.
+        property_name : str
+            Name of the property. For example, ``Rotation Angle``.
+        property_value : str, list
+            Value of the property. It is a string for a single value and a list of three elements for
+            ``[x,y,z]`` coordianates.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        if isinstance(property_value, list) and len(property_value) == 3:
+            xpos, ypos, zpos = self.modeler._pos_with_arg(property_value)
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos, "Z:=", zpos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, (str, float, int)):
+            xpos = self.modeler._arg_with_dim(property_value, self.modeler.model_units)
+            aedt_object.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + tab_name,
+                        ["NAME:PropServers", property_object],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", xpos]],
+                    ],
+                ]
+            )
+        else:
+            self.logger.error("Wrong Property Value")
+            return False
+        self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
