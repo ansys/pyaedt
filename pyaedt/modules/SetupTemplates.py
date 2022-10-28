@@ -1737,6 +1737,7 @@ class SweepHFSS3DLayout(object):
                 props = SweepSiwave
             else:
                 props = Sweep3DLayout
+
             for t in props:
                 _tuple2dict(t, self.props)
             if SequenceMatcher(None, sweeptype.lower(), "kinterpolating").ratio() > 0.8:
