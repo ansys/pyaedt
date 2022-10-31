@@ -159,7 +159,7 @@ class FieldAnalysis3D(Analysis, object):
         for lib in libs:
             if os.path.exists(lib):
                 listfiles = []
-                for root, dirs, files in os.walk(lib):
+                for root, _, files in os.walk(lib):
                     for file in files:
                         if file.endswith(".a3dcomp"):
                             listfiles.append(os.path.join(root, file))
