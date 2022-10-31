@@ -508,7 +508,7 @@ class TestClass(BasisTest, object):
             filename = "export_to_q3d_test"
             file_fullname = os.path.join(local_scratch.path, filename)
             setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
-            assert setup.export_to_q3d(file_fullname=file_fullname)
+            assert setup.export_to_q3d(file_fullname)
             time.sleep(2)  # wait for the export operation to finish
 
     def test_19_F_export_results(self):
