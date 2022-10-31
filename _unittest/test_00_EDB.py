@@ -2032,6 +2032,7 @@ if not config["skip_edb"]:
             assert edb.core_hfss.create_edge_port_horizontal(
                 prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
             )
+            assert edb.core_hfss.get_ports_number() == 2
             edb.close_edb()
 
         def test_A119_insert_layer(self):
