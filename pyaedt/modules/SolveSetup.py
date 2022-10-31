@@ -1496,7 +1496,6 @@ class Setup3DLayout(CommonSetup):
         >>> oModule.ExportToQ3d
         """
 
-        file_fullname = file_fullname
         if not os.path.isdir(os.path.dirname(file_fullname)):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
