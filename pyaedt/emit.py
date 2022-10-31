@@ -35,7 +35,7 @@ class Result:
         Returns
         -------
 
-        References
+        Examples
         ----------
         >>> aedtapp.results.set_result_loaded():
         """
@@ -50,7 +50,7 @@ class Result:
         -------
         :class:`bool`
 
-        References
+        Examples
         ----------
         >>>  if aedtapp.results.get_result_loaded():
         """
@@ -65,7 +65,7 @@ class Result:
         -------
         :class:`InteractionDomain`
 
-        References
+        Examples
         ----------
         >>> domain = Result.interaction_domain()
         """
@@ -97,7 +97,7 @@ class Result:
         -------
         :class:`list of str`
 
-        References
+        Examples
         ----------
         >>> radios = aedtapp.results.get_radio_names(Emit.tx_rx_mode.rx)
         """
@@ -122,7 +122,7 @@ class Result:
         -------
         :class:`list of str`
 
-        References
+        Examples
         ----------
         >>> bands = aedtapp.results.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
         """
@@ -150,7 +150,7 @@ class Result:
         -------
         :class:`list of float`
 
-        References
+        Examples
         ----------
         >>> bands = aedtapp.results.get_band_names('Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
@@ -214,7 +214,7 @@ class Revision:
         :class:`Interaction`
             Interaction object.
 
-        References
+        Examples
         ----------
         >>> domain = Result.interaction_domain()
         >>> rev.run(domain)
@@ -367,7 +367,7 @@ class Emit(FieldAnalysisEmit, object):
         :class:`pyaedt.modules.Revision`
             Revision object.
 
-        References
+        Examples
         ----------
         >>> rev = aedtapp.analyze()
 
@@ -395,7 +395,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         :class:`NoneType`
 
-        References
+        Examples
         ----------
         >>> aedtapp._load_revision(path)
 
@@ -413,7 +413,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         :class:`result_type`
 
-        References
+        Examples
         ----------
         >>> Emit.result_type()
 
@@ -433,7 +433,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         :class:`tx_rx_mode`
 
-        References
+        Examples
         ----------
         >>> tx_rx = Emit.tx_rx_mode()
 
@@ -457,7 +457,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         :class:`str`
 
-        References
+        Examples
         ----------
         >>> print(aedtapp.version())
 
