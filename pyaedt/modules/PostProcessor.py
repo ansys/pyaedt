@@ -3495,18 +3495,18 @@ class CircuitPostProcessor(PostProcessorCommon, object):
     ):
         """Create an AMI initial response plot.
 
-
         Parameters
         ----------
         setupname : str
-            Name of the setup
+            Name of the setup.
         ami_name : str
-            AMI Probe name to use
+            AMI Probe name to use.
         variation_list_w_value : list
-            list of variations with relative values
-        plot_type : str, Default ``"Rectangular Plot"``
+            List of variations with relative values.
+        plot_type : str
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
+            Default value is ``"Rectangular Plot"``.
         plot_initial_response : bool, optional
             Set either to plot the initial input response.  Default is ``True``.
         plot_intermediate_response : bool, optional
@@ -3599,7 +3599,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setupname : str
             Name of the setup.
         probe_id : str
-            AMI Probe Name to use
+            AMI Probe Name to use.
         variation_list_w_value : list
             List of variations with relative values.
         plot_type : str, optional
@@ -3706,7 +3706,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         setupname : str
-            Name of the setup
+            Name of the setup.
         probe_names : str or list
             Name of the probe to plot in the EYE diagram.
         variation_list_w_value : list
@@ -3807,9 +3807,9 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Parameters
         ----------
         waveform_data : list
-            Waveform data
+            Waveform data.
         waveform_sweep : list
-            Waveform sweep data
+            Waveform sweep data.
         waveform_unit : str, optional
             Waveform units. The default values is ``V``.
         waveform_sweep_unit : str, optional
@@ -3820,7 +3820,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             List with clock tics. The default is ``None``, in which case the clock tics from
             the AMI receiver are used.
         pandas_enabled : bool, optional
-            ``True`` if data format is pandas. The default is `False``
+            ``True`` if data format is pandas. The default is ``False``.
 
         Returns
         -------
