@@ -447,6 +447,7 @@ if not config["skip_edb"]:
             assert not result
 
         def test_45_delete_net(self):
+            self.edbapp.core_nets.nets["AVIN1"].delete()
             nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
             assert "A0_N" in nets_deleted
 
