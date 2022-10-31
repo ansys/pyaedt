@@ -536,7 +536,7 @@ class EdbHfss(object):
         ports.
 
         Example
-        --------
+        -------
 
         >>> edb_path = path_to_edb
         >>> edb = Edb(edb_path)
