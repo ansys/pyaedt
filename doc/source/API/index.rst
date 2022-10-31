@@ -16,6 +16,7 @@ to view API documentation.
    Primitives
    CoreModules
    Mesh
+   CableModeling
    Setup
    Post
 

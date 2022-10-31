@@ -171,26 +171,27 @@ class PostProcessor(Post):
     ):
         """Initialize the Model Plotter object with actual modeler objects and return it.
 
-         Parameters
-         ----------
-         objects : list, optional
-             Optional list of objects to plot. If `None` all objects will be exported.
-         plot_as_separate_objects : bool, optional
-             Plot each object separately. It may require more time to export from AEDT.
-         plot_air_objects : bool, optional
-             Plot also air and vacuum objects.
-         force_opacity_value : float, optional
-             Opacity value between 0 and 1 to be applied to all model.
-             If `None` aedt opacity will be applied to each object.
+        Parameters
+        ----------
+        objects : list, optional
+            Optional list of objects to plot. If `None` all objects will be exported.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
+        plot_air_objects : bool, optional
+            Plot also air and vacuum objects.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
 
-         Returns
-         -------
-         :class:`pyaedt.generic.plot.ModelPlotter`
-             Model Object.
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
         """
+
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         files = self.export_model_obj(
             obj_list=objects,

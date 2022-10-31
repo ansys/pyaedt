@@ -86,7 +86,10 @@ class TestClass(BasisTest, object):
         assert q2d.matrices[3].name == "Test3"
         assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4")
         assert q2d.matrices[4].name == "Test4"
-        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5")
+        q2d.matrices[4].delete()
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4", "New_net")
+        assert q2d.matrices[4].name == "Test4"
+        assert q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5", "New_net")
         assert q2d.matrices[5].name == "Test5"
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 

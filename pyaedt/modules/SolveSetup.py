@@ -1315,7 +1315,7 @@ class Setup3DLayout(CommonSetup):
                         app = setup_data["Data"]
                         for el in app:
                             if isinstance(app[el], (OrderedDict, dict)):
-                                self.sweeps.append(SweepHFSS3DLayout(self, self.name, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
 
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -1332,6 +1332,10 @@ class Setup3DLayout(CommonSetup):
         """
         if self.props.get("SolveSetupType", "HFSS") == "HFSS":
             sol = self._app.post.reports_by_category.standard(setup_name="{} : Last Adaptive".format(self.name))
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwave":
+            sol = self._app.post.reports_by_category.standard(
+                setup_name="{} : {}".format(self.name, self.sweeps[0].name)
+            )
         else:
             sol = self._app.post.reports_by_category.standard(setup_name=self.name)
         if identify_setup(self.props):
@@ -1447,7 +1451,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, file_fullname):
-        """Export the project to a file.
+        """Export the HFSS 3DLayout design to HFSS 3D design.
 
         Parameters
         ----------
@@ -1470,6 +1474,32 @@ class Setup3DLayout(CommonSetup):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
         self.omodule.ExportToHfss(self.name, file_fullname)
+        return True
+
+    @pyaedt_function_handler()
+    def export_to_q3d(self, file_fullname):
+        """Export the HFSS 3DLayout design to Q3D design.
+
+        Parameters
+        ----------
+        file_fullname : str
+            Full path and file name for exporting the project.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportToQ3d
+        """
+
+        if not os.path.isdir(os.path.dirname(file_fullname)):
+            return False
+        file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
+        self.omodule.ExportToQ3d(self.name, file_fullname)
         return True
 
     @pyaedt_function_handler()

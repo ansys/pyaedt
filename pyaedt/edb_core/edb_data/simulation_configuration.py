@@ -1825,13 +1825,14 @@ class SimulationConfiguration(object):
         """Add a dc ground source terminal for Siwave.
 
         Parameters
-        -----------
+        ----------
+        source_name : str, optional
+            The source name to assign the reference node to.
+            Default value is ``None``.
 
-        source_name = str
-            The source name to assign the reference node
-
-        node_to_ground = int
-            Value must be 0: unspecified, 1: negative node, 2: positive node.
+        node_to_ground : int, optional
+            Value must be ``0``: unspecified, ``1``: negative node, ``2``: positive node.
+            Default value is ``1``.
 
         """
         if source_name:

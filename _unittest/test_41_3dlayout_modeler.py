@@ -292,6 +292,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.delete_port(port_wave.name)
         assert self.aedtapp.create_edge_port("line1", 3, False)
         assert len(self.aedtapp.excitations) > 0
+        time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
+        if not is_ironpython:
+            assert self.aedtapp.edit_source_from_file(
+                port_wave.name,
+                time_domain,
+                is_time_domain=True,
+                data_format="Voltage",
+                x_scale=1e-6,
+                y_scale=1e-3,
+            )
 
     def test_14a_create_coaxial_port(self):
         port = self.aedtapp.create_coax_port("port_via", 0.5, "Top", "Lower")
@@ -327,8 +337,8 @@ class TestClass(BasisTest, object):
         assert sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
         assert sweep.add_subrange("LinearCount", 1, 1.5, 3, "MHz")
         assert sweep.change_type("Discrete")
-        assert sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
-        assert sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
+        assert not sweep.add_subrange("SinglePoint", 10.1e-1, "GHz")
+        assert not sweep.add_subrange("SinglePoint", 10.2e-1, "GHz")
         assert sweep.set_save_fields(True, True)
         assert sweep.set_save_fields(False, False)
 
@@ -493,7 +503,15 @@ class TestClass(BasisTest, object):
             assert setup.export_to_hfss(file_fullname=file_fullname)
             time.sleep(2)  # wait for the export operation to finish
 
-    def test_19_E_export_results(self):
+    def test_19E_export_to_q3d(self):
+        with Scratch(self.local_scratch.path) as local_scratch:
+            filename = "export_to_q3d_test"
+            file_fullname = os.path.join(local_scratch.path, filename)
+            setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
+            assert setup.export_to_q3d(file_fullname)
+            time.sleep(2)  # wait for the export operation to finish
+
+    def test_19_F_export_results(self):
         files = self.aedtapp.export_results()
         assert len(files) > 0
 

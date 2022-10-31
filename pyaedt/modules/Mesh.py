@@ -209,7 +209,6 @@ class Mesh(object):
         self.id = 0
         self.meshoperations = self._get_design_mesh_operations()
         self._globalmesh = None
-        pass
 
     @property
     def initial_mesh_settings(self):
