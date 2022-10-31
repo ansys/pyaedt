@@ -161,13 +161,13 @@ class BasisTest(object):
         )
         return self.edbapps[-1]
 
-    def teardown(self):
+    def teardown_method(self):
         """
         Could be redefined
         """
         pass
 
-    def setup(self):
+    def setup_method(self):
         """
         Could be redefined
         """
