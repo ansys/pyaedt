@@ -642,7 +642,7 @@ class EdbHfss(object):
         point_on_ref_edge=None,
         port_name=None,
         impedance=50,
-        layer_alignment="Upper"
+        layer_alignment="Upper",
     ):
         """Create a horizontal edge port.
 
@@ -678,8 +678,11 @@ class EdbHfss(object):
         pos_edge_term.SetReferenceTerminal(neg_edge_term)
         if not layer_alignment == "Upper":
             layer_alignment = "Lower"
-        pos_edge_term.SetProductSolverOption(self._pedb.edb.ProductId.Designer, "HFSS",
-                                       "HFSS('HFSS Type'='Gap(coax)', Orientation='Horizontal', 'Layer Alignment'='{}')".format(layer_alignment))
+        pos_edge_term.SetProductSolverOption(
+            self._pedb.edb.ProductId.Designer,
+            "HFSS",
+            "HFSS('HFSS Type'='Gap(coax)', Orientation='Horizontal', 'Layer Alignment'='{}')".format(layer_alignment),
+        )
         if pos_edge_term:
             return port_name
         else:
