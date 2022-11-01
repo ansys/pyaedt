@@ -66,6 +66,12 @@ jobs:
       with:
         labels: bug
 
+    - uses: actions-ecosystem/action-add-labels@v1
+      if: |
+        startsWith(github.event.pull_request.head.ref, 'test')
+      with:
+        labels: testing
+
   commenter:
     runs-on: ubuntu-latest
     steps:
@@ -77,9 +83,10 @@ jobs:
         issue-number: ${{ github.event.pull_request.number }}
         body: |
           Please add one of the following labels to add this contribution to the Release Notes :point_down:
-          - [bug](https://github.com/pyansys/ansys-templates/pulls?q=label%3Abug+)
-          - [documentation](https://github.com/pyansys/ansys-templates/pulls?q=label%3Adocumentation+)
-          - [enhancement](https://github.com/pyansys/ansys-templates/pulls?q=label%3Aenhancement+)
-          - [good first issue](https://github.com/pyansys/ansys-templates/pulls?q=label%3Agood+first+issue)
-          - [maintenance](https://github.com/pyansys/ansys-templates/pulls?q=label%3Amaintenance+)
-          - [release](https://github.com/pyansys/ansys-templates/pulls?q=label%3Arelease+)
+          - [bug](https://github.com/pyansys/pyaedt/pulls?q=label%3Abug+)
+          - [documentation](https://github.com/pyansys/pyaedt/pulls?q=label%3Adocumentation+)
+          - [enhancement](https://github.com/pyansys/pyaedt/pulls?q=label%3Aenhancement+)
+          - [good first issue](https://github.com/pyansys/pyaedt/pulls?q=label%3Agood+first+issue)
+          - [maintenance](https://github.com/pyansys/pyaedt/pulls?q=label%3Amaintenance+)
+          - [release](https://github.com/pyansys/pyaedt/pulls?q=label%3Arelease+)
+          - [testing](https://github.com/pyansys/pyaedt/pulls?q=label%Atesting+)
