@@ -535,8 +535,8 @@ class EdbHfss(object):
         force_circuit_port ; used to force circuit port creation instead of lumped. Works for vertical and coplanar
         ports.
 
-        Example
-        -------
+        Examples
+        --------
 
         >>> edb_path = path_to_edb
         >>> edb = Edb(edb_path)
