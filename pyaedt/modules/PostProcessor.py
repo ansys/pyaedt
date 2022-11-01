@@ -3506,7 +3506,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         plot_type : str
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
-            Default value is ``"Rectangular Plot"``.
+            The default is ``"Rectangular Plot"``.
         plot_initial_response : bool, optional
             Set either to plot the initial input response.  Default is ``True``.
         plot_intermediate_response : bool, optional
