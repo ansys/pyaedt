@@ -3500,13 +3500,13 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setupname : str
             Name of the setup.
         ami_name : str
-            AMI Probe name to use.
+            AMI probe name to use.
         variation_list_w_value : list
             List of variations with relative values.
         plot_type : str
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
-            Default value is ``"Rectangular Plot"``.
+            The default is ``"Rectangular Plot"``.
         plot_initial_response : bool, optional
             Set either to plot the initial input response.  Default is ``True``.
         plot_intermediate_response : bool, optional
@@ -3599,7 +3599,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setupname : str
             Name of the setup.
         probe_id : str
-            AMI Probe Name to use.
+            AMI probe name to use.
         variation_list_w_value : list
             List of variations with relative values.
         plot_type : str, optional

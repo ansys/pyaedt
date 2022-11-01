@@ -502,7 +502,7 @@ class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
 
     .. deprecated:: 0.6.5
-        This class has been deprecated and replaced by Stackup class.
+        This class has been deprecated and replaced by the ``Stackup`` class.
 
     Examples
     --------
