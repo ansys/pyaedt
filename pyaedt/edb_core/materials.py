@@ -22,7 +22,7 @@ class Material(object):
         self._pclass = pclass
         self._name = edb_material_def.GetName()
         self._edb_material_def = edb_material_def
-        self._conductivty = 0.0
+        self._conductivity = 0.0
         self._loss_tangent = 0.0
         self._magnetic_loss_tangent = 0.0
         self._mass_density = 0.0
@@ -68,15 +68,15 @@ class Material(object):
     @property
     def conductivity(self):
         material_id = self._edb.Definition.MaterialPropertyId.Conductivity
-        self._conductivty = self._get_property(material_id)
-        return self._conductivty
+        self._conductivity = self._get_property(material_id)
+        return self._conductivity
 
     @conductivity.setter
     def conductivity(self, value):
         """Retrieve material conductivity."""
         material_id = self._edb.Definition.MaterialPropertyId.Conductivity
         self._edb_material_def.SetProperty(material_id, self._edb_value(value))
-        self._conductivty = value
+        self._conductivity = value
 
     @property
     def permittivity(self):
@@ -126,31 +126,34 @@ class Material(object):
     @dc_conductivity.setter
     def dc_conductivity(self, value):
         if self._edb_material_def.GetDielectricMaterialModel():
-            self._edb_material_def.GetDielectricMaterialModel().GetDCConductivity().SetDCConductivity(
-                self._edb_value(value)
-            )
+            self._edb_material_def.GetDielectricMaterialModel().SetDCConductivity(value)
 
     @property
     def dc_permittivity(self):
         """"""
         if self._edb_material_def.GetDielectricMaterialModel():
-            return self._edb_material_def.GetDielectricMaterialModel().GetDCConductivity()
+            return self._edb_material_def.GetDielectricMaterialModel().GetDCRelativePermitivity()
 
     @dc_permittivity.setter
     def dc_permittivity(self, value):
         if self._edb_material_def.GetDielectricMaterialModel():
-            self._edb_material_def.GetDielectricMaterialModel().SetDCRelativePermitivity(self._edb_value(value))
+            self._edb_material_def.GetDielectricMaterialModel().SetDCRelativePermitivity(value)
 
     @property
     def dielectric_model_frequency(self):
-        """"""
+        """
+
+        Returns
+        -------
+        Frequency in GHz
+        """
         if self._edb_material_def.GetDielectricMaterialModel():
             return self._edb_material_def.GetDielectricMaterialModel().GetFrequency()
 
     @dielectric_model_frequency.setter
     def dielectric_model_frequency(self, value):
         if self._edb_material_def.GetDielectricMaterialModel():
-            self._edb_material_def.GetDielectricMaterialModel().SetDCRelativePermitivity(self._edb_value(value))
+            self._edb_material_def.GetDielectricMaterialModel().SetFrequency(value)
 
     @property
     def loss_tangent_at_frequency(self):
@@ -170,9 +173,7 @@ class Material(object):
     @permittivity_at_frequency.setter
     def permittivity_at_frequency(self, value):
         if self._edb_material_def.GetDielectricMaterialModel():
-            self._edb_material_def.GetDielectricMaterialModel().SetRelativePermitivityAtFrequency(
-                self._edb_value(value)
-            )
+            self._edb_material_def.GetDielectricMaterialModel().SetRelativePermitivityAtFrequency(value)
 
     @property
     def magnetic_loss_tangent(self):
@@ -304,12 +305,29 @@ class Material(object):
             self.thermal_conductivity = input_dict["thermal_conductivity"]
             self.youngs_modulus = input_dict["youngs_modulus"]
             self.thermal_expansion_coefficient = input_dict["thermal_expansion_coefficient"]
-            self.dc_conductivity = input_dict["dc_conductivity"]
-            self.dc_permittivity = input_dict["dc_permittivity"]
-            self.dielectric_model_frequency = input_dict["dielectric_model_frequency"]
-            self.loss_tangent_at_frequency = input_dict["loss_tangent_at_frequency"]
-            self.permittivity_at_frequency = input_dict["permittivity_at_frequency"]
-
+            if input_dict["dielectric_model_frequency"] is not None:
+                if self._edb_material_def.GetDielectricMaterialModel():
+                    model = self._edb_material_def.GetDielectricMaterialModel()
+                    self.dielectric_model_frequency = input_dict["dielectric_model_frequency"]
+                    self.loss_tangent_at_frequency = input_dict["loss_tangent_at_frequency"]
+                    self.permittivity_at_frequency = input_dict["permittivity_at_frequency"]
+                    if input_dict["dc_permittivity"] is not None:
+                        model.SetUseDCRelativePermitivity(True)
+                        self.dc_permittivity = input_dict["dc_permittivity"]
+                    self.dc_conductivity = input_dict["dc_conductivity"]
+                else:
+                    if not self._pclass.add_djordjevicsarkar_material(input_dict["name"],
+                                                                      input_dict["permittivity_at_frequency"],
+                                                                      input_dict["loss_tangent_at_frequency"],
+                                                                      input_dict["dielectric_model_frequency"],
+                                                                      input_dict["dc_permittivity"],
+                                                                      input_dict["dc_conductivity"]):
+                        self._pclass._pedb.logger.warning('Cannot set DS model for material "{}". Check for realistic '
+                                                          'values that define DS Model'.format(input_dict["name"]))
+            else:
+                # To unset DS model if already assigned to the material in database
+                if self._edb_material_def.GetDielectricMaterialModel():
+                    self._edb_material_def.SetDielectricMaterialModel(self._edb_value(None))
 
 class Materials(object):
     """Manages EDB methods for material management accessible from `Edb.materials` property."""
@@ -402,19 +420,24 @@ class Materials(object):
             return material.GetDielectricMaterialModel()
 
     @pyaedt_function_handler()
-    def add_djordjevicsarkar_material(self, name, permittivity, loss_tangent, test_frequency):
+    def add_djordjevicsarkar_material(self, name, permittivity, loss_tangent, test_frequency, dc_permittivity=None,
+                                      dc_conductivity=None):
         """Create a Djordjevic_Sarkar dielectric.
 
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         permittivity : float
             Relative permittivity of the dielectric.
         loss_tangent : float
             Loss tangent for the material.
         test_frequency : float
             Test frequency in GHz for the dielectric.
+        dc_permittivity : float, optional
+            DC Relative permittivity of the dielectric.
+        dc_conductivity : float, optional
+            DC Conductivity of the dielectric.
 
         Returns
         -------
@@ -425,6 +448,11 @@ class Materials(object):
         material_def.SetFrequency(test_frequency)
         material_def.SetLossTangentAtFrequency(self._edb_value(loss_tangent))
         material_def.SetRelativePermitivityAtFrequency(permittivity)
+        if dc_conductivity is not None:
+            material_def.SetDCConductivity(dc_conductivity)
+        if dc_permittivity is not None:
+            material_def.SetUseDCRelativePermitivity(True)
+            material_def.SetDCRelativePermitivity(dc_permittivity)
         return self._add_dielectric_material_model(name, material_def)
 
     @pyaedt_function_handler()
@@ -555,7 +583,7 @@ class Materials(object):
         >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
 
         """
-        if material_name in self.materials:
+        if material_name in self.materials and new_material_name not in self.materials:
             permittivity = self._edb_value(self.materials[material_name].permittivity)
             permeability = self._edb_value(self.materials[material_name].permeability)
             conductivity = self._edb_value(self.materials[material_name].conductivity)

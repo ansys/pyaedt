@@ -291,7 +291,11 @@ class LayerEdbClass(object):
 
     @property
     def top_hallhuray_nodule_radius(self):
+        top_roughness_model = self.get_roughness_model("top")
+        if top_roughness_model:
+            self._top_hallhuray_nodule_radius = top_roughness_model.NoduleRadius.ToDouble()
         return self._top_hallhuray_nodule_radius
+
 
     @top_hallhuray_nodule_radius.setter
     def top_hallhuray_nodule_radius(self, value):
@@ -299,6 +303,9 @@ class LayerEdbClass(object):
 
     @property
     def top_hallhuray_surface_ratio(self):
+        top_roughness_model = self.get_roughness_model("top")
+        if top_roughness_model:
+            self._top_hallhuray_surface_ratio = top_roughness_model.SurfaceRatio.ToDouble()
         return self._top_hallhuray_surface_ratio
 
     @top_hallhuray_surface_ratio.setter
@@ -307,6 +314,9 @@ class LayerEdbClass(object):
 
     @property
     def bottom_hallhuray_nodule_radius(self):
+        bottom_roughness_model = self.get_roughness_model("bottom")
+        if bottom_roughness_model:
+            self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
         return self._bottom_hallhuray_nodule_radius
 
     @bottom_hallhuray_nodule_radius.setter
@@ -315,6 +325,9 @@ class LayerEdbClass(object):
 
     @property
     def bottom_hallhuray_surface_ratio(self):
+        bottom_roughness_model = self.get_roughness_model("bottom")
+        if bottom_roughness_model:
+            self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
         return self._bottom_hallhuray_surface_ratio
 
     @bottom_hallhuray_surface_ratio.setter
@@ -323,6 +336,9 @@ class LayerEdbClass(object):
 
     @property
     def side_hallhuray_nodule_radius(self):
+        side_roughness_model = self.get_roughness_model("side")
+        if side_roughness_model:
+            self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
         return self._side_hallhuray_nodule_radius
 
     @side_hallhuray_nodule_radius.setter
@@ -331,6 +347,9 @@ class LayerEdbClass(object):
 
     @property
     def side_hallhuray_surface_ratio(self):
+        side_roughness_model = self.get_roughness_model("side")
+        if side_roughness_model:
+            self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
         return self._side_hallhuray_surface_ratio
 
     @side_hallhuray_surface_ratio.setter
@@ -338,9 +357,27 @@ class LayerEdbClass(object):
         self._side_hallhuray_surface_ratio = value
 
     @pyaedt_function_handler()
-    def get_roughness_model(self):
+    def get_roughness_model(self, surface="top"):
+        """Gets roughness model of the layer.
+
+        Parameters
+        ----------
+        surface : str, optional
+            Where to fetch roughness model. The default is ``"top"``. Options are ``"top"``, ``"bottom"``, ``"side"``.
+
+        Returns
+        -------
+        ``"Ansys.Ansoft.Edb.Cell.RoughnessModel"``
+
+        """
         if not self.is_stackup_layer:  # pragma: no cover
             return
+        if surface == "top":
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top)
+        elif surface == "bottom":
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom)
+        elif surface == "side":
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side)
 
     @pyaedt_function_handler()
     def assign_roughness_model(
@@ -357,7 +394,7 @@ class LayerEdbClass(object):
         ----------
         model_type : str, optional
             Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
-        huray_radius : str, optional
+        huray_radius : str, float, optional
             Radius of huray model. The default is ``"0.5um"``.
         huray_surface_ratio : str, float, optional.
             Surface ratio of huray model. The default is ``"2.9"``.
@@ -387,19 +424,13 @@ class LayerEdbClass(object):
             ]
         elif apply_on_surface == "top":
             self._side_roughness = "top"
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
-            ]
+            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top]
         elif apply_on_surface == "bottom":
             self._side_roughness = "bottom"
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
-            ]
+            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom]
         elif apply_on_surface == "side":
             self._side_roughness = "side"
-            regions = [
-                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
-            ]
+            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
 
         layer_clone = self._edb_layer
         for r in regions:
@@ -422,19 +453,24 @@ class LayerEdbClass(object):
         self._thickness = self.thickness
         self._type = self.type
         self._roughness_enabled = self.roughness_enabled
-        layer_clone = self._edb_layer
-        top_roughnes_model = layer_clone.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top)
-        side_roughness_model = layer_clone.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side)
-        bottom_roughness_model = layer_clone.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom)
-        if top_roughnes_model:
-            self._top_hallhuray_nodule_radius = top_roughnes_model.get_NoduleRadius().ToDouble()
-            self._top_hallhuray_surface_ratio = top_roughnes_model.get_SurfaceRatio().ToDouble()
-        if side_roughness_model:
-            self._side_hallhuray_nodule_radius = side_roughness_model.get_NoduleRadius().ToDouble()
-            self._side_hallhuray_surface_ratio = side_roughness_model.get_SurfaceRatio().ToDouble()
-        if bottom_roughness_model:
-            self._bottom_hallhuray_nodule_radius = bottom_roughness_model.get_NoduleRadius().ToDouble()
-            self._bottom_hallhuray_surface_ratio = bottom_roughness_model.get_SurfaceRatio().ToDouble()
+        # top_roughnes_model = self.get_roughness_model("top")
+        # side_roughness_model = self.get_roughness_model("side")
+        # bottom_roughness_model = self.get_roughness_model("bottom")
+        # if top_roughnes_model:
+        #     self._top_hallhuray_nodule_radius = top_roughnes_model.NoduleRadius.ToDouble()
+        #     self._top_hallhuray_surface_ratio = top_roughnes_model.SurfaceRatio.ToDouble()
+        # if side_roughness_model:
+        #     self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
+        #     self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
+        # if bottom_roughness_model:
+        #     self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
+        #     self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
+        self._top_hallhuray_nodule_radius = self.top_hallhuray_nodule_radius
+        self._top_hallhuray_surface_ratio = self.top_hallhuray_surface_ratio
+        self._side_hallhuray_nodule_radius = self.side_hallhuray_nodule_radius
+        self._side_hallhuray_surface_ratio = self.side_hallhuray_surface_ratio
+        self._bottom_hallhuray_nodule_radius = self.bottom_hallhuray_nodule_radius
+        self._bottom_hallhuray_surface_ratio = self.bottom_hallhuray_surface_ratio
         for k, v in self.__dict__.items():
             if (
                 not k == "_pclass"
@@ -459,16 +495,23 @@ class LayerEdbClass(object):
                     self.dielectric_fill = layer["dielectric_fill"]
                 else:
                     self._pclass._pedb.materials._load_materials(layer["dielectric_fill"])
-                    self.material = layer["dielectric_fill"]["name"]
+                    self.dielectric_fill = layer["dielectric_fill"]["name"]
             self.thickness = layer["thickness"]
             self.etch_factor = layer["etch_factor"]
             self.roughness_enabled = layer["roughness_enabled"]
-            self.top_hallhuray_nodule_radius = layer["top_hallhuray_nodule_radius"]
-            self.top_hallhuray_surface_ratio = layer["top_hallhuray_surface_ratio"]
-            self.bottom_hallhuray_nodule_radius = layer["bottom_hallhuray_nodule_radius"]
-            self.bottom_hallhuray_surface_ratio = layer["bottom_hallhuray_surface_ratio"]
-            self.side_hallhuray_nodule_radius = layer["side_hallhuray_nodule_radius"]
-            self.side_hallhuray_surface_ratio = layer["side_hallhuray_surface_ratio"]
+            if self.roughness_enabled:
+                self.top_hallhuray_nodule_radius = layer["top_hallhuray_nodule_radius"]
+                self.top_hallhuray_surface_ratio = layer["top_hallhuray_surface_ratio"]
+                self.assign_roughness_model("huray", layer["top_hallhuray_nodule_radius"],
+                                            layer["top_hallhuray_surface_ratio"], apply_on_surface="top")
+                self.bottom_hallhuray_nodule_radius = layer["bottom_hallhuray_nodule_radius"]
+                self.bottom_hallhuray_surface_ratio = layer["bottom_hallhuray_surface_ratio"]
+                self.assign_roughness_model("huray", layer["bottom_hallhuray_nodule_radius"],
+                                            layer["bottom_hallhuray_surface_ratio"], apply_on_surface="bottom")
+                self.side_hallhuray_nodule_radius = layer["side_hallhuray_nodule_radius"]
+                self.side_hallhuray_surface_ratio = layer["side_hallhuray_surface_ratio"]
+                self.assign_roughness_model("huray", layer["side_hallhuray_nodule_radius"],
+                                            layer["side_hallhuray_surface_ratio"], apply_on_surface="side")
 
 
 class Stackup(object):
@@ -1087,7 +1130,7 @@ class EdbStackup(object):
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         permittivity : float, optional
             Permittivity of the dielectric. The default is ``1``.
         loss_tangent : float, optional
@@ -1151,12 +1194,12 @@ class EdbStackup(object):
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         relative_permittivity_low : float
             Relative permittivity of the dielectric at the frequency specified
             for ``lower_frequency``.
         relative_permittivity_high : float
-            Relative ermittivity of the dielectric at the frequency specified
+            Relative permittivity of the dielectric at the frequency specified
             for ``higher_frequency``.
         loss_tangent_low : float
             Loss tangent for the material at the frequency specified
