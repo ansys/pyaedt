@@ -453,18 +453,6 @@ class LayerEdbClass(object):
         self._thickness = self.thickness
         self._type = self.type
         self._roughness_enabled = self.roughness_enabled
-        # top_roughnes_model = self.get_roughness_model("top")
-        # side_roughness_model = self.get_roughness_model("side")
-        # bottom_roughness_model = self.get_roughness_model("bottom")
-        # if top_roughnes_model:
-        #     self._top_hallhuray_nodule_radius = top_roughnes_model.NoduleRadius.ToDouble()
-        #     self._top_hallhuray_surface_ratio = top_roughnes_model.SurfaceRatio.ToDouble()
-        # if side_roughness_model:
-        #     self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
-        #     self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
-        # if bottom_roughness_model:
-        #     self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
-        #     self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
         self._top_hallhuray_nodule_radius = self.top_hallhuray_nodule_radius
         self._top_hallhuray_surface_ratio = self.top_hallhuray_surface_ratio
         self._side_hallhuray_nodule_radius = self.side_hallhuray_nodule_radius

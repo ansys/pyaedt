@@ -471,12 +471,12 @@ class Materials(object):
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         permittivity_low : float
             Relative permittivity of the dielectric at the frequency specified
             for ``lower_frequency``.
         permittivity_high : float
-            Relative ermittivity of the dielectric at the frequency specified
+            Relative permittivity of the dielectric at the frequency specified
             for ``higher_frequency``.
         loss_tangent_low : float
             Loss tangent for the material at the frequency specified
@@ -515,7 +515,7 @@ class Materials(object):
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         frequencies : list
             Frequencies in GHz.
         permittivities : list
