@@ -3599,7 +3599,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         setupname : str
             Name of the setup.
         probe_id : str
-            AMI Probe Name to use.
+            AMI probe name to use.
         variation_list_w_value : list
             List of variations with relative values.
         plot_type : str, optional
