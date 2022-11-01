@@ -452,10 +452,19 @@ class TestClass(BasisTest, object):
 
     def test_36_create_heat_sink(self):
         self.aedtapp.insert_design("HS")
-        assert self.aedtapp.create_parametric_fin_heat_sink()
+        assert self.aedtapp.create_parametric_fin_heat_sink(
+            draftangle=1.5,
+            patternangle=8,
+            numcolumn_perside=3,
+            vertical_separation=5.5,
+            matname="Copper",
+            center=[10, 0, 0],
+            plane_enum=self.aedtapp.PLANE.XY,
+            rotation=45,
+            tolerance=0.005,
+        )
 
     def test_37_check_bounding_box(self):
-
         self.aedtapp.insert_design("Bbox")
         obj_1 = self.aedtapp.modeler.get_object_from_name("Region")
         obj_1_bbox = obj_1.bounding_box

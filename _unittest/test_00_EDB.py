@@ -447,6 +447,7 @@ if not config["skip_edb"]:
             assert not result
 
         def test_45_delete_net(self):
+            self.edbapp.core_nets.nets["AVIN1"].delete()
             nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
             assert "A0_N" in nets_deleted
 
@@ -2032,6 +2033,7 @@ if not config["skip_edb"]:
             assert edb.core_hfss.create_edge_port_horizontal(
                 prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
             )
+            assert edb.core_hfss.get_ports_number() == 2
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2236,3 +2238,10 @@ if not config["skip_edb"]:
             comp.type = "Inductor"
             comp.value = 10  # This command set the model back to ideal RLC
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
+
+            pg_name, _ = edbapp.core_siwave.create_pin_group("U3A1", 2)
+            assert edbapp.core_siwave.create_pin_group("U3A1", [5, 34, 35], "pos")
+            assert "pos" in edbapp.core_siwave.pin_groups
+            edbapp.core_siwave.create_pin_group_on_net("U3A1", "GND", "gnd")
+            edbapp.core_siwave.create_current_source_on_pin_group("pos", "gnd")
+            edbapp.core_siwave.create_voltage_source_on_pin_group(pg_name, "gnd")

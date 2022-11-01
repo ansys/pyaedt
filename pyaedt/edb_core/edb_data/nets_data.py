@@ -88,6 +88,13 @@ class EDBNetsData(object):
                 comps[el] = val
         return comps
 
+    @pyaedt_function_handler
+    def delete(self):
+        """Delete this net from layout."""
+        for i in self.primitives:
+            i.delete()
+        self.net_object.Delete()
+
     @pyaedt_function_handler()
     def plot(
         self,
