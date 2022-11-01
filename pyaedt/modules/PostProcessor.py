@@ -3820,7 +3820,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             List with clock tics. The default is ``None``, in which case the clock tics from
             the AMI receiver are used.
         pandas_enabled : bool, optional
-            ``True`` if data format is pandas. The default is ``False``.
+            Whether to enable the Pandas data format. The default is ``False``.
 
         Returns
         -------
