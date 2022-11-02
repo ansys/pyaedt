@@ -379,7 +379,7 @@ class TestClass(BasisTest, object):
     def test_29_create_circuit_from_spice(self):
         model = os.path.join(local_path, "example_models", test_subfolder, "test.lib")
         assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model)
-        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345")
+        assert self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2345", False)
         assert not self.aedtapp.modeler.schematic.create_component_from_spicemodel(model, "GRM2346")
 
     def test_30_create_subcircuit(self):
@@ -480,3 +480,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.browse_log_file()
         assert not self.aedtapp.browse_log_file(os.path.join(self.aedtapp.working_directory, "logfiles"))
         assert self.aedtapp.browse_log_file(self.aedtapp.working_directory)
+
+    def test_39_export_results_circuit(self):
+        exported_files = self.aedtapp.export_results()
+        assert len(exported_files) > 0

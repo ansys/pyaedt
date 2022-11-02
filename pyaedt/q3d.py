@@ -98,7 +98,15 @@ class QExtractor(FieldAnalysis3D, object):
         return self.matrices[0].sources(False)
 
     @pyaedt_function_handler()
-    def insert_reduced_matrix(self, operation_name, source_names=None, rm_name=None):
+    def insert_reduced_matrix(
+        self,
+        operation_name,
+        source_names=None,
+        rm_name=None,
+        new_net_name=None,
+        new_source_name=None,
+        new_sink_name=None,
+    ):
         """Insert a new reduced matrix.
 
         Parameters
@@ -110,6 +118,12 @@ class QExtractor(FieldAnalysis3D, object):
             is ``None``.
         rm_name : str, optional
             Name of the reduced matrix. The default is ``None``.
+        new_net_name : str, optional
+            Name of the new net. The default is ``None``.
+        new_source_name : str, optional
+            Name of the new source. The default is ``None``.
+        new_sink_name : str, optional
+            Name of the new sink. The default is ``None``.
 
         Returns
         -------
@@ -119,7 +133,17 @@ class QExtractor(FieldAnalysis3D, object):
         if not rm_name:
             rm_name = generate_unique_name(operation_name)
         matrix = Matrix(self, rm_name, operation_name)
-        if matrix.create(source_names):
+
+        if not new_net_name:
+            new_net_name = generate_unique_name("Net")
+
+        if not new_source_name:
+            new_source_name = generate_unique_name("Source")
+
+        if not new_sink_name:
+            new_sink_name = generate_unique_name("Sink")
+
+        if matrix.create(source_names, new_net_name, new_source_name, new_sink_name):
             self.matrices.append(matrix)
         return matrix
 
@@ -192,7 +216,7 @@ class QExtractor(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        setup_name :str
+        setup_name : str
             Setup name.
         variation_string : str, optional
             Variation list. The default is ``""``.
@@ -400,8 +424,8 @@ class QExtractor(FieldAnalysis3D, object):
             Full path to save the matrix data to.
             Options for file extensions are: *.m, *.lvl, *.csv, *.txt.
         problem_type : str, optional
-            Problem type. The default value is ``None``, in which case ``"C"``
-            is used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
+            Problem type. The default value is ``None``, in which case ``"C"`` is
+            used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
         variations : str, optional
             Design variation. The default is ``None``, in which case the
             current nominal variation is used.
@@ -720,13 +744,13 @@ class QExtractor(FieldAnalysis3D, object):
         user_changed_settings=True,
         include_cap=True,
         include_cond=True,
-        include_dcr=True,
-        include_dcl=True,
-        include_acr=True,
-        include_acl=True,
+        include_dcr=False,
+        include_dcl=False,
+        include_acr=False,
+        include_acl=False,
         include_r=True,
         include_l=True,
-        add_resistance=True,
+        add_resistance=False,
         parse_pin_names=False,
         export_distributed=True,
         lumped_length="1meter",
@@ -740,6 +764,7 @@ class QExtractor(FieldAnalysis3D, object):
         model_name=None,
         freq=0,
         file_type="HSPICE",
+        include_cpp=False,
     ):
         """Export matrix data.
 
@@ -780,16 +805,16 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is None.
         include_dcr : bool, optional
             Flag indicates whether to export DC resistance matrix.
-            Default value is True.
+            Default value is ``False``.
         include_dcl : bool, optional
             Flag indicates whether to export DC Inductance matrix.
-            Default value is True.
+            Default value is ``False``.
         include_acr : bool, optional
             Flag indicates whether to export AC resistance matrix.
-            Default value is True.
+            Default value is ``False``.
         include_acl : bool, optional
             Flag indicates whether to export AC inductance matrix.
-            Default value is True.
+            Default value is ``False``.
         include_r : bool, optional
             Flag indicates whether to export resistance.
             Default value is True.
@@ -846,6 +871,9 @@ class QExtractor(FieldAnalysis3D, object):
             "Welement": Nexxim/HSPICE W Element file format
             "RLGC": Nexxim/HSPICE RLGC W Element file format
             Default value is Hspice.
+        include_cpp : bool, optional
+            Whether to include chip package control.
+            Default value is False.
 
         Returns
         -------
@@ -1044,8 +1072,25 @@ class QExtractor(FieldAnalysis3D, object):
             self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
             return False
 
+        if include_cpp:
+            if settings.aedt_version >= "2023.2":
+                if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
+                    self.logger.error(
+                        "Select DC/AC resistance/inductance to include "
+                        "the chip package control data in export circuit."
+                    )
+                    return False
+                else:
+                    circuit_settings = self.oanalysis.GetCircuitSettings()
+                    for setting in circuit_settings:
+                        if isinstance(setting, tuple):
+                            if setting[0] == "NAME:CPPInfo":
+                                cpp_settings = setting
+        else:
+            include_cpp = False
+            cpp_settings = []
+
         if self.modeler._is3d:
-            # IncludeCPP always False, unable to access chip package information.
             try:
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
@@ -1077,7 +1122,8 @@ class QExtractor(FieldAnalysis3D, object):
                         "ParsePinNames:=",
                         parse_pin_names,
                         "IncludeCPP:=",
-                        False,
+                        include_cpp,
+                        cpp_settings,
                     ],
                     model_name,
                     freq,
@@ -1657,7 +1703,7 @@ class Q3d(QExtractor, object):
 
         Returns
         -------
-        SweepQ3D
+        SweepMatrix
             Sweep option.
 
         References

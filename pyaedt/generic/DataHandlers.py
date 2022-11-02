@@ -52,9 +52,17 @@ def _tuple2dict(t, d):
     elif (
         type(v) is list and type(v[0]) is tuple and len(t) == 2
     ):  # len check is to avoid expanding the list with a 3rd element=None
-        d[k] = OrderedDict()
-        for tt in v:
-            _tuple2dict(tt, d[k])
+        if k in d:
+            if not isinstance(d[k], list):
+                d[k] = [d[k]]
+            d1 = OrderedDict()
+            for tt in v:
+                _tuple2dict(tt, d1)
+            d[k].append(d1)
+        else:
+            d[k] = OrderedDict()
+            for tt in v:
+                _tuple2dict(tt, d[k])
     else:
         d[k] = v
 

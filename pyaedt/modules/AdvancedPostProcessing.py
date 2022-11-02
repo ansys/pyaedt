@@ -171,26 +171,27 @@ class PostProcessor(Post):
     ):
         """Initialize the Model Plotter object with actual modeler objects and return it.
 
-         Parameters
-         ----------
-         objects : list, optional
-             Optional list of objects to plot. If `None` all objects will be exported.
-         plot_as_separate_objects : bool, optional
-             Plot each object separately. It may require more time to export from AEDT.
-         plot_air_objects : bool, optional
-             Plot also air and vacuum objects.
-         force_opacity_value : float, optional
-             Opacity value between 0 and 1 to be applied to all model.
-             If `None` aedt opacity will be applied to each object.
+        Parameters
+        ----------
+        objects : list, optional
+            Optional list of objects to plot. If `None` all objects will be exported.
+        plot_as_separate_objects : bool, optional
+            Plot each object separately. It may require more time to export from AEDT.
+        plot_air_objects : bool, optional
+            Plot also air and vacuum objects.
+        force_opacity_value : float, optional
+            Opacity value between 0 and 1 to be applied to all model.
+            If `None` aedt opacity will be applied to each object.
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
 
-         Returns
-         -------
-         :class:`pyaedt.generic.plot.ModelPlotter`
-             Model Object.
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
         """
+
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
         files = self.export_model_obj(
             obj_list=objects,
@@ -224,6 +225,7 @@ class PostProcessor(Post):
         force_opacity_value=None,
         clean_files=False,
         array_coordinates=None,
+        view="isometric",
     ):
         """Plot the model or a substet of objects.
 
@@ -248,6 +250,9 @@ class PostProcessor(Post):
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+            The default is ``"isometric"``.
 
         Returns
         -------
@@ -264,6 +269,10 @@ class PostProcessor(Post):
         )
 
         model.off_screen = not show
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        else:
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
         if export_path:
             model.plot(export_path)
         elif show:
@@ -305,8 +314,7 @@ class PostProcessor(Post):
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
         view : str, optional
-            View to export. Options are ``isometric``, ``top``, ``front``,
-             ``left``, ``all``.. The default is ``"iso"``. If ``"all"``, all views are exported.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_label : str, optional
             Type of the plot. The default is ``"Temperature"``.
         plot_folder : str, optional
@@ -341,7 +349,10 @@ class PostProcessor(Post):
             if plot_label:
                 model.fields[0].label = plot_label
 
-        model.view = view
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            model.camera_position = view
+        else:
+            self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
 
         if scale_min and scale_max:
             model.range_min = scale_min

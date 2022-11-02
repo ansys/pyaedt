@@ -6,10 +6,13 @@ from __future__ import absolute_import  # noreorder
 import copy
 import math
 import os
+import random
+import string
 import time
 from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import is_number
@@ -1016,7 +1019,10 @@ class Primitives(object):
                 obs3d += list(self.oeditor.Get3DComponentInstanceNames(comp3d))
             udm = []
             if "UserDefinedModels" in self.oeditor.GetChildTypes():
-                udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
+                try:
+                    udm = list(self.oeditor.GetChildNames("UserDefinedModels"))
+                except:  # pragma: no cover
+                    udm = []
             obs3d = list(set(udm + obs3d))
             new_obs3d = copy.deepcopy(obs3d)
             if self.user_defined_components:
@@ -1111,6 +1117,56 @@ class Primitives(object):
                 non_existent.append(name)
         report = {"Missing Objects": missing, "Non-Existent Objects": non_existent}
         return report
+
+    @pyaedt_function_handler()
+    def create_point(self, position, name=None, color="(143 175 143)"):
+        """Create a point.
+
+        Parameters
+        ----------
+        position : list
+            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain less than 3 elements.
+        name : str, optional
+            Name of the point. The default is ``None``, in which case the
+            default name is assigned.
+        color : str, optional
+            String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.Point`
+            Point object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+
+        Examples
+        --------
+
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
+
+        """
+        x_position, y_position, z_position = self._pos_with_arg(position)
+
+        if not name:
+            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
+            name = "NewPoint_" + unique_name
+
+        parameters = ["NAME:PointParameters"]
+        parameters.append("PointX:="), parameters.append(x_position)
+        parameters.append("PointY:="), parameters.append(y_position)
+        parameters.append("PointZ:="), parameters.append(z_position)
+
+        attributes = ["NAME:Attributes"]
+        attributes.append("Name:="), attributes.append(name)
+        attributes.append("Color:="), attributes.append(color)
+
+        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
+        return self._create_point(name)
 
     @pyaedt_function_handler()
     def _change_component_property(self, vPropChange, names_list):
@@ -1244,14 +1300,16 @@ class Primitives(object):
         return False
 
     @pyaedt_function_handler()
-    def create_region(self, pad_percent=300):
+    def create_region(self, pad_percent=300, is_percentage=True):
         """Create an air region.
 
         Parameters
         ----------
-        pad_percent : float or list of floats, optional
-            If a float, use padding in percent for all dimensions. The default is ``300``.
-            If a list of floats, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
+        pad_percent : float, str, list of floats or list of str, optional
+            Same padding is applied if not a list. The default is ``300``.
+            If a list of floats or str, interpret as adding for ``["+X", "+Y", "+Z", "-X", "-Y", "-Z"]``.
+        is_percentage : bool, optional
+            Region definition in percentage or absolute value. The default is `True``.
 
         Returns
         -------
@@ -1265,18 +1323,34 @@ class Primitives(object):
         """
         if "Region" in self.object_names:
             return None
-        if is_number(pad_percent):
+        if not isinstance(pad_percent, list):
             pad_percent = [pad_percent] * 6
 
         arg = ["NAME:RegionParameters"]
         p = ["+X", "+Y", "+Z", "-X", "-Y", "-Z"]
         i = 0
         for pval in p:
+            region_type = "Percentage Offset"
+            if not is_percentage:
+                region_type = "Absolute Offset"
             pvalstr = str(pval) + "PaddingType:="
             qvalstr = str(pval) + "Padding:="
             arg.append(pvalstr)
-            arg.append("Percentage Offset")
+            arg.append(region_type)
             arg.append(qvalstr)
+            if isinstance(pad_percent[i], str):
+                units = decompose_variable_value(pad_percent[i])[1]
+                if not units and pad_percent[i].isnumeric():
+                    if not is_percentage:
+                        units = self.modeler.model_units
+                        pad_percent[i] += units
+                elif is_percentage:
+                    self.logger.error("Percentage input must not have units")
+                    return False
+            elif not is_percentage:
+                units = self.modeler.model_units
+                pad_percent[i] = str(pad_percent[i])
+                pad_percent[i] += units
             arg.append(str(pad_percent[i]))
             i += 1
         arg2 = [
@@ -1836,7 +1910,7 @@ class Primitives(object):
         contained_string : str
             Prefix in the names of the objects to delete.
         case_sensitive : bool, optional
-            Whether the prefix is case-senstive. The default is ``True``.
+            Whether the prefix is case sensitive. The default is ``True``.
 
         Returns
         -------
@@ -1960,8 +2034,9 @@ class Primitives(object):
         self.user_defined_components = {}
         self.object_id_dict = {}
         self._currentId = 0
+        self._refresh_object_types()
+        self._refresh_all_ids_from_aedt_file()
         self.refresh_all_ids()
-        # self._refresh_all_ids_from_aedt_file()
 
     @pyaedt_function_handler()
     def cleanup_objects(self):
@@ -1982,11 +2057,13 @@ class Primitives(object):
         new_object_id_dict = {}
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
+        all_objs = all_objects + all_unclassified
         for old_id, obj in self.objects.items():
-            if obj.name in all_objects or obj.name in all_unclassified:
-                updated_id = obj.id  # By calling the object property we get the new id
-                new_object_id_dict[obj.name] = updated_id
-                new_object_dict[updated_id] = obj
+            if obj.name in all_objs:
+                # Check if ID can change in boolean operations
+                # updated_id = obj.id  # By calling the object property we get the new id
+                new_object_id_dict[obj.name] = old_id
+                new_object_dict[old_id] = obj
 
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
@@ -2095,13 +2172,7 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        obj_lst = []
-        for el in self.objects:
-            if (
-                self.objects[el].material_name == materialname
-                or self.objects[el].material_name == '"' + materialname + '"'
-            ):
-                obj_lst.append(el)
+        obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
         return obj_lst
 
     @pyaedt_function_handler()
@@ -2805,8 +2876,8 @@ class Primitives(object):
         edgeID = []
         edges = self.get_object_edges(obj_name)
         for edge in edges:
-            vertx = self.get_edge_vertices(edge)
-            if vertexid in vertx:
+            vertices = self.get_edge_vertices(edge)
+            if vertexid in vertices:
                 edgeID.append(edge)
 
         return edgeID
@@ -3074,7 +3145,6 @@ class Primitives(object):
             return selected_edges
         else:
             return []
-        pass
 
     @pyaedt_function_handler()
     def get_edges_for_circuit_port(
@@ -3218,7 +3288,6 @@ class Primitives(object):
             return selected_edges
         else:
             return []
-        pass
 
     @pyaedt_function_handler()
     def get_closest_edgeid_to_position(self, position, units=None):
@@ -3390,9 +3459,12 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
     @pyaedt_function_handler()
-    def _create_object(self, name):
+    def _create_object(self, name, pid=0):
         o = Object3d(self, name)
-        new_id = o.id
+        if pid:
+            new_id = pid
+        else:
+            new_id = o.id
         self.objects[new_id] = o
         self.object_id_dict[o.name] = new_id
         return o
@@ -3440,12 +3512,28 @@ class Primitives(object):
         ]:
             if isinstance(el, (OrderedDict, dict)):
                 attribs = el["Attributes"]
+                operations = el.get("Operations", None)
             else:
                 attribs = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
                 ]["GeometryPart"]["Attributes"]
+                operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
+                    "ToplevelParts"
+                ]["GeometryPart"]["Attributes"]
             if attribs["Name"] in self._all_object_names:
-                o = self._create_object(name=attribs["Name"])
+                pid = 0
+
+                if operations and isinstance(operations.get("Operation", None), (OrderedDict, dict)):
+                    try:
+                        pid = operations["Operation"]["ParentPartID"]
+                    except:  # pragma: no cover
+                        pass
+                elif operations and isinstance(operations.get("Operation", None), list):
+                    try:
+                        pid = operations["Operation"][0]["ParentPartID"]
+                    except:
+                        pass
+                o = self._create_object(name=attribs["Name"], pid=pid)
                 o._part_coordinate_system = attribs["PartCoordinateSystem"]
                 if "NonModel" in attribs["Flags"]:
                     o._model = False
@@ -3470,8 +3558,6 @@ class Primitives(object):
                     o._surface_material = o._surface_material[1:-1].lower()
                 if "MaterialValue" in attribs:
                     o._material_name = attribs["MaterialValue"][1:-1].lower()
-                else:
-                    o._material_name = attribs.get("MaterialName", None)
 
                 o._is_updated = True
         return len(self.objects)

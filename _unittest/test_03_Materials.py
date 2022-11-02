@@ -6,6 +6,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Icepak
 from pyaedt import Maxwell3d
+from pyaedt import is_ironpython
 from pyaedt.modules.Material import MatProperties
 from pyaedt.modules.Material import SurfMatProperties
 
@@ -187,6 +188,20 @@ class TestClass(BasisTest, object):
         assert "copper_5540" in self.aedtapp.materials.material_keys.keys()
         assert "al-extruded1" in self.aedtapp.materials.material_keys.keys()
         assert self.aedtapp.materials["al-extruded1"].thermal_conductivity.thermalmodifier
+
+    @pytest.mark.skipif(is_ironpython, reason="Requires Pandas Support")
+    def test_08B_import_materials_from_excel(self):
+        mats = self.aedtapp.materials.import_materials_from_excel(
+            os.path.join(local_path, "example_models", test_subfolder, "mats.xlsx")
+        )
+        assert len(mats) == 2
+        assert mats[0].conductivity.value == 5700000
+        assert mats[0].permittivity.value == 0.5
+        assert mats[0].name == "aluminum_2"
+        mats = self.aedtapp.materials.import_materials_from_excel(
+            os.path.join(local_path, "example_models", test_subfolder, "mats.csv")
+        )
+        assert len(mats) == 2
 
     def test_09_non_linear_materials(self):
         app = Maxwell3d(specified_version=desktop_version)

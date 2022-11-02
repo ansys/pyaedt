@@ -225,6 +225,8 @@ def _dim_arg(value, units):
     """
     try:
         val = float(value)
+        if isinstance(value, int):
+            val = value
         return str(val) + units
     except:
         return value
@@ -516,7 +518,7 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
         float or bool
-            Edge length in model units when edge has two vertices, ``False`` othwerise.
+            Edge length in model units when edge has two vertices, ``False`` otherwise.
 
         References
         ----------
@@ -1350,6 +1352,28 @@ class Object3d(object):
             if a:
                 list_names.extend(a)
         return list_names
+
+    @pyaedt_function_handler()
+    def get_touching_faces(self, object_name):
+        """Get the objects that touch one of the face center of each face of the object.
+
+        Parameters
+        ----------
+        object_name : str, :class:`Object3d`
+            Object to check.
+        Returns
+        -------
+        list
+            list of objects and faces touching."""
+
+        _names = []
+        if isinstance(object_name, Object3d):
+            object_name = object_name.name
+        for face in self.faces:
+            body_names = self._primitives.get_bodynames_from_position(face.center)
+            if object_name in body_names:
+                _names.append(face)
+        return _names
 
     @property
     def faces(self):
@@ -4580,3 +4604,30 @@ class UserDefinedComponent(object):
             self.parameters,
             self.target_coordinate_system,
         )
+
+    @pyaedt_function_handler()
+    def edit_definition(self, password=""):
+        """Edit 3d Definition. Open AEDT Project and return Pyaedt Object.
+
+        Parameters
+        ----------
+        password : str, optional
+            Password for encrypted models.
+
+        Returns
+        -------
+        :class:`pyaedt.hfss.Hfss` or :class:`pyaedt.Icepak.Icepak`
+            Pyaedt object.
+        """
+        from pyaedt.generic.design_types import get_pyaedt_app
+
+        self._primitives.oeditor.Edit3DComponentDefinition(
+            [
+                "NAME:EditDefinitionData",
+                ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
+            ]
+        )
+        proj = self._primitives._app.odesktop.GetActiveProject()
+        proj_name = proj.GetName()
+        des_name = proj.GetActiveDesign().GetName()
+        return get_pyaedt_app(proj_name, des_name)

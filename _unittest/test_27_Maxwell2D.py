@@ -311,11 +311,11 @@ class TestClass(BasisTest, object):
                 assert not bound.props["IsOdd"]
 
     def test_25_export_rl_matrix(self):
-        self.aedtapp.set_active_design("Y_Connections")
+        self.aedtapp.set_active_design("Sinusoidal")
         assert not self.aedtapp.export_rl_matrix("Test1", " ")
         self.aedtapp.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
-        self.aedtapp.assign_matrix(sources=["Current_1", "Current_2"], matrix_name="Test1")
-        self.aedtapp.assign_matrix(sources=["PhaseA", "PhaseB", "PhaseC"], matrix_name="Test2")
+        self.aedtapp.assign_matrix(sources=["PM_I1_1_I0", "PM_I1_I0"], matrix_name="Test1")
+        self.aedtapp.assign_matrix(sources=["Phase_A", "Phase_B", "Phase_C"], matrix_name="Test2")
         setup_name = "setupTestMatrixRL"
         setup = self.aedtapp.create_setup(setupname=setup_name)
         setup.props["MaximumPasses"] = 2
@@ -332,7 +332,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(export_path_2)
 
     def test_26_assign_current_density(self):
-        self.aedtapp.set_active_design("Y_Connections")
+        self.aedtapp.set_active_design("Sinusoidal")
         assert self.aedtapp.assign_current_density("Coil", "CurrentDensity_1")
         assert self.aedtapp.assign_current_density("Coil", "CurrentDensity_2", "40deg", current_density_2d="2")
         assert self.aedtapp.assign_current_density(["Coil", "Coil_1"])

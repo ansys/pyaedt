@@ -50,7 +50,7 @@ for par_name in params:
 # ~~~~~~~~~~~~~~
 # Create a symmetric stackup.
 
-edbapp.core_stackup.create_symmetric_stackup(2)
+edbapp.stackup.create_symmetric_stackup(2)
 
 ###############################################################################
 # Draw planes
