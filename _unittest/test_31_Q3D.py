@@ -155,8 +155,21 @@ class TestClass(BasisTest, object):
         assert len(q3d.matrices[0].sources(False)) > 0
         assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         assert q3d.matrices[1].name == "JointTest"
+        q3d.matrices[1].delete()
+        assert q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest", "New_net")
+        assert "New_net" in q3d.matrices[1].sources()
         assert q3d.insert_reduced_matrix("JoinParallel", ["Source1", "Source2"], "JointTest2")
         assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].delete()
+        assert q3d.insert_reduced_matrix("JoinParallel", ["Box1", "Box1_1"], "JointTest2")
+        assert q3d.matrices[2].name == "JointTest2"
+        assert q3d.matrices[2].delete()
+        assert q3d.insert_reduced_matrix(
+            "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
+        )
+        assert "New_net" in q3d.matrices[2].sources()
+        assert q3d.matrices[2].add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert len(q3d.matrices[2].operations) == 2
         assert q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         assert q3d.matrices[3].name == "JointTest3"
         assert q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4")
