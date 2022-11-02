@@ -292,9 +292,9 @@ class TestClass(BasisTest, object):
         assert setuptd.name not in self.aedtapp.existing_analysis_setups
 
     def test_06f_sweep_add_subrange(self):
-        box_sweep = self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
-        box_sweep2 = self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
-        port = self.aedtapp.create_wave_port_between_objects(
+        self.aedtapp.modeler.create_box([0, 0, 20], [10, 10, 5], "box_sweep", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 30], [10, 10, 5], "box_sweep2", "Copper")
+        self.aedtapp.create_wave_port_between_objects(
             "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
@@ -306,9 +306,9 @@ class TestClass(BasisTest, object):
         assert sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
 
     def test_06g_sweep_clear_subrange(self):
-        box_sweep3 = self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
-        box_sweep4 = self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
-        port = self.aedtapp.create_wave_port_between_objects(
+        self.aedtapp.modeler.create_box([0, 0, 50], [10, 10, 5], "box_sweep3", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 60], [10, 10, 5], "box_sweep4", "Copper")
+        self.aedtapp.create_wave_port_between_objects(
             "box_sweep3", "box_sweep4", self.aedtapp.AxisDir.XNeg, 50, 1, "WaveForSweepWithClear", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupClearSweep")
@@ -1076,3 +1076,25 @@ class TestClass(BasisTest, object):
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
         self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+
+    @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
+    def test_53_import_source_excitation(self):
+        self.aedtapp.insert_design()
+        self.aedtapp.solution_type = "Modal"
+        freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
+        time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
+
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        self.aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
+        self.aedtapp.create_setup()
+        assert self.aedtapp.edit_source_from_file(
+            self.aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9
+        )
+        assert self.aedtapp.edit_source_from_file(
+            self.aedtapp.excitations[0],
+            time_domain,
+            is_time_domain=True,
+            data_format="Voltage",
+            x_scale=1e-6,
+            y_scale=1e-3,
+        )

@@ -406,7 +406,7 @@ class Circuit(FieldAnalysisCircuit, object):
             Path of the IBIS file.
 
         Returns
-        ----------
+        -------
         :class:`pyaedt.generic.ibis_reader.Ibis`
             IBIS object exposing all data from the IBIS file.
         """

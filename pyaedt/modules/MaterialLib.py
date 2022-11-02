@@ -64,7 +64,6 @@ class Materials(object):
         self.material_keys = {}
         self._surface_material_keys = {}
         self._load_from_project()
-        pass
 
     def __len__(self):
         return len(self.material_keys)

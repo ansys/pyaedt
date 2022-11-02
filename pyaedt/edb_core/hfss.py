@@ -535,7 +535,7 @@ class EdbHfss(object):
         force_circuit_port ; used to force circuit port creation instead of lumped. Works for vertical and coplanar
         ports.
 
-        Example
+        Examples
         --------
 
         >>> edb_path = path_to_edb
@@ -1234,7 +1234,8 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        return len([term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0])
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        return len([i for i in terms if not i.IsReferenceTerminal()])
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):

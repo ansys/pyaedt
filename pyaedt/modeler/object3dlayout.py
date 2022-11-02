@@ -824,7 +824,7 @@ class Pins3DLayout(Objec3DLayout, object):
         """Retrieve the hole diameter of the pin.
 
         Returns
-        --------
+        -------
         float
            Hole diameter of the pin.
 

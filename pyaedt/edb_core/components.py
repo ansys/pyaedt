@@ -1708,7 +1708,7 @@ class Components(object):
                 else:
                     comp.type = comp_type.upper()
 
-                if comp_type in ["Resistor", "Capacitor", "Inductor"]:
+                if comp_type.capitalize() in ["Resistor", "Capacitor", "Inductor"] and refdes in unmount_comp_list:
                     unmount_comp_list.remove(refdes)
                 if not value_col == None:
                     try:

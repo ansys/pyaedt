@@ -221,11 +221,17 @@ class Source(object):
 class PinGroup(object):
     """Manages pin groups."""
 
-    def __init__(self):
-        self._name = ""
+    def __init__(self, name="", edb_pin_group=None, pedb=None):
+        self._pedb = pedb
+        self._edb_pin_group = edb_pin_group
+        self._name = name
         self._component = ""
         self._node_pins = []
         self._net = ""
+
+    @property
+    def _active_layout(self):
+        return self._pedb.active_layout
 
     @property
     def name(self):
@@ -262,6 +268,29 @@ class PinGroup(object):
     @net.setter
     def net(self, value):
         self._net = value
+
+    def _create_terminal(self, is_reference=False):
+        return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
+            self._active_layout,
+            self._edb_pin_group.GetNet(),
+            self.name,
+            self._edb_pin_group,
+            is_reference,
+        )
+
+    def create_current_source_terminal(self, magnitude=1, phase=0):
+        terminal = self._create_terminal()
+        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kCurrentSource)
+        terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
+        terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        return terminal
+
+    def create_voltage_source_terminal(self, magnitude=1, phase=0):
+        terminal = self._create_terminal()
+        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
+        terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
+        terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        return terminal
 
 
 class CircuitPort(Source, object):

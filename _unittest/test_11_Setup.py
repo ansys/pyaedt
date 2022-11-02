@@ -52,6 +52,8 @@ class TestClass(BasisTest, object):
         sweep1.props["SaveFields"] = True
         assert sweep1.update()
         assert self.aedtapp.get_sweeps("My_HFSS_Setup")
+        sweep2 = setup1.add_sweep(sweepname="test_sweeptype", sweeptype="invalid")
+        assert sweep2.props["Type"] == "Interpolating"
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit()

@@ -296,7 +296,6 @@ class LayerEdbClass(object):
             self._top_hallhuray_nodule_radius = top_roughness_model.NoduleRadius.ToDouble()
         return self._top_hallhuray_nodule_radius
 
-
     @top_hallhuray_nodule_radius.setter
     def top_hallhuray_nodule_radius(self, value):
         self._top_hallhuray_nodule_radius = value
@@ -490,16 +489,28 @@ class LayerEdbClass(object):
             if self.roughness_enabled:
                 self.top_hallhuray_nodule_radius = layer["top_hallhuray_nodule_radius"]
                 self.top_hallhuray_surface_ratio = layer["top_hallhuray_surface_ratio"]
-                self.assign_roughness_model("huray", layer["top_hallhuray_nodule_radius"],
-                                            layer["top_hallhuray_surface_ratio"], apply_on_surface="top")
+                self.assign_roughness_model(
+                    "huray",
+                    layer["top_hallhuray_nodule_radius"],
+                    layer["top_hallhuray_surface_ratio"],
+                    apply_on_surface="top",
+                )
                 self.bottom_hallhuray_nodule_radius = layer["bottom_hallhuray_nodule_radius"]
                 self.bottom_hallhuray_surface_ratio = layer["bottom_hallhuray_surface_ratio"]
-                self.assign_roughness_model("huray", layer["bottom_hallhuray_nodule_radius"],
-                                            layer["bottom_hallhuray_surface_ratio"], apply_on_surface="bottom")
+                self.assign_roughness_model(
+                    "huray",
+                    layer["bottom_hallhuray_nodule_radius"],
+                    layer["bottom_hallhuray_surface_ratio"],
+                    apply_on_surface="bottom",
+                )
                 self.side_hallhuray_nodule_radius = layer["side_hallhuray_nodule_radius"]
                 self.side_hallhuray_surface_ratio = layer["side_hallhuray_surface_ratio"]
-                self.assign_roughness_model("huray", layer["side_hallhuray_nodule_radius"],
-                                            layer["side_hallhuray_surface_ratio"], apply_on_surface="side")
+                self.assign_roughness_model(
+                    "huray",
+                    layer["side_hallhuray_nodule_radius"],
+                    layer["side_hallhuray_surface_ratio"],
+                    apply_on_surface="side",
+                )
 
 
 class Stackup(object):
@@ -1016,7 +1027,7 @@ class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
 
     .. deprecated:: 0.6.5
-    This class has been deprecated and replaced by Stackup class.
+        This class has been deprecated and replaced by the ``Stackup`` class.
 
     Examples
     --------
@@ -1264,8 +1275,9 @@ class EdbStackup(object):
         """Return the layout thickness.
 
         Returns
-        --------
-        Float, the thickness value.
+        -------
+        float
+            The thickness value.
         """
         layers_name = list(self.stackup_layers.layers.keys())
         bottom_layer = self.stackup_layers.layers[layers_name[0]]

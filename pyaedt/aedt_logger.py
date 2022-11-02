@@ -18,7 +18,7 @@ class MessageList:
     Collects and returns messages from the AEDT message manager for a specified project name and design name.
 
     Parameters
-    ---------
+    ----------
     msg_list : list
         List of messages extracted from AEDT.
     project_name : str
