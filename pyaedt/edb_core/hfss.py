@@ -80,6 +80,7 @@ class EdbHfss(object):
 
     @property
     def ports(self):
+        """Get all ports."""
         terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
         terms = [i for i in terms if not i.IsReferenceTerminal()]
         return {ter.GetName(): Port(self._pedb, ter, ter.GetName()) for ter in terms}
