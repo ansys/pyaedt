@@ -1463,8 +1463,8 @@ class GeometryOperators(object):
         vn : list
             List of ``[x, y, z]`` coordinates for the plane normal.
         right_handed : bool
-            If ``True`` the right-handed rotation from Va to Vb is considered.
-            If ``False`` the left-handed rotation from Va to Vb is considered. The default is ``True`.
+            Whether to consider the right-handed rotation from Va to Vb. The default is ``True``.
+            When ``False``, left-hand rotation from Va to Vb is considered.
 
         Returns
         -------
@@ -1500,10 +1500,9 @@ class GeometryOperators(object):
             List of ``[x, y]`` coordinates for the first vector.
         vb : List
             List of ``[x, y]`` coordinates for the second vector.
-
         right_handed : bool
-            If ``True`` the right-handed rotation from Va to Vb is considered.
-            If ``False`` the left-handed rotation from Va to Vb is considered. The default is ``True`.
+            Whether to consider the right-handed rotation from Va to Vb. The default is ``True``.
+            When ``False``, left-hand rotation from Va to Vb is considered.
 
         Returns
         -------
