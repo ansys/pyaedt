@@ -110,7 +110,10 @@ def _retrieve_folder(url, directory, destination=None):
 
     for line in data:
         if "js-navigation-open Link--primary" in line:
-            filename = ast.literal_eval(line[line.find("title=") + len("title=") : line.rfind(" data-pjax")])
+            name = line[line.find("title=") + len("title=") : line.rfind(" data-pjax")]
+            if "data-turbo-frame" in name:
+                name = line[line.find("title=") + len("title=") : line.rfind(" data-turbo-frame")]
+            filename = ast.literal_eval(name)
             if ".aedb" in filename:
                 _download_file(directory + "/" + filename, "edb.def", destination)
             else:
