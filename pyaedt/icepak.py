@@ -1459,7 +1459,8 @@ class Icepak(FieldAnalysis3D):
         defaultsolid : str, optional
             Default solid material. The default is ``"Al-Extruded"``.
         export_monitor : bool, optional
-            Default export option for monitor point data. The default is ``"False"``
+            Whether to use the default export directory for monitor point data.
+            The default is ``False``
         export_directory : str, optional
             Default export directory for monitor point data. The default is ``"current working directory"``.
 
