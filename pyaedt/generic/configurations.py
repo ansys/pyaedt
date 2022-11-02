@@ -93,7 +93,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_variables = False  # Disable the variables export
@@ -113,7 +113,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_setups = False  # Disable the setup export
@@ -133,7 +133,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_optimizations = False  # Disable the optimization export
@@ -233,7 +233,7 @@ class ConfigurationsOptions(object):
     #     bool
     #
     #     Examples
-    #     ---------
+    #     --------
     #     >>> from pyaedt import Hfss
     #     >>> hfss = Hfss()
     #     >>> hfss.configurations.options.export_face_coordinate_systems = False  # Disable the face coordinate export
@@ -433,7 +433,7 @@ class ConfigurationsOptions(object):
     #     bool
     #
     #     Examples
-    #     ---------
+    #     --------
     #     >>> from pyaedt import Hfss
     #     >>> hfss = Hfss()
     #     >>> hfss.configurations.options.import_face_coordinate_systems = False  # Disable the face coordinate import
