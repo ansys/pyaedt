@@ -3,8 +3,8 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
-from pyaedt.edb_core.edb_data.sources import Port
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import Port
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
@@ -630,15 +630,15 @@ class EdbHfss(object):
             Impedance of the port. The default value is ``50``.
         reference_layer : str, optional
             Reference layer of the port. The default is ``None``.
-        hfss_type: str, optional
+        hfss_type : str, optional
             Type of the port. The default is ``Gap``. Options are ``"Gap"``, ``"Wave"``.
         horizontal_extent_factor: int, float, optional
             Horizontal extent factor.
-        vertical_extent_factor: int, float, optional
+        vertical_extent_factor : int, float, optional
             Vertical extent factor.
-        radial_extent_factor: int, float, optional
+        radial_extent_factor : int, float, optional
             Radial exctent factor.
-        pec_launch_width: str, optional
+        pec_launch_width : str, optional
             Launch Width of PEC.
         Returns
         -------
