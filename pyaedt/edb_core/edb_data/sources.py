@@ -1,3 +1,5 @@
+import re
+
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import SourceType
 
@@ -437,3 +439,45 @@ class ResistorSource(Source):
     def source_type(self):
         """Source type."""
         return self._source_type
+
+
+class Port:
+    
+    def __init__(self, pedb, edb_terminal, name):
+        self._pedb = pedb
+        self._edb_terminal = edb_terminal
+        self._name = name
+
+    @property
+    def _edb(self):
+        return self._pedb.edb
+
+    @property
+    def _edb_properties(self):
+        p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
+        return p
+
+    @property
+    def hfss_type(self):
+        txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
+        return txt.split("=")[1].replace("'", "")
+
+    @property
+    def horizontal_extent_factor(self):
+        txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def vertical_extent_factor(self):
+        txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def radial_extent_factor(self):
+        txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def pec_launch_width(self):
+        txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
+        return txt.split("=")[1].replace("'", "")

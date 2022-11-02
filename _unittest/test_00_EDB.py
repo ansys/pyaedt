@@ -2034,6 +2034,12 @@ if not config["skip_edb"]:
                 prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
             )
             assert edb.core_hfss.get_ports_number() == 2
+            port_ver = edb.core_hfss.ports["port_ver"]
+            assert port_ver.hfss_type
+            assert port_ver.horizontal_extent_factor
+            assert port_ver.vertical_extent_factor
+            assert isinstance(port_ver.radial_extent_factor, float)
+            assert port_ver.pec_launch_width
             edb.close_edb()
 
         def test_A119_insert_layer(self):
