@@ -9,6 +9,18 @@ dotnetcore2==3.1.23; python_version > '3.6' and sys_platform == 'linux'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
+pythonnet==3.0.0.post1; python_version > '3.6'
+# https://github.com/pythonnet/pythonnet
+# License: MIT
+
+pywin32==303; python_version > '3.6'
+# https://github.com/mhammond/pywin32
+# License: PSF
+
+rpyc==5.0.1; python_version > '3.6'
+# https://github.com/tomerfiliba-org/rpyc
+# License: MIT
+
 # #############################################################################
 # optional
 # #############################################################################
@@ -25,19 +37,7 @@ pandas==1.5.1; python_version == '3.7'
 # License: BSD-3-Clause License
 
 psutil==5.9.3; python_version > '3.6'
-# https://github.com/tomerfiliba-org/rpyc
-# License: MIT
-
-pythonnet==3.0.0.post1; python_version > '3.6'
 # License: BSD-3-Clause License
 
 pyvista==0.36.1; python_version > '3.6'
-# https://github.com/pythonnet/pythonnet
-# License: MIT
-
-pywin32==303; python_version > '3.6'
-# https://github.com/mhammond/pywin32
-# License: PSF
-
-rpyc==5.0.1; python_version > '3.6'
 # License: MIT

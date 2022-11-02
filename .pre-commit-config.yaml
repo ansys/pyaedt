@@ -2,7 +2,6 @@ files: |
     (?x)(
         ^pyaedt/|
         _unittest/|
-        requirements.txt|
         requirements_docs.txt|
         requirements_test.txt
     )
