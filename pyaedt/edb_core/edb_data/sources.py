@@ -443,6 +443,7 @@ class ResistorSource(Source):
 
 class Port:
     """Manages port properties"""
+
     def __init__(self, pedb, edb_terminal, name):
         self._pedb = pedb
         self._edb_terminal = edb_terminal

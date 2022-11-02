@@ -612,7 +612,7 @@ class EdbHfss(object):
         horizontal_extent_factor=5,
         vertical_extent_factor=3,
         radial_extent_factor=0,
-        pec_launch_width="0.01mm"
+        pec_launch_width="0.01mm",
     ):
         """Create a vertical edge port.
 
@@ -651,13 +651,17 @@ class EdbHfss(object):
             reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
             pos_edge_term.SetReferenceLayer(reference_layer)
 
-        prop = ", ".join(["HFSS('HFSS Type'='{}'".format(hfss_type),
-         " Orientation='Vertical'",
-         " 'Layer Alignment'='Upper'",
-         " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
-         " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
-         " 'Radial Extent Factor'='{}'".format(radial_extent_factor),
-         " 'PEC Launch Width'='{}')".format(pec_launch_width)])
+        prop = ", ".join(
+            [
+                "HFSS('HFSS Type'='{}'".format(hfss_type),
+                " Orientation='Vertical'",
+                " 'Layer Alignment'='Upper'",
+                " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
+                " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
+                " 'Radial Extent Factor'='{}'".format(radial_extent_factor),
+                " 'PEC Launch Width'='{}')".format(pec_launch_width),
+            ]
+        )
         pos_edge_term.SetProductSolverOption(
             self._pedb.edb.ProductId.Designer,
             "HFSS",
