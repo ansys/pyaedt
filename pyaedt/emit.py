@@ -92,7 +92,7 @@ class Result:
 
         Parameters
         ----------
-        tx_rx: tx_rx_mode object
+        tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
         -------
         :class:`list of str`
@@ -115,9 +115,9 @@ class Result:
 
         Parameters
         ----------
-        radio_name: str
+        radio_name : str
             Name of the radio.
-        tx_rx: tx_rx_mode object
+        tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
         -------
         :class:`list of str`
@@ -141,11 +141,11 @@ class Result:
 
         Parameters
         ----------
-        radio_name: str
+        radio_name : str
             Name of the radio.
-        band_name: str
+        band_name : str
            Name of the band.
-        tx_rx: tx_rx_mode object
+        tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
         -------
         :class:`list of float`
@@ -207,7 +207,7 @@ class Revision:
 
         Parameters
         ----------
-        domain:
+        domain :
             ``InteractionDomain`` object for constraining the analysis parameters.
         Returns
         -------
@@ -346,10 +346,10 @@ class Emit(FieldAnalysisEmit, object):
         desktop_path = self.desktop_install_dir
         path = os.path.join(desktop_path, "Delcross")
         sys.path.append(path)
-        global mod
-        mod = import_module("EmitApiPython")
-        self._emit_api = mod.EmitApi()
         if(self._aedt_version >= "2023.1"):
+            global mod
+            mod = import_module("EmitApiPython")
+            self._emit_api = mod.EmitApi()
             self.results = Result(self)
             self.__emit_api_enabled = True
         
@@ -388,7 +388,7 @@ class Emit(FieldAnalysisEmit, object):
 
         Parameters
         ----------
-        path:
+        path :
             Path to an AEDT result file
 
         Returns
@@ -451,7 +451,7 @@ class Emit(FieldAnalysisEmit, object):
 
         Parameters
         ----------
-        detailed: bool, optional
+        detailed : bool, optional
             Whether to return a verbose description. The default is ``False``.
         Returns
         -------
