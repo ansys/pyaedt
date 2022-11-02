@@ -665,7 +665,7 @@ class EdbHfss(object):
         impedance : int, float, optional
             Impedance of the port. The default value is ``50``.
         layer_alignment : str, optional
-            Layer alignment. The default value is ``Upper``.
+            Layer alignment. The default value is ``Upper``. Options are ``"Upper"``, ``"Lower"``.
         Returns
         -------
         str
