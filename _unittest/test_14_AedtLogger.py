@@ -289,8 +289,8 @@ class TestClass(BasisTest, object):
 
             sys.stdout = sys.__stdout__
 
-            stream.write.assert_any_call("pyaedt INFO: Info for Global")
-            stream.write.assert_any_call("pyaedt INFO: Info after re-enabling the stdout handler.")
+            stream.write.assert_any_call("pyaedt INFO: Info for Global\n")
+            stream.write.assert_any_call("pyaedt INFO: Info after re-enabling the stdout handler.\n")
 
             with pytest.raises(AssertionError) as e_info:
                 stream.write.assert_any_call("pyaedt INFO: Info after disabling the stdout handler.")
@@ -299,7 +299,8 @@ class TestClass(BasisTest, object):
             stream_content = fp.readlines()
 
         assert stream_content[0] == "pyaedt INFO: Info for Global\n"
-        assert stream_content[1] == "pyaedt INFO: Info after re-enabling the stdout handler.\n"
+        assert stream_content[1] == "pyaedt INFO: StdOut has been enabled\n"
+        assert stream_content[2] == "pyaedt INFO: Info after re-enabling the stdout handler.\n"
 
 
 class CaptureStdOut:
