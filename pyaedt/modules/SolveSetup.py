@@ -21,7 +21,7 @@ from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SetupTemplates import SweepHFSS
 from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
-from pyaedt.modules.SetupTemplates import SweepQ3D
+from pyaedt.modules.SetupTemplates import SweepMatrix
 from pyaedt.modules.SetupTemplates import identify_setup
 
 
@@ -70,13 +70,13 @@ class CommonSetup(PropsManager, object):
                             app.pop("MoveBackwards", None)
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepHFSS(self, self.name, el, props=app[el]))
+                                    self.sweeps.append(SweepHFSS(self, el, props=app[el]))
 
                         else:
                             app = setup_data["Sweeps"]
                             for el in app:
                                 if isinstance(app[el], (OrderedDict, dict)):
-                                    self.sweeps.append(SweepQ3D(self, self.name, el, props=app[el]))
+                                    self.sweeps.append(SweepMatrix(self, el, props=app[el]))
                         setup_data.pop("Sweeps", None)
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -91,7 +91,6 @@ class CommonSetup(PropsManager, object):
         bool
             `True` if solutions are available.
         """
-
         if self.p_app.design_solutions.default_adaptive:
             expressions = [
                 i
@@ -476,7 +475,7 @@ class Setup(CommonSetup):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepQ3D`
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
             Sweep object.
 
         References
@@ -487,12 +486,15 @@ class Setup(CommonSetup):
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
         if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3d. Use add_eddy_current_sweep method.")
+            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
             return False
         if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, self.name, sweepname, sweeptype)
+            sweep_n = SweepHFSS(self, sweepname=sweepname, sweeptype=sweeptype)
+        elif self.setuptype in [14, 30, 31]:
+            sweep_n = SweepMatrix(self, sweepname=sweepname, sweeptype=sweeptype)
         else:
-            sweep_n = SweepQ3D(self, self.name, sweepname, sweeptype)
+            self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
+            return False
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
@@ -1313,7 +1315,7 @@ class Setup3DLayout(CommonSetup):
                         app = setup_data["Data"]
                         for el in app:
                             if isinstance(app[el], (OrderedDict, dict)):
-                                self.sweeps.append(SweepHFSS3DLayout(self, self.name, el, props=app[el]))
+                                self.sweeps.append(SweepHFSS3DLayout(self, el, props=app[el]))
 
                     self.props = SetupProps(self, OrderedDict(setup_data))
             except:
@@ -1330,6 +1332,10 @@ class Setup3DLayout(CommonSetup):
         """
         if self.props.get("SolveSetupType", "HFSS") == "HFSS":
             sol = self._app.post.reports_by_category.standard(setup_name="{} : Last Adaptive".format(self.name))
+        elif self.props.get("SolveSetupType", "HFSS") == "SIwave":
+            sol = self._app.post.reports_by_category.standard(
+                setup_name="{} : {}".format(self.name, self.sweeps[0].name)
+            )
         else:
             sol = self._app.post.reports_by_category.standard(setup_name=self.name)
         if identify_setup(self.props):
@@ -1445,7 +1451,7 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def export_to_hfss(self, file_fullname):
-        """Export the project to a file.
+        """Export the HFSS 3DLayout design to HFSS 3D design.
 
         Parameters
         ----------
@@ -1468,6 +1474,32 @@ class Setup3DLayout(CommonSetup):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
         self.omodule.ExportToHfss(self.name, file_fullname)
+        return True
+
+    @pyaedt_function_handler()
+    def export_to_q3d(self, file_fullname):
+        """Export the HFSS 3DLayout design to Q3D design.
+
+        Parameters
+        ----------
+        file_fullname : str
+            Full path and file name for exporting the project.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.ExportToQ3d
+        """
+
+        if not os.path.isdir(os.path.dirname(file_fullname)):
+            return False
+        file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
+        self.omodule.ExportToQ3d(self.name, file_fullname)
         return True
 
     @pyaedt_function_handler()
@@ -1494,7 +1526,7 @@ class Setup3DLayout(CommonSetup):
         """
         if not sweepname:
             sweepname = generate_unique_name("Sweep")
-        sweep_n = SweepHFSS3DLayout(self, self.name, sweepname, sweeptype)
+        sweep_n = SweepHFSS3DLayout(self, sweepname, sweeptype)
         if sweep_n.create():
             self.sweeps.append(sweep_n)
             return sweep_n

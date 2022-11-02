@@ -152,7 +152,7 @@ class SolutionData(object):
 
     @property
     def intrinsics(self):
-        "Get intrinics dictionary on active variation."
+        """Get intrinsics dictionary on active variation."""
         _sweeps = OrderedDict({})
         intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
         for el in intrinsics:

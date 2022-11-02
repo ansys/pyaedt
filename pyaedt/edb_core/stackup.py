@@ -10,9 +10,9 @@ import logging
 import math
 import warnings
 
-from pyaedt.edb_core.EDB_Data import EDBLayers
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.edb_core.EDB_Data import StackupInfo
+from pyaedt.edb_core.edb_data.layer_data import EDBLayers
+from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -797,25 +797,6 @@ class Stackup(object):
                 fpath = fpath + ".xlsx"
             df.to_excel(fpath)
         return True
-
-    def check_and_fix_stackup(self, stackup_info=None):
-        if not isinstance(stackup_info, StackupInfo):
-            logger.error("Argument must be an instance of StackInfo")
-            return False
-        for layer in stackup_info.layers["primary"]:
-            try:
-                layer_to_check = self.layers[layer.name]
-                if layer_to_check:
-                    layer_to_check.thickness = layer.thickness
-            except:
-                pass
-        signal_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "conductor"]
-        dielectric_layers = [layer for layer in stackup_info.layers["primary"] if layer.type == "dielectric"]
-        for signal_layer in signal_layers:
-            layer_to_check = self.layers[signal_layer.name]
-
-            if layer_to_check:
-                layer_to_check.filling_material = dielectric_layers[1].material_name
 
 
 class EdbStackup(object):

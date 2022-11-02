@@ -147,28 +147,26 @@ class FieldAnalysis3D(Analysis, object):
 
         """
         components_dict = {}
-        syspath = os.path.join(self.syslib, "3DComponents", self._design_type)
-        if os.path.exists(syspath):
-            listfiles = []
-            for root, dirs, files in os.walk(syspath):
-                for file in files:
-                    if file.endswith(".a3dcomp"):
-                        listfiles.append(os.path.join(root, file))
-            # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
-            for el in listfiles:
-                head, tail = ntpath.split(el)
-                components_dict[tail[:-8]] = el
-        userlib = os.path.join(self.userlib, "3DComponents", self._design_type)
-        if os.path.exists(userlib):
-            listfiles = []
-            for root, dirs, files in os.walk(userlib):
-                for file in files:
-                    if file.endswith(".a3dcomp"):
-                        listfiles.append(os.path.join(root, file))
-            # listfiles = glob.glob(userlib + "/**/*.a3dcomp", recursive=True)
-            for el in listfiles:
-                head, tail = ntpath.split(el)
-                components_dict[tail[:-8]] = el
+
+        # Define libraries where 3d components may exist.
+        # libs = [syslib, userlib]
+
+        libs = [
+            os.path.join(self.syslib, "3DComponents", self._design_type),
+            os.path.join(self.userlib, "3DComponents", self._design_type),
+        ]
+
+        for lib in libs:
+            if os.path.exists(lib):
+                listfiles = []
+                for root, _, files in os.walk(lib):
+                    for file in files:
+                        if file.endswith(".a3dcomp"):
+                            listfiles.append(os.path.join(root, file))
+                # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
+                for el in listfiles:
+                    head, tail = ntpath.split(el)
+                    components_dict[tail[:-8]] = el
         return components_dict
 
     @pyaedt_function_handler()
@@ -938,7 +936,7 @@ class FieldAnalysis3D(Analysis, object):
                 app.modeler.purge_history(app.modeler._all_object_names)
             self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
             self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
-            app.close_project(saveproject=False)
+            app.close_project(save_project=False)
             comp.delete()
             self.modeler.refresh_all_ids()
         return True

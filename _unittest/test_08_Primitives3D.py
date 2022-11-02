@@ -560,7 +560,9 @@ class TestClass(BasisTest, object):
         assert len(list1) + len(list2) == len(list3)
 
     def test_41a_create_rect_sheet_to_region(self):
-        self.aedtapp.modeler.create_region()
+        assert self.aedtapp.modeler.create_region("20mm", False)
+        self.aedtapp.modeler["Region"].delete()
+        assert self.aedtapp.modeler.create_region()
         self.create_copper_box(name="MyBox_to_gnd")
         groundplane = self.aedtapp.modeler.create_sheet_to_ground("MyBox_to_gnd")
         assert groundplane.id > 0
@@ -795,7 +797,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif("UNITTEST_CURRENT_TEST" in os.environ, reason="Issue in IronPython")
     def test_60_get_edges_on_bounding_box(self):
-        self.aedtapp.close_project(name=self.aedtapp.project_name, saveproject=False)
+        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
         self.aedtapp.load_project(self.test_99_project)
         edges = self.aedtapp.modeler.get_edges_on_bounding_box(["Port1", "Port2"], return_colinear=True, tol=1e-6)
         assert len(edges) == 2
