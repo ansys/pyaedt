@@ -633,7 +633,7 @@ class EdbHfss(object):
             Reference layer of the port. The default is ``None``.
         hfss_type : str, optional
             Type of the port. The default is ``Gap``. Options are ``"Gap"``, ``"Wave"``.
-        horizontal_extent_factor: int, float, optional
+        horizontal_extent_factor : int, float, optional
             Horizontal extent factor.
         vertical_extent_factor : int, float, optional
             Vertical extent factor.
