@@ -1462,7 +1462,7 @@ class Icepak(FieldAnalysis3D):
             Whether to use the default export directory for monitor point data.
             The default is ``False``
         export_directory : str, optional
-            Default export directory for monitor point data. The default is ``"current working directory"``.
+            Default export directory for monitor point data. The default value is the current working directory.
 
         Returns
         -------
