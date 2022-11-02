@@ -442,7 +442,7 @@ class ResistorSource(Source):
 
 
 class Port:
-    
+    """Manages port properties"""
     def __init__(self, pedb, edb_terminal, name):
         self._pedb = pedb
         self._edb_terminal = edb_terminal
@@ -459,25 +459,30 @@ class Port:
 
     @property
     def hfss_type(self):
+        """Get hfss port type."""
         txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
         return txt.split("=")[1].replace("'", "")
 
     @property
     def horizontal_extent_factor(self):
+        """Get horizontal extent factor."""
         txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
     @property
     def vertical_extent_factor(self):
+        """Get vertical extent factor."""
         txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
     @property
     def radial_extent_factor(self):
+        """Get radial extent factor"""
         txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
     @property
     def pec_launch_width(self):
+        """Get pec launch width."""
         txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
         return txt.split("=")[1].replace("'", "")

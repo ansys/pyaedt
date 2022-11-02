@@ -630,6 +630,16 @@ class EdbHfss(object):
             Impedance of the port. The default value is ``50``.
         reference_layer : str, optional
             Reference layer of the port. The default is ``None``.
+        hfss_type: str, optional
+            Type of the port. The default is ``Gap``. Options are ``"Gap"``, ``"Wave"``.
+        horizontal_extent_factor: int, float, optional
+            Horizontal extent factor.
+        vertical_extent_factor: int, float, optional
+            Vertical extent factor.
+        radial_extent_factor: int, float, optional
+            Radial exctent factor.
+        pec_launch_width: str, optional
+            Launch Width of PEC.
         Returns
         -------
         str
