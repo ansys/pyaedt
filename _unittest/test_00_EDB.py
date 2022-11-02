@@ -1,7 +1,7 @@
+import json
 import math
 import os
 import time
-import json
 
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
@@ -32,6 +32,7 @@ except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
+
 
 if not config["skip_edb"]:
 
@@ -129,8 +130,8 @@ if not config["skip_edb"]:
             assert self.edbapp.core_stackup.stackup_layers["TOP"]._builder
             assert self.edbapp.core_stackup.stackup_layers["TOP"].id
             assert (
-                    isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
-                    or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
+                isinstance(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type, int)
+                or str(type(self.edbapp.core_stackup.stackup_layers["TOP"].layer_type)) == "<type 'LayerType'>"
             )
 
         def test_05_get_signal_layers(self):
@@ -254,20 +255,20 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.components["R1"].pinlist
             pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
             assert (
-                    self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
-                    == self.edbapp.core_components.components["R1"].lower_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+                == self.edbapp.core_components.components["R1"].lower_elevation
             )
             assert (
-                    self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
-                    == self.edbapp.core_components.components["R1"].placement_layer
+                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+                == self.edbapp.core_components.components["R1"].placement_layer
             )
             assert (
-                    self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
-                    == self.edbapp.core_components.components["R1"].upper_elevation
+                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+                == self.edbapp.core_components.components["R1"].upper_elevation
             )
             assert (
-                    self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
-                    == self.edbapp.core_components.components["R1"].top_bottom_association
+                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+                == self.edbapp.core_components.components["R1"].top_bottom_association
             )
             assert self.edbapp.core_components.components["R1"].pins[pinname].position
             assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
@@ -356,8 +357,8 @@ if not config["skip_edb"]:
         def test_37_create_circuit_port(self):
             initial_len = len(self.edbapp.core_padstack.pingroups)
             assert (
-                    self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test")
-                    == "test"
+                self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 50, "test")
+                == "test"
             )
             p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
             assert p2 != "test" and "test" in p2
@@ -2178,8 +2179,8 @@ if not config["skip_edb"]:
             assert edbapp.materials["FR4_epoxy"].mass_density == edbapp.materials["FR41"].mass_density
             assert edbapp.materials["FR4_epoxy"].thermal_conductivity == edbapp.materials["FR41"].thermal_conductivity
             assert (
-                    edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient
-                    == edbapp.materials["FR41"].thermal_expansion_coefficient
+                edbapp.materials["FR4_epoxy"].thermal_expansion_coefficient
+                == edbapp.materials["FR41"].thermal_expansion_coefficient
             )
             assert edbapp.materials["FR4_epoxy"].poisson_ratio == edbapp.materials["FR41"].poisson_ratio
             assert edbapp.materials.add_debye_material("My_Debye2", 5, 3, 0.02, 0.05, 1e5, 1e9)
@@ -2213,18 +2214,18 @@ if not config["skip_edb"]:
             comp = edbapp.core_components.components["R6"]
             comp.assign_rlc_model(1, 2, 3, False)
             assert (
-                    not comp.is_parallel_rlc
-                    and float(comp.res_value) == 1
-                    and float(comp.ind_value) == 2
-                    and float(comp.cap_value) == 3
+                not comp.is_parallel_rlc
+                and float(comp.res_value) == 1
+                and float(comp.ind_value) == 2
+                and float(comp.cap_value) == 3
             )
             comp.assign_rlc_model(1, 2, 3, True)
             assert comp.is_parallel_rlc
             assert (
-                    comp.is_parallel_rlc
-                    and float(comp.res_value) == 1
-                    and float(comp.ind_value) == 2
-                    and float(comp.cap_value) == 3
+                comp.is_parallel_rlc
+                and float(comp.res_value) == 1
+                and float(comp.ind_value) == 2
+                and float(comp.cap_value) == 3
             )
             assert comp.value
             assert not comp.spice_model and not comp.s_param_model and not comp.netlist_model
@@ -2255,23 +2256,23 @@ if not config["skip_edb"]:
                 if material["dc_conductivity"] is not None:
                     assert (pedb_mat.dc_conductivity - material["dc_conductivity"]) < delta
                 else:
-                    assert (pedb_mat.dc_conductivity == material["dc_conductivity"])
+                    assert pedb_mat.dc_conductivity == material["dc_conductivity"]
                 if material["dc_permittivity"] is not None:
                     assert (pedb_mat.dc_permittivity - material["dc_permittivity"]) < delta
                 else:
-                    assert (pedb_mat.dc_permittivity == material["dc_permittivity"])
+                    assert pedb_mat.dc_permittivity == material["dc_permittivity"]
                 if material["dielectric_model_frequency"] is not None:
                     assert (pedb_mat.dielectric_model_frequency - material["dielectric_model_frequency"]) < delta
                 else:
-                    assert (pedb_mat.dielectric_model_frequency == material["dielectric_model_frequency"])
+                    assert pedb_mat.dielectric_model_frequency == material["dielectric_model_frequency"]
                 if material["loss_tangent_at_frequency"] is not None:
                     assert (pedb_mat.loss_tangent_at_frequency - material["loss_tangent_at_frequency"]) < delta
                 else:
-                    assert (pedb_mat.loss_tangent_at_frequency == material["loss_tangent_at_frequency"])
+                    assert pedb_mat.loss_tangent_at_frequency == material["loss_tangent_at_frequency"]
                 if material["permittivity_at_frequency"] is not None:
                     assert (pedb_mat.permittivity_at_frequency - material["permittivity_at_frequency"]) < delta
                 else:
-                    assert (pedb_mat.permittivity_at_frequency == material["permittivity_at_frequency"])
+                    assert pedb_mat.permittivity_at_frequency == material["permittivity_at_frequency"]
                 return 0
 
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2287,33 +2288,43 @@ if not config["skip_edb"]:
             for k, v in json_dict.items():
                 if k == "materials":
                     for material in v.values():
-                        assert (0 == validate_material(edbapp.materials, material, delta))
+                        assert 0 == validate_material(edbapp.materials, material, delta)
             for k, v in json_dict.items():
                 if k == "layers":
                     for layer_name, layer in v.items():
                         pedb_lay = edbapp.stackup.layers[layer_name]
-                        assert (list(pedb_lay.color) == layer["color"])
-                        assert (pedb_lay.type == layer["type"])
+                        assert list(pedb_lay.color) == layer["color"]
+                        assert pedb_lay.type == layer["type"]
                         if isinstance(layer["material"], str):
-                            assert (pedb_lay.material == layer["material"])
+                            assert pedb_lay.material == layer["material"]
                         else:
-                            assert (0 == validate_material(edbapp.materials, layer["material"], delta))
+                            assert 0 == validate_material(edbapp.materials, layer["material"], delta)
                         if isinstance(layer["dielectric_fill"], str) or layer["dielectric_fill"] is None:
-                            assert (pedb_lay.dielectric_fill == layer["dielectric_fill"])
+                            assert pedb_lay.dielectric_fill == layer["dielectric_fill"]
                         else:
-                            assert (0 == validate_material(edbapp.materials, layer["dielectric_fill"], delta))
+                            assert 0 == validate_material(edbapp.materials, layer["dielectric_fill"], delta)
                         assert (pedb_lay.thickness - layer["thickness"]) < delta
                         assert (pedb_lay.etch_factor - layer["etch_factor"]) < delta
-                        assert (pedb_lay.roughness_enabled == layer["roughness_enabled"])
+                        assert pedb_lay.roughness_enabled == layer["roughness_enabled"]
                         if layer["roughness_enabled"]:
                             assert (pedb_lay.top_hallhuray_nodule_radius - layer["top_hallhuray_nodule_radius"]) < delta
                             assert (pedb_lay.top_hallhuray_surface_ratio - layer["top_hallhuray_surface_ratio"]) < delta
-                            assert (pedb_lay.bottom_hallhuray_nodule_radius -
-                                    layer["bottom_hallhuray_nodule_radius"]) < delta
-                            assert (pedb_lay.bottom_hallhuray_surface_ratio -
-                                    layer["bottom_hallhuray_surface_ratio"]) < delta
-                            assert (pedb_lay.side_hallhuray_nodule_radius -
-                                    layer["side_hallhuray_nodule_radius"]) < delta
-                            assert (pedb_lay.side_hallhuray_surface_ratio -
-                                    layer["side_hallhuray_surface_ratio"]) < delta
+                            assert (
+                                pedb_lay.bottom_hallhuray_nodule_radius - layer["bottom_hallhuray_nodule_radius"]
+                            ) < delta
+                            assert (
+                                pedb_lay.bottom_hallhuray_surface_ratio - layer["bottom_hallhuray_surface_ratio"]
+                            ) < delta
+                            assert (
+                                pedb_lay.side_hallhuray_nodule_radius - layer["side_hallhuray_nodule_radius"]
+                            ) < delta
+                            assert (
+                                pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]
+                            ) < delta
             edbapp.close_edb()
+            pg_name, _ = edbapp.core_siwave.create_pin_group("U3A1", 2)
+            assert edbapp.core_siwave.create_pin_group("U3A1", [5, 34, 35], "pos")
+            assert "pos" in edbapp.core_siwave.pin_groups
+            edbapp.core_siwave.create_pin_group_on_net("U3A1", "GND", "gnd")
+            edbapp.core_siwave.create_current_source_on_pin_group("pos", "gnd")
+            edbapp.core_siwave.create_voltage_source_on_pin_group(pg_name, "gnd")
