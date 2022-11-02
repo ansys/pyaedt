@@ -1,7 +1,10 @@
 files: |
     (?x)(
         ^pyaedt/|
-        _unittest/
+        _unittest/|
+        requirements.txt|
+        requirements_docs.txt|
+        requirements_test.txt
     )
 exclude: |
     (?x)(
