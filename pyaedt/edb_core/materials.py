@@ -190,7 +190,7 @@ class Material(object):
 
     @property
     def thermal_conductivity(self):
-        """Retrieve material thermal conductivity."""
+        """Retrieve material thermal conductivit."""
         material_id = self._edb.Definition.MaterialPropertyId.ThermalConductivity
         self._thermal_conductivity = self._get_property(material_id)
         return self._thermal_conductivity
@@ -316,18 +316,23 @@ class Material(object):
                         self.dc_permittivity = input_dict["dc_permittivity"]
                     self.dc_conductivity = input_dict["dc_conductivity"]
                 else:
-                    if not self._pclass.add_djordjevicsarkar_material(input_dict["name"],
-                                                                      input_dict["permittivity_at_frequency"],
-                                                                      input_dict["loss_tangent_at_frequency"],
-                                                                      input_dict["dielectric_model_frequency"],
-                                                                      input_dict["dc_permittivity"],
-                                                                      input_dict["dc_conductivity"]):
-                        self._pclass._pedb.logger.warning('Cannot set DS model for material "{}". Check for realistic '
-                                                          'values that define DS Model'.format(input_dict["name"]))
+                    if not self._pclass.add_djordjevicsarkar_material(
+                        input_dict["name"],
+                        input_dict["permittivity_at_frequency"],
+                        input_dict["loss_tangent_at_frequency"],
+                        input_dict["dielectric_model_frequency"],
+                        input_dict["dc_permittivity"],
+                        input_dict["dc_conductivity"],
+                    ):
+                        self._pclass._pedb.logger.warning(
+                            'Cannot set DS model for material "{}". Check for realistic '
+                            "values that define DS Model".format(input_dict["name"])
+                        )
             else:
                 # To unset DS model if already assigned to the material in database
                 if self._edb_material_def.GetDielectricMaterialModel():
                     self._edb_material_def.SetDielectricMaterialModel(self._edb_value(None))
+
 
 class Materials(object):
     """Manages EDB methods for material management accessible from `Edb.materials` property."""
@@ -420,8 +425,9 @@ class Materials(object):
             return material.GetDielectricMaterialModel()
 
     @pyaedt_function_handler()
-    def add_djordjevicsarkar_material(self, name, permittivity, loss_tangent, test_frequency, dc_permittivity=None,
-                                      dc_conductivity=None):
+    def add_djordjevicsarkar_material(
+        self, name, permittivity, loss_tangent, test_frequency, dc_permittivity=None, dc_conductivity=None
+    ):
         """Create a Djordjevic_Sarkar dielectric.
 
         Parameters
