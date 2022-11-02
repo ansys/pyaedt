@@ -250,6 +250,7 @@ class Analysis(Design, object):
 
         .. deprecated:: 0.4.8
            Use :attr:`GRAVITY` instead.
+
         Returns
         -------
         tuple
