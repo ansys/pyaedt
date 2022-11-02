@@ -94,8 +94,10 @@ class BasisTest(object):
     def my_teardown(self):
         try:
             oDesktop = sys.modules["__main__"].oDesktop
+            logger = sys.modules["__main__"].aedt_logger
         except Exception as e:
             oDesktop = None
+            logger = None
         if oDesktop and not settings.non_graphical:
             oDesktop.ClearMessages("", "", 3)
         for edbapp in self.edbapps[::-1]:
@@ -110,6 +112,9 @@ class BasisTest(object):
             except:
                 pass
         del self.aedtapps
+        for proj in oDesktop.GetProjectList():
+            oDesktop.CloseProject(proj)
+        logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):

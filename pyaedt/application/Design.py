@@ -876,6 +876,8 @@ class Design(AedtObjects):
         else:
             if proj_name in self.odesktop.GetProjectList():
                 self._oproject = self.odesktop.SetActiveProject(proj_name)
+                self._add_handler()
+                self.logger.info("Project {} set to active.".format(proj_name))
             elif os.path.exists(proj_name):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
@@ -883,25 +885,31 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    proj = self.odesktop.GetActiveProject()
-                    self.logger.info("Archive {} has been restored to project {}".format(proj_name, proj.GetName()))
+                    self._oproject = self.odesktop.GetActiveProject()
+                    self._add_handler()
+                    self.logger.info(
+                        "Archive {} has been restored to project {}".format(proj_name, self._oproject.GetName())
+                    )
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     oTool = self.odesktop.GetTool("ImportExport")
                     if ".def" in proj_name:
                         oTool.ImportEDB(proj_name)
                     else:
                         oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
-                    proj = self.odesktop.GetActiveProject()
-                    proj.Save()
-                    self.logger.info("EDB folder %s has been imported to project %s", proj_name, proj.GetName())
+                    self._oproject = self.odesktop.GetActiveProject()
+                    self._oproject.Save()
+                    self._add_handler()
+                    self.logger.info(
+                        "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
+                    )
                 else:
                     assert not os.path.exists(
                         proj_name + ".lock"
                     ), "Project is locked. Close or remove the lock before proceeding."
-                    proj = self.odesktop.OpenProject(proj_name)
-                    self.logger.info("Project %s has been opened.", proj.GetName())
+                    self._oproject = self.odesktop.OpenProject(proj_name)
+                    self._add_handler()
+                    self.logger.info("Project %s has been opened.", self._oproject.GetName())
                     time.sleep(0.5)
-                self._oproject = proj
             elif settings.force_error_on_missing_project and ".aedt" in proj_name:
                 raise Exception("Project doesn't exists. Check it and retry.")
             else:
@@ -910,10 +918,22 @@ class Design(AedtObjects):
                     self._oproject.Rename(proj_name, True)
                 else:
                     self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
+                self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
             self._oproject = self.odesktop.NewProject()
+            self._add_handler()
             self.logger.info("Project %s has been created.", self._oproject.GetName())
+
+    def _add_handler(self):
+        if not self._oproject:
+            return
+        for handler in self.logger._global.handlers:
+            if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
+                return
+        self.logger.add_file_logger(
+            os.path.join(self.toolkit_directory, "pyaedt_{}.log".format(self._oproject.GetName()))
+        )
 
     @property
     def desktop_install_dir(self):
@@ -2755,6 +2775,7 @@ class Design(AedtObjects):
                 self._init_variables()
             self._oproject = None
             self._odesign = None
+            self.logger.remove_file_logger(name)
             AedtObjects.__init__(self, is_inherithed=True)
 
         else:
@@ -3212,6 +3233,7 @@ class Design(AedtObjects):
             os.makedirs(os.path.dirname(project_file))
         elif project_file:
             self.oproject.SaveAs(project_file, overwrite)
+            self._add_handler()
         else:
             self.oproject.Save()
         if refresh_obj_ids_after_save:

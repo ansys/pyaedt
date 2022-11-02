@@ -3,14 +3,12 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
-import datetime
 import gc
 import logging
 import os
 import re
 import shutil
 import sys
-import tempfile
 import time
 import traceback
 import warnings
@@ -134,18 +132,8 @@ class Edb(object):
             if isaedtowned and "aedt_logger" in dir(sys.modules["__main__"]):
                 self._logger = self._main.aedt_logger
             else:
-                if not edbpath or not os.path.exists(os.path.dirname(edbpath)):
-                    project_dir = tempfile.gettempdir()
-                else:
-                    project_dir = os.path.dirname(edbpath)
-                if settings.logger_file_path:
-                    logfile = settings.logger_file_path
-                else:
-                    logfile = os.path.join(
-                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-                    )
-                self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
-                self._logger.info("Logger started on %s", logfile)
+                self._logger = AedtLogger(level=logging.DEBUG)
+                self._logger.info("Logger started.")
                 self._main.aedt_logger = self._logger
 
             self.student_version = student_version
@@ -182,12 +170,15 @@ class Edb(object):
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
+                self.logger.add_file_logger(edbpath[:-4] + ".log")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
+                self.logger.add_file_logger(self.edbpath[:-4] + ".log")
                 self.logger.info("EDB %s was created correctly.", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
+                self.logger.add_file_logger(edbpath[:-4] + ".log")
                 self.open_edb()
             if self.builder:
                 self.logger.info("EDB was initialized.")
@@ -872,6 +863,7 @@ class Edb(object):
         """
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
+
         return True
 
     @pyaedt_function_handler()

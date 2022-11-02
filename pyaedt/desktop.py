@@ -333,19 +333,19 @@ class Desktop:
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.2", non_graphical=True)
-    pyaedt info: pyaedt v...
-    pyaedt info: Python version ...
+    pyaedt INFO: pyaedt v...
+    pyaedt INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt info: Project...
-    pyaedt info: Added design 'HFSSDesign1' of type HFSS.
+    pyaedt INFO: Project...
+    pyaedt INFO: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.2")
-    pyaedt info: pyaedt v...
-    pyaedt info: Python version ...
+    pyaedt INFO: pyaedt v...
+    pyaedt INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt info: No project is defined. Project...
+    pyaedt INFO: No project is defined. Project...
     """
 
     def __init__(
@@ -376,9 +376,16 @@ class Desktop:
             self._main.isoutsideDesktop = True
         self.release_on_exit = True
         self.logfile = None
-        self._logger = aedt_logger.AedtLogger(filename=self.logfile, level=logging.DEBUG)
-        self._logger.info("Logger Started")
-        self._main.aedt_logger = self._logger
+        if "aedt_logger" not in dir(self._main):
+            self._logger = aedt_logger.AedtLogger(
+                filename=self.logfile, level=logging.DEBUG, to_stdout=settings.enable_screen_logs
+            )
+            self._logger.info("Logger file pyaedt.log in use.")
+            self._main.aedt_logger = self._logger
+        else:
+            self._logger = self._main.aedt_logger
+            self._logger.info("using existing logger.")
+
         if "oDesktop" in dir():  # pragma: no cover
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
@@ -545,9 +552,6 @@ class Desktop:
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        self._logger = aedt_logger.AedtLogger(filename=self.logfile, level=logging.DEBUG)
-        self._logger.info("Logger file %s in use.", self.logfile)
-        self._main.aedt_logger = self._logger
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
@@ -873,6 +877,9 @@ class Desktop:
             oproject = self.odesktop.SetActiveProject(project_name)
         if project_path:
             oproject.SaveAs(project_path, True)
+            self.logger.add_file_logger(
+                os.path.join(self.toolkit_directory, "pyaedt_{}.log".format(oproject.GetName()))
+            )
         else:
             oproject.Save()
         return True
@@ -1121,8 +1128,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
@@ -1157,8 +1164,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
@@ -1171,8 +1178,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.enable_autosave()
 
         """
@@ -1185,8 +1192,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.disable_autosave()
 
         """

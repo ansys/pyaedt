@@ -28,7 +28,7 @@ class TestClass(BasisTest, object):
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
-        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"))
+        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"), ignore_errors=True)
 
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
@@ -115,10 +115,10 @@ class TestClass(BasisTest, object):
         settings.formatter = None
         logger.disable_log_on_file()
 
-        for handler in logger._global.handlers:
+        for handler in [i for i in logger._global.handlers]:
             if isinstance(handler, logging.FileHandler):
                 handler.close()
-                logger.removeHandler(handler)
+                logger._global.removeHandler(handler)
 
     def test_02_output_file_with_app_filter(self):
         content = None
@@ -196,9 +196,9 @@ class TestClass(BasisTest, object):
             logger.warning("Warning for Global")
             logger.error("Error for Global")
 
-        assert "pyaedt info: Info for Global" in capture.content
-        assert "pyaedt warning: Warning for Global" in capture.content
-        assert "pyaedt error: Error for Global" in capture.content
+        assert "pyaedt INFO: Info for Global" in capture.content
+        assert "pyaedt WARNING: Warning for Global" in capture.content
+        assert "pyaedt ERROR: Error for Global" in capture.content
 
     def test_04_disable_output_file_handler(self):
         content = None
@@ -289,17 +289,17 @@ class TestClass(BasisTest, object):
 
             sys.stdout = sys.__stdout__
 
-            stream.write.assert_any_call("pyaedt info: Info for Global")
-            stream.write.assert_any_call("pyaedt info: Info after re-enabling the stdout handler.")
+            stream.write.assert_any_call("pyaedt INFO: Info for Global")
+            stream.write.assert_any_call("pyaedt INFO: Info after re-enabling the stdout handler.")
 
             with pytest.raises(AssertionError) as e_info:
-                stream.write.assert_any_call("pyaedt info: Info after disabling the stdout handler.")
+                stream.write.assert_any_call("pyaedt INFO: Info after disabling the stdout handler.")
 
             fp.seek(0)
             stream_content = fp.readlines()
 
-        assert stream_content[0] == "pyaedt info: Info for Global\n"
-        assert stream_content[1] == "pyaedt info: Info after re-enabling the stdout handler.\n"
+        assert stream_content[0] == "pyaedt INFO: Info for Global\n"
+        assert stream_content[1] == "pyaedt INFO: Info after re-enabling the stdout handler.\n"
 
 
 class CaptureStdOut:

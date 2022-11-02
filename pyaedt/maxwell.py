@@ -1636,13 +1636,13 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
     >>> from pyaedt import Maxwell3d
     >>> aedtapp = Maxwell3d("mymaxwell.aedt")
-    pyaedt info: Added design ...
+    pyaedt INFO: Added design ...
 
     Create an instance of Maxwell 3D using the 2021 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
     >>> aedtapp = Maxwell3d(specified_version="2021.2", projectname="mymaxwell2.aedt")
-    pyaedt info: Added design ...
+    pyaedt INFO: Added design ...
 
     """
 
