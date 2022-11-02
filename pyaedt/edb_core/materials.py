@@ -190,7 +190,7 @@ class Material(object):
 
     @property
     def thermal_conductivity(self):
-        """Retrieve material thermal conductivit."""
+        """Retrieve material thermal conductivity."""
         material_id = self._edb.Definition.MaterialPropertyId.ThermalConductivity
         self._thermal_conductivity = self._get_property(material_id)
         return self._thermal_conductivity
