@@ -166,7 +166,7 @@ class AedtLogger(object):
             self.add_file_logger(self.filename, level)
 
         if to_stdout:
-            self._std_out_handler = logging.StreamHandler()
+            self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(level)
             _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
 
@@ -548,8 +548,7 @@ class AedtLogger(object):
             self._project.addFilter(AppFilter("Project", project_name))
             if self._files_handlers:
                 for handler in self._files_handlers:
-                    if "pyaedt_" + project_name + ".log" in str(handler):
-                        self._project.addHandler(handler)
+                    self._project.addHandler(handler)
             if self._std_out_handler is not None:
                 self._project.addHandler(self._std_out_handler)
             return self._project
@@ -562,8 +561,7 @@ class AedtLogger(object):
             self._design.addFilter(AppFilter("Design", design_name))
             if self._files_handlers:
                 for handler in self._files_handlers:
-                    if "pyaedt_" + project_name + ".log" in str(handler):
-                        self._design.addHandler(handler)
+                    self._design.addHandler(handler)
             if self._std_out_handler is not None:
                 self._design.addHandler(self._std_out_handler)
             return self._design
@@ -588,7 +586,7 @@ class AedtLogger(object):
         """Enable printing log messages to stdout."""
         self._log_on_screen = True
         if not self._std_out_handler:
-            self._std_out_handler = logging.StreamHandler()
+            self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(self.level)
             _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
 
