@@ -5223,7 +5223,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
-        {
+        dict_in = {
         "primarylattice": "MyFirstLattice",
         "secondarylattice": "MySecondLattice",
         "useairobjects": true,
@@ -5249,6 +5249,10 @@ class Hfss(FieldAnalysis3D, object):
                     }
                     # continue
         }
+
+        >>> import hfss from pyaedt
+        >>> hfss_app = hfss()
+        >>> hfss_app.add_3d_component_array_from_json(dict_in)
         """
 
         self.hybrid = True
