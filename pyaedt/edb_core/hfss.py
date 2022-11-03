@@ -1162,7 +1162,6 @@ class EdbHfss(object):
                     ii += 1
 
             if not simulation_setup.use_default_coax_port_radial_extension:
-                radial_factor_multiplier = 0.125
                 # Set the Radial Extent Factor
                 typ = cmp.GetComponentType()
                 if typ in [
@@ -1177,10 +1176,17 @@ class EdbHfss(object):
                         diam2,
                     ) = cmp_prop.GetSolderBallProperty().GetDiameter()
                     if success and diam1 and diam2 > 0:
-                        radial_factor = "{0}meter".format(radial_factor_multiplier * diam1)
+                        option = (
+                            "HFSS('HFSS Type'='**Invalid**', "
+                            "Orientation='**Invalid**', "
+                            "'Layer Alignment'='Upper', "
+                            "'Horizontal Extent Factor'='5', "
+                            "'Vertical Extent Factor'='3', "
+                            "'Radial Extent Factor'='0.25', "
+                            "'PEC Launch Width'='0mm')"
+                        )
                         for tt in terms:
-                            self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)
-                            self._builder.SetHfssSolverOption(tt, "Layer Alignment", "Upper")  # ensure this is also set
+                            tt.SetProductSolverOption(self._edb.ProductId.Designer, "HFSS", option)
         return True
 
     @pyaedt_function_handler()
