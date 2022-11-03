@@ -1,16 +1,19 @@
 from __future__ import absolute_import
+
+import os
+import sys
+from importlib import import_module
+
+from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt import generate_unique_project_name
-from importlib import import_module
-import sys
-import os
-#global variable used to store module import
+
+# global variable used to store module import
 mod = None
 
 
 class Result:
-    '''
+    """
     Provides the Result object.
 
     Examples
@@ -19,7 +22,8 @@ class Result:
     >>> aedtapp.results = Result()
     >>> mode = Emit.tx_rx_mode().rx
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
-    '''
+    """
+
     @pyaedt_function_handler()
     def __init__(self, emit_obj):
         self.__result_loaded = False
@@ -27,6 +31,7 @@ class Result:
         self.revisions_list = []
         self.location = emit_obj.oproject.GetPath()
         self.curr_design = 0
+
     @pyaedt_function_handler()
     def set_result_loaded(self):
         """
@@ -72,7 +77,9 @@ class Result:
         try:
             interaction_domain = mod.InteractionDomain()
         except NameError:
-            raise ValueError('An Emit object must be initialized, before any static member of Result or Emit can be accessed.')
+            raise ValueError(
+                "An Emit object must be initialized, before any static member of Result or Emit can be accessed."
+            )
         return interaction_domain
 
     @staticmethod
@@ -134,7 +141,7 @@ class Result:
         return bands
 
     @pyaedt_function_handler()
-    def get_active_frequencies (self, radio_name, band_name, tx_rx_mode):
+    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode):
 
         """
         Return a list of active frequencies for a ``tx`` or ``rx`` band in a radio.
@@ -163,7 +170,7 @@ class Result:
 
 
 class Revision:
-    '''
+    """
     Provides the ``Revision`` object.
 
     Parameters
@@ -180,22 +187,23 @@ class Revision:
     >>> rev = Revision(aedtapp, "Revision 1")
     >>> domain = Result.interaction_domain()
     >>> rev.run(domain)
-    '''
+    """
+
     @pyaedt_function_handler()
-    def __init__(self, emit_obj, name = ""):
-        subfolder =''
+    def __init__(self, emit_obj, name=""):
+        subfolder = ""
         for f in os.scandir(emit_obj.results.location):
-            if os.path.splitext(f.name)[1].lower() in '.aedtresults':
+            if os.path.splitext(f.name)[1].lower() in ".aedtresults":
                 subfolder = os.path.join(f.path, "EmitDesign1")
         default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
         if default_behaviour:
             print("The most recently generated revision will be used because the revision specified does not exist.")
-        if(name == "" or default_behaviour):
+        if name == "" or default_behaviour:
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             full = file.path
             name = file.name
         else:
-            full = subfolder + '/{}.emit'.format(name)
+            full = subfolder + "/{}.emit".format(name)
         self.name = name
         self.path = full
         self.emit_obj = emit_obj
@@ -308,6 +316,7 @@ class Emit(FieldAnalysisEmit, object):
     >>> val = instance.value(Emit.result_type().sensitivity)
     >>> print("Worst-case sensitivity for Rx '{}' is {}dB".format(domain.rx_radio_name, val))
     """
+
     def __init__(
         self,
         projectname=None,
@@ -346,13 +355,13 @@ class Emit(FieldAnalysisEmit, object):
         desktop_path = self.desktop_install_dir
         path = os.path.join(desktop_path, "Delcross")
         sys.path.append(path)
-        if(self._aedt_version >= "2023.1"):
+        if self._aedt_version >= "2022.1":
             global mod
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
             self.results = Result(self)
             self.__emit_api_enabled = True
-        
+
     @pyaedt_function_handler()
     def __enter__(self):
         return self
@@ -374,7 +383,7 @@ class Emit(FieldAnalysisEmit, object):
         """
         if self.__emit_api_enabled:
             design = self.odesktop.GetActiveProject().GetActiveDesign()
-            if(not self.results.curr_design == design.getRevision()):
+            if not self.results.curr_design == design.getRevision():
                 design.AddResult()
                 self.results.revisions_list.append(Revision(self))
                 self.results.curr_design = design.getRevision()
@@ -382,7 +391,7 @@ class Emit(FieldAnalysisEmit, object):
                 return self.results.revisions_list[-1]
 
     @pyaedt_function_handler()
-    def _load_revision(self, path) :
+    def _load_revision(self, path):
         """
         Load a specific revision.
 
@@ -421,7 +430,9 @@ class Emit(FieldAnalysisEmit, object):
         try:
             result = mod.result_type()
         except NameError:
-            raise ValueError('An Emit object must be initialized, before any static member of Result or Emit can be accessed.')
+            raise ValueError(
+                "An Emit object must be initialized, before any static member of Result or Emit can be accessed."
+            )
         return result
 
     @staticmethod
@@ -441,11 +452,13 @@ class Emit(FieldAnalysisEmit, object):
         try:
             tx_rx = mod.tx_rx_mode()
         except NameError:
-            raise ValueError('An Emit object must be initialized, before any static member of Result or Emit can be accessed.')
+            raise ValueError(
+                "An Emit object must be initialized, before any static member of Result or Emit can be accessed."
+            )
         return tx_rx
 
     @pyaedt_function_handler()
-    def version(self, detailed = False):
+    def version(self, detailed=False):
         """
         Return version information.
 
