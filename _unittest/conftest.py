@@ -25,6 +25,7 @@ import shutil
 import sys
 import tempfile
 
+from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
@@ -99,7 +100,7 @@ class BasisTest(object):
     def my_teardown(self):
         try:
             oDesktop = sys.modules["__main__"].oDesktop
-            logger = sys.modules["__main__"].aedt_logger
+            logger = pyaedt_logger
         except Exception as e:
             oDesktop = None
             logger = None

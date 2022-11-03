@@ -6,7 +6,7 @@ class LogHandler(logging.Handler):
 
     Parameters
     ----------
-    aedt_app_messenger : class:`pyaedt.application.MessageManager.AEDTMessageManager`
+    aedt_app_messenger : class:`pyaedt.aedt_logger.AedtLogger`
         Log manager for AEDT.
     log_destination : str
         Logger to send messages to. AEDT has three different logger options: ``"Global"``,

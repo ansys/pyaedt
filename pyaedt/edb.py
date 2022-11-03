@@ -4,7 +4,6 @@ This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
 import gc
-import logging
 import os
 import re
 import shutil
@@ -21,8 +20,8 @@ except ImportError:  # pragma: no cover
         warnings.warn("PythonNET is needed to run PyAEDT.")
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
+from pyaedt import pyaedt_logger
 from pyaedt import settings
-from pyaedt.aedt_logger import AedtLogger
 from pyaedt.edb_core import Components
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
@@ -129,13 +128,7 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
-            if isaedtowned and "aedt_logger" in dir(sys.modules["__main__"]):
-                self._logger = self._main.aedt_logger
-            else:
-                self._logger = AedtLogger(level=logging.DEBUG)
-                self._logger.info("Logger started.")
-                self._main.aedt_logger = self._logger
-
+            self._logger = pyaedt_logger
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
             if not edbversion:

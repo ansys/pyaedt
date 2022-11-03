@@ -22,6 +22,7 @@ import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt import pyaedt_logger
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
@@ -183,6 +184,7 @@ class Design(AedtObjects):
         self._design_datasets = {}
         main_module = sys.modules["__main__"]
         self.close_on_exit = close_on_exit
+        self._logger = pyaedt_logger
 
         if "pyaedt_initialized" not in dir(main_module):
             desktop = Desktop(
@@ -195,10 +197,8 @@ class Design(AedtObjects):
                 port,
                 aedt_process_id,
             )
-            self._logger = desktop.logger
             self.release_on_exit = True
         else:
-            self._logger = main_module.aedt_logger
             self.release_on_exit = False
 
         self.student_version = main_module.student_version

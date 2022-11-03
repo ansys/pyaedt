@@ -135,6 +135,7 @@ class AedtLogger(object):
             return
 
         self._files_handlers = []
+        main._aedt_handler = self._global.handlers
 
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
@@ -154,7 +155,12 @@ class AedtLogger(object):
                 break
         log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
         my_handler = RotatingFileHandler(
-            log_file, mode="a", maxBytes=20 * 1024 * 1024, backupCount=2, encoding=None, delay=0
+            log_file,
+            mode="a",
+            maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
+            backupCount=2,
+            encoding=None,
+            delay=0,
         )
         my_handler.setFormatter(self.formatter)
         my_handler.setLevel(self.level)
@@ -672,3 +678,6 @@ class AedtLogger(object):
         if not self._design.handlers:
             self.add_logger("Design")
         return self._design
+
+
+pyaedt_logger = AedtLogger(to_stdout=settings.enable_screen_logs)

@@ -25,6 +25,7 @@ import traceback
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import pyaedt_logger
 
 if os.name == "nt":
     IsWindows = True
@@ -40,7 +41,6 @@ else:
     import subprocess
 
 from pyaedt import __version__
-from pyaedt import aedt_logger
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.general_methods import _pythonver
@@ -118,19 +118,11 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
         Traceback data.
 
     """
-    if "aedt_logger" in dir(sys.modules["__main__"]):
-        messenger = sys.modules["__main__"].aedt_logger
-        tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split("\n")
-        messenger.error(str(ex_value))
-        for el in tblist:
-            messenger.error(el)
-    else:
-        tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split("\n")
-        warnings.warn(str(ex_value))
-        for el in tblist:
-            warnings.warn(el)
+    tb_trace = traceback.format_tb(tb_data)
+    tblist = tb_trace[0].split("\n")
+    pyaedt_logger.error(str(ex_value))
+    for el in tblist:
+        pyaedt_logger.error(el)
 
 
 def _delete_objects():
@@ -139,10 +131,7 @@ def _delete_objects():
         del module.COMUtil
     except AttributeError:
         pass
-    try:
-        del module.aedt_logger
-    except AttributeError:
-        pass
+    pyaedt_logger.remove_all_project_file_logger()
     try:
         del module.oDesktop
     except AttributeError:
@@ -261,7 +250,7 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.aedt_logger.error("Something went wrong in closing AEDT.")
+            pyaedt_logger.error("Something went wrong in closing AEDT.")
             successfully_closed = False
         finally:
             log = logging.getLogger(__name__)
@@ -376,15 +365,9 @@ class Desktop:
             self._main.isoutsideDesktop = True
         self.release_on_exit = True
         self.logfile = None
-        if "aedt_logger" not in dir(self._main):
-            self._logger = aedt_logger.AedtLogger(
-                filename=self.logfile, level=logging.DEBUG, to_stdout=settings.enable_screen_logs
-            )
-            self._logger.info("Logger file {} in use.".format(settings.global_log_file_name))
-            self._main.aedt_logger = self._logger
-        else:
-            self._logger = self._main.aedt_logger
-            self._logger.info("using existing logger.")
+
+        self._logger = pyaedt_logger
+        self._logger.info("using existing logger.")
 
         if "oDesktop" in dir():  # pragma: no cover
             self.release_on_exit = False
@@ -791,7 +774,7 @@ class Desktop:
     @property
     def messenger(self):
         """Messenger manager for the AEDT logger."""
-        return self._main.aedt_logger
+        return pyaedt_logger
 
     @property
     def logger(self):

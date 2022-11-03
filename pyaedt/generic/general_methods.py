@@ -1240,6 +1240,21 @@ class Settings(object):
         self._global_log_file_name = "pyaedt_{}.log".format(os.path.split(os.path.expanduser("~"))[-1])
         self._enable_global_log_file = True
         self._enable_local_log_file = True
+        self._global_log_file_size = 10
+
+    @property
+    def global_log_file_size(self):
+        """Get/Set the global pyaedt log file logging size in MBytes. Default is `10`.
+
+        Returns
+        -------
+        bool
+        """
+        return self._global_log_file_size
+
+    @global_log_file_size.setter
+    def global_log_file_size(self, value):
+        self._global_log_file_size = value
 
     @property
     def enable_global_log_file(self):
