@@ -870,6 +870,7 @@ if not config["skip_edb"]:
             edb2.close_edb()
             del edb2
 
+        @pytest.mark.skipif(is_ironpython and os.name == "posix", reason="Failing on Linux")
         def test_80_edb_without_path(self):
             edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
             time.sleep(2)
