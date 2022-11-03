@@ -1254,6 +1254,6 @@ class EdbSiwave(object):
         pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
 
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
-        neg_terminal = neg_pin_group_name.create_voltage_source_terminal()
+        neg_terminal = neg_pin_group_name.create_voltage_source_terminal(magnitude, phase)
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
