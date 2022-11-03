@@ -448,6 +448,7 @@ if not config["skip_edb"]:
             assert not result
 
         def test_45_delete_net(self):
+            self.edbapp.core_nets.nets["AVIN1"].delete()
             nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
             assert "A0_N" in nets_deleted
 
@@ -2031,8 +2032,15 @@ if not config["skip_edb"]:
 
             prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
             assert edb.core_hfss.create_edge_port_horizontal(
-                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
+                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
             )
+            assert edb.core_hfss.get_ports_number() == 2
+            port_ver = edb.core_hfss.excitations["port_ver"]
+            assert port_ver.hfss_type == "Gap"
+            assert isinstance(port_ver.horizontal_extent_factor, float)
+            assert isinstance(port_ver.vertical_extent_factor, float)
+            assert isinstance(port_ver.radial_extent_factor, float)
+            assert port_ver.pec_launch_width
             edb.close_edb()
 
         def test_A119_insert_layer(self):
