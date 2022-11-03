@@ -199,15 +199,15 @@ class AedtLogger(object):
         self._files_handlers.append(_file_handler)
         return _project
 
-    def remove_file_logger(self, projectname):
+    def remove_file_logger(self, project_name):
         """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in self._files_handlers:
-            if "pyaedt_{}.log".format(projectname) in str(handler):
+            if "pyaedt_{}.log".format(project_name) in str(handler):
                 handler.close()
                 if handler in handlers:
                     self._global.removeHandler(handler)
-        self.info("logger file pyaedt_{}.log removed from handlers.".format(projectname))
+        self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
 
     def remove_all_project_file_logger(self):
         """Remove all the local files from the logger handlers list."""
