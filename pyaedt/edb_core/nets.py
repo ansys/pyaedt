@@ -588,6 +588,11 @@ class EdbNets(object):
         """
         if isinstance(netlist, str):
             netlist = [netlist]
+
+        for i in self._pedb.core_primitives.primitives:
+            if i.net_name in netlist:
+                i.delete()
+
         nets_deleted = []
         for net in netlist:
             self.nets[net].delete()
