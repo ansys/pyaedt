@@ -175,9 +175,11 @@ class FileManagement(object):
         return False
 
     @staticmethod
-    def isdir(self, remotepath):
+    def isdir(remotepath):
         return os.path.isdir(remotepath)
-
+    @staticmethod
+    def temp_dir():
+        return tempfile.gettempdir()
 
 def check_port(port):
     """Check for an available port on the machine starting from input port.
