@@ -1100,6 +1100,7 @@ class TestClass(BasisTest, object):
         )
 
     def test_54_assign_symmetry(self):
+        self.aedtapp.insert_design()
         self.aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in self.aedtapp.modeler["SymmetryForFaces"].faces]
         assert self.aedtapp.assign_symmetry(ids)
