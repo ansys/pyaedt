@@ -20,7 +20,6 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
@@ -5504,18 +5503,9 @@ class Hfss(FieldAnalysis3D, object):
                 msg = "Entities have to be provided as a list."
                 raise ValueError(msg)
 
-            object_list = []
-            for entity in entity_list:
-                if isinstance(entity, FacePrimitive):
-                    face_id = entity.id
-                elif isinstance(entity, int):
-                    face_id = entity
-                else:
-                    msg = "The input is neither a face object nor an integer."
-                    raise ValueError(msg)
-                object_list.append(face_id)
+            entity_list = self.modeler.convert_to_selections(entity_list, True)
 
-            props = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsPerfectE": is_perfect_e})
+            props = OrderedDict({"Name": symmetry_name, "Faces": entity_list, "IsPerfectE": is_perfect_e})
             return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False
