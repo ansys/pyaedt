@@ -487,11 +487,11 @@ class IbisReader(object):
 
     @property
     def ibis_model(self):
-        "Ibis model gathering the entire set of data extracted from the *.ibis file."
+        "Ibis model gathering the entire set of data extracted from the \\*.ibis file."
         return self._ibis_model
 
     def parse_ibis_file(self):
-        """Reads *.ibis file content.
+        """Reads \\*.ibis file content.
 
         Parameters
         ----------

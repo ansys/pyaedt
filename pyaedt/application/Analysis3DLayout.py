@@ -473,7 +473,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> setup1 = hfss3dlayout.create_setup(setupname='Setup1')
         >>> hfss3dlayout.delete_setup(setupname='Setup1')
         ...
-        pyaedt info: Sweep was deleted correctly.
+        pyaedt INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.osolution.Delete(setupname)
