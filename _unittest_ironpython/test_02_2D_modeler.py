@@ -18,10 +18,10 @@ class TestSequenceFunctionsGenerate(PytestMockup):
         test_obj.teardown_class()
 
     def tearDown(self):
-        test_obj.teardown()
+        test_obj.teardown_method()
 
     def setUp(self):
-        test_obj.setup()
+        test_obj.setup_method()
 
 
 test_names = [name for name in dir(test_obj) if name.startswith(test_filter)]

@@ -271,15 +271,23 @@ class EDBComponent(object):
         self.edbcomponent = cmp
 
     @property
+    def _pedb(self):  # pragma: no cover
+        return self._pcomponents._pedb
+
+    @property
+    def _active_layout(self):  # pragma: no cover
+        return self._pedb.active_layout
+
+    @property
     def component_property(self):
         """``ComponentProperty`` object."""
         return self.edbcomponent.GetComponentProperty().Clone()
 
     @property
-    def _edb_model(self):
+    def _edb_model(self):  # pragma: no cover
         return self.component_property.GetModel().Clone()
 
-    @property
+    @property  # pragma: no cover
     def _pin_pairs(self):
         edb_comp_prop = self.component_property
         edb_model = self._edb_model
