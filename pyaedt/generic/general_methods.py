@@ -1244,7 +1244,7 @@ class Settings(object):
 
     @property
     def global_log_file_size(self):
-        """Get/Set the global pyaedt log file logging size in MBytes. Default is `10`.
+        """Get/Set the global pyaedt log file size in Mbytes. The default value is ``10``.
 
         Returns
         -------
