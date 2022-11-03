@@ -91,10 +91,10 @@ class EdbSiwave(object):
         list
             List of all layout pin groups.
         """
-        pingroups = {}
+        _pingroups = {}
         for el in self._active_layout.PinGroups:
-            pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
-        return pingroups
+            _pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
+        return _pingroups
 
     @pyaedt_function_handler()
     def _create_terminal_on_pins(self, source):
