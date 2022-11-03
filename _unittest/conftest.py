@@ -17,7 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
-import datetime
+# import datetime
 import gc
 import json
 import os
@@ -85,14 +85,17 @@ settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
-test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
-if not os.path.exists(scratch_path):
-    os.makedirs(scratch_path)
+# test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+# scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
+# if not os.path.exists(scratch_path):
+#     os.makedirs(scratch_path)
+
+logger = pyaedt_logger
 
 
 class BasisTest(object):
     def my_setup(self):
+        scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
@@ -100,10 +103,8 @@ class BasisTest(object):
     def my_teardown(self):
         try:
             oDesktop = sys.modules["__main__"].oDesktop
-            logger = pyaedt_logger
         except Exception as e:
             oDesktop = None
-            logger = None
         if oDesktop and not settings.non_graphical:
             oDesktop.ClearMessages("", "", 3)
         for edbapp in self.edbapps[::-1]:
@@ -199,7 +200,7 @@ def desktop_init():
             oDesktop = sys.modules["__main__"].oDesktop
             pid = oDesktop.GetProcessID()
             os.kill(pid, 9)
-            shutil.rmtree(scratch_path, ignore_errors=True)
+            # shutil.rmtree(scratch_path, ignore_errors=True)
         except:
             pass
 

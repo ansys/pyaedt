@@ -10,7 +10,6 @@ from __future__ import absolute_import  # noreorder
 
 import gc
 import json
-import logging
 import os
 import random
 import re
@@ -163,8 +162,7 @@ class Design(AedtObjects):
             start = time.time()
             settings._project_properties[path] = load_entire_aedt_file(path)
             settings._project_time_stamp = os.path.getmtime(project_name)
-            logger = logging.getLogger("Global")
-            logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
+            pyaedt_logger.info("AEDT file load (threaded) time: {}".format(time.time() - start))
 
         t = None
         if (
@@ -208,7 +206,6 @@ class Design(AedtObjects):
         self._design_type = design_type
         self._desktop = main_module.oDesktop
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
-        self._aedt_version = self._desktop.GetVersion()[0:6]
         self._odesign = None
         self._oproject = None
         self._design_type = design_type
@@ -378,6 +375,10 @@ class Design(AedtObjects):
         """
         version = self.odesktop.GetVersion()
         return get_version_env_variable(version)
+
+    @property
+    def _aedt_version(self):
+        return self.odesktop.GetVersion()[0:6]
 
     @property
     def design_name(self):
@@ -2769,13 +2770,14 @@ class Design(AedtObjects):
         proj_file = os.path.join(proj_path, name + ".aedt")
         if save_project:
             oproj.Save()
+        if name == legacy_name:
+            self.logger.remove_file_logger(name)
         self.odesktop.CloseProject(name)
         if name == legacy_name:
             if not is_ironpython:
                 self._init_variables()
             self._oproject = None
             self._odesign = None
-            self.logger.remove_file_logger(name)
             AedtObjects.__init__(self, is_inherithed=True)
 
         else:

@@ -141,12 +141,6 @@ def _delete_objects():
     except AttributeError:
         pass
     try:
-        _global = logging.getLogger("Global")
-        for i in range(len(module._aedt_handler) - 1, -1, -1):
-            _global.removeHandler(module._aedt_handler[i])
-    except AttributeError:
-        pass
-    try:
         del module.oAnsoftApplication
     except AttributeError:
         pass
@@ -253,7 +247,7 @@ def force_close_desktop():
             pyaedt_logger.error("Something went wrong in closing AEDT.")
             successfully_closed = False
         finally:
-            log = logging.getLogger(__name__)
+            log = logging.getLogger("Global")
             handlers = log.handlers[:]
             for handler in handlers:
                 handler.close()

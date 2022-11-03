@@ -123,7 +123,6 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
-        main = sys.modules["__main__"]
 
         self.level = level
         self.filename = filename or settings.logger_file_path
@@ -135,11 +134,9 @@ class AedtLogger(object):
             return
 
         self._files_handlers = []
-        main._aedt_handler = self._global.handlers
 
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
-            main._aedt_handler = self._global.handlers
             self._global.setLevel(level)
             self._global.addFilter(AppFilter())
 

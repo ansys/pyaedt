@@ -295,10 +295,12 @@ class TestClass(BasisTest, object):
 
             with pytest.raises(AssertionError) as e_info:
                 stream.write.assert_any_call("pyaedt INFO: Info after disabling the stdout handler.")
-
             fp.seek(0)
             stream_content = fp.readlines()
-
+        for handler in logger._global.handlers[:]:
+            if "MagicMock" in str(handler) or "StreamHandler (DEBUG)" in str(handler):
+                handler.close()
+                logger._global.removeHandler(handler)
         assert stream_content[0] == "pyaedt INFO: Info for Global\n"
         assert stream_content[1] == "pyaedt INFO: StdOut has been enabled\n"
         assert stream_content[2] == "pyaedt INFO: Info after re-enabling the stdout handler.\n"
