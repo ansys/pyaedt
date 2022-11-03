@@ -3,7 +3,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 class EDBNetsData(object):
     """Manages EDB functionalities for a primitives.
-    It Inherits EDB Object properties.
+    It inherits EDB object properties.
 
     Examples
     --------
