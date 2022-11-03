@@ -854,9 +854,6 @@ class Desktop:
             oproject = self.odesktop.SetActiveProject(project_name)
         if project_path:
             oproject.SaveAs(project_path, True)
-            self.logger.add_file_logger(
-                os.path.join(self.toolkit_directory, "pyaedt_{}.log".format(oproject.GetName()))
-            )
         else:
             oproject.Save()
         return True

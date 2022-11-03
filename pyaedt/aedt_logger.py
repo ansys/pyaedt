@@ -134,6 +134,7 @@ class AedtLogger(object):
             return
 
         self._files_handlers = []
+        self._projects = {}
 
         if not self._global.handlers:
             self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
@@ -167,7 +168,7 @@ class AedtLogger(object):
         if self.filename and os.path.exists(self.filename):
             os.remove(self.filename)
         if self.filename and settings.enable_local_log_file:
-            self.add_file_logger(self.filename, level)
+            self.add_file_logger(self.filename, "Global", level)
 
         if to_stdout:
             self._std_out_handler = logging.StreamHandler(sys.stdout)
@@ -178,27 +179,34 @@ class AedtLogger(object):
             self._global.addHandler(self._std_out_handler)
         self._timer = time.time()
 
-    def add_file_logger(self, filename, level=None):
+    def add_file_logger(self, filename, project_name, level=None):
         """Add a new file to the logger handlers list."""
-        if not settings.enable_local_log_file:
-            return
-        for handler in self._global.handlers:
-            if filename in str(handler):
-                return
+        _project = logging.getLogger(project_name)
+        _project.addHandler(log_handler.LogHandler(self, "Project", level if level else self.level))
+        _project.setLevel(level if level else self.level)
+        _project.addFilter(AppFilter("Project", project_name))
         _file_handler = logging.FileHandler(filename)
         _file_handler.setLevel(level if level else self.level)
         _file_handler.setFormatter(self.formatter)
-        self._global.addHandler(_file_handler)
-        self._files_handlers.append(_file_handler)
+        _project.addHandler(_file_handler)
+        if self._std_out_handler is not None:
+            _project.addHandler(self._std_out_handler)
+        for handler in self._global.handlers:
+            if settings.global_log_file_name in str(handler):
+                _project.addHandler(handler)
+                break
         self.info("New logger file {} added to handlers.".format(filename))
+        self._files_handlers.append(_file_handler)
+        return _project
 
     def remove_file_logger(self, projectname):
         """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
-        for handler in handlers:
+        for handler in self._files_handlers:
             if "pyaedt_{}.log".format(projectname) in str(handler):
                 handler.close()
-                self._global.removeHandler(handler)
+                if handler in handlers:
+                    self._global.removeHandler(handler)
         self.info("logger file pyaedt_{}.log removed from handlers.".format(projectname))
 
     def remove_all_project_file_logger(self):

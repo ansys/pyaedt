@@ -182,6 +182,7 @@ class Design(AedtObjects):
         self._design_datasets = {}
         main_module = sys.modules["__main__"]
         self.close_on_exit = close_on_exit
+        self._global_logger = pyaedt_logger
         self._logger = pyaedt_logger
 
         if "pyaedt_initialized" not in dir(main_module):
@@ -929,8 +930,9 @@ class Design(AedtObjects):
         for handler in self.logger._global.handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
                 return
-        self.logger.add_file_logger(
-            os.path.join(self.toolkit_directory, "pyaedt_{}.log".format(self._oproject.GetName()))
+        self._logger = self._global_logger.add_file_logger(
+            os.path.join(self.toolkit_directory, "pyaedt_{}.log".format(self._oproject.GetName())),
+            project_name=self.project_name,
         )
 
     @property
@@ -2769,6 +2771,7 @@ class Design(AedtObjects):
             oproj.Save()
         if name == legacy_name:
             self.logger.remove_file_logger(name)
+            self._logger = self._global_logger
         self.odesktop.CloseProject(name)
         if name == legacy_name:
             if not is_ironpython:
