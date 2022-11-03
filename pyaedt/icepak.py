@@ -1432,11 +1432,13 @@ class Icepak(FieldAnalysis3D):
     def edit_design_settings(
         self,
         gravityDir=0,
-        ambtemp=22,
+        ambtemp=20,
         performvalidation=False,
         CheckLevel="None",
         defaultfluid="air",
         defaultsolid="Al-Extruded",
+        export_monitor=False,
+        export_directory=os.getcwd(),
     ):
         """Update the main settings of the design.
 
@@ -1456,6 +1458,11 @@ class Icepak(FieldAnalysis3D):
             Default fluid material. The default is ``"air"``.
         defaultsolid : str, optional
             Default solid material. The default is ``"Al-Extruded"``.
+        export_monitor : bool, optional
+            Whether to use the default export directory for monitor point data.
+            The default value is ``False``.
+        export_directory : str, optional
+            Default export directory for monitor point data. The default value is the current working directory.
 
         Returns
         -------
@@ -1498,6 +1505,10 @@ class Icepak(FieldAnalysis3D):
                 GVA,
                 "Positive:=",
                 GVPos,
+                "ExportOnSimulationComplete:=",
+                export_monitor,
+                "ExportDirectory:=",
+                export_directory,
             ],
             [
                 "NAME:Model Validation Settings",
