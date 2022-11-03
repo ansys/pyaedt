@@ -1098,3 +1098,20 @@ class TestClass(BasisTest, object):
             x_scale=1e-6,
             y_scale=1e-3,
         )
+
+    def test_54_assign_symmetry(self):
+        self.aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
+        ids = [i.id for i in self.aedtapp.modeler["SymmetryForFaces"].faces]
+        assert self.aedtapp.assign_symmetry(ids)
+        assert self.aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
+        assert not self.aedtapp.assign_symmetry(self.aedtapp.modeler.object_list[0].faces[0])
+        assert self.aedtapp.assign_symmetry([self.aedtapp.modeler.object_list[0].faces[0]])
+        assert self.aedtapp.assign_symmetry(
+            [
+                self.aedtapp.modeler.object_list[0].faces[0],
+                self.aedtapp.modeler.object_list[0].faces[1],
+                self.aedtapp.modeler.object_list[0].faces[2],
+            ]
+        )
+        assert not self.aedtapp.assign_symmetry(ids[0])
+        assert not self.aedtapp.assign_symmetry("test")

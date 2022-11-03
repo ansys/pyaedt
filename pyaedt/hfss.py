@@ -20,6 +20,7 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
@@ -5441,5 +5442,67 @@ class Hfss(FieldAnalysis3D, object):
         try:
             self.odesign.SetSolveInsideThreshold(threshold)
             return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def assign_symmetry(self, entity_list, symmetry_name=None, is_perfect_e=True):
+        """Assign symmetry to planar entities.
+
+        Parameters
+        ----------
+        entity_list : list
+            List IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+        symmetry_name : str, optional
+            Name of the boundary.
+            If not provided it's automatically generated.
+        is_perfect_e : bool, optional
+            Type of symmetry plane the boundary represents: Perfect E or Perfect H.
+            Default value is `True` (Perfect E).
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSymmetry
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a symmetry.
+
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                         name="SymmetryForFaces")
+        >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
+        >>> symmetry = hfss.assign_symmetry(ids)
+        >>> type(symmetry)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+        try:
+            if symmetry_name is None:
+                symmetry_name = generate_unique_name("Symmetry")
+
+            if not isinstance(entity_list, list):
+                msg = "Entities have to be provided as a list."
+                raise ValueError(msg)
+
+            object_list = []
+            for entity in entity_list:
+                if isinstance(entity, FacePrimitive):
+                    face_id = entity.id
+                elif isinstance(entity, int):
+                    face_id = entity
+                else:
+                    msg = "The input is neither a face object nor an integer."
+                    raise ValueError(msg)
+                object_list.append(face_id)
+
+                props = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsPerfectE": is_perfect_e})
+                return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False
