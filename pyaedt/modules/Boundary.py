@@ -1397,13 +1397,25 @@ class Matrix(object):
         return self._operations
 
     @pyaedt_function_handler()
-    def create(self, source_names=None):
+    def create(
+        self,
+        source_names=None,
+        new_net_name=None,
+        new_source_name=None,
+        new_sink_name=None,
+    ):
         """Create a new matrix.
 
         Parameters
         ----------
         source_names : str, list
             List or str containing the content of the matrix reduction (eg. source name).
+        new_net_name : str, optional
+            Name of the new net. The default is ``None``.
+        new_source_name : str, optional
+            Name of the new source. The default is ``None``.
+        new_sink_name : str, optional
+            Name of the new sink. The default is ``None``.
 
         Returns
         -------
@@ -1412,7 +1424,8 @@ class Matrix(object):
         """
         if not isinstance(source_names, list) and source_names:
             source_names = [source_names]
-        command = self._write_command(source_names)
+
+        command = self._write_command(source_names, new_net_name, new_source_name, new_sink_name)
         self.omatrix.InsertRM(self.name, command)
         return True
 
@@ -1432,7 +1445,14 @@ class Matrix(object):
         return True
 
     @pyaedt_function_handler()
-    def add_operation(self, operation_type, source_names=None):
+    def add_operation(
+        self,
+        operation_type,
+        source_names=None,
+        new_net_name=None,
+        new_source_name=None,
+        new_sink_name=None,
+    ):
         """Add a new operation to existing matrix.
 
         Parameters
@@ -1441,6 +1461,12 @@ class Matrix(object):
             Operation to perform
         source_names : str, list
             List or str containing the content of the matrix reduction (eg. source name).
+        new_net_name : str, optional
+            Name of the new net. The default is ``None``.
+        new_source_name : str, optional
+            Name of the new source. The default is ``None``.
+        new_sink_name : str, optional
+            Name of the new sink. The default is ``None``.
 
         Returns
         -------
@@ -1450,26 +1476,25 @@ class Matrix(object):
         self._operations.append(operation_type)
         if not isinstance(source_names, list) and source_names:
             source_names = [source_names]
-        command = self._write_command(source_names)
+
+        if not new_net_name:
+            new_net_name = generate_unique_name("Net")
+
+        if not new_source_name:
+            new_source_name = generate_unique_name("Source")
+
+        if not new_sink_name:
+            new_sink_name = generate_unique_name("Sink")
+
+        command = self._write_command(source_names, new_net_name, new_source_name, new_sink_name)
         self.omatrix.RMAddOp(self.name, command)
         return True
 
     @pyaedt_function_handler()
-    def _write_command(self, source_names):
-        command = ""
+    def _write_command(self, source_names, new_name, new_source, new_sink):
         if self._operations[-1] == "JoinSeries":
-            new_name = generate_unique_name(source_names[0])
-            for el in self._app.boundaries:
-                if el.name == source_names[0]:
-                    new_name = el.props["Net"]
             command = "{}('{}', '{}')".format(self._operations[-1], new_name, "', '".join(source_names))
         elif self._operations[-1] == "JoinParallel":
-            new_name = generate_unique_name(source_names[0])
-            for el in self._app.boundaries:
-                if el.name == source_names[0]:
-                    new_name = el.props["Net"]
-            new_source = source_names[0]
-            new_sink = generate_unique_name("Sink")
             command = "{}('{}', '{}', '{}', '{}')".format(
                 self._operations[-1], new_name, new_source, new_sink, "', '".join(source_names)
             )
@@ -1490,13 +1515,12 @@ class Matrix(object):
                 self._operations[-1], len(source_names), "', '".join(source_names)
             )
         elif self._operations[-1] == "Parallel" or self._operations[-1] == "DiffPair":
-            pair_name = generate_unique_name("Pair")
             id = 0
             for el in self._app.boundaries:
                 if el.name == source_names[0]:
                     id = self._app.modeler[el.props["Objects"][0]].id
             command = "{}(SelectionArray[{}: '{}'], OverrideInfo({}, '{}'))".format(
-                self._operations[-1], len(source_names), "', '".join(source_names), id, pair_name
+                self._operations[-1], len(source_names), "', '".join(source_names), id, new_name
             )
         else:
             command = "{}('{}')".format(self._operations[-1], "', '".join(source_names))

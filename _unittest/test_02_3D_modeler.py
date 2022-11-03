@@ -152,7 +152,7 @@ class TestClass(BasisTest, object):
     def test_17_unite(self):
         o1 = self.aedtapp.modeler["outer"].clone()
         o2 = self.aedtapp.modeler["inner"].clone()
-        assert self.aedtapp.modeler.unite([o1, o2]) == o1.name
+        assert self.aedtapp.modeler.unite([o1, o2], purge=True) == o1.name
 
     def test_18_chamfer(self):
         # TODO
@@ -202,7 +202,14 @@ class TestClass(BasisTest, object):
         assert o2.id > 0
 
     def test_27_create_region(self):
-        assert self.aedtapp.modeler.create_air_region(*[20, 20, 30, 50, 50, 100])
+        assert not self.aedtapp.modeler.create_air_region(*["20mm", 20, "30mm", "50", 50, 100])
+        assert self.aedtapp.modeler.create_air_region(20, 20, 30, 50, 50, 100, False)
+        self.aedtapp.modeler["Region"].delete()
+        self.aedtapp["region_param"] = "20mm"
+        assert self.aedtapp.modeler.create_air_region("region_param", 20, "30mm", "50", 50, 100, False)
+        assert self.aedtapp.modeler.edit_region_dimensions(["40mm", "30mm", 30, 50, 50, 100])
+        self.aedtapp.modeler["Region"].delete()
+        assert self.aedtapp.modeler.create_air_region("20", 20, 30, 50, 50, 100)
         assert self.aedtapp.modeler.edit_region_dimensions([40, 30, 30, 50, 50, 100])
 
     def test_28A_create_face_list(self):
@@ -644,7 +651,7 @@ class TestClass(BasisTest, object):
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "wrap")
+        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp2")
         box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp3")
         assert self.aedtapp.modeler.wrap_sheet(rect, box1)

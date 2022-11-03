@@ -54,7 +54,6 @@ class MaxwellCircuitComponents(CircuitComponents):
         self._app = modeler._app
         self._modeler = modeler
         self._currentId = 0
-        pass
 
     @pyaedt_function_handler()
     def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):

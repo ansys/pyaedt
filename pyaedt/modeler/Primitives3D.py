@@ -1,7 +1,5 @@
 import json
 import os
-import random
-import string
 from math import asin
 from math import ceil
 from math import cos
@@ -48,56 +46,6 @@ class Primitives3D(Primitives, object):
     def __init__(self):
         Primitives.__init__(self)
         self.multiparts = []
-
-    @pyaedt_function_handler()
-    def create_point(self, position, name=None, color="(143 175 143)"):
-        """Create a point.
-
-        Parameters
-        ----------
-        position : list
-            List of ``[x, y, z]`` coordinates. Note, The list can be empty or contain less than 3 elements.
-        name : str, optional
-            Name of the point. The default is ``None``, in which case the
-            default name is assigned.
-        color : str, optional
-            String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.object3dlayout.Point`
-            Point object.
-
-        References
-        ----------
-
-        >>> oEditor.CreateBox
-
-        Examples
-        --------
-
-        >>> from pyaedt import hfss
-        >>> hfss = Hfss()
-        >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
-
-        """
-        x_position, y_position, z_position = self._pos_with_arg(position)
-
-        if not name:
-            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
-            name = "NewPoint_" + unique_name
-
-        parameters = ["NAME:PointParameters"]
-        parameters.append("PointX:="), parameters.append(x_position)
-        parameters.append("PointY:="), parameters.append(y_position)
-        parameters.append("PointZ:="), parameters.append(z_position)
-
-        attributes = ["NAME:Attributes"]
-        attributes.append("Name:="), attributes.append(name)
-        attributes.append("Color:="), attributes.append(color)
-
-        _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
-        return self._create_point(name)
 
     @pyaedt_function_handler()
     def create_box(self, position, dimensions_list, name=None, matname=None):
@@ -1674,6 +1622,7 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
+
         with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
         self.logger.info("CHOKE INFO: " + str(values))
@@ -2166,20 +2115,20 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         Dictionary of the Json file has to be like the following example :
-            dictionary = {
-                "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
-                "Layer": {"Simple": True, "Double": False, "Triple": False},
-                "Layer Type": {"Separate": True, "Linked": False},
-                "Similar Layer": {"Similar": True, "Different": False},
-                "Mode": {"Differential": True, "Common": False},
-                "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-                "Core": {"Name": "Core", "Material": "ferrite", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
-                         "Chamfer": 0.8},
-                "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
-                                  "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
-                "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
-                "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
-            }
+        dictionary = {
+            "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
+            "Layer": {"Simple": True, "Double": False, "Triple": False},
+            "Layer Type": {"Separate": True, "Linked": False},
+            "Similar Layer": {"Similar": True, "Different": False},
+            "Mode": {"Differential": True, "Common": False},
+            "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
+            "Core": {"Name": "Core", "Material": "ferrite", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
+                        "Chamfer": 0.8},
+            "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
+                                "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
+            "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
+            "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
+        }
 
         >>> import json
         >>> with open("C:/Example/Of/Path/myJsonFile.json", "w") as outfile:
@@ -2187,8 +2136,8 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
-
         """
+
         dictionary_model = {
             "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
             "Layer": {"Simple": True, "Double": False, "Triple": False},

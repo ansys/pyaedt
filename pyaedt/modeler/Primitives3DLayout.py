@@ -729,9 +729,9 @@ class Primitives3DLayout(object):
         """
         layers = self.modeler.layers.all_signal_layers
         if not top_layer:
-            top_layer = layers[0]
+            top_layer = layers[0].name
         if not bot_layer:
-            bot_layer = layers[len(layers) - 1]
+            bot_layer = layers[len(layers) - 1].name
         if not name:
             name = generate_unique_name("via")
         else:
@@ -757,7 +757,7 @@ class Primitives3DLayout(object):
             arg.append("highest_layer:="), arg.append(top_layer)
             arg.append("lowest_layer:="), arg.append(bot_layer)
 
-            self.oeditor.CreateVia(arg)
+            _retry_ntimes(10, self.oeditor.CreateVia, arg)
             if netname:
                 self.oeditor.ChangeProperty(
                     [
@@ -890,8 +890,8 @@ class Primitives3DLayout(object):
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("Ax:="), vArg2.append(self.arg_with_dim(origin[0]))
         vArg2.append("Ay:="), vArg2.append(self.arg_with_dim(origin[1]))
-        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(dimensions[0]))
-        vArg2.append("By:="), vArg2.append(self.arg_with_dim(dimensions[1]))
+        vArg2.append("Bx:="), vArg2.append(self.arg_with_dim(origin[0]) + "+" + self.arg_with_dim(dimensions[0]))
+        vArg2.append("By:="), vArg2.append(self.arg_with_dim(origin[1]) + "+" + self.arg_with_dim(dimensions[1]))
         vArg2.append("cr:="), vArg2.append(self.arg_with_dim(corner_radius))
         vArg2.append("ang="), vArg2.append(self.arg_with_dim(angle))
         vArg1.append(vArg2)
@@ -1017,9 +1017,41 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler
     def place_3d_component(
-        self, component_path, number_of_terminals=1, placement_layer=None, component_name=None, pos_x=0, pos_y=0
-    ):  # pragma: no cover
-        """Place a Hfss 3d Component in Hfss3dLayout.
+        self,
+        component_path,
+        number_of_terminals=1,
+        placement_layer=None,
+        component_name=None,
+        pos_x=0,
+        pos_y=0,
+        create_ports=True,
+    ):
+        """Place an HFSS 3D component in HFSS 3D Layout.
+
+        Parameters
+        ----------
+        component_path : str
+            Full path to the A3DCOMP file.
+        number_of_terminals : int, optional
+            Number of ports in the 3D component. The default is ``1``.
+        placement_layer : str, optional
+            Layer to place the component on. The default is ``None``, in which case it is
+            placed on top.
+        component_name : str, optional
+            Name of the component. The default is ``None``, in which case a
+            default name is assigned.
+        pos_x : float, optional
+            X placement. The default is ``0``.
+        pos_y : float, optional
+            Y placement. The default is ``0``.
+        create_ports : bool, optional
+            Whether to expose 3D component ports. The default is ``True``.
+
+        Returns
+        -------
+
+        """
+        """
 
         :param component_path:
         :param number_of_terminals:
@@ -1091,8 +1123,8 @@ class Primitives3DLayout(object):
         args.append(component_path)
 
         _retry_ntimes(10, self.modeler.o_component_manager.Add, args)
-        stack_layers = ["0:{}".format(i) for i in self.modeler.layers.all_layers]
-        drawing = ["{}:{}".format(i, i) for i in self.modeler.layers.drawing_layers]
+        stack_layers = ["0:{}".format(i.name) for i in self.modeler.layers.stackup_layers]
+        drawing = ["{}:{}".format(i.name, i.name) for i in self.modeler.layers.drawing_layers]
         arg_x = self.modeler._arg_with_dim(pos_x)
         arg_y = self.modeler._arg_with_dim(pos_y)
         args = [
@@ -1117,6 +1149,8 @@ class Primitives3DLayout(object):
         comp_name = _retry_ntimes(10, self.modeler.oeditor.CreateComponent, args)
         comp = ComponentsSubCircuit3DLayout(self, comp_name.split(";")[-1])
         self.components_3d[comp_name.split(";")[-1]] = comp
+        if create_ports:
+            self.oeditor.CreatePortsOnComponentsByNet(["NAME:Components", comp.name], [], "Port", "0", "0", "0")
         return comp  #
 
     def create_text(self, text, position, angle=0, font_size=12):

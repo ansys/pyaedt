@@ -16,6 +16,7 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
+from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.actors import Radar
 from pyaedt.modeler.GeometryOperators import GeometryOperators
@@ -1697,7 +1698,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
-        end_object: str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        end_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
 
         Returns
         -------
@@ -3869,6 +3870,91 @@ class Hfss(FieldAnalysis3D, object):
         return True
 
     @pyaedt_function_handler()
+    def edit_source_from_file(
+        self,
+        portandmode,
+        file_name,
+        is_time_domain=True,
+        x_scale=1,
+        y_scale=1,
+        impedance=50,
+        data_format="Power",
+        encoding="utf-8",
+    ):
+        """Edit a source from file data.
+        File data is a csv containing either frequency data or time domain data that will be converted through FFT.
+
+        Parameters
+        ----------
+        portandmode : str
+            Port name and mode. For example, ``"Port1:1"``.
+            The port name must be defined if the solution type is other than Eigenmodal.
+        file_name : str
+            Full name of the input file.
+        is_time_domain : bool, optional
+            Either if the input data is Time based or Frequency Based. Frequency based data are Mag/Phase (deg).
+        x_scale : float, optional
+            Scaling factor for x axis.
+        y_scale : float, optional
+            Scaling factor for y axis.
+        impedance : float, optional
+            Excitation impedance. Default is `50`.
+        data_format : str, optional
+            Either `"Power"`, `"Current"` or `"Voltage"`.
+        encoding : str, optional
+            Csv file encoding.
+
+
+        Returns
+        -------
+        bool
+        """
+        if self.solution_type == "Modal":
+            out = "Power"
+        else:
+            out = "Voltage"
+        freq, mag, phase = parse_excitation_file(
+            file_name=file_name,
+            is_time_domain=is_time_domain,
+            x_scale=x_scale,
+            y_scale=y_scale,
+            impedance=impedance,
+            data_format=data_format,
+            encoding=encoding,
+            out_mag=out,
+        )
+        ds_name_mag = "ds_" + portandmode.replace(":", "_mode_") + "_Mag"
+        ds_name_phase = "ds_" + portandmode.replace(":", "_mode_") + "_Angle"
+        if self.dataset_exists(ds_name_mag, False):
+            self.design_datasets[ds_name_mag].x = freq
+            self.design_datasets[ds_name_mag].y = mag
+            self.design_datasets[ds_name_mag].update()
+        else:
+            self.create_dataset1d_design(ds_name_mag, freq, mag, xunit="Hz")
+        if self.dataset_exists(ds_name_phase, False):
+            self.design_datasets[ds_name_phase].x = freq
+            self.design_datasets[ds_name_phase].y = phase
+            self.design_datasets[ds_name_phase].update()
+
+        else:
+            self.create_dataset1d_design(ds_name_phase, freq, phase, xunit="Hz", yunit="deg")
+        self.osolution.EditSources(
+            [
+                ["IncludePortPostProcessing:=", True, "SpecifySystemPower:=", False],
+                [
+                    "Name:=",
+                    portandmode,
+                    "Magnitude:=",
+                    "pwl({}, Freq)".format(ds_name_mag),
+                    "Phase:=",
+                    "pwl({}, Freq)".format(ds_name_phase),
+                ],
+            ]
+        )
+        self.logger.info("Source Excitation updated with Dataset.")
+        return True
+
+    @pyaedt_function_handler()
     def thicken_port_sheets(self, inputlist, value, internalExtr=True, internalvalue=1):
         """Create thickened sheets over a list of input port sheets.
 
@@ -3918,12 +4004,13 @@ class Hfss(FieldAnalysis3D, object):
         tol = 1e-6
         ports_ID = {}
         aedt_bounding_box = self.modeler.get_model_bounding_box()
+        aedt_bounding_dim = self.modeler.get_bounding_dimension()
         directions = {}
         for el in inputlist:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             faceCenter = self.modeler.oeditor.GetFaceCenter(int(objID[0]))
             directionfound = False
-            l = 10
+            l = min(aedt_bounding_dim) / 2
             while not directionfound:
                 self.modeler.oeditor.ThickenSheet(
                     ["NAME:Selections", "Selections:=", el, "NewPartsModelFlag:=", "Model"],
@@ -3948,7 +4035,7 @@ class Hfss(FieldAnalysis3D, object):
                     directions[el] = "Internal"
                     directionfound = True
                 else:
-                    l = l + 10
+                    l = l + min(aedt_bounding_dim) / 2
         for el in inputlist:
             objID = self.modeler.oeditor.GetFaceIDs(el)
             maxarea = 0
@@ -5163,6 +5250,7 @@ class Hfss(FieldAnalysis3D, object):
                     # continue
         }
         """
+
         self.hybrid = True
         if isinstance(json_file, dict):
             json_dict = json_file

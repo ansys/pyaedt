@@ -233,12 +233,17 @@ class Siwave:
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 
         if os.path.exists(proj_path):
-            self.oSiwave.OpenProject(proj_path)
+            open_result = self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
+            return open_result
+        else:
+            return False
 
     @pyaedt_function_handler()
     def save_project(self, projectpath=None, projectName=None):

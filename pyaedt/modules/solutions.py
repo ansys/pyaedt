@@ -152,7 +152,7 @@ class SolutionData(object):
 
     @property
     def intrinsics(self):
-        "Get intrinics dictionary on active variation."
+        """Get intrinsics dictionary on active variation."""
         _sweeps = OrderedDict({})
         intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
         for el in intrinsics:
@@ -918,6 +918,13 @@ class SolutionData(object):
                 r.append(self.data_phase(curve, False))
             elif math_formula == "phaserad":
                 r.append(self.data_phase(curve, True))
+        active_sweep = self.active_intrinsic[self.primary_sweep]
+        position = self.variation_values(self.primary_sweep).index(active_sweep)
+        if len(self.variation_values(self.primary_sweep)) > 1:
+            new_r = []
+            for el in r:
+                new_r.append([el[position]])
+            r = new_r
         data_plot = [theta, phi, r]
         if not xlabel:
             xlabel = x_axis
@@ -2828,8 +2835,7 @@ class FieldPlot:
             Path where image will be saved.
             The default is ``None`` which export file in working_directory.
         view : str, optional
-            View of the exported plot. Options are ``isometric``,
-            ``top``, ``front``, ``left``, and ``all``.
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
         plot_mesh : bool, optional
             Plot mesh.
         scale_min : float, optional
@@ -2864,5 +2870,5 @@ class FieldPlot:
                 scale_max=scale_max,
             )
         else:
-            self._postprocessor.logger.info("This method wors only on CPython with PyVista")
+            self._postprocessor.logger.info("This method works only on CPython with PyVista")
             return False

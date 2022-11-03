@@ -11,7 +11,7 @@ packages:
     hfss = Hfss()
     hfss.analyze_nominal()
     cutlist = ["Global:XY"]
-    setup_name = self.aedtapp.existing_analysis_sweeps[0]
+    setup_name = hfss.existing_analysis_sweeps[0]
     quantity_name = "ComplexMag_E"
     intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
 

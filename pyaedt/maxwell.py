@@ -424,30 +424,52 @@ class Maxwell(object):
             if not activate_eddy_effects:
                 activate_displacement_current = False
             for obj in solid_objects_names:
-                if obj in object_list:
-                    EddyVector.append(
-                        [
-                            "NAME:Data",
-                            "Object Name:=",
-                            obj,
-                            "Eddy Effect:=",
-                            activate_eddy_effects,
-                            "Displacement Current:=",
-                            activate_displacement_current,
-                        ]
-                    )
-                else:
-                    EddyVector.append(
-                        [
-                            "NAME:Data",
-                            "Object Name:=",
-                            obj,
-                            "Eddy Effect:=",
-                            bool(self.oboundary.GetEddyEffect(obj)),
-                            "Displacement Current:=",
-                            bool(self.oboundary.GetDisplacementCurrent(obj)),
-                        ]
-                    )
+                if self.solution_type == "EddyCurrent":
+                    if obj in object_list:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                activate_eddy_effects,
+                                "Displacement Current:=",
+                                activate_displacement_current,
+                            ]
+                        )
+                    else:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                bool(self.oboundary.GetEddyEffect(obj)),
+                                "Displacement Current:=",
+                                bool(self.oboundary.GetDisplacementCurrent(obj)),
+                            ]
+                        )
+                if self.solution_type == "Transient":
+                    if obj in object_list:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                activate_eddy_effects,
+                            ]
+                        )
+                    else:
+                        EddyVector.append(
+                            [
+                                "NAME:Data",
+                                "Object Name:=",
+                                obj,
+                                "Eddy Effect:=",
+                                bool(self.oboundary.GetEddyEffect(obj)),
+                            ]
+                        )
         else:
             for obj in solid_objects_names:
                 if obj in object_list:
@@ -616,7 +638,7 @@ class Maxwell(object):
             Object container.
         coordinate_system : str, optional
             Coordinate system name. The default is ``"Global"``.
-        axis :str or int, optional
+        axis : str or int, optional
             Coordinate system axis. The default is ``"Z"``.
             It can be a ``pyaedt.generic.constants.AXIS`` enumerator value.
         positive_movement : bool, optional

@@ -30,6 +30,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(
             self, project_name=original_project_name, application=Hfss3dLayout, subfolder=test_subfolder
         )
+        self.design_name = self.aedtapp.design_name
         self.tmp = self.aedtapp.modeler.geometries
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
         src_file = os.path.join(local_path, "example_models", test_subfolder, "Package.aedt")
@@ -49,27 +50,33 @@ class TestClass(BasisTest, object):
         comp["L3A1"].angle = "90deg"
         assert comp["L3A1"].angle == "90deg"
         comp["L3A1"].angle = "0deg"
-        assert comp["L3A1"].location[0] == 0.0
+        assert comp["L3A1"].location[0] == 58.8772
+        assert comp["L3A1"].location[1] == 38.1
         comp["L3A1"].location = [1.0, 0.0]
-        if config["desktopVersion"] > "2022.2":
-
-            assert comp["L3A1"].location[0] == 1000.0
-        else:
-            assert comp["L3A1"].location[0] == 1.0  # bug in component location
-        comp["L3A1"].location = [0.0, 0.0]
+        assert comp["L3A1"].location[0] == 1.0  # bug in component location
+        comp["L3A1"].location = [58.872, 38.1]
         assert comp["L3A1"].placement_layer == "TOP"
         assert comp["L3A1"].part == "A32422-019"
         assert comp["L3A1"].part_type == "Inductor"
         assert comp["L3A1"].set_property_value("Angle", "0deg")
-        assert comp["L3A1"].enabled(False)
-        assert comp["L3A1"].enabled(True)
-        assert comp["R13"].enabled(False)
-        assert comp["R13"].enabled(True)
-        assert comp["C3B14"].enabled(False)
-        assert comp["C3B14"].enabled(True)
-        assert not comp["U3B2"].enabled(False)
-        assert not comp["J2"].enabled(False)
-        assert not comp["FB1M1"].enabled(False)
+        assert comp["L3A1"].create_clearance_on_component(1e-6)
+        assert comp["L3A1"].absolute_angle == 0.0
+        comp["L3A1"].enabled = False
+        assert not comp["L3A1"].enabled
+        comp["L3A1"].enabled = True
+        assert comp["L3A1"].enabled
+        comp["R13"].enabled = False
+        assert not comp["R13"].enabled
+        comp["R13"].enabled = True
+        assert comp["R13"].enabled
+        comp["C3B14"].enabled = False
+        assert not comp["C3B14"].enabled
+        comp["C3B14"].enabled = True
+
+        assert comp["U3B2"].enabled
+        assert comp["J2"].enabled
+        assert comp["FB1M1"].enabled
+
         r5 = comp["R5"]
         assert r5.model
         assert r5.model.res == "100kOhm"
@@ -125,8 +132,11 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.layers.drawing_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_signal_layers) > 0
         assert len(self.aedtapp.modeler.layers.all_diel_layers) > 0
-        assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0], str)
-        assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0], str)
+        assert len(self.aedtapp.modeler.layers.all_signal_layers) + len(
+            self.aedtapp.modeler.layers.all_diel_layers
+        ) == len(self.aedtapp.modeler.layers.stackup_layers)
+        assert isinstance(self.aedtapp.modeler.layers.all_signal_layers[0].name, str)
+        assert isinstance(self.aedtapp.modeler.layers.all_diel_layers[0].name, str)
 
     def test_02d_geo_lock(self):
         self.aedtapp.modeler.geometries["line_1983"].lock_position = True
@@ -207,32 +217,7 @@ class TestClass(BasisTest, object):
         else:
             assert (comp.location[0] - 0.1) < tol
             assert (comp.location[1] - 0.2) < tol
-        hfss3d.close_project(saveproject=False)
-
-    @pytest.mark.skipif(
-        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
-        reason="Not running in non graphical mode. Tested only in Linux machine",
-    )
-    def test_09_3dplacement(self):  # pragma: no cover
-        assert len(self.aedtapp.modeler.components_3d) == 2
-        tol = 1e-12
-        encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "connector.a3dcomp")
-        comp = self.aedtapp.modeler.place_3d_component(
-            encrypted_model_path, 4, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
-        )
-        if config["desktopVersion"] > "2022.2":
-            assert (comp.location[0] - 1) < tol
-            assert (comp.location[1] - 2) < tol
-        else:
-            assert (comp.location[0] - 0.001) < tol
-            assert (comp.location[1] - 0.002) < tol
-        assert comp.angle == "0deg"
-        assert comp.placement_layer == "TOP"
-        comp.placement_layer = "bottom"
-        assert comp.placement_layer == "BOTTOM"
-        comp.angle = "10deg"
-        assert comp.angle == "10deg"
-        assert comp.component_name == "my_connector"
+        hfss3d.close_project(save_project=False)
 
     def test_10_change_stackup(self):
         assert self.aedtapp.modeler.layers.change_stackup_type("Multizone", 4)
@@ -265,3 +250,45 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.components["U3B2"].solderball_enabled
         assert not self.aedtapp.modeler.components["L3A1"].set_solderball(None)
         assert self.aedtapp.modeler.components["J1"].set_solderball("Sph")
+
+    def test_15_3dplacement(self):
+        self.aedtapp.insert_design("placement_3d")
+        l1 = self.aedtapp.modeler.layers.add_layer("BOTTOM", "signal", thickness="5mil")
+        self.aedtapp.modeler.layers.add_layer("diel", "dielectric", thickness="121mil", material="FR4_epoxy")
+        self.aedtapp.modeler.layers.add_layer("TOP", "signal", thickness="5mil", isnegative=True)
+        tol = 1e-12
+        encrypted_model_path = os.path.join(local_path, "example_models", test_subfolder, "SMA_RF_Jack.a3dcomp")
+        comp = self.aedtapp.modeler.place_3d_component(
+            encrypted_model_path, 1, placement_layer="TOP", component_name="my_connector", pos_x=0.001, pos_y=0.002
+        )
+        assert (comp.location[0] - 1.017) < tol
+        assert (comp.location[1] - 2) < tol
+        assert comp.angle == "0deg"
+        assert comp.placement_layer == "TOP"
+        comp.placement_layer = "bottom"
+        assert comp.placement_layer == "BOTTOM"
+        comp.angle = "10deg"
+        assert comp.angle == "10deg"
+        assert comp.component_name == "my_connector"
+        assert len(self.aedtapp.modeler.components_3d) == 1
+
+    def test_16_differential_ports(self):
+        self.aedtapp.set_active_design(self.design_name)
+        pins = self.aedtapp.modeler.components["R3"].pins
+        assert self.aedtapp.create_differential_port(pins[0], pins[1], "test_differential", deembed=True)
+        assert "test_differential" in self.aedtapp.port_list
+
+    def test_17_ports_on_components_nets(self):
+        component = self.aedtapp.modeler.components["J1"]
+        nets = [
+            self.aedtapp.modeler.pins[i].net_name
+            for i in component.pins
+            if "GND" not in self.aedtapp.modeler.pins[i].net_name
+        ]
+        ports_before = len(self.aedtapp.port_list)
+        assert self.aedtapp.create_ports_on_component_by_nets(
+            "J1",
+            nets,
+        )
+        ports_after = len(self.aedtapp.port_list)
+        assert ports_after - ports_before == len(nets)

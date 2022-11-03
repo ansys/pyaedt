@@ -65,6 +65,10 @@ class TestClass(BasisTest, object):
         if self.aedtapp.modeler["Region"]:
             self.aedtapp.modeler.delete("Region")
         assert "Region" not in self.aedtapp.modeler.object_names
+        assert self.aedtapp.modeler.create_region([20, "50", "100mm", 20], False)
+        self.aedtapp.modeler["Region"].delete()
+        region = self.aedtapp.modeler.create_region("100", True)
+        region.delete()
         region = self.aedtapp.modeler.create_region([100, 100, 100, 100])
         assert region.solve_inside
         assert region.model

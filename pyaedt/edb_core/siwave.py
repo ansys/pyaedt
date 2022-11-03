@@ -1,373 +1,28 @@
 """
-This module contains these clases: `CircuitPort`, `CurrentSource`, `EdbSiwave`,
-`PinGroup`, `ResistorSource`, `Source`, `SourceType`, and `VoltageSource`.
+This module contains these classes: ``CircuitPort``, ``CurrentSource``, ``EdbSiwave``,
+``PinGroup``, ``ResistorSource``, ``Source``, ``SourceType``, and ``VoltageSource``.
 """
 import os
 import time
-import warnings
 
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
-from pyaedt.edb_core.EDB_Data import SourceType
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.simulation_configuration import SiwaveDCSetupTemplate
+from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
+
+# from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.edb_core.edb_data.sources import CircuitPort
+from pyaedt.edb_core.edb_data.sources import CurrentSource
+from pyaedt.edb_core.edb_data.sources import DCTerminal
+from pyaedt.edb_core.edb_data.sources import PinGroup
+from pyaedt.edb_core.edb_data.sources import ResistorSource
+from pyaedt.edb_core.edb_data.sources import VoltageSource
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-
-try:
-    from System import String
-    from System.Collections.Generic import Dictionary
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires pythonnet.")
-
-
-class SiwaveDCSetupTemplate(object):
-    """Siwave DC Settings Data Class.
-
-    This class contains all the settings for a Siwave DC Analysis and
-    is used as input
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
-    >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
-    >>> settings.accuracy_level = 0
-    >>> settings.use_dc_custom_settings  = True
-    >>> settings.name = "myDCIR_3"
-    >>> settings.pos_term_to_ground = "I1"
-    >>> settings.neg_term_to_ground = "V1"
-    >>> edb.core_siwave.add_siwave_dc_analysis(settings)
-    """
-
-    def __init__(self):
-        self.name = "DC IR 1"
-        self.dcreport_show_active_devices = True
-        self.export_dcthermal_data = False
-        self.full_dcreport_path = ""
-        self.use_loopres_forperpin = True
-        self.via_report_path = ""
-        self.compute_inductance = True
-        self.accuracy_level = 1
-        self.plotjv = True
-        self.min_passes = 1
-        self.max_passes = 5
-        self.percent_localrefinement = 20
-        self.energy_error = 2
-        self.refine_bondwires = False
-        self.refine_vias = False
-        self.num_bondwire_sides = 8
-        self.num_via_sides = 8
-        self.mesh_bondwires = False
-        self.mesh_vias = False
-        self.perform_adaptive_refinement = False
-        self.use_dc_custom_settings = False
-        self._source_terms_to_ground = None
-        self._pos_term_to_ground = []
-        self._neg_term_to_ground = []
-
-    @property
-    def pos_term_to_ground(self):
-        """Set positive terminals to ground.
-
-        Parameters
-        ----------
-        terms : list, str
-            List of terminals with positive nodes to ground.
-        """
-        return self._pos_term_to_ground
-
-    @pos_term_to_ground.setter
-    def pos_term_to_ground(self, terms):
-        if not isinstance(terms, list):
-            self._pos_term_to_ground = [terms]
-        else:
-            self._pos_term_to_ground = terms
-
-    @property
-    def neg_term_to_ground(self):
-        """Set negative terminals to ground.
-
-        Parameters
-        ----------
-        terms : list, str
-            List of terminals with negative nodes to ground.
-        """
-        return self._neg_term_to_ground
-
-    @neg_term_to_ground.setter
-    def neg_term_to_ground(self, terms):
-        if not isinstance(terms, list):
-            self._neg_term_to_ground = [terms]
-        else:
-            self._neg_term_to_ground = terms
-
-    @property
-    def source_terms_to_ground(self):
-        """Terminals with positive or negative grounded terminals."""
-        a = Dictionary[String, int]()
-        for el in self._neg_term_to_ground:
-            a[el] = 1
-        for el in self._pos_term_to_ground:
-            a[el] = 2
-        self._source_terms_to_ground = a
-        return self._source_terms_to_ground
-
-
-class SourceType(object):
-    """Manages source types."""
-
-    (Port, CurrentSource, VoltageSource, Resistor, DcTerminal) = (1, 2, 3, 4, 5)
-
-
-class PinGroup(object):
-    """Manages pin groups."""
-
-    def __init__(self):
-        self._name = ""
-        self._component = ""
-        self._node_pins = []
-        self._net = ""
-
-    @property
-    def name(self):
-        """Name."""
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def component(self):
-        """Component."""
-        return self._component
-
-    @component.setter
-    def component(self, value):
-        self._component = value
-
-    @property
-    def node_pins(self):
-        """Node pins."""
-        return self._node_pins
-
-    @node_pins.setter
-    def node_pins(self, value):
-        self._node_pins = value
-
-    @property
-    def net(self):
-        """Net."""
-        return self._net
-
-    @net.setter
-    def net(self, value):
-        self._net = value
-
-
-class Source(object):
-    """Manages sources."""
-
-    def __init__(self):
-        self._name = ""
-        self._type = SourceType.Port
-        self._positive_node = PinGroup()
-        self._negative_node = PinGroup()
-        self._do_pin_grouping = True
-
-    @property
-    def name(self):
-        """Name."""
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        self._name = value
-
-    @property
-    def type(self):
-        """Type."""
-        return self._type
-
-    @type.setter
-    def type(self, value):
-        self.type = value
-
-    @property
-    def positive_node(self):
-        """Positive node."""
-        return self._positive_node
-
-    @positive_node.setter
-    def positive_node(self, value):
-        self._positive_node = value
-
-    @property
-    def negative_node(self):
-        """Negative node."""
-        return self._negative_node
-
-    @negative_node.setter
-    def negative_node(self, value):
-        self._negative_node = value
-
-    @property
-    def do_pin_grouping(self):
-        """Do pin groupings."""
-        return self._do_pin_grouping
-
-    @do_pin_grouping.setter
-    def do_pin_grouping(self, value):
-        self._do_pin_grouping = value
-
-
-class CircuitPort(Source):
-    """Manages a circuit port."""
-
-    def __init(self):
-        super(CircuitPort, self).__init__()
-        self._impedance = "50"
-        self._type = SourceType.Port
-
-    @property
-    def impedance(self):
-        """Impedance."""
-        return self._impedance
-
-    @impedance.setter
-    def impedance(self, value):
-        self._impedance = value
-
-    @property
-    def get_type(self):
-        """Get type."""
-        return self._type
-
-
-class VoltageSource(Source):
-    """Manages a voltage source."""
-
-    def __init__(self):
-        super(VoltageSource, self).__init__()
-        self._magnitude = "1V"
-        self._phase = "0Deg"
-        self._impedance = "0.05"
-        self._type = SourceType.VoltageSource
-
-    @property
-    def magnitude(self):
-        """Magnitude."""
-        return self._magnitude
-
-    @magnitude.setter
-    def magnitude(self, value):
-        self._magnitude = value
-
-    @property
-    def phase(self):
-        """Phase."""
-        return self._phase
-
-    @phase.setter
-    def phase(self, value):
-        self._phase = value
-
-    @property
-    def impedance(self):
-        """Impedance."""
-        return self._impedance
-
-    @impedance.setter
-    def impedance(self, value):
-        self._impedance = value
-
-    @property
-    def source_type(self):
-        """Source type."""
-        return self._type
-
-
-class CurrentSource(Source):
-    """Manages a current source."""
-
-    def __init__(self):
-        super(CurrentSource, self).__init__()
-        self._magnitude = "0.1A"
-        self._phase = "0Deg"
-        self._impedance = "1e7"
-        self._type = SourceType.CurrentSource
-
-    @property
-    def magnitude(self):
-        """Magnitude."""
-        return self._magnitude
-
-    @magnitude.setter
-    def magnitude(self, value):
-        self._magnitude = value
-
-    @property
-    def phase(self):
-        """Phase."""
-        return self._phase
-
-    @phase.setter
-    def phase(self, value):
-        self._phase = value
-
-    @property
-    def impedance(self):
-        """Impedance."""
-        return self._impedance
-
-    @impedance.setter
-    def impedance(self, value):
-        self._impedance = value
-
-    @property
-    def source_type(self):
-        """Source type."""
-        return self._type
-
-
-class DCTerminal(Source):
-    """Manages a dc terminal source."""
-
-    def __init__(self):
-        super(DCTerminal, self).__init__()
-
-        self._type = SourceType.DcTerminal
-
-    @property
-    def source_type(self):
-        """Source type."""
-        return self._type
-
-
-class ResistorSource(Source):
-    """Manages a resistor source."""
-
-    def __init__(self):
-        super(ResistorSource, self).__init__()
-        self._rvalue = "50"
-        self._type = SourceType.Resistor
-
-    @property
-    def rvalue(self):
-        """Resistance value."""
-        return self._rvalue
-
-    @rvalue.setter
-    def rvalue(self, value):
-        self._rvalue = value
-
-    @property
-    def source_type(self):
-        """Source type."""
-        return self._type
 
 
 class EdbSiwave(object):
@@ -427,6 +82,20 @@ class EdbSiwave(object):
         """ """
         return self._pedb.db
 
+    @property
+    def pin_groups(self):
+        """All Layout Pin groups.
+
+        Returns
+        -------
+        list
+            List of all layout pin groups.
+        """
+        pingroups = {}
+        for el in self._active_layout.PinGroups:
+            pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
+        return pingroups
+
     @pyaedt_function_handler()
     def _create_terminal_on_pins(self, source):
         """Create a terminal on pins.
@@ -462,12 +131,13 @@ class EdbSiwave(object):
             neg_pin,
             toLayer_neg,
         )
-        if source.type == SourceType.Port:
+        if source.source_type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
+            if source.source_type == SourceType.CircPort:
+                pos_pingroup_terminal.SetIsCircuitPort(True)
+                neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -475,7 +145,7 @@ class EdbSiwave(object):
                 name = generate_unique_name(source.name)
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
-        elif source.type == SourceType.CurrentSource:
+        elif source.source_type == SourceType.Isource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -488,7 +158,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.VoltageSource:
+        elif source.source_type == SourceType.Vsource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -501,7 +171,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Resistor:
+        elif source.source_type == SourceType.Rlc:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -985,14 +655,22 @@ class EdbSiwave(object):
         return self.create_pin_group_terminal(dc_source)
 
     @pyaedt_function_handler()
-    def create_exec_file(self):
+    def create_exec_file(self, add_dc=False, add_ac=False, add_syz=False):
         """Create an executable file."""
         workdir = os.path.dirname(self._pedb.edbpath)
         file_name = os.path.join(workdir, os.path.splitext(os.path.basename(self._pedb.edbpath))[0] + ".exec")
         if os.path.isfile(file_name):
             os.remove(file_name)
-        f = open(file_name, "w")
-        return f
+        with open(file_name, "w") as f:
+            if add_ac:
+                f.write("ExecAcSim\n")
+            if add_dc:
+                f.write("ExecDcSim\n")
+            if add_syz:
+                f.write("ExecSyzSim\n")
+            f.write("SaveSiw\n")
+
+        return True if os.path.exists(file_name) else False
 
     @pyaedt_function_handler()
     def add_siwave_ac_analysis(
@@ -1039,10 +717,7 @@ class EdbSiwave(object):
             str(step_freq),
             discrete_sweep,
         )
-        exec_file = self.create_exec_file()
-        exec_file.write("ExecAcSim\n")
-        exec_file.close()
-        return True
+        return self.create_exec_file(add_ac=True)
 
     @pyaedt_function_handler()
     def add_siwave_syz_analysis(
@@ -1090,11 +765,7 @@ class EdbSiwave(object):
             str(step_freq),
             discrete_sweep,
         )
-        exec_file = self.create_exec_file()
-        exec_file.write("ExecSyzSim\n")
-        exec_file.write("SaveSiw\n")
-        exec_file.close()
-        return True
+        return self.create_exec_file(add_syz=True)
 
     @pyaedt_function_handler()
     def get_siwave_dc_setup_template(self):
@@ -1102,7 +773,7 @@ class EdbSiwave(object):
 
         Returns
         -------
-        pyaedt.edb_core.siwave.SiwaveDCSetupTemplate
+        pyaedt.edb_core.edb_data.simulation_configuration.SiwaveDCSetupTemplate
         """
         return SiwaveDCSetupTemplate()
 
@@ -1118,7 +789,7 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        setup_settings : pyaedt.edb_core.siwave.SiwaveDCSetupTemplate
+        setup_settings : pyaedt.edb_core.edb_data.simulation_configuration.SiwaveDCSetupTemplate
 
         Returns
         -------
@@ -1172,17 +843,11 @@ class EdbSiwave(object):
         sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_to_ground
         simulationSetup = self._edb.Utility.SIWaveDCIRSimulationSetup(sim_setup_info)
         if self._cell.AddSimulationSetup(simulationSetup):
-            exec_file = self.create_exec_file()
-            exec_file.write("ExecDcSim\n")
-            exec_file.close()
-            return True
+            return self.create_exec_file(add_dc=True)
         else:
             self._cell.DeleteSimulationSetup(setup_settings.name)
             if self._cell.AddSimulationSetup(simulationSetup):
-                exec_file = self.create_exec_file()
-                exec_file.write("ExecDcSim\n")
-                exec_file.close()
-                return True
+                return self.create_exec_file(add_dc=True)
         return False
 
     @pyaedt_function_handler()
@@ -1226,12 +891,13 @@ class EdbSiwave(object):
                 False,
             )
 
-        if source.type == SourceType.Port:
+        if source.source_type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
-            pos_pingroup_terminal.SetIsCircuitPort(True)
-            neg_pingroup_terminal.SetIsCircuitPort(True)
+            if source.source_type == SourceType.CircPort:
+                pos_pingroup_terminal.SetIsCircuitPort(True)
+                neg_pingroup_terminal.SetIsCircuitPort(True)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
             try:
                 pos_pingroup_terminal.SetName(source.name)
@@ -1240,7 +906,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.CurrentSource:
+        elif source.source_type == SourceType.Isource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -1253,7 +919,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.VoltageSource:
+        elif source.source_type == SourceType.Vsource:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
             pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.magnitude))
@@ -1266,7 +932,7 @@ class EdbSiwave(object):
                 pos_pingroup_terminal.SetName(name)
                 self._logger.warning("%s already exists. Renaming to %s", source.name, name)
 
-        elif source.type == SourceType.Resistor:
+        elif source.source_type == SourceType.Rlc:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.RlcBoundary)
             pos_pingroup_terminal.SetReferenceTerminal(neg_pingroup_terminal)
@@ -1277,7 +943,7 @@ class EdbSiwave(object):
             Rlc.REnabled = True
             Rlc.R = self._get_edb_value(source.rvalue)
             pos_pingroup_terminal.SetRlcBoundaryParameters(Rlc)
-        elif source.type == SourceType.DcTerminal:
+        elif source.source_type == SourceType.DcTerminal:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kDcTerminal)
         else:
             pass
@@ -1486,3 +1152,108 @@ class EdbSiwave(object):
             l_value=l_value,
             is_parallel=is_parallel,
         )  # pragma no cover
+
+    @pyaedt_function_handler
+    def create_pin_group(self, reference_designator, pin_numbers, group_name=None):
+        """Create pin group on the component.
+
+        Parameters
+        ----------
+        reference_designator : str
+            References designator of the component.
+        pin_numbers : int, str, list
+            List of pin names.
+        group_name : str, optional
+            Name of the pin group.
+        Returns
+        -------
+        PinGroup
+        """
+        if not isinstance(pin_numbers, list):
+            pin_numbers = [pin_numbers]
+        pin_numbers = [str(p) for p in pin_numbers]
+        if group_name is None:
+            group_name = self._edb.Cell.Hierarchy.PinGroup.GetUniqueName(self._active_layout)
+        comp = self._pedb.core_components.components[reference_designator]
+        pins = [pin.pin for name, pin in comp.pins.items() if name in pin_numbers]
+        edb_pingroup = self._edb.Cell.Hierarchy.PinGroup.Create(
+            self._active_layout, group_name, convert_py_list_to_net_list(pins)
+        )
+
+        if edb_pingroup.IsNull():  # pragma: no cover
+            return False
+        else:
+            edb_pingroup.SetNet(pins[0].GetNet())
+            return group_name, self.pin_groups[group_name]
+
+    @pyaedt_function_handler
+    def create_pin_group_on_net(self, reference_designator, net_name, group_name=None):
+        """Create pin group on component by net name.
+
+        Parameters
+        ----------
+        reference_designator : str
+            References designator of the component.
+        net_name : str
+            Name of the net.
+        group_name : str, optional
+            Name of the pin group. The default value is ``None``.
+        Returns
+        -------
+        PinGroup
+        """
+        pins = self._pedb.core_components.get_pin_from_component(reference_designator, net_name)
+        pin_names = [p.GetName() for p in pins]
+        return self.create_pin_group(reference_designator, pin_names, group_name)
+
+    @pyaedt_function_handler
+    def create_current_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+        """Create current source between two pin groups.
+
+        Parameters
+        ----------
+        pos_pin_group_name : str
+            Name of the positive pin group.
+        neg_pin_group_name : str
+            Name of the negative pin group.
+        magnitude : int, float, optional
+            Magnitude of the source.
+        phase : int, float, optional
+            Phase of the source
+        Returns
+        -------
+
+        """
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_current_source_terminal(magnitude, phase)
+
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_current_source_terminal()
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+        return True
+
+    @pyaedt_function_handler
+    def create_voltage_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+        """Create voltage source between two pin groups.
+
+        Parameters
+        ----------
+        pos_pin_group_name : str
+            Name of the positive pin group.
+        neg_pin_group_name : str
+            Name of the negative pin group.
+        magnitude : int, float, optional
+            Magnitude of the source.
+        phase : int, float, optional
+            Phase of the source
+        Returns
+        -------
+
+        """
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
+
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_voltage_source_terminal()
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+        return True
