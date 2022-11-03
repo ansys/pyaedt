@@ -186,7 +186,7 @@ class TestClass(BasisTest, object):
         assert str(type(result_type_desense)) == "<class 'EmitApiPython.result_type'>"
 
     @pytest.mark.skipif(
-    config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
     def test_version(self):
         less_info = self.aedtapp2.version(False)
