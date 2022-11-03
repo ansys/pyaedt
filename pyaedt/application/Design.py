@@ -715,7 +715,13 @@ class Design(AedtObjects):
         toolkit_directory = os.path.join(self.project_path, self.project_name + ".pyaedt")
         if settings.remote_rpc_session:
             toolkit_directory = self.project_path + "/" + self.project_name + ".pyaedt"
-            settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
+            try:
+                settings.remote_rpc_session.filemanager.makedirs(toolkit_directory)
+            except:
+                toolkit_directory = (
+                    settings.remote_rpc_session.filemanager.temp_dir() + "/" + self.project_name + ".pyaedt"
+                )
+
         elif not os.path.isdir(toolkit_directory):
             try:
                 os.mkdir(toolkit_directory)
@@ -927,7 +933,7 @@ class Design(AedtObjects):
     def _add_handler(self):
         if not self._oproject or not settings.enable_local_log_file:
             return
-        for handler in self.logger._global.handlers:
+        for handler in self._global_logger._files_handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
                 return
         self._logger = self._global_logger.add_file_logger(
@@ -2770,7 +2776,7 @@ class Design(AedtObjects):
         if save_project:
             oproj.Save()
         if name == legacy_name:
-            self.logger.remove_file_logger(name)
+            self._global_logger.remove_file_logger(name)
             self._logger = self._global_logger
         self.odesktop.CloseProject(name)
         if name == legacy_name:

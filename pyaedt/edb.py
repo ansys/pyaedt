@@ -824,7 +824,7 @@ class Edb(object):
         """
         self._db.Close()
         if self.log_name:
-            self.logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
             self._logger = self._global_logger
         time.sleep(2)
         start_time = time.time()
@@ -870,7 +870,7 @@ class Edb(object):
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
         if self.log_name:
-            self.logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
             self._logger = self._global_logger
 
         self.log_name = os.path.join(
