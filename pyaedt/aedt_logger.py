@@ -404,7 +404,7 @@ class AedtLogger(object):
             Text to display as the message.
         level : str, optional
             Level to add the info message to. Options are ``"Global"``,
-            ``"Project"``, and ``"Design"``. The default is ``None``,
+            ``"Project"``, and ``"Design"``. The default value is ``None``,
             in which case the info message gets added to the ``"Design"``
             level.
         """
