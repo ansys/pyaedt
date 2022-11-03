@@ -5,8 +5,8 @@ import sys
 import tempfile
 import time
 
-from pyaedt import AedtLogger
 from pyaedt import is_ironpython
+from pyaedt import pyaedt_logger as logger
 from pyaedt import settings
 from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.misc import list_installed_ansysem
@@ -31,7 +31,6 @@ else:
     from rpyc.utils.server import ThreadedServer
 
 
-logger = AedtLogger()
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000
 
