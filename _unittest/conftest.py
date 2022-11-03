@@ -17,7 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
-# import datetime
+import datetime
 import gc
 import json
 import os
@@ -85,10 +85,10 @@ settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
-# test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-# scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
-# if not os.path.exists(scratch_path):
-#     os.makedirs(scratch_path)
+test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
+if not os.path.exists(scratch_path):
+    os.makedirs(scratch_path)
 
 logger = pyaedt_logger
 
