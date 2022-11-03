@@ -1,4 +1,4 @@
-pyvista==0.36.1
+pyvista==0.37.0
 matplotlib==3.6.1
 numpy==1.21.6; python_version <= '3.7'
 numpy==1.23.4; python_version > '3.7'

@@ -5223,6 +5223,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Examples
         --------
+        Add a 3D component array from a json file.
+        Below is the content of a json file that will be used in the following code sample.
+
         {
         "primarylattice": "MyFirstLattice",
         "secondarylattice": "MySecondLattice",
@@ -5249,6 +5252,12 @@ class Hfss(FieldAnalysis3D, object):
                     }
                     # continue
         }
+
+        >>> from pyaedt import Hfss
+        >>> from pyaedt.generic.DataHandlers import json_to_dict
+        >>> hfss_app = Hfss()
+        >>> dict_in = json_to_dict(path\to\json_file)
+        >>> hfss_app.add_3d_component_array_from_json(dict_in)
         """
 
         self.hybrid = True

@@ -2618,13 +2618,13 @@ class Object3d(object):
 
         Parameters
         ----------
-        sweep_vector :
-            Application.Position object
+        sweep_vector : list
+            Application.Position object.
         draft_angle : float, optional
             Angle of the draft in degrees. The default is ``0``.
-        draft_type : str
+        draft_type : str, optional
             Type of the draft. Options are ``"Extended"``, ``"Round"``,
-            and ``"Natural"``. The default is ``"Round``.
+            and ``"Natural"``. The default value is ``"Round``.
 
         Returns
         -------
@@ -2648,17 +2648,17 @@ class Object3d(object):
 
         Parameters
         ----------
-        sweep_vector :
-            Application.Position object
+        sweep_object : :class:`pyaedt.modeler.Object3d.Object3d`
+            Application.Position object.
         draft_angle : float, optional
             Angle of the draft in degrees. The default is ``0``.
         draft_type : str
             Type of the draft. Options are ``"Extended"``, ``"Round"``,
             and ``"Natural"``. The default is ``"Round``.
         is_check_face_intersection : bool, optional
-           The default is ``False``.
+           The default value is ``False``.
         twist_angle : float, optional
-            Angle at which to twist or rotate in degrees. The default is ``0``.
+            Angle at which to twist or rotate in degrees. The default value is ``0``.
 
         Returns
         -------
@@ -2682,7 +2682,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        cs_axis : pyaedt.generic.constants.CoordinateSystemAxis
+        cs_axis : :class:`pyaedt.generic.constants.CoordinateSystemAxis`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
