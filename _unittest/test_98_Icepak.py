@@ -506,3 +506,7 @@ class TestClass(BasisTest, object):
         app = Icepak(self.power_budget, specified_version=desktop_version)
         power_boundaries, total_power = app.post.power_budget(temperature=20)
         assert abs(total_power - 787.5221374239883) < 1
+
+    def test_41_exporting_monitor_data(self):
+        assert self.aedtapp.edit_design_settings()
+        assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=source_project_path)
