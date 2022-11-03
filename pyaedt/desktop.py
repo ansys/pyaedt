@@ -380,7 +380,7 @@ class Desktop:
             self._logger = aedt_logger.AedtLogger(
                 filename=self.logfile, level=logging.DEBUG, to_stdout=settings.enable_screen_logs
             )
-            self._logger.info("Logger file pyaedt.log in use.")
+            self._logger.info("Logger file {} in use.".format(settings.global_log_file_name))
             self._main.aedt_logger = self._logger
         else:
             self._logger = self._main.aedt_logger

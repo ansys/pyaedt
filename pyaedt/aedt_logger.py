@@ -149,20 +149,20 @@ class AedtLogger(object):
             self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
         global_handler = False
         for handler in self._global.handlers:
-            if "pyaedt.log" in str(handler):
+            if settings.global_log_file_name in str(handler):
                 global_handler = True
                 break
-        log_file = os.path.join(tempfile.gettempdir(), "pyaedt.log")
+        log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
         my_handler = RotatingFileHandler(
-            log_file, mode="a", maxBytes=100 * 1024 * 1024, backupCount=2, encoding=None, delay=0
+            log_file, mode="a", maxBytes=20 * 1024 * 1024, backupCount=2, encoding=None, delay=0
         )
         my_handler.setFormatter(self.formatter)
         my_handler.setLevel(self.level)
-        if not global_handler:
+        if not global_handler and settings.global_log_file_name:
             self._global.addHandler(my_handler)
         self._files_handlers.append(my_handler)
 
-        if self.filename:
+        if self.filename and settings.enable_local_log_file:
             self.add_file_logger(self.filename, level)
 
         if to_stdout:
@@ -175,6 +175,9 @@ class AedtLogger(object):
         self._timer = time.time()
 
     def add_file_logger(self, filename, level=None):
+        """Add a new file to the logger handlers list."""
+        if not settings.enable_local_log_file:
+            return
         for handler in self._global.handlers:
             if filename in str(handler):
                 return
@@ -183,18 +186,23 @@ class AedtLogger(object):
         _file_handler.setFormatter(self.formatter)
         self._global.addHandler(_file_handler)
         self._files_handlers.append(_file_handler)
+        self.logger.info("New logger file {} added to handlers.".format(filename))
 
     def remove_file_logger(self, projectname):
+        """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in handlers:
             if "pyaedt_{}.log".format(projectname) in str(handler):
                 self._global.removeHandler(handler)
+        self.logger.info("logger file pyaedt_{}.log removed from handlers.".format(projectname))
 
     def remove_all_project_file_logger(self):
+        """Remove all the local files from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in handlers:
             if "pyaedt_" in str(handler):
                 self._global.removeHandler(handler)
+        self.logger.info("Project files removed from handlers.")
 
     @property
     def _desktop(self):

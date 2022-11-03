@@ -170,15 +170,18 @@ class Edb(object):
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                self.logger.add_file_logger(edbpath[:-4] + ".log")
+                if settings.enable_local_log_file:
+                    self.logger.add_file_logger(edbpath[:-4] + ".log")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                self.logger.add_file_logger(self.edbpath[:-4] + ".log")
+                if settings.enable_local_log_file:
+                    self.logger.add_file_logger(self.edbpath[:-4] + ".log")
                 self.logger.info("EDB %s was created correctly.", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
-                self.logger.add_file_logger(edbpath[:-4] + ".log")
+                if settings.enable_local_log_file:
+                    self.logger.add_file_logger(edbpath[:-4] + ".log")
                 self.open_edb()
             if self.builder:
                 self.logger.info("EDB was initialized.")

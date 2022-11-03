@@ -926,7 +926,7 @@ class Design(AedtObjects):
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
     def _add_handler(self):
-        if not self._oproject:
+        if not self._oproject or not settings.enable_local_log_file:
             return
         for handler in self.logger._global.handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
