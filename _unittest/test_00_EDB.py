@@ -2035,7 +2035,7 @@ if not config["skip_edb"]:
             )
             assert edb.core_hfss.get_ports_number() == 2
             port_ver = edb.core_hfss.excitations["port_ver"]
-            assert port_ver.hfss_type
+            assert port_ver.hfss_type == "Gap"
             assert isinstance(port_ver.horizontal_extent_factor, float)
             assert isinstance(port_ver.vertical_extent_factor, float)
             assert isinstance(port_ver.radial_extent_factor, float)
