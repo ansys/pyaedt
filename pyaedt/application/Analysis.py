@@ -1358,28 +1358,10 @@ class Analysis(Design, object):
 
             if self.solution_type == "SBR+":
                 setup.auto_update = False
-                user_domain = None
-                if props:
-                    if "RadiationSetup" in props:
-                        user_domain = props["RadiationSetup"]
-                if self.field_setups:
-                    for field_setup in self.field_setups:
-                        if user_domain and user_domain in field_setup.name:
-                            domain = user_domain
-                            break
-                    if not user_domain and self.field_setups:
-                        domain = self.field_setups[0].name
-                elif user_domain:
-                    domain = user_domain
-                else:
-                    self.logger.error("Field Observation Domain not defined")
-                    return False
-
                 default_sbr_setup = {
                     "RayDensityPerWavelength": 4,
                     "MaxNumberOfBounces": 5,
                     "EnableCWRays": False,
-                    "RadiationSetup": domain,
                     "EnableSBRSelfCoupling": False,
                     "UseSBRAdvOptionsGOBlockage": False,
                     "UseSBRAdvOptionsWedges": False,
@@ -1388,6 +1370,29 @@ class Analysis(Design, object):
                     "UseSBREnhancedRadiatedPowerCalculation": False,
                     "AdaptFEBIWithRadiation": False,
                 }
+                user_domain = None
+                if props:
+                    if "RadiationSetup" in props:
+                        user_domain = props["RadiationSetup"]
+                if self.field_setups:
+                    for field_setup in self.field_setups:
+                        if user_domain and user_domain in field_setup.name:
+                            domain = user_domain
+                            default_sbr_setup["RadiationSetup"] = domain
+                            break
+                    if not user_domain and self.field_setups:
+                        domain = self.field_setups[0].name
+                        default_sbr_setup["RadiationSetup"] = domain
+
+                elif user_domain:
+                    domain = user_domain
+                    default_sbr_setup["RadiationSetup"] = domain
+
+                else:
+                    self.logger.warning("Field Observation Domain not defined")
+                    default_sbr_setup["RadiationSetup"] = ""
+                    default_sbr_setup["ComputeFarFields"] = False
+
                 new_dict = setup.props
                 for k, v in default_sbr_setup.items():
                     new_dict[k] = v
@@ -1488,7 +1493,7 @@ class Analysis(Design, object):
         if self.solution_type == "SBR+":
             setuptype = 4
             setup = SetupSBR(self, setuptype, setupname, isnewsetup=False)
-        elif self.design_type == "HFSS":
+        elif self.design_type in ["Q3D Extractor", "2D Extractor", "HFSS"]:
             setup = SetupHFSS(self, setuptype, setupname, isnewsetup=False)
             if setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
                 setup = SetupHFSSAuto(self, 0, setupname, isnewsetup=False)

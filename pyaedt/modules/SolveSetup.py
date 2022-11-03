@@ -1855,12 +1855,12 @@ class SetupHFSSAuto(Setup, object):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
     @pyaedt_function_handler()
-    def add_subrange(self, type, start, end=None, count=None, unit="GHz", clear=False):
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
         ----------
-        type : str
+        rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
@@ -1881,27 +1881,27 @@ class SetupHFSSAuto(Setup, object):
 
         """
         if clear:
-            self.props["Sweeps"]["Sweep"]["RangeType"] = type
+            self.props["Sweeps"]["Sweep"]["RangeType"] = rangetype
             self.props["Sweeps"]["Sweep"]["RangeStart"] = str(start) + unit
-            if type == "LinearCount":
+            if rangetype == "LinearCount":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeCount"] = count
-            elif type == "LinearStep":
+            elif rangetype == "LinearStep":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeStep"] = str(count) + unit
-            elif type == "LogScale":
+            elif rangetype == "LogScale":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeSamples"] = count
             self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
             return self.update()
-        sweep_range = {"RangeType": type, "RangeStart": str(start) + unit}
-        if type == "LinearCount":
+        sweep_range = {"RangeType": rangetype, "RangeStart": str(start) + unit}
+        if rangetype == "LinearCount":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = count
-        elif type == "LinearStep":
+        elif rangetype == "LinearStep":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeStep"] = str(count) + unit
-        elif type == "LogScale":
+        elif rangetype == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
@@ -2050,12 +2050,12 @@ class SetupSBR(Setup, object):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
     @pyaedt_function_handler()
-    def add_subrange(self, type, start, end=None, count=None, unit="GHz", clear=False):
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
         """Add a subrange to the sweep.
 
         Parameters
         ----------
-        type : str
+        rangetype : str
             Type of the subrange. Options are ``"LinearCount"``,
             ``"LinearStep"``, and ``"LogScale"``.
         start : float
@@ -2076,27 +2076,27 @@ class SetupSBR(Setup, object):
 
         """
         if clear:
-            self.props["Sweeps"]["Sweep"]["RangeType"] = type
+            self.props["Sweeps"]["Sweep"]["RangeType"] = rangetype
             self.props["Sweeps"]["Sweep"]["RangeStart"] = str(start) + unit
-            if type == "LinearCount":
+            if rangetype == "LinearCount":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeCount"] = count
-            elif type == "LinearStep":
+            elif rangetype == "LinearStep":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeStep"] = str(count) + unit
-            elif type == "LogScale":
+            elif rangetype == "LogScale":
                 self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
                 self.props["Sweeps"]["Sweep"]["RangeSamples"] = count
             self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
             return self.update()
-        sweep_range = {"RangeType": type, "RangeStart": str(start) + unit}
-        if type == "LinearCount":
+        sweep_range = {"RangeType": rangetype, "RangeStart": str(start) + unit}
+        if rangetype == "LinearCount":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = count
-        elif type == "LinearStep":
+        elif rangetype == "LinearStep":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeStep"] = str(count) + unit
-        elif type == "LogScale":
+        elif rangetype == "LogScale":
             sweep_range["RangeEnd"] = str(end) + unit
             sweep_range["RangeCount"] = self.props["RangeCount"]
             sweep_range["RangeSamples"] = count
