@@ -5226,7 +5226,7 @@ class Hfss(FieldAnalysis3D, object):
         Add a 3D component array from a json file.
         Below is the content of a json file that will be used in the following code sample.
 
-        dict_in = {
+        {
         "primarylattice": "MyFirstLattice",
         "secondarylattice": "MySecondLattice",
         "useairobjects": true,
