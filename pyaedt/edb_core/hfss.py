@@ -681,11 +681,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_lumped_port_on_net(
-        self,
-        nets=None,
-        reference_layer=None,
-        return_points_only=False,
-        digit_resolution=6,
+        self, nets=None, reference_layer=None, return_points_only=False, digit_resolution=6, at_bounding_box=True
     ):
         """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
         The command will look for traces on the nets and will try to assign vertical lumped port on first and last
@@ -705,6 +701,11 @@ class EdbHfss(object):
 
         digit_resolution : int, optional
             The number of digits carried for the edge location accuracy. The default value is ``6``.
+
+        at_bounding_box : bool
+            When ``True`` will keep the edges from traces at the layout bounding box location. This is recommended when
+             a cutout has been performed before and lumped ports have to be created on ending traces. Default value is
+             ``True``.
 
         Returns
         -------
@@ -748,15 +749,32 @@ class EdbHfss(object):
                             round(pt.X.ToDouble(), digit_resolution),
                             round(pt.Y.ToDouble(), digit_resolution),
                         ]
-                        if return_points_only:
-                            edges_pts.append(_pt)
+                        if at_bounding_box:
+                            if not set(layout_bbox).isdisjoint(_pt):
+                                if return_points_only:
+                                    edges_pts.append(_pt)
+                                else:
+                                    try:
+                                        self._hfss_terminals.CreateEdgePort(
+                                            path, pt, reference_layer, port_name
+                                        )  # pragma: no cover
+                                    except:
+                                        self._logger.warning(
+                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
+                                        )
                         else:
-                            if not self._hfss_terminals.CreateEdgePort(
-                                path, pt, reference_layer, port_name
-                            ):  # pragma: no cover
-                                raise Exception(
-                                    "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
-                                )
+                            if return_points_only:
+                                edges_pts.append(_pt)
+                            else:
+                                try:
+                                    self._hfss_terminals.CreateEdgePort(
+                                        path, pt, reference_layer, port_name
+                                    )  # pragma: no cover
+                                except:
+                                    self._logger.warning(
+                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
+                                    )
+
             if return_points_only:
                 return edges_pts
         return True

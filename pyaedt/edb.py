@@ -1188,7 +1188,7 @@ class Edb(object):
             This operation may slow down the cutout export.
         keep_voids : bool
             Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
-            Default value is ``´True``, ``False`` will remove the voids.
+            Default value is ``True``, ``False`` will remove the voids.
 
         Returns
         -------
