@@ -1103,6 +1103,8 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design()
         self.aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in self.aedtapp.modeler["SymmetryForFaces"].faces]
+        assert not self.aedtapp.assign_symmetry(ids)
+        self.aedtapp.solution_type = "Modal"
         assert self.aedtapp.assign_symmetry(ids)
         assert self.aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
         assert not self.aedtapp.assign_symmetry(self.aedtapp.modeler.object_list[0].faces[0])

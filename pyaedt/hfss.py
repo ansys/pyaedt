@@ -5484,6 +5484,10 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         try:
+            if self.solution_type != "Modal":
+                msg = "Assign symmetry cannot be performed on solution types different from Modal."
+                raise ValueError(msg)
+
             if symmetry_name is None:
                 symmetry_name = generate_unique_name("Symmetry")
 
@@ -5502,7 +5506,7 @@ class Hfss(FieldAnalysis3D, object):
                     raise ValueError(msg)
                 object_list.append(face_id)
 
-                props = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsPerfectE": is_perfect_e})
-                return self._create_boundary(symmetry_name, props, "Symmetry")
+            props = OrderedDict({"Name": symmetry_name, "Faces": object_list, "IsPerfectE": is_perfect_e})
+            return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False
