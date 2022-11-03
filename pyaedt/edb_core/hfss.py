@@ -79,8 +79,8 @@ class EdbHfss(object):
         return self._pedb.builder
 
     @property
-    def ports(self):
-        """Get all ports."""
+    def excitations(self):
+        """Get all excitations."""
         terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
         terms = [i for i in terms if not i.IsReferenceTerminal()]
         return {ter.GetName(): Port(self._pedb, ter, ter.GetName()) for ter in terms}
