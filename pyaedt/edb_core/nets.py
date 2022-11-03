@@ -590,15 +590,8 @@ class EdbNets(object):
             netlist = [netlist]
         nets_deleted = []
         for net in netlist:
-            try:
-                edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net)
-                if edb_net is not None:
-                    edb_net.Delete()
-                    nets_deleted.append(net)
-                    self._logger.info("Net %s Deleted", net)
-            except:
-                pass
-
+            self.nets[net].delete()
+            nets_deleted.append(net)
         return nets_deleted
 
     @pyaedt_function_handler()

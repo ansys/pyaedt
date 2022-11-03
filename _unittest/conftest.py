@@ -17,6 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
+import datetime
 import gc
 import json
 import os
@@ -24,18 +25,19 @@ import shutil
 import sys
 import tempfile
 
+from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
-log_path = os.path.join(tempfile.gettempdir(), "test.log")
-if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
-    try:
-        os.remove(log_path)
-    except:
-        pass
-settings.logger_file_path = log_path
+# log_path = os.path.join(tempfile.gettempdir(), "test.log")
+# if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
+#     try:
+#         os.remove(log_path)
+#     except:
+#         pass
+# settings.logger_file_path = log_path
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 if is_ironpython:
@@ -83,6 +85,13 @@ settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
+test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
+if not os.path.exists(scratch_path):
+    os.makedirs(scratch_path)
+
+logger = pyaedt_logger
+
 
 class BasisTest(object):
     def my_setup(self):
@@ -110,6 +119,9 @@ class BasisTest(object):
             except:
                 pass
         del self.aedtapps
+        for proj in oDesktop.GetProjectList():
+            oDesktop.CloseProject(proj)
+        logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
@@ -161,13 +173,13 @@ class BasisTest(object):
         )
         return self.edbapps[-1]
 
-    def teardown(self):
+    def teardown_method(self):
         """
         Could be redefined
         """
         pass
 
-    def setup(self):
+    def setup_method(self):
         """
         Could be redefined
         """
@@ -188,6 +200,7 @@ def desktop_init():
             oDesktop = sys.modules["__main__"].oDesktop
             pid = oDesktop.GetProcessID()
             os.kill(pid, 9)
+            # shutil.rmtree(scratch_path, ignore_errors=True)
         except:
             pass
 

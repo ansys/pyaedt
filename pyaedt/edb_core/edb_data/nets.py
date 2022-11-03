@@ -49,7 +49,7 @@ class EDBNetsData(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.EDBPrimitives`
         """
         prims = []
         for el in self._core_primitive.primitives:
@@ -80,20 +80,13 @@ class EDBNetsData(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBComponent`]
         """
         comps = {}
         for el, val in self._core_components.components.items():
             if self.name in val.nets:
                 comps[el] = val
         return comps
-
-    @pyaedt_function_handler
-    def delete(self):
-        """Delete this net from layout."""
-        for i in self.primitives:
-            i.delete()
-        self.net_object.Delete()
 
     @pyaedt_function_handler()
     def plot(

@@ -2,7 +2,7 @@ import logging
 import re
 import warnings
 
-from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.padstacks import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
@@ -47,12 +47,6 @@ class EDBComponentDef(object):
 
     @property
     def type(self):
-        """Retrieve the component definition type.
-
-        Returns
-        -------
-        str
-        """
         num = len(set(comp.type for refdes, comp in self.components.items()))
         if num == 0:  # pragma: no cover
             return None
@@ -63,7 +57,7 @@ class EDBComponentDef(object):
 
     @type.setter
     def type(self, value):
-        for comp in list(self.components.values()):
+        for refdes, comp in self.components.items():
             comp.type = value
 
     @property
@@ -72,7 +66,7 @@ class EDBComponentDef(object):
 
         Returns
         -------
-        dict of :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`
+        dict of :class:`pyaedt.edb_core.edb_data.EDBComponent`
         """
         comp_list = [
             EDBComponent(self._pcomponents, l)
@@ -97,7 +91,7 @@ class EDBComponentDef(object):
         is_parallel : bool, optional
             Whether it is parallel or series RLC component.
         """
-        for comp in list(self.components.values()):
+        for refdes, comp in self.components.items():
             res, ind, cap = res, ind, cap
             comp.assign_rlc_model(res, ind, cap, is_parallel)
         return True
@@ -116,7 +110,7 @@ class EDBComponentDef(object):
         -------
 
         """
-        for comp in list(self.components.values()):
+        for refdes, comp in self.components.items():
             comp.assign_s_param_model(file_path, model_name, reference_net)
         return True
 
@@ -134,7 +128,7 @@ class EDBComponentDef(object):
         -------
 
         """
-        for comp in list(self.components.values()):
+        for refdes, comp in self.components.items():
             comp.assign_spice_model(file_path, model_name)
         return True
 
@@ -170,7 +164,7 @@ class EDBComponent(object):
         def is_parallel(self, value):
             rlc = self._pin_pair_rlc
             rlc.IsParallel = value
-            self._set_comp_prop()  # pragma: no cover
+            self._set_comp_prop(rlc)  # pragma: no cover
 
         @property
         def _pin_pair_rlc(self):
@@ -187,7 +181,7 @@ class EDBComponent(object):
             rlc.REnabled = value[0]
             rlc.LEnabled = value[1]
             rlc.CEnabled = value[2]
-            self._set_comp_prop()  # pragma: no cover
+            self._set_comp_prop(rlc)  # pragma: no cover
 
         @property
         def resistance(self):
@@ -196,7 +190,7 @@ class EDBComponent(object):
         @resistance.setter
         def resistance(self, value):
             self._pin_pair_rlc.R = value
-            self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
+            self._set_comp_prop()  # pragma: no cover
 
         @property
         def inductance(self):
@@ -205,7 +199,7 @@ class EDBComponent(object):
         @inductance.setter
         def inductance(self, value):
             self._pin_pair_rlc.L = value
-            self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
+            self._set_comp_prop()  # pragma: no cover
 
         @property
         def capacitance(self):
@@ -214,7 +208,7 @@ class EDBComponent(object):
         @capacitance.setter
         def capacitance(self, value):
             self._pin_pair_rlc.C = value
-            self._set_comp_prop(self._pin_pair_rlc)  # pragma: no cover
+            self._set_comp_prop()  # pragma: no cover
 
         @property
         def rlc_values(self):  # pragma: no cover
@@ -227,10 +221,10 @@ class EDBComponent(object):
             rlc.R = self._edb_value(values[0])
             rlc.L = self._edb_value(values[1])
             rlc.C = self._edb_value(values[2])
-            self._set_comp_prop()  # pragma: no cover
+            self._set_comp_prop(rlc)  # pragma: no cover
 
-        def _set_comp_prop(self):  # pragma: no cover
-            self._edb_model.SetPinPairRlc(self._edb_pin_pair, self._pin_pair_rlc)
+        def _set_comp_prop(self, rlc):  # pragma: no cover
+            self._edb_model.SetPinPairRlc(self._edb_pin_pair, rlc)
             self._edb_comp_prop.SetModel(self._edb_model)
             self._edb_comp.SetComponentProperty(self._edb_comp_prop)
 
@@ -271,23 +265,15 @@ class EDBComponent(object):
         self.edbcomponent = cmp
 
     @property
-    def _pedb(self):  # pragma: no cover
-        return self._pcomponents._pedb
-
-    @property
-    def _active_layout(self):  # pragma: no cover
-        return self._pedb.active_layout
-
-    @property
     def component_property(self):
         """``ComponentProperty`` object."""
         return self.edbcomponent.GetComponentProperty().Clone()
 
     @property
-    def _edb_model(self):  # pragma: no cover
+    def _edb_model(self):
         return self.component_property.GetModel().Clone()
 
-    @property  # pragma: no cover
+    @property
     def _pin_pairs(self):
         edb_comp_prop = self.component_property
         edb_model = self._edb_model
@@ -570,7 +556,7 @@ class EDBComponent(object):
 
         Returns
         -------
-        dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
+        dic[str, :class:`pyaedt.edb_core.edb_data.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
         """
         pins = {}

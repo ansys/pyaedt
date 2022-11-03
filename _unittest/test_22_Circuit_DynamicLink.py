@@ -245,3 +245,17 @@ class TestClass(BasisTest, object):
         siw_comp = self.aedtapp.modeler.schematic.add_siwave_dynamic_link(model_out)
         assert siw_comp
         assert len(siw_comp.pins) == 2
+
+    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    def test_12_create_interface_port(self):
+        page_port = self.aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
+        interface_port = self.aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
+        second_page_port = self.aedtapp.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
+        second_interface_port = self.aedtapp.modeler.components.create_interface_port(
+            name="Port122", location=[0.6, -0.50]
+        )
+        assert not self.aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
+        assert page_port.composed_name != second_page_port.composed_name
+        assert page_port.composed_name != interface_port.composed_name
+        assert page_port.composed_name != second_interface_port.composed_name
+        assert interface_port.composed_name != second_interface_port.composed_name

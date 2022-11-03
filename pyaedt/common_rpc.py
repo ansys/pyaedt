@@ -5,8 +5,8 @@ import sys
 import tempfile
 import time
 
-from pyaedt import AedtLogger
 from pyaedt import is_ironpython
+from pyaedt import pyaedt_logger as logger
 from pyaedt import settings
 from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.misc import list_installed_ansysem
@@ -31,7 +31,6 @@ else:
     from rpyc.utils.server import ThreadedServer
 
 
-logger = AedtLogger()
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000
 
@@ -449,6 +448,7 @@ def client(server_name, server_port=18000, beta_options=None, use_aedt_relative_
     use_aedt_relative_path : bool, optional
         Whether to use AEDT executable full path or relative path call. This parameter is needed
         if a Linux environment is defined.
+
     Returns
     -------
     RPyC object.

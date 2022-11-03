@@ -1,3 +1,5 @@
+import re
+
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import SourceType
 
@@ -221,11 +223,17 @@ class Source(object):
 class PinGroup(object):
     """Manages pin groups."""
 
-    def __init__(self):
-        self._name = ""
+    def __init__(self, name="", edb_pin_group=None, pedb=None):
+        self._pedb = pedb
+        self._edb_pin_group = edb_pin_group
+        self._name = name
         self._component = ""
         self._node_pins = []
         self._net = ""
+
+    @property
+    def _active_layout(self):
+        return self._pedb.active_layout
 
     @property
     def name(self):
@@ -262,6 +270,33 @@ class PinGroup(object):
     @net.setter
     def net(self, value):
         self._net = value
+
+    def _create_terminal(self, is_reference=False):
+        pg_term = self._edb_pin_group.GetPinGroupTerminal()
+        if pg_term.IsNull():
+            return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
+                self._active_layout,
+                self._edb_pin_group.GetNet(),
+                self.name,
+                self._edb_pin_group,
+                is_reference,
+            )
+        else:
+            return pg_term
+
+    def create_current_source_terminal(self, magnitude=1, phase=0):
+        terminal = self._create_terminal()
+        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kCurrentSource)
+        terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
+        terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        return terminal
+
+    def create_voltage_source_terminal(self, magnitude=1, phase=0):
+        terminal = self._create_terminal()
+        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
+        terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
+        terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        return terminal
 
 
 class CircuitPort(Source, object):
@@ -408,3 +443,65 @@ class ResistorSource(Source):
     def source_type(self):
         """Source type."""
         return self._source_type
+
+
+class Excitation:
+    """Manages excitation properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        Edb object from Edblib.
+    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from edblib.
+    name : str
+        Name of this excitation.
+
+    Examples
+    --------
+
+    """
+
+    def __init__(self, pedb, edb_terminal, name):
+        self._pedb = pedb
+        self._edb_terminal = edb_terminal
+        self._name = name
+
+    @property
+    def _edb(self):
+        return self._pedb.edb
+
+    @property
+    def _edb_properties(self):
+        p = self._edb_terminal.GetProductSolverOption(self._edb.ProductId.Designer, "HFSS")
+        return p
+
+    @property
+    def hfss_type(self):
+        """Get hfss port type."""
+        txt = re.search(r"'HFSS Type'='.*?'", self._edb_properties).group()
+        return txt.split("=")[1].replace("'", "")
+
+    @property
+    def horizontal_extent_factor(self):
+        """Get horizontal extent factor."""
+        txt = re.search(r"'Horizontal Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def vertical_extent_factor(self):
+        """Get vertical extent factor."""
+        txt = re.search(r"'Vertical Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def radial_extent_factor(self):
+        """Get radial extent factor."""
+        txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
+        return float(txt.split("=")[1].replace("'", ""))
+
+    @property
+    def pec_launch_width(self):
+        """Get pec launch width."""
+        txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
+        return txt.split("=")[1].replace("'", "")

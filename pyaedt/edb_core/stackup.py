@@ -502,7 +502,7 @@ class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
 
     .. deprecated:: 0.6.5
-    This class has been deprecated and replaced by Stackup class.
+        This class has been deprecated and replaced by the ``Stackup`` class.
 
     Examples
     --------
@@ -1206,16 +1206,18 @@ class EdbStackup(object):
         Parameters
         ----------
         a3dcomp_path : str
-            Path to 3D Component file (*.a3dcomp) to place.
+            Path to the 3D Component file (\\*.a3dcomp) to place.
         angle : double, optional
             Clockwise rotation angle applied to the a3dcomp.
         offset_x : double, optional
             The x offset value.
+            The default value is ``0.0``.
         offset_y : double, optional
             The y offset value.
+            The default value is ``0.0``.
         place_on_top : bool, optional
-            Whether to place the 3D Component on the top or bottom of this layout.
-            If False then the 3D Component will also be flipped over around its X axis.
+            Whether to place the 3D Component on the top or the bottom of this layout.
+            If ``False`` then the 3D Component will also be flipped over around its X axis.
 
         Returns
         -------
