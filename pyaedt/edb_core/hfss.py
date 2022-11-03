@@ -535,7 +535,7 @@ class EdbHfss(object):
         force_circuit_port ; used to force circuit port creation instead of lumped. Works for vertical and coplanar
         ports.
 
-        Example
+        Examples
         --------
 
         >>> edb_path = path_to_edb
@@ -642,6 +642,7 @@ class EdbHfss(object):
         point_on_ref_edge=None,
         port_name=None,
         impedance=50,
+        layer_alignment="Upper",
     ):
         """Create a horizontal edge port.
 
@@ -663,7 +664,8 @@ class EdbHfss(object):
             Name of the port. The default is ``None``.
         impedance : int, float, optional
             Impedance of the port. The default value is ``50``.
-
+        layer_alignment : str, optional
+            Layer alignment. The default value is ``Upper``. Options are ``"Upper"``, ``"Lower"``.
         Returns
         -------
         str
@@ -674,6 +676,13 @@ class EdbHfss(object):
 
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
         pos_edge_term.SetReferenceTerminal(neg_edge_term)
+        if not layer_alignment == "Upper":
+            layer_alignment = "Lower"
+        pos_edge_term.SetProductSolverOption(
+            self._pedb.edb.ProductId.Designer,
+            "HFSS",
+            "HFSS('HFSS Type'='Gap(coax)', Orientation='Horizontal', 'Layer Alignment'='{}')".format(layer_alignment),
+        )
         if pos_edge_term:
             return port_name
         else:
@@ -1240,7 +1249,8 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        return len([term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0])
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        return len([i for i in terms if not i.IsReferenceTerminal()])
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):

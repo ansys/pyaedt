@@ -248,7 +248,7 @@ class CircuitComponents(object):
         self.add_id_to_component(id)
         # return id, self.components[id].composed_name
         for el in self.components:
-            if name in self.components[el].composed_name:
+            if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
                 return self.components[el]
         return False
 

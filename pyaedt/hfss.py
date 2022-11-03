@@ -5250,6 +5250,7 @@ class Hfss(FieldAnalysis3D, object):
                     # continue
         }
         """
+
         self.hybrid = True
         if isinstance(json_file, dict):
             json_dict = json_file

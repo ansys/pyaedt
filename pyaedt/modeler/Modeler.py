@@ -4579,7 +4579,6 @@ class GeometryModeler(Modeler, object):
         cadfile : str
             Name of the CAD file to load in HFSS.
 
-
         Returns
         -------
         bool

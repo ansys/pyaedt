@@ -449,6 +449,7 @@ def client(server_name, server_port=18000, beta_options=None, use_aedt_relative_
     use_aedt_relative_path : bool, optional
         Whether to use AEDT executable full path or relative path call. This parameter is needed
         if a Linux environment is defined.
+
     Returns
     -------
     RPyC object.
