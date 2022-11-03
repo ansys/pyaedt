@@ -2031,7 +2031,7 @@ if not config["skip_edb"]:
 
             prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
             assert edb.core_hfss.create_edge_port_horizontal(
-                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
+                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
             )
             edb.close_edb()
 
