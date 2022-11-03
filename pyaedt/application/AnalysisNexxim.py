@@ -619,6 +619,16 @@ class Sources(object):
             if source_name != self._name:
                 original_name = self._name
                 self._name = source_name
+                for port in self._app.excitations:
+                    if original_name in self._app.excitations[port].props["EnabledPorts"]:
+                        self._app.excitations[port].props["EnabledPorts"] = [
+                            w.replace(original_name, source_name)
+                            for w in self._app.excitations[port].props["EnabledPorts"]
+                        ]
+                    if original_name in self._app.excitations[port].props["EnabledAnalyses"]:
+                        self._app.excitations[port].props["EnabledAnalyses"][source_name] = (
+                            self._app.excitations[port].props["EnabledAnalyses"].pop(original_name)
+                        )
                 self.update(original_name)
         else:
             self._logger.warning("Name %s already assigned in the design", source_name)
@@ -679,16 +689,29 @@ class Sources(object):
         # Check Ports with Sources
         arg3 = ["NAME:EnabledPorts"]
         for source_name in self._app.sources:
+            excitation_source = []
+            for port in self._app.excitations:
+                if source_name in self._app.excitations[port].props["EnabledPorts"]:
+                    excitation_source.append(port)
             arg3.append(source_name + ":=")
-            arg3.append([])
+            arg3.append(excitation_source)
 
         arg4 = ["NAME:EnabledMultipleComponents"]
         for source_name in self._app.sources:
             arg4.append(source_name + ":=")
             arg4.append([])
+
         arg5 = ["NAME:EnabledAnalyses"]
-        arg6 = ["NAME:ComponentConfigurationData", arg3, arg4, arg5]
-        arg2.append(arg6)
+        for source_name in self._app.sources:
+            arg6 = ["NAME:" + source_name]
+            for port in self._app.excitations:
+                if source_name in self._app.excitations[port].props["EnabledAnalyses"]:
+                    arg6.append(port + ":=")
+                    arg6.append(self._app.excitations[port].props["EnabledAnalyses"][source_name])
+            arg5.append(arg6)
+
+        arg7 = ["NAME:ComponentConfigurationData", arg3, arg4, arg5]
+        arg2.append(arg7)
 
         self._app.odesign.UpdateSources(arg1, arg2)
         return True
@@ -731,14 +754,15 @@ class Excitations(object):
                 and self._app.modeler.schematic.components[comp].parameters["PortName"] == port
             ):
 
-                excitation_prop_dict["rz"] = None
-                excitation_prop_dict["iz"] = None
-                excitation_prop_dict["one_port_impedance"] = None
+                excitation_prop_dict["rz"] = "50ohm"
+                excitation_prop_dict["iz"] = "0ohm"
+                excitation_prop_dict["term"] = None
                 excitation_prop_dict["TerminationData"] = None
+                excitation_prop_dict["RefNode"] = "Z"
+                if "RefNode" in self._app.modeler.schematic.components[comp].parameters:
+                    excitation_prop_dict["RefNode"] = self._app.modeler.schematic.components[comp].parameters["RefNode"]
                 if "term" in self._app.modeler.schematic.components[comp].parameters:
-                    excitation_prop_dict["one_port_impedance"] = self._app.modeler.schematic.components[
-                        comp
-                    ].parameters["term"]
+                    excitation_prop_dict["term"] = self._app.modeler.schematic.components[comp].parameters["term"]
                     excitation_prop_dict["TerminationData"] = self._app.modeler.schematic.components[comp].parameters[
                         "TerminationData"
                     ]
@@ -746,21 +770,18 @@ class Excitations(object):
                     excitation_prop_dict["rz"] = self._app.modeler.schematic.components[comp].parameters["rz"]
                     excitation_prop_dict["iz"] = self._app.modeler.schematic.components[comp].parameters["iz"]
 
-                excitation_prop_dict["EnabledNoise"] = self._app.modeler.schematic.components[comp].parameters[
-                    "EnableNoise"
-                ]
+                if self._app.modeler.schematic.components[comp].parameters["EnableNoise"] == "true":
+                    excitation_prop_dict["EnableNoise"] = True
+                else:
+                    excitation_prop_dict["EnableNoise"] = False
+
                 excitation_prop_dict["noisetemp"] = self._app.modeler.schematic.components[comp].parameters["noisetemp"]
 
                 excitation_prop_dict["SymbolType"] = self._app.design_properties["NexximPorts"]["Data"][port][
                     "SymbolType"
                 ]
 
-                iport = self._app.design_properties["Circuit"]["IPort"]
-                for p in iport:
-                    if p["PortName"] == self.name:
-                        excitation_prop_dict["RefNode"] = p["Properties"]["TextProp"][3]
-                        break
-
+                excitation_prop_dict["pnum"] = self._app.modeler.schematic.components[comp].parameters["pnum"]
                 source_port = []
                 enabled_ports = self._app.design_properties["ComponentConfigurationData"]["EnabledPorts"]
                 if isinstance(enabled_ports, dict):
@@ -781,18 +802,57 @@ class Excitations(object):
                 enabled_analyses = self._app.design_properties["ComponentConfigurationData"]["EnabledAnalyses"]
                 if isinstance(enabled_analyses, dict):
                     for source in enabled_analyses:
-                        if enabled_analyses[source] and port in enabled_analyses[source]:
+                        if (
+                            enabled_analyses[source]
+                            and port in enabled_analyses[source]
+                            and source in excitation_prop_dict["EnabledPorts"]
+                        ):
                             port_analyses[source] = enabled_analyses[source][port]
                 excitation_prop_dict["EnabledAnalyses"] = port_analyses
-
                 return BoundaryProps(self, OrderedDict(excitation_prop_dict))
 
-        # source_prop_dict = {}
-        # for el in source_aedt_props.GetPropNames():
-        #     if el == "CosimDefinition":
-        #         source_prop_dict[el] = None
-        #     elif el != "Name":
-        #         source_prop_dict[el] = source_aedt_props.GetPropValue(el)
+    @pyaedt_function_handler()
+    def update(self):
+        self._logger.warning("Property port update only working with GRPC")
+
+        if self.props["RefNode"] == "Ground":
+            self.props["RefNode"] = "Z"
+
+        arg0 = [
+            "NAME:" + self.name,
+            "IIPortName:=",
+            self.name,
+            "SymbolType:=",
+            self.props["SymbolType"],
+            "DoPostProcess:=",
+            False,
+        ]
+
+        arg1 = ["NAME:ChangedProps"]
+        arg2 = []
+
+        # Modify RefNode
+        if self.props["RefNode"] != "Z":
+            arg2 = [
+                "NAME:NewProps",
+                ["NAME:RefNode", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self.props["RefNode"]],
+            ]
+
+        for prop in self.props:
+            skip1 = (prop == "rz" or prop == "iz") and isinstance(self.props["term"], str)
+            skip2 = prop == "EnabledPorts" or prop == "EnabledMultipleComponents" or prop == "EnabledAnalyses"
+            skip3 = prop == "SymbolType"
+            skip4 = prop == "TerminationData" and not isinstance(self.props["term"], str)
+            if not skip1 and not skip2 and not skip3 and not skip4 and self.props[prop] is not None:
+                command = ["NAME:" + prop, "Value:=", self.props[prop]]
+                arg1.append(command)
+
+        arg1 = [["NAME:Properties", arg2, arg1]]
+        self._app.odesign.ChangePortProperty(self.name, arg0, arg1)
+
+        for source in self._app.sources:
+            self._app.sources[source].update()
+        return True
 
     @property
     def _logger(self):
