@@ -478,7 +478,7 @@ class Port:
 
     @property
     def radial_extent_factor(self):
-        """Get radial extent factor"""
+        """Get radial extent factor."""
         txt = re.search(r"'Radial Extent Factor'='.*?'", self._edb_properties).group()
         return float(txt.split("=")[1].replace("'", ""))
 
