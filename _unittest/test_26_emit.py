@@ -200,7 +200,6 @@ class TestClass(BasisTest, object):
         domain.set_interferers(radiosTX, bandsTX, list(tx_frequencies[0]))
         interaction = self.aedtapp2.results.revisions_list[-1].run(domain)
         emi_worst = interaction.worst_instance(Emit.result_type().emi)
-        print(emi_worst)
 
     """
     Please note: The test below should be maintained as the last test within this file to ensure,
