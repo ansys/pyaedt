@@ -164,24 +164,29 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
             self.edbpath = edbpath
+            self.log_name = None
+            if edbpath:
+                self.log_name = os.path.join(
+                    os.path.dirname(edbpath), "pyaedt_" + os.path.splitext(os.path.split(edbpath)[-1])[0] + ".log"
+                )
             if isaedtowned and (inside_desktop or settings.remote_api):
                 self.open_edb_inside_aedt()
             elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
-                if settings.enable_local_log_file:
-                    self.logger.add_file_logger(edbpath[:-4] + ".log")
+                if settings.enable_local_log_file and self.log_name:
+                    self.logger.add_file_logger(self.log_name)
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
-                if settings.enable_local_log_file:
-                    self.logger.add_file_logger(self.edbpath[:-4] + ".log")
+                if settings.enable_local_log_file and self.log_name:
+                    self.logger.add_file_logger(self.log_name)
                 self.logger.info("EDB %s was created correctly.", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
-                if settings.enable_local_log_file:
-                    self.logger.add_file_logger(edbpath[:-4] + ".log")
+                if settings.enable_local_log_file and self.log_name:
+                    self.logger.add_file_logger(self.log_name)
                 self.open_edb()
             if self.builder:
                 self.logger.info("EDB was initialized.")
@@ -823,6 +828,8 @@ class Edb(object):
 
         """
         self._db.Close()
+        if self.log_name:
+            self.logger.remove_file_logger(os.path.split(self.log_name)[-1])
         time.sleep(2)
         start_time = time.time()
         self._wait_for_file_release()
@@ -866,7 +873,14 @@ class Edb(object):
         """
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
+        if self.log_name:
+            self.logger.remove_file_logger(os.path.split(self.log_name)[-1])
 
+        self.log_name = os.path.join(
+            os.path.dirname(fname), "pyaedt_" + os.path.splitext(os.path.split(fname)[-1])[0] + ".log"
+        )
+        if settings.enable_local_log_file:
+            self.logger.add_file_logger(self.log_name)
         return True
 
     @pyaedt_function_handler()

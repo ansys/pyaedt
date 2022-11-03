@@ -186,23 +186,25 @@ class AedtLogger(object):
         _file_handler.setFormatter(self.formatter)
         self._global.addHandler(_file_handler)
         self._files_handlers.append(_file_handler)
-        self.logger.info("New logger file {} added to handlers.".format(filename))
+        self.info("New logger file {} added to handlers.".format(filename))
 
     def remove_file_logger(self, projectname):
         """Remove a file from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in handlers:
             if "pyaedt_{}.log".format(projectname) in str(handler):
+                handler.close()
                 self._global.removeHandler(handler)
-        self.logger.info("logger file pyaedt_{}.log removed from handlers.".format(projectname))
+        self.info("logger file pyaedt_{}.log removed from handlers.".format(projectname))
 
     def remove_all_project_file_logger(self):
         """Remove all the local files from the logger handlers list."""
         handlers = [i for i in self._global.handlers]
         for handler in handlers:
             if "pyaedt_" in str(handler):
+                handler.close()
                 self._global.removeHandler(handler)
-        self.logger.info("Project files removed from handlers.")
+        self.info("Project files removed from handlers.")
 
     @property
     def _desktop(self):
