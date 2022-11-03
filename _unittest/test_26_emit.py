@@ -98,7 +98,7 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
     def test_revision_generation(self):
         assert len(self.aedtapp2.results.revisions_list) == 0
@@ -132,7 +132,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp2.results.revisions_list) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
     def test_manual_revision_access_test_getters(self):
         rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
@@ -163,7 +163,7 @@ class TestClass(BasisTest, object):
         assert len(radiosTX) == 0
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
     def test_static_type_generation(self):
         domain = Result.interaction_domain()
@@ -186,7 +186,7 @@ class TestClass(BasisTest, object):
         assert str(type(result_type_desense)) == "<class 'EmitApiPython.result_type'>"
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
     def test_N_to_1_feature(self):
         domain = Result.interaction_domain()

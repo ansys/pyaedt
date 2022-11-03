@@ -355,7 +355,7 @@ class Emit(FieldAnalysisEmit, object):
         desktop_path = self.desktop_install_dir
         path = os.path.join(desktop_path, "Delcross")
         sys.path.append(path)
-        if self._aedt_version >= "2022.1":
+        if self._aedt_version >= "2023.1":
             global mod
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
