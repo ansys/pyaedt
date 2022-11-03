@@ -441,8 +441,8 @@ class ResistorSource(Source):
         return self._source_type
 
 
-class Port:
-    """Manages port properties"""
+class Excitation:
+    """Manages excitation properties"""
 
     def __init__(self, pedb, edb_terminal, name):
         self._pedb = pedb
