@@ -632,15 +632,15 @@ class EdbHfss(object):
         reference_layer : str, optional
             Reference layer of the port. The default is ``None``.
         hfss_type : str, optional
-            Type of the port. The default is ``Gap``. Options are ``"Gap"``, ``"Wave"``.
+            Type of the port. The default value is ``"Gap"``. Options are ``"Gap"``, ``"Wave"``.
         horizontal_extent_factor : int, float, optional
-            Horizontal extent factor.
+            Horizontal extent factor. The default value is ``5``.
         vertical_extent_factor : int, float, optional
-            Vertical extent factor.
+            Vertical extent factor. The default value is ``3``.
         radial_extent_factor : int, float, optional
-            Radial exctent factor.
+            Radial extent factor. The default value is ``0``.
         pec_launch_width : str, optional
-            Launch Width of PEC.
+            Launch Width of PEC. The default value is ``"0.01mm"``.
         Returns
         -------
         str
