@@ -311,9 +311,6 @@ class Design(AedtObjects):
         """
         return self._logger
 
-    # TODO Project properties are set at the beginning
-    # but after they are never updated along the different project steps.
-
     @property
     def project_properties(self):
         """Project properties.

@@ -164,7 +164,8 @@ class AedtLogger(object):
         if not global_handler and settings.global_log_file_name:
             self._global.addHandler(my_handler)
         self._files_handlers.append(my_handler)
-
+        if self.filename and os.path.exists(self.filename):
+            os.remove(self.filename)
         if self.filename and settings.enable_local_log_file:
             self.add_file_logger(self.filename, level)
 
@@ -385,35 +386,22 @@ class AedtLogger(object):
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, message_type, message_text):
+    def add_debug_message(self, message_text, level=None):
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
-        message_type : int
-            Type of the message. Options are:
-
-            * ``0`` : Info
-            * ``1`` : Warning
-            * ``2`` : Error
-
         message_text : str
             Text to display as the message.
-
+        level : str, optional
+            Level to add the info message to. Options are ``"Global"``,
+            ``"Project"``, and ``"Design"``. The default is ``None``,
+            in which case the info message gets added to the ``"Design"``
+            level.
         """
 
-        if len(message_text) > 250:
-            message_text = message_text[:250] + "..."
-
-        # Print to stdout and to logger
-        if self._log_on_file:
-            if message_type == 0 and self.logger:
-                self.logger.debug(message_text)
-            elif message_type == 1 and self.logger:
-                self.logger.warning(message_text)
-            elif message_type == 2 and self.logger:
-                self.logger.error(message_text)
+        return self.add_message(3, message_text, level=level)
 
     def add_message(self, message_type, message_text, level=None, proj_name=None, des_name=None):
         """Add a message to the message manager to specify the type and project or design level.
@@ -425,6 +413,7 @@ class AedtLogger(object):
             * ``0`` : Info
             * ``1`` : Warning
             * ``2`` : Error
+            * ``3`` : Debug
         message_text : str
             Text to display as the message.
         level : str, optional
@@ -459,25 +448,21 @@ class AedtLogger(object):
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
                 print("pyaedt INFO: Failed in Adding Desktop Message")
+            self._log_on_handler(message_type, message_text)
 
+    def _log_on_handler(self, message_type, message_text, *args, **kwargs):
+        if not (self._log_on_file or self._log_on_screen) and not self._global:
+            return
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."
-
-        # # Print to stdout and to logger
-        # if self._log_on_screen:
-        #     if message_type == 0:
-        #         ("pyaedt INFO: {}".format(message_text))
-        #     elif message_type == 1:
-        #         print("pyaedt WARNING: {}".format(message_text))
-        #     elif message_type == 2:
-        #         print("pyaedt ERROR: {}".format(message_text))
-        if self._log_on_file or self._log_on_screen:
-            if message_type == 0 and self.logger:
-                self.logger.debug(message_text)
-            elif message_type == 1 and self.logger:
-                self.logger.warning(message_text)
-            elif message_type == 2 and self.logger:
-                self.logger.error(message_text)
+        if message_type == 0:
+            self._global.info(message_text, *args, **kwargs)
+        elif message_type == 1:
+            self._global.warning(message_text, *args, **kwargs)
+        elif message_type == 2:
+            self._global.error(message_text, *args, **kwargs)
+        elif message_type == 3:
+            self._global.debug(message_text, *args, **kwargs)
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
@@ -625,7 +610,7 @@ class AedtLogger(object):
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
-        return self._global.info(msg, *args, **kwargs)
+        return self._log_on_handler(0, msg, *args, **kwargs)
 
     def info_timer(self, msg, *args, **kwargs):
         """Write an info message to the global logger with elapsed time.
@@ -640,19 +625,19 @@ class AedtLogger(object):
             msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
         else:
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
-        return self.info(msg, *args, **kwargs)
+        return self._log_on_handler(0, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
-        return self._global.warning(msg, *args, **kwargs)
+        return self._log_on_handler(1, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         """Write an error message to the global logger."""
-        return self._global.error(msg, *args, **kwargs)
+        return self._log_on_handler(2, msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
-        return self._global.debug(msg, *args, **kwargs)
+        return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property
     def glb(self):
