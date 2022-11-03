@@ -157,7 +157,7 @@ HFSSSBR = [
     ("RadiationSetup", ""),
     ("PTDUTDSimulationSettings", "None"),
     ("Sweeps", sweepssbr),
-    ("ComputeFarFields", False),
+    ("ComputeFarFields", True),
 ]
 """HFSS SBR+ setup properties and default values."""
 
