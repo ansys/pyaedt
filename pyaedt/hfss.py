@@ -4558,7 +4558,7 @@ class Hfss(FieldAnalysis3D, object):
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
     ):
-        setup1 = self.create_setup(setup_name, "SBR+")
+        setup1 = self.create_setup(setup_name, 4)
         setup1.auto_update = False
         setup1.props["IsSbrRangeDoppler"] = True
         del setup1.props["PTDUTDSimulationSettings"]
