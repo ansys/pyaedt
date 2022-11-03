@@ -397,7 +397,7 @@ class Emit(FieldAnalysisEmit, object):
 
         Parameters
         ----------
-        path :
+        path : str
             Path to an AEDT result file
 
         Returns
@@ -423,7 +423,7 @@ class Emit(FieldAnalysisEmit, object):
         :class:`result_type`
 
         Examples
-        ----------
+        --------
         >>> Emit.result_type()
 
         """
@@ -445,7 +445,7 @@ class Emit(FieldAnalysisEmit, object):
         :class:`tx_rx_mode`
 
         Examples
-        ----------
+        --------
         >>> tx_rx = Emit.tx_rx_mode()
 
         """
@@ -468,10 +468,10 @@ class Emit(FieldAnalysisEmit, object):
             Whether to return a verbose description. The default is ``False``.
         Returns
         -------
-        :class:`str`
+        str
 
         Examples
-        ----------
+        --------
         >>> print(aedtapp.version())
 
         """
