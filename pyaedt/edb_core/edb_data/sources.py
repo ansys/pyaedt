@@ -442,7 +442,27 @@ class ResistorSource(Source):
 
 
 class Excitation:
-    """Manages excitation properties"""
+    """Manages excitation properties.
+
+    Detailed description here.
+
+    Parameters
+    ----------
+    pedb : type_here
+        Description here
+    edb_terminal : type_here
+        Description here
+    name : str
+        Description here
+
+    Examples
+    --------
+    Create an excitation for a terminal.
+
+    >>> from pyaedt import Edb
+    >>> edb = Edb()
+    >>> edb.core_hfss.excitations["port_ver"]
+    """
 
     def __init__(self, pedb, edb_terminal, name):
         self._pedb = pedb
