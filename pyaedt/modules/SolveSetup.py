@@ -1490,11 +1490,6 @@ class SetupHFSS(Setup, object):
     ):
         """Create a Sweep with a specified frequency step.
 
-        References
-        ----------
-
-        >>> oModule.InsertFrequencySweep
-
         Parameters
         ----------
         setupname : str
@@ -1521,6 +1516,11 @@ class SetupHFSS(Setup, object):
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Examples
         --------
