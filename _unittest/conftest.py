@@ -17,6 +17,7 @@ directory as this module. An example of the contents of local_config.json
 }
 
 """
+import datetime
 import gc
 import json
 import os
@@ -29,13 +30,13 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
-log_path = os.path.join(tempfile.gettempdir(), "test.log")
-if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
-    try:
-        os.remove(log_path)
-    except:
-        pass
-settings.logger_file_path = log_path
+# log_path = os.path.join(tempfile.gettempdir(), "test.log")
+# if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
+#     try:
+#         os.remove(log_path)
+#     except:
+#         pass
+# settings.logger_file_path = log_path
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 if is_ironpython:
@@ -83,10 +84,14 @@ settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
+test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
+if not os.path.exists(scratch_path):
+    os.makedirs(scratch_path)
+
 
 class BasisTest(object):
     def my_setup(self):
-        scratch_path = tempfile.gettempdir()
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
@@ -193,6 +198,7 @@ def desktop_init():
             oDesktop = sys.modules["__main__"].oDesktop
             pid = oDesktop.GetProcessID()
             os.kill(pid, 9)
+            shutil.rmtree(scratch_path, ignore_errors=True)
         except:
             pass
 

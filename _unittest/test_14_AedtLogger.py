@@ -165,7 +165,7 @@ class TestClass(BasisTest, object):
 
         with open(path, "r") as f:
             content = f.readlines()
-
+        content.remove(content[0])
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
         assert ":Global:WARNING :Warning for Global" in content[2]
@@ -219,6 +219,7 @@ class TestClass(BasisTest, object):
 
         with open(path, "r") as f:
             content = f.readlines()
+        content.remove(content[0])
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":INFO    :Info for Project before disabling the log file handler." in content[1]
