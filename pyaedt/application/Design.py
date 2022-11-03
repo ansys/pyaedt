@@ -882,7 +882,7 @@ class Design(AedtObjects):
             if proj_name in self.odesktop.GetProjectList():
                 self._oproject = self.odesktop.SetActiveProject(proj_name)
                 self._add_handler()
-                self.logger.info("Project {} set to active.".format(proj_name))
+                self.logger.info("Project %s set to active.", proj_name)
             elif os.path.exists(proj_name):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
