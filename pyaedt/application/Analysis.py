@@ -41,6 +41,10 @@ from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.MaterialLib import Materials
 from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SolveSetup import Setup
+from pyaedt.modules.SolveSetup import SetupHFSS
+from pyaedt.modules.SolveSetup import SetupHFSSAuto
+from pyaedt.modules.SolveSetup import SetupMaxwell
+from pyaedt.modules.SolveSetup import SetupSBR
 
 
 class Analysis(Design, object):
@@ -1294,7 +1298,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup`
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS` or :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
 
         References
         ----------
@@ -1319,9 +1323,22 @@ class Analysis(Design, object):
         >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
         >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
         >>> setup1.props["MaxNumberOfBounces"] = "3"
-        >>> setup1.update()
         ...
-        pyaedt info: Sweep was created correctly.
+        pyaedt INFO: Sweep was created correctly.
+        >>> setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=True)
+        >>> setup1.add_subrange("LinearCount", 10, 20, 10, clear=False)
+
+
+        Create a setup for Q3d and add a sweep on it.
+
+        >>> import pyaedt
+        >>> q = pyaedt.Q3d()
+        >>> setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
+        >>> sw1 = setup1.add_sweep()
+        >>> sw1.props["RangeStart"] = "1MHz"
+        >>> sw1.props["RangeEnd"] = "100MHz"
+        >>> sw1.props["RangeStep"] = "5MHz"
+        >>> sw1.update()
         """
         if props is None:
             props = {}
@@ -1329,7 +1346,15 @@ class Analysis(Design, object):
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
         name = self.generate_unique_setup_name(setupname)
-        setup = Setup(self, setuptype, name)
+        if setuptype == 0:
+            setup = SetupHFSSAuto(self, setuptype, name)
+        elif setuptype == 4:
+            setup = SetupSBR(self, setuptype, name)
+        elif setuptype in [5, 6, 7, 8, 9, 10]:
+            setup = SetupMaxwell(self, setuptype, name)
+        else:
+            setup = SetupHFSS(self, setuptype, name)
+
         if self.design_type == "HFSS":
             if not self.excitations and "MaxDeltaS" in setup.props:
                 new_dict = OrderedDict()
@@ -1342,45 +1367,48 @@ class Analysis(Design, object):
                 setup.props = SetupProps(setup, new_dict)
                 setup.auto_update = True
 
-            for boundary in self.boundaries:
-                if "Type" in boundary.props.keys() and boundary.props["Type"] == "SBR+":
-                    setup.auto_update = False
-                    user_domain = None
-                    if props:
-                        if "RadiationSetup" in props:
-                            user_domain = props["RadiationSetup"]
-                    if self.field_setups:
-                        for field_setup in self.field_setups:
-                            if user_domain and user_domain in field_setup.name:
-                                domain = user_domain
-                                break
-                        if not user_domain and self.field_setups:
-                            domain = self.field_setups[0].name
-                    elif user_domain:
-                        domain = user_domain
-                    else:
-                        self.logger.error("Field Observation Domain not defined")
-                        return False
+            if self.solution_type == "SBR+":
+                setup.auto_update = False
+                default_sbr_setup = {
+                    "RayDensityPerWavelength": 4,
+                    "MaxNumberOfBounces": 5,
+                    "EnableCWRays": False,
+                    "EnableSBRSelfCoupling": False,
+                    "UseSBRAdvOptionsGOBlockage": False,
+                    "UseSBRAdvOptionsWedges": False,
+                    "PTDUTDSimulationSettings": "None",
+                    "SkipSBRSolveDuringAdaptivePasses": True,
+                    "UseSBREnhancedRadiatedPowerCalculation": False,
+                    "AdaptFEBIWithRadiation": False,
+                }
+                user_domain = None
+                if props:
+                    if "RadiationSetup" in props:
+                        user_domain = props["RadiationSetup"]
+                if self.field_setups:
+                    for field_setup in self.field_setups:
+                        if user_domain and user_domain in field_setup.name:
+                            domain = user_domain
+                            default_sbr_setup["RadiationSetup"] = domain
+                            break
+                    if not user_domain and self.field_setups:
+                        domain = self.field_setups[0].name
+                        default_sbr_setup["RadiationSetup"] = domain
 
-                    default_sbr_setup = {
-                        "RayDensityPerWavelength": 4,
-                        "MaxNumberOfBounces": 5,
-                        "EnableCWRays": False,
-                        "RadiationSetup": domain,
-                        "EnableSBRSelfCoupling": False,
-                        "UseSBRAdvOptionsGOBlockage": False,
-                        "UseSBRAdvOptionsWedges": False,
-                        "PTDUTDSimulationSettings": "None",
-                        "SkipSBRSolveDuringAdaptivePasses": True,
-                        "UseSBREnhancedRadiatedPowerCalculation": False,
-                        "AdaptFEBIWithRadiation": False,
-                    }
-                    new_dict = setup.props
-                    for k, v in default_sbr_setup.items():
-                        new_dict[k] = v
-                    setup.props = SetupProps(setup, new_dict)
-                    setup.auto_update = True
-                    break
+                elif user_domain:
+                    domain = user_domain
+                    default_sbr_setup["RadiationSetup"] = domain
+
+                else:
+                    self.logger.warning("Field Observation Domain not defined")
+                    default_sbr_setup["RadiationSetup"] = ""
+                    default_sbr_setup["ComputeFarFields"] = False
+
+                new_dict = setup.props
+                for k, v in default_sbr_setup.items():
+                    new_dict[k] = v
+                setup.props = SetupProps(setup, new_dict)
+                setup.auto_update = True
 
         setup.create()
         if props:
@@ -1420,7 +1448,7 @@ class Analysis(Design, object):
         >>> setup1 = hfss.create_setup(setupname='Setup1')
         >>> hfss.delete_setup(setupname='Setup1')
         ...
-        pyaedt info: Sweep was deleted correctly.
+        pyaedt INFO: Sweep was deleted correctly.
         """
         if setupname in self.existing_analysis_setups:
             self.oanalysis.DeleteSetups([setupname])
@@ -1471,9 +1499,19 @@ class Analysis(Design, object):
         :class:`pyaedt.modules.SolveSetup.Setup`
 
         """
-
         setuptype = self.design_solutions.default_setup
-        setup = Setup(self, setuptype, setupname, isnewsetup=False)
+
+        if self.solution_type == "SBR+":
+            setuptype = 4
+            setup = SetupSBR(self, setuptype, setupname, isnewsetup=False)
+        elif self.design_type in ["Q3D Extractor", "2D Extractor", "HFSS"]:
+            setup = SetupHFSS(self, setuptype, setupname, isnewsetup=False)
+            if setup.props and setup.props.get("SetupType", "") == "HfssDrivenAuto":
+                setup = SetupHFSSAuto(self, 0, setupname, isnewsetup=False)
+        elif self.design_type in ["Maxwell 2D", "Maxwell 3D"]:
+            setup = SetupMaxwell(self, setuptype, setupname, isnewsetup=False)
+        else:
+            setup = Setup(self, setuptype, setupname, isnewsetup=False)
         if setup.props:
             self.analysis_setup = setupname
         return setup

@@ -14,6 +14,10 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
    :toctree: _autosummary
    :nosignatures:
 
+   SetupHFSS
+   SetupHFSSAuto
+   SetupSBR
+   SetupMaxwell
    Setup
    Setup3DLayout
    SetupCircuit

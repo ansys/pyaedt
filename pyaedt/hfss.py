@@ -91,8 +91,8 @@ class Hfss(FieldAnalysis3D, object):
 
     >>> from pyaedt import Hfss
     >>> hfss = Hfss()
-    pyaedt info: No project is defined...
-    pyaedt info: Active design is set to...
+    pyaedt INFO: No project is defined...
+    pyaedt INFO: Active design is set to...
 
 
     Create an instance of HFSS and link to a project named
@@ -100,43 +100,43 @@ class Hfss(FieldAnalysis3D, object):
     this name.
 
     >>> hfss = Hfss("HfssProject")
-    pyaedt info: Project HfssProject has been created.
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design ...
+    pyaedt INFO: Project HfssProject has been created.
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design ...
 
 
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
     >>> hfss = Hfss("HfssProject","HfssDesign1")
-    pyaedt info: Added design 'HfssDesign1' of type HFSS.
+    pyaedt INFO: Added design 'HfssDesign1' of type HFSS.
 
 
     Create an instance of HFSS and open the specified project,
     which is named ``"myfile.aedt"``.
 
     >>> hfss = Hfss("myfile.aedt")
-    pyaedt info: Project myfile has been created.
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design...
+    pyaedt INFO: Project myfile has been created.
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design...
 
 
     Create an instance of HFSS using the 2021 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile2.aedt")
-    pyaedt info: Project myfile2 has been created.
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design...
+    pyaedt INFO: Project myfile2 has been created.
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design...
 
 
     Create an instance of HFSS using the 2021 R2 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
     >>> hfss = Hfss(specified_version="2021.2", projectname="myfile3.aedt", student_version=True)
-    pyaedt info: Project myfile3 has been created.
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design...
+    pyaedt INFO: Project myfile3 has been created.
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design...
 
     """
 
@@ -1372,7 +1372,7 @@ class Hfss(FieldAnalysis3D, object):
         --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss(solution_type="SBR+")  # doctest: +SKIP
-        pyaedt info: Added design 'HFSS_IPO' of type HFSS.
+        pyaedt INFO: Added design 'HFSS_IPO' of type HFSS.
         >>> parm = {"polarization": "Vertical"}  # doctest: +SKIP
         >>> par_beam = hfss.create_sbr_antenna(hfss.SbrAntennas.ShortDipole,
         ...                                    parameters_dict=parm,
@@ -1652,7 +1652,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.create_lumped_port_between_objects("BoxLumped1", "BoxLumped2",
         ...                                         hfss.AxisDir.XNeg, 50,
         ...                                         "LumpedPort", True, False)
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
         'LumpedPort'
 
         """
@@ -1934,7 +1934,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2",
         ...                                         hfss.AxisDir.XNeg,
         ...                                         "VoltageSource")
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
 
         """
 
@@ -1990,7 +1990,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1", "BoxCurrent2",
         ...                                         hfss.AxisDir.XPos,
         ...                                         "CurrentSource")
-        pyaedt info: Connection created 'CurrentSource' correctly.
+        pyaedt INFO: Connection created 'CurrentSource' correctly.
 
         """
 
@@ -2103,7 +2103,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_between_objects("BoxWave1", "BoxWave2",
         ...                                                   hfss.AxisDir.XNeg, 50, 1,
         ...                                                   "Wave Port", False)
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
 
         """
 
@@ -2565,7 +2565,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port = hfss.create_wave_port_microstrip_between_objects("GND1", "MS1",
         ...                                                         portname="MS1",
         ...                                                         axisdir=1)
-        pyaedt info: Connection correctly created.
+        pyaedt INFO: Connection correctly created.
 
         """
         if not self.modeler.does_object_exists(startobj) or not self.modeler.does_object_exists(endobject):
@@ -2646,7 +2646,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                "perfect2", "copper")
         >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "PerfectE")
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
         >>> type(perfect_e)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
@@ -2707,7 +2707,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                "perfect2", "copper")
         >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2",
         ...                                               hfss.AxisDir.ZNeg, "Perfect H")
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
         >>> type(perfect_h)
         <class 'pyaedt.modules.Boundary.BoundaryObject'>
 
@@ -2869,7 +2869,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1", "rlc2", hfss.AxisDir.XPos,
         ...                                              "Lumped RLC", Rvalue=50,
         ...                                              Lvalue=1e-9, Cvalue = 1e-6)
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
 
         """
 
@@ -2964,7 +2964,7 @@ class Hfss(FieldAnalysis3D, object):
         ...                                           "box2", "copper")
         >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
         ...                                                   "ImpedanceExample", 100, 50)
-        pyaedt info: Connection Correctly created
+        pyaedt INFO: Connection Correctly created
 
         """
 
@@ -3846,7 +3846,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40,
         ...                                              2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
-        pyaedt info: Setting up power to "SheetWavePort:1" = 10W
+        pyaedt INFO: Setting up power to "SheetWavePort:1" = 10W
         True
 
         """
@@ -3996,7 +3996,7 @@ class Hfss(FieldAnalysis3D, object):
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness, 5, hfss.AxisDir.XNeg,
         ...                                                       40, 2, "WavePortForThickness", True)
         >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
-        pyaedt info: done
+        pyaedt INFO: done
         {}
 
         """
@@ -4145,7 +4145,7 @@ class Hfss(FieldAnalysis3D, object):
         Validate the current design and save the log file in the current project directory.
 
         >>> validation = hfss.validate_full_design()
-        pyaedt info: Design Validation Checks
+        pyaedt INFO: Design Validation Checks
         >>> validation[1]
         False
 
@@ -4558,7 +4558,7 @@ class Hfss(FieldAnalysis3D, object):
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
     ):
-        setup1 = self.create_setup(setup_name, "SBR+")
+        setup1 = self.create_setup(setup_name, 4)
         setup1.auto_update = False
         setup1.props["IsSbrRangeDoppler"] = True
         del setup1.props["PTDUTDSimulationSettings"]
@@ -5450,5 +5450,60 @@ class Hfss(FieldAnalysis3D, object):
         try:
             self.odesign.SetSolveInsideThreshold(threshold)
             return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def assign_symmetry(self, entity_list, symmetry_name=None, is_perfect_e=True):
+        """Assign symmetry to planar entities.
+
+        Parameters
+        ----------
+        entity_list : list
+            List of IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+        symmetry_name : str, optional
+            Name of the boundary.
+            If not provided it's automatically generated.
+        is_perfect_e : bool, optional
+            Type of symmetry plane the boundary represents: Perfect E or Perfect H.
+            The default value is ``True`` (Perfect E).
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSymmetry
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a symmetry.
+
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                         name="SymmetryForFaces")
+        >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
+        >>> symmetry = hfss.assign_symmetry(ids)
+        >>> type(symmetry)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+        try:
+            if self.solution_type != "Modal":
+                raise ValueError("Symmetry is only available with 'Modal' solution type.")
+
+            if symmetry_name is None:
+                symmetry_name = generate_unique_name("Symmetry")
+
+            if not isinstance(entity_list, list):
+                raise ValueError("Entities have to be provided as a list.")
+
+            entity_list = self.modeler.convert_to_selections(entity_list, True)
+
+            props = OrderedDict({"Name": symmetry_name, "Faces": entity_list, "IsPerfectE": is_perfect_e})
+            return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False

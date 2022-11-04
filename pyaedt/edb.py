@@ -3,14 +3,11 @@
 This module is implicitily loaded in HFSS 3D Layout when launched.
 
 """
-import datetime
 import gc
-import logging
 import os
 import re
 import shutil
 import sys
-import tempfile
 import time
 import traceback
 import warnings
@@ -23,8 +20,8 @@ except ImportError:  # pragma: no cover
         warnings.warn("PythonNET is needed to run PyAEDT.")
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
+from pyaedt import pyaedt_logger
 from pyaedt import settings
-from pyaedt.aedt_logger import AedtLogger
 from pyaedt.edb_core import Components
 from pyaedt.edb_core import EdbHfss
 from pyaedt.edb_core import EdbLayout
@@ -131,23 +128,8 @@ class Edb(object):
         if edb_initialized:
             self.oproject = oproject
             self._main = sys.modules["__main__"]
-            if isaedtowned and "aedt_logger" in dir(sys.modules["__main__"]):
-                self._logger = self._main.aedt_logger
-            else:
-                if not edbpath or not os.path.exists(os.path.dirname(edbpath)):
-                    project_dir = tempfile.gettempdir()
-                else:
-                    project_dir = os.path.dirname(edbpath)
-                if settings.logger_file_path:
-                    logfile = settings.logger_file_path
-                else:
-                    logfile = os.path.join(
-                        project_dir, "pyaedt{}.log".format(datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
-                    )
-                self._logger = AedtLogger(filename=logfile, level=logging.DEBUG)
-                self._logger.info("Logger started on %s", logfile)
-                self._main.aedt_logger = self._logger
-
+            self._global_logger = pyaedt_logger
+            self._logger = pyaedt_logger
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
             if not edbversion:
@@ -176,18 +158,30 @@ class Edb(object):
                     edbpath = os.path.join(edbpath, generate_unique_name("layout") + ".aedb")
                 self.logger.info("No EDB is provided. Creating a new EDB {}.".format(edbpath))
             self.edbpath = edbpath
+            self.log_name = None
+            if edbpath:
+                self.log_name = os.path.join(
+                    os.path.dirname(edbpath), "pyaedt_" + os.path.splitext(os.path.split(edbpath)[-1])[0] + ".log"
+                )
+
             if isaedtowned and (inside_desktop or settings.remote_api):
                 self.open_edb_inside_aedt()
             elif edbpath[-3:] in ["brd", "gds", "xml", "dxf", "tgz"]:
                 self.edbpath = edbpath[:-4] + ".aedb"
                 working_dir = os.path.dirname(edbpath)
                 self.import_layout_pcb(edbpath, working_dir, use_ppe=use_ppe)
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly.", self.edbpath)
             elif ".aedb" in edbpath:
                 self.edbpath = edbpath
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.open_edb()
             if self.builder:
                 self.logger.info("EDB was initialized.")
@@ -829,6 +823,9 @@ class Edb(object):
 
         """
         self._db.Close()
+        if self.log_name:
+            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._logger = self._global_logger
         time.sleep(2)
         start_time = time.time()
         self._wait_for_file_release()
@@ -872,6 +869,15 @@ class Edb(object):
         """
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
+        if self.log_name:
+            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._logger = self._global_logger
+
+        self.log_name = os.path.join(
+            os.path.dirname(fname), "pyaedt_" + os.path.splitext(os.path.split(fname)[-1])[0] + ".log"
+        )
+        if settings.enable_local_log_file:
+            self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
         return True
 
     @pyaedt_function_handler()
@@ -1166,6 +1172,7 @@ class Edb(object):
         open_cutout_at_end=True,
         nets_to_include=None,
         include_partial_instances=False,
+        keep_voids=True,
     ):
         """Create a cutout on a specified shape and save it to a new AEDB file.
 
@@ -1186,6 +1193,9 @@ class Edb(object):
         include_partial_instances : bool, optional
             Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
             This operation may slow down the cutout export.
+        keep_voids : bool
+            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
+            Default value is ``True``, ``False`` will remove the voids.
 
         Returns
         -------
@@ -1224,9 +1234,12 @@ class Edb(object):
                     _ref_nets.append(self.core_nets.nets[_ref].net_object)
             else:
                 _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
-        voids = [p for p in self.core_primitives.circles if p.is_void]
-        voids2 = [p for p in self.core_primitives.polygons if p.is_void]
-        voids.extend(voids2)
+        if keep_voids:
+            voids = [p for p in self.core_primitives.circles if p.is_void]
+            voids2 = [p for p in self.core_primitives.polygons if p.is_void]
+            voids.extend(voids2)
+        else:
+            voids = []
         voids_to_add = []
         for circle in voids:
             if polygonData.GetIntersectionType(circle.primitive_object.GetPolygonData()) >= 3:
@@ -1237,12 +1250,10 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
-        cutout_obj_coll = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        cutout_obj_coll = list(layout.PadstackInstances)
         ids = []
-        for obj in cutout_obj_coll.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
-                ids.append(lobj.GetId())
+        for lobj in cutout_obj_coll:
+            ids.append(lobj.GetId())
 
         if include_partial_instances:
             p_missing = [i for i in pinstance_to_add if i.id not in ids]
