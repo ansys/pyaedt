@@ -4,6 +4,7 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import Excitation
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
@@ -76,6 +77,13 @@ class EdbHfss(object):
     @property
     def _builder(self):
         return self._pedb.builder
+
+    @property
+    def excitations(self):
+        """Get all excitations."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        terms = [i for i in terms if not i.IsReferenceTerminal()]
+        return {ter.GetName(): Excitation(self._pedb, ter, ter.GetName()) for ter in terms}
 
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
@@ -601,6 +609,11 @@ class EdbHfss(object):
         port_name=None,
         impedance=50,
         reference_layer=None,
+        hfss_type="Gap",
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        radial_extent_factor=0,
+        pec_launch_width="0.01mm",
     ):
         """Create a vertical edge port.
 
@@ -618,6 +631,16 @@ class EdbHfss(object):
             Impedance of the port. The default value is ``50``.
         reference_layer : str, optional
             Reference layer of the port. The default is ``None``.
+        hfss_type : str, optional
+            Type of the port. The default value is ``"Gap"``. Options are ``"Gap"``, ``"Wave"``.
+        horizontal_extent_factor : int, float, optional
+            Horizontal extent factor. The default value is ``5``.
+        vertical_extent_factor : int, float, optional
+            Vertical extent factor. The default value is ``3``.
+        radial_extent_factor : int, float, optional
+            Radial extent factor. The default value is ``0``.
+        pec_launch_width : str, optional
+            Launch Width of PEC. The default value is ``"0.01mm"``.
         Returns
         -------
         str
@@ -628,6 +651,23 @@ class EdbHfss(object):
         if reference_layer:
             reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
             pos_edge_term.SetReferenceLayer(reference_layer)
+
+        prop = ", ".join(
+            [
+                "HFSS('HFSS Type'='{}'".format(hfss_type),
+                " Orientation='Vertical'",
+                " 'Layer Alignment'='Upper'",
+                " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
+                " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
+                " 'Radial Extent Factor'='{}'".format(radial_extent_factor),
+                " 'PEC Launch Width'='{}')".format(pec_launch_width),
+            ]
+        )
+        pos_edge_term.SetProductSolverOption(
+            self._pedb.edb.ProductId.Designer,
+            "HFSS",
+            prop,
+        )
         if pos_edge_term:
             return port_name
         else:
