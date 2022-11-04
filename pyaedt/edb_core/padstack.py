@@ -539,7 +539,7 @@ class EdbPadstacks(object):
 
         if not isinstance(net_list, list):
             net_list = [net_list]
-        layout_lobj_collection = list(self._active_layout.get_PadstackInstances())
+        layout_lobj_collection = list(self._active_layout.PadstackInstances)
         via_list = []
         for lobj in layout_lobj_collection:
             pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
@@ -934,7 +934,7 @@ class EdbPadstacks(object):
     @pyaedt_function_handler()
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
-        layout_lobj_collection = list(self._active_layout.get_PadstackInstances())
+        layout_lobj_collection = list(self._active_layout.PadstackInstances)
         self._padstack_instances = {}
         for lobj in layout_lobj_collection:
             self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)

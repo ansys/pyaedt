@@ -92,7 +92,7 @@ class EdbLayout(object):
         """
         if self._active_layout:
             self._prims = []
-            for lay_obj in list(self._active_layout.get_Primitives()):
+            for lay_obj in list(self._active_layout.Primitives):
                 self._prims.append(EDBPrimitives(lay_obj, self._pedb))
             self._logger.info("Primitives Updated")
             return True

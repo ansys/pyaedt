@@ -1250,7 +1250,7 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
-        cutout_obj_coll = list(layout.get_PadstackInstances())
+        cutout_obj_coll = list(layout.PadstackInstances)
         ids = []
         for lobj in cutout_obj_coll:
             ids.append(lobj.GetId())
