@@ -5493,8 +5493,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         try:
             if self.solution_type != "Modal":
-                msg = "Assign symmetry cannot be performed on solution types different from Modal."
-                raise ValueError(msg)
+                raise ValueError("Symmetry is only available with 'Modal' solution type.")
 
             if symmetry_name is None:
                 symmetry_name = generate_unique_name("Symmetry")
