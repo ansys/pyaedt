@@ -539,17 +539,15 @@ class EdbPadstacks(object):
 
         if not isinstance(net_list, list):
             net_list = [net_list]
-        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        layout_lobj_collection = list(self._active_layout.get_PadstackInstances())
         via_list = []
-        for obj in layout_lobj_collection.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
-                if len(pad_layers_name) > 1:
-                    if not net_list:
-                        via_list.append(lobj)
-                    elif lobj.GetNet().GetName() in net_list:
-                        via_list.append(lobj)
+        for lobj in layout_lobj_collection:
+            pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
+            if len(pad_layers_name) > 1:
+                if not net_list:
+                    via_list.append(lobj)
+                elif lobj.GetNet().GetName() in net_list:
+                    via_list.append(lobj)
         return via_list
 
     @pyaedt_function_handler()
@@ -936,12 +934,10 @@ class EdbPadstacks(object):
     @pyaedt_function_handler()
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
-        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        layout_lobj_collection = list(self._active_layout.get_PadstackInstances())
         self._padstack_instances = {}
-        for obj in layout_lobj_collection.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
+        for lobj in layout_lobj_collection:
+            self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
     @pyaedt_function_handler()
     def get_padstack_instance_by_net_name(self, net_name):

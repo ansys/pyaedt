@@ -92,16 +92,8 @@ class EdbLayout(object):
         """
         if self._active_layout:
             self._prims = []
-            layoutInstance = self._active_layout.GetLayoutInstance()
-            layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-            for el in layoutObjectInstances.Items:
-                try:
-                    lay_obj = el.GetLayoutObj()
-                    lay_obj_str = lay_obj.ToString()
-                    if "Primitive" in lay_obj_str and "PadstackInstance" not in lay_obj_str:
-                        self._prims.append(EDBPrimitives(lay_obj, self._pedb))
-                except:
-                    continue
+            for lay_obj in list(self._active_layout.get_Primitives()):
+                self._prims.append(EDBPrimitives(lay_obj, self._pedb))
             self._logger.info("Primitives Updated")
             return True
         return False

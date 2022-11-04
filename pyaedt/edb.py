@@ -1250,12 +1250,10 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
-        cutout_obj_coll = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        cutout_obj_coll = list(layout.get_PadstackInstances())
         ids = []
-        for obj in cutout_obj_coll.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
-                ids.append(lobj.GetId())
+        for lobj in cutout_obj_coll:
+            ids.append(lobj.GetId())
 
         if include_partial_instances:
             p_missing = [i for i in pinstance_to_add if i.id not in ids]
