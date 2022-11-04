@@ -5466,7 +5466,7 @@ class Hfss(FieldAnalysis3D, object):
             If not provided it's automatically generated.
         is_perfect_e : bool, optional
             Type of symmetry plane the boundary represents: Perfect E or Perfect H.
-            Default value is `True` (Perfect E).
+            The default value is ``True`` (Perfect E).
 
         Returns
         -------
