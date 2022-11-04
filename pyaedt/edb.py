@@ -1172,6 +1172,7 @@ class Edb(object):
         open_cutout_at_end=True,
         nets_to_include=None,
         include_partial_instances=False,
+        keep_voids=True,
     ):
         """Create a cutout on a specified shape and save it to a new AEDB file.
 
@@ -1192,6 +1193,9 @@ class Edb(object):
         include_partial_instances : bool, optional
             Whether to include padstack instances that have bounding boxes intersecting with point list polygons.
             This operation may slow down the cutout export.
+        keep_voids : bool
+            Boolean used for keep or not the voids intersecting the polygon used for clipping the layout.
+            Default value is ``True``, ``False`` will remove the voids.
 
         Returns
         -------
@@ -1230,9 +1234,12 @@ class Edb(object):
                     _ref_nets.append(self.core_nets.nets[_ref].net_object)
             else:
                 _ref_nets.append(self.core_nets.nets[_ref].net_object)  # pragma: no cover
-        voids = [p for p in self.core_primitives.circles if p.is_void]
-        voids2 = [p for p in self.core_primitives.polygons if p.is_void]
-        voids.extend(voids2)
+        if keep_voids:
+            voids = [p for p in self.core_primitives.circles if p.is_void]
+            voids2 = [p for p in self.core_primitives.polygons if p.is_void]
+            voids.extend(voids2)
+        else:
+            voids = []
         voids_to_add = []
         for circle in voids:
             if polygonData.GetIntersectionType(circle.primitive_object.GetPolygonData()) >= 3:
@@ -1243,12 +1250,10 @@ class Edb(object):
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
-        cutout_obj_coll = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        cutout_obj_coll = list(layout.PadstackInstances)
         ids = []
-        for obj in cutout_obj_coll.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
-                ids.append(lobj.GetId())
+        for lobj in cutout_obj_coll:
+            ids.append(lobj.GetId())
 
         if include_partial_instances:
             p_missing = [i for i in pinstance_to_add if i.id not in ids]

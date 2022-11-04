@@ -4558,7 +4558,7 @@ class Hfss(FieldAnalysis3D, object):
         include_coupling_effects=False,
         doppler_ad_sampling_rate=20,
     ):
-        setup1 = self.create_setup(setup_name, "SBR+")
+        setup1 = self.create_setup(setup_name, 4)
         setup1.auto_update = False
         setup1.props["IsSbrRangeDoppler"] = True
         del setup1.props["PTDUTDSimulationSettings"]
@@ -5450,5 +5450,60 @@ class Hfss(FieldAnalysis3D, object):
         try:
             self.odesign.SetSolveInsideThreshold(threshold)
             return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def assign_symmetry(self, entity_list, symmetry_name=None, is_perfect_e=True):
+        """Assign symmetry to planar entities.
+
+        Parameters
+        ----------
+        entity_list : list
+            List of IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+        symmetry_name : str, optional
+            Name of the boundary.
+            If not provided it's automatically generated.
+        is_perfect_e : bool, optional
+            Type of symmetry plane the boundary represents: Perfect E or Perfect H.
+            The default value is ``True`` (Perfect E).
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignSymmetry
+
+        Examples
+        --------
+
+        Create a box. Select the faces of this box and assign a symmetry.
+
+        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0], [200, 200, 200],
+        ...                                         name="SymmetryForFaces")
+        >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
+        >>> symmetry = hfss.assign_symmetry(ids)
+        >>> type(symmetry)
+        <class 'pyaedt.modules.Boundary.BoundaryObject'>
+
+        """
+        try:
+            if self.solution_type != "Modal":
+                raise ValueError("Symmetry is only available with 'Modal' solution type.")
+
+            if symmetry_name is None:
+                symmetry_name = generate_unique_name("Symmetry")
+
+            if not isinstance(entity_list, list):
+                raise ValueError("Entities have to be provided as a list.")
+
+            entity_list = self.modeler.convert_to_selections(entity_list, True)
+
+            props = OrderedDict({"Name": symmetry_name, "Faces": entity_list, "IsPerfectE": is_perfect_e})
+            return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False
