@@ -1,4 +1,5 @@
 # Import required modules
+import os
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -21,7 +22,6 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, application=Emit)
-        self.aedtapp2 = BasisTest.add_app(self, application=Emit)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -35,9 +35,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.oanalysis is None
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2021.2"
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
     )
     def test_create_components(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
         assert isinstance(radio, EmitComponent)
@@ -46,9 +47,10 @@ class TestClass(BasisTest, object):
         assert isinstance(antenna, EmitAntennaComponent)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2021.2"
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
     )
     def test_connect_components(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
         antenna.move_and_connect_to(radio)
@@ -71,6 +73,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
     )
     def test_radio_component(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
         radio = self.aedtapp.modeler.components.create_component("New Radio")
         # default radio has 1 Tx channel and 1 Rx channel
         assert radio.has_rx_channels()
@@ -86,6 +89,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021 R2."
     )
     def test_antenna_component(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
         antenna = self.aedtapp.modeler.components.create_component("Antenna")
         # Default pattern filename is empty string
         pattern_filename = antenna.get_pattern_filename()
@@ -98,72 +102,72 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_revision_generation(self):
-        assert len(self.aedtapp2.results.revisions_list) == 0
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        assert len(self.aedtapp.results.revisions_list) == 0
         # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp2.modeler.components.create_component("Antenna")
+        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad1 and ant1:
             ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp2.modeler.components.create_component("Bluetooth")
-        ant2 = self.aedtapp2.modeler.components.create_component("Antenna")
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad2 and ant2:
             ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp2.modeler.components.create_component("Bluetooth")
-        ant3 = self.aedtapp2.modeler.components.create_component("Antenna")
+        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
-        self.aedtapp2.analyze()
-        assert len(self.aedtapp2.results.revisions_list) == 1
-        self.aedtapp2.analyze()
-        assert len(self.aedtapp2.results.revisions_list) == 1
-        rad4 = self.aedtapp2.modeler.components.create_component("Bluetooth")
-        ant4 = self.aedtapp2.modeler.components.create_component("Antenna")
+        self.aedtapp.analyze()
+        assert len(self.aedtapp.results.revisions_list) == 1
+        self.aedtapp.analyze()
+        assert len(self.aedtapp.results.revisions_list) == 1
+        rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad4 and ant4:
             ant4.move_and_connect_to(rad4)
-        self.aedtapp2.analyze()
-        assert len(self.aedtapp2.results.revisions_list) == 2
-        rad5 = self.aedtapp2.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp2.modeler.components.create_component("Antenna")
+        self.aedtapp.analyze()
+        assert len(self.aedtapp.results.revisions_list) == 2
+        rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
+        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad5 and ant5:
             ant4.move_and_connect_to(rad5)
-        assert len(self.aedtapp2.results.revisions_list) == 2
+        assert len(self.aedtapp.results.revisions_list) == 2
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_manual_revision_access_test_getters(self):
-        rad1 = self.aedtapp2.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp2.modeler.components.create_component("Antenna")
-        rad2 = self.aedtapp2.modeler.components.create_component("Bluetooth")
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
         if rad1 and ant1:
             ant1.move_and_connect_to(rad1)
-        ant2 = self.aedtapp2.modeler.components.create_component("Antenna")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad2 and ant2:
             ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp2.modeler.components.create_component("Bluetooth")
-        ant3 = self.aedtapp2.modeler.components.create_component("Antenna")
+        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
-        self.aedtapp2.analyze()
+        self.aedtapp.analyze()
         domain = Result.interaction_domain()
-        self.aedtapp2.results.revisions_list[-1].run(domain)
-        radiosRX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().rx)
+        self.aedtapp.results.revisions_list[-1].run(domain)
+        radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
         assert radiosRX[0] == "Bluetooth"
         assert radiosRX[1] == "Bluetooth 2"
-        bandsRX = self.aedtapp2.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
+        bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
         assert bandsRX[0] == "Rx - Base Data Rate"
         assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = self.aedtapp2.results.get_active_frequencies(radiosRX[0], bandsRX[0], Emit.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], Emit.tx_rx_mode().rx)
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
-        radiosTX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().tx)
-        assert len(radiosTX) == 0
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_static_type_generation(self):
         domain = Result.interaction_domain()
@@ -186,40 +190,67 @@ class TestClass(BasisTest, object):
         assert str(type(result_type_desense)) == "<class 'EmitApiPython.result_type'>"
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_version(self):
-        less_info = self.aedtapp2.version(False)
-        more_info = self.aedtapp2.version(True)
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        less_info = self.aedtapp.version(False)
+        more_info = self.aedtapp.version(True)
         assert str(type(less_info)) == "<class 'str'>"
         assert str(type(more_info)) == "<class 'str'>"
         assert len(more_info) > len(less_info)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
-    def test_analyze(self):
-        less_info = self.aedtapp2.version(False)
-        more_info = self.aedtapp2.version(True)
-        assert str(type(less_info)) == "<class 'str'>"
-        assert str(type(more_info)) == "<class 'str'>"
-        assert len(more_info) > len(less_info)
+    def test_analyze_manually(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        assert len(self.aedtapp.results.revisions_list) == 0
+        # place components and generate the appropriate number of revisions
+        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+        self.aedtapp.analyze()
+        assert len(self.aedtapp.results.revisions_list) == 1
+        if self.aedtapp._emit_api is not None:
+            path = self.aedtapp.oproject.GetPath()
+            subfolder = ""
+            for f in os.scandir(path):
+                if os.path.splitext(f.name)[1].lower() in ".aedtresults":
+                    subfolder = os.path.join(f.path, "EmitDesign1")
+            file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
+            self.aedtapp._emit_api.load_result(file.path)
+            domain = Result.interaction_domain()
+            assert domain is not None
+            eng = self.aedtapp._emit_api.get_engine()
+            assert eng is not None
+            interaction = eng.analyze(domain)
+            assert interaction is not None
 
     """
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_N_to_1_feature(self):
         domain = Result.interaction_domain()
-        radiosRX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().rx)
-        bandsRX = self.aedtapp2.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
-        rx_frequencies = self.aedtapp2.results.get_active_frequencies(radiosRX[0], bandsRX[0], Emit.tx_rx_mode().rx)
+        radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
+        bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], Emit.tx_rx_mode().rx)
         domain.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
-        radiosTX = self.aedtapp2.results.get_radio_names(Emit.tx_rx_mode().tx)
-        bandsTX = self.aedtapp2.results.get_band_names(radiosTX[0], Emit.tx_rx_mode().tx)
-        tx_frequencies = self.aedtapp2.results.get_active_frequencies(radiosTX[0], bandsTX[0], Emit.tx_rx_mode().tx)
+        radiosTX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().tx)
+        bandsTX = self.aedtapp.results.get_band_names(radiosTX[0], Emit.tx_rx_mode().tx)
+        tx_frequencies = self.aedtapp.results.get_active_frequencies(radiosTX[0], bandsTX[0], Emit.tx_rx_mode().tx)
         domain.set_interferers(radiosTX, bandsTX, list(tx_frequencies[0]))
-        interaction = self.aedtapp2.results.revisions_list[-1].run(domain)
+        interaction = self.aedtapp.results.revisions_list[-1].run(domain)
         emi_worst = interaction.worst_instance(Emit.result_type().emi)
     """
     """
@@ -229,7 +260,7 @@ class TestClass(BasisTest, object):
     """
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions lower than 2021.2"
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
     )
     def test_couplings(self):
         self.aedtapp = BasisTest.add_app(

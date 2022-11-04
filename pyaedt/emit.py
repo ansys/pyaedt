@@ -19,6 +19,7 @@ class Result:
     Examples
     --------
     Create an instance of Result.
+
     >>> aedtapp.results = Result()
     >>> mode = Emit.tx_rx_mode().rx
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
@@ -78,29 +79,30 @@ class Result:
             interaction_domain = mod.InteractionDomain()
         except NameError:
             raise ValueError(
-                "An Emit object must be initialized, before any static member of Result or Emit can be accessed."
+                "An Emit object must be initialized before any static member of the Result or Emit class can be accessed."
             )
         return interaction_domain
 
     @staticmethod
     def result_mode_error():
         """
-        Prints error message.
+        Print the function mode error message.
 
         Returns
         -------
         """
-        print("This function is inaccessible when the Emit object has no revisions")
+        print("This function is inaccessible when the Emit object has no revisions.")
 
     @pyaedt_function_handler()
     def get_radio_names(self, tx_rx):
         """
-        Return a list of all ``tx'' or ``rx`` radios in the project.
+        Get a list of all ``tx'' or ``rx`` radios in the project.
 
         Parameters
         ----------
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
+
         -------
         :class:`list of str`
 
@@ -118,7 +120,7 @@ class Result:
     @pyaedt_function_handler()
     def get_band_names(self, radio_name, tx_rx_mode):
         """
-        Return a list of all ``tx`` or ``rx`` bands in a given radio.
+        Get a list of all ``tx`` or ``rx`` bands in a given radio.
 
         Parameters
         ----------
@@ -126,6 +128,7 @@ class Result:
             Name of the radio.
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
+
         -------
         :class:`list of str`
 
@@ -144,7 +147,7 @@ class Result:
     def get_active_frequencies(self, radio_name, band_name, tx_rx_mode):
 
         """
-        Return a list of active frequencies for a ``tx`` or ``rx`` band in a radio.
+        Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio.
 
         Parameters
         ----------
@@ -154,6 +157,7 @@ class Result:
            Name of the band.
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
+
         -------
         :class:`list of float`
 
@@ -180,9 +184,11 @@ class Revision:
     name : str, optional
         Name of the revision to create. The default is ``None``, in which case a
         default name is given.
+
     Examples
     --------
-    Create an instance of Revision.
+    Create a ``Revision`` instance.
+
     >>> aedtapp = Emit()
     >>> rev = Revision(aedtapp, "Revision 1")
     >>> domain = Result.interaction_domain()
@@ -217,6 +223,7 @@ class Revision:
         ----------
         domain :
             ``InteractionDomain`` object for constraining the analysis parameters.
+
         Returns
         -------
         :class:`Interaction`
@@ -270,13 +277,13 @@ class Emit(FieldAnalysisEmit, object):
     close_on_exit : bool, optional
         Whether to release AEDT on exit. The default is ``False``.
     student_version : bool, optional
-        Whether to open the AEDT student version. The default is ``False``.
+        Whether to start the AEDT student version. The default is ``False``.
     port : int, optional
         Port number on which to start the oDesktop communication on an already existing server.
-        This parameter is ignored when creating a new server. It works only in 2022 R2 or later.
+        This parameter is ignored when creating a server. This parameter works only in 2022 R2 or later.
         The remote server must be up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
     machine : str, optional
-        Machine name to which the oDesktop session is to connect to. This
+        Machine name that the Desktop session is to connect to. This
         parameter works only in 2022 R2 and later. The remote server must be
         up and running with the command `"ansysedt.exe -grpcsrv portnum"`.
         If the machine is `"localhost"`, the server starts if it is not present.
@@ -286,14 +293,17 @@ class Emit(FieldAnalysisEmit, object):
 
     Examples
     --------
-    Create an instance of Emit. You can also choose to define parameters for Emit here.
+    Create an ``Emit`` instance. You can also choose to define parameters for this instance here.
+
     >>> from pyaedt import Emit
     >>> aedtapp = Emit()
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
+
     >>> aedtapp = Emit(projectname, designame)
 
-    Once an instance of Emit is initialized, the schematic can be edited:
+    Once an ``Emit`` instance is initialized, you can edit the schematic:
+
     >>> rad1 = aedtapp.modeler.components.create_component("Bluetooth")
     >>> ant1 = aedtapp.modeler.components.create_component("Antenna")
     >>> if rad1 and ant1:
@@ -301,20 +311,23 @@ class Emit(FieldAnalysisEmit, object):
 
     Once the schematic is generated, the ``Emit`` object can be analyzed to generate
     a revision. Each revision is added as an element of the ``Emit`` object member's
-    ``revisions_list``.
+    revisions_list.
+
     >>> aedtapp.analyze()
 
     A revision within PyAEDT is analogous to a revision in AEDT. An interaction domain must
     be defined and then used as the input to the run command used on that revision.
+
     >>> domain = Emit.interaction_domain()
     >>> domain.rx_radio_name = "UE - HandHeld"
     >>> interaction = aedtapp.revisions_list[0].run(domain)
 
-    The output of the run command is an interaction type object. An interaction summarizes the interaction data
-    of whatever is defined in the interaction domain.
+    The output of the run command is an ``interaction`` object. This object summarizes the interaction data
+    that is defined in the interaction domain.
+
     >>> instance = interaction.worst_instance(Emit.result_type().sensitivity)
     >>> val = instance.value(Emit.result_type().sensitivity)
-    >>> print("Worst-case sensitivity for Rx '{}' is {}dB".format(domain.rx_radio_name, val))
+    >>> print("Worst-case sensitivity for Rx '{}' is {}dB.".format(domain.rx_radio_name, val))
     """
 
     def __init__(
@@ -335,7 +348,7 @@ class Emit(FieldAnalysisEmit, object):
         if projectname is None:
             projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
-        """Constructor."""
+        """Constructor for the ``FieldAnalysisEmit`` class"""
         FieldAnalysisEmit.__init__(
             self,
             "EMIT",
@@ -398,7 +411,7 @@ class Emit(FieldAnalysisEmit, object):
         Parameters
         ----------
         path : str
-            Path to an AEDT result file
+            Path to an AEDT result file.
 
         Returns
         -------
@@ -416,7 +429,7 @@ class Emit(FieldAnalysisEmit, object):
     @staticmethod
     def result_type():
         """
-        Return a ``result_type`` object.
+        Get a result type.
 
         Returns
         -------
@@ -431,14 +444,14 @@ class Emit(FieldAnalysisEmit, object):
             result = mod.result_type()
         except NameError:
             raise ValueError(
-                "An Emit object must be initialized, before any static member of Result or Emit can be accessed."
+                "An Emit object must be initialized before any static member of the Result or Emit class can be accessed."
             )
         return result
 
     @staticmethod
     def tx_rx_mode():
         """
-        Return a ``tx_rx_mode`` object.
+        Get a ``tx_rx_mode`` object.
 
         Returns
         -------
@@ -453,19 +466,20 @@ class Emit(FieldAnalysisEmit, object):
             tx_rx = mod.tx_rx_mode()
         except NameError:
             raise ValueError(
-                "An Emit object must be initialized, before any static member of Result or Emit can be accessed."
+                "An Emit object must be initialized before any static member of the Result or Emit class can be accessed."
             )
         return tx_rx
 
     @pyaedt_function_handler()
     def version(self, detailed=False):
         """
-        Return version information.
+        Get version information.
 
         Parameters
         ----------
         detailed : bool, optional
             Whether to return a verbose description. The default is ``False``.
+
         Returns
         -------
         str
