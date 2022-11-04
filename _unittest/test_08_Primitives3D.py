@@ -934,6 +934,7 @@ class TestClass(BasisTest, object):
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         point = self.aedtapp.modeler.create_point([30, 30, 0], name)
+        assert name in self.aedtapp.modeler.points
         point.set_color("(143 175 158)")
         point2 = self.aedtapp.modeler.create_point([50, 30, 0], "mypoint2", "(100 100 100)")
         point.logger.info("Creation and testing of a point.")

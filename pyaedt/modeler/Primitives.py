@@ -953,6 +953,7 @@ class Primitives(object):
     @property
     def points(self):
         """List of points."""
+        self._refresh_points()
         return self._points
 
     @property
@@ -3429,7 +3430,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_points(self):
-        test = list(self.oeditor.GetObjectsInGroup("Points"))
+        test = list(self.oeditor.GetPoints())
         if test is None or test is False:
             assert False, "Get Points is failing"
         elif test is True:
