@@ -983,6 +983,7 @@ class Primitives(object):
     @property
     def unclassified_objects(self):
         """List of all unclassified objects.
+
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.Object3d`
@@ -994,6 +995,7 @@ class Primitives(object):
     @property
     def object_list(self):
         """List of all objects.
+
         Returns
         -------
         list of :class:`pyaedt.modeler.Object3d.Object3d`
@@ -1005,6 +1007,7 @@ class Primitives(object):
     @property
     def solid_names(self):
         """List of the names of all solid objects.
+
         Returns
         -------
         str
