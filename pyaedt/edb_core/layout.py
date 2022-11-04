@@ -104,8 +104,6 @@ class EdbLayout(object):
                         self._prims.append(EDBPrimitives(lay_obj, self._pedb))
                 except:
                     continue
-            for lay in self.layers:
-                self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
             self._logger.info("Primitives Updated")
             return True
         return False
@@ -132,9 +130,10 @@ class EdbLayout(object):
         dict
             Dictionary of primitives with layer names as keys.
         """
-        if not self._primitives_by_layer:
-            self.update_primitives()
-        return self._primitives_by_layer
+        _primitives_by_layer = {}
+        for lay in self.layers:
+            _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return _primitives_by_layer
 
     @property
     def rectangles(self):
