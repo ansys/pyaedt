@@ -596,7 +596,7 @@ class EdbNets(object):
         for i in self._pedb.core_nets.nets.values():
             if i.name not in nets_deleted:
                 i.net_object.Delete()
-                nets_deleted.append(i)
+                nets_deleted.append(i.name)
 
         return nets_deleted
 
