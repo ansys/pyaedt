@@ -945,3 +945,46 @@ if not config["skip_edb"]:
             assert siwave_hfss_solver_regions == 16
             outline_layer = stackup._layer_types_to_int(stackup.layer_types.OutlineLayer)
             assert outline_layer == 18
+
+        def test_98_duplicate_material(self):
+            stack_up = self.edbapp.core_stackup
+            duplicated_copper = stack_up.duplicate_material("copper", "my_new_copper")
+            assert duplicated_copper
+            duplicated_fr4_epoxy = stack_up.duplicate_material("FR4_epoxy", "my_new_FR4")
+            assert duplicated_fr4_epoxy
+            duplicated_pec = stack_up.duplicate_material("pec", "my_new_pec")
+            assert duplicated_pec
+            cloned_permittivity = stack_up.get_property_by_material_name("permittivity", "my_new_pec")
+            permittivity = stack_up.get_property_by_material_name("permittivity", "pec")
+            cloned_permeability = stack_up.get_property_by_material_name("permeability", "my_new_pec")
+            permeability = stack_up.get_property_by_material_name("permeability", "pec")
+            cloned_conductivity = stack_up.get_property_by_material_name("conductivity", "my_new_pec")
+            conductivity = stack_up.get_property_by_material_name("conductivity", "pec")
+            cloned_dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "my_new_pec")
+            dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "pec")
+            cloned_magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "my_new_pec")
+            magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "pec")
+            assert cloned_permittivity == permittivity
+            assert cloned_permeability == permeability
+            assert cloned_conductivity == conductivity
+            assert cloned_dielectric_loss == dielectric_loss
+            assert cloned_magnetic_loss == magnetic_loss
+            non_duplicated = stack_up.duplicate_material("my_nonexistent_mat", "nothing")
+            assert not non_duplicated
+
+        def test_99_get_property_by_material_name(self):
+            stack_up = self.edbapp.core_stackup
+            permittivity = stack_up.get_property_by_material_name("permittivity", "FR4_epoxy")
+            permeability = stack_up.get_property_by_material_name("permeability", "FR4_epoxy")
+            conductivity = stack_up.get_property_by_material_name("conductivity", "copper")
+            dielectric_loss = stack_up.get_property_by_material_name("dielectric_loss_tangent", "FR4_epoxy")
+            magnetic_loss = stack_up.get_property_by_material_name("magnetic_loss_tangent", "FR4_epoxy")
+            assert permittivity == 4.4
+            assert permeability == 0
+            assert conductivity == 59590000
+            assert dielectric_loss == 0.02
+            assert magnetic_loss == 0
+            failing_test_1 = stack_up.get_property_by_material_name("magnetic_loss_tangent", "inexistent_material")
+            assert not failing_test_1
+            failing_test_2 = stack_up.get_property_by_material_name("none_property", "copper")
+            assert not failing_test_2
