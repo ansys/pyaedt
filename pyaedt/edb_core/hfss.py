@@ -807,19 +807,19 @@ class EdbHfss(object):
                                         self._hfss_terminals.CreateEdgePort(
                                             path, pt, reference_layer, port_name
                                         )  # pragma: no cover
-                                    except:
+                                    except:  # pragma: no cover
                                         self._logger.warning(
                                             "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
                                         )
                         else:
-                            if return_points_only:
+                            if return_points_only:  # pragma: no cover
                                 edges_pts.append(_pt)
                             else:
                                 try:
                                     self._hfss_terminals.CreateEdgePort(
                                         path, pt, reference_layer, port_name
                                     )  # pragma: no cover
-                                except:
+                                except:  # pragma: no cover
                                     self._logger.warning(
                                         "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
                                     )
@@ -1242,7 +1242,7 @@ class EdbHfss(object):
                         diam1,
                         diam2,
                     ) = cmp_prop.GetSolderBallProperty().GetDiameter()
-                    if success and diam1 and diam2 > 0:
+                    if success and diam1 and diam2 > 0:  # pragma: no cover
                         option = (
                             "HFSS('HFSS Type'='**Invalid**', "
                             "Orientation='**Invalid**', "
