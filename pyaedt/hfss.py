@@ -5499,8 +5499,7 @@ class Hfss(FieldAnalysis3D, object):
                 symmetry_name = generate_unique_name("Symmetry")
 
             if not isinstance(entity_list, list):
-                msg = "Entities have to be provided as a list."
-                raise ValueError(msg)
+                raise ValueError("Entities have to be provided as a list.")
 
             entity_list = self.modeler.convert_to_selections(entity_list, True)
 
