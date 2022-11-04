@@ -447,7 +447,7 @@ if not config["skip_edb"]:
             assert not result
 
         def test_45_delete_net(self):
-            self.edbapp.core_nets.nets["AVIN1"].delete()
+            self.edbapp.core_nets.nets["M_MA<6>"].delete()
             nets_deleted = self.edbapp.core_nets.delete_nets("M_MA<7>")
             assert "M_MA<7>" in nets_deleted
 
@@ -567,7 +567,9 @@ if not config["skip_edb"]:
 
         def test_55b_create_cutout(self):
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            assert self.edbapp.create_cutout(
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
                 output_aedb_path=output,
@@ -584,7 +586,7 @@ if not config["skip_edb"]:
             points.append([bounding[0][0], bounding[0][1]])
             output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
-            assert self.edbapp.create_cutout_on_point_list(
+            assert edbapp.create_cutout_on_point_list(
                 points,
                 nets_to_include=["GND", "V3P3_S0"],
                 output_aedb_path=output,
