@@ -30,25 +30,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: 'Create virtual env'
-        run: |
-          python -m venv testenv
-          testenv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-
       - name: 'Install pyaedt'
         run: |
-          python -m venv pyaedt_testenv
-          pyaedt_testenv\Scripts\Activate.ps1
+          python -m venv .pyaedt_test_env
+          source .pyaedt_test_env/bin/activate
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
           pip install .
           pip install -r requirements_test.txt
           pip install pytest-azurepipelines
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+          cp "C:\actions-runner\opengl32.dll" "testenv\Lib\site-packages\vtkmodules"
           mkdir tmp
           cd tmp
           python -c "import pyaedt; print('Imported pyaedt')"
