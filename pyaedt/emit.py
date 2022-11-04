@@ -79,7 +79,7 @@ class Result:
             interaction_domain = mod.InteractionDomain()
         except NameError:
             raise ValueError(
-                "An Emit object must be initialized before any static member of the Result or Emit class can be accessed."
+                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
             )
         return interaction_domain
 
@@ -444,7 +444,7 @@ class Emit(FieldAnalysisEmit, object):
             result = mod.result_type()
         except NameError:
             raise ValueError(
-                "An Emit object must be initialized before any static member of the Result or Emit class can be accessed."
+                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
             )
         return result
 
@@ -466,7 +466,7 @@ class Emit(FieldAnalysisEmit, object):
             tx_rx = mod.tx_rx_mode()
         except NameError:
             raise ValueError(
-                "An Emit object must be initialized before any static member of the Result or Emit class can be accessed."
+                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
             )
         return tx_rx
 
