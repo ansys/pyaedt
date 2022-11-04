@@ -1,3 +1,4 @@
+import json
 import math
 import os
 import time
@@ -2034,6 +2035,12 @@ if not config["skip_edb"]:
                 prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
             )
             assert edb.core_hfss.get_ports_number() == 2
+            port_ver = edb.core_hfss.excitations["port_ver"]
+            assert port_ver.hfss_type == "Gap"
+            assert isinstance(port_ver.horizontal_extent_factor, float)
+            assert isinstance(port_ver.vertical_extent_factor, float)
+            assert isinstance(port_ver.radial_extent_factor, float)
+            assert port_ver.pec_launch_width
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2239,9 +2246,113 @@ if not config["skip_edb"]:
             comp.value = 10  # This command set the model back to ideal RLC
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
 
-            pg_name, _ = edbapp.core_siwave.create_pin_group("U3A1", 2)
-            assert edbapp.core_siwave.create_pin_group("U3A1", [5, 34, 35], "pos")
-            assert "pos" in edbapp.core_siwave.pin_groups
-            edbapp.core_siwave.create_pin_group_on_net("U3A1", "GND", "gnd")
-            edbapp.core_siwave.create_current_source_on_pin_group("pos", "gnd")
-            edbapp.core_siwave.create_voltage_source_on_pin_group(pg_name, "gnd")
+        def test_A127_stackup(self):
+            def validate_material(pedb_materials, material, delta):
+                pedb_mat = pedb_materials[material["name"]]
+                if not material["dielectric_model_frequency"]:
+                    assert (pedb_mat.conductivity - material["conductivity"]) < delta
+                    assert (pedb_mat.permittivity - material["permittivity"]) < delta
+                    assert (pedb_mat.loss_tangent - material["loss_tangent"]) < delta
+                    assert (pedb_mat.permeability - material["permeability"]) < delta
+                    assert (pedb_mat.magnetic_loss_tangent - material["magnetic_loss_tangent"]) < delta
+                assert (pedb_mat.mass_density - material["mass_density"]) < delta
+                assert (pedb_mat.poisson_ratio - material["poisson_ratio"]) < delta
+                assert (pedb_mat.specific_heat - material["specific_heat"]) < delta
+                assert (pedb_mat.thermal_conductivity - material["thermal_conductivity"]) < delta
+                assert (pedb_mat.youngs_modulus - material["youngs_modulus"]) < delta
+                assert (pedb_mat.thermal_expansion_coefficient - material["thermal_expansion_coefficient"]) < delta
+                if material["dc_conductivity"] is not None:
+                    assert (pedb_mat.dc_conductivity - material["dc_conductivity"]) < delta
+                else:
+                    assert pedb_mat.dc_conductivity == material["dc_conductivity"]
+                if material["dc_permittivity"] is not None:
+                    assert (pedb_mat.dc_permittivity - material["dc_permittivity"]) < delta
+                else:
+                    assert pedb_mat.dc_permittivity == material["dc_permittivity"]
+                if material["dielectric_model_frequency"] is not None:
+                    assert (pedb_mat.dielectric_model_frequency - material["dielectric_model_frequency"]) < delta
+                else:
+                    assert pedb_mat.dielectric_model_frequency == material["dielectric_model_frequency"]
+                if material["loss_tangent_at_frequency"] is not None:
+                    assert (pedb_mat.loss_tangent_at_frequency - material["loss_tangent_at_frequency"]) < delta
+                else:
+                    assert pedb_mat.loss_tangent_at_frequency == material["loss_tangent_at_frequency"]
+                if material["permittivity_at_frequency"] is not None:
+                    assert (pedb_mat.permittivity_at_frequency - material["permittivity_at_frequency"]) < delta
+                else:
+                    assert pedb_mat.permittivity_at_frequency == material["permittivity_at_frequency"]
+                return 0
+
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_test.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat.json")
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            edbapp.stackup._import_layer_stackup(json_path)
+            edbapp.save_edb()
+            delta = 1e-6
+            f = open(json_path)
+            json_dict = json.load(f)
+            for k, v in json_dict.items():
+                if k == "materials":
+                    for material in v.values():
+                        assert 0 == validate_material(edbapp.materials, material, delta)
+            for k, v in json_dict.items():
+                if k == "layers":
+                    for layer_name, layer in v.items():
+                        pedb_lay = edbapp.stackup.layers[layer_name]
+                        assert list(pedb_lay.color) == layer["color"]
+                        assert pedb_lay.type == layer["type"]
+                        if isinstance(layer["material"], str):
+                            assert pedb_lay.material == layer["material"]
+                        else:
+                            assert 0 == validate_material(edbapp.materials, layer["material"], delta)
+                        if isinstance(layer["dielectric_fill"], str) or layer["dielectric_fill"] is None:
+                            assert pedb_lay.dielectric_fill == layer["dielectric_fill"]
+                        else:
+                            assert 0 == validate_material(edbapp.materials, layer["dielectric_fill"], delta)
+                        assert (pedb_lay.thickness - layer["thickness"]) < delta
+                        assert (pedb_lay.etch_factor - layer["etch_factor"]) < delta
+                        assert pedb_lay.roughness_enabled == layer["roughness_enabled"]
+                        if layer["roughness_enabled"]:
+                            assert (pedb_lay.top_hallhuray_nodule_radius - layer["top_hallhuray_nodule_radius"]) < delta
+                            assert (pedb_lay.top_hallhuray_surface_ratio - layer["top_hallhuray_surface_ratio"]) < delta
+                            assert (
+                                pedb_lay.bottom_hallhuray_nodule_radius - layer["bottom_hallhuray_nodule_radius"]
+                            ) < delta
+                            assert (
+                                pedb_lay.bottom_hallhuray_surface_ratio - layer["bottom_hallhuray_surface_ratio"]
+                            ) < delta
+                            assert (
+                                pedb_lay.side_hallhuray_nodule_radius - layer["side_hallhuray_nodule_radius"]
+                            ) < delta
+                            assert (
+                                pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]
+                            ) < delta
+            edbapp.close_edb()
+
+        def test_128_build_project(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.signal_nets = [
+                "M_DQ<0>",
+                "M_DQ<1>",
+                "M_DQ<2>",
+                "M_DQ<3>",
+                "M_DQ<4>",
+                "M_DQ<5>",
+                "M_DQ<6>",
+                "M_DQ<7>",
+            ]
+            sim_setup.power_nets = ["GND"]
+            sim_setup.do_cutout_subdesign = True
+            sim_setup.components = ["U2A5", "U1B5"]
+            sim_setup.use_default_coax_port_radial_extension = False
+            sim_setup.cutout_subdesign_expansion = 0.001
+            sim_setup.start_frequency = 0
+            sim_setup.stop_freq = 20e9
+            sim_setup.step_freq = 10e6
+            assert edbapp.build_simulation_project(sim_setup)

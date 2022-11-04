@@ -34,7 +34,6 @@ class EdbLayout(object):
     def __init__(self, p_edb):
         self._prims = []
         self._pedb = p_edb
-        self._primitives_by_layer = {}
         # self.update_primitives()
 
     @property
@@ -93,19 +92,8 @@ class EdbLayout(object):
         """
         if self._active_layout:
             self._prims = []
-            self._primitives_by_layer = {}
-            layoutInstance = self._active_layout.GetLayoutInstance()
-            layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-            for el in layoutObjectInstances.Items:
-                try:
-                    lay_obj = el.GetLayoutObj()
-                    lay_obj_str = lay_obj.ToString()
-                    if "Primitive" in lay_obj_str and "PadstackInstance" not in lay_obj_str:
-                        self._prims.append(EDBPrimitives(lay_obj, self._pedb))
-                except:
-                    continue
-            for lay in self.layers:
-                self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+            for lay_obj in list(self._active_layout.Primitives):
+                self._prims.append(EDBPrimitives(lay_obj, self._pedb))
             self._logger.info("Primitives Updated")
             return True
         return False
@@ -132,9 +120,14 @@ class EdbLayout(object):
         dict
             Dictionary of primitives with layer names as keys.
         """
-        if not self._primitives_by_layer:
-            self.update_primitives()
-        return self._primitives_by_layer
+        _primitives_by_layer = {}
+        for lay in self.layers:
+            _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return _primitives_by_layer
+
+    @property
+    def _primitives_by_layer(self):
+        return self.polygons_by_layer
 
     @property
     def rectangles(self):

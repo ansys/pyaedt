@@ -463,43 +463,6 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
-        """Add a sweep to the project.
-
-        Parameters
-        ----------
-        sweepname : str, optional
-            Name of the sweep. The default is ``None``.
-        sweeptype : str, optional
-            Type of the sweep. The default is ``"Interpolating"``.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
-            Sweep object.
-
-        References
-        ----------
-
-        >>> oModule.InsertFrequencySweep
-        """
-        if not sweepname:
-            sweepname = generate_unique_name("Sweep")
-        if self.setuptype == 7:
-            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
-            return False
-        if self.setuptype <= 4:
-            sweep_n = SweepHFSS(self, sweepname=sweepname, sweeptype=sweeptype)
-        elif self.setuptype in [14, 30, 31]:
-            sweep_n = SweepMatrix(self, sweepname=sweepname, sweeptype=sweeptype)
-        else:
-            self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
-            return False
-        sweep_n.create()
-        self.sweeps.append(sweep_n)
-        return sweep_n
-
-    @pyaedt_function_handler()
     def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
         """Add a mesh link to another design.
 
@@ -548,178 +511,6 @@ class Setup(CommonSetup):
         meshlinks["ApplyMeshOp"] = True
         self.update()
         return True
-
-    @pyaedt_function_handler()
-    def add_eddy_current_sweep(self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True):
-        """Create a Maxwell Eddy Current Sweep.
-
-        Parameters
-        ----------
-        range_type : str
-            Type of the subrange. Options are ``"LinearCount"``,
-            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
-        start : float
-            Starting frequency.
-        end : float, optional
-            Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
-        count : int or float, optional
-            Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
-        units : str, optional
-            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
-
-        clear : boolean, optional
-            If set to ``True``, all other subranges will be suppressed except the current one under creation.
-            Default value is ``False``.
-
-        Returns
-        -------
-        bool
-        """
-
-        if self.setuptype != 7:
-            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
-            return False
-        legacy_update = self.auto_update
-        self.auto_update = False
-        props = OrderedDict()
-        props["RangeType"] = range_type
-        props["RangeStart"] = "{}{}".format(start, units)
-        if range_type == "LinearStep":
-            props["RangeEnd"] = "{}{}".format(end, units)
-            props["RangeStep"] = "{}{}".format(count, units)
-        elif range_type == "LinearCount":
-            props["RangeEnd"] = "{}{}".format(end, units)
-            props["RangeCount"] = count
-        elif range_type == "LogScale":
-            props["RangeEnd"] = "{}{}".format(end, units)
-            props["RangeSamples"] = count
-        elif range_type == "SinglePoints":
-            props["RangeEnd"] = "{}{}".format(start, units)
-        if clear:
-            self.props["SweepRanges"]["Subrange"] = props
-        elif isinstance(self.props["SweepRanges"]["Subrange"], list):
-            self.props["SweepRanges"]["Subrange"].append(props)
-        else:
-            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
-        self.update()
-        self.auto_update = legacy_update
-        return True
-
-    @pyaedt_function_handler()
-    def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
-        """Enable HFSS single frequency setup.
-
-        Parameters
-        ----------
-        freq : float, str, optional
-            Frequency at which to set the adaptive convergence.
-            The default is ``None`` which will not update the value in setup.
-            You can enter a float value in (GHz) or a string.
-        max_passes : int, optional
-            Maximum number of adaptive passes. The default is ``None`` which will not update the value in setup.
-        max_delta_s : float, optional
-            Delta S convergence criteria. The default is ``None`` which will not update the value in setup.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
-            self._app.logger.error("Method applies only to HFSS-driven solutions.")
-            return False
-        self.auto_update = False
-        self.props["SolveType"] = "Single"
-        if isinstance(freq, (int, float)):
-            freq = "{}GHz".format(freq)
-        if freq:
-            self.props["Frequency"] = freq
-        if max_passes:
-            self.props["MaximumPasses"] = max_passes
-        if max_delta_s:
-            self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
-
-    @pyaedt_function_handler()
-    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
-        """Enable HFSS broadband setup.
-
-        Parameters
-        ----------
-        low_frequency : float, str
-            Lower Frequency at which set the adaptive convergence.
-            It can be float (GHz) or str.
-        high_frquency : float, str
-            Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
-        max_passes : int, optional
-            Maximum number of adaptive passes. The default is ``6``.
-        max_delta_s : float, optional
-            Delta S Convergence criteria. The default is ``0.02``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
-            self._app.logger.error("Method applies only to HFSS-driven solutions.")
-            return False
-        self.auto_update = False
-        self.props["SolveType"] = "BroadBand"
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
-        if isinstance(low_frequency, (int, float)):
-            low_frequency = "{}GHz".format(low_frequency)
-        if isinstance(high_frquency, (int, float)):
-            high_frquency = "{}GHz".format(high_frquency)
-        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
-        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
-        self.props["MaximumPasses"] = max_passes
-        self.props["MaxDeltaS"] = max_delta_s
-        self.auto_update = True
-        return self.update()
-
-    @pyaedt_function_handler()
-    def enable_adaptive_setup_multifrequency(self, frequencies, max_delta_s=0.02):
-        """Enable HFSS multi-frequency setup.
-
-        Parameters
-        ----------
-        frequencies : list
-            Frequency at which to set the adaptive convergence. You can enter list entries
-            as float values in GHz or as strings.
-        max_delta_s : list, float
-            Delta S convergence criteria. The default is ``0.02``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
-            self._app.logger.error("Method applies only to HFSS-driven solutions.")
-            return False
-        self.auto_update = False
-        self.props["SolveType"] = "MultiFrequency"
-        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
-            del self.props["MultipleAdaptiveFreqsSetup"][el]
-        i = 0
-        for f in frequencies:
-            if isinstance(max_delta_s, float):
-                if isinstance(f, (int, float)):
-                    f = "{}GHz".format(f)
-                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
-            else:
-                if isinstance(f, (int, float)):
-                    f = "{}GHz".format(f)
-                try:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
-                except IndexError:
-                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
-            i += 1
-        self.auto_update = True
-        return self.update()
 
 
 class SetupCircuit(CommonSetup):
@@ -1699,11 +1490,6 @@ class SetupHFSS(Setup, object):
     ):
         """Create a Sweep with a specified frequency step.
 
-        References
-        ----------
-
-        >>> oModule.InsertFrequencySweep
-
         Parameters
         ----------
         setupname : str
@@ -1730,6 +1516,11 @@ class SetupHFSS(Setup, object):
         -------
         :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
 
         Examples
         --------
@@ -1888,3 +1679,507 @@ class SetupHFSS(Setup, object):
                 self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
+
+    @pyaedt_function_handler()
+    def add_sweep(self, sweepname=None, sweeptype="Interpolating"):
+        """Add a sweep to the project.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. The default is ``None``.
+        sweeptype : str, optional
+            Type of the sweep. The default is ``"Interpolating"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
+            Sweep object.
+
+        References
+        ----------
+
+        >>> oModule.InsertFrequencySweep
+        """
+        if not sweepname:
+            sweepname = generate_unique_name("Sweep")
+        if self.setuptype == 7:
+            self._app.logger.warning("This method only applies to HFSS and Q3D. Use add_eddy_current_sweep method.")
+            return False
+        if self.setuptype <= 4:
+            sweep_n = SweepHFSS(self, sweepname=sweepname, sweeptype=sweeptype)
+        elif self.setuptype in [14, 30, 31]:
+            sweep_n = SweepMatrix(self, sweepname=sweepname, sweeptype=sweeptype)
+        else:
+            self._app.logger.warning("This method only applies to HFSS, Q2D and Q3D.")
+            return False
+        sweep_n.create()
+        self.sweeps.append(sweep_n)
+        return sweep_n
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
+        """Enable HFSS single frequency setup.
+
+        Parameters
+        ----------
+        freq : float, str, optional
+            Frequency at which to set the adaptive convergence.
+            The default is ``None`` which will not update the value in setup.
+            You can enter a float value in (GHz) or a string.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``None`` which will not update the value in setup.
+        max_delta_s : float, optional
+            Delta S convergence criteria. The default is ``None`` which will not update the value in setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "Single"
+        if isinstance(freq, (int, float)):
+            freq = "{}GHz".format(freq)
+        if freq:
+            self.props["Frequency"] = freq
+        if max_passes:
+            self.props["MaximumPasses"] = max_passes
+        if max_delta_s:
+            self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
+        """Enable HFSS broadband setup.
+
+        Parameters
+        ----------
+        low_frequency : float, str
+            Lower Frequency at which set the adaptive convergence.
+            It can be float (GHz) or str.
+        high_frquency : float, str
+            Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``6``.
+        max_delta_s : float, optional
+            Delta S Convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "BroadBand"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        if isinstance(low_frequency, (int, float)):
+            low_frequency = "{}GHz".format(low_frequency)
+        if isinstance(high_frquency, (int, float)):
+            high_frquency = "{}GHz".format(high_frquency)
+        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
+        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
+        self.props["MaximumPasses"] = max_passes
+        self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_multifrequency(self, frequencies, max_delta_s=0.02):
+        """Enable HFSS multi-frequency setup.
+
+        Parameters
+        ----------
+        frequencies : list
+            Frequency at which to set the adaptive convergence. You can enter list entries
+            as float values in GHz or as strings.
+        max_delta_s : list, float
+            Delta S convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "MultiFrequency"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        i = 0
+        for f in frequencies:
+            if isinstance(max_delta_s, float):
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+            else:
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                try:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                except IndexError:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+            i += 1
+        self.auto_update = True
+        return self.update()
+
+
+class SetupHFSSAuto(Setup, object):
+    """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+        Inherited app object.
+    solutiontype : int, str
+        Type of the setup.
+    setupname : str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup : bool, optional
+        Whether to create the setup from a template. The default is ``True``.
+        If ``False``, access is to the existing setup.
+
+    """
+
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @pyaedt_function_handler()
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
+        """Add a subrange to the sweep.
+
+        Parameters
+        ----------
+        rangetype : str
+            Type of the subrange. Options are ``"LinearCount"``,
+            ``"LinearStep"``, and ``"LogScale"``.
+        start : float
+            Starting frequency.
+        end : float
+            Stopping frequency.
+        count : int or float
+            Frequency count or frequency step.
+        unit : str, optional
+            Frequency Units.
+        clear : bool, optional
+            Either if the subrange has to be appended to existing ones or replace them.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if clear:
+            self.props["Sweeps"]["Sweep"]["RangeType"] = rangetype
+            self.props["Sweeps"]["Sweep"]["RangeStart"] = str(start) + unit
+            if rangetype == "LinearCount":
+                self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
+                self.props["Sweeps"]["Sweep"]["RangeCount"] = count
+            elif rangetype == "LinearStep":
+                self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
+                self.props["Sweeps"]["Sweep"]["RangeStep"] = str(count) + unit
+            elif rangetype == "LogScale":
+                self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
+                self.props["Sweeps"]["Sweep"]["RangeSamples"] = count
+            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
+            return self.update()
+        sweep_range = {"RangeType": rangetype, "RangeStart": str(start) + unit}
+        if rangetype == "LinearCount":
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = count
+        elif rangetype == "LinearStep":
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeStep"] = str(count) + unit
+        elif rangetype == "LogScale":
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = self.props["RangeCount"]
+            sweep_range["RangeSamples"] = count
+        if not self.props["Sweeps"]["Sweep"].get("SweepRanges") or not self.props["Sweeps"]["Sweep"]["SweepRanges"].get(
+            "Subrange"
+        ):
+            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
+        self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
+        """Enable HFSS single frequency setup.
+
+        Parameters
+        ----------
+        freq : float, str, optional
+            Frequency at which to set the adaptive convergence.
+            The default is ``None`` which will not update the value in setup.
+            You can enter a float value in (GHz) or a string.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``None`` which will not update the value in setup.
+        max_delta_s : float, optional
+            Delta S convergence criteria. The default is ``None`` which will not update the value in setup.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "Single"
+        if isinstance(freq, (int, float)):
+            freq = "{}GHz".format(freq)
+        if freq:
+            self.props["Frequency"] = freq
+        if max_passes:
+            self.props["MaximumPasses"] = max_passes
+        if max_delta_s:
+            self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_broadband(self, low_frequency, high_frquency, max_passes=6, max_delta_s=0.02):
+        """Enable HFSS broadband setup.
+
+        Parameters
+        ----------
+        low_frequency : float, str
+            Lower Frequency at which set the adaptive convergence.
+            It can be float (GHz) or str.
+        high_frquency : float, str
+            Lower Frequency at which set the adaptive convergence. It can be float (GHz) or str.
+        max_passes : int, optional
+            Maximum number of adaptive passes. The default is ``6``.
+        max_delta_s : float, optional
+            Delta S Convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "BroadBand"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        if isinstance(low_frequency, (int, float)):
+            low_frequency = "{}GHz".format(low_frequency)
+        if isinstance(high_frquency, (int, float)):
+            high_frquency = "{}GHz".format(high_frquency)
+        self.props["MultipleAdaptiveFreqsSetup"]["Low"] = low_frequency
+        self.props["MultipleAdaptiveFreqsSetup"]["High"] = high_frquency
+        self.props["MaximumPasses"] = max_passes
+        self.props["MaxDeltaS"] = max_delta_s
+        self.auto_update = True
+        return self.update()
+
+    @pyaedt_function_handler()
+    def enable_adaptive_setup_multifrequency(self, frequencies, max_delta_s=0.02):
+        """Enable HFSS multi-frequency setup.
+
+        Parameters
+        ----------
+        frequencies : list
+            Frequency at which to set the adaptive convergence. You can enter list entries
+            as float values in GHz or as strings.
+        max_delta_s : list, float
+            Delta S convergence criteria. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.setuptype != 1 or self.p_app.solution_type not in ["Modal", "Terminal"]:
+            self._app.logger.error("Method applies only to HFSS-driven solutions.")
+            return False
+        self.auto_update = False
+        self.props["SolveType"] = "MultiFrequency"
+        for el in list(self.props["MultipleAdaptiveFreqsSetup"].keys()):
+            del self.props["MultipleAdaptiveFreqsSetup"][el]
+        i = 0
+        for f in frequencies:
+            if isinstance(max_delta_s, float):
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s]
+            else:
+                if isinstance(f, (int, float)):
+                    f = "{}GHz".format(f)
+                try:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [max_delta_s[i]]
+                except IndexError:
+                    self.props["MultipleAdaptiveFreqsSetup"][f] = [0.02]
+            i += 1
+        self.auto_update = True
+        return self.update()
+
+
+class SetupSBR(Setup, object):
+    """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+        Inherited app object.
+    solutiontype : int, str
+        Type of the setup.
+    setupname : str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup : bool, optional
+        Whether to create the setup from a template. The default is ``True``.
+        If ``False``, access is to the existing setup.
+
+    """
+
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @pyaedt_function_handler()
+    def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):
+        """Add a subrange to the sweep.
+
+        Parameters
+        ----------
+        rangetype : str
+            Type of the subrange. Options are ``"LinearCount"``,
+            ``"LinearStep"``, and ``"LogScale"``.
+        start : float
+            Starting frequency.
+        end : float
+            Stopping frequency.
+        count : int or float
+            Frequency count or frequency step.
+        unit : str, optional
+            Frequency Units.
+        clear : bool, optional
+            Either if the subrange has to be appended to existing ones or replace them.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if clear:
+            self.props["Sweeps"]["Sweep"]["RangeType"] = rangetype
+            self.props["Sweeps"]["Sweep"]["RangeStart"] = str(start) + unit
+            if rangetype == "LinearCount":
+                self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
+                self.props["Sweeps"]["Sweep"]["RangeCount"] = count
+            elif rangetype == "LinearStep":
+                self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
+                self.props["Sweeps"]["Sweep"]["RangeStep"] = str(count) + unit
+            elif rangetype == "LogScale":
+                self.props["Sweeps"]["Sweep"]["RangeEnd"] = str(end) + unit
+                self.props["Sweeps"]["Sweep"]["RangeSamples"] = count
+            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
+            return self.update()
+        sweep_range = {"RangeType": rangetype, "RangeStart": str(start) + unit}
+        if rangetype == "LinearCount":
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = count
+        elif rangetype == "LinearStep":
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeStep"] = str(count) + unit
+        elif rangetype == "LogScale":
+            sweep_range["RangeEnd"] = str(end) + unit
+            sweep_range["RangeCount"] = self.props["RangeCount"]
+            sweep_range["RangeSamples"] = count
+        if not self.props["Sweeps"]["Sweep"].get("SweepRanges") or not self.props["Sweeps"]["Sweep"]["SweepRanges"].get(
+            "Subrange"
+        ):
+            self.props["Sweeps"]["Sweep"]["SweepRanges"] = {"Subrange": []}
+        self.props["Sweeps"]["Sweep"]["SweepRanges"]["Subrange"].append(sweep_range)
+        return self.update()
+
+
+class SetupMaxwell(Setup, object):
+    """Initializes, creates, and updates an HFSS setup.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+        Inherited app object.
+    solutiontype : int, str
+        Type of the setup.
+    setupname : str, optional
+        Name of the setup. The default is ``"MySetupAuto"``.
+    isnewsetup : bool, optional
+        Whether to create the setup from a template. The default is ``True``.
+        If ``False``, access is to the existing setup.
+
+    """
+
+    def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
+        Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @pyaedt_function_handler()
+    def add_eddy_current_sweep(self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True):
+        """Create a Maxwell Eddy Current Sweep.
+
+        Parameters
+        ----------
+        range_type : str
+            Type of the subrange. Options are ``"LinearCount"``,
+            ``"LinearStep"``, ``"LogScale"`` and ``"SinglePoints"``.
+        start : float
+            Starting frequency.
+        end : float, optional
+            Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        count : int or float, optional
+            Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+        units : str, optional
+            Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
+
+        clear : boolean, optional
+            If set to ``True``, all other subranges will be suppressed except the current one under creation.
+            Default value is ``False``.
+
+        Returns
+        -------
+        bool
+        """
+
+        if self.setuptype != 7:
+            self._app.logger.warning("This method only applies to Maxwell Eddy Current Solution.")
+            return False
+        legacy_update = self.auto_update
+        self.auto_update = False
+        props = OrderedDict()
+        props["RangeType"] = range_type
+        props["RangeStart"] = "{}{}".format(start, units)
+        if range_type == "LinearStep":
+            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeStep"] = "{}{}".format(count, units)
+        elif range_type == "LinearCount":
+            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeCount"] = count
+        elif range_type == "LogScale":
+            props["RangeEnd"] = "{}{}".format(end, units)
+            props["RangeSamples"] = count
+        elif range_type == "SinglePoints":
+            props["RangeEnd"] = "{}{}".format(start, units)
+        if clear:
+            self.props["SweepRanges"]["Subrange"] = props
+        elif isinstance(self.props["SweepRanges"]["Subrange"], list):
+            self.props["SweepRanges"]["Subrange"].append(props)
+        else:
+            self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
+        self.update()
+        self.auto_update = legacy_update
+        return True
