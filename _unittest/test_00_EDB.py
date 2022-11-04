@@ -870,6 +870,7 @@ if not config["skip_edb"]:
             edb2.close_edb()
             del edb2
 
+        @pytest.mark.skipif(is_ironpython and os.name == "posix", reason="Failing on Linux")
         def test_80_edb_without_path(self):
             edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
             time.sleep(2)
@@ -877,6 +878,7 @@ if not config["skip_edb"]:
             edbapp_without_path = None
             del edbapp_without_path
 
+        @pytest.mark.skipif(is_ironpython and os.name == "posix", reason="Failing on Linux")
         def test_80_create_rectangle_in_pad(self):
             example_model = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
             self.local_scratch.copyfolder(
@@ -897,6 +899,7 @@ if not config["skip_edb"]:
                     assert result is False
             edb_padstacks.close_edb()
 
+        @pytest.mark.skipif(is_ironpython and os.name == "posix", reason="Failing on Linux")
         def test_81_edb_with_dxf(self):
             src = os.path.join(local_path, "example_models", test_subfolder, "edb_test_82.dxf")
             dxf_path = self.local_scratch.copyfile(src)

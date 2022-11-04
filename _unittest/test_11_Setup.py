@@ -42,6 +42,7 @@ class TestClass(BasisTest, object):
         setup1.enable()
 
     def test_01b_create_hfss_sweep(self):
+        self.aedtapp.save_project()
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
         assert self.aedtapp.get_setups()
         sweep1 = setup1.add_sweep("MyFrequencySweep")
@@ -88,3 +89,17 @@ class TestClass(BasisTest, object):
         assert setup1.delete()
         assert len(self.aedtapp.setups) == 0
         assert not self.aedtapp.get_setups()
+
+    def test_05_sweep_auto(self):
+        self.aedtapp.insert_design("sweep")
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
+        assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
+
+    def test_06_sweep_sbr(self):
+        self.aedtapp.insert_design("sweepsbr")
+        self.aedtapp.solution_type = "SBR+"
+        self.aedtapp.insert_infinite_sphere()
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", self.aedtapp.SETUPS.HFSSSBR)
+        assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
+        assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
