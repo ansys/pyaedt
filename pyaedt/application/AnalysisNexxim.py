@@ -606,7 +606,7 @@ class Sources(object):
     def __init__(self, app, name):
         self._app = app
         self._name = name
-        self.props = self.source_props(name)
+        self.props = self._source_props(name)
         self.auto_update = True
 
     @property
@@ -639,7 +639,7 @@ class Sources(object):
         return self._app.logger
 
     @pyaedt_function_handler()
-    def source_props(self, source):
+    def _source_props(self, source):
         source_aedt_props = self._app.odesign.GetChildObject("Excitations").GetChildObject(source)
         source_prop_dict = {}
         for el in source_aedt_props.GetPropNames():
@@ -672,8 +672,15 @@ class Sources(object):
 
     @pyaedt_function_handler()
     def update(self, original_name=None):
+        """Update the source in AEDT.
 
-        # id = self.modeler.schematic.create_unique_id()
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
         arg0 = ["NAME:Data"]
         for source in self._app.sources:
             if source == self.name:
@@ -716,6 +723,24 @@ class Sources(object):
         self._app.odesign.UpdateSources(arg1, arg2)
         return True
 
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the source in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._app.modeler._odesign.DeleteSource(self.name)
+        for port in self._app.excitations:
+            if self.name in self._app.excitations[port].props["EnabledPorts"]:
+                self._app.excitations[port].props["EnabledPorts"].remove(self.name)
+            if self.name in self._app.excitations[port].props["EnabledAnalyses"]:
+                del self._app.excitations[port].props["EnabledAnalyses"][self.name]
+        return True
+
 
 class Excitations(object):
     """Manages Excitations in Circuit Projects.
@@ -728,7 +753,22 @@ class Excitations(object):
     def __init__(self, app, name):
         self._app = app
         self._name = name
-        self.props = self.excitation_props(name)
+        for comp in self._app.modeler.schematic.components:
+            if (
+                "PortName" in self._app.modeler.schematic.components[comp].parameters.keys()
+                and self._app.modeler.schematic.components[comp].parameters["PortName"] == self.name
+            ):
+                self.comp = comp
+                self.id = self._app.modeler.schematic.components[comp].id
+                self._angle = self._app.modeler.schematic.components[comp].angle
+                self.levels = self._app.modeler.schematic.components[comp].levels
+                self._location = self._app.modeler.schematic.components[comp].location
+                self._mirror = self._app.modeler.schematic.components[comp].mirror
+                self.pins = self._app.modeler.schematic.components[comp].pins
+                self.schematic_id = self._app.modeler.schematic.components[comp].schematic_id
+                self.usesymbolcolor = self._app.modeler.schematic.components[comp].usesymbolcolor
+                break
+        self.props = self._excitation_props(name)
         self.auto_update = True
 
     @property
@@ -745,15 +785,57 @@ class Excitations(object):
         else:
             self._logger.warning("Name %s already assigned in the design", port_name)
 
+    @property
+    def angle(self):
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle=None):
+        """Set the part angle."""
+        self._app.modeler.schematic.components[self.comp].angle = angle
+
+    @property
+    def mirror(self):
+        return self._mirror
+
+    @mirror.setter
+    def mirror(self, mirror_value=True):
+        """Mirror part.
+
+        Parameters
+        ----------
+        mirror_value : bool
+            Either to mirror the part. The default is ``True``.
+
+        Returns
+        -------
+
+        """
+        self._app.modeler.schematic.components[self.comp].mirror = mirror_value
+
+    @property
+    def location(self):
+        return self._location
+
+    @location.setter
+    def location(self, location_xy):
+        """Set the part location.
+
+        Parameters
+        ----------
+        location_xy : list
+            List of x and y coordinates. If float is provided, ``mils`` will be used.
+        """
+        self._app.modeler.schematic.components[self.comp].location = location_xy
+
     @pyaedt_function_handler()
-    def excitation_props(self, port):
+    def _excitation_props(self, port):
         excitation_prop_dict = {}
         for comp in self._app.modeler.schematic.components:
             if (
                 "PortName" in self._app.modeler.schematic.components[comp].parameters.keys()
                 and self._app.modeler.schematic.components[comp].parameters["PortName"] == port
             ):
-
                 excitation_prop_dict["rz"] = "50ohm"
                 excitation_prop_dict["iz"] = "0ohm"
                 excitation_prop_dict["term"] = None
@@ -813,6 +895,15 @@ class Excitations(object):
 
     @pyaedt_function_handler()
     def update(self):
+        """Update the excitation in AEDT. It only works with GRPC.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
         self._logger.warning("Property port update only working with GRPC")
 
         if self.props["RefNode"] == "Ground":
@@ -838,6 +929,13 @@ class Excitations(object):
                 ["NAME:RefNode", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self.props["RefNode"]],
             ]
 
+        # Modify Termination
+        if self.props["term"] and self.props["TerminationData"]:
+            arg2 = [
+                "NAME:NewProps",
+                ["NAME:term", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self.props["term"]],
+            ]
+
         for prop in self.props:
             skip1 = (prop == "rz" or prop == "iz") and isinstance(self.props["term"], str)
             skip2 = prop == "EnabledPorts" or prop == "EnabledMultipleComponents" or prop == "EnabledAnalyses"
@@ -852,6 +950,20 @@ class Excitations(object):
 
         for source in self._app.sources:
             self._app.sources[source].update()
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the port in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._app.modeler._odesign.DeletePort(self.name)
+        del self._app.excitations[self.name]
         return True
 
     @property
