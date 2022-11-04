@@ -721,7 +721,8 @@ class Design(AedtObjects):
                 toolkit_directory = (
                     settings.remote_rpc_session.filemanager.temp_dir() + "/" + self.project_name + ".pyaedt"
                 )
-
+        elif settings.remote_api:
+            toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
                 os.mkdir(toolkit_directory)
@@ -931,7 +932,7 @@ class Design(AedtObjects):
             self.logger.info("Project %s has been created.", self._oproject.GetName())
 
     def _add_handler(self):
-        if not self._oproject or not settings.enable_local_log_file:
+        if not self._oproject or not settings.enable_local_log_file or settings.remote_api:
             return
         for handler in self._global_logger._files_handlers:
             if "pyaedt_{}.log".format(self._oproject.GetName()) in str(handler):
