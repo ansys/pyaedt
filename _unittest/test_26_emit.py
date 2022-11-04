@@ -193,8 +193,19 @@ class TestClass(BasisTest, object):
         more_info = self.aedtapp2.version(True)
         assert str(type(less_info)) == "<class 'str'>"
         assert str(type(more_info)) == "<class 'str'>"
-        assert len(more_info) >  len(less_info)
-    '''
+        assert len(more_info) > len(less_info)
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
+    )
+    def test_analyze(self):
+        less_info = self.aedtapp2.version(False)
+        more_info = self.aedtapp2.version(True)
+        assert str(type(less_info)) == "<class 'str'>"
+        assert str(type(more_info)) == "<class 'str'>"
+        assert len(more_info) > len(less_info)
+        
+    """
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
     )
@@ -210,7 +221,7 @@ class TestClass(BasisTest, object):
         domain.set_interferers(radiosTX, bandsTX, list(tx_frequencies[0]))
         interaction = self.aedtapp2.results.revisions_list[-1].run(domain)
         emi_worst = interaction.worst_instance(Emit.result_type().emi)
-    '''
+    """
     """
     Please note: The test below should be maintained as the last test within this file to ensure,
     aedtapp functions as intended.
