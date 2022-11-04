@@ -204,7 +204,7 @@ class TestClass(BasisTest, object):
         assert str(type(less_info)) == "<class 'str'>"
         assert str(type(more_info)) == "<class 'str'>"
         assert len(more_info) > len(less_info)
-        
+
     """
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions lower than 2023.2"
