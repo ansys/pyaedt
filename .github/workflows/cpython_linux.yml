@@ -1,0 +1,66 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Linux_CPython_UnitTests
+
+
+# Controls when the workflow will run
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Linux CPython daily'
+  schedule:  # UTC at 0400
+    - cron:  '0 1 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "test"
+  test:
+    # The type of runner that the job will run on
+    runs-on: [Linux, pyaedt]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 'Create virtual env'
+        run: |
+          python -m venv testenv
+          testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: 'Install pyaedt'
+        run: |
+          python -m venv pyaedt_testenv
+          pyaedt_testenv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+          pip install .
+          pip install -r requirements_test.txt
+          pip install pytest-azurepipelines
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+          mkdir tmp
+          cd tmp
+          python -c "import pyaedt; print('Imported pyaedt')"
+
+      - name: 'Unit testing'
+        run: |
+          testenv\Scripts\Activate.ps1
+          pytest -n 4 --dist loadfile -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest -p no:faulthandler
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-results
+          path: junit/test-results.xml
+        if: ${{ always() }}
