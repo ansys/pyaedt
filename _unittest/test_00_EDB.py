@@ -448,8 +448,8 @@ if not config["skip_edb"]:
 
         def test_45_delete_net(self):
             self.edbapp.core_nets.nets["AVIN1"].delete()
-            nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
-            assert "A0_N" in nets_deleted
+            nets_deleted = self.edbapp.core_nets.delete_nets("M_MA<7>")
+            assert "M_MA<7>" in nets_deleted
 
         def test_46_get_polygons_bounding(self):
             polys = self.edbapp.core_primitives.get_polygons_by_layer("GND")
