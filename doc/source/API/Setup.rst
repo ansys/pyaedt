@@ -14,6 +14,10 @@ The ``Setup`` object is accessible through the ``create_setup`` method and ``set
    :toctree: _autosummary
    :nosignatures:
 
+   SetupHFSS
+   SetupHFSSAuto
+   SetupSBR
+   SetupMaxwell
    Setup
    Setup3DLayout
    SetupCircuit
@@ -41,7 +45,7 @@ This section lists sweep classes and their default values:
 
 * ``SweepHFSS`` for HFSS
 * ``SweepHFSS3DLayout`` for HFSS 3D Layout
-* ``SweepQ3D`` for Q3D Extractor
+* ``SweepMatrix`` for Q3D and 2D Extractor
 
 The ``Setup`` object is accessible through the methods available for sweep creation.
 
@@ -54,4 +58,4 @@ The ``Setup`` object is accessible through the methods available for sweep creat
 
    SweepHFSS
    SweepHFSS3DLayout
-   SweepQ3D
+   SweepMatrix

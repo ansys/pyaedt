@@ -57,33 +57,24 @@ for par_name in params:
 # Define stackup layers
 # ~~~~~~~~~~~~~~~~~~~~~
 # Define the stackup layers from bottom to top.
-# Note that in the stackup definition, ``"layer_type":0`` is signal and
-# ``"layer_type":1`` is dielectric.
 
-layers = [{"name": "bottom", "layer_type": 0, "thickness": "35um", "material": "copper"},
-          {"name": "diel_3", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "sig_2", "layer_type": 0, "thickness": "35um", "material": "copper"},
-          {"name": "diel_2", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "sig_1", "layer_type": 0, "thickness": "35um", "material": "copper"},
-          {"name": "diel_1", "layer_type": 1, "thickness": "275um", "material": "FR4_epoxy"},
-          {"name": "top", "layer_type": 0, "thickness": "35um", "material": "copper"}]
+
+layers = [{"name": "bottom", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+          {"name": "diel_3", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "sig_2", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+          {"name": "diel_2", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "sig_1", "layer_type": "signal", "thickness": "35um", "material": "copper"},
+          {"name": "diel_1", "layer_type": "dielectric", "thickness": "275um", "material": "FR4_epoxy"},
+          {"name": "top", "layer_type": "signal", "thickness": "35um", "material": "copper"}]
 
 
 # Create EDB stackup.
 # Bottom layer
-
-edb.core_stackup.stackup_layers.add_layer(layers[0]["name"],
-                                          layerType=layers[0]["layer_type"],
-                                          thickness=layers[0]["thickness"],
-                                          material=layers[0]["material"])  # Insert first layer
-# All subsequent layers
-
-for n in range(len(layers)-1):
-    edb.core_stackup.stackup_layers.add_layer(layers[n+1]["name"],
-                                              layers[n]["name"],
-                                              layerType=layers[n+1]["layer_type"],
-                                              thickness=layers[n+1]["thickness"],
-                                              material=layers[n+1]["material"])
+prev = None
+for layer in layers:
+    edb.stackup.add_layer(layer["name"], base_layer=prev, layer_type=layer["layer_type"], thickness=layer["thickness"],
+                                          material=layer["material"])
+    prev = layer["name"]
 
 ###############################################################################
 # Create padstack for signal via

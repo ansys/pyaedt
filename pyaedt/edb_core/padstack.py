@@ -5,8 +5,8 @@ import math
 import os
 import warnings
 
-from pyaedt.edb_core.EDB_Data import EDBPadstack
-from pyaedt.edb_core.EDB_Data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstack
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -141,7 +141,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EdbPadstack`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EdbPadstack`]
             List of padstacks via padstack definitions.
 
         """
@@ -156,7 +156,7 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBPadstackInstance`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`]
             List of padstack instances.
 
         """
@@ -539,17 +539,15 @@ class EdbPadstacks(object):
 
         if not isinstance(net_list, list):
             net_list = [net_list]
-        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        layout_lobj_collection = list(self._active_layout.PadstackInstances)
         via_list = []
-        for obj in layout_lobj_collection.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
-                if len(pad_layers_name) > 1:
-                    if not net_list:
-                        via_list.append(lobj)
-                    elif lobj.GetNet().GetName() in net_list:
-                        via_list.append(lobj)
+        for lobj in layout_lobj_collection:
+            pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
+            if len(pad_layers_name) > 1:
+                if not net_list:
+                    via_list.append(lobj)
+                elif lobj.GetNet().GetName() in net_list:
+                    via_list.append(lobj)
         return via_list
 
     @pyaedt_function_handler()
@@ -846,7 +844,7 @@ class EdbPadstacks(object):
         antipad_y_offset=0,
         antipad_rotation=0,
     ):
-        """Set pad and antipad properites of the padstack.
+        """Set pad and antipad properties of the padstack.
 
         Parameters
         ----------
@@ -936,12 +934,10 @@ class EdbPadstacks(object):
     @pyaedt_function_handler()
     def update_padstack_instances(self):
         """Update Padstack Instance List."""
-        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        layout_lobj_collection = list(self._active_layout.PadstackInstances)
         self._padstack_instances = {}
-        for obj in layout_lobj_collection.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
+        for lobj in layout_lobj_collection:
+            self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
     @pyaedt_function_handler()
     def get_padstack_instance_by_net_name(self, net_name):

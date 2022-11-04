@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
+import os
 import sys
+import tempfile
+import time
+from logging.handlers import RotatingFileHandler
 
-from pyaedt import log_handler
 from pyaedt import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
@@ -17,7 +20,7 @@ class MessageList:
     Collects and returns messages from the AEDT message manager for a specified project name and design name.
 
     Parameters
-    ---------
+    ----------
     msg_list : list
         List of messages extracted from AEDT.
     project_name : str
@@ -119,47 +122,100 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
-        main = sys.modules["__main__"]
 
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
-        # if is_ironpython:
-        #     logging.basicConfig()
+
         self._global = logging.getLogger("Global")
-        self._file_handler = None
+        if not settings.enable_logger:
+            self._global.addHandler(logging.NullHandler())
+            return
+
+        self._files_handlers = []
+        self._projects = {}
+
+        # if not self._global.handlers:
+        #     self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
+        self._global.setLevel(level)
+        self._global.addFilter(AppFilter())
+
         self._std_out_handler = None
         if settings.formatter:
             self.formatter = settings.formatter
         else:
             self.formatter = logging.Formatter(settings.logger_formatter, datefmt=settings.logger_datefmt)
-        if not settings.enable_logger:
-            self._global.addHandler(logging.NullHandler())
-            return
-
-        if self._global.handlers:
-            if "messenger" in dir(self._global.handlers[0]):
-                self._global.removeHandler(self._global.handlers[0])
-                if self._global.handlers:
-                    self._global.removeHandler(self._global.handlers[0])
-        if not self._global.handlers:
-            self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
-            main._aedt_handler = self._global.handlers
-            self._global.setLevel(level)
-            self._global.addFilter(AppFilter())
-
-        if self.filename:
-            self._file_handler = logging.FileHandler(self.filename)
-            self._file_handler.setLevel(level)
-            self._file_handler.setFormatter(self.formatter)
-            self._global.addHandler(self._file_handler)
+        global_handler = False
+        for handler in self._global.handlers:
+            if settings.global_log_file_name in str(handler):
+                global_handler = True
+                break
+        log_file = os.path.join(tempfile.gettempdir(), settings.global_log_file_name)
+        my_handler = RotatingFileHandler(
+            log_file,
+            mode="a",
+            maxBytes=float(settings.global_log_file_size) * 1024 * 1024,
+            backupCount=2,
+            encoding=None,
+            delay=0,
+        )
+        my_handler.setFormatter(self.formatter)
+        my_handler.setLevel(self.level)
+        if not global_handler and settings.global_log_file_name:
+            self._global.addHandler(my_handler)
+        self._files_handlers.append(my_handler)
+        if self.filename and os.path.exists(self.filename):
+            os.remove(self.filename)
+        if self.filename and settings.enable_local_log_file:
+            self.add_file_logger(self.filename, "Global", level)
 
         if to_stdout:
-            self._std_out_handler = logging.StreamHandler()
+            self._std_out_handler = logging.StreamHandler(sys.stdout)
             self._std_out_handler.setLevel(level)
+            _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
 
-            self._std_out_handler.setFormatter(self.formatter)
+            self._std_out_handler.setFormatter(_logger_stdout_formatter)
             self._global.addHandler(self._std_out_handler)
+        self._timer = time.time()
+
+    def add_file_logger(self, filename, project_name, level=None):
+        """Add a new file to the logger handlers list."""
+        _project = logging.getLogger(project_name)
+        # _project.addHandler(log_handler.LogHandler(self, "Project", level if level else self.level))
+        _project.setLevel(level if level else self.level)
+        _project.addFilter(AppFilter("Project", project_name))
+        _file_handler = logging.FileHandler(filename)
+        _file_handler.setLevel(level if level else self.level)
+        _file_handler.setFormatter(self.formatter)
+        _project.addHandler(_file_handler)
+        if self._std_out_handler is not None:
+            _project.addHandler(self._std_out_handler)
+        for handler in self._global.handlers:
+            if settings.global_log_file_name in str(handler):
+                _project.addHandler(handler)
+                break
+        self.info("New logger file {} added to handlers.".format(filename))
+        self._files_handlers.append(_file_handler)
+        return _project
+
+    def remove_file_logger(self, project_name):
+        """Remove a file from the logger handlers list."""
+        handlers = [i for i in self._global.handlers]
+        for handler in self._files_handlers:
+            if "pyaedt_{}.log".format(project_name) in str(handler):
+                handler.close()
+                if handler in handlers:
+                    self._global.removeHandler(handler)
+        self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
+
+    def remove_all_project_file_logger(self):
+        """Remove all the local files from the logger handlers list."""
+        handlers = [i for i in self._global.handlers]
+        for handler in handlers:
+            if "pyaedt_" in str(handler):
+                handler.close()
+                self._global.removeHandler(handler)
+        self.info("Project files removed from handlers.")
 
     @property
     def _desktop(self):
@@ -199,7 +255,7 @@ class AedtLogger(object):
     def logger(self):
         """AEDT logger object."""
         if self._log_on_file:
-            return logging.getLogger(__name__)
+            return logging.getLogger("Global")
         else:
             return None  # pragma: no cover
 
@@ -214,6 +270,24 @@ class AedtLogger(object):
 
         """
         return self.get_messages(self._project_name, self._design_name)
+
+    def reset_timer(self, time_val=None):
+        """ "Reset actual timer to  actual time or specified time.
+
+        Parameters
+        ----------
+        time_val : float, optional
+            Value time to apply.
+
+        Returns
+        -------
+
+        """
+        """Reset actual timer from now."""
+        if time_val:
+            self._timer = time_val
+        else:
+            self._timer = time.time()
 
     def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages=False):
         """Get the message manager content for a specified project and design.
@@ -319,35 +393,22 @@ class AedtLogger(object):
         """
         self.add_message(0, message_text, level)
 
-    def add_debug_message(self, message_type, message_text):
+    def add_debug_message(self, message_text, level=None):
         """
         Parameterized message to the message manager to specify the type and project or design level.
 
         Parameters
         ----------
-        message_type : int
-            Type of the message. Options are:
-
-            * ``0`` : Info
-            * ``1`` : Warning
-            * ``2`` : Error
-
         message_text : str
             Text to display as the message.
-
+        level : str, optional
+            Level to add the info message to. Options are ``"Global"``,
+            ``"Project"``, and ``"Design"``. The default value is ``None``,
+            in which case the info message gets added to the ``"Design"``
+            level.
         """
 
-        if len(message_text) > 250:
-            message_text = message_text[:250] + "..."
-
-        # Print to stdout and to logger
-        if self._log_on_file:
-            if message_type == 0 and self.logger:
-                self.logger.debug(message_text)
-            elif message_type == 1 and self.logger:
-                self.logger.warning(message_text)
-            elif message_type == 2 and self.logger:
-                self.logger.error(message_text)
+        return self.add_message(3, message_text, level=level)
 
     def add_message(self, message_type, message_text, level=None, proj_name=None, des_name=None):
         """Add a message to the message manager to specify the type and project or design level.
@@ -359,6 +420,7 @@ class AedtLogger(object):
             * ``0`` : Info
             * ``1`` : Warning
             * ``2`` : Error
+            * ``3`` : Debug
         message_text : str
             Text to display as the message.
         level : str, optional
@@ -371,6 +433,13 @@ class AedtLogger(object):
         des_name : str, optional
             Name of the design.
         """
+        self._log_on_dekstop(
+            message_type=message_type, message_text=message_text, level=level, proj_name=proj_name, des_name=des_name
+        )
+
+        self._log_on_handler(message_type, message_text)
+
+    def _log_on_dekstop(self, message_type, message_text, level=None, proj_name=None, des_name=None):
         if not proj_name:
             proj_name = ""
 
@@ -392,26 +461,21 @@ class AedtLogger(object):
             try:
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
-                print("pyaedt info: Failed in Adding Desktop Message")
+                print("pyaedt INFO: Failed in Adding Desktop Message")
 
+    def _log_on_handler(self, message_type, message_text, *args, **kwargs):
+        if not (self._log_on_file or self._log_on_screen) or not self._global:
+            return
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."
-
-        # Print to stdout and to logger
-        if self._log_on_screen:
-            if message_type == 0:
-                print("pyaedt info: {}".format(message_text))
-            elif message_type == 1:
-                print("pyaedt warning: {}".format(message_text))
-            elif message_type == 2:
-                print("pyaedt error: {}".format(message_text))
-        if self._log_on_file:
-            if message_type == 0 and self.logger:
-                self.logger.debug(message_text)
-            elif message_type == 1 and self.logger:
-                self.logger.warning(message_text)
-            elif message_type == 2 and self.logger:
-                self.logger.error(message_text)
+        if message_type == 0:
+            self._global.info(message_text, *args, **kwargs)
+        elif message_type == 1:
+            self._global.warning(message_text, *args, **kwargs)
+        elif message_type == 2:
+            self._global.error(message_text, *args, **kwargs)
+        elif message_type == 3:
+            self._global.debug(message_text, *args, **kwargs)
 
     def clear_messages(self, proj_name=None, des_name=None, level=2):
         """Clear all messages.
@@ -490,11 +554,12 @@ class AedtLogger(object):
         if destination == "Project":
             project_name = self._project_name
             self._project = logging.getLogger(project_name)
-            self._project.addHandler(log_handler.LogHandler(self, "Project", level))
+            # self._project.addHandler(log_handler.LogHandler(self, "Project", level))
             self._project.setLevel(level)
             self._project.addFilter(AppFilter("Project", project_name))
-            if self._file_handler is not None:
-                self._project.addHandler(self._file_handler)
+            if self._files_handlers:
+                for handler in self._files_handlers:
+                    self._project.addHandler(handler)
             if self._std_out_handler is not None:
                 self._project.addHandler(self._std_out_handler)
             return self._project
@@ -502,11 +567,12 @@ class AedtLogger(object):
             project_name = self._project_name
             design_name = self._design_name
             self._design = logging.getLogger(project_name + ":" + design_name)
-            self._design.addHandler(log_handler.LogHandler(self, "Design", level))
+            # self._design.addHandler(log_handler.LogHandler(self, "Design", level))
             self._design.setLevel(level)
             self._design.addFilter(AppFilter("Design", design_name))
-            if self._file_handler is not None:
-                self._design.addHandler(self._file_handler)
+            if self._files_handlers:
+                for handler in self._files_handlers:
+                    self._design.addHandler(handler)
             if self._std_out_handler is not None:
                 self._design.addHandler(self._std_out_handler)
             return self._design
@@ -525,40 +591,71 @@ class AedtLogger(object):
         """Disable printing log messages to stdout."""
         self._log_on_screen = False
         self._global.removeHandler(self._std_out_handler)
+        self.info("StdOut has been disabled")
 
     def enable_stdout_log(self):
         """Enable printing log messages to stdout."""
         self._log_on_screen = True
+        if not self._std_out_handler:
+            self._std_out_handler = logging.StreamHandler(sys.stdout)
+            self._std_out_handler.setLevel(self.level)
+            _logger_stdout_formatter = logging.Formatter("pyaedt %(levelname)s: %(message)s")
+
+            self._std_out_handler.setFormatter(_logger_stdout_formatter)
+            self._global.addHandler(self._std_out_handler)
+        self._global.addHandler(self._std_out_handler)
+        self.info("StdOut has been enabled")
 
     def disable_log_on_file(self):
         """Disable writing log messages to an output file."""
         self._log_on_file = False
-        self._file_handler.close()
-        self._global.removeHandler(self._file_handler)
+        for _file_handler in self._files_handlers:
+            _file_handler.close()
+            self._global.removeHandler(_file_handler)
+        self.info("Log on file has been disabled")
 
     def enable_log_on_file(self):
         """Enable writing log messages to an output file."""
         self._log_on_file = True
-        self._file_handler = logging.FileHandler(self.filename)
-        self._file_handler.setLevel(self.level)
-        self._file_handler.setFormatter(self.formatter)
-        self._global.addHandler(self._file_handler)
+        for _file_handler in self._files_handlers:
+            self._global.addHandler(_file_handler)
+        self.info("Log on file has been enabled")
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
-        return self._global.info(msg, *args, **kwargs)
+        self._log_on_dekstop(0, msg, "Global")
+        return self._log_on_handler(0, msg, *args, **kwargs)
+
+    def info_timer(self, msg, *args, **kwargs):
+        """Write an info message to the global logger with elapsed time.
+        Message will have an appendix of type Elapsed time: time."""
+        td = time.time() - self._timer
+        m, s = divmod(time.time() - self._timer, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        if d > 0:
+            msg += " Elapsed time: {}days {}h {}m {}sec".format(round(d), round(h), round(m), round(s))
+        elif h > 0:
+            msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
+        else:
+            msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
+        self._log_on_dekstop(0, msg, "Global")
+        return self._log_on_handler(0, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
-        return self._global.warning(msg, *args, **kwargs)
+        self._log_on_dekstop(1, msg, "Global")
+        return self._log_on_handler(1, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         """Write an error message to the global logger."""
-        return self._global.error(msg, *args, **kwargs)
+        self._log_on_dekstop(2, msg, "Global")
+        return self._log_on_handler(2, msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
-        return self._global.debug(msg, *args, **kwargs)
+        self._log_on_dekstop(0, msg, "Global")
+        return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property
     def glb(self):
@@ -581,3 +678,6 @@ class AedtLogger(object):
         if not self._design.handlers:
             self.add_logger("Design")
         return self._design
+
+
+pyaedt_logger = AedtLogger(to_stdout=settings.enable_screen_logs)

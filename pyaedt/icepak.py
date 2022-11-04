@@ -5,7 +5,6 @@ from __future__ import absolute_import  # noreorder
 import csv
 import math
 import os
-import re
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
@@ -15,7 +14,6 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
@@ -89,38 +87,38 @@ class Icepak(FieldAnalysis3D):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt info: No project is defined. Project ...
-    pyaedt info: Active design is set to ...
+    pyaedt INFO: No project is defined. Project ...
+    pyaedt INFO: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
-    pyaedt info: Project ...
-    pyaedt info: Added design ...
+    pyaedt INFO: Project ...
+    pyaedt INFO: Added design ...
 
     Create an instance of Icepak and link to a design named
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt info: Added design 'IcepakDesign1' of type Icepak.
+    pyaedt INFO: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of Icepak and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt info: Project myipk has been created.
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design ...
+    pyaedt INFO: Project myipk has been created.
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.2", projectname="myipk2.aedt")
-    pyaedt info: Project...
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design...
+    pyaedt INFO: Project...
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design...
     """
 
     def __init__(
@@ -291,8 +289,8 @@ class Icepak(FieldAnalysis3D):
         >>> faces = icepak.modeler["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
-        pyaedt info: Face List boundary_faces created
-        pyaedt info: Opening Assigned
+        pyaedt INFO: Face List boundary_faces created
+        pyaedt INFO: Opening Assigned
         """
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
@@ -401,7 +399,7 @@ class Icepak(FieldAnalysis3D):
         >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
-        pyaedt info: Block on ...
+        pyaedt INFO: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -461,7 +459,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
-        pyaedt info: Block on ...
+        pyaedt INFO: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
@@ -621,13 +619,12 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         if object_name in self.modeler.object_names:
-            faces = self.modeler.get_object_faces(object_name)
-            k = 0
+            if gravity_dir > 2:
+                gravity_dir = gravity_dir - 3
+            faces_dict = self.modeler[object_name].faces
             faceCenter = {}
-            for f in faces:
-                faceCenter[f] = self.modeler.oeditor.GetFaceCenter(int(f))
-                faceCenter[f] = [round(float(i), 1) for i in faceCenter[f]]
-                k = k + 1
+            for f in faces_dict:
+                faceCenter[f.id] = f.center
             fcmax = -1e9
             fcmin = 1e9
             fcrjc = None
@@ -636,10 +633,10 @@ class Icepak(FieldAnalysis3D):
                 fc1 = faceCenter[fc]
                 if fc1[gravity_dir] < fcmin:
                     fcmin = fc1[gravity_dir]
-                    fcrjc = int(fc)
+                    fcrjb = int(fc)
                 if fc1[gravity_dir] > fcmax:
                     fcmax = fc1[gravity_dir]
-                    fcrjb = int(fc)
+                    fcrjc = int(fc)
             if fcmax < float(top):
                 app = fcrjc
                 fcrjc = fcrjb
@@ -1076,14 +1073,14 @@ class Icepak(FieldAnalysis3D):
             Length of the heat sink. The default is ``40``.
         height : optional
             Height of the heat sink. The default is ``40``.
-        draftangle : optional
+        draftangle : int, float, optional
             Draft angle in degrees. The default is ``0``.
-        patternangle : optional
+        patternangle : int, float, optional
             Pattern angle in degrees. The default is ``10``.
         separation : optional
             The default is ``5``.
         symmetric : bool, optional
-            Whether the heat sink is symmetric.  The default is ``True``.
+            Whether the heat sink is symmetric. The default is ``True``.
         symmetric_separation : optional
             The default is ``20``.
         numcolumn_perside : int, optional
@@ -1095,17 +1092,30 @@ class Icepak(FieldAnalysis3D):
         center : list, optional
            List of ``[x, y, z]`` coordinates for the center of
            the heatsink. The default is ``[0, 0, 0]``.
-        plane_enum : optional
+        plane_enum : str, int, optional
+            Plane for orienting the heat sink.
+            :class:`pyaedt.constants.PLANE` Enumerator can be used as input.
             The default is ``0``.
-        rotation : optional
+        rotation : int, float, optional
             The default is ``0``.
-        tolerance : optional
+        tolerance : int, float, optional
             Tolerance value. The default is ``0.001``.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a symmetric fin heat sink.
+
+        >>> from pyaedt import Icepak
+        >>> icepak = Icepak()
+        >>> icepak.insert_design("Heat_Sink_Example")
+        >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
+        ...                                        vertical_separation=5.5, matname="Steel", center=[10, 0, 0],
+        ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
 
         """
         all_objs = self.modeler.object_names
@@ -1132,30 +1142,30 @@ class Icepak(FieldAnalysis3D):
             "HSBase",
             matname,
         )
-        Fin_Line = []
-        Fin_Line.append(self.Position(0, 0, 0))
-        Fin_Line.append(self.Position(0, "FinThickness", 0))
-        Fin_Line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
-        Fin_Line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
-        Fin_Line.append(self.Position(0, 0, 0))
-        self.modeler.create_polyline(Fin_Line, cover_surface=True, name="Fin")
-        Fin_Line2 = []
-        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        Fin_Line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        Fin_Line2.append(
+        fin_line = []
+        fin_line.append(self.Position(0, 0, 0))
+        fin_line.append(self.Position(0, "FinThickness", 0))
+        fin_line.append(self.Position("FinLength", "FinThickness + FinLength*sin(PatternAngle*3.14/180)", 0))
+        fin_line.append(self.Position("FinLength", "FinLength*sin(PatternAngle*3.14/180)", 0))
+        fin_line.append(self.Position(0, 0, 0))
+        self.modeler.create_polyline(fin_line, cover_surface=True, name="Fin")
+        fin_line2 = []
+        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        fin_line2.append(self.Position(0, "FinThickness-sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        fin_line2.append(
             self.Position(
                 "FinLength",
                 "FinThickness + FinLength*sin(PatternAngle*3.14/180)-sin(DraftAngle*3.14/180)*FinThickness",
                 "FinHeight",
             )
         )
-        Fin_Line2.append(
+        fin_line2.append(
             self.Position(
                 "FinLength", "FinLength*sin(PatternAngle*3.14/180)+sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"
             )
         )
-        Fin_Line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
-        self.modeler.create_polyline(Fin_Line2, cover_surface=True, name="Fin_top")
+        fin_line2.append(self.Position(0, "sin(DraftAngle*3.14/180)*FinThickness", "FinHeight"))
+        self.modeler.create_polyline(fin_line2, cover_surface=True, name="Fin_top")
         self.modeler.connect(["Fin", "Fin_top"])
         self.modeler["Fin"].material_name = matname
         num = int((hs_width * 1.25 / (separation + thick)) / (max(1 - math.sin(patternangle * 3.14 / 180), 0.1)))
@@ -1199,13 +1209,13 @@ class Icepak(FieldAnalysis3D):
                 reference_cs="CenterRightSep",
             )
             self.modeler.duplicate_and_mirror(list, self.Position(0, 0, 0), self.Position(1, 0, 0))
-            Center_Line = []
-            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
-            Center_Line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
-            self.modeler.create_polyline(Center_Line, cover_surface=True, name="Center")
+            center_line = []
+            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            center_line.append(self.Position("SymSeparation", "Tolerance", "-Tolerance"))
+            center_line.append(self.Position("VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            center_line.append(self.Position("-VerticalSeparation", "-HSHeight-Tolerance", "-Tolerance"))
+            center_line.append(self.Position("-SymSeparation", "Tolerance", "-Tolerance"))
+            self.modeler.create_polyline(center_line, cover_surface=True, name="Center")
             self.modeler.thicken_sheet("Center", "-FinHeight-2*Tolerance")
             all_names = self.modeler.object_names
             list = [i for i in all_names if "Fin" in i]
@@ -1422,11 +1432,13 @@ class Icepak(FieldAnalysis3D):
     def edit_design_settings(
         self,
         gravityDir=0,
-        ambtemp=22,
+        ambtemp=20,
         performvalidation=False,
         CheckLevel="None",
         defaultfluid="air",
         defaultsolid="Al-Extruded",
+        export_monitor=False,
+        export_directory=os.getcwd(),
     ):
         """Update the main settings of the design.
 
@@ -1446,6 +1458,11 @@ class Icepak(FieldAnalysis3D):
             Default fluid material. The default is ``"air"``.
         defaultsolid : str, optional
             Default solid material. The default is ``"Al-Extruded"``.
+        export_monitor : bool, optional
+            Whether to use the default export directory for monitor point data.
+            The default value is ``False``.
+        export_directory : str, optional
+            Default export directory for monitor point data. The default value is the current working directory.
 
         Returns
         -------
@@ -1488,6 +1505,10 @@ class Icepak(FieldAnalysis3D):
                 GVA,
                 "Positive:=",
                 GVPos,
+                "ExportOnSimulationComplete:=",
+                export_monitor,
+                "ExportDirectory:=",
+                export_directory,
             ],
             [
                 "NAME:Model Validation Settings",
@@ -1757,62 +1778,6 @@ class Icepak(FieldAnalysis3D):
             ]
         )
         return filename
-
-    @pyaedt_function_handler()
-    def UniteFieldsSummaryReports(self, savedir, proj_icepak):
-        """Unite the files created by a fields summary for the variations.
-
-        Parameters
-        ----------
-        savedir : str
-           Directory path for saving the file.
-        proj_icepak : str
-            Name of the Icepak project.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        """
-        newfilename = os.path.join(savedir, proj_icepak + "_HTCAndTemp.csv")
-        newfilelines = []
-        headerwriten = False
-        filetoremove = []
-        # first variation
-        i = 0
-        filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
-        # iterate the variations
-        while os.path.exists(filename) or settings.remote_rpc_session:
-            with open_file(filename, "r") as f:
-                lines = f.readlines()
-                variation = lines[1]
-                # Searching file content for temp and power
-                pattern = re.compile(r"DesignVariation,\$AmbientTemp=('.+?')\s+\$PowerIn=('.+?')")
-                m = pattern.match(variation)
-                temp = m.group(1)
-                power = m.group(2)
-                if not headerwriten:
-                    # write the new file header
-                    newfilelines.append("$AmbientTemp,$PowerIn," + lines[4])
-                    newfilelines.append("\n")
-                    headerwriten = True
-
-                # add the new lines
-                newfilelines.append(temp + "," + power + "," + lines[5])
-                newfilelines.append(temp + "," + power + "," + lines[6])
-
-            # search for next variation
-            filetoremove.append(filename)
-            i += 1
-            filename = os.path.join(savedir, proj_icepak + "_HTCAndTemp_var" + str(i) + ".csv")
-        # write the new file
-        with open_file(newfilename, "w") as f:
-            f.writelines(newfilelines)
-        # remove the single files variation
-        for fr in filetoremove:
-            os.remove(fr)
-        return True
 
     def export_summary(
         self,
@@ -2309,7 +2274,7 @@ class Icepak(FieldAnalysis3D):
 
         if close_linked_project_after_import and ".aedt" in project_name:
             prjname = os.path.splitext(os.path.basename(project_name))[0]
-            self.close_project(prjname, saveproject=False)
+            self.close_project(prjname, save_project=False)
         self.logger.info("PCB component correctly created in Icepak.")
         return status
 

@@ -5,9 +5,9 @@ import math
 import os
 import warnings
 
-from pyaedt.edb_core.EDB_Data import EDBPrimitives
-from pyaedt.edb_core.EDB_Data import EDBStatistics
-from pyaedt.edb_core.EDB_Data import SimulationConfiguration
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
+from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -34,7 +34,6 @@ class EdbLayout(object):
     def __init__(self, p_edb):
         self._prims = []
         self._pedb = p_edb
-        self._primitives_by_layer = {}
         # self.update_primitives()
 
     @property
@@ -93,19 +92,8 @@ class EdbLayout(object):
         """
         if self._active_layout:
             self._prims = []
-            self._primitives_by_layer = {}
-            layoutInstance = self._active_layout.GetLayoutInstance()
-            layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-            for el in layoutObjectInstances.Items:
-                try:
-                    lay_obj = el.GetLayoutObj()
-                    lay_obj_str = lay_obj.ToString()
-                    if "Primitive" in lay_obj_str and "PadstackInstance" not in lay_obj_str:
-                        self._prims.append(EDBPrimitives(lay_obj, self._pedb))
-                except:
-                    continue
-            for lay in self.layers:
-                self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+            for lay_obj in list(self._active_layout.Primitives):
+                self._prims.append(EDBPrimitives(lay_obj, self._pedb))
             self._logger.info("Primitives Updated")
             return True
         return False
@@ -116,7 +104,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of primitives.
         """
         if not self._prims:
@@ -132,9 +120,14 @@ class EdbLayout(object):
         dict
             Dictionary of primitives with layer names as keys.
         """
-        if not self._primitives_by_layer:
-            self.update_primitives()
-        return self._primitives_by_layer
+        _primitives_by_layer = {}
+        for lay in self.layers:
+            _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return _primitives_by_layer
+
+    @property
+    def _primitives_by_layer(self):
+        return self.polygons_by_layer
 
     @property
     def rectangles(self):
@@ -142,7 +135,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of rectangles.
 
         """
@@ -154,7 +147,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of circles.
 
         """
@@ -166,7 +159,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of paths.
         """
         return [i for i in self.primitives if i.type == "Path"]
@@ -177,7 +170,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of bondwires.
         """
         return [i for i in self.primitives if i.type == "Bondwire"]
@@ -188,7 +181,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        list of :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of polygons.
         """
         return [i for i in self.primitives if i.type == "Polygon"]
@@ -535,7 +528,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        bool, :class:`pyaedt.edb_core.EDB_Data.EDBPrimitives`
+        bool, :class:`pyaedt.edb_core.edb_data.primitives.EDBPrimitives`
             Polygon when successful, ``False`` when failed.
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
@@ -1149,7 +1142,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        simulation_setup : simulation_setup EDB_Data.SimulationConfiguration object
+        simulation_setup : simulation_setup edb_data.simulation_configuration.SimulationConfiguration object
 
         Returns
         -------

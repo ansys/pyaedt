@@ -122,19 +122,6 @@ class Siwave:
         self._main.siwave_initialized = True
         self._oproject = self.oSiwave.GetActiveProject()
         pass
-        # self.logger = logging.getLogger(__name__)
-        # if not self.logger.handlers:
-        #     output_dir = self._main.oSiwave.GetProjectDirectory()
-        #     logging.basicConfig(
-        #         filename=os.path.join(output_dir, "pyaedt.log"),
-        #         level=logging.DEBUG,
-        #         format='%(asctime)s:%(name)s:%(levelname)-8s:%(message)s',
-        #         datefmt='%Y/%m/%d %H.%M.%S')
-        #     self.logger = logging.getLogger(__name__)
-
-        # info_msg1 = 'Started external COM connection with module {0}'.format(_com)
-        # info_msg2 = 'Python version {0}'.format(sys.version)
-        # info_msg3 = 'Exe path: {0}'.format(sys.executable)
 
     @property
     def project_name(self):
@@ -233,12 +220,17 @@ class Siwave:
 
         Returns
         -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         """
 
         if os.path.exists(proj_path):
-            self.oSiwave.OpenProject(proj_path)
+            open_result = self.oSiwave.OpenProject(proj_path)
             self._oproject = self.oSiwave.GetActiveProject()
+            return open_result
+        else:
+            return False
 
     @pyaedt_function_handler()
     def save_project(self, projectpath=None, projectName=None):

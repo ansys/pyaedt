@@ -1,5 +1,6 @@
 import copy
 import os
+import re
 from collections import OrderedDict
 
 from pyaedt.generic.constants import LineStyle
@@ -219,23 +220,23 @@ class Trace(object):
     def set_trace_properties(self, trace_style=None, width=None, trace_type=None, color=None):
         """Set trace properties.
 
-         Parameters
-         ----------
+        Parameters
+        ----------
         trace_style : str, optional
-             Style for the trace line. The default is ``None``. You can also use
-             the ``LINESTYLE`` property.
-         width : int, optional
-             Width of the trace line. The default is ``None``.
-         trace_type : str
+            Style for the trace line. The default is ``None``. You can also use
+            the ``LINESTYLE`` property.
+        width : int, optional
+            Width of the trace line. The default is ``None``.
+        trace_type : str
             Type of the trace line. The default is ``None``. You can also use the ``TRACETYPE``
             property.
-         color : tuple, list
-             Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
-             The default is ``None``.
+        color : tuple, list
+            Trace line color specified as a tuple (R,G,B) or a list of integers [0,255].
+            The default is ``None``.
 
-         Returns
-         -------
-         bool
+        Returns
+        -------
+        bool
             ``True`` when successful, ``False`` when failed.
         """
         props = ["NAME:ChangedProps"]
@@ -1343,7 +1344,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -1510,7 +1511,7 @@ class CommonReport(object):
             Minor tick division. The default is ``5``.
         min_spacing : str, optional
             Minimum spacing with units. The default is ``None``.
-        units :str, optional
+        units : str, optional
             Units in the plot. The default is ``None``.
 
         Returns
@@ -1887,6 +1888,8 @@ class Standard(CommonReport):
     def _did(self):
         if self.domain == "Sweep":
             return 3
+        elif self.domain == "Clock Times":
+            return 55827
         else:
             return 1
 
@@ -1953,6 +1956,60 @@ class Standard(CommonReport):
                     ctxt[2].extend(["WS", False, self.time_start])
                 if self.time_stop:
                     ctxt[2].extend(["WE", False, self.time_stop])
+        elif self._post.post_solution_type in ["NexximAMI"]:
+            ctxt = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [self._did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "NUMLEVELS", False, "1"],
+            ]
+            qty = re.sub("<[^>]+>", "", self.expressions[0])
+            if qty == "InitialWave":
+                ctxt_temp = ["QTID", False, "0", "SCID", False, "-1", "SID", False, "0"]
+            elif qty == "WaveAfterSource":
+                ctxt_temp = ["QTID", False, "1", "SCID", False, "-1", "SID", False, "0"]
+            elif qty == "WaveAfterChannel":
+                ctxt_temp = [
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "0",
+                    "QTID",
+                    False,
+                    "2",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ]
+            elif qty == "WaveAfterProbe":
+                ctxt_temp = [
+                    "PCID",
+                    False,
+                    "-1",
+                    "PID",
+                    False,
+                    "0",
+                    "QTID",
+                    False,
+                    "3",
+                    "SCID",
+                    False,
+                    "-1",
+                    "SID",
+                    False,
+                    "0",
+                ]
+            elif qty == "ClockTics":
+                ctxt_temp = ["PCID", False, "-1", "PID", False, "0"]
+            else:
+                return None
+            for el in ctxt_temp:
+                ctxt[2].append(el)
+
         elif self.differential_pairs:
             ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
         else:
@@ -2417,7 +2474,7 @@ class EyeDiagram(CommonReport):
             Points of the eye mask in the format ``[[x1,y1,],[x2,y2],...]``.
         xunits : str, optional
             X points units. The default is ``"ns"``.
-        yunits :  str, optional
+        yunits : str, optional
             Y points units. The default is ``"mV"``.
         enable_limits : bool, optional
             Whether to enable the upper and lower limits. The default is ``False``.
