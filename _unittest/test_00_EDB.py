@@ -2284,10 +2284,10 @@ if not config["skip_edb"]:
                 return 0
 
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            out_edb = os.path.join(self.local_scratch.path, "Galileo.aedb")
-            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            # self.local_scratch.copyfolder(target_path, out_edb)
             json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat.json")
-            edbapp = Edb(out_edb, edbversion=desktop_version)
+            # edbapp = Edb(out_edb, edbversion=desktop_version)
             edbapp.stackup._import_layer_stackup(json_path)
             edbapp.save_edb()
             delta = 1e-6
