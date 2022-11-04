@@ -639,6 +639,16 @@ class EdbLayout(object):
                 self._get_edb_value(rotation),
             )
 
+    @pyaedt_function_handler
+    def delete_primitives(self, net_names=None):
+        if not isinstance(net_names, list):
+            net_names = [net_names]
+
+        for p in self.primitives:
+            if p.net_name in net_names:
+                p.delete()
+                self._prims.remove(p)
+
     @pyaedt_function_handler()
     def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
