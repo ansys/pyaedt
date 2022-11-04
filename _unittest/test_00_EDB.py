@@ -2330,3 +2330,20 @@ if not config["skip_edb"]:
                                 pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]
                             ) < delta
             edbapp.close_edb()
+
+        def test_128_build_project(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.signal_nets = ["CK1_N", "CK1_P", "CK2_N", "CK2_P"]
+            sim_setup.power_nets = ["VSS"]
+            sim_setup.do_cutout_subdesign = True
+            sim_setup.components = ["DIE", "BGA"]
+            sim_setup.use_default_coax_port_radial_extension = False
+            sim_setup.cutout_subdesign_expansion = 0.001
+            sim_setup.start_frequency = 0
+            sim_setup.stop_freq = 20e9
+            sim_setup.step_freq = 10e6
+            assert edbapp.build_simulation_project(sim_setup)
