@@ -6,12 +6,12 @@ This module contains the `EdbStackup` class.
 from __future__ import absolute_import  # noreorder
 
 import difflib
+import json
 import logging
 import math
 import warnings
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
-from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
@@ -32,6 +32,485 @@ except ImportError:
     warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
+
+
+class LayerEdbClass(object):
+    """New Edb Layer management class. Replaces EDBLayer."""
+
+    def __init__(self, pclass, name):
+        self._pclass = pclass
+        self._name = name
+        self._color = ()
+        self._type = ""
+        self._material = ""
+        self._conductivity = 0.0
+        self._permittivity = 0.0
+        self._loss_tangent = 0.0
+        self._dielectric_fill = ""
+        self._thickness = 0.0
+        self._etch_factor = 0.0
+        self._roughness_enabled = False
+        self._top_hallhuray_nodule_radius = 0.5e-6
+        self._top_hallhuray_surface_ratio = 2.9
+        self._bottom_hallhuray_nodule_radius = 0.5e-6
+        self._bottom_hallhuray_surface_ratio = 2.9
+        self._side_hallhuray_nodule_radius = 0.5e-6
+        self._side_hallhuray_surface_ratio = 2.9
+        self._material = None
+
+    @property
+    def _edb(self):
+        return self._pclass._pedb.edb
+
+    @property
+    def _edb_layer(self):
+        for l in self._pclass._edb_layer_list:
+            if l.GetName() == self._name:
+                return l.Clone()
+
+    @property
+    def is_stackup_layer(self):
+        """Determine whether this layer is a stackup layer.
+
+        Returns
+        -------
+        bool
+            True if this layer is a stackup layer, False otherwise.
+        """
+        return self._edb_layer.IsStackupLayer()
+
+    @property
+    def color(self):
+        """Retrieve color of the layer.
+
+        Returns
+        -------
+        tuple
+            RGB.
+        """
+        layer_color = self._edb_layer.GetColor()
+        return layer_color.Item1, layer_color.Item2, layer_color.Item3
+
+    @color.setter
+    def color(self, rgb):
+        layer_clone = self._edb_layer
+        layer_clone.SetColor(*rgb)
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        self._color = rgb
+
+    @property
+    def name(self):
+        """Retrieve name of the layer.
+
+        Returns
+        -------
+        str
+        """
+        return self._edb_layer.GetName()
+
+    @name.setter
+    def name(self, name):
+        layer_clone = self._edb_layer
+        layer_clone.SetName(name)
+        self._pclass._set_layout_stackup(layer_clone, "change_name", self._name)
+        self._name = name
+
+    @property
+    def type(self):
+        """Retrieve type of the layer."""
+        if self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.SignalLayer:
+            return "signal"
+        elif self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer:
+            return "dielectric"
+        else:
+            return
+
+    @type.setter
+    def type(self, new_type):
+        if new_type == self.type:
+            return
+        if new_type == "signal":
+            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.SignalLayer)
+            self._type = new_type
+        elif new_type == "dielectric":
+            self._edb_layer.SetLayerType(self._edb.Cell.LayerType.DielectricLayer)
+            self._type = new_type
+        else:
+            return
+
+    @property
+    def material(self):
+        """Get/Set the material loss_tangent.
+
+        Returns
+        -------
+        float
+        """
+        return self._edb_layer.GetMaterial()
+
+    @material.setter
+    def material(self, name):
+        layer_clone = self._edb_layer
+        layer_clone.SetMaterial(name)
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        self._material = name
+
+    @property
+    def conductivity(self):
+        """Get the material conductivity.
+
+        Returns
+        -------
+        float
+        """
+        if self.material in self._pclass._pedb.materials.materials:
+            self._conductivity = self._pclass._pedb.materials[self.material].conductivity
+            return self._conductivity
+
+        return None
+
+    @property
+    def permittivity(self):
+        """Get the material permittivity.
+
+        Returns
+        -------
+        float
+        """
+        if self.material in self._pclass._pedb.materials.materials:
+            self._permittivity = self._pclass._pedb.materials[self.material].permittivity
+            return self._permittivity
+        return None
+
+    @property
+    def loss_tangent(self):
+        """Get the material loss_tangent.
+
+        Returns
+        -------
+        float
+        """
+        if self.material in self._pclass._pedb.materials.materials:
+            self._loss_tangent = self._pclass._pedb.materials[self.material].loss_tangent
+            return self._loss_tangent
+        return None
+
+    @property
+    def dielectric_fill(self):
+        """Retrieve material name of the layer dielectric fill."""
+        if self.type == "signal":
+            self._dielectric_fill = self._edb_layer.GetFillMaterial()
+            return self._dielectric_fill
+        else:
+            return
+
+    @dielectric_fill.setter
+    def dielectric_fill(self, name):
+        if self.type == "signal":
+            layer_clone = self._edb_layer
+            layer_clone.SetFillMaterial(name)
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+            self._dielectric_fill = name
+        else:
+            pass
+
+    @property
+    def thickness(self):
+        """Retrieve thickness of the layer.
+
+        Returns
+        -------
+        float
+        """
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        self._thickness = self._edb_layer.GetThicknessValue().ToDouble()
+        return self._thickness
+
+    @thickness.setter
+    def thickness(self, value):
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        layer_clone = self._edb_layer
+        layer_clone.SetThickness(self._pclass._edb_value(value))
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        self._thickness = value
+
+    @property
+    def etch_factor(self):
+        """Retrieve etch factor of this layer.
+
+        Returns
+        -------
+        float
+        """
+        self._etch_factor = self._edb_layer.GetEtchFactor().ToDouble()
+        return self._etch_factor
+
+    @etch_factor.setter
+    def etch_factor(self, value):
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        if not value:
+            layer_clone = self._edb_layer
+            layer_clone.SetEtchFactorEnabled(False)
+        else:
+            layer_clone = self._edb_layer
+            layer_clone.SetEtchFactorEnabled(True)
+            layer_clone.SetEtchFactor(self._pclass._edb_value(value))
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+        self._etch_factor = value
+
+    @property
+    def roughness_enabled(self):
+        """Determine whether roughness is enabled on this layer.
+
+        Returns
+        -------
+        bool
+        """
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        self._roughness_enabled = self._edb_layer.IsRoughnessEnabled()
+        return self._roughness_enabled
+
+    @roughness_enabled.setter
+    def roughness_enabled(self, set_enable):
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        self._roughness_enabled = set_enable
+        if set_enable:
+            layer_clone = self._edb_layer
+            layer_clone.SetRoughnessEnabled(True)
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+            self.assign_roughness_model()
+        else:
+            layer_clone = self._edb_layer
+            layer_clone.SetRoughnessEnabled(False)
+            self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @property
+    def top_hallhuray_nodule_radius(self):
+        top_roughness_model = self.get_roughness_model("top")
+        if top_roughness_model:
+            self._top_hallhuray_nodule_radius = top_roughness_model.NoduleRadius.ToDouble()
+        return self._top_hallhuray_nodule_radius
+
+    @top_hallhuray_nodule_radius.setter
+    def top_hallhuray_nodule_radius(self, value):
+        self._top_hallhuray_nodule_radius = value
+
+    @property
+    def top_hallhuray_surface_ratio(self):
+        top_roughness_model = self.get_roughness_model("top")
+        if top_roughness_model:
+            self._top_hallhuray_surface_ratio = top_roughness_model.SurfaceRatio.ToDouble()
+        return self._top_hallhuray_surface_ratio
+
+    @top_hallhuray_surface_ratio.setter
+    def top_hallhuray_surface_ratio(self, value):
+        self._top_hallhuray_surface_ratio = value
+
+    @property
+    def bottom_hallhuray_nodule_radius(self):
+        bottom_roughness_model = self.get_roughness_model("bottom")
+        if bottom_roughness_model:
+            self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
+        return self._bottom_hallhuray_nodule_radius
+
+    @bottom_hallhuray_nodule_radius.setter
+    def bottom_hallhuray_nodule_radius(self, value):
+        self._bottom_hallhuray_nodule_radius = value
+
+    @property
+    def bottom_hallhuray_surface_ratio(self):
+        bottom_roughness_model = self.get_roughness_model("bottom")
+        if bottom_roughness_model:
+            self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
+        return self._bottom_hallhuray_surface_ratio
+
+    @bottom_hallhuray_surface_ratio.setter
+    def bottom_hallhuray_surface_ratio(self, value):
+        self._bottom_hallhuray_surface_ratio = value
+
+    @property
+    def side_hallhuray_nodule_radius(self):
+        side_roughness_model = self.get_roughness_model("side")
+        if side_roughness_model:
+            self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
+        return self._side_hallhuray_nodule_radius
+
+    @side_hallhuray_nodule_radius.setter
+    def side_hallhuray_nodule_radius(self, value):
+        self._side_hallhuray_nodule_radius = value
+
+    @property
+    def side_hallhuray_surface_ratio(self):
+        side_roughness_model = self.get_roughness_model("side")
+        if side_roughness_model:
+            self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
+        return self._side_hallhuray_surface_ratio
+
+    @side_hallhuray_surface_ratio.setter
+    def side_hallhuray_surface_ratio(self, value):
+        self._side_hallhuray_surface_ratio = value
+
+    @pyaedt_function_handler()
+    def get_roughness_model(self, surface="top"):
+        """Gets roughness model of the layer.
+
+        Parameters
+        ----------
+        surface : str, optional
+            Where to fetch roughness model. The default is ``"top"``. Options are ``"top"``, ``"bottom"``, ``"side"``.
+
+        Returns
+        -------
+        ``"Ansys.Ansoft.Edb.Cell.RoughnessModel"``
+
+        """
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        if surface == "top":
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top)
+        elif surface == "bottom":
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom)
+        elif surface == "side":
+            return self._edb_layer.GetRoughnessModel(self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side)
+
+    @pyaedt_function_handler()
+    def assign_roughness_model(
+        self,
+        model_type="huray",
+        huray_radius="0.5um",
+        huray_surface_ratio="2.9",
+        groisse_roughness="1um",
+        apply_on_surface="all",
+    ):
+        """Assign roughness model on this layer.
+
+        Parameters
+        ----------
+        model_type : str, optional
+            Type of roughness model. The default is ``"huray"``. Options are ``"huray"``, ``"groisse"``.
+        huray_radius : str, float, optional
+            Radius of huray model. The default is ``"0.5um"``.
+        huray_surface_ratio : str, float, optional.
+            Surface ratio of huray model. The default is ``"2.9"``.
+        groisse_roughness : str, float, optional
+            Roughness of groisse model. The default is ``"1um"``.
+        apply_on_surface : str, optional.
+            Where to assign roughness model. The default is ``"all"``. Options are ``"top"``, ``"bottom"``,
+             ``"side"``.
+        Returns
+        -------
+
+        """
+        if not self.is_stackup_layer:  # pragma: no cover
+            return
+        radius = self._pclass._edb_value(huray_radius)
+        self._hurray_nodule_radius = huray_radius
+        surface_ratio = self._pclass._edb_value(huray_surface_ratio)
+        self._hurray_surface_ratio = huray_surface_ratio
+        groisse_roughness = self._pclass._edb_value(groisse_roughness)
+        regions = []
+        if apply_on_surface == "all":
+            self._side_roughness = "all"
+            regions = [
+                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top,
+                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side,
+                self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom,
+            ]
+        elif apply_on_surface == "top":
+            self._side_roughness = "top"
+            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Top]
+        elif apply_on_surface == "bottom":
+            self._side_roughness = "bottom"
+            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Bottom]
+        elif apply_on_surface == "side":
+            self._side_roughness = "side"
+            regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
+
+        layer_clone = self._edb_layer
+        for r in regions:
+            if model_type == "huray":
+                model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
+            else:
+                model = self._pclass._pedb.edb.Cell.GroisseRoughnessModel(groisse_roughness)
+            layer_clone.SetRoughnessModel(r, model)
+        return self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @pyaedt_function_handler()
+    def _json_format(self):
+        dict_out = {}
+        self._color = self.color
+        self._dielectric_fill = self.dielectric_fill
+        self._etch_factor = self.etch_factor
+        self._material = self.material
+        self._name = self.name
+        self._roughness_enabled = self.roughness_enabled
+        self._thickness = self.thickness
+        self._type = self.type
+        self._roughness_enabled = self.roughness_enabled
+        self._top_hallhuray_nodule_radius = self.top_hallhuray_nodule_radius
+        self._top_hallhuray_surface_ratio = self.top_hallhuray_surface_ratio
+        self._side_hallhuray_nodule_radius = self.side_hallhuray_nodule_radius
+        self._side_hallhuray_surface_ratio = self.side_hallhuray_surface_ratio
+        self._bottom_hallhuray_nodule_radius = self.bottom_hallhuray_nodule_radius
+        self._bottom_hallhuray_surface_ratio = self.bottom_hallhuray_surface_ratio
+        for k, v in self.__dict__.items():
+            if (
+                not k == "_pclass"
+                and not k == "_conductivity"
+                and not k == "_permittivity"
+                and not k == "_loss_tangent"
+            ):
+                dict_out[k[1:]] = v
+        return dict_out
+
+    def _load_layer(self, layer):
+        if layer:
+            self.color = layer["color"]
+            self.type = layer["type"]
+            if isinstance(layer["material"], str):
+                self.material = layer["material"]
+            else:
+                self._pclass._pedb.materials._load_materials(layer["material"])
+                self.material = layer["material"]["name"]
+            if layer["dielectric_fill"]:
+                if isinstance(layer["dielectric_fill"], str):
+                    self.dielectric_fill = layer["dielectric_fill"]
+                else:
+                    self._pclass._pedb.materials._load_materials(layer["dielectric_fill"])
+                    self.dielectric_fill = layer["dielectric_fill"]["name"]
+            self.thickness = layer["thickness"]
+            self.etch_factor = layer["etch_factor"]
+            self.roughness_enabled = layer["roughness_enabled"]
+            if self.roughness_enabled:
+                self.top_hallhuray_nodule_radius = layer["top_hallhuray_nodule_radius"]
+                self.top_hallhuray_surface_ratio = layer["top_hallhuray_surface_ratio"]
+                self.assign_roughness_model(
+                    "huray",
+                    layer["top_hallhuray_nodule_radius"],
+                    layer["top_hallhuray_surface_ratio"],
+                    apply_on_surface="top",
+                )
+                self.bottom_hallhuray_nodule_radius = layer["bottom_hallhuray_nodule_radius"]
+                self.bottom_hallhuray_surface_ratio = layer["bottom_hallhuray_surface_ratio"]
+                self.assign_roughness_model(
+                    "huray",
+                    layer["bottom_hallhuray_nodule_radius"],
+                    layer["bottom_hallhuray_surface_ratio"],
+                    apply_on_surface="bottom",
+                )
+                self.side_hallhuray_nodule_radius = layer["side_hallhuray_nodule_radius"]
+                self.side_hallhuray_surface_ratio = layer["side_hallhuray_surface_ratio"]
+                self.assign_roughness_model(
+                    "huray",
+                    layer["side_hallhuray_nodule_radius"],
+                    layer["side_hallhuray_surface_ratio"],
+                    apply_on_surface="side",
+                )
 
 
 class Stackup(object):
@@ -223,7 +702,7 @@ class Stackup(object):
 
         Parameters
         ----------
-        layer_clone : :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`
+        layer_clone : :class:`pyaedt.edb_core.EDB_Data.EDBLayer`
         operation : str
             Options are ``"change_attribute"``, ``"change_name"``,``"change_position"``, ``"insert_below"``,
              ``"insert_above"``, ``"add_on_top"``, ``"add_on_bottom"``, ``"non_stackup"``.
@@ -497,6 +976,52 @@ class Stackup(object):
             df.to_excel(fpath)
         return True
 
+    @pyaedt_function_handler
+    def _export_layer_stackup_to_json(self, output_file=None, include_material_with_layer=False):
+        if not include_material_with_layer:
+            material_out = {}
+            for k, v in self._pedb.materials.materials.items():
+                material_out[k] = v._json_format()
+        layers_out = {}
+        for k, v in self.stackup_layers.items():
+            layers_out[k] = v._json_format()
+            if v.material in self._pedb.materials.materials:
+                layer_material = self._pedb.materials.materials[v.material]
+                if not v.dielectric_fill:
+                    dielectric_fill = False
+                else:
+                    dielectric_fill = self._pedb.materials.materials[v.dielectric_fill]
+                if include_material_with_layer:
+                    layers_out[k]["material"] = layer_material._json_format()
+                    if dielectric_fill:
+                        layers_out[k]["dielectric_fill"] = dielectric_fill._json_format()
+        if not include_material_with_layer:
+            stackup_out = {"materials": material_out, "layers": layers_out}
+        else:
+            stackup_out = {"layers": layers_out}
+        if output_file:
+            with open(output_file, "w") as write_file:
+                json.dump(stackup_out, write_file, indent=4)
+
+            return True
+        else:
+            return False
+
+    @pyaedt_function_handler()
+    def _import_layer_stackup(self, input_file=None):
+        if input_file:
+            f = open(input_file)
+            json_dict = json.load(f)  # pragma: no cover
+            for k, v in json_dict.items():
+                if k == "materials":
+                    for material in v.values():
+                        self._pedb.materials._load_materials(material)
+                if k == "layers":
+                    for layer_name, layer in v.items():
+                        if layer_name in self.stackup_layers:
+                            self.stackup_layers[layer["name"]]._load_layer(layer)
+            return True
+
 
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
@@ -567,7 +1092,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.layer_data.EDBLayer`]
+        dict[str, :class:`pyaedt.edb_core.EDB_Data.EDBLayer`]
             List of signal layers.
         """
         return self.stackup_layers.signal_layers
@@ -604,7 +1129,7 @@ class EdbStackup(object):
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         permittivity : float, optional
             Permittivity of the dielectric. The default is ``1``.
         loss_tangent : float, optional
@@ -668,12 +1193,12 @@ class EdbStackup(object):
         Parameters
         ----------
         name : str
-            Name of the dielectic.
+            Name of the dielectric.
         relative_permittivity_low : float
             Relative permittivity of the dielectric at the frequency specified
             for ``lower_frequency``.
         relative_permittivity_high : float
-            Relative ermittivity of the dielectric at the frequency specified
+            Relative permittivity of the dielectric at the frequency specified
             for ``higher_frequency``.
         loss_tangent_low : float
             Loss tangent for the material at the frequency specified

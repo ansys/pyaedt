@@ -730,11 +730,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_lumped_port_on_net(
-        self,
-        nets=None,
-        reference_layer=None,
-        return_points_only=False,
-        digit_resolution=6,
+        self, nets=None, reference_layer=None, return_points_only=False, digit_resolution=6, at_bounding_box=True
     ):
         """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
         The command will look for traces on the nets and will try to assign vertical lumped port on first and last
@@ -754,6 +750,11 @@ class EdbHfss(object):
 
         digit_resolution : int, optional
             The number of digits carried for the edge location accuracy. The default value is ``6``.
+
+        at_bounding_box : bool
+            When ``True`` will keep the edges from traces at the layout bounding box location. This is recommended when
+             a cutout has been performed before and lumped ports have to be created on ending traces. Default value is
+             ``True``.
 
         Returns
         -------
@@ -797,15 +798,32 @@ class EdbHfss(object):
                             round(pt.X.ToDouble(), digit_resolution),
                             round(pt.Y.ToDouble(), digit_resolution),
                         ]
-                        if return_points_only:
-                            edges_pts.append(_pt)
+                        if at_bounding_box:
+                            if not set(layout_bbox).isdisjoint(_pt):
+                                if return_points_only:
+                                    edges_pts.append(_pt)
+                                else:
+                                    try:
+                                        self._hfss_terminals.CreateEdgePort(
+                                            path, pt, reference_layer, port_name
+                                        )  # pragma: no cover
+                                    except:  # pragma: no cover
+                                        self._logger.warning(
+                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
+                                        )
                         else:
-                            if not self._hfss_terminals.CreateEdgePort(
-                                path, pt, reference_layer, port_name
-                            ):  # pragma: no cover
-                                raise Exception(
-                                    "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
-                                )
+                            if return_points_only:  # pragma: no cover
+                                edges_pts.append(_pt)
+                            else:
+                                try:
+                                    self._hfss_terminals.CreateEdgePort(
+                                        path, pt, reference_layer, port_name
+                                    )  # pragma: no cover
+                                except:  # pragma: no cover
+                                    self._logger.warning(
+                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
+                                    )
+
             if return_points_only:
                 return edges_pts
         return True
@@ -1211,7 +1229,6 @@ class EdbHfss(object):
                     ii += 1
 
             if not simulation_setup.use_default_coax_port_radial_extension:
-                radial_factor_multiplier = 0.125
                 # Set the Radial Extent Factor
                 typ = cmp.GetComponentType()
                 if typ in [
@@ -1225,11 +1242,18 @@ class EdbHfss(object):
                         diam1,
                         diam2,
                     ) = cmp_prop.GetSolderBallProperty().GetDiameter()
-                    if success and diam1 and diam2 > 0:
-                        radial_factor = "{0}meter".format(radial_factor_multiplier * diam1)
+                    if success and diam1 and diam2 > 0:  # pragma: no cover
+                        option = (
+                            "HFSS('HFSS Type'='**Invalid**', "
+                            "Orientation='**Invalid**', "
+                            "'Layer Alignment'='Upper', "
+                            "'Horizontal Extent Factor'='5', "
+                            "'Vertical Extent Factor'='3', "
+                            "'Radial Extent Factor'='0.25', "
+                            "'PEC Launch Width'='0mm')"
+                        )
                         for tt in terms:
-                            self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)
-                            self._builder.SetHfssSolverOption(tt, "Layer Alignment", "Upper")  # ensure this is also set
+                            tt.SetProductSolverOption(self._edb.ProductId.Designer, "HFSS", option)
         return True
 
     @pyaedt_function_handler()

@@ -6,7 +6,6 @@ import tempfile
 import time
 from logging.handlers import RotatingFileHandler
 
-from pyaedt import log_handler
 from pyaedt import settings
 
 message_levels = {"Global": 0, "Project": 1, "Design": 2}
@@ -136,10 +135,10 @@ class AedtLogger(object):
         self._files_handlers = []
         self._projects = {}
 
-        if not self._global.handlers:
-            self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
-            self._global.setLevel(level)
-            self._global.addFilter(AppFilter())
+        # if not self._global.handlers:
+        #     self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
+        self._global.setLevel(level)
+        self._global.addFilter(AppFilter())
 
         self._std_out_handler = None
         if settings.formatter:
@@ -182,7 +181,7 @@ class AedtLogger(object):
     def add_file_logger(self, filename, project_name, level=None):
         """Add a new file to the logger handlers list."""
         _project = logging.getLogger(project_name)
-        _project.addHandler(log_handler.LogHandler(self, "Project", level if level else self.level))
+        # _project.addHandler(log_handler.LogHandler(self, "Project", level if level else self.level))
         _project.setLevel(level if level else self.level)
         _project.addFilter(AppFilter("Project", project_name))
         _file_handler = logging.FileHandler(filename)
@@ -256,7 +255,7 @@ class AedtLogger(object):
     def logger(self):
         """AEDT logger object."""
         if self._log_on_file:
-            return logging.getLogger(__name__)
+            return logging.getLogger("Global")
         else:
             return None  # pragma: no cover
 
@@ -434,6 +433,13 @@ class AedtLogger(object):
         des_name : str, optional
             Name of the design.
         """
+        self._log_on_dekstop(
+            message_type=message_type, message_text=message_text, level=level, proj_name=proj_name, des_name=des_name
+        )
+
+        self._log_on_handler(message_type, message_text)
+
+    def _log_on_dekstop(self, message_type, message_text, level=None, proj_name=None, des_name=None):
         if not proj_name:
             proj_name = ""
 
@@ -456,10 +462,9 @@ class AedtLogger(object):
                 self._desktop.AddMessage(proj_name, des_name, message_type, message_text)
             except:
                 print("pyaedt INFO: Failed in Adding Desktop Message")
-            self._log_on_handler(message_type, message_text)
 
     def _log_on_handler(self, message_type, message_text, *args, **kwargs):
-        if not (self._log_on_file or self._log_on_screen) and not self._global:
+        if not (self._log_on_file or self._log_on_screen) or not self._global:
             return
         if len(message_text) > 250:
             message_text = message_text[:250] + "..."
@@ -549,7 +554,7 @@ class AedtLogger(object):
         if destination == "Project":
             project_name = self._project_name
             self._project = logging.getLogger(project_name)
-            self._project.addHandler(log_handler.LogHandler(self, "Project", level))
+            # self._project.addHandler(log_handler.LogHandler(self, "Project", level))
             self._project.setLevel(level)
             self._project.addFilter(AppFilter("Project", project_name))
             if self._files_handlers:
@@ -562,7 +567,7 @@ class AedtLogger(object):
             project_name = self._project_name
             design_name = self._design_name
             self._design = logging.getLogger(project_name + ":" + design_name)
-            self._design.addHandler(log_handler.LogHandler(self, "Design", level))
+            # self._design.addHandler(log_handler.LogHandler(self, "Design", level))
             self._design.setLevel(level)
             self._design.addFilter(AppFilter("Design", design_name))
             if self._files_handlers:
@@ -618,6 +623,7 @@ class AedtLogger(object):
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
+        self._log_on_dekstop(0, msg, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
     def info_timer(self, msg, *args, **kwargs):
@@ -633,18 +639,22 @@ class AedtLogger(object):
             msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
         else:
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
+        self._log_on_dekstop(0, msg, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
+        self._log_on_dekstop(1, msg, "Global")
         return self._log_on_handler(1, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         """Write an error message to the global logger."""
+        self._log_on_dekstop(2, msg, "Global")
         return self._log_on_handler(2, msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
+        self._log_on_dekstop(0, msg, "Global")
         return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property

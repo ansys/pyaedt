@@ -1298,9 +1298,7 @@ class Analysis(Design, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup.Setup` or :class:`pyaedt.modules.SolveSetup.SetupHFSS` or
-        :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto` or :class:`pyaedt.modules.SolveSetup.SetupSBR` or
-        :class:`pyaedt.modules.SolveSetup.SetupMaxwell`.
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS` or :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
 
         References
         ----------
@@ -1325,9 +1323,22 @@ class Analysis(Design, object):
         >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
         >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
         >>> setup1.props["MaxNumberOfBounces"] = "3"
-        >>> setup1.update()
         ...
         pyaedt INFO: Sweep was created correctly.
+        >>> setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=True)
+        >>> setup1.add_subrange("LinearCount", 10, 20, 10, clear=False)
+
+
+        Create a setup for Q3d and add a sweep on it.
+
+        >>> import pyaedt
+        >>> q = pyaedt.Q3d()
+        >>> setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
+        >>> sw1 = setup1.add_sweep()
+        >>> sw1.props["RangeStart"] = "1MHz"
+        >>> sw1.props["RangeEnd"] = "100MHz"
+        >>> sw1.props["RangeStep"] = "5MHz"
+        >>> sw1.update()
         """
         if props is None:
             props = {}
