@@ -978,7 +978,6 @@ class Primitives(object):
         list of :class:`pyaedt.modeler.Object3d.Object3d`
             3D object.
         """
-        """"""
         return [v for v in list(self.points.values())]
 
     @property
