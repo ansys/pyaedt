@@ -5460,7 +5460,7 @@ class Hfss(FieldAnalysis3D, object):
         Parameters
         ----------
         entity_list : list
-            List IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
+            List of IDs or :class:`pyaedt.modeler.Object3d.FacePrimitive`.
         symmetry_name : str, optional
             Name of the boundary.
             If not provided it's automatically generated.
