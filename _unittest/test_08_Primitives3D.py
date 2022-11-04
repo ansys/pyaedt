@@ -944,14 +944,16 @@ class TestClass(BasisTest, object):
         assert point2.name == "mypoint2"
         assert point2.coordinate_system == "Global"
 
-        assert self.aedtapp.modeler.points_by_name[point.name] == point
-        assert self.aedtapp.modeler.points_by_name[point2.name] == point2
+        assert self.aedtapp.modeler.points[point.name] == point
+        assert self.aedtapp.modeler.points[point2.name] == point2
 
         # Delete the first point
         assert len(self.aedtapp.modeler.points) == 2
-        self.aedtapp.modeler.points_by_name[point.name].delete()
-        assert len(self.aedtapp.modeler.points) == 1
-        assert self.aedtapp.modeler.points[0].name == "mypoint2"
+        self.aedtapp.modeler.points[point.name].delete()
+        assert name not in self.aedtapp.modeler.points
+        assert len(self.aedtapp.modeler.point_objects) == 1
+        assert len(self.aedtapp.modeler.point_names) == 1
+        assert self.aedtapp.modeler.point_objects[0].name == "mypoint2"
 
     def test_71_create_choke(self):
         choke_file1 = os.path.join(
