@@ -34,7 +34,6 @@ class EdbLayout(object):
     def __init__(self, p_edb):
         self._prims = []
         self._pedb = p_edb
-        self._primitives_by_layer = {}
         # self.update_primitives()
 
     @property
@@ -93,7 +92,6 @@ class EdbLayout(object):
         """
         if self._active_layout:
             self._prims = []
-            self._primitives_by_layer = {}
             layoutInstance = self._active_layout.GetLayoutInstance()
             layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
             for el in layoutObjectInstances.Items:
@@ -134,6 +132,10 @@ class EdbLayout(object):
         for lay in self.layers:
             _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
         return _primitives_by_layer
+
+    @property
+    def _primitives_by_layer(self):
+        return self.polygons_by_layer
 
     @property
     def rectangles(self):
