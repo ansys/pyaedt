@@ -313,14 +313,33 @@ class EdbPadstacks(object):
         self.update_padstacks()
 
     @pyaedt_function_handler
-    def delete_padstack_instances(self, net_names=None):
+    def delete_padstack_instances(self, net_names):
+        """Delete padstack instances by net names.
+
+        Parameters
+        ----------
+        net_names : str, list
+            Names of the nets to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> Edb.core_padstack.delete_padstack_instances(net_names=["GND"])
+        """
         if not isinstance(net_names, list):
             net_names = [net_names]
 
         for p_id, p in self.padstack_instances.items():
             if p.name in net_names:
-                p.delete_padstack_instance()
+                if not p.delete_padstack_instance():
+                    return False
                 self._padstacks.pop(p_id)
+        return True
 
     @pyaedt_function_handler()
     def set_solderball(self, padstackInst, sballLayer_name, isTopPlaced=True, ballDiam=100e-6):
