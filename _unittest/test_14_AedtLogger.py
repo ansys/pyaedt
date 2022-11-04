@@ -20,6 +20,8 @@ from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.general_methods import is_ironpython
 
+settings.enable_desktop_logs = True
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -119,6 +121,7 @@ class TestClass(BasisTest, object):
             if isinstance(handler, logging.FileHandler):
                 handler.close()
                 logger._global.removeHandler(handler)
+        logger.enable_log_on_file()
 
     def test_02_output_file_with_app_filter(self):
         content = None
@@ -129,6 +132,7 @@ class TestClass(BasisTest, object):
         path = os.path.join(logging_dir, "test02.txt")
         logger = AedtLogger(filename=path)
         logger.info("Info for Global")
+
         logger.debug("Debug for Global")
         logger.warning("Warning for Global")
         logger.error("Error for Global")

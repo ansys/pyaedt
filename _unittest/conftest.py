@@ -88,7 +88,10 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 test_folder = "unit_test" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 scratch_path = os.path.join(tempfile.gettempdir(), test_folder)
 if not os.path.exists(scratch_path):
-    os.makedirs(scratch_path)
+    try:
+        os.makedirs(scratch_path)
+    except:
+        pass
 
 logger = pyaedt_logger
 
