@@ -2337,10 +2337,19 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(target_path, out_edb)
             edbapp = Edb(out_edb, edbversion=desktop_version)
             sim_setup = SimulationConfiguration()
-            sim_setup.signal_nets = ["CK1_N", "CK1_P", "CK2_N", "CK2_P"]
-            sim_setup.power_nets = ["VSS"]
+            sim_setup.signal_nets = [
+                "M_DQ<0>",
+                "M_DQ<1>",
+                "M_DQ<2>",
+                "M_DQ<3>",
+                "M_DQ<4>",
+                "M_DQ<5>",
+                "M_DQ<6>",
+                "M_DQ<7>",
+            ]
+            sim_setup.power_nets = ["GND"]
             sim_setup.do_cutout_subdesign = True
-            sim_setup.components = ["DIE", "BGA"]
+            sim_setup.components = ["U2A5", "U1B5"]
             sim_setup.use_default_coax_port_radial_extension = False
             sim_setup.cutout_subdesign_expansion = 0.001
             sim_setup.start_frequency = 0
