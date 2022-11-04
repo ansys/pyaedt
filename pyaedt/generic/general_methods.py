@@ -100,6 +100,8 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         messages = list(main_module.oDesktop.GetMessages("", "", 2))
     except AttributeError:
         messages = []
+    except TypeError:
+        messages = []
     if messages:
         message_to_print = messages[-1]
     for el in tblist:
