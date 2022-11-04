@@ -103,6 +103,7 @@ class Result:
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
 
+        Returns
         -------
         :class:`list of str`
 
@@ -129,6 +130,7 @@ class Result:
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
 
+        Returns
         -------
         :class:`list of str`
 
