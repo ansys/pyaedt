@@ -1246,16 +1246,14 @@ class Edb(object):
                 voids_to_add.append(circle)
 
         _netsClip = convert_py_list_to_net_list(_ref_nets)
-        net_signals = List[type(_ref_nets[0])]()
+        net_signals = List[type(_ref_nets[0])]()  # pragma: no cover
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()
-        cutout_obj_coll = layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        cutout_obj_coll = list(layout.PadstackInstances)
         ids = []
-        for obj in cutout_obj_coll.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self.edb.Cell.Primitive.PadstackInstance:
-                ids.append(lobj.GetId())
+        for lobj in cutout_obj_coll:
+            ids.append(lobj.GetId())
 
         if include_partial_instances:
             p_missing = [i for i in pinstance_to_add if i.id not in ids]
