@@ -640,7 +640,7 @@ class EdbLayout(object):
             )
 
     @pyaedt_function_handler
-    def delete_primitives(self, net_names=None):
+    def delete_primitives(self, net_names):
         """Delete primitives by net names.
 
         Parameters
