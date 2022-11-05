@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit import Result
+from pyaedt.emit import Revision
 from pyaedt.modeler.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
@@ -33,6 +34,9 @@ class TestClass(BasisTest, object):
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
+        if self.aedtapp._aedt_version >= "2023.1":
+            assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
+            assert self.aedtapp.results is not None
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
@@ -120,9 +124,11 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
-        self.aedtapp.analyze()
+        rev = self.aedtapp.analyze()
+        assert rev is not None
         assert len(self.aedtapp.results.revisions_list) == 1
-        self.aedtapp.analyze()
+        rev2 = self.aedtapp.analyze()
+        assert rev2 is not None
         assert len(self.aedtapp.results.revisions_list) == 1
         rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant4 = self.aedtapp.modeler.components.create_component("Antenna")
@@ -155,7 +161,8 @@ class TestClass(BasisTest, object):
             ant3.move_and_connect_to(rad3)
         self.aedtapp.analyze()
         domain = Result.interaction_domain()
-        self.aedtapp.results.revisions_list[-1].run(domain)
+        interaction = self.aedtapp.results.revisions_list[-1].run(domain)
+        assert interaction is not None
         radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
         assert radiosRX[0] == "Bluetooth"
         assert radiosRX[1] == "Bluetooth 2"
@@ -229,6 +236,11 @@ class TestClass(BasisTest, object):
                     subfolder = os.path.join(f.path, "EmitDesign1")
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             self.aedtapp._emit_api.load_result(file.path)
+            assert self.aedtapp.results.get_result_loaded() is False
+            self.aedtapp.results.set_result_loaded()
+            assert self.aedtapp.results.get_result_loaded()
+            rev = Revision(self.aedtapp, "Revision 1")
+            assert rev is not None
             domain = Result.interaction_domain()
             assert domain is not None
             eng = self.aedtapp._emit_api.get_engine()
