@@ -416,13 +416,13 @@ class QExtractor(FieldAnalysis3D, object):
         length_setting="Distributed",
         length="1meter",
     ):
-        """Export matrix data.
+        r"""Export matrix data.
 
         Parameters
         ----------
         file_name : str
             Full path to save the matrix data to.
-            Options for file extensions are: \\*.m, \\*.lvl, \\*.csv, \\*.txt.
+            Options for file extensions are: *.m, *.lvl, *.csv, *.txt.
         problem_type : str, optional
             Problem type. The default value is ``None``, in which case ``"C"`` is
             used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
