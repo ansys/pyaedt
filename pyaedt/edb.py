@@ -1253,7 +1253,7 @@ class Edb(object):
                 voids_to_add.append(circle)
 
         _netsClip = convert_py_list_to_net_list(_ref_nets)
-        net_signals = List[type(_ref_nets[0])]()
+        net_signals = List[type(_ref_nets[0])]()  # pragma: no cover
         # Create new cutout cell/design
         _cutout = self.active_cell.CutOut(net_signals, _netsClip, polygonData)
         layout = _cutout.GetLayout()

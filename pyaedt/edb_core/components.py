@@ -766,7 +766,6 @@ class Components(object):
         elif port_type == SourceType.CircPort:
             ref_pins = self.get_pin_from_component(component, reference_net)
             if do_pingroup:
-                pingroups = []
                 if len(ref_pins) == 1:
                     self.create_terminal = self._create_terminal(ref_pins[0])
                     self.terminal = self.create_terminal
@@ -825,7 +824,7 @@ class Components(object):
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
-        term_name = "{}_{}_{}".format(cmp_name, net_name, pin_name)
+        term_name = "{}.{}.{}".format(cmp_name, net_name, pin_name)
         term = self._edb.Cell.Terminal.PointTerminal.Create(
             pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
@@ -980,7 +979,7 @@ class Components(object):
         layout = pingroup.GetLayout()
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
+        term_name = generate_unique_name("Pingroup.{0}.{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -1393,6 +1392,31 @@ class Components(object):
             edb_cmp.SetComponentProperty(rlc_property)
             return True
         return False
+
+    @pyaedt_function_handler()
+    def get_component_bounding_box(self, component=None):
+        """Return the component bounding box.
+
+        Parameters
+        ----------
+        component : Component object, or Str component name.
+
+        Returns
+        -------
+        List[float]
+            [X lower left corner, Y lower left corner, X upper right corner, Y upper right corner].
+        """
+        if isinstance(component, str):  # pragma no cover
+            component = self.get_component_by_name(component)
+        if not component:  # pragma no cover
+            self._logger.error("Component not found")
+            return False
+        edb_component = component.edbcomponent
+        layout_instance = edb_component.GetLayout().GetLayoutInstance()
+        _bbox = layout_instance.GetLayoutObjInstance(edb_component, None).GetBBox()
+        _pt1 = _bbox.Item1
+        _pt2 = _bbox.Item2
+        return [_pt1.X.ToDouble(), _pt1.Y.ToDouble(), _pt2.X.ToDouble(), _pt2.Y.ToDouble()]
 
     @pyaedt_function_handler()
     def set_solder_ball(

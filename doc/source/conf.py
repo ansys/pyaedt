@@ -220,6 +220,7 @@ html_context = {
     "github_user": "pyansys",
     "github_repo": "pyaedt",
     "github_version": "main",
+    "doc_path": "doc/source",
 }
 
 html_theme_options = {

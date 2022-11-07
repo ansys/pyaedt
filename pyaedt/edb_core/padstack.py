@@ -356,7 +356,7 @@ class EdbPadstacks(object):
         return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, padstackinstance):
+    def create_coax_port(self, padstackinstance, use_dot_separator=True):
         """Create HFSS 3Dlayout coaxial lumped port on a pastack
         Requires to have solder ball defined before calling this method.
 
@@ -384,8 +384,10 @@ class EdbPadstacks(object):
         pin_name = padstackinstance.GetName()
         if pin_name == "":
             pin_name = "no_pin_name"
-
-        port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
+        if use_dot_separator:
+            port_name = "{0}.{1}.{2}".format(cmp_name, net_name, pin_name)
+        else:
+            port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
 
