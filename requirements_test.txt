@@ -6,7 +6,7 @@ pytest==7.2.0
 pytest-cov==4.0.0
 codecov==2.1.12
 joblib==1.2.0
-sklearn==0.0
+sklearn==0.0.post1
 pandas==1.5.1
 openpyxl==3.0.10
 scikit-learn==1.1.3
