@@ -19,7 +19,7 @@ class IPC2581(object):
         self.logistic_header = LogisticHeader()
         self.history_record = HistoryRecord()
         self.bom = Bom()
-        self.ecad = Ecad(self)
+        self.ecad = Ecad(self, pedb)
         self.file_path = ""
         self.design_name = ""
         self_datum = ""

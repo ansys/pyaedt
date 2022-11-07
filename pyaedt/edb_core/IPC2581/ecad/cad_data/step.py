@@ -12,8 +12,9 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.profile import Profile
 
 
 class Step(object):
-    def __init__(self, caddata):
+    def __init__(self, caddata, edb):
         self.design_name = caddata.design_name
+        self._pedb = edb
         self._padstack_defs = []
         self._profile = Profile()
         self._packages = {}
@@ -108,14 +109,29 @@ class Step(object):
                 package.height = ""
                 package.type = component.type
                 pin_number = 0
-                for pin in component.pins:
-                    package.add_pin(
-                        number=pin_number,
-                        x=pin.position[0],
-                        y=pin.position[1],
+                for _, pin in component.pins.items():
+                    geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
+                        pin._edb_padstackinstance, "TOP", 0
                     )
+                    primitive_ref = ""
+                    if geometry_type == 1:
+                        primitive_ref = "CIRC_{}".format(pad_parameters[0])
+                    elif geometry_type == 2:
+                        primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[1])
+                    elif geometry_type == 3:
+                        primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[1])
+                    elif geometry_type == 4:
+                        primitive_ref = "OVAL_{}_{}_{}".format(pad_parameters[0], pad_parameters[1], pad_parameters[2])
+                    if primitive_ref:
+                        package.add_pin(number=pin_number, x=pos_x, y=pos_y, primitive_ref=primitive_ref)
                     pin_number += 1
-                self._packages.append(package)
+                component_bounding_box = (
+                    component.edbcomponent.GetLayout()
+                    .GetLayoutInstance()
+                    .GetLayoutObjInstance(component.edbcomponent, None)
+                    .GetBBox()
+                )
+                self._packages[package.name] = package
 
     def add_layer_feature(self, layer_feature=None):
         if isinstance(layer_feature, LayerFeature):
