@@ -54,7 +54,8 @@ class Result:
 
         Returns
         -------
-        :class:`bool`
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         ----------
