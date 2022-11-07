@@ -2582,7 +2582,7 @@ class PostProcessor(PostProcessorCommon, object):
                 "maxvalue:=",
                 maximum_value,
                 "log:=",
-                not is_log,
+                is_log,
                 "dB:=",
                 is_db,
                 "ScaleType:=",
