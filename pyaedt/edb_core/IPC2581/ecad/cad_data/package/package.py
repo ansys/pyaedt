@@ -1,6 +1,8 @@
 import xml.etree.cElementTree as ET
 
-from pyaedt.edb_core.IPC2581.ecad.cad_data.package.assembly_drawing import AssemblyDrawing
+from pyaedt.edb_core.IPC2581.ecad.cad_data.package.assembly_drawing import (
+    AssemblyDrawing,
+)
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.outline import Outline
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.pin import Pin
 
@@ -27,9 +29,13 @@ class Package(object):
             if len([pin for pin in value if isinstance(pin, Pin)]) == len(value):
                 self._pins = value
 
-    def add_pin(self, pin=None):
-        if isinstance(pin, Pin):
-            self._pins.append(pin)
+    def add_pin(self, number=0, x=0.0, y=0.0, primitive_ref=""):
+        added_pin = Pin()
+        added_pin.x = x
+        added_pin.y = y
+        added_pin.number = number
+        added_pin.primitive_def = primitive_ref
+        self.pins.append(added_pin)
 
     def write_xml(self, step):
         if step:

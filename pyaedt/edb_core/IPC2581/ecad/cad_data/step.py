@@ -16,7 +16,7 @@ class Step(object):
         self.design_name = caddata.design_name
         self._padstack_defs = []
         self._profile = Profile()
-        self._packages = []
+        self._packages = {}
         self._components = []
         self._logical_nets = []
         self._physical_nets = []
@@ -95,26 +95,27 @@ class Step(object):
             return True
         return False
 
-    def add_padstack_def(
-        self, padstack_name="", hole_name="", hole_diameter="", layer="", pad_use="REGULAR", primitive_ref=""
-    ):
-        pad_stack_def = PadstackDef()
-        pad_stack_def.name = padstack_name
-        pad_stack_def.padstack_hole_def.name = hole_name
-        pad_stack_def.padstack_hole_def.diameter = hole_diameter
-        pad_stack_def.add_padstack_pad_def(layer=layer, pad_use=pad_use, primitive_ref=primitive_ref)
-
-    def add_package(self, package=None):
-        if isinstance(package, Package):
-            self._packages.append(package)
-            return True
-        return False
+    def add_padstack_def(self, padstackdef=None):
+        if isinstance(padstackdef, PadstackDef):
+            self._padstack_defs.append(padstackdef)
 
     def add_component(self, component=None):
-        if isinstance(component, Component):
-            self._components.append(component)
-            return True
-        return False
+        # adding component add package in Step
+        if component:
+            if not component.part_name in self._packages:
+                package = Package()
+                package.name = component.part_name
+                package.height = ""
+                package.type = component.type
+                pin_number = 0
+                for pin in component.pins:
+                    package.add_pin(
+                        number=pin_number,
+                        x=pin.position[0],
+                        y=pin.position[1],
+                    )
+                    pin_number += 1
+                self._packages.append(package)
 
     def add_layer_feature(self, layer_feature=None):
         if isinstance(layer_feature, LayerFeature):

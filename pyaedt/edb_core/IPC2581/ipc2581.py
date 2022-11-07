@@ -4,9 +4,6 @@ from pyaedt.edb_core.IPC2581.BOM.bom import Bom
 from pyaedt.edb_core.IPC2581.BOM.bom_item import BomItem
 from pyaedt.edb_core.IPC2581.content.content import Content
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
-from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_pad_def import (
-    PadstackPadDef,
-)
 from pyaedt.edb_core.IPC2581.ecad.ecad import Ecad
 from pyaedt.edb_core.IPC2581.history_record import HistoryRecord
 from pyaedt.edb_core.IPC2581.logistic_header import LogisticHeader
@@ -120,35 +117,44 @@ class IPC2581(object):
                 bom_item.add_refdes(cmp.refdes, cmp.placement_layer)
 
         # step
+        i = 0
         for padstack_name, padstackdef in self._pedb.core_padstack.padstacks.items():
+            i += 1
             padstack_def = PadstackDef()
             padstack_def.name = padstack_name
             padstack_def.padstack_hole_def.name = padstack_name
-            padstack_def.padstack_hole_def.diameter = str(padstack_def.hole_properties[0])
+            if padstackdef.hole_properties:
+                padstack_def.padstack_hole_def.diameter = str(padstackdef.hole_properties[0])
             for layer, pad in padstackdef.pad_by_layer.items():
-                pad_def = PadstackPadDef()
-                pad_def.layer_ref = layer
-                pad_def.pad_use = "REGULAR"
                 try:
                     self.content.standard_geometries_dict.add_circle(pad.parameters_value)
                 except:
                     pass
+                if pad.parameters_values:
+                    padstack_def.add_padstack_pad_def(
+                        layer=layer, pad_use="REGULAR", primitive_ref="CIRCLE_{}".format(pad.parameters_values[0])
+                    )
             for layer, antipad in padstackdef.antipad_by_layer.items():
-                antipad_def = PadstackPadDef()
-                antipad_def.layer_ref = layer
-                antipad_def.pad_use = "ANTIPAD"
                 try:
                     self.content.standard_geometries_dict.add_circle(antipad.parameters_value)
                 except:
                     pass
+                if antipad.parameters_values:
+                    padstack_def.add_padstack_pad_def(
+                        layer=layer, pad_use="ANTIPAD", primitive_ref="CIRCLE_{}".format(antipad.parameters_values[0])
+                    )
             for layer, thermalpad in padstackdef.thermalpad_by_layer.items():
-                thermalpad_def = PadstackPadDef()
-                thermalpad_def.layer_ref = layer
-                thermalpad_def.pad_use = "THERMAL"
                 try:
-                    self.content.standard_geometries_dict.add_circle(thermalpad_def.parameters_value)
+                    self.content.standard_geometries_dict.add_circle(thermalpad.parameters_value)
                 except:
                     pass
-            self.ecad.cad_data.cad_data_step.add_padstack_def(
-                name=padstack_name, hole_name=padstack_name, hole_diameter=padstackdef.hole
-            )
+                if thermalpad.parameters_values:
+                    padstack_def.add_padstack_pad_def(
+                        layer=layer,
+                        pad_use="THERMAL",
+                        primitive_ref="CIRCLE_{}".format(thermalpad.parameters_values[0]),
+                    )
+            self.ecad.cad_data.cad_data_step.add_padstack_def(padstack_def)
+
+        for refdes, component in self._pedb.core_components.components.items():
+            self.ecad.cad_data.cad_data_step.add_component(component=component)
