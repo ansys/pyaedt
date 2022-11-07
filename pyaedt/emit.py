@@ -66,7 +66,7 @@ class Result:
     @staticmethod
     def interaction_domain():
         """
-        Return a generic interaction domain.
+        Get a generic interaction domain.
 
         Returns
         -------
