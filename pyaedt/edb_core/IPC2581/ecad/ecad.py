@@ -5,10 +5,11 @@ from pyaedt.edb_core.IPC2581.ecad.cad_header.cad_header import CadHeader
 
 
 class Ecad(object):
-    def __init__(self, ipc, edb):
+    def __init__(self, ipc, edb, units):
         self.design_name = "Design"
+        self.units = units
         self.cad_header = CadHeader()
-        self.cad_data = CadData(self, edb)
+        self.cad_data = CadData(self, edb, units, ipc)
         self._ipc = ipc
         self._pedb = edb
 

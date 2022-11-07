@@ -6,12 +6,14 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.step import Step
 
 
 class CadData(object):
-    def __init__(self, ecad, edb):
+    def __init__(self, ecad, edb, units, ipc):
         self.design_name = ecad.design_name
         self._pedb = edb
+        self._ipc = ipc
+        self.units = units
         self._layers = []
         self.stackup = Stackup()
-        self.cad_data_step = Step(self, edb)
+        self.cad_data_step = Step(self, edb, self.units, ipc)
 
     @property
     def layers(self):

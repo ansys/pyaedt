@@ -1,3 +1,4 @@
+import math
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.component.component import Component
@@ -12,9 +13,12 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.profile import Profile
 
 
 class Step(object):
-    def __init__(self, caddata, edb):
+    def __init__(self, caddata, edb, units, ipc):
         self.design_name = caddata.design_name
         self._pedb = edb
+        self._ipc = ipc
+        self.units = units
+        self._cad_data = caddata
         self._padstack_defs = []
         self._profile = Profile()
         self._packages = {}
@@ -104,6 +108,18 @@ class Step(object):
         # adding component add package in Step
         if component:
             if not component.part_name in self._packages:
+                component_bounding_box = self._pedb.core_component.get_component_bounding_box(component)
+                middle_point_x = (component_bounding_box[0] + component_bounding_box[2]) / 2
+                middle_point_y = (component_bounding_box[1] + component_bounding_box[3]) / 2
+                component_transform = component.edb_component.GetTransform()
+                component_rotation = component_transform.Rotation
+                if component_rotation > math.pi:
+                    component_rotation -= math.pi
+                middle_point_x = middle_point_x - component_transform.XOffset
+                middle_point_y = middle_point_y - component_transform.YOffset
+                av_x = middle_point_x * math.cos(component_rotation) + middle_point_y * math.sin(component_rotation)
+                av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
+
                 package = Package()
                 package.name = component.part_name
                 package.height = ""
@@ -113,6 +129,8 @@ class Step(object):
                     geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
                         pin._edb_padstackinstance, "TOP", 0
                     )
+                    pos_x = self._ipc.from_meter_to_units(pos_x - av_x, self.units)
+                    pos_y = self._ipc.from_meter_to_units(pos_y - av_y, self.units)
                     primitive_ref = ""
                     if geometry_type == 1:
                         primitive_ref = "CIRC_{}".format(pad_parameters[0])
@@ -125,12 +143,7 @@ class Step(object):
                     if primitive_ref:
                         package.add_pin(number=pin_number, x=pos_x, y=pos_y, primitive_ref=primitive_ref)
                     pin_number += 1
-                component_bounding_box = (
-                    component.edbcomponent.GetLayout()
-                    .GetLayoutInstance()
-                    .GetLayoutObjInstance(component.edbcomponent, None)
-                    .GetBBox()
-                )
+
                 self._packages[package.name] = package
 
     def add_layer_feature(self, layer_feature=None):

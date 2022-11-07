@@ -19,7 +19,7 @@ class IPC2581(object):
         self.logistic_header = LogisticHeader()
         self.history_record = HistoryRecord()
         self.bom = Bom()
-        self.ecad = Ecad(self, pedb)
+        self.ecad = Ecad(self, pedb, units)
         self.file_path = ""
         self.design_name = ""
         self_datum = ""
@@ -158,3 +158,16 @@ class IPC2581(object):
 
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
+
+    @pyaedt_function_handler()
+    def from_meter_to_units(self, value, units):
+        if units.lower() == "mm":
+            return value * 1000
+        if units.lower() == "um":
+            return value * 1e6
+        if units.lower() == "mils":
+            return value * 39370.079
+        if units.lower() == "inch":
+            return value * 39.370079
+        if units.lower() == "cm":
+            return value * 100
