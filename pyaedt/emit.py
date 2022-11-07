@@ -36,7 +36,7 @@ class Result:
     @pyaedt_function_handler()
     def set_result_loaded(self):
         """
-        set __result_loaded status to True.
+        Set the status of whether the result is loaded to ``True``.
 
         Returns
         -------
