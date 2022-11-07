@@ -14,7 +14,7 @@ mod = None
 
 class Result:
     """
-    Provides the Result object.
+    Provides the ``Result`` object.
 
     Examples
     --------
