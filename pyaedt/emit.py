@@ -50,7 +50,7 @@ class Result:
     @pyaedt_function_handler()
     def get_result_loaded(self):
         """
-        Return __result_loaded status.
+        Check whether the result is loaded.
 
         Returns
         -------
