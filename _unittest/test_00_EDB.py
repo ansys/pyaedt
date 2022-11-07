@@ -2364,4 +2364,4 @@ if not config["skip_edb"]:
             edbapp = Edb(out_edb, edbversion=desktop_version)
             component = edbapp.core_components.components["U2A5"]
             assert component
-            assert edbapp.core_components.get_component_bounding_box(component=component)
+            assert component.bounding_box

@@ -1394,31 +1394,6 @@ class Components(object):
         return False
 
     @pyaedt_function_handler()
-    def get_component_bounding_box(self, component=None):
-        """Return the component bounding box.
-
-        Parameters
-        ----------
-        component : Component object, or Str component name.
-
-        Returns
-        -------
-        List[float]
-            [X lower left corner, Y lower left corner, X upper right corner, Y upper right corner].
-        """
-        if isinstance(component, str):  # pragma no cover
-            component = self.get_component_by_name(component)
-        if not component:  # pragma no cover
-            self._logger.error("Component not found")
-            return False
-        edb_component = component.edbcomponent
-        layout_instance = edb_component.GetLayout().GetLayoutInstance()
-        _bbox = layout_instance.GetLayoutObjInstance(edb_component, None).GetBBox()
-        _pt1 = _bbox.Item1
-        _pt2 = _bbox.Item2
-        return [_pt1.X.ToDouble(), _pt1.Y.ToDouble(), _pt2.X.ToDouble(), _pt2.Y.ToDouble()]
-
-    @pyaedt_function_handler()
     def set_solder_ball(
         self,
         component="",
