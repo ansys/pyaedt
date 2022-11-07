@@ -331,12 +331,12 @@ class EdbPadstacks(object):
 
         >>> Edb.core_padstack.delete_padstack_instances(net_names=["GND"])
         """
-        if not isinstance(net_names, list):
+        if not isinstance(net_names, list):  # pragma: no cover
             net_names = [net_names]
 
         for p_id, p in self.padstack_instances.items():
             if p.name in net_names:
-                if not p.delete_padstack_instance():
+                if not p.delete_padstack_instance():  # pragma: no cover
                     return False
                 self._padstacks.pop(p_id)
         return True

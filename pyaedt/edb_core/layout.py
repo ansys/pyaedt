@@ -651,7 +651,7 @@ class EdbLayout(object):
 
         >>> Edb.core_primitives.delete_primitives(net_names=["GND"])
         """
-        if not isinstance(net_names, list):
+        if not isinstance(net_names, list):  # pragma: no cover
             net_names = [net_names]
 
         for p in self.primitives:

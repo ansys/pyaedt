@@ -164,6 +164,7 @@ if not config["skip_edb"]:
             assert isinstance(padstack_instance.rotation, float)
             self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
             assert "mycircularvia" in list(self.edbapp.core_padstack.padstacks.keys())
+            assert padstack_instance.delete_padstack_instance()
 
         def test_08_nets_query(self):
             signalnets = self.edbapp.core_nets.signal_nets
