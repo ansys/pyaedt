@@ -663,9 +663,8 @@ class EdbLayout(object):
 
         for p in self.primitives:
             if p.net_name in net_names:
-                if not p.delete():
-                    return False
-                self._prims.remove(p)
+                p.delete()
+        self.update_primitives()
         return True
 
     @pyaedt_function_handler()
