@@ -18,7 +18,7 @@ class Result:
 
     Examples
     --------
-    Create an instance of Result.
+    Create an instance of the ``Result`` object.
 
     >>> aedtapp.results = Result()
     >>> mode = Emit.tx_rx_mode().rx
