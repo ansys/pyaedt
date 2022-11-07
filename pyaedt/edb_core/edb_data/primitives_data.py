@@ -40,6 +40,7 @@ class EDBPrimitives(object):
         ----------
         include_voids : bool, optional
             Either if the voids have to be included in computation.
+            The default value is ``True``.
         Returns
         -------
         float
