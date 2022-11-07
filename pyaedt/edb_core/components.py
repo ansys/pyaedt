@@ -1406,9 +1406,9 @@ class Components(object):
         List[float]
             [X lower left corner, Y lower left corner, X upper right corner, Y upper right corner].
         """
-        if isinstance(component, str):
+        if isinstance(component, str):  # pragma no cover
             component = self.get_component_by_name(component)
-        if not component:
+        if not component:  # pragma no cover
             self._logger.error("Component not found")
             return False
         edb_component = component.edbcomponent
