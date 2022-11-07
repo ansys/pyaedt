@@ -623,7 +623,14 @@ class AedtLogger(object):
 
     def info(self, msg, *args, **kwargs):
         """Write an info message to the global logger."""
-        self._log_on_dekstop(0, msg, "Global")
+        if args:
+            try:
+                msg1 = msg % args
+            except TypeError:
+                msg1 = msg
+        else:
+            msg1 = msg
+        self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
     def info_timer(self, msg, *args, **kwargs):
@@ -639,22 +646,50 @@ class AedtLogger(object):
             msg += " Elapsed time: {}h {}m {}sec".format(round(h), round(m), round(s))
         else:
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
-        self._log_on_dekstop(0, msg, "Global")
+        if args:
+            try:
+                msg1 = msg % args
+            except TypeError:
+                msg1 = msg
+        else:
+            msg1 = msg
+        self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
         """Write a warning message to the global logger."""
-        self._log_on_dekstop(1, msg, "Global")
+        if args:
+            try:
+                msg1 = msg % args
+            except TypeError:
+                msg1 = msg
+        else:
+            msg1 = msg
+        self._log_on_dekstop(1, msg1, "Global")
         return self._log_on_handler(1, msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
         """Write an error message to the global logger."""
-        self._log_on_dekstop(2, msg, "Global")
+        if args:
+            try:
+                msg1 = msg % args
+            except TypeError:
+                msg1 = msg
+        else:
+            msg1 = msg
+        self._log_on_dekstop(2, msg1, "Global")
         return self._log_on_handler(2, msg, *args, **kwargs)
 
     def debug(self, msg, *args, **kwargs):
         """Write a debug message to the global logger."""
-        self._log_on_dekstop(0, msg, "Global")
+        if args:
+            try:
+                msg1 = msg % args
+            except TypeError:
+                msg1 = msg
+        else:
+            msg1 = msg
+        self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(3, msg, *args, **kwargs)
 
     @property
