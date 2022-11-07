@@ -266,8 +266,9 @@ class TestClass(BasisTest, object):
         emi_worst = interaction.worst_instance(Emit.result_type().emi)
     """
     """
-    Please note: The test below should be maintained as the last test within this file to ensure,
-    aedtapp functions as intended.
+    .. note:: 
+    The following test should be maintained as the last test within this file to ensure
+    that the AEDT app functions as intended.
 
     """
 
