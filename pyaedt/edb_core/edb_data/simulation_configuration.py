@@ -559,7 +559,7 @@ class SimulationConfiguration(object):
             self._radiation_box = value
 
     @property
-    def start_frequency(self):  # pragma: no cover
+    def start_freq(self):  # pragma: no cover
         """Retrieve starting frequency for the frequency sweep.
 
         Returns
@@ -569,8 +569,8 @@ class SimulationConfiguration(object):
         """
         return self._start_frequency
 
-    @start_frequency.setter
-    def start_frequency(self, value):  # pragma: no cover
+    @start_freq.setter
+    def start_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
             self._start_frequency = value
 
