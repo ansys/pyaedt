@@ -536,12 +536,14 @@ class EDBComponent(object):
 
     @property
     def bounding_box(self):
-        """Return the component bounding box.
+        """Component's bounding box.
 
         Returns
         -------
         List[float]
-                [X lower left corner, Y lower left corner, X upper right corner, Y upper right corner].
+                List of coordinates for the component's bounding box, with the list of
+                coordinates in this order: [X lower left corner, Y lower left corner,
+                X upper right corner, Y upper right corner].
         """
         layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
         _bbox = layinst.GetLayoutObjInstance(self.edbcomponent, None).GetBBox()

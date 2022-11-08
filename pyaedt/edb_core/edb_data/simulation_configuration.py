@@ -560,12 +560,12 @@ class SimulationConfiguration(object):
 
     @property
     def start_freq(self):  # pragma: no cover
-        """Retrieve starting frequency for the frequency sweep.
+        """Starting frequency for the frequency sweep.
 
         Returns
         -------
-            float
-            The value of the frequency point.
+        float
+            Value of the frequency point.
         """
         return self._start_freq
 
