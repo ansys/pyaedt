@@ -1099,6 +1099,7 @@ class Edb(object):
             self._init_objects()
         return True
 
+    @pyaedt_function_handler()
     def create_cutout_multithread(
         self,
         signal_list=[],
@@ -1106,7 +1107,7 @@ class Edb(object):
         extent_type="Conforming",
         expansion_size=0.002,
         use_round_corner=False,
-        number_of_threads=12,
+        number_of_threads=4,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1130,6 +1131,8 @@ class Edb(object):
             Expansion size ratio in meters. The default is ``0.002``.
         use_round_corner : bool, optional
             Whether to use round corners. The default is ``False``.
+        number_of_threads : int, optional
+            Number of thread to use. Default is 4
 
         Returns
         -------
@@ -1241,6 +1244,7 @@ class Edb(object):
         self.core_components.delete_single_pin_rlc()
         self.logger.info_timer("Single Pins components deleted")
         self.logger.reset_timer()
+        return True
 
     @pyaedt_function_handler()
     def get_conformal_polygon_from_netlist(self, netlist=None):

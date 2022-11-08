@@ -568,8 +568,9 @@ if not config["skip_edb"]:
             assert len(list(component.LayoutObjs)) == 2
 
         def test_55b_create_cutout(self):
-            output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_1.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
@@ -596,6 +597,19 @@ if not config["skip_edb"]:
                 include_partial_instances=True,
             )
             assert os.path.exists(os.path.join(output, "edb.def"))
+
+        def test_55c_create_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+
+            assert edbapp.create_cutout_multithread(
+                signal_list=["V3P3_S0"],
+                reference_list=["GND"],
+                number_of_threads=4,
+            )
+            assert "A0_N" not in edbapp.core_nets.nets
 
         def test_56_rvalue(self):
             assert resistor_value_parser("100meg")
