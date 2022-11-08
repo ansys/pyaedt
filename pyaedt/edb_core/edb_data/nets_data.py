@@ -1,3 +1,5 @@
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -51,11 +53,16 @@ class EDBNetsData(object):
         -------
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
         """
-        prims = []
-        for el in self._core_primitive.primitives:
-            if self.name == el.net_name:
-                prims.append(el)
-        return prims
+        return [EDBPrimitives(i, self._app) for i in self.net_object.Primitives]
+
+    @property
+    def padstack_instances(self):
+        """Return the list of primitives that belongs to the net.
+
+        Returns
+        -------
+        list of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`"""
+        return [EDBPadstackInstance(i, self._app) for i in self.net_object.PadstackInstances]
 
     @property
     def is_power_ground(self):

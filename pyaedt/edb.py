@@ -824,7 +824,7 @@ class Edb(object):
         """
         self._db.Close()
         if self.log_name:
-            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
         time.sleep(2)
         start_time = time.time()
@@ -1098,6 +1098,149 @@ class Edb(object):
             self._active_cell = _cutout
             self._init_objects()
         return True
+
+    def create_cutout_multithread(
+        self,
+        signal_list=[],
+        reference_list=["GND"],
+        extent_type="Conforming",
+        expansion_size=0.002,
+        use_round_corner=False,
+        number_of_threads=12,
+    ):
+        """Create a cutout using an approach entirely based on pyaedt.
+        It does in sequence:
+        - delete all nets not in list,
+        - create a extent of the nets,
+        - check and delete all vias not in the extent,
+        - check and delete all the primitives not in extent,
+        - check and intersect all the primitives that intersect the extent.
+
+
+        Parameters
+        ----------
+        signal_list : list
+            List of signal strings.
+        reference_list : list, optional
+            List of references to add. The default is ``["GND"]``.
+        extent_type : str, optional
+            Type of the extension. Options are ``"Conforming"``, ``"ConvexHull"``, and
+            ``"Bounding"``. The default is ``"Conforming"``.
+        expansion_size : float, str, optional
+            Expansion size ratio in meters. The default is ``0.002``.
+        use_round_corner : bool, optional
+            Whether to use round corners. The default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        if is_ironpython:
+            self.logger.error("Method working only in Cpython")
+            return False
+        from concurrent.futures import ThreadPoolExecutor
+
+        self.logger.reset_timer()
+        all_list = signal_list + reference_list
+
+        for i in self.core_nets.nets.values():
+            if i.name not in all_list:
+                i.net_object.Delete()
+        for i in self.core_padstack.padstack_instances.values():
+            if i.net_name not in all_list:
+                i.delete_padstack_instance()
+        for i in self.core_primitives.primitives:
+            if i.net_name not in all_list:
+                i.delete()
+        self.logger.info_timer("Net clean up")
+        self.logger.reset_timer()
+        net_signals = convert_py_list_to_net_list(
+            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
+        )
+
+        if extent_type == "Conforming":
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+        elif extent_type == "Bounding":
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+            )
+        else:
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+            _poly_list = convert_py_list_to_net_list([_poly])
+            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+
+        self.logger.info_timer("Expanded Net Polygon Creation")
+        self.logger.reset_timer()
+        _poly_list = convert_py_list_to_net_list([_poly])
+        polys = [i for i in self.core_primitives.primitives if not i.is_void]
+        pinsts = [i for i in list(self.core_padstack.padstack_instances.values())]
+        prims_to_delete = []
+        poly_to_create = []
+        pins_to_delete = []
+
+        def get_polygon_data(prim):
+            return prim.primitive_object.GetPolygonData()
+
+        def intersect(poly1, poly2):
+            return list(poly1.Intersect(poly2))
+
+        def clean_prim(prim_1):
+            net = prim_1.net_name
+            if net in reference_list:
+                pdata = get_polygon_data(prim_1)
+                int_data = _poly.GetIntersectionType(pdata)
+                if int_data == 0:
+                    prims_to_delete.append(prim_1)
+                elif int_data != 2:
+                    list_poly = intersect(_poly, get_polygon_data(prim_1))
+                    if list_poly:
+                        list_void = []
+                        voids = prim_1.voids
+                        if voids:
+                            for void in voids:
+                                void_pdata = get_polygon_data(void)
+                                int_data = _poly.GetIntersectionType(void_pdata)
+                                if int_data != 2 and int_data != 0:
+                                    list_void.extend(intersect(_poly, void_pdata))
+                                elif int_data == 2:
+                                    list_void.append(void_pdata)
+                        poly_to_create.append([list_poly, prim_1.layer_name, net, list_void])
+                    prims_to_delete.append(prim_1)
+
+        def pins_clean(pinst):
+            if pinst.net_name in reference_list and not pinst.in_polygon(_poly):
+                pins_to_delete.append(pinst)
+
+        with ThreadPoolExecutor(number_of_threads) as pool:
+            pool.map(lambda item: pins_clean(item), pinsts)
+
+        for pin in pins_to_delete:
+            pin.delete_padstack_instance()
+
+        self.logger.info_timer("Padstack Instances removal completed")
+        self.logger.reset_timer()
+
+        with ThreadPoolExecutor(number_of_threads) as pool:
+            pool.map(lambda item: clean_prim(item), polys)
+
+        for el in poly_to_create:
+            for poly in el[0]:
+                self.core_primitives.create_polygon(poly, el[1], net_name=el[2], voids=el[3])
+
+        for prim in prims_to_delete:
+            prim.delete()
+        self.logger.info_timer("Primitives cleanup completed")
+        self.logger.reset_timer()
+
+        self.core_components.delete_single_pin_rlc()
+        self.logger.info_timer("Single Pins components deleted")
+        self.logger.reset_timer()
 
     @pyaedt_function_handler()
     def get_conformal_polygon_from_netlist(self, netlist=None):

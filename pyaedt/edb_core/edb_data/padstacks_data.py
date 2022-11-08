@@ -641,6 +641,17 @@ class EDBPadstackInstance(object):
         self._edb_padstackinstance = edb_padstackinstance
         self._pedb = _pedb
         self._bounding_box = []
+        self._object_instance = None
+
+    @property
+    def object_instance(self):
+        if not self._object_instance:
+            self._object_instance = (
+                self._edb_padstackinstance.GetLayout()
+                .GetLayoutInstance()
+                .GetLayoutObjInstance(self._edb_padstackinstance, None)
+            )
+        return self._object_instance
 
     @property
     def bounding_box(self):
@@ -666,7 +677,7 @@ class EDBPadstackInstance(object):
         return self._bounding_box
 
     @pyaedt_function_handler()
-    def in_polygon(self, polygon_data, include_partial=True):
+    def in_polygon(self, polygon_data, include_partial=True, simple_check=False):
         """Check if padstack Instance is in given polygon data.
 
         Parameters
@@ -680,9 +691,22 @@ class EDBPadstackInstance(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        plane = self._pedb.core_primitives.Shape("rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1])
-        rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
-        int_val = polygon_data.GetIntersectionType(rectangle_data)
+        if simple_check:
+            int_val = (
+                1
+                if polygon_data.PointInPolygon(
+                    self._pedb.edb.Geometry.PointData(
+                        self._pedb.edb_value(self.position[0]), self._pedb.edb_value(self.position[1])
+                    )
+                )
+                else 0
+            )
+        else:
+            plane = self._pedb.core_primitives.Shape(
+                "rectangle", pointA=self.bounding_box[0], pointB=self.bounding_box[1]
+            )
+            rectangle_data = self._pedb.core_primitives.shape_to_polygon_data(plane)
+            int_val = polygon_data.GetIntersectionType(rectangle_data)
         # Intersection type:
         # 0 = objects do not intersect
         # 1 = this object fully inside other (no common contour points)
