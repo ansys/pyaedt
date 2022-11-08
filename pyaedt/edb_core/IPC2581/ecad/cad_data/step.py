@@ -136,7 +136,7 @@ class Step(object):
                     if geometry_type == 1:
                         primitive_ref = "CIRC_{}".format(pad_parameters[0])
                     elif geometry_type == 2:
-                        primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[1])
+                        primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[0])
                     elif geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(pad_parameters[0], pad_parameters[1])
                     elif geometry_type == 4:
