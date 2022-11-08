@@ -5,7 +5,7 @@ cff1==1.15.0; python_version > '3.6' and sys_platform == 'linux'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
-pywin32==303; python_version > '3.6'
+pywin32==305; python_version > '3.6'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
