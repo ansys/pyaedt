@@ -57,7 +57,7 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          
+
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
@@ -138,7 +138,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: 'Install pyaedt'
+      - name: 'Install requirements'
         run: |
           python -m venv jsondoc
           jsondoc\Scripts\Activate.ps1
