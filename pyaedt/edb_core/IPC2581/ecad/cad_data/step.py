@@ -108,18 +108,19 @@ class Step(object):
         # adding component add package in Step
         if component:
             if not component.part_name in self._packages:
-                component_bounding_box = self._pedb.core_component.get_component_bounding_box(component)
+                component_bounding_box = component.bounding_box
                 middle_point_x = (component_bounding_box[0] + component_bounding_box[2]) / 2
                 middle_point_y = (component_bounding_box[1] + component_bounding_box[3]) / 2
-                component_transform = component.edb_component.GetTransform()
-                component_rotation = component_transform.Rotation
+                component_transform = component.edbcomponent.GetTransform()
+                component_rotation = component_transform.Rotation.ToDouble()
                 if component_rotation > math.pi:
                     component_rotation -= math.pi
-                middle_point_x = middle_point_x - component_transform.XOffset
-                middle_point_y = middle_point_y - component_transform.YOffset
+                middle_point_x = middle_point_x - component_transform.XOffset.ToDouble()
+                middle_point_y = middle_point_y - component_transform.YOffset.ToDouble()
                 av_x = middle_point_x * math.cos(component_rotation) + middle_point_y * math.sin(component_rotation)
                 av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
-
+                if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
+                    av_x = -av_x
                 package = Package()
                 package.name = component.part_name
                 package.height = ""
@@ -143,8 +144,16 @@ class Step(object):
                     if primitive_ref:
                         package.add_pin(number=pin_number, x=pos_x, y=pos_y, primitive_ref=primitive_ref)
                     pin_number += 1
-
                 self._packages[package.name] = package
+            ipc_component = Component()
+            ipc_component.type = component.type
+            ipc_component.value = component.value
+            ipc_component.refdes = component.refdes
+            ipc_component.location = component.location
+            ipc_component.rotation = component.rotation
+            ipc_component.package_ref = component.part_name
+            ipc_component.part = component.part_name
+            ipc_component.layer_ref = component.placement_layer
 
     def add_layer_feature(self, layer_feature=None):
         if isinstance(layer_feature, LayerFeature):
