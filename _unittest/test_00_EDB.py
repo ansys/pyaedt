@@ -568,11 +568,11 @@ if not config["skip_edb"]:
             assert len(list(component.LayoutObjs)) == 2
 
         def test_55b_create_cutout(self):
-            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_1.aedb")
-            self.local_scratch.copyfolder(source_path, target_path)
-            edbapp = Edb(target_path, edbversion=desktop_version)
-            assert edbapp.create_cutout(
+            output = os.path.join(self.local_scratch.path, "cutout.aedb")
+            assert self.edbapp.create_cutout(
+                ["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False
+            )
+            assert self.edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
                 output_aedb_path=output,
@@ -589,7 +589,7 @@ if not config["skip_edb"]:
             points.append([bounding[0][0], bounding[0][1]])
             output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
-            assert edbapp.create_cutout_on_point_list(
+            assert self.edbapp.create_cutout_on_point_list(
                 points,
                 nets_to_include=["GND", "V3P3_S0"],
                 output_aedb_path=output,
