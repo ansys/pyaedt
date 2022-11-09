@@ -1206,7 +1206,7 @@ class Edb(object):
             _poly = self.core_primitives.shape_to_polygon_data(plane)
         elif custom_extent:
             _poly = custom_extent
-        if extent_type == "Conforming":
+        elif extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
