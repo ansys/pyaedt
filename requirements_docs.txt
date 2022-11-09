@@ -6,7 +6,6 @@ ipywidgets==8.0.2
 joblib==1.2.0
 jupyterlab==3.5.0
 nbsphinx==0.8.9
-recommonmark==0.7.1
 matplotlib==3.6.2
 numpydoc==1.5.0
 pypandoc==1.10
