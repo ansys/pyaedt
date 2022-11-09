@@ -7,6 +7,7 @@ from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit import Result
 from pyaedt.emit import Revision
+from pyaedt.emit import Interaction_Domain
 from pyaedt.modeler.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.PrimitivesEmit import EmitComponents
@@ -106,7 +107,6 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_revision_generation(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
@@ -124,11 +124,9 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
-        rev = self.aedtapp.analyze()
-        assert rev is not None
+        self.aedtapp.analyze()
         assert len(self.aedtapp.results.revisions_list) == 1
-        rev2 = self.aedtapp.analyze()
-        assert rev2 is not None
+        self.aedtapp.analyze()
         assert len(self.aedtapp.results.revisions_list) == 1
         rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
         ant4 = self.aedtapp.modeler.components.create_component("Antenna")
@@ -160,9 +158,6 @@ class TestClass(BasisTest, object):
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
         self.aedtapp.analyze()
-        domain = Result.interaction_domain()
-        interaction = self.aedtapp.results.revisions_list[-1].run(domain)
-        assert interaction is not None
         radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
         assert radiosRX[0] == "Bluetooth"
         assert radiosRX[1] == "Bluetooth 2"
@@ -177,8 +172,8 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_static_type_generation(self):
-        domain = Result.interaction_domain()
-        assert str(type(domain)) == "<class 'EmitApiPython.InteractionDomain'>"
+        domain = Interaction_Domain()
+        assert str(type(domain._obj)) == "<class 'EmitApiPython.InteractionDomain'>"
         mode = Emit.tx_rx_mode()
         mode_rx = Emit.tx_rx_mode().rx
         mode_tx = Emit.tx_rx_mode().tx
@@ -226,6 +221,7 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
+        assert self.aedtapp.results.get_result_loaded() is False
         self.aedtapp.analyze()
         assert len(self.aedtapp.results.revisions_list) == 1
         if self.aedtapp._emit_api is not None:
@@ -236,35 +232,119 @@ class TestClass(BasisTest, object):
                     subfolder = os.path.join(f.path, "EmitDesign1")
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             self.aedtapp._emit_api.load_result(file.path)
-            assert self.aedtapp.results.get_result_loaded() is False
-            self.aedtapp.results.set_result_loaded()
             assert self.aedtapp.results.get_result_loaded()
             rev = Revision(self.aedtapp, "Revision 1")
             assert rev is not None
-            domain = Result.interaction_domain()
+            domain = Interaction_Domain()
             assert domain is not None
             eng = self.aedtapp._emit_api.get_engine()
             assert eng is not None
-            interaction = eng.analyze(domain)
+            interaction = eng.analyze(domain._obj)
             assert interaction is not None
 
-    """
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_N_to_1_feature(self):
-        domain = Result.interaction_domain()
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        # place components and generate the appropriate number of revisions
+        rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("MD401C")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("MD400C")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad3 and ant3:
+            ant3.move_and_connect_to(rad3)
+        rad4 = self.aedtapp.modeler.components.create_component("LT401")
+        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad4 and ant4:
+            ant4.move_and_connect_to(rad4)
+        assert len(self.aedtapp.results.revisions_list) == 0
+        self.aedtapp.analyze()
+        assert len(self.aedtapp.results.revisions_list) == 1
         radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
         rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], Emit.tx_rx_mode().rx)
+        domain = Interaction_Domain()
         domain.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
+        radiosTX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().tx)
+        tx_freqs = []
+        tx_bands = []
+        for radio in radiosTX:
+            bandsTX = self.aedtapp.results.get_band_names(radio, Emit.tx_rx_mode().tx)
+            tx_frequencies = self.aedtapp.results.get_active_frequencies(radio, bandsTX[0], Emit.tx_rx_mode().tx)
+            tx_bands.append(bandsTX[0])
+            tx_freqs.append(tx_frequencies[0])
+        domain.set_interferers(radiosTX, tx_bands, tx_freqs)
+        interaction = self.aedtapp.results.revisions_list[-1].run(domain)
+        instance = interaction.worst_instance(Emit.result_type().sensitivity)
+        assert instance.value(Emit.result_type().emi) == 76.02
+        assert instance.value(Emit.result_type().desense) == 3.01
+        assert instance.value(Emit.result_type().sensitivity) == -66.99
+        instance = None
+        instance = interaction.instance(domain._obj)
+        assert instance.value(Emit.result_type().emi) == 76.02
+        assert instance.value(Emit.result_type().desense) == 3.01
+        assert instance.value(Emit.result_type().sensitivity) == -66.99
+        available_warning = interaction.get_availability_warning(domain._obj)
+        assert available_warning == 'Availability only defined for 1 to 1 runs'
+        availability = interaction.availability(domain._obj)
+        assert availability == -1.0
+        valid_availability = interaction.has_valid_availability(domain._obj)
+        assert valid_availability is False
+
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
+    )
+    def test_availability_1_to_1(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        # place components and generate the appropriate number of revisions
+        rad1 = self.aedtapp.modeler.components.create_component("MD400C")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad1 and ant1:
+            ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("MD400C")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        if rad2 and ant2:
+            ant2.move_and_connect_to(rad2)
+        assert len(self.aedtapp.results.revisions_list) == 0
+        self.aedtapp.analyze()
+        assert len(self.aedtapp.results.revisions_list) == 1
+        domain = Interaction_Domain()
+        radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
+        bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], Emit.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], Emit.tx_rx_mode().rx)
+        domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().tx)
         bandsTX = self.aedtapp.results.get_band_names(radiosTX[0], Emit.tx_rx_mode().tx)
         tx_frequencies = self.aedtapp.results.get_active_frequencies(radiosTX[0], bandsTX[0], Emit.tx_rx_mode().tx)
-        domain.set_interferers(radiosTX, bandsTX, list(tx_frequencies[0]))
+        radtx =[]
+        bandtx = []
+        radtx.append(radiosTX[0])
+        bandtx.append(bandsTX[0])
+        domain.set_interferers(radtx, bandtx)
         interaction = self.aedtapp.results.revisions_list[-1].run(domain)
-        emi_worst = interaction.worst_instance(Emit.result_type().emi)
-    """
+        assert domain.get_receiver_name() == 'MD400C'
+        assert domain.get_receiver_band_name() == 'Rx'
+        assert domain.get_receiver_channel_frequency() == -1.0
+        assert domain.get_interferer_names() == ['MD400C']
+        assert domain.get_interferer_band_names() == ['Tx']
+        assert domain.get_interferer_channel_frequencies() == [-1.0]
+        assert domain.get_instance_count() == 31626
+        available_warning = interaction.get_availability_warning(domain._obj)
+        assert available_warning == ''
+        availability = interaction.availability(domain._obj)
+        assert availability == 1.0
+        valid_availability = interaction.has_valid_availability(domain._obj)
+        assert valid_availability
+        
+
     """
     .. note::
     The following test should be maintained as the last test within this file to ensure
