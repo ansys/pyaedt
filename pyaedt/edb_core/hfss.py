@@ -5,6 +5,7 @@ import math
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Excitation
+from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
@@ -468,6 +469,43 @@ class EdbHfss(object):
                         coax.append(port_name)
         return coax
 
+    @pyaedt_function_handler
+    def create_differential_wave_port(
+            self,
+            port_name,
+            positive_primitive_id,
+            positive_points_on_edge,
+            negative_primitive_id,
+            negative_points_on_edge,
+            impedance_differetial=100,
+            impedance_common=25,
+            horizontal_extent_factor=5,
+            vertical_extent_factor=3,
+            pec_launch_width="0.01mm",
+    ):
+        _, pos_term = self.create_edge_port_vertical(
+            positive_primitive_id,
+            positive_points_on_edge,
+            hfss_type="Wave",
+            horizontal_extent_factor=horizontal_extent_factor,
+            vertical_extent_factor=vertical_extent_factor,
+            pec_launch_width=pec_launch_width,
+        )
+        _, neg_term = self.create_edge_port_vertical(
+            negative_primitive_id,
+            negative_points_on_edge,
+            hfss_type="Wave",
+            horizontal_extent_factor=horizontal_extent_factor,
+            vertical_extent_factor=vertical_extent_factor,
+            pec_launch_width=pec_launch_width,
+        )
+        edb_list = convert_py_list_to_net_list([pos_term._edb_terminal, neg_term._edb_terminal],
+                                               self._edb.Cell.Terminal.Terminal
+                                               )
+        _edb_boundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
+        _edb_boundle_terminal.SetName(port_name)
+        return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal, port_name)
+
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
         """Create an HFSS port on a padstack.
@@ -612,7 +650,6 @@ class EdbHfss(object):
         hfss_type="Gap",
         horizontal_extent_factor=5,
         vertical_extent_factor=3,
-        radial_extent_factor=0,
         pec_launch_width="0.01mm",
     ):
         """Create a vertical edge port.
@@ -646,6 +683,8 @@ class EdbHfss(object):
         str
             Port name.
         """
+        if not port_name:
+            port_name = generate_unique_name("Terminal_")
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
         if reference_layer:
@@ -659,7 +698,6 @@ class EdbHfss(object):
                 " 'Layer Alignment'='Upper'",
                 " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
                 " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
-                " 'Radial Extent Factor'='{}'".format(radial_extent_factor),
                 " 'PEC Launch Width'='{}')".format(pec_launch_width),
             ]
         )
@@ -669,7 +707,7 @@ class EdbHfss(object):
             prop,
         )
         if pos_edge_term:
-            return port_name
+            return port_name, self._pedb.core_hfss.excitations[port_name]
         else:
             return False
 
