@@ -1187,15 +1187,15 @@ class Edb(object):
         else:
             all_list = signal_list + reference_list
 
-        for i in self.core_nets.nets.values():
-            if i.name not in all_list:
-                i.net_object.Delete()
         for i in self.core_padstack.padstack_instances.values():
             if i.net_name not in all_list:
                 i.delete_padstack_instance()
         for i in self.core_primitives.primitives:
             if i.net_name not in all_list:
                 i.delete()
+        for i in self.core_nets.nets.values():
+            if i.name not in all_list:
+                i.net_object.Delete()
         self.logger.info_timer("Net clean up")
         self.logger.reset_timer()
 
@@ -1254,11 +1254,13 @@ class Edb(object):
                     prims_to_delete.append(prim_1)
 
         def pins_clean(pinst):
-            if pinst.net_name in reference_list and not pinst.in_polygon(_poly):
+            if pinst.net_name in reference_list and not pinst.in_polygon(_poly, simple_check=True):
                 pins_to_delete.append(pinst)
 
         with ThreadPoolExecutor(number_of_threads) as pool:
             pool.map(lambda item: pins_clean(item), pinsts)
+        # for item in pinsts:
+        #     pins_clean(item)
 
         for pin in pins_to_delete:
             pin.delete_padstack_instance()
