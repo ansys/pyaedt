@@ -107,6 +107,7 @@ class TestClass(BasisTest, object):
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_revision_generation(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
@@ -300,7 +301,7 @@ class TestClass(BasisTest, object):
 
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_availability_1_to_1(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
