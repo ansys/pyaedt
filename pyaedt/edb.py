@@ -972,11 +972,11 @@ class Edb(object):
         expansion_size,
         use_round_corner,
     ):
-        if extent_type == "Conforming" or self.edb.Geometry.ExtentType.Conforming or 0:
+        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
-        elif extent_type == "Bounding" or self.edb.Geometry.ExtentType.BoundingBox or 1:
+        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 1]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
