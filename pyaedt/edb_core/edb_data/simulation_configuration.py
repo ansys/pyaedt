@@ -105,7 +105,7 @@ class SimulationConfiguration(object):
         self._passivity_tolerance = 0.0001
         self._sweep_name = "Sweep1"
         self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
-        self._start_frequency = "0.0GHz"  # 0.0
+        self._start_freq = "0.0GHz"  # 0.0
         self._stop_freq = "10.0GHz"  # 10e9
         self._sweep_type = SweepType.Linear  # 'Linear'
         self._step_freq = "0.025GHz"  # 10e6
@@ -559,20 +559,20 @@ class SimulationConfiguration(object):
             self._radiation_box = value
 
     @property
-    def start_frequency(self):  # pragma: no cover
-        """Retrieve starting frequency for the frequency sweep.
+    def start_freq(self):  # pragma: no cover
+        """Starting frequency for the frequency sweep.
 
         Returns
         -------
-            float
-            The value of the frequency point.
+        float
+            Value of the frequency point.
         """
-        return self._start_frequency
+        return self._start_freq
 
-    @start_frequency.setter
-    def start_frequency(self, value):  # pragma: no cover
+    @start_freq.setter
+    def start_freq(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._start_frequency = value
+            self._start_freq = value
 
     @property
     def stop_freq(self):  # pragma: no cover
