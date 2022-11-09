@@ -536,7 +536,7 @@ class EDBComponent(object):
 
     @property
     def rotation(self):
-        """Compute the component rotation.
+        """Compute the component rotation in radian.
 
         Returns
         -------
