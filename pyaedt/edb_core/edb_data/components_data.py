@@ -535,8 +535,50 @@ class EDBComponent(object):
         return [center.X.ToDouble(), center.Y.ToDouble()]
 
     @property
+    def bounding_box(self):
+        """Component's bounding box.
+
+        Returns
+        -------
+        List[float]
+            List of coordinates for the component's bounding box, with the list of
+            coordinates in this order: [X lower left corner, Y lower left corner,
+            X upper right corner, Y upper right corner].
+        """
+        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        _bbox = layinst.GetLayoutObjInstance(self.edbcomponent, None).GetBBox()
+        _pt1 = _bbox.Item1
+        _pt2 = _bbox.Item2
+        return [_pt1.X.ToDouble(), _pt1.Y.ToDouble(), _pt2.X.ToDouble(), _pt2.Y.ToDouble()]
+
+    @property
+    def rotation(self):
+        """Compute the component rotation in radian.
+
+        Returns
+        -------
+        float
+        """
+        return self.edbcomponent.GetTransform().Rotation.ToDouble()
+
+    @property
+    def bounding_box(self):
+        """Return the component bounding box.
+
+        Returns
+        -------
+        List[float]
+                [X lower left corner, Y lower left corner, X upper right corner, Y upper right corner].
+        """
+        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        _bbox = layinst.GetLayoutObjInstance(self.edbcomponent, None).GetBBox()
+        _pt1 = _bbox.Item1
+        _pt2 = _bbox.Item2
+        return [_pt1.X.ToDouble(), _pt1.Y.ToDouble(), _pt2.X.ToDouble(), _pt2.Y.ToDouble()]
+
+    @property
     def pinlist(self):
-        """Pins of Component.
+        """Pins of the component.
 
         Returns
         -------

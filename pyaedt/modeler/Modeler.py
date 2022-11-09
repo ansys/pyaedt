@@ -2352,7 +2352,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.Object3d.Object3d
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
             List of split objects.
 
         References

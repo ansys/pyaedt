@@ -1079,14 +1079,14 @@ class EdbHfss(object):
             if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
                 self._setup_decade_count_sweep(
                     sweep,
-                    simulation_setup.start_frequency,
-                    simulation_setup.stop_freq,
-                    simulation_setup.decade_count,
+                    str(simulation_setup.start_freq),
+                    str(simulation_setup.stop_freq),
+                    str(simulation_setup.decade_count),
                 )  # Added DecadeCount as a new attribute
 
             else:
                 sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                    simulation_setup.start_frequency,
+                    simulation_setup.start_freq,
                     simulation_setup.stop_freq,
                     simulation_setup.step_freq,
                 )
