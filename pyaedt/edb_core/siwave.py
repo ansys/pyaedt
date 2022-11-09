@@ -91,10 +91,10 @@ class EdbSiwave(object):
         list
             List of all layout pin groups.
         """
-        pingroups = {}
+        _pingroups = {}
         for el in self._active_layout.PinGroups:
-            pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
-        return pingroups
+            _pingroups[el.GetName()] = PinGroup(el.GetName(), el, self._pedb)
+        return _pingroups
 
     @pyaedt_function_handler()
     def _create_terminal_on_pins(self, source):
@@ -1254,6 +1254,6 @@ class EdbSiwave(object):
         pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
 
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
-        neg_terminal = neg_pin_group_name.create_voltage_source_terminal()
+        neg_terminal = neg_pin_group_name.create_voltage_source_terminal(magnitude, phase)
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True

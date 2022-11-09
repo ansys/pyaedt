@@ -122,7 +122,7 @@ class FileManagement(object):
         logger.info("Directory %s uploaded. %s files copied", localpath, i)
 
     def _download_file(self, remote_file, local_file, overwrite=True):
-        if os.path.exists(local_file):
+        if self.client.root.pathexists(local_file):
             if overwrite:
                 logger.warning("File already exists on the client. Overwriting it.")
             else:
@@ -155,28 +155,27 @@ class FileManagement(object):
     def create_file(self, remote_file, create_options="w"):
         return self.client.root.open(remote_file, open_options=create_options)
 
-    @staticmethod
-    def makedirs(remotepath):
-        if os.path.exists(remotepath):
+    def makedirs(self, remotepath):
+        if self.client.root.pathexists(remotepath):
             return "Directory Exists!"
-        os.makedirs(remotepath)
+        self.client.root.makedirs(remotepath)
         return "Directory created!"
 
-    @staticmethod
-    def listdir(remotepath):
-        if os.path.exists(remotepath):
-            return os.listdir(remotepath)
+    def listdir(self, remotepath):
+        if self.client.root.pathexists(remotepath):
+            return self.client.root.listdir(remotepath)
         return []
 
-    @staticmethod
-    def pathexists(remotepath):
-        if os.path.exists(remotepath):
+    def pathexists(self, remotepath):
+        if self.client.root.pathexists(remotepath):
             return True
         return False
-
-    @staticmethod
+    def normpath(self, remotepath):
+        return self.client.root.normpath(remotepath)
     def isdir(self, remotepath):
-        return os.path.isdir(remotepath)
+        return self.client.root.isdir(remotepath)
+    def temp_dir(self):
+        return self.client.root.temp_dir()
 
 
 def check_port(port):
@@ -1076,6 +1075,14 @@ class GlobalService(rpyc.Service):
     @staticmethod
     def exposed_isdir(remotepath):
         return os.path.isdir(remotepath)
+
+    @staticmethod
+    def exposed_tempdir():
+        return tempfile.gettempdir()
+
+    @staticmethod
+    def normpath(remotepath):
+        return os.path.normpath(remotepath)
 
 class ServiceManager(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""

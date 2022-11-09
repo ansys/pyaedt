@@ -40,6 +40,7 @@ class EDBPrimitives(object):
         ----------
         include_voids : bool, optional
             Either if the voids have to be included in computation.
+            The default value is ``True``.
         Returns
         -------
         float
@@ -313,4 +314,4 @@ class EDBPrimitives(object):
     @pyaedt_function_handler()
     def delete(self):
         """Delete this primtive."""
-        self.primitive_object.Delete()
+        return self.primitive_object.Delete()

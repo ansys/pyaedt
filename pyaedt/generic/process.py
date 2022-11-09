@@ -275,9 +275,9 @@ class SiwaveSolve(object):
         if hidden:
             command.append("-embedding")
         command.append("-RunScriptAndExit")
-        command.append(scriptname)
+        command.append('"' + scriptname + '"')
         print(command)
-        os.system(" ".join(command))
+        subprocess.check_output(" ".join(command))
         # p1 = subprocess.call(" ".join(command))
         # p1.wait()
         return output_list

@@ -87,38 +87,38 @@ class Icepak(FieldAnalysis3D):
 
     >>> from pyaedt import Icepak
     >>> icepak = Icepak()
-    pyaedt info: No project is defined. Project ...
-    pyaedt info: Active design is set to ...
+    pyaedt INFO: No project is defined. Project ...
+    pyaedt INFO: Active design is set to ...
 
     Create an instance of Icepak and link to a project named
     ``IcepakProject``. If this project does not exist, create one with
     this name.
 
     >>> icepak = Icepak("IcepakProject")
-    pyaedt info: Project ...
-    pyaedt info: Added design ...
+    pyaedt INFO: Project ...
+    pyaedt INFO: Added design ...
 
     Create an instance of Icepak and link to a design named
     ``IcepakDesign1`` in a project named ``IcepakProject``.
 
     >>> icepak = Icepak("IcepakProject", "IcepakDesign1")
-    pyaedt info: Added design 'IcepakDesign1' of type Icepak.
+    pyaedt INFO: Added design 'IcepakDesign1' of type Icepak.
 
     Create an instance of Icepak and open the specified project,
     which is ``myipk.aedt``.
 
     >>> icepak = Icepak("myipk.aedt")
-    pyaedt info: Project myipk has been created.
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design ...
+    pyaedt INFO: Project myipk has been created.
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design ...
 
     Create an instance of Icepak using the 2021 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
     >>> icepak = Icepak(specified_version="2021.2", projectname="myipk2.aedt")
-    pyaedt info: Project...
-    pyaedt info: No design is present. Inserting a new design.
-    pyaedt info: Added design...
+    pyaedt INFO: Project...
+    pyaedt INFO: No design is present. Inserting a new design.
+    pyaedt INFO: Added design...
     """
 
     def __init__(
@@ -289,8 +289,8 @@ class Icepak(FieldAnalysis3D):
         >>> faces = icepak.modeler["USB_GND"].faces
         >>> face_names = [face.id for face in faces]
         >>> boundary = icepak.assign_openings(face_names)
-        pyaedt info: Face List boundary_faces created
-        pyaedt info: Opening Assigned
+        pyaedt INFO: Face List boundary_faces created
+        pyaedt INFO: Opening Assigned
         """
         boundary_name = generate_unique_name("Opening")
         self.modeler.create_face_list(air_faces, "boundary_faces" + boundary_name)
@@ -399,7 +399,7 @@ class Icepak(FieldAnalysis3D):
         >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
-        pyaedt info: Block on ...
+        pyaedt INFO: Block on ...
         >>> blocks[1].props
         {'Objects': ['BlockBox1'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '2W'}
         >>> blocks[3].props
@@ -459,7 +459,7 @@ class Icepak(FieldAnalysis3D):
 
         >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
-        pyaedt info: Block on ...
+        pyaedt INFO: Block on ...
         >>> block.props
         {'Objects': ['BlockBox3'], 'Block Type': 'Solid', 'Use External Conditions': False, 'Total Power': '1W'}
 
@@ -1432,11 +1432,13 @@ class Icepak(FieldAnalysis3D):
     def edit_design_settings(
         self,
         gravityDir=0,
-        ambtemp=22,
+        ambtemp=20,
         performvalidation=False,
         CheckLevel="None",
         defaultfluid="air",
         defaultsolid="Al-Extruded",
+        export_monitor=False,
+        export_directory=os.getcwd(),
     ):
         """Update the main settings of the design.
 
@@ -1456,6 +1458,11 @@ class Icepak(FieldAnalysis3D):
             Default fluid material. The default is ``"air"``.
         defaultsolid : str, optional
             Default solid material. The default is ``"Al-Extruded"``.
+        export_monitor : bool, optional
+            Whether to use the default export directory for monitor point data.
+            The default value is ``False``.
+        export_directory : str, optional
+            Default export directory for monitor point data. The default value is the current working directory.
 
         Returns
         -------
@@ -1498,6 +1505,10 @@ class Icepak(FieldAnalysis3D):
                 GVA,
                 "Positive:=",
                 GVPos,
+                "ExportOnSimulationComplete:=",
+                export_monitor,
+                "ExportDirectory:=",
+                export_directory,
             ],
             [
                 "NAME:Model Validation Settings",
