@@ -271,7 +271,7 @@ class PostProcessor(Post):
         model.off_screen = not show
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
-        else:
+        elif view != "isometric":
             self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
         if export_path:
             model.plot(export_path)
@@ -351,7 +351,7 @@ class PostProcessor(Post):
 
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
-        else:
+        elif view != "isometric":
             self.logger.warning("Wrong view setup. It has to be one of xy, xz, yz, isometric.")
 
         if scale_min and scale_max:

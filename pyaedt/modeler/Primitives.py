@@ -1057,7 +1057,7 @@ class Primitives(object):
         str
         """
         self._refresh_object_types()
-        return [i for i in self._all_object_names if i not in self._unclassified]
+        return [i for i in self._all_object_names if i not in self._unclassified and i not in self._points]
 
     @property
     def point_names(self):
