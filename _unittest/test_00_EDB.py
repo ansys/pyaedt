@@ -2452,3 +2452,12 @@ if not config["skip_edb"]:
             sim_setup.step_freq = 10e6
             sim_setup.use_default_cutout = False
             assert edbapp.build_simulation_project(sim_setup)
+
+        def test_129_get_component_bounding_box(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            component = edbapp.core_components.components["U2A5"]
+            assert component
+            assert component.bounding_box
