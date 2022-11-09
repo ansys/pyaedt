@@ -535,6 +535,16 @@ class EDBComponent(object):
         return [center.X.ToDouble(), center.Y.ToDouble()]
 
     @property
+    def rotation(self):
+        """Compute the component rotation.
+
+        Returns
+        -------
+        float
+        """
+        return self.edbcomponent.GetTransform().Rotation.ToDouble()
+
+    @property
     def bounding_box(self):
         """Return the component bounding box.
 
