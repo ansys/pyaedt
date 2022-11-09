@@ -1,5 +1,5 @@
 ansys-sphinx-theme==0.7.0
-imageio==2.22.3
+imageio==2.22.4
 imageio-ffmpeg==0.4.7
 ipython==8.6.0
 ipywidgets==8.0.2
@@ -8,8 +8,6 @@ jupyterlab==3.5.0
 nbsphinx==0.8.9
 recommonmark==0.7.1
 matplotlib==3.6.2
-imageio==2.22.4
-imageio-ffmpeg==0.4.7
 numpydoc==1.5.0
 pypandoc==1.10
 pytest-sphinx==0.5.0
