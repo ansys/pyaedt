@@ -35,7 +35,6 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
-from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -973,11 +972,11 @@ class Edb(object):
         expansion_size,
         use_round_corner,
     ):
-        if extent_type == "Conforming":
+        if extent_type == "Conforming" or self.edb.Geometry.ExtentType.Conforming or 0:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
-        elif extent_type == "Bounding":
+        elif extent_type == "Bounding" or self.edb.Geometry.ExtentType.BoundingBox or 1:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
@@ -998,7 +997,6 @@ class Edb(object):
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
-        simulation_setup=None,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1020,8 +1018,6 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
-        simulation_setup : edb_data.simulation_configuration.SimulationConfiguration object, optional
-            Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
         -------
@@ -1031,13 +1027,6 @@ class Edb(object):
         """
 
         expansion_size = self.edb_value(expansion_size).ToDouble()
-        if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
-            signal_list = simulation_setup.signal_nets
-            reference_list = simulation_setup.power_nets
-            if simulation_setup.cutout_subdesign_type == CutoutSubdesignType.Conformal:
-                extent_type = "Conforming"
-                expansion_size = float(simulation_setup.cutout_subdesign_expansion)
-                use_round_corner = bool(simulation_setup.cutout_subdesign_round_corner)
 
         # validate nets in layout
         net_signals = convert_py_list_to_net_list(
@@ -1123,7 +1112,6 @@ class Edb(object):
         expansion_size=0.002,
         use_round_corner=False,
         number_of_threads=4,
-        simulation_setup=None,
         custom_extent=None,
         output_aedb_path=None,
     ):
@@ -1151,8 +1139,6 @@ class Edb(object):
             Whether to use round corners. The default is ``False``.
         number_of_threads : int, optional
             Number of thread to use. Default is 4
-        simulation_setup : edb_data.simulation_configuration.SimulationConfiguration object, optional
-            Simulation setup to use to overwrite the other parameters. The default is ``None``.
         custom_extent : list, optional
             Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
             Edb PolygonData object.
@@ -1194,17 +1180,7 @@ class Edb(object):
             self.save_edb_as(output_aedb_path)
 
         expansion_size = self.edb_value(expansion_size).ToDouble()
-        if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
-            signal_list = simulation_setup.signal_nets
-            reference_list = simulation_setup.power_nets
-            if simulation_setup.cutout_subdesign_type == CutoutSubdesignType.Conformal:
-                extent_type = "Conforming"
-            elif simulation_setup.cutout_subdesign_type == CutoutSubdesignType.BoundingBox:
-                extent_type = "Bounding"
-            else:
-                extent_type = "ConvexHull"
-            expansion_size = float(simulation_setup.cutout_subdesign_expansion)
-            use_round_corner = bool(simulation_setup.cutout_subdesign_round_corner)
+
         self.logger.reset_timer()
         all_list = signal_list + reference_list
 
@@ -2001,7 +1977,12 @@ class Edb(object):
                 if simulation_setup.use_default_cutout:
                     old_cell_name = self.active_cell.GetName()
                     if self.create_cutout(
-                        simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb
+                        signal_list=simulation_setup.signal_nets,
+                        reference_list=simulation_setup.power_nets,
+                        expansion_size=simulation_setup.cutout_subdesign_expansion,
+                        use_round_corner=simulation_setup.cutout_subdesign_round_corner,
+                        extent_type=simulation_setup.cutout_subdesign_type,
+                        output_aedb_path=simulation_setup.output_aedb,
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
@@ -2014,7 +1995,12 @@ class Edb(object):
                 else:
                     self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                     self.create_cutout_multithread(
-                        simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb
+                        signal_list=simulation_setup.signal_nets,
+                        reference_list=simulation_setup.power_nets,
+                        expansion_size=simulation_setup.cutout_subdesign_expansion,
+                        use_round_corner=simulation_setup.cutout_subdesign_round_corner,
+                        extent_type=simulation_setup.cutout_subdesign_type,
+                        output_aedb_path=simulation_setup.output_aedb,
                     )
                     self.logger.info("Cutout processed.")
 
