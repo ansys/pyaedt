@@ -1141,7 +1141,7 @@ class Edb(object):
             Number of thread to use. Default is 4
         custom_extent : list, optional
             Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
-            Edb PolygonData object.
+            Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
 
