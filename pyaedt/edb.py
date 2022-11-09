@@ -1277,6 +1277,14 @@ class Edb(object):
         self.logger.reset_timer()
 
         self.core_components.delete_single_pin_rlc()
+        i = 0
+        for comp, val in self.core_components.components.items():
+            if val.numpins == 0:
+                val.edbcomponent.Delete()
+                i += 1
+        self.core_components.refresh_components()
+        self.logger.info("Deleted {} additional components".format(i))
+
         self.logger.info_timer("Single Pins components deleted")
         self.logger.reset_timer()
         return True
