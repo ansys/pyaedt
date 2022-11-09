@@ -593,11 +593,11 @@ class EdbNets(object):
         self._pedb.core_padstack.delete_padstack_instances(netlist)
 
         nets_deleted = []
+
         for i in self._pedb.core_nets.nets.values():
-            if i.name not in nets_deleted:
+            if i.name in netlist:
                 i.net_object.Delete()
                 nets_deleted.append(i.name)
-
         return nets_deleted
 
     @pyaedt_function_handler()

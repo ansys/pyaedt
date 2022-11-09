@@ -599,6 +599,7 @@ if not config["skip_edb"]:
                 include_partial_instances=True,
             )
             assert os.path.exists(os.path.join(output, "edb.def"))
+            edbapp.close_edb()
 
         def test_55c_create_cutout(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -612,6 +613,7 @@ if not config["skip_edb"]:
                 number_of_threads=4,
             )
             assert "A0_N" not in edbapp.core_nets.nets
+            edbapp.close_edb()
 
         def test_56_rvalue(self):
             assert resistor_value_parser("100meg")

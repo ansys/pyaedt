@@ -1108,6 +1108,7 @@ class Edb(object):
         expansion_size=0.002,
         use_round_corner=False,
         number_of_threads=4,
+        simulation_setup=None,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1133,6 +1134,8 @@ class Edb(object):
             Whether to use round corners. The default is ``False``.
         number_of_threads : int, optional
             Number of thread to use. Default is 4
+        simulation_setup : edb_data.simulation_configuration.SimulationConfiguration object, optional
+            Simulation setup to use to overwrite the other parameters. The default is ``None``.
 
         Returns
         -------
@@ -1165,6 +1168,18 @@ class Edb(object):
             return False
         from concurrent.futures import ThreadPoolExecutor
 
+        expansion_size = self.edb_value(expansion_size).ToDouble()
+        if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
+            signal_list = simulation_setup.signal_nets
+            reference_list = simulation_setup.power_nets
+            if simulation_setup.cutout_subdesign_type == CutoutSubdesignType.Conformal:
+                extent_type = "Conforming"
+            elif simulation_setup.cutout_subdesign_type == CutoutSubdesignType.BoundingBox:
+                extent_type = "Bounding"
+            else:
+                extent_type = "ConvexHull"
+            expansion_size = float(simulation_setup.cutout_subdesign_expansion)
+            use_round_corner = bool(simulation_setup.cutout_subdesign_round_corner)
         self.logger.reset_timer()
         all_list = signal_list + reference_list
 
