@@ -665,12 +665,7 @@ class EDBPadstackInstance(object):
         """
         if self._bounding_box:
             return self._bounding_box
-        bbox = (
-            self._edb_padstackinstance.GetLayout()
-            .GetLayoutInstance()
-            .GetLayoutObjInstance(self._edb_padstackinstance, None)
-            .GetBBox()
-        )
+        bbox = self.object_instance.GetBBox()
         self._bounding_box = [
             [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()],
             [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()],

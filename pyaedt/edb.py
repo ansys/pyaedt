@@ -966,6 +966,29 @@ class Edb(object):
         else:
             return False
 
+    def _create_extent(
+        self,
+        net_signals,
+        extent_type,
+        expansion_size,
+        use_round_corner,
+    ):
+        if extent_type == "Conforming":
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+        elif extent_type == "Bounding":
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
+            )
+        else:
+            _poly = self.active_layout.GetExpandedExtentFromNets(
+                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            )
+            _poly_list = convert_py_list_to_net_list([_poly])
+            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+        return _poly
+
     def create_cutout(
         self,
         signal_list=[],
@@ -1025,20 +1048,12 @@ class Edb(object):
             [net for net in list(self.active_layout.Nets) if net.GetName() in reference_list]
         )
 
-        if extent_type == "Conforming":
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-        elif extent_type == "Bounding":
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
-            )
-        else:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-            _poly_list = convert_py_list_to_net_list([_poly])
-            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+        _poly = self._create_extent(
+            net_signals,
+            extent_type,
+            expansion_size,
+            use_round_corner,
+        )
 
         # Create new cutout cell/design
         included_nets = convert_py_list_to_net_list(
@@ -1110,6 +1125,7 @@ class Edb(object):
         number_of_threads=4,
         simulation_setup=None,
         custom_extent=None,
+        output_aedb_path=None,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1140,6 +1156,8 @@ class Edb(object):
         custom_extent : list, optional
             Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
             Edb PolygonData object.
+        output_aedb_path : str, optional
+            Full path and name for the new AEDB file. If None, then current aedb will be cutout.
 
         Returns
         -------
@@ -1171,6 +1189,9 @@ class Edb(object):
             self.logger.error("Method working only in Cpython")
             return False
         from concurrent.futures import ThreadPoolExecutor
+
+        if output_aedb_path:
+            self.save_edb_as(output_aedb_path)
 
         expansion_size = self.edb_value(expansion_size).ToDouble()
         if simulation_setup and isinstance(simulation_setup, SimulationConfiguration):
@@ -1206,20 +1227,13 @@ class Edb(object):
             _poly = self.core_primitives.shape_to_polygon_data(plane)
         elif custom_extent:
             _poly = custom_extent
-        elif extent_type == "Conforming":
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-        elif extent_type == "Bounding":
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
-            )
         else:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+            _poly = self._create_extent(
+                net_signals,
+                extent_type,
+                expansion_size,
+                use_round_corner,
             )
-            _poly_list = convert_py_list_to_net_list([_poly])
-            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
 
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
@@ -1984,14 +1998,26 @@ class Edb(object):
             self.core_nets.classify_nets(simulation_setup)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
-                old_cell_name = self.active_cell.GetName()
-                if self.create_cutout(simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb):
+                if simulation_setup.use_default_cutout:
+                    old_cell_name = self.active_cell.GetName()
+                    if self.create_cutout(
+                        simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb
+                    ):
+                        self.logger.info("Cutout processed.")
+                        old_cell = self.active_cell.FindByName(
+                            self._db, self.edb.Cell.CellType.CircuitCell, old_cell_name
+                        )
+                        if old_cell:
+                            old_cell.Delete()
+                    else:  # pragma: no cover
+                        self.logger.error("Cutout failed.")
+                else:
+                    self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
+                    self.create_cutout_multithread(
+                        simulation_setup=simulation_setup, output_aedb_path=simulation_setup.output_aedb
+                    )
                     self.logger.info("Cutout processed.")
-                    old_cell = self.active_cell.FindByName(self._db, self.edb.Cell.CellType.CircuitCell, old_cell_name)
-                    if old_cell:
-                        old_cell.Delete()
-                else:  # pragma: no cover
-                    self.logger.error("Cutout failed.")
+
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))

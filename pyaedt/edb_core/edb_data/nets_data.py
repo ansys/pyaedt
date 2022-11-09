@@ -62,7 +62,10 @@ class EDBNetsData(object):
         Returns
         -------
         list of :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`"""
-        return [EDBPadstackInstance(i, self._app) for i in self.net_object.PadstackInstances]
+        name = self.name
+        return [
+            EDBPadstackInstance(i, self._app) for i in self.net_object.PadstackInstances if i.GetNet().GetName() == name
+        ]
 
     @property
     def is_power_ground(self):

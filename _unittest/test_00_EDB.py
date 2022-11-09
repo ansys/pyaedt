@@ -123,6 +123,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_primitives.circles[0].type == "Circle"
             assert not poly0.is_arc(poly0.points_raw()[0])
             assert isinstance(poly0.voids, list)
+            assert self.edbapp.core_primitives.primitives_by_layer["TOP"][0].layer_name == "TOP"
 
         def test_04_get_stackup(self):
             stackup = self.edbapp.core_stackup.stackup_layers
@@ -601,19 +602,27 @@ if not config["skip_edb"]:
             assert os.path.exists(os.path.join(output, "edb.def"))
             edbapp.close_edb()
 
-        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
         def test_55c_create_custom_cutout(self):
+
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
-
-            assert edbapp.create_cutout_multithread(
-                signal_list=["V3P3_S0"],
-                reference_list=["GND"],
-                number_of_threads=4,
-            )
-            assert "A0_N" not in edbapp.core_nets.nets
+            if is_ironpython:
+                assert not edbapp.create_cutout_multithread(
+                    signal_list=["V3P3_S0"],
+                    reference_list=["GND"],
+                    extent_type="Bounding",
+                    number_of_threads=4,
+                )
+            else:
+                assert edbapp.create_cutout_multithread(
+                    signal_list=["V3P3_S0"],
+                    reference_list=["GND"],
+                    extent_type="Bounding",
+                    number_of_threads=4,
+                )
+                assert "A0_N" not in edbapp.core_nets.nets
             edbapp.close_edb()
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -2415,4 +2424,31 @@ if not config["skip_edb"]:
             sim_setup.start_frequency = 0
             sim_setup.stop_freq = 20e9
             sim_setup.step_freq = 10e6
+            assert edbapp.build_simulation_project(sim_setup)
+
+        def test_128B_build_project(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project2.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.signal_nets = [
+                "M_DQ<0>",
+                "M_DQ<1>",
+                "M_DQ<2>",
+                "M_DQ<3>",
+                "M_DQ<4>",
+                "M_DQ<5>",
+                "M_DQ<6>",
+                "M_DQ<7>",
+            ]
+            sim_setup.power_nets = ["GND"]
+            sim_setup.do_cutout_subdesign = True
+            sim_setup.components = ["U2A5", "U1B5"]
+            sim_setup.use_default_coax_port_radial_extension = False
+            sim_setup.cutout_subdesign_expansion = 0.001
+            sim_setup.start_frequency = 0
+            sim_setup.stop_freq = 20e9
+            sim_setup.step_freq = 10e6
+            sim_setup.use_default_cutout = False
             assert edbapp.build_simulation_project(sim_setup)
