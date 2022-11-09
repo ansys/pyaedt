@@ -541,9 +541,9 @@ class EDBComponent(object):
         Returns
         -------
         List[float]
-                List of coordinates for the component's bounding box, with the list of
-                coordinates in this order: [X lower left corner, Y lower left corner,
-                X upper right corner, Y upper right corner].
+            List of coordinates for the component's bounding box, with the list of
+            coordinates in this order: [X lower left corner, Y lower left corner,
+            X upper right corner, Y upper right corner].
         """
         layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
         _bbox = layinst.GetLayoutObjInstance(self.edbcomponent, None).GetBBox()
