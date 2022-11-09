@@ -149,7 +149,7 @@ class Step(object):
             ipc_component.type = component.type
             ipc_component.value = component.value
             ipc_component.refdes = component.refdes
-            ipc_component.location = component.location
+            ipc_component.location = component.center
             ipc_component.rotation = component.rotation
             ipc_component.package_ref = component.part_name
             ipc_component.part = component.part_name
