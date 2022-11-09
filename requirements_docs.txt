@@ -5,8 +5,8 @@ ipython==8.6.0
 ipywidgets==8.0.2
 joblib==1.2.0
 jupyterlab==3.5.0
-nbsphinx==0.8.9
 matplotlib==3.6.2
+nbsphinx==0.8.9
 numpydoc==1.5.0
 pypandoc==1.10
 pytest-sphinx==0.5.0
