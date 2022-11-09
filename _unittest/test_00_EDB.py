@@ -2096,7 +2096,6 @@ if not config["skip_edb"]:
             assert port_ver.hfss_type == "Gap"
             assert isinstance(port_ver.horizontal_extent_factor, float)
             assert isinstance(port_ver.vertical_extent_factor, float)
-            assert isinstance(port_ver.radial_extent_factor, float)
             assert port_ver.pec_launch_width
             edb.close_edb()
 
