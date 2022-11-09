@@ -2379,5 +2379,5 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(target_path, out_edb)
             edbapp = Edb(out_edb, edbversion=desktop_version)
             component = edbapp.core_components.components["U2A5"]
-            assert component
             assert component.bounding_box
+            assert isinstance(component.rotation, float)
