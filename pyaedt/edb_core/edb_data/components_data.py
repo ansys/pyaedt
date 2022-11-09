@@ -553,7 +553,7 @@ class EDBComponent(object):
 
     @property
     def pinlist(self):
-        """Pins of Component.
+        """Pins of the component.
 
         Returns
         -------
