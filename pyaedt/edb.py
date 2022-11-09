@@ -1181,7 +1181,11 @@ class Edb(object):
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         self.logger.reset_timer()
-        all_list = signal_list + reference_list
+        if custom_extent:
+            reference_list = reference_list + signal_list
+            all_list = reference_list
+        else:
+            all_list = signal_list + reference_list
 
         for i in self.core_nets.nets.values():
             if i.name not in all_list:

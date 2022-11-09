@@ -646,6 +646,7 @@ if not config["skip_edb"]:
                 signal_list=["V3P3_S0"],
                 reference_list=["GND"],
                 number_of_threads=4,
+                extent_type="Bounding",
                 custom_extent=points,
             )
             edbapp.close_edb()
