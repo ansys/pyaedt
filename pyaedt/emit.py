@@ -52,7 +52,7 @@ class Interaction_Domain:
         self._obj.set_receiver(radioname, bandname, frequency)
 
     @pyaedt_function_handler()
-    def set_interferers(self, radionames, bandnames=[], frequencies=[]):
+    def set_interferers(self, radionames, bandnames=None, frequencies=None):
         """
         Set the interferers, with optionality to specify the following:
             > radio name
@@ -70,20 +70,27 @@ class Interaction_Domain:
         >>> domain.set_receiver(radios, bands, frequencies)
         """
         interfer_radio_names = []
-        interfer_band_names = []
+        interferer_band_names = []
         interfer_frequencies = []
-
-        for x in range(len(radionames)):
-            interfer_radio_names.append(radionames[x])
-            if x >= len(bandnames):
-                interfer_band_names.append("")
+        index = 0
+        for radio in radionames:
+            interfer_radio_names.append(radio)
+            if bandnames is not None:
+                if index >= len(bandnames):
+                    interferer_band_names.append("")
+                else:
+                    interferer_band_names.append(bandnames[index])
             else:
-                interfer_band_names.append(bandnames[x])
-            if x >= len(frequencies):
+                interferer_band_names.append("")
+            if frequencies is not None:
+                if index >= len(frequencies):
+                    interfer_frequencies.append(-1)
+                else:
+                    interfer_frequencies.append(frequencies[index])
+            else:
                 interfer_frequencies.append(-1)
-            else:
-                interfer_frequencies.append(frequencies[x])
-        self._obj.set_interferers(interfer_radio_names, interfer_band_names, interfer_frequencies)
+            index = index + 1
+        self._obj.set_interferers(interfer_radio_names, interferer_band_names, interfer_frequencies)
 
     @pyaedt_function_handler()
     def get_receiver_name(self):
