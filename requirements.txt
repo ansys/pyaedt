@@ -2,6 +2,7 @@
 # requirements
 # #############################################################################
 cff1==1.15.0; python_version > '3.6' and sys_platform == 'linux'
+# https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
 dotnetcore2==3.1.23; python_version > '3.6' and sys_platform == 'linux'
