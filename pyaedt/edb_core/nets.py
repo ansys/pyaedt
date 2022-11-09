@@ -588,10 +588,16 @@ class EdbNets(object):
         """
         if isinstance(netlist, str):
             netlist = [netlist]
+
+        self._pedb.core_primitives.delete_primitives(netlist)
+        self._pedb.core_padstack.delete_padstack_instances(netlist)
+
         nets_deleted = []
-        for net in netlist:
-            self.nets[net].delete()
-            nets_deleted.append(net)
+        for i in self._pedb.core_nets.nets.values():
+            if i.name not in nets_deleted:
+                i.net_object.Delete()
+                nets_deleted.append(i.name)
+
         return nets_deleted
 
     @pyaedt_function_handler()

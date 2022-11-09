@@ -922,6 +922,7 @@ class EDBPadstackInstance(object):
     def delete_padstack_instance(self):
         """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
+        return True
 
     @pyaedt_function_handler()
     def in_voids(self, net_name=None, layer_name=None):

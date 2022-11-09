@@ -164,6 +164,7 @@ if not config["skip_edb"]:
             assert isinstance(padstack_instance.rotation, float)
             self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
             assert "mycircularvia" in list(self.edbapp.core_padstack.padstacks.keys())
+            assert padstack_instance.delete_padstack_instance()
 
         def test_08_nets_query(self):
             signalnets = self.edbapp.core_nets.signal_nets
@@ -448,9 +449,9 @@ if not config["skip_edb"]:
             assert not result
 
         def test_45_delete_net(self):
-            self.edbapp.core_nets.nets["AVIN1"].delete()
-            nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
-            assert "A0_N" in nets_deleted
+            self.edbapp.core_nets.nets["M_MA<6>"].delete()
+            nets_deleted = self.edbapp.core_nets.delete_nets("M_MA<7>")
+            assert "M_MA<7>" in nets_deleted
 
         def test_46_get_polygons_bounding(self):
             polys = self.edbapp.core_primitives.get_polygons_by_layer("GND")
@@ -568,7 +569,9 @@ if not config["skip_edb"]:
 
         def test_55b_create_cutout(self):
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            assert self.edbapp.create_cutout(
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
                 output_aedb_path=output,
@@ -585,7 +588,7 @@ if not config["skip_edb"]:
             points.append([bounding[0][0], bounding[0][1]])
             output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
-            assert self.edbapp.create_cutout_on_point_list(
+            assert edbapp.create_cutout_on_point_list(
                 points,
                 nets_to_include=["GND", "V3P3_S0"],
                 output_aedb_path=output,
@@ -2062,10 +2065,14 @@ if not config["skip_edb"]:
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_120.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
-            assert self.edbapp.core_padstack.set_all_antipad_value(0.0)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.core_padstack.set_all_antipad_value(0.0)
+            edbapp.close_edb()
 
         def test_A122_stackup(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert isinstance(edbapp.stackup.layers, dict)
             assert isinstance(edbapp.stackup.signal_layers, dict)
@@ -2125,30 +2132,37 @@ if not config["skip_edb"]:
 
         @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
         def test_A123_comp_def(self):
-            assert self.edbapp.core_components.components
-            assert self.edbapp.core_components.definitions
-            comp_def = self.edbapp.core_components.definitions["G83568-001"]
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_123.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.core_components.components
+            assert edbapp.core_components.definitions
+            comp_def = edbapp.core_components.definitions["G83568-001"]
             assert comp_def
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
             assert len(comp_def.components) > 0
-            cap = self.edbapp.core_components.definitions["602431-005"]
+            cap = edbapp.core_components.definitions["602431-005"]
             assert cap.type == "Capacitor"
             cap.type = "Resistor"
             assert cap.type == "Resistor"
 
             export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
-            assert self.edbapp.core_components.export_definition(export_path)
-            assert self.edbapp.core_components.import_definition(export_path)
+            assert edbapp.core_components.export_definition(export_path)
+            assert edbapp.core_components.import_definition(export_path)
 
-            assert self.edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
+            assert edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
             sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
-            assert self.edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
+            assert edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
             spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
-            assert self.edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
+            assert edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
+            edbapp.close_edb()
 
         def test_A124_material(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert isinstance(edbapp.materials.materials, dict)
             edbapp.materials["FR4_epoxy"].conductivity = 1
@@ -2214,11 +2228,13 @@ if not config["skip_edb"]:
 
         @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
         def test_A126_component(self):
-            edb_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
             spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
 
-            edbapp = Edb(edb_path, edbversion=desktop_version)
+            edbapp = Edb(target_path, edbversion=desktop_version)
             comp = edbapp.core_components.components["R6"]
             comp.assign_rlc_model(1, 2, 3, False)
             assert (
@@ -2363,5 +2379,5 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(target_path, out_edb)
             edbapp = Edb(out_edb, edbversion=desktop_version)
             component = edbapp.core_components.components["U2A5"]
-            assert component
             assert component.bounding_box
+            assert isinstance(component.rotation, float)
