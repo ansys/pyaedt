@@ -1139,6 +1139,26 @@ class Edb(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
+        Examples
+        --------
+        >>> edb = Edb(r'C:.aedb', edbversion="2022.2")
+        >>> edb.logger.info_timer("Edb Opening")
+        >>> edb.logger.reset_timer()
+        >>> start = time.time()
+        >>> signal_list = []
+        >>> for net in edb.core_nets.nets.keys():
+        >>>      if "3V3" in net:
+        >>>           signal_list.append(net)
+        >>> power_list = ["PGND"]
+        >>> all_list = signal_list + power_list
+        >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
+        >>> end_time = str((time.time() - start)/60)
+        >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
+        >>> edb.core_nets.plot(signal_list, None, color_by_net=True)
+        >>> edb.core_nets.plot(power_list, None, color_by_net=True)
+        >>> edb.save_edb()
+        >>> edb.close_edb()
+
         """
         if is_ironpython:
             self.logger.error("Method working only in Cpython")
