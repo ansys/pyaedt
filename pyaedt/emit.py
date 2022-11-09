@@ -11,6 +11,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 # global variable used to store module import
 mod = None
 
+
 class Interaction_Domain:
     """
     Provides the ``Interaction_Domain`` object.
@@ -23,6 +24,7 @@ class Interaction_Domain:
     >>> domain.set_receivers("Radio", "Tx-Band")
     >>> interaction = self.aedtapp.results.revisions_list[-1].run(domain)
     """
+
     @pyaedt_function_handler()
     def __init__(self):
         self.emit_api = mod.EmitApi()
@@ -31,33 +33,31 @@ class Interaction_Domain:
         try:
             self._obj = mod.InteractionDomain()
         except NameError:
-            raise ValueError(
-                "An Emit object must be initialized before an Interaction_Domain object is generated."
-            )
+            raise ValueError("An Emit object must be initialized before an Interaction_Domain object is generated.")
 
     @pyaedt_function_handler()
-    def set_receiver(self, radioname, bandname = "", frequency = -1):
+    def set_receiver(self, radioname, bandname="", frequency=-1):
         """
-        Set the reciever, with optionality to specify the following:
+        Set the receiver, with optionality to specify the following:
             > radio name
             > radio name and a band name
-            > radio name, band name and a channel frequency 
+            > radio name, band name and a channel frequency
         Returns
         -------
 
         Examples
         ----------
-        >>> domain.set_reciever("Radio1", "Rx-Band", 2000)
+        >>> domain.set_receiver("Radio1", "Rx-Band", 2000)
         """
         self._obj.set_receiver(radioname, bandname, frequency)
 
     @pyaedt_function_handler()
-    def set_interferers(self, radionames, bandnames = [], frequencies = []):
+    def set_interferers(self, radionames, bandnames=[], frequencies=[]):
         """
         Set the interferers, with optionality to specify the following:
             > radio name
             > radio name and a band name
-            > radio name, band name and a channel frequency 
+            > radio name, band name and a channel frequency
 
         Returns
         -------
@@ -67,12 +67,12 @@ class Interaction_Domain:
         >>> radios = ["Radio1", "Radio2", "Bluetooth"]
         >>> bands = ["Rx-Band", "Rx-Band", "Rx-Band"]
         >>> frequencies = []
-        >>> domain.set_reciever(radios, bands, frequencies)
+        >>> domain.set_receiver(radios, bands, frequencies)
         """
         interfer_radio_names = []
         interfer_band_names = []
         interfer_frequencies = []
-        
+
         for x in range(len(radionames)):
             interfer_radio_names.append(radionames[x])
             if x >= len(bandnames):
@@ -84,37 +84,37 @@ class Interaction_Domain:
             else:
                 interfer_frequencies.append(frequencies[x])
         self._obj.set_interferers(interfer_radio_names, interfer_band_names, interfer_frequencies)
-    
+
     @pyaedt_function_handler()
     def get_receiver_name(self):
         """
-        Get the reciever name from the ``Interaction_Domain`` object.
+        Get the receiver name from the ``Interaction_Domain`` object.
         Returns
         -------
             str
         Examples
         ----------
-        >>> rx_name = domain.get_reciever_name()
+        >>> rx_name = domain.get_receiver_name()
         """
         return self._obj.receiver_name
 
     @pyaedt_function_handler()
     def get_receiver_band_name(self):
         """
-        Get the reciever band name from the ``Interaction_Domain`` object.
+        Get the receiver band name from the ``Interaction_Domain`` object.
         Returns
         -------
 
         Examples
         ----------
-        >>> rx_band_name = domain.get_reciever_band_name()
+        >>> rx_band_name = domain.get_receiver_band_name()
         """
         return self._obj.receiver_band_name
 
     @pyaedt_function_handler()
     def get_receiver_channel_frequency(self):
         """
-        Get the reciever channel frequency from the ``Interaction_Domain`` object.
+        Get the receiver channel frequency from the ``Interaction_Domain`` object.
         Returns
         -------
 
@@ -176,6 +176,7 @@ class Interaction_Domain:
         >>> rx_name = domain.receiver_channel()
         """
         return self._obj.instance_count()
+
 
 class Result:
     """
@@ -304,7 +305,7 @@ class Result:
            Name of the band.
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
- 
+
         Returns
         -------
         :class:`list of float`
@@ -320,39 +321,7 @@ class Result:
             Result.result_mode_error()
         return freq
 
-    @pyaedt_function_handler()
-    def get_max_simultaneous_frequencies(self):
 
-        """
-        Get the number of maximum simultaneous frequencies
-
-        Returns
-        -------
-        :class:`value`
-
-        Examples
-        ----------
-        >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
-        """
-        eng = self._emit_api.get_engine()
-        return eng.max_simultaneous_interferers
-
-    @pyaedt_function_handler()
-    def set_max_simultaneous_frequencies(self, val):
-
-        """
-        Get the number of maximum simultaneous frequencies
-
-        Returns
-        -------
-        :class:`value`
-
-        Examples
-        ----------
-        >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
-        """
-        eng = self._emit_api.get_engine()
-        eng.max_simultaneous_interferers = val
 class Revision:
     """
     Provides the ``Revision`` object.
@@ -419,6 +388,40 @@ class Revision:
         eng = self.emit_obj._emit_api.get_engine()
         interaction = eng.analyze(domain._obj)
         return interaction
+
+    @pyaedt_function_handler()
+    def get_max_simultaneous_frequencies(self):
+
+        """
+        Get the number of maximum simultaneous frequencies
+
+        Returns
+        -------
+        :class:`value`
+
+        Examples
+        ----------
+        >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
+        """
+        eng = self.emit_obj._emit_api.get_engine()
+        return eng.max_simultaneous_interferers
+
+    @pyaedt_function_handler()
+    def set_max_simultaneous_frequencies(self, val):
+
+        """
+        Get the number of maximum simultaneous frequencies
+
+        Returns
+        -------
+        :class:`value`
+
+        Examples
+        ----------
+        >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
+        """
+        eng = self.emit_obj._emit_api.get_engine()
+        eng.max_simultaneous_interferers = val
 
 
 class Emit(FieldAnalysisEmit, object):
