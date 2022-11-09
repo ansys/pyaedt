@@ -1161,7 +1161,6 @@ class Edb(object):
         >>>      if "3V3" in net:
         >>>           signal_list.append(net)
         >>> power_list = ["PGND"]
-        >>> all_list = signal_list + power_list
         >>> edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="Conforming")
         >>> end_time = str((time.time() - start)/60)
         >>> edb.logger.info("Total pyaedt cutout time in min %s", end_time)
@@ -1195,15 +1194,16 @@ class Edb(object):
                 i.delete()
         self.logger.info_timer("Net clean up")
         self.logger.reset_timer()
-        net_signals = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
-        )
+
         if custom_extent and isinstance(custom_extent, list):
             plane = self.core_primitives.Shape("polygon", points=custom_extent)
             _poly = self.core_primitives.shape_to_polygon_data(plane)
         elif custom_extent:
             _poly = custom_extent
         else:
+            net_signals = convert_py_list_to_net_list(
+                [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
+            )
             _poly = self._create_extent(
                 net_signals,
                 extent_type,
