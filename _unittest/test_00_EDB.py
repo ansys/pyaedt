@@ -601,7 +601,8 @@ if not config["skip_edb"]:
             assert os.path.exists(os.path.join(output, "edb.def"))
             edbapp.close_edb()
 
-        def test_55c_create_cutout(self):
+        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+        def test_55c_create_custom_cutout(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -617,7 +618,8 @@ if not config["skip_edb"]:
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
 
-        def test_55d_create_cutout(self):
+        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+        def test_55d_create_custom_cutout(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
