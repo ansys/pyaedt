@@ -614,6 +614,30 @@ if not config["skip_edb"]:
             )
             assert "A0_N" not in edbapp.core_nets.nets
             edbapp.close_edb()
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+        def test_55d_create_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            bounding = edbapp.get_bounding_box()
+            cutout_line_x = 41
+            cutout_line_y = 30
+            points = [[bounding[0][0], bounding[0][1]]]
+            points.append([cutout_line_x, bounding[0][1]])
+            points.append([cutout_line_x, cutout_line_y])
+            points.append([bounding[0][0], cutout_line_y])
+            points.append([bounding[0][0], bounding[0][1]])
+            assert edbapp.create_cutout_multithread(
+                signal_list=["V3P3_S0"],
+                reference_list=["GND"],
+                number_of_threads=4,
+                custom_extent=points,
+            )
+            edbapp.close_edb()
 
         def test_56_rvalue(self):
             assert resistor_value_parser("100meg")
