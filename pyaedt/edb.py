@@ -1109,6 +1109,7 @@ class Edb(object):
         use_round_corner=False,
         number_of_threads=4,
         simulation_setup=None,
+        custom_extent=None,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1136,6 +1137,9 @@ class Edb(object):
             Number of thread to use. Default is 4
         simulation_setup : edb_data.simulation_configuration.SimulationConfiguration object, optional
             Simulation setup to use to overwrite the other parameters. The default is ``None``.
+        custom_extent : list, optional
+            Custom extent to use for the cutout. It has to be a list of points [[x1,y1],[x2,y2]....] or
+            Edb PolygonData object.
 
         Returns
         -------
@@ -1197,7 +1201,11 @@ class Edb(object):
         net_signals = convert_py_list_to_net_list(
             [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
         )
-
+        if custom_extent and isinstance(custom_extent, list):
+            plane = self.core_primitives.Shape("polygon", points=custom_extent)
+            _poly = self.core_primitives.shape_to_polygon_data(plane)
+        elif custom_extent:
+            _poly = custom_extent
         if extent_type == "Conforming":
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
