@@ -479,7 +479,9 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     ----------
     plot_data : list of list
         List of plot data. Every item has to be in the following format
-        `[x points, y points, color, alpha, label, type]`. type can be `fill` or `path`.
+        For type `fill`: `[x points, y points, color, alpha, label, type=="fill"]`.
+        For type `path`: `[vertices, codes, color, alpha, label, type=="path"]`.
+        For type `contour`: `[vertices, codes, color, alpha, label, line_width, type=="contour"]`.
     size : tuple, optional
         Image size in pixel (width, height).
     show_legend : bool
@@ -509,6 +511,10 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         elif points[-1] == "path":
             path = Path(points[0], points[1])
             patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3])
+            ax.add_patch(patch)
+        elif points[-1] == "contour":
+            path = Path(points[0], points[1])
+            patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3], fill=False, linewidth=points[5])
             ax.add_patch(patch)
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)

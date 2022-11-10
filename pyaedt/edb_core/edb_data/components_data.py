@@ -562,21 +562,6 @@ class EDBComponent(object):
         return self.edbcomponent.GetTransform().Rotation.ToDouble()
 
     @property
-    def bounding_box(self):
-        """Return the component bounding box.
-
-        Returns
-        -------
-        List[float]
-                [X lower left corner, Y lower left corner, X upper right corner, Y upper right corner].
-        """
-        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
-        _bbox = layinst.GetLayoutObjInstance(self.edbcomponent, None).GetBBox()
-        _pt1 = _bbox.Item1
-        _pt2 = _bbox.Item2
-        return [_pt1.X.ToDouble(), _pt1.Y.ToDouble(), _pt2.X.ToDouble(), _pt2.Y.ToDouble()]
-
-    @property
     def pinlist(self):
         """Pins of the component.
 
