@@ -509,6 +509,11 @@ class EdbHfss(object):
         Returns
         -------
         tuple
+            port_name, pyaedt.edb_core.edb_data.sources.ExcitationDifferential
+
+        Examples
+        --------
+        >>> edb.core_hfss.create_differential_wave_port(0, ["-50mm", "-0mm"], 1, ["-50mm", "-0.2mm"])
         """
         if not port_name:
             port_name = generate_unique_name("diff")
@@ -532,7 +537,6 @@ class EdbHfss(object):
                                                self._edb.Cell.Terminal.Terminal
                                                )
         _edb_boundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
-        _edb_boundle_terminal.SetName(port_name)
         return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal, port_name)
 
     @pyaedt_function_handler()
@@ -699,10 +703,15 @@ class EdbHfss(object):
             Vertical extent factor. The default value is ``3``.
         pec_launch_width : str, optional
             Launch Width of PEC. The default value is ``"0.01mm"``.
+
         Returns
         -------
         tuple
-            Port name, Excitation
+            Port name, pyaedt.edb_core.edb_data.sources.Excitation
+
+        Examples
+        --------
+        >>> edb.core_hfss.create_wave_port(0, ["-50mm", "-0mm"])
         """
         if not port_name:
             port_name = generate_unique_name("Terminal_")
