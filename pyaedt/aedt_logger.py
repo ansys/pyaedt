@@ -196,6 +196,10 @@ class AedtLogger(object):
                 break
         self.info("New logger file {} added to handlers.".format(filename))
         self._files_handlers.append(_file_handler)
+        _project.info_timer = self.info_timer
+        _project.reset_timer = self.reset_timer
+        _project._timer = time.time()
+
         return _project
 
     def remove_file_logger(self, project_name):
@@ -625,7 +629,7 @@ class AedtLogger(object):
         """Write an info message to the global logger."""
         if args:
             try:
-                msg1 = msg % args
+                msg1 = msg % [str(i) for i in args]
             except TypeError:
                 msg1 = msg
         else:
@@ -648,7 +652,7 @@ class AedtLogger(object):
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
         if args:
             try:
-                msg1 = msg % args
+                msg1 = msg % [str(i) for i in args]
             except TypeError:
                 msg1 = msg
         else:
@@ -660,7 +664,7 @@ class AedtLogger(object):
         """Write a warning message to the global logger."""
         if args:
             try:
-                msg1 = msg % args
+                msg1 = msg % [str(i) for i in args]
             except TypeError:
                 msg1 = msg
         else:
@@ -672,7 +676,7 @@ class AedtLogger(object):
         """Write an error message to the global logger."""
         if args:
             try:
-                msg1 = msg % args
+                msg1 = msg % [str(i) for i in args]
             except TypeError:
                 msg1 = msg
         else:
@@ -684,7 +688,7 @@ class AedtLogger(object):
         """Write a debug message to the global logger."""
         if args:
             try:
-                msg1 = msg % args
+                msg1 = msg % [str(i) for i in args]
             except TypeError:
                 msg1 = msg
         else:
