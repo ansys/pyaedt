@@ -80,21 +80,21 @@ class TwinBuilderComponents(CircuitComponents):
         return self._components_catalog
 
     @pyaedt_function_handler()
-    def create_resistor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_resistor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a resistor.
 
         Parameters
         ----------
         compname : str, optional
-            Name of the resistor. The default is ``None``.
+            Name of the resistor. The default value is ``None``.
         value : float, optional
-            Value for the resistor. The default is ``50``.
+            Value for the resistor. The default value is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
-            Angle rotation in degrees. The default is ``0``.
+            Angle rotation in degrees. The default value is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The default is ``False``.
+            Whether to use the instance ID in the net list. The default value is ``False``.
 
         Returns
         -------
@@ -106,6 +106,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
@@ -162,21 +165,21 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_capacitor(self, compname=None, value=50, location=[], angle=0, use_instance_id_netlist=False):
+    def create_capacitor(self, compname=None, value=50, location=None, angle=0, use_instance_id_netlist=False):
         """Create a capacitor.
 
         Parameters
         ----------
         compname : str, optional
-            Name of the capacitor. The default is ``None``.
+            Name of the capacitor. The default value is ``None``.
         value : float, optional
-            Value for the capacitor. The default is ``50``.
+            Value for the capacitor. The default value is ``50``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
-            Angle rotation in degrees. The default is ``0``.
+            Angle rotation in degrees. The default value is ``0``.
         use_instance_id_netlist : bool, optional
-            Whether to use the instance ID in the net list. The default is ``False``.
+            Whether to use the instance ID in the net list. The default value is ``False``.
 
         Returns
         -------
@@ -188,6 +191,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Passive Elements",
