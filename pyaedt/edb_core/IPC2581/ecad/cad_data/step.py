@@ -2,9 +2,6 @@ import math
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.component.component import Component
-from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.layer_feature import (
-    LayerFeature,
-)
 from pyaedt.edb_core.IPC2581.ecad.cad_data.logical_net.logical_net import LogicalNet
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.package import Package
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
@@ -144,20 +141,23 @@ class Step(object):
                     if primitive_ref:
                         package.add_pin(number=pin_number, x=pos_x, y=pos_y, primitive_ref=primitive_ref)
                     pin_number += 1
-                self._packages[package.name] = package
+                self.packages[package.name] = package
             ipc_component = Component()
             ipc_component.type = component.type
-            ipc_component.value = component.value
+            try:
+                ipc_component.value = component.value
+            except:
+                pass
             ipc_component.refdes = component.refdes
             ipc_component.location = component.center
             ipc_component.rotation = component.rotation
             ipc_component.package_ref = component.part_name
             ipc_component.part = component.part_name
             ipc_component.layer_ref = component.placement_layer
+            self.components.append(ipc_component)
 
-    def add_layer_feature(self, layer_feature=None):
-        if isinstance(layer_feature, LayerFeature):
-            self._layer_features.append(layer_feature)
+    def add_layer_feature(self, layer=None):
+        if layer:
             return True
         return False
 

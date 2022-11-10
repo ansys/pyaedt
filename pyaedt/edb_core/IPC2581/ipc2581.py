@@ -131,33 +131,64 @@ class IPC2581(object):
                 except:
                     pass
                 if pad.parameters_values:
-                    padstack_def.add_padstack_pad_def(
-                        layer=layer, pad_use="REGULAR", primitive_ref="CIRCLE_{}".format(pad.parameters_values[0])
-                    )
+                    if pad.geometry_type == 1:
+                        primitive_ref = "CIRCLE_{}".format(pad.parameters_values[0])
+                    elif pad.geometry_type == 2:
+                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[0])
+                    elif pad.geometry_type == 3:
+                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[1])
+                    elif pad.geometry_type == 4:
+                        primitive_ref = "OVAL_{}_{}_{}".format(
+                            pad.parameters_values[0], pad.parameters_values[1], pad.parameters_values[2]
+                        )
+                    else:
+                        primitive_ref = "Default"
+                    padstack_def.add_padstack_pad_def(layer=layer, pad_use="REGULAR", primitive_ref=primitive_ref)
             for layer, antipad in padstackdef.antipad_by_layer.items():
                 try:
                     self.content.standard_geometries_dict.add_circle(antipad.parameters_value)
                 except:
                     pass
                 if antipad.parameters_values:
-                    padstack_def.add_padstack_pad_def(
-                        layer=layer, pad_use="ANTIPAD", primitive_ref="CIRCLE_{}".format(antipad.parameters_values[0])
-                    )
+                    if antipad.geometry_type == 1:
+                        primitive_ref = "CIRCLE_{}".format(pad.parameters_values[0])
+                    elif antipad.geometry_type == 2:
+                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[0])
+                    elif antipad.geometry_type == 3:
+                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[1])
+                    elif antipad.geometry_type == 4:
+                        primitive_ref = "OVAL_{}_{}_{}".format(
+                            pad.parameters_values[0], pad.parameters_values[1], pad.parameters_values[2]
+                        )
+                    else:
+                        primitive_ref = "Default"
+                    padstack_def.add_padstack_pad_def(layer=layer, pad_use="ANTIPAD", primitive_ref=primitive_ref)
             for layer, thermalpad in padstackdef.thermalpad_by_layer.items():
                 try:
                     self.content.standard_geometries_dict.add_circle(thermalpad.parameters_value)
                 except:
                     pass
                 if thermalpad.parameters_values:
-                    padstack_def.add_padstack_pad_def(
-                        layer=layer,
-                        pad_use="THERMAL",
-                        primitive_ref="CIRCLE_{}".format(thermalpad.parameters_values[0]),
-                    )
+                    if thermalpad.geometry_type == 1:
+                        primitive_ref = "CIRCLE_{}".format(pad.parameters_values[0])
+                    elif thermalpad.geometry_type == 2:
+                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[0])
+                    elif thermalpad.geometry_type == 3:
+                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[1])
+                    elif thermalpad.geometry_type == 4:
+                        primitive_ref = "OVAL_{}_{}_{}".format(
+                            pad.parameters_values[0], pad.parameters_values[1], pad.parameters_values[2]
+                        )
+                    else:
+                        primitive_ref = "Default"
+                    padstack_def.add_padstack_pad_def(layer=layer, pad_use="THERMAL", primitive_ref=primitive_ref)
             self.ecad.cad_data.cad_data_step.add_padstack_def(padstack_def)
 
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
+
+        for layer in self._pedb.stackup.layers:
+            self.ecad.cad_data.cad_data_step.add_layer_feature(layer)
 
     @pyaedt_function_handler()
     def from_meter_to_units(self, value, units):
