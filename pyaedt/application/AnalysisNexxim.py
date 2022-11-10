@@ -60,6 +60,7 @@ class FieldAnalysisCircuit(Analysis):
         self._modeler = ModelerNexxim(self)
         self._post = CircuitPostProcessor(self)
         self._internal_excitations = None
+        self._internal_sources = None
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
@@ -203,8 +204,19 @@ class FieldAnalysisCircuit(Analysis):
 
         """
         props = {}
-        for source in self.source_names:
-            props[source] = Sources(self, source)
+        if not self._internal_sources:
+            for source in self.source_names:
+                props[source] = Sources(self, source)
+            self._internal_sources = props
+        else:
+            props = self._internal_sources
+            if not sorted(list(props.keys())) == sorted(self.source_names):
+                a = set(str(x) for x in props.keys())
+                b = set(str(x) for x in self.source_names)
+                unmatched_new_name = list(b - a)[0]
+                unmatched_old_name = list(a - b)[0]
+                props[unmatched_new_name] = props[unmatched_old_name]
+                del props[unmatched_old_name]
         return props
 
     @property

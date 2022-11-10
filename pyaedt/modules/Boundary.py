@@ -1632,6 +1632,7 @@ class Sources(SourceKeys, object):
         self.source_type = source_type
         if not source_type:
             self.source_type = self._source_type_by_key()
+        self._fds_filename = None
         self.auto_update = True
 
     @property
@@ -1657,6 +1658,16 @@ class Sources(SourceKeys, object):
                 self.update(original_name)
         else:
             self._logger.warning("Name %s already assigned in the design", source_name)
+
+    @property
+    def fds_filename(self):
+        return self._fds_filename
+
+    @fds_filename.setter
+    def fds_filename(self, name):
+        self._fds_filename = name
+        self.update()
+        return True
 
     @property
     def _logger(self):
@@ -1689,22 +1700,25 @@ class Sources(SourceKeys, object):
         return BoundaryProps(self, OrderedDict(source_prop_dict))
 
     @pyaedt_function_handler()
-    def _update_command(self, name, source_prop_dict, source_type):
+    def _update_command(self, name, source_prop_dict, source_type, fds_filename=None):
         command_template = SourceKeys.SourceTemplates[source_type]
         commands = copy.deepcopy(command_template)
         commands[0] = "NAME:" + name
         commands[10] = source_prop_dict["Netlist"]
+        if fds_filename:
+            commands[14] = fds_filename
         cont = 0
         props = [value for value in commands if type(value) == list]
         for command in props[0]:
             if isinstance(command, list) and command[0] in source_prop_dict.keys() and command[0] != "CosimDefinition":
                 if command[0] == "Netlist":
                     props[0].pop(cont)
-                elif command[0] == "file" or command[0] == "FreqDependentSourceData" and source_prop_dict[command[0]]:
+                elif command[0] == "file" and source_prop_dict[command[0]]:
                     props[0][cont][3] = source_prop_dict[command[0]]
                     props[0][cont][4] = source_prop_dict[command[0]]
-                    if command[0] == "FreqDependentSourceData":
-                        commands[14] = source_prop_dict[command[0]]
+                elif command[0] == "FreqDependentSourceData" and fds_filename:
+                    props[0][cont][3] = fds_filename
+                    props[0][cont][4] = fds_filename
                 else:
                     props[0][cont][3] = source_prop_dict[command[0]]
             cont += 1
@@ -1733,20 +1747,29 @@ class Sources(SourceKeys, object):
         arg0 = ["NAME:Data"]
         for source in self._app.sources:
             if source == self.name:
-                arg0.append(list(self._update_command(source, self.props, self._app.sources[source].source_type)))
+                arg0.append(list(self._update_command(source, self.props, self.source_type, self.fds_filename)))
             elif source != self.name and original_name == source:
-                arg0.append(list(self._update_command(self.name, self.props, self._app.sources[source].source_type)))
+                arg0.append(
+                    list(
+                        self._update_command(
+                            self.name, self.props, self._app.sources[source].source_type, self.fds_filename
+                        )
+                    )
+                )
             else:
                 arg0.append(
                     list(
                         self._update_command(
-                            source, self._app.sources[source].props, self._app.sources[source].source_type
+                            source,
+                            self._app.sources[source].props,
+                            self._app.sources[source].source_type,
+                            self._app.sources[source].fds_filename,
                         )
                     )
                 )
 
         if new_source and new_source not in self._app.sources:
-            arg0.append(list(self._update_command(self.name, self.props, self.source_type)))
+            arg0.append(list(self._update_command(self.name, self.props, self.source_type, self.fds_filename)))
 
         arg1 = ["NAME:NexximSources", ["NAME:NexximSources", arg0]]
         arg2 = ["NAME:ComponentConfigurationData"]
