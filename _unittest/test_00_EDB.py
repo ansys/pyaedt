@@ -2097,6 +2097,32 @@ if not config["skip_edb"]:
             assert isinstance(port_ver.horizontal_extent_factor, float)
             assert isinstance(port_ver.vertical_extent_factor, float)
             assert port_ver.pec_launch_width
+            p = edb.core_primitives.create_trace(
+                path_list=[["-40mm", "-10mm"], ["-30mm", "-10mm"]],
+                layer_name="TOP",
+                net_name="SIGP",
+                width="0.1mm",
+                start_cap_style="Flat",
+                end_cap_style="Flat")
+
+            n = edb.core_primitives.create_trace(
+                path_list=[["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
+                layer_name="TOP",
+                net_name="SIGN",
+                width="0.1mm",
+                start_cap_style="Flat",
+                end_cap_style="Flat")
+            assert edb.core_hfss.create_wave_port(
+                p.id,
+                ["-30mm", "-10mm"],
+                "p_port"
+            )
+
+            assert edb.core_hfss.create_differential_wave_port(
+                p.id, ["-40mm", "-10mm"],
+                n.id, ["-40mm", "-10.2mm"],
+                horizontal_extent_factor=8,
+            )
             edb.close_edb()
 
         def test_A119_insert_layer(self):

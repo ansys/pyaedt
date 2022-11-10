@@ -472,22 +472,51 @@ class EdbHfss(object):
     @pyaedt_function_handler
     def create_differential_wave_port(
             self,
-            port_name,
             positive_primitive_id,
             positive_points_on_edge,
             negative_primitive_id,
             negative_points_on_edge,
+            port_name=None,
             horizontal_extent_factor=5,
             vertical_extent_factor=3,
             pec_launch_width="0.01mm",
     ):
+        """Create a differential wave port.
+
+        Parameters
+        ----------
+        positive_primitive_id : int
+            Primitive ID of the positive terminal.
+        positive_points_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be close to the target edge but not on the two
+            ends of the edge.
+        negative_primitive_id : int
+            Primitive ID of the negative terminal.
+        negative_points_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be close to the target edge but not on the two
+            ends of the edge.
+        port_name :  str, optional
+            Name of the port. The default is ``None``.
+        horizontal_extent_factor : int, float, optional
+            Horizontal extent factor. The default value is ``5``.
+        vertical_extent_factor : int, float, optional
+            Vertical extent factor. The default value is ``3``.
+        pec_launch_width : str, optional
+            Launch Width of PEC. The default value is ``"0.01mm"``.
+
+        Returns
+        -------
+        tuple
+        """
         if not port_name:
-            port_name = generate_unique_name("diff_")
+            port_name = generate_unique_name("diff")
 
         _, pos_term = self.create_wave_port(
             positive_primitive_id,
             positive_points_on_edge,
-            port_name=port_name+"_p",
+            port_name=port_name,
             horizontal_extent_factor=horizontal_extent_factor,
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
@@ -495,7 +524,6 @@ class EdbHfss(object):
         _, neg_term = self.create_edge_port_vertical(
             negative_primitive_id,
             negative_points_on_edge,
-            port_name=port_name + "_n",
             horizontal_extent_factor=horizontal_extent_factor,
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
@@ -673,8 +701,8 @@ class EdbHfss(object):
             Launch Width of PEC. The default value is ``"0.01mm"``.
         Returns
         -------
-        str
-            Port name.
+        tuple
+            Port name, Excitation
         """
         if not port_name:
             port_name = generate_unique_name("Terminal_")
