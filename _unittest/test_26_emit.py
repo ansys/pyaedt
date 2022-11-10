@@ -332,13 +332,13 @@ class TestClass(BasisTest, object):
         bandtx.append(bandsTX[0])
         domain.set_interferers(radtx, bandtx)
         interaction = self.aedtapp.results.revisions_list[-1].run(domain)
-        assert domain.get_receiver_name() == "MD400C"
-        assert domain.get_receiver_band_name() == "Rx"
-        assert domain.get_receiver_channel_frequency() == -1.0
-        assert domain.get_interferer_names() == ["MD400C"]
-        assert domain.get_interferer_band_names() == ["Tx"]
-        assert domain.get_interferer_channel_frequencies() == [-1.0]
-        assert domain.get_instance_count() == 31626
+        assert domain.get_receiver_name == "MD400C"
+        assert domain.get_receiver_band_name == "Rx"
+        assert domain.get_receiver_channel_frequency == -1.0
+        assert domain.get_interferer_names == ["MD400C"]
+        assert domain.get_interferer_band_names == ["Tx"]
+        assert domain.get_interferer_channel_frequencies == [-1.0]
+        assert domain.get_instance_count == 31626
         available_warning = interaction.get_availability_warning(domain._obj)
         assert available_warning == ""
         availability = interaction.availability(domain._obj)
