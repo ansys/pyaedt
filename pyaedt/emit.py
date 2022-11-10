@@ -92,7 +92,7 @@ class Interaction_Domain:
             index = index + 1
         self._obj.set_interferers(interfer_radio_names, interferer_band_names, interfer_frequencies)
 
-    @pyaedt_function_handler()
+    @property
     def get_receiver_name(self):
         """
         Get the receiver name from the ``Interaction_Domain`` object.
@@ -105,7 +105,7 @@ class Interaction_Domain:
         """
         return self._obj.receiver_name
 
-    @pyaedt_function_handler()
+    @property
     def get_receiver_band_name(self):
         """
         Get the receiver band name from the ``Interaction_Domain`` object.
@@ -118,7 +118,7 @@ class Interaction_Domain:
         """
         return self._obj.receiver_band_name
 
-    @pyaedt_function_handler()
+    @property
     def get_receiver_channel_frequency(self):
         """
         Get the receiver channel frequency from the ``Interaction_Domain`` object.
@@ -131,7 +131,7 @@ class Interaction_Domain:
         """
         return self._obj.receiver_channel
 
-    @pyaedt_function_handler()
+    @property
     def get_interferer_names(self):
         """
         Get the interferer names from the ``Interaction_Domain`` object.
@@ -144,7 +144,7 @@ class Interaction_Domain:
         """
         return list(self._obj.interferer_names)
 
-    @pyaedt_function_handler()
+    @property
     def get_interferer_band_names(self):
         """
         Get the interferer band names from the ``Interaction_Domain`` object.
@@ -157,7 +157,7 @@ class Interaction_Domain:
         """
         return list(self._obj.interferer_band_names)
 
-    @pyaedt_function_handler()
+    @property
     def get_interferer_channel_frequencies(self):
         """
         Get the interferer channel frequencies from the ``Interaction_Domain`` object.
@@ -171,7 +171,7 @@ class Interaction_Domain:
 
         return list(self._obj.interferer_channel_frequencies)
 
-    @pyaedt_function_handler()
+    @property
     def get_instance_count(self):
         """
         Get the instance count from the ``Interaction_Domain`` object.
