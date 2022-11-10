@@ -508,17 +508,20 @@ class Excitation:
 
 
 class ExcitationDifferential:
+    """Manages differential excitation properties."""
     def __init__(self, pedb, edb_boundle_terminal, name):
         self._pedb = pedb
         self._edb_boundle_terminal = edb_boundle_terminal
         self._name = name
 
     @property
-    def _edb(self):
+    def edb(self):
+        """Get edb."""
         return self._pedb.edb
 
     @property
     def terminals(self):
+        """Get terminals belong to this excitation."""
         return {
-            i.GetName(): Excitation(self._pedb, i, i.GetName()) for i in list(self._edb_boundle_terminal.GetTerminals())
+            i.GetName(): Excitation(self._pedb, i, i.GetName()) for i in list(self.edb_boundle_terminal.GetTerminals())
         }
