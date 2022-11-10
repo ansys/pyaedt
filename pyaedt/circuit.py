@@ -16,6 +16,7 @@ from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import Sources
 
 
 class Circuit(FieldAnalysisCircuit, object):
@@ -1052,6 +1053,44 @@ class Circuit(FieldAnalysisCircuit, object):
 
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
+
+    @pyaedt_function_handler()
+    def create_source(self, source_type, name=None):
+        """Create a source in Circuit.
+
+        Parameters
+        ----------
+        source_type : str
+            Source type to create. Sources available are:
+
+            * PowerSin.
+            * PowerIQ.
+            * VoltageFrequencyDependent.
+
+        name : str, optional
+            Source name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.Source`
+            Circuit Source Object.
+
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
+        """
+        if not name:
+            name = generate_unique_name("Source")
+        if name in self.source_names:
+            self.logger.warning("Source name is defined in the design.")
+            return False
+        if source_type not in Sources.SourceNames:
+            self.logger.warning("Source type is not correct.")
+            return False
+        new_source = Sources(self, name, source_type)
+        new_source.create()
+        return new_source
 
     @pyaedt_function_handler()
     def assign_voltage_sinusoidal_excitation_to_ports(self, ports, settings):

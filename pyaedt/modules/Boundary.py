@@ -1,6 +1,7 @@
 """
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
+import copy
 from collections import OrderedDict
 
 from pyaedt.generic.constants import CATEGORIESQ3D
@@ -14,6 +15,7 @@ from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
 from pyaedt.modeler.Object3d import _dim_arg
+from pyaedt.modules.CircuitTemplates import SourceKeys
 
 
 class BoundaryProps(OrderedDict):
@@ -1613,3 +1615,447 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
             self._refresh_properties()
 
         return True
+
+
+class Sources(SourceKeys, object):
+    """Manages Sources in Circuit Projects.
+
+    Examples
+    --------
+
+    """
+
+    def __init__(self, app, name, source_type=None):
+        self._app = app
+        self._name = name
+        self.props = self._source_props(name, source_type)
+        self.source_type = source_type
+        if not source_type:
+            self.source_type = self._source_type_by_key()
+        self.auto_update = True
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, source_name):
+        if source_name not in self._app.source_names:
+            if source_name != self._name:
+                original_name = self._name
+                self._name = source_name
+                for port in self._app.excitations:
+                    if original_name in self._app.excitations[port].props["EnabledPorts"]:
+                        self._app.excitations[port].props["EnabledPorts"] = [
+                            w.replace(original_name, source_name)
+                            for w in self._app.excitations[port].props["EnabledPorts"]
+                        ]
+                    if original_name in self._app.excitations[port].props["EnabledAnalyses"]:
+                        self._app.excitations[port].props["EnabledAnalyses"][source_name] = (
+                            self._app.excitations[port].props["EnabledAnalyses"].pop(original_name)
+                        )
+                self.update(original_name)
+        else:
+            self._logger.warning("Name %s already assigned in the design", source_name)
+
+    @property
+    def _logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @pyaedt_function_handler()
+    def _source_props(self, source, source_type=None):
+        source_prop_dict = {}
+        if source in self._app.source_names:
+            source_aedt_props = self._app.odesign.GetChildObject("Excitations").GetChildObject(source)
+            for el in source_aedt_props.GetPropNames():
+                if el == "CosimDefinition":
+                    source_prop_dict[el] = None
+                elif el != "Name":
+                    source_prop_dict[el] = source_aedt_props.GetPropValue(el)
+                    if not source_prop_dict[el]:
+                        source_prop_dict[el] = ""
+        else:
+            if source_type in SourceKeys.SourceNames:
+                command_template = SourceKeys.SourceTemplates[source_type]
+                commands = copy.deepcopy(command_template)
+                props = [value for value in commands if type(value) == list]
+                for el in props[0]:
+                    if isinstance(el, list):
+                        if el[0] == "CosimDefinition":
+                            source_prop_dict[el[0]] = None
+                        elif el[0] != "ModelName" and el[0] != "LabelID":
+                            source_prop_dict[el[0]] = el[3]
+        return BoundaryProps(self, OrderedDict(source_prop_dict))
+
+    @pyaedt_function_handler()
+    def _update_command(self, name, source_prop_dict, source_type):
+        command_template = SourceKeys.SourceTemplates[source_type]
+        commands = copy.deepcopy(command_template)
+        commands[0] = "NAME:" + name
+        commands[10] = source_prop_dict["Netlist"]
+        cont = 0
+        props = [value for value in commands if type(value) == list]
+        for command in props[0]:
+            if isinstance(command, list) and command[0] in source_prop_dict.keys() and command[0] != "CosimDefinition":
+                if command[0] == "Netlist":
+                    props[0].pop(cont)
+                elif command[0] == "file" or command[0] == "FreqDependentSourceData" and source_prop_dict[command[0]]:
+                    props[0][cont][3] = source_prop_dict[command[0]]
+                    props[0][cont][4] = source_prop_dict[command[0]]
+                    if command[0] == "FreqDependentSourceData":
+                        commands[14] = source_prop_dict[command[0]]
+                else:
+                    props[0][cont][3] = source_prop_dict[command[0]]
+            cont += 1
+
+        return commands
+
+    @pyaedt_function_handler()
+    def _source_type_by_key(self):
+        for source_name in SourceKeys.SourceNames:
+            template = SourceKeys.SourceProps[source_name]
+            if list(self.props.keys()) == template:
+                return source_name
+        return None
+
+    @pyaedt_function_handler()
+    def update(self, original_name=None, new_source=None):
+        """Update the source in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        arg0 = ["NAME:Data"]
+        for source in self._app.sources:
+            if source == self.name:
+                arg0.append(list(self._update_command(source, self.props, self._app.sources[source].source_type)))
+            elif source != self.name and original_name == source:
+                arg0.append(list(self._update_command(self.name, self.props, self._app.sources[source].source_type)))
+            else:
+                arg0.append(
+                    list(
+                        self._update_command(
+                            source, self._app.sources[source].props, self._app.sources[source].source_type
+                        )
+                    )
+                )
+
+        if new_source and new_source not in self._app.sources:
+            arg0.append(list(self._update_command(self.name, self.props, self.source_type)))
+
+        arg1 = ["NAME:NexximSources", ["NAME:NexximSources", arg0]]
+        arg2 = ["NAME:ComponentConfigurationData"]
+
+        # Check Ports with Sources
+        arg3 = ["NAME:EnabledPorts"]
+        for source_name in self._app.sources:
+            excitation_source = []
+            for port in self._app.excitations:
+                if source_name in self._app.excitations[port].props["EnabledPorts"]:
+                    excitation_source.append(port)
+            arg3.append(source_name + ":=")
+            arg3.append(excitation_source)
+
+        if new_source and new_source not in self._app.sources:
+            arg3.append(new_source + ":=")
+            arg3.append([])
+
+        arg4 = ["NAME:EnabledMultipleComponents"]
+        for source_name in self._app.sources:
+            arg4.append(source_name + ":=")
+            arg4.append([])
+
+        if new_source and new_source not in self._app.sources:
+            arg4.append(new_source + ":=")
+            arg4.append([])
+
+        arg5 = ["NAME:EnabledAnalyses"]
+        for source_name in self._app.sources:
+            arg6 = ["NAME:" + source_name]
+            for port in self._app.excitations:
+                if source_name in self._app.excitations[port].props["EnabledAnalyses"]:
+                    arg6.append(port + ":=")
+                    arg6.append(self._app.excitations[port].props["EnabledAnalyses"][source_name])
+                else:
+                    arg6.append(port + ":=")
+                    arg6.append([])
+            arg5.append(arg6)
+
+        if new_source and new_source not in self._app.sources:
+            arg6 = ["NAME:" + new_source]
+            for port in self._app.excitations:
+                arg6.append(port + ":=")
+                arg6.append([])
+            arg5.append(arg6)
+
+        arg7 = ["NAME:ComponentConfigurationData", arg3, arg4, arg5]
+        arg2.append(arg7)
+
+        self._app.odesign.UpdateSources(arg1, arg2)
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the source in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._app.modeler._odesign.DeleteSource(self.name)
+        for port in self._app.excitations:
+            if self.name in self._app.excitations[port].props["EnabledPorts"]:
+                self._app.excitations[port].props["EnabledPorts"].remove(self.name)
+            if self.name in self._app.excitations[port].props["EnabledAnalyses"]:
+                del self._app.excitations[port].props["EnabledAnalyses"][self.name]
+        return True
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a new source in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self.update(original_name=None, new_source=self.name)
+        return True
+
+
+class Excitations(object):
+    """Manages Excitations in Circuit Projects.
+
+    Examples
+    --------
+
+    """
+
+    def __init__(self, app, name):
+        self._app = app
+        self._name = name
+        for comp in self._app.modeler.schematic.components:
+            if (
+                "PortName" in self._app.modeler.schematic.components[comp].parameters.keys()
+                and self._app.modeler.schematic.components[comp].parameters["PortName"] == self.name
+            ):
+                self.comp = comp
+                self.id = self._app.modeler.schematic.components[comp].id
+                self._angle = self._app.modeler.schematic.components[comp].angle
+                self.levels = self._app.modeler.schematic.components[comp].levels
+                self._location = self._app.modeler.schematic.components[comp].location
+                self._mirror = self._app.modeler.schematic.components[comp].mirror
+                self.pins = self._app.modeler.schematic.components[comp].pins
+                self.schematic_id = self._app.modeler.schematic.components[comp].schematic_id
+                self.usesymbolcolor = self._app.modeler.schematic.components[comp].usesymbolcolor
+                break
+        self.props = self._excitation_props(name)
+        self.auto_update = True
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, port_name):
+        if port_name not in self._app.excitation_names:
+            if port_name != self._name:
+                # Take previous properties
+                self._app.odesign.RenamePort(self._name, port_name)
+                self._name = port_name
+        else:
+            self._logger.warning("Name %s already assigned in the design", port_name)
+
+    @property
+    def angle(self):
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle=None):
+        """Set the part angle."""
+        self._app.modeler.schematic.components[self.comp].angle = angle
+
+    @property
+    def mirror(self):
+        return self._mirror
+
+    @mirror.setter
+    def mirror(self, mirror_value=True):
+        """Mirror part.
+
+        Parameters
+        ----------
+        mirror_value : bool
+            Either to mirror the part. The default is ``True``.
+
+        Returns
+        -------
+
+        """
+        self._app.modeler.schematic.components[self.comp].mirror = mirror_value
+
+    @property
+    def location(self):
+        return self._location
+
+    @location.setter
+    def location(self, location_xy):
+        """Set the part location.
+
+        Parameters
+        ----------
+        location_xy : list
+            List of x and y coordinates. If float is provided, ``mils`` will be used.
+        """
+        self._app.modeler.schematic.components[self.comp].location = location_xy
+
+    @pyaedt_function_handler()
+    def _excitation_props(self, port):
+        excitation_prop_dict = {}
+        for comp in self._app.modeler.schematic.components:
+            if (
+                "PortName" in self._app.modeler.schematic.components[comp].parameters.keys()
+                and self._app.modeler.schematic.components[comp].parameters["PortName"] == port
+            ):
+                excitation_prop_dict["rz"] = "50ohm"
+                excitation_prop_dict["iz"] = "0ohm"
+                excitation_prop_dict["term"] = None
+                excitation_prop_dict["TerminationData"] = None
+                excitation_prop_dict["RefNode"] = "Z"
+                if "RefNode" in self._app.modeler.schematic.components[comp].parameters:
+                    excitation_prop_dict["RefNode"] = self._app.modeler.schematic.components[comp].parameters["RefNode"]
+                if "term" in self._app.modeler.schematic.components[comp].parameters:
+                    excitation_prop_dict["term"] = self._app.modeler.schematic.components[comp].parameters["term"]
+                    excitation_prop_dict["TerminationData"] = self._app.modeler.schematic.components[comp].parameters[
+                        "TerminationData"
+                    ]
+                else:
+                    excitation_prop_dict["rz"] = self._app.modeler.schematic.components[comp].parameters["rz"]
+                    excitation_prop_dict["iz"] = self._app.modeler.schematic.components[comp].parameters["iz"]
+
+                if self._app.modeler.schematic.components[comp].parameters["EnableNoise"] == "true":
+                    excitation_prop_dict["EnableNoise"] = True
+                else:
+                    excitation_prop_dict["EnableNoise"] = False
+
+                excitation_prop_dict["noisetemp"] = self._app.modeler.schematic.components[comp].parameters["noisetemp"]
+
+                excitation_prop_dict["SymbolType"] = self._app.design_properties["NexximPorts"]["Data"][port][
+                    "SymbolType"
+                ]
+
+                excitation_prop_dict["pnum"] = self._app.modeler.schematic.components[comp].parameters["pnum"]
+                source_port = []
+                enabled_ports = self._app.design_properties["ComponentConfigurationData"]["EnabledPorts"]
+                if isinstance(enabled_ports, dict):
+                    for source in enabled_ports:
+                        if enabled_ports[source] and port in enabled_ports[source]:
+                            source_port.append(source)
+                excitation_prop_dict["EnabledPorts"] = source_port
+
+                components_port = []
+                multiple = self._app.design_properties["ComponentConfigurationData"]["EnabledMultipleComponents"]
+                if isinstance(multiple, dict):
+                    for source in multiple:
+                        if multiple[source] and port in multiple[source]:
+                            components_port.append(source)
+                excitation_prop_dict["EnabledMultipleComponents"] = components_port
+
+                port_analyses = {}
+                enabled_analyses = self._app.design_properties["ComponentConfigurationData"]["EnabledAnalyses"]
+                if isinstance(enabled_analyses, dict):
+                    for source in enabled_analyses:
+                        if (
+                            enabled_analyses[source]
+                            and port in enabled_analyses[source]
+                            and source in excitation_prop_dict["EnabledPorts"]
+                        ):
+                            port_analyses[source] = enabled_analyses[source][port]
+                excitation_prop_dict["EnabledAnalyses"] = port_analyses
+                return BoundaryProps(self, OrderedDict(excitation_prop_dict))
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the excitation in AEDT. It only works with GRPC.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        self._logger.warning("Property port update only working with GRPC")
+
+        if self.props["RefNode"] == "Ground":
+            self.props["RefNode"] = "Z"
+
+        arg0 = [
+            "NAME:" + self.name,
+            "IIPortName:=",
+            self.name,
+            "SymbolType:=",
+            self.props["SymbolType"],
+            "DoPostProcess:=",
+            False,
+        ]
+
+        arg1 = ["NAME:ChangedProps"]
+        arg2 = []
+
+        # Modify RefNode
+        if self.props["RefNode"] != "Z":
+            arg2 = [
+                "NAME:NewProps",
+                ["NAME:RefNode", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self.props["RefNode"]],
+            ]
+
+        # Modify Termination
+        if self.props["term"] and self.props["TerminationData"]:
+            arg2 = [
+                "NAME:NewProps",
+                ["NAME:term", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self.props["term"]],
+            ]
+
+        for prop in self.props:
+            skip1 = (prop == "rz" or prop == "iz") and isinstance(self.props["term"], str)
+            skip2 = prop == "EnabledPorts" or prop == "EnabledMultipleComponents" or prop == "EnabledAnalyses"
+            skip3 = prop == "SymbolType"
+            skip4 = prop == "TerminationData" and not isinstance(self.props["term"], str)
+            if not skip1 and not skip2 and not skip3 and not skip4 and self.props[prop] is not None:
+                command = ["NAME:" + prop, "Value:=", self.props[prop]]
+                arg1.append(command)
+
+        arg1 = [["NAME:Properties", arg2, arg1]]
+        self._app.odesign.ChangePortProperty(self.name, arg0, arg1)
+
+        for source in self._app.sources:
+            self._app.sources[source].update()
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the port in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._app.modeler._odesign.DeletePort(self.name)
+        del self._app.excitations[self.name]
+        return True
+
+    @property
+    def _logger(self):
+        """Logger."""
+        return self._app.logger
