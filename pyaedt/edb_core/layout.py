@@ -482,8 +482,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
         """
         path = self.Shape("Polygon", points=path_list)
         prim = self.create_path(
