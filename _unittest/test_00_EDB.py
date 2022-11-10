@@ -2103,7 +2103,8 @@ if not config["skip_edb"]:
                 net_name="SIGP",
                 width="0.1mm",
                 start_cap_style="Flat",
-                end_cap_style="Flat")
+                end_cap_style="Flat",
+            )
 
             n = edb.core_primitives.create_trace(
                 path_list=[["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
@@ -2111,16 +2112,15 @@ if not config["skip_edb"]:
                 net_name="SIGN",
                 width="0.1mm",
                 start_cap_style="Flat",
-                end_cap_style="Flat")
-            assert edb.core_hfss.create_wave_port(
-                p.id,
-                ["-30mm", "-10mm"],
-                "p_port"
+                end_cap_style="Flat",
             )
+            assert edb.core_hfss.create_wave_port(p.id, ["-30mm", "-10mm"], "p_port")
 
             assert edb.core_hfss.create_differential_wave_port(
-                p.id, ["-40mm", "-10mm"],
-                n.id, ["-40mm", "-10.2mm"],
+                p.id,
+                ["-40mm", "-10mm"],
+                n.id,
+                ["-40mm", "-10.2mm"],
                 horizontal_extent_factor=8,
             )
             edb.close_edb()

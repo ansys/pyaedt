@@ -471,15 +471,15 @@ class EdbHfss(object):
 
     @pyaedt_function_handler
     def create_differential_wave_port(
-            self,
-            positive_primitive_id,
-            positive_points_on_edge,
-            negative_primitive_id,
-            negative_points_on_edge,
-            port_name=None,
-            horizontal_extent_factor=5,
-            vertical_extent_factor=3,
-            pec_launch_width="0.01mm",
+        self,
+        positive_primitive_id,
+        positive_points_on_edge,
+        negative_primitive_id,
+        negative_points_on_edge,
+        port_name=None,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
     ):
         """Create a differential wave port.
 
@@ -533,9 +533,9 @@ class EdbHfss(object):
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
         )
-        edb_list = convert_py_list_to_net_list([pos_term._edb_terminal, neg_term._edb_terminal],
-                                               self._edb.Cell.Terminal.Terminal
-                                               )
+        edb_list = convert_py_list_to_net_list(
+            [pos_term._edb_terminal, neg_term._edb_terminal], self._edb.Cell.Terminal.Terminal
+        )
         _edb_boundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
         return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal, port_name)
 
@@ -674,14 +674,14 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_wave_port(
-            self,
-            prim_id,
-            point_on_edge,
-            port_name=None,
-            impedance=50,
-            horizontal_extent_factor=5,
-            vertical_extent_factor=3,
-            pec_launch_width="0.01mm",
+        self,
+        prim_id,
+        point_on_edge,
+        port_name=None,
+        impedance=50,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
     ):
         """Create a wave port.
 

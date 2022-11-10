@@ -508,7 +508,6 @@ class Excitation:
 
 
 class ExcitationDifferential:
-
     def __init__(self, pedb, edb_boundle_terminal, name):
         self._pedb = pedb
         self._edb_boundle_terminal = edb_boundle_terminal
@@ -520,4 +519,6 @@ class ExcitationDifferential:
 
     @property
     def terminals(self):
-        return {i.GetName(): Excitation(self._pedb, i, i.GetName()) for i in list(self._edb_boundle_terminal.GetTerminals())}
+        return {
+            i.GetName(): Excitation(self._pedb, i, i.GetName()) for i in list(self._edb_boundle_terminal.GetTerminals())
+        }
