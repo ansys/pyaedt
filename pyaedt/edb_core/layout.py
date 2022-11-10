@@ -495,7 +495,7 @@ class EdbLayout(object):
             corner_style=corner_style,
         )
 
-        return EDBPrimitives(prim, self._pedb)
+        return EDBPrimitives(primitive, self._pedb)
 
     @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
