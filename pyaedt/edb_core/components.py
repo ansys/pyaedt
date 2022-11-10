@@ -1317,14 +1317,12 @@ class Components(object):
         """
         deleted_comps = []
         for comp, val in self.components.items():
-            if val.numpins < 2 and (val.type == "Resistor" or val.type == "Capacitor" or val.type == "Inductor"):
-                edb_cmp = self.get_component_by_name(comp)
-                if edb_cmp is not None:
-                    edb_cmp.Delete()
-                    deleted_comps.append(comp)
-                    self._pedb._logger.info("Component {} deleted".format(comp))
-        for el in deleted_comps:
-            del self.components[el]
+            if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
+                val.edbcomponent.Delete()
+                deleted_comps.append(comp)
+        self.refresh_components()
+        self._pedb._logger.info("Deleted {} components".format(len(deleted_comps)))
+
         return deleted_comps
 
     @pyaedt_function_handler()
