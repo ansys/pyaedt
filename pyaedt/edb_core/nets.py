@@ -588,17 +588,16 @@ class EdbNets(object):
         """
         if isinstance(netlist, str):
             netlist = [netlist]
-        nets_deleted = []
-        for net in netlist:
-            try:
-                edb_net = self._edb.Cell.Net.FindByName(self._active_layout, net)
-                if edb_net is not None:
-                    edb_net.Delete()
-                    nets_deleted.append(net)
-                    self._logger.info("Net %s Deleted", net)
-            except:
-                pass
 
+        self._pedb.core_primitives.delete_primitives(netlist)
+        self._pedb.core_padstack.delete_padstack_instances(netlist)
+
+        nets_deleted = []
+
+        for i in self._pedb.core_nets.nets.values():
+            if i.name in netlist:
+                i.net_object.Delete()
+                nets_deleted.append(i.name)
         return nets_deleted
 
     @pyaedt_function_handler()

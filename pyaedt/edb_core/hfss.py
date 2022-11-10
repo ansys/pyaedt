@@ -4,6 +4,7 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import Excitation
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
@@ -76,6 +77,13 @@ class EdbHfss(object):
     @property
     def _builder(self):
         return self._pedb.builder
+
+    @property
+    def excitations(self):
+        """Get all excitations."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        terms = [i for i in terms if not i.IsReferenceTerminal()]
+        return {ter.GetName(): Excitation(self._pedb, ter, ter.GetName()) for ter in terms}
 
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
@@ -535,7 +543,7 @@ class EdbHfss(object):
         force_circuit_port ; used to force circuit port creation instead of lumped. Works for vertical and coplanar
         ports.
 
-        Example
+        Examples
         --------
 
         >>> edb_path = path_to_edb
@@ -601,6 +609,11 @@ class EdbHfss(object):
         port_name=None,
         impedance=50,
         reference_layer=None,
+        hfss_type="Gap",
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        radial_extent_factor=0,
+        pec_launch_width="0.01mm",
     ):
         """Create a vertical edge port.
 
@@ -618,6 +631,16 @@ class EdbHfss(object):
             Impedance of the port. The default value is ``50``.
         reference_layer : str, optional
             Reference layer of the port. The default is ``None``.
+        hfss_type : str, optional
+            Type of the port. The default value is ``"Gap"``. Options are ``"Gap"``, ``"Wave"``.
+        horizontal_extent_factor : int, float, optional
+            Horizontal extent factor. The default value is ``5``.
+        vertical_extent_factor : int, float, optional
+            Vertical extent factor. The default value is ``3``.
+        radial_extent_factor : int, float, optional
+            Radial extent factor. The default value is ``0``.
+        pec_launch_width : str, optional
+            Launch Width of PEC. The default value is ``"0.01mm"``.
         Returns
         -------
         str
@@ -628,6 +651,23 @@ class EdbHfss(object):
         if reference_layer:
             reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
             pos_edge_term.SetReferenceLayer(reference_layer)
+
+        prop = ", ".join(
+            [
+                "HFSS('HFSS Type'='{}'".format(hfss_type),
+                " Orientation='Vertical'",
+                " 'Layer Alignment'='Upper'",
+                " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
+                " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
+                " 'Radial Extent Factor'='{}'".format(radial_extent_factor),
+                " 'PEC Launch Width'='{}')".format(pec_launch_width),
+            ]
+        )
+        pos_edge_term.SetProductSolverOption(
+            self._pedb.edb.ProductId.Designer,
+            "HFSS",
+            prop,
+        )
         if pos_edge_term:
             return port_name
         else:
@@ -642,6 +682,7 @@ class EdbHfss(object):
         point_on_ref_edge=None,
         port_name=None,
         impedance=50,
+        layer_alignment="Upper",
     ):
         """Create a horizontal edge port.
 
@@ -663,7 +704,8 @@ class EdbHfss(object):
             Name of the port. The default is ``None``.
         impedance : int, float, optional
             Impedance of the port. The default value is ``50``.
-
+        layer_alignment : str, optional
+            Layer alignment. The default value is ``Upper``. Options are ``"Upper"``, ``"Lower"``.
         Returns
         -------
         str
@@ -674,6 +716,13 @@ class EdbHfss(object):
 
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
         pos_edge_term.SetReferenceTerminal(neg_edge_term)
+        if not layer_alignment == "Upper":
+            layer_alignment = "Lower"
+        pos_edge_term.SetProductSolverOption(
+            self._pedb.edb.ProductId.Designer,
+            "HFSS",
+            "HFSS('HFSS Type'='Gap(coax)', Orientation='Horizontal', 'Layer Alignment'='{}')".format(layer_alignment),
+        )
         if pos_edge_term:
             return port_name
         else:
@@ -681,11 +730,7 @@ class EdbHfss(object):
 
     @pyaedt_function_handler()
     def create_lumped_port_on_net(
-        self,
-        nets=None,
-        reference_layer=None,
-        return_points_only=False,
-        digit_resolution=6,
+        self, nets=None, reference_layer=None, return_points_only=False, digit_resolution=6, at_bounding_box=True
     ):
         """Create an edge port on nets. Only ports on traces (e.g. Path) are currently supported.
         The command will look for traces on the nets and will try to assign vertical lumped port on first and last
@@ -705,6 +750,11 @@ class EdbHfss(object):
 
         digit_resolution : int, optional
             The number of digits carried for the edge location accuracy. The default value is ``6``.
+
+        at_bounding_box : bool
+            When ``True`` will keep the edges from traces at the layout bounding box location. This is recommended when
+             a cutout has been performed before and lumped ports have to be created on ending traces. Default value is
+             ``True``.
 
         Returns
         -------
@@ -748,15 +798,32 @@ class EdbHfss(object):
                             round(pt.X.ToDouble(), digit_resolution),
                             round(pt.Y.ToDouble(), digit_resolution),
                         ]
-                        if return_points_only:
-                            edges_pts.append(_pt)
+                        if at_bounding_box:
+                            if not set(layout_bbox).isdisjoint(_pt):
+                                if return_points_only:
+                                    edges_pts.append(_pt)
+                                else:
+                                    try:
+                                        self._hfss_terminals.CreateEdgePort(
+                                            path, pt, reference_layer, port_name
+                                        )  # pragma: no cover
+                                    except:  # pragma: no cover
+                                        self._logger.warning(
+                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
+                                        )
                         else:
-                            if not self._hfss_terminals.CreateEdgePort(
-                                path, pt, reference_layer, port_name
-                            ):  # pragma: no cover
-                                raise Exception(
-                                    "edge port creation failed on point {}, {}".format(str(pt[0]), str(_pt[1]))
-                                )
+                            if return_points_only:  # pragma: no cover
+                                edges_pts.append(_pt)
+                            else:
+                                try:
+                                    self._hfss_terminals.CreateEdgePort(
+                                        path, pt, reference_layer, port_name
+                                    )  # pragma: no cover
+                                except:  # pragma: no cover
+                                    self._logger.warning(
+                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
+                                    )
+
             if return_points_only:
                 return edges_pts
         return True
@@ -1012,14 +1079,14 @@ class EdbHfss(object):
             if simulation_setup.sweep_type == SweepType.LogCount:  # setup_info.SweepType == 'DecadeCount'
                 self._setup_decade_count_sweep(
                     sweep,
-                    simulation_setup.start_frequency,
-                    simulation_setup.stop_freq,
-                    simulation_setup.decade_count,
+                    str(simulation_setup.start_freq),
+                    str(simulation_setup.stop_freq),
+                    str(simulation_setup.decade_count),
                 )  # Added DecadeCount as a new attribute
 
             else:
                 sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                    simulation_setup.start_frequency,
+                    simulation_setup.start_freq,
                     simulation_setup.stop_freq,
                     simulation_setup.step_freq,
                 )
@@ -1162,7 +1229,6 @@ class EdbHfss(object):
                     ii += 1
 
             if not simulation_setup.use_default_coax_port_radial_extension:
-                radial_factor_multiplier = 0.125
                 # Set the Radial Extent Factor
                 typ = cmp.GetComponentType()
                 if typ in [
@@ -1176,11 +1242,18 @@ class EdbHfss(object):
                         diam1,
                         diam2,
                     ) = cmp_prop.GetSolderBallProperty().GetDiameter()
-                    if success and diam1 and diam2 > 0:
-                        radial_factor = "{0}meter".format(radial_factor_multiplier * diam1)
+                    if success and diam1 and diam2 > 0:  # pragma: no cover
+                        option = (
+                            "HFSS('HFSS Type'='**Invalid**', "
+                            "Orientation='**Invalid**', "
+                            "'Layer Alignment'='Upper', "
+                            "'Horizontal Extent Factor'='5', "
+                            "'Vertical Extent Factor'='3', "
+                            "'Radial Extent Factor'='0.25', "
+                            "'PEC Launch Width'='0mm')"
+                        )
                         for tt in terms:
-                            self._builder.SetHfssSolverOption(tt, "Radial Extent Factor", radial_factor)
-                            self._builder.SetHfssSolverOption(tt, "Layer Alignment", "Upper")  # ensure this is also set
+                            tt.SetProductSolverOption(self._edb.ProductId.Designer, "HFSS", option)
         return True
 
     @pyaedt_function_handler()
@@ -1234,7 +1307,8 @@ class EdbHfss(object):
            Number of ports.
 
         """
-        return len([term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0])
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        return len([i for i in terms if not i.IsReferenceTerminal()])
 
     @pyaedt_function_handler()
     def layout_defeaturing(self, simulation_setup=None):

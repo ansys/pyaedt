@@ -1,3 +1,4 @@
+import json
 import math
 import os
 import time
@@ -122,6 +123,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_primitives.circles[0].type == "Circle"
             assert not poly0.is_arc(poly0.points_raw()[0])
             assert isinstance(poly0.voids, list)
+            assert self.edbapp.core_primitives.primitives_by_layer["TOP"][0].layer_name == "TOP"
 
         def test_04_get_stackup(self):
             stackup = self.edbapp.core_stackup.stackup_layers
@@ -163,6 +165,7 @@ if not config["skip_edb"]:
             assert isinstance(padstack_instance.rotation, float)
             self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
             assert "mycircularvia" in list(self.edbapp.core_padstack.padstacks.keys())
+            assert padstack_instance.delete_padstack_instance()
 
         def test_08_nets_query(self):
             signalnets = self.edbapp.core_nets.signal_nets
@@ -447,8 +450,9 @@ if not config["skip_edb"]:
             assert not result
 
         def test_45_delete_net(self):
-            nets_deleted = self.edbapp.core_nets.delete_nets("A0_N")
-            assert "A0_N" in nets_deleted
+            self.edbapp.core_nets.nets["M_MA<6>"].delete()
+            nets_deleted = self.edbapp.core_nets.delete_nets("M_MA<7>")
+            assert "M_MA<7>" in nets_deleted
 
         def test_46_get_polygons_bounding(self):
             polys = self.edbapp.core_primitives.get_polygons_by_layer("GND")
@@ -565,15 +569,20 @@ if not config["skip_edb"]:
             assert len(list(component.LayoutObjs)) == 2
 
         def test_55b_create_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_1.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            assert self.edbapp.create_cutout(
+            assert edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
+            assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
                 output_aedb_path=output,
                 open_cutout_at_end=False,
             )
             assert os.path.exists(os.path.join(output, "edb.def"))
-            bounding = self.edbapp.get_bounding_box()
+            bounding = edbapp.get_bounding_box()
             cutout_line_x = 41
             cutout_line_y = 30
             points = [[bounding[0][0], bounding[0][1]]]
@@ -583,7 +592,7 @@ if not config["skip_edb"]:
             points.append([bounding[0][0], bounding[0][1]])
             output = os.path.join(self.local_scratch.path, "cutout2.aedb")
 
-            assert self.edbapp.create_cutout_on_point_list(
+            assert edbapp.create_cutout_on_point_list(
                 points,
                 nets_to_include=["GND", "V3P3_S0"],
                 output_aedb_path=output,
@@ -591,6 +600,56 @@ if not config["skip_edb"]:
                 include_partial_instances=True,
             )
             assert os.path.exists(os.path.join(output, "edb.def"))
+            edbapp.close_edb()
+
+        def test_55c_create_custom_cutout(self):
+
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            if is_ironpython:
+                assert not edbapp.create_cutout_multithread(
+                    signal_list=["V3P3_S0"],
+                    reference_list=["GND"],
+                    extent_type="Bounding",
+                    number_of_threads=4,
+                )
+            else:
+                assert edbapp.create_cutout_multithread(
+                    signal_list=["V3P3_S0"],
+                    reference_list=["GND"],
+                    extent_type="Bounding",
+                    number_of_threads=4,
+                )
+                assert "A0_N" not in edbapp.core_nets.nets
+            edbapp.close_edb()
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+        def test_55d_create_custom_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            bounding = edbapp.get_bounding_box()
+            cutout_line_x = 41
+            cutout_line_y = 30
+            points = [[bounding[0][0], bounding[0][1]]]
+            points.append([cutout_line_x, bounding[0][1]])
+            points.append([cutout_line_x, cutout_line_y])
+            points.append([bounding[0][0], cutout_line_y])
+            points.append([bounding[0][0], bounding[0][1]])
+            assert edbapp.create_cutout_multithread(
+                signal_list=["V3P3_S0"],
+                reference_list=["GND"],
+                number_of_threads=4,
+                extent_type="Bounding",
+                custom_extent=points,
+            )
+            edbapp.close_edb()
 
         def test_56_rvalue(self):
             assert resistor_value_parser("100meg")
@@ -2030,8 +2089,15 @@ if not config["skip_edb"]:
 
             prim_2_id = [i.id for i in edb.core_primitives.primitives if i.net_name == "trace_3"][0]
             assert edb.core_hfss.create_edge_port_horizontal(
-                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30
+                prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
             )
+            assert edb.core_hfss.get_ports_number() == 2
+            port_ver = edb.core_hfss.excitations["port_ver"]
+            assert port_ver.hfss_type == "Gap"
+            assert isinstance(port_ver.horizontal_extent_factor, float)
+            assert isinstance(port_ver.vertical_extent_factor, float)
+            assert isinstance(port_ver.radial_extent_factor, float)
+            assert port_ver.pec_launch_width
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2053,10 +2119,14 @@ if not config["skip_edb"]:
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_120.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
-            assert self.edbapp.core_padstack.set_all_antipad_value(0.0)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.core_padstack.set_all_antipad_value(0.0)
+            edbapp.close_edb()
 
         def test_A122_stackup(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert isinstance(edbapp.stackup.layers, dict)
             assert isinstance(edbapp.stackup.signal_layers, dict)
@@ -2116,30 +2186,37 @@ if not config["skip_edb"]:
 
         @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")
         def test_A123_comp_def(self):
-            assert self.edbapp.core_components.components
-            assert self.edbapp.core_components.definitions
-            comp_def = self.edbapp.core_components.definitions["G83568-001"]
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_123.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.core_components.components
+            assert edbapp.core_components.definitions
+            comp_def = edbapp.core_components.definitions["G83568-001"]
             assert comp_def
             comp_def.part_name = "G83568-001x"
             assert comp_def.part_name == "G83568-001x"
             assert len(comp_def.components) > 0
-            cap = self.edbapp.core_components.definitions["602431-005"]
+            cap = edbapp.core_components.definitions["602431-005"]
             assert cap.type == "Capacitor"
             cap.type = "Resistor"
             assert cap.type == "Resistor"
 
             export_path = os.path.join(self.local_scratch.path, "comp_definition.csv")
-            assert self.edbapp.core_components.export_definition(export_path)
-            assert self.edbapp.core_components.import_definition(export_path)
+            assert edbapp.core_components.export_definition(export_path)
+            assert edbapp.core_components.import_definition(export_path)
 
-            assert self.edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
+            assert edbapp.core_components.definitions["602431-005"].assign_rlc_model(1, 2, 3)
             sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
-            assert self.edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
+            assert edbapp.core_components.definitions["602433-026"].assign_s_param_model(sparam_path)
             spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
-            assert self.edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
+            assert edbapp.core_components.definitions["602433-038"].assign_spice_model(spice_path)
+            edbapp.close_edb()
 
         def test_A124_material(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert isinstance(edbapp.materials.materials, dict)
             edbapp.materials["FR4_epoxy"].conductivity = 1
@@ -2205,11 +2282,13 @@ if not config["skip_edb"]:
 
         @pytest.mark.skipif(is_ironpython, reason="Not supported in Ironpython because of numpy.")
         def test_A126_component(self):
-            edb_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
             sparam_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC_series.s2p")
             spice_path = os.path.join(local_path, "example_models", test_subfolder, "GRM32_DC0V_25degC.mod")
 
-            edbapp = Edb(edb_path, edbversion=desktop_version)
+            edbapp = Edb(target_path, edbversion=desktop_version)
             comp = edbapp.core_components.components["R6"]
             comp.assign_rlc_model(1, 2, 3, False)
             assert (
@@ -2237,9 +2316,149 @@ if not config["skip_edb"]:
             comp.value = 10  # This command set the model back to ideal RLC
             assert comp.type == "Inductor" and comp.value == 10 and float(comp.ind_value) == 10
 
-            pg_name, _ = edbapp.core_siwave.create_pin_group("U3A1", 2)
-            assert edbapp.core_siwave.create_pin_group("U3A1", [5, 34, 35], "pos")
-            assert "pos" in edbapp.core_siwave.pin_groups
-            edbapp.core_siwave.create_pin_group_on_net("U3A1", "GND", "gnd")
-            edbapp.core_siwave.create_current_source_on_pin_group("pos", "gnd")
-            edbapp.core_siwave.create_voltage_source_on_pin_group(pg_name, "gnd")
+        def test_A127_stackup(self):
+            def validate_material(pedb_materials, material, delta):
+                pedb_mat = pedb_materials[material["name"]]
+                if not material["dielectric_model_frequency"]:
+                    assert (pedb_mat.conductivity - material["conductivity"]) < delta
+                    assert (pedb_mat.permittivity - material["permittivity"]) < delta
+                    assert (pedb_mat.loss_tangent - material["loss_tangent"]) < delta
+                    assert (pedb_mat.permeability - material["permeability"]) < delta
+                    assert (pedb_mat.magnetic_loss_tangent - material["magnetic_loss_tangent"]) < delta
+                assert (pedb_mat.mass_density - material["mass_density"]) < delta
+                assert (pedb_mat.poisson_ratio - material["poisson_ratio"]) < delta
+                assert (pedb_mat.specific_heat - material["specific_heat"]) < delta
+                assert (pedb_mat.thermal_conductivity - material["thermal_conductivity"]) < delta
+                assert (pedb_mat.youngs_modulus - material["youngs_modulus"]) < delta
+                assert (pedb_mat.thermal_expansion_coefficient - material["thermal_expansion_coefficient"]) < delta
+                if material["dc_conductivity"] is not None:
+                    assert (pedb_mat.dc_conductivity - material["dc_conductivity"]) < delta
+                else:
+                    assert pedb_mat.dc_conductivity == material["dc_conductivity"]
+                if material["dc_permittivity"] is not None:
+                    assert (pedb_mat.dc_permittivity - material["dc_permittivity"]) < delta
+                else:
+                    assert pedb_mat.dc_permittivity == material["dc_permittivity"]
+                if material["dielectric_model_frequency"] is not None:
+                    assert (pedb_mat.dielectric_model_frequency - material["dielectric_model_frequency"]) < delta
+                else:
+                    assert pedb_mat.dielectric_model_frequency == material["dielectric_model_frequency"]
+                if material["loss_tangent_at_frequency"] is not None:
+                    assert (pedb_mat.loss_tangent_at_frequency - material["loss_tangent_at_frequency"]) < delta
+                else:
+                    assert pedb_mat.loss_tangent_at_frequency == material["loss_tangent_at_frequency"]
+                if material["permittivity_at_frequency"] is not None:
+                    assert (pedb_mat.permittivity_at_frequency - material["permittivity_at_frequency"]) < delta
+                else:
+                    assert pedb_mat.permittivity_at_frequency == material["permittivity_at_frequency"]
+                return 0
+
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_test.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat.json")
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            edbapp.stackup._import_layer_stackup(json_path)
+            edbapp.save_edb()
+            delta = 1e-6
+            f = open(json_path)
+            json_dict = json.load(f)
+            for k, v in json_dict.items():
+                if k == "materials":
+                    for material in v.values():
+                        assert 0 == validate_material(edbapp.materials, material, delta)
+            for k, v in json_dict.items():
+                if k == "layers":
+                    for layer_name, layer in v.items():
+                        pedb_lay = edbapp.stackup.layers[layer_name]
+                        assert list(pedb_lay.color) == layer["color"]
+                        assert pedb_lay.type == layer["type"]
+                        if isinstance(layer["material"], str):
+                            assert pedb_lay.material == layer["material"]
+                        else:
+                            assert 0 == validate_material(edbapp.materials, layer["material"], delta)
+                        if isinstance(layer["dielectric_fill"], str) or layer["dielectric_fill"] is None:
+                            assert pedb_lay.dielectric_fill == layer["dielectric_fill"]
+                        else:
+                            assert 0 == validate_material(edbapp.materials, layer["dielectric_fill"], delta)
+                        assert (pedb_lay.thickness - layer["thickness"]) < delta
+                        assert (pedb_lay.etch_factor - layer["etch_factor"]) < delta
+                        assert pedb_lay.roughness_enabled == layer["roughness_enabled"]
+                        if layer["roughness_enabled"]:
+                            assert (pedb_lay.top_hallhuray_nodule_radius - layer["top_hallhuray_nodule_radius"]) < delta
+                            assert (pedb_lay.top_hallhuray_surface_ratio - layer["top_hallhuray_surface_ratio"]) < delta
+                            assert (
+                                pedb_lay.bottom_hallhuray_nodule_radius - layer["bottom_hallhuray_nodule_radius"]
+                            ) < delta
+                            assert (
+                                pedb_lay.bottom_hallhuray_surface_ratio - layer["bottom_hallhuray_surface_ratio"]
+                            ) < delta
+                            assert (
+                                pedb_lay.side_hallhuray_nodule_radius - layer["side_hallhuray_nodule_radius"]
+                            ) < delta
+                            assert (
+                                pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]
+                            ) < delta
+            edbapp.close_edb()
+
+        def test_128_build_project(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.signal_nets = [
+                "M_DQ<0>",
+                "M_DQ<1>",
+                "M_DQ<2>",
+                "M_DQ<3>",
+                "M_DQ<4>",
+                "M_DQ<5>",
+                "M_DQ<6>",
+                "M_DQ<7>",
+            ]
+            sim_setup.power_nets = ["GND"]
+            sim_setup.do_cutout_subdesign = True
+            sim_setup.components = ["U2A5", "U1B5"]
+            sim_setup.use_default_coax_port_radial_extension = False
+            sim_setup.cutout_subdesign_expansion = 0.001
+            sim_setup.start_frequency = 0
+            sim_setup.stop_freq = 20e9
+            sim_setup.step_freq = 10e6
+            assert edbapp.build_simulation_project(sim_setup)
+
+        def test_128B_build_project(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project2.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            sim_setup = SimulationConfiguration()
+            sim_setup.signal_nets = [
+                "M_DQ<0>",
+                "M_DQ<1>",
+                "M_DQ<2>",
+                "M_DQ<3>",
+                "M_DQ<4>",
+                "M_DQ<5>",
+                "M_DQ<6>",
+                "M_DQ<7>",
+            ]
+            sim_setup.power_nets = ["GND"]
+            sim_setup.do_cutout_subdesign = True
+            sim_setup.components = ["U2A5", "U1B5"]
+            sim_setup.use_default_coax_port_radial_extension = False
+            sim_setup.cutout_subdesign_expansion = 0.001
+            sim_setup.start_frequency = 0
+            sim_setup.stop_freq = 20e9
+            sim_setup.step_freq = 10e6
+            sim_setup.use_default_cutout = False
+            assert edbapp.build_simulation_project(sim_setup)
+
+        def test_129_get_component_bounding_box(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            component = edbapp.core_components.components["U2A5"]
+            assert component.bounding_box
+            assert isinstance(component.rotation, float)

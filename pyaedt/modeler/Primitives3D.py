@@ -1622,6 +1622,7 @@ class Primitives3D(Primitives, object):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
+
         with open_file(json_file, "r") as read_file:
             values = json.load(read_file)
         self.logger.info("CHOKE INFO: " + str(values))
@@ -2114,20 +2115,20 @@ class Primitives3D(Primitives, object):
         Examples
         --------
         Dictionary of the Json file has to be like the following example :
-            dictionary = {
-                "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
-                "Layer": {"Simple": True, "Double": False, "Triple": False},
-                "Layer Type": {"Separate": True, "Linked": False},
-                "Similar Layer": {"Similar": True, "Different": False},
-                "Mode": {"Differential": True, "Common": False},
-                "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
-                "Core": {"Name": "Core", "Material": "ferrite", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
-                         "Chamfer": 0.8},
-                "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
-                                  "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
-                "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
-                "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
-            }
+        dictionary = {
+        "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
+        "Layer": {"Simple": True, "Double": False, "Triple": False},
+        "Layer Type": {"Separate": True, "Linked": False},
+        "Similar Layer": {"Similar": True, "Different": False},
+        "Mode": {"Differential": True, "Common": False},
+        "Wire Section": {"None": False, "Hexagon": False, "Octagon": True, "Circle": False},
+        "Core": {"Name": "Core", "Material": "ferrite", "Inner Radius": 11, "Outer Radius": 17, "Height": 7,
+        "Chamfer": 0.8},
+        "Outer Winding": {"Name": "Winding", "Material": "copper", "Inner Radius": 12, "Outer Radius": 16,
+        "Height": 8, "Wire Diameter": 1, "Turns": 10, "Coil Pit(deg)": 9, "Occupation(%)": 0},
+        "Mid Winding": {"Turns": 8, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
+        "Inner Winding": {"Turns": 12, "Coil Pit(deg)": 0.1, "Occupation(%)": 0}
+        }
 
         >>> import json
         >>> with open("C:/Example/Of/Path/myJsonFile.json", "w") as outfile:
@@ -2135,8 +2136,8 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
-
         """
+
         dictionary_model = {
             "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
             "Layer": {"Simple": True, "Double": False, "Triple": False},

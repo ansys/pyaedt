@@ -100,6 +100,8 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
         messages = list(main_module.oDesktop.GetMessages("", "", 2))
     except AttributeError:
         messages = []
+    except TypeError:
+        messages = []
     if messages:
         message_to_print = messages[-1]
     for el in tblist:
@@ -1237,6 +1239,66 @@ class Settings(object):
         self._force_error_on_missing_project = False
         self._enable_pandas_output = False
         self.time_tick = time.time()
+        self._global_log_file_name = "pyaedt_{}.log".format(os.path.split(os.path.expanduser("~"))[-1])
+        self._enable_global_log_file = True
+        self._enable_local_log_file = True
+        self._global_log_file_size = 10
+
+    @property
+    def global_log_file_size(self):
+        """Get/Set the global pyaedt log file size in Mbytes. The default value is ``10``.
+
+        Returns
+        -------
+        bool
+        """
+        return self._global_log_file_size
+
+    @global_log_file_size.setter
+    def global_log_file_size(self, value):
+        self._global_log_file_size = value
+
+    @property
+    def enable_global_log_file(self):
+        """Enable/Disable the global pyaedt log file logging in global temp folder. Default is `True`.
+
+        Returns
+        -------
+        bool
+        """
+        return self._enable_global_log_file
+
+    @enable_global_log_file.setter
+    def enable_global_log_file(self, value):
+        self._enable_global_log_file = value
+
+    @property
+    def enable_local_log_file(self):
+        """Enable/Disable the local pyaedt log file logging in projectname.pyaedt project folder. Default is `True`.
+
+        Returns
+        -------
+        bool
+        """
+        return self._enable_local_log_file
+
+    @enable_local_log_file.setter
+    def enable_local_log_file(self, value):
+        self._enable_local_log_file = value
+
+    @property
+    def global_log_file_name(self):
+        """Get/Set the global pyaedt log file path. Default is pyaedt_username.log.
+
+        Returns
+        -------
+        str
+        """
+        return self._global_log_file_name
+
+    @global_log_file_name.setter
+    def global_log_file_name(self, value):
+        self._global_log_file_name = value
 
     @property
     def enable_pandas_output(self):
