@@ -486,7 +486,7 @@ class EdbLayout(object):
             ``True`` when successful, ``False`` when failed.
         """
         path = self.Shape("Polygon", points=path_list)
-        return self.create_path(
+        prim = self.create_path(
             path,
             layer_name=layer_name,
             net_name=net_name,
@@ -495,6 +495,8 @@ class EdbLayout(object):
             end_cap_style=end_cap_style,
             corner_style=corner_style,
         )
+
+        return EDBPrimitives(prim, self._pedb)
 
     @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
