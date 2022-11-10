@@ -509,6 +509,7 @@ class Excitation:
 
 class ExcitationDifferential:
     """Manages differential excitation properties."""
+
     def __init__(self, pedb, edb_boundle_terminal, name):
         self._pedb = pedb
         self._edb_boundle_terminal = edb_boundle_terminal
