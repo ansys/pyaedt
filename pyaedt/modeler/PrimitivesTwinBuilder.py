@@ -209,7 +209,7 @@ class TwinBuilderComponents(CircuitComponents):
 
     @pyaedt_function_handler()
     def create_voltage_source(
-        self, compname=None, type="E", amplitude=326, freq=50, location=[], angle=0, use_instance_id_netlist=False
+        self, compname=None, type="E", amplitude=326, freq=50, location=None, angle=0, use_instance_id_netlist=False
     ):
         """Create a voltage source (conservative electrical output).
 
@@ -224,7 +224,7 @@ class TwinBuilderComponents(CircuitComponents):
         freq : float, optional
             Frequency of the periodic waveform. The default is ``50Hz``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
             Angle of rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -240,6 +240,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Sources",
@@ -262,7 +265,7 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_diode(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_diode(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a diode.
 
         Parameters
@@ -270,7 +273,7 @@ class TwinBuilderComponents(CircuitComponents):
         compname : str, optional
             Name of the diode. The default is ``None``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -286,6 +289,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -297,15 +303,15 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_npn(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_npn(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create an NPN transistor.
 
         Parameters
         ----------
         compname : str, optional
-            Name of the NPN transistor. The default is ``None``.
+            Name of the NPN transistor. The default value is ``None``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -321,6 +327,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -332,7 +341,7 @@ class TwinBuilderComponents(CircuitComponents):
         return id
 
     @pyaedt_function_handler()
-    def create_pnp(self, compname=None, location=[], angle=0, use_instance_id_netlist=False):
+    def create_pnp(self, compname=None, location=None, angle=0, use_instance_id_netlist=False):
         """Create a PNP transistor.
 
         Parameters
@@ -340,7 +349,7 @@ class TwinBuilderComponents(CircuitComponents):
         compname : str, optional
             Name of the PNP transistor. The default is ``None``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
             Angle rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -356,6 +365,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Circuit\\Semiconductors System Level",
@@ -377,7 +389,7 @@ class TwinBuilderComponents(CircuitComponents):
         phase=0,
         offset=0,
         delay=0,
-        location=[],
+        location=None,
         angle=0,
         use_instance_id_netlist=False,
     ):
@@ -401,7 +413,7 @@ class TwinBuilderComponents(CircuitComponents):
         delay : float, optional
             Delay before starting of the periodic waveform. The default is ``0``.
         location : list of float, optional
-            Position on the X axis and Y axis.
+            Position on the X axis and Y axis. The default value is ``None``.
         angle : float, optional
             Angle of rotation in degrees. The default is ``0``.
         use_instance_id_netlist : bool, optional
@@ -417,6 +429,9 @@ class TwinBuilderComponents(CircuitComponents):
 
         >>> oEditor.CreateComponent
         """
+        if location == None:
+            location = []
+
         id = self.create_component(
             compname,
             component_library="Basic Elements\\Tools\\Time Functions",
