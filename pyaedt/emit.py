@@ -184,7 +184,6 @@ class Interaction_Domain:
         """
         return self._obj.instance_count()
 
-
 class Result:
     """
     Provides the ``Result`` object.
@@ -429,7 +428,6 @@ class Revision:
         """
         eng = self.emit_obj._emit_api.get_engine()
         eng.max_simultaneous_interferers = val
-
 
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.

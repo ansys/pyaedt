@@ -68,7 +68,7 @@ Documentation and issues
 In addition to installation and usage information, the PyAEDT
 documentation provides `API reference <https://aedt.docs.pyansys.com/API/>`_,
 `Examples <https://aedt.docs.pyansys.com/examples/index.html>`_, and `Contribute 
-<https://aedt.docs.pyansys.com/Resources/Contributing.html>`_ sections.
+<https://aedt.docs.pyansys.com/Contributing.html>`_ sections.
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
 create issues to submit questions, report bugs, and request new features. To reach
