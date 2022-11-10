@@ -1049,6 +1049,11 @@ class Edb(object):
             [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
         )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
+        [
+            net.net_object.Delete()
+            for net_name, net in self.core_nets.nets.items()
+            if not net_name in [*signal_list, *reference_list]
+        ]
 
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
