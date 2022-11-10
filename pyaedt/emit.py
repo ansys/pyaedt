@@ -83,7 +83,7 @@ class Result:
         Returns
         -------
         """
-        self.logger.error("This function is inaccessible when the Emit object has no revisions.")
+        print("This function is inaccessible when the Emit object has no revisions.")
 
     @pyaedt_function_handler()
     def get_radio_names(self, tx_rx):
