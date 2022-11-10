@@ -485,7 +485,7 @@ class EdbLayout(object):
         pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
         """
         path = self.Shape("Polygon", points=path_list)
-        prim = self.create_path(
+        primitive = self.create_path(
             path,
             layer_name=layer_name,
             net_name=net_name,
