@@ -477,16 +477,17 @@ class EdbHfss(object):
             positive_points_on_edge,
             negative_primitive_id,
             negative_points_on_edge,
-            impedance_differetial=100,
-            impedance_common=25,
             horizontal_extent_factor=5,
             vertical_extent_factor=3,
             pec_launch_width="0.01mm",
     ):
-        _, pos_term = self.create_edge_port_vertical(
+        if not port_name:
+            port_name = generate_unique_name("diff_")
+
+        _, pos_term = self.create_wave_port(
             positive_primitive_id,
             positive_points_on_edge,
-            hfss_type="Wave",
+            port_name=port_name+"_p",
             horizontal_extent_factor=horizontal_extent_factor,
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
@@ -494,7 +495,7 @@ class EdbHfss(object):
         _, neg_term = self.create_edge_port_vertical(
             negative_primitive_id,
             negative_points_on_edge,
-            hfss_type="Wave",
+            port_name=port_name + "_n",
             horizontal_extent_factor=horizontal_extent_factor,
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
@@ -638,6 +639,65 @@ class EdbHfss(object):
                 ref_edge_term.SetImpedance(self._pedb.edb_value(port_impedance))
             edge_term.SetReferenceTerminal(ref_edge_term)
         return True
+
+    @pyaedt_function_handler()
+    def create_wave_port(
+            self,
+            prim_id,
+            point_on_edge,
+            port_name=None,
+            impedance=50,
+            horizontal_extent_factor=5,
+            vertical_extent_factor=3,
+            pec_launch_width="0.01mm",
+    ):
+        """Create a wave port.
+
+        Parameters
+        ----------
+        prim_id : int
+            Primitive ID.
+        point_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be on the target edge but not on the two
+            ends of the edge.
+        port_name : str, optional
+            Name of the port. The default is ``None``.
+        impedance : int, float, optional
+            Impedance of the port. The default value is ``50``.
+        horizontal_extent_factor : int, float, optional
+            Horizontal extent factor. The default value is ``5``.
+        vertical_extent_factor : int, float, optional
+            Vertical extent factor. The default value is ``3``.
+        pec_launch_width : str, optional
+            Launch Width of PEC. The default value is ``"0.01mm"``.
+        Returns
+        -------
+        str
+            Port name.
+        """
+        if not port_name:
+            port_name = generate_unique_name("Terminal_")
+        pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
+        pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
+
+        prop = ", ".join(
+            [
+                "HFSS('HFSS Type'='Wave'",
+                " 'Horizontal Extent Factor'='{}'".format(horizontal_extent_factor),
+                " 'Vertical Extent Factor'='{}'".format(vertical_extent_factor),
+                " 'PEC Launch Width'='{}')".format(pec_launch_width),
+            ]
+        )
+        pos_edge_term.SetProductSolverOption(
+            self._pedb.edb.ProductId.Designer,
+            "HFSS",
+            prop,
+        )
+        if pos_edge_term:
+            return port_name, self._pedb.core_hfss.excitations[port_name]
+        else:
+            return False
 
     @pyaedt_function_handler()
     def create_edge_port_vertical(
