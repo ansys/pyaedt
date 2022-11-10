@@ -1,7 +1,9 @@
 files: |
     (?x)(
         ^pyaedt/|
-        _unittest/
+        _unittest/|
+        requirements_docs.txt|
+        requirements_test.txt
     )
 exclude: |
     (?x)(
@@ -35,3 +37,7 @@ repos:
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.3.0
+  hooks:
+  - id: requirements-txt-fixer

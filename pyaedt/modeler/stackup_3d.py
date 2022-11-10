@@ -2339,7 +2339,7 @@ class Patch(CommonObject, object):
         Parameters
         ----------
 
-        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
             The reference layer, in most cases the ground layer.
         opposite_side : bool, optional
             Change the side where the port is created.
@@ -3144,7 +3144,7 @@ class Polygon(CommonObject, object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     point_list : list
         Points list of [x,y] coordinates.
@@ -3256,7 +3256,7 @@ class MachineLearningPatch(Patch, object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
         The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
@@ -3278,7 +3278,7 @@ class MachineLearningPatch(Patch, object):
     reference_system : str, None, optional
         Coordinate system of the patch. By default, None.
     axis : str, optional
-        Patch length axis, by default "X".
+        Patch length axis, by default ``"X"``.
 
     Examples
     --------

@@ -145,10 +145,12 @@ class EdbPadstacks(object):
             List of padstacks via padstack definitions.
 
         """
-        if self._padstacks:
-            return self._padstacks
-        self.update_padstacks()
-        return self._padstacks
+        _padstacks = {}
+        for padstackdef in self.db.PadstackDefs:
+            PadStackData = padstackdef.GetData()
+            if len(PadStackData.GetLayerNames()) >= 1:
+                _padstacks[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
+        return _padstacks
 
     @property
     def padstack_instances(self):
@@ -160,10 +162,11 @@ class EdbPadstacks(object):
             List of padstack instances.
 
         """
-        if self._padstack_instances:
-            return self._padstack_instances
-        self.update_padstack_instances()
-        return self._padstack_instances
+        layout_lobj_collection = list(self._active_layout.PadstackInstances)
+        _padstack_instances = {}
+        for lobj in layout_lobj_collection:
+            _padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
+        return _padstack_instances
 
     @property
     def pingroups(self):
@@ -193,21 +196,6 @@ class EdbPadstacks(object):
             )
 
         return PadType
-
-    @pyaedt_function_handler()
-    def update_padstacks(self):
-        """Update Padstack Dictionary.
-
-        Returns
-        -------
-        dict
-            Dictionary of Padstacks.
-        """
-        self._padstacks = {}
-        for padstackdef in self.db.PadstackDefs:
-            PadStackData = padstackdef.GetData()
-            if len(PadStackData.GetLayerNames()) >= 1:
-                self._padstacks[padstackdef.GetName()] = EDBPadstack(padstackdef, self)
 
     @pyaedt_function_handler()
     def create_circular_padstack(
@@ -310,7 +298,35 @@ class EdbPadstacks(object):
                     value0,
                 )
         PadStack.SetData(new_PadStackData)
-        self.update_padstacks()
+
+    @pyaedt_function_handler
+    def delete_padstack_instances(self, net_names):
+        """Delete padstack instances by net names.
+
+        Parameters
+        ----------
+        net_names : str, list
+            Names of the nets to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> Edb.core_padstack.delete_padstack_instances(net_names=["GND"])
+        """
+        if not isinstance(net_names, list):  # pragma: no cover
+            net_names = [net_names]
+
+        for p_id, p in self.padstack_instances.items():
+            if p.name in net_names:
+                if not p.delete_padstack_instance():  # pragma: no cover
+                    return False
+                self._padstacks.pop(p_id)
+        return True
 
     @pyaedt_function_handler()
     def set_solderball(self, padstackInst, sballLayer_name, isTopPlaced=True, ballDiam=100e-6):
@@ -356,7 +372,7 @@ class EdbPadstacks(object):
         return False
 
     @pyaedt_function_handler()
-    def create_coax_port(self, padstackinstance):
+    def create_coax_port(self, padstackinstance, use_dot_separator=True):
         """Create HFSS 3Dlayout coaxial lumped port on a pastack
         Requires to have solder ball defined before calling this method.
 
@@ -384,8 +400,10 @@ class EdbPadstacks(object):
         pin_name = padstackinstance.GetName()
         if pin_name == "":
             pin_name = "no_pin_name"
-
-        port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
+        if use_dot_separator:
+            port_name = "{0}.{1}.{2}".format(cmp_name, net_name, pin_name)
+        else:
+            port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
 
@@ -539,17 +557,15 @@ class EdbPadstacks(object):
 
         if not isinstance(net_list, list):
             net_list = [net_list]
-        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
+        layout_lobj_collection = list(self._active_layout.PadstackInstances)
         via_list = []
-        for obj in layout_lobj_collection.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
-                if len(pad_layers_name) > 1:
-                    if not net_list:
-                        via_list.append(lobj)
-                    elif lobj.GetNet().GetName() in net_list:
-                        via_list.append(lobj)
+        for lobj in layout_lobj_collection:
+            pad_layers_name = lobj.GetPadstackDef().GetData().GetLayerNames()
+            if len(pad_layers_name) > 1:
+                if not net_list:
+                    via_list.append(lobj)
+                elif lobj.GetNet().GetName() in net_list:
+                    via_list.append(lobj)
         return via_list
 
     @pyaedt_function_handler()
@@ -680,7 +696,6 @@ class EdbPadstacks(object):
         padstackDefinition = self._edb.Definition.PadstackDef.Create(self.db, padstackname)
         padstackDefinition.SetData(padstackData)
         self._logger.info("Padstack %s create correctly", padstackname)
-        self.update_padstacks()
         return padstackname
 
     @pyaedt_function_handler()
@@ -715,7 +730,6 @@ class EdbPadstacks(object):
 
         padstack_definition = self._edb.Definition.PadstackDef.Create(self.db, new_padstack_name)
         padstack_definition.SetData(new_padstack_definition_data)
-        self.update_padstacks()
 
         return new_padstack_name
 
@@ -791,7 +805,6 @@ class EdbPadstacks(object):
                 None,
             )
             padstack_instance.SetIsLayoutPin(is_pin)
-            self.update_padstack_instances()
             return padstack_instance.GetId()
         else:
             return False
@@ -827,7 +840,6 @@ class EdbPadstacks(object):
             newPadstackDefinitionData.SetPadParameters(lay, pad_type, pad_geo, params, vals, vals, vals)
 
         self.padstacks[padstack_name].edb_padstack.SetData(newPadstackDefinitionData)
-        self.update_padstacks()
         return True
 
     @pyaedt_function_handler()
@@ -930,18 +942,7 @@ class EdbPadstacks(object):
                 antipad_rotation,
             )
         self.padstacks[padstack_name].edb_padstack.SetData(new_padstack_def)
-        self.update_padstacks()
         return True
-
-    @pyaedt_function_handler()
-    def update_padstack_instances(self):
-        """Update Padstack Instance List."""
-        layout_lobj_collection = self._active_layout.GetLayoutInstance().GetAllLayoutObjInstances()
-        self._padstack_instances = {}
-        for obj in layout_lobj_collection.Items:
-            lobj = obj.GetLayoutObj()
-            if type(lobj) is self._edb.Cell.Primitive.PadstackInstance:
-                self._padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
 
     @pyaedt_function_handler()
     def get_padstack_instance_by_net_name(self, net_name):

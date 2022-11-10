@@ -20,6 +20,8 @@ from pyaedt import settings
 from pyaedt.aedt_logger import AedtLogger
 from pyaedt.generic.general_methods import is_ironpython
 
+settings.enable_desktop_logs = True
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -28,7 +30,7 @@ class TestClass(BasisTest, object):
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
-        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"))
+        shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"), ignore_errors=True)
 
     # @pytest.mark.xfail
     # def test_01_global(self, clean_desktop_messages, clean_desktop, hfss):
@@ -115,10 +117,11 @@ class TestClass(BasisTest, object):
         settings.formatter = None
         logger.disable_log_on_file()
 
-        for handler in logger._global.handlers:
+        for handler in [i for i in logger._global.handlers]:
             if isinstance(handler, logging.FileHandler):
                 handler.close()
-                logger.removeHandler(handler)
+                logger._global.removeHandler(handler)
+        logger.enable_log_on_file()
 
     def test_02_output_file_with_app_filter(self):
         content = None
@@ -129,6 +132,7 @@ class TestClass(BasisTest, object):
         path = os.path.join(logging_dir, "test02.txt")
         logger = AedtLogger(filename=path)
         logger.info("Info for Global")
+
         logger.debug("Debug for Global")
         logger.warning("Warning for Global")
         logger.error("Error for Global")
@@ -165,7 +169,7 @@ class TestClass(BasisTest, object):
 
         with open(path, "r") as f:
             content = f.readlines()
-
+        content.remove(content[0])
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":Global:DEBUG   :Debug for Global" in content[1]
         assert ":Global:WARNING :Warning for Global" in content[2]
@@ -196,9 +200,9 @@ class TestClass(BasisTest, object):
             logger.warning("Warning for Global")
             logger.error("Error for Global")
 
-        assert "pyaedt info: Info for Global" in capture.content
-        assert "pyaedt warning: Warning for Global" in capture.content
-        assert "pyaedt error: Error for Global" in capture.content
+        assert "pyaedt INFO: Info for Global" in capture.content
+        assert "pyaedt WARNING: Warning for Global" in capture.content
+        assert "pyaedt ERROR: Error for Global" in capture.content
 
     def test_04_disable_output_file_handler(self):
         content = None
@@ -219,6 +223,7 @@ class TestClass(BasisTest, object):
 
         with open(path, "r") as f:
             content = f.readlines()
+        content.remove(content[0])
 
         assert ":Global:INFO    :Info for Global" in content[0]
         assert ":INFO    :Info for Project before disabling the log file handler." in content[1]
@@ -289,17 +294,20 @@ class TestClass(BasisTest, object):
 
             sys.stdout = sys.__stdout__
 
-            stream.write.assert_any_call("pyaedt info: Info for Global")
-            stream.write.assert_any_call("pyaedt info: Info after re-enabling the stdout handler.")
+            stream.write.assert_any_call("pyaedt INFO: Info for Global\n")
+            stream.write.assert_any_call("pyaedt INFO: Info after re-enabling the stdout handler.\n")
 
             with pytest.raises(AssertionError) as e_info:
-                stream.write.assert_any_call("pyaedt info: Info after disabling the stdout handler.")
-
+                stream.write.assert_any_call("pyaedt INFO: Info after disabling the stdout handler.")
             fp.seek(0)
             stream_content = fp.readlines()
-
-        assert stream_content[0] == "pyaedt info: Info for Global\n"
-        assert stream_content[1] == "pyaedt info: Info after re-enabling the stdout handler.\n"
+        for handler in logger._global.handlers[:]:
+            if "MagicMock" in str(handler) or "StreamHandler (DEBUG)" in str(handler):
+                handler.close()
+                logger._global.removeHandler(handler)
+        assert stream_content[0] == "pyaedt INFO: Info for Global\n"
+        assert stream_content[1] == "pyaedt INFO: StdOut has been enabled\n"
+        assert stream_content[2] == "pyaedt INFO: Info after re-enabling the stdout handler.\n"
 
 
 class CaptureStdOut:

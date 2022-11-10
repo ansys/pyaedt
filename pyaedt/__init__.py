@@ -55,7 +55,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
 
-from pyaedt.aedt_logger import AedtLogger  # isort:skip
+from pyaedt.aedt_logger import pyaedt_logger  # isort:skip
 
 try:
     from pyaedt.generic.design_types import Hfss3dLayout

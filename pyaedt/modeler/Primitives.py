@@ -20,10 +20,10 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import Point
 from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modeler.Object3d import _dim_arg
 from pyaedt.modeler.Object3d import _uname
-from pyaedt.modeler.object3dlayout import Point
 from pyaedt.modules.MaterialLib import Material
 
 default_materials = {
@@ -926,6 +926,7 @@ class Primitives(object):
     """
 
     def __init__(self):
+        self.points = {}
         self.refresh()
 
     @property
@@ -934,73 +935,140 @@ class Primitives(object):
 
     @property
     def solid_objects(self):
-        """List of all solid objects."""
+        """List of all solid objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        """
         self._refresh_solids()
         return [self[name] for name in self.solid_names if self[name]]
 
     @property
     def sheet_objects(self):
-        """List of all sheet objects."""
+        """List of all sheet objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        """
         self._refresh_sheets()
         return [self[name] for name in self.sheet_names if self[name]]
 
     @property
     def line_objects(self):
-        """List of all line objects."""
+        """List of all line objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        """
         self._refresh_lines()
         return [self[name] for name in self.line_names if self[name]]
 
     @property
-    def points(self):
-        """List of points."""
-        return self._points
+    def point_objects(self):
+        """List of points objects.
 
-    @property
-    def points_by_name(self):
-        """Dictionary containing all points where the keys are the name of the points."""
-        return self._point_names
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        """
+        return [v for v in list(self.points.values())]
 
     @property
     def unclassified_objects(self):
-        """List of all unclassified objects."""
+        """List of all unclassified objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        """
         self._refresh_unclassified()
         return [self[name] for name in self._unclassified]
 
     @property
     def object_list(self):
-        """List of all objects."""
+        """List of all objects.
+
+        Returns
+        -------
+        list of :class:`pyaedt.modeler.Object3d.Object3d`
+            3D object.
+        """
         self._refresh_object_types()
         return [self[name] for name in self._all_object_names]
 
     @property
     def solid_names(self):
-        """List of the names of all solid objects."""
+        """List of the names of all solid objects.
+
+        Returns
+        -------
+        str
+        """
         self._refresh_solids()
         return self._solids
 
     @property
     def sheet_names(self):
-        """List of the names of all sheet objects."""
+        """List of the names of all sheet objects.
+
+        Returns
+        -------
+        str
+        """
         self._refresh_sheets()
         return self._sheets
 
     @property
     def line_names(self):
-        """List of the names of all line objects."""
+        """List of the names of all line objects.
+
+        Returns
+        -------
+        str
+        """
         self._refresh_lines()
         return self._lines
 
     @property
     def unclassified_names(self):
-        """List of the names of all unclassified objects."""
+        """List of the names of all unclassified objects.
+
+        Returns
+        -------
+        str
+        """
         self._refresh_unclassified()
         return self._unclassified
 
     @property
     def object_names(self):
-        """List of the names of all objects."""
+        """List of the names of all objects.
+
+        Returns
+        -------
+        str
+        """
         self._refresh_object_types()
-        return [i for i in self._all_object_names if i not in self._unclassified]
+        return [i for i in self._all_object_names if i not in self._unclassified and i not in self._points]
+
+    @property
+    def point_names(self):
+        """List of the names of all points.
+
+        Returns
+        -------
+        str
+        """
+        self._refresh_points()
+        return self._points
 
     @property
     def user_defined_component_names(self):
@@ -1134,7 +1202,7 @@ class Primitives(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.object3dlayout.Point`
+        :class:`pyaedt.modeler.Object3d.Point`
             Point object.
 
         References
@@ -1166,7 +1234,8 @@ class Primitives(object):
         attributes.append("Color:="), attributes.append(color)
 
         _retry_ntimes(10, self.oeditor.CreatePoint, parameters, attributes)
-        return self._create_point(name)
+        self._refresh_points()
+        return self._create_object(name)
 
     @pyaedt_function_handler()
     def _change_component_property(self, vPropChange, names_list):
@@ -2027,7 +2096,6 @@ class Primitives(object):
         self._sheets = []
         self._lines = []
         self._points = []
-        self._point_names = {}
         self._unclassified = []
         self._all_object_names = []
         self.objects = {}
@@ -2055,6 +2123,8 @@ class Primitives(object):
         """
         new_object_dict = {}
         new_object_id_dict = {}
+        new_points_dict = {}
+
         all_objects = self.object_names
         all_unclassified = self.unclassified_names
         all_objs = all_objects + all_unclassified
@@ -2064,24 +2134,12 @@ class Primitives(object):
                 # updated_id = obj.id  # By calling the object property we get the new id
                 new_object_id_dict[obj.name] = old_id
                 new_object_dict[old_id] = obj
-
+        for old_id, obj in self.points.items():
+            if obj.name in self._points:
+                new_points_dict[obj.name] = obj
         self.objects = new_object_dict
         self.object_id_dict = new_object_id_dict
-
-    @pyaedt_function_handler()
-    def remove_point(self, name):
-        """Remove a point.
-
-        Parameters
-        ----------
-        name : str
-            Name of the point to be removed.
-
-        Returns
-        -------
-        """
-        self._points.remove(self.points_by_name[name])
-        del self.points_by_name[name]
+        self.points = new_points_dict
 
     @pyaedt_function_handler()
     def find_new_objects(self):
@@ -3429,7 +3487,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_points(self):
-        test = list(self.oeditor.GetObjectsInGroup("Points"))
+        test = list(self.oeditor.GetPoints())
         if test is None or test is False:
             assert False, "Get Points is failing"
         elif test is True:
@@ -3460,13 +3518,17 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _create_object(self, name, pid=0):
-        o = Object3d(self, name)
-        if pid:
-            new_id = pid
+        if name in self._points:
+            o = Point(self, name)
+            self.points[name] = o
         else:
-            new_id = o.id
-        self.objects[new_id] = o
-        self.object_id_dict[o.name] = new_id
+            o = Object3d(self, name)
+            if pid:
+                new_id = pid
+            else:
+                new_id = o.id
+            self.objects[new_id] = o
+            self.object_id_dict[o.name] = new_id
         return o
 
     @pyaedt_function_handler()
@@ -3486,8 +3548,8 @@ class Primitives(object):
     @pyaedt_function_handler()
     def _create_point(self, name):
         point = Point(self, name)
-        self._point_names[name] = point
-        self._points.append(point)
+        self.refresh_all_ids()
+
         return point
 
     @pyaedt_function_handler()

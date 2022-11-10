@@ -416,7 +416,7 @@ class QExtractor(FieldAnalysis3D, object):
         length_setting="Distributed",
         length="1meter",
     ):
-        """Export matrix data.
+        r"""Export matrix data.
 
         Parameters
         ----------
@@ -459,13 +459,13 @@ class QExtractor(FieldAnalysis3D, object):
         matrix_type : str, optional
             Matrix Type.
             Possible Values are "Maxwell", "Spice" and "Couple".
-            Default value is "Maxwell, Spice, Couple".
+            The default value is ``None``.
         export_AC_DC_res : bool, optional
             Whether to add the AC and DC res.
-            Default value is ``False``.
+            The default value is ``False``.
         precision : int, optional
             Precision format.
-            Default value is ``15``.
+            The default value is ``15``.
         field_width : int, optional
             Field Width.
             The default value is ``20``.

@@ -766,7 +766,6 @@ class Components(object):
         elif port_type == SourceType.CircPort:
             ref_pins = self.get_pin_from_component(component, reference_net)
             if do_pingroup:
-                pingroups = []
                 if len(ref_pins) == 1:
                     self.create_terminal = self._create_terminal(ref_pins[0])
                     self.terminal = self.create_terminal
@@ -825,7 +824,7 @@ class Components(object):
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
-        term_name = "{}_{}_{}".format(cmp_name, net_name, pin_name)
+        term_name = "{}.{}.{}".format(cmp_name, net_name, pin_name)
         term = self._edb.Cell.Terminal.PointTerminal.Create(
             pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
@@ -980,7 +979,7 @@ class Components(object):
         layout = pingroup.GetLayout()
         cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = generate_unique_name("Pingroup_{0}_{1}".format(cmp_name, net_name))
+        term_name = generate_unique_name("Pingroup.{0}.{1}".format(cmp_name, net_name))
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -1318,14 +1317,12 @@ class Components(object):
         """
         deleted_comps = []
         for comp, val in self.components.items():
-            if val.numpins < 2 and (val.type == "Resistor" or val.type == "Capacitor" or val.type == "Inductor"):
-                edb_cmp = self.get_component_by_name(comp)
-                if edb_cmp is not None:
-                    edb_cmp.Delete()
-                    deleted_comps.append(comp)
-                    self._pedb._logger.info("Component {} deleted".format(comp))
-        for el in deleted_comps:
-            del self.components[el]
+            if val.numpins < 2 and val.type in ["Resistor", "Capacitor", "Inductor"]:
+                val.edbcomponent.Delete()
+                deleted_comps.append(comp)
+        self.refresh_components()
+        self._pedb._logger.info("Deleted {} components".format(len(deleted_comps)))
+
         return deleted_comps
 
     @pyaedt_function_handler()

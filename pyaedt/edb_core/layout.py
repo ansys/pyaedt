@@ -32,10 +32,7 @@ class EdbLayout(object):
     """
 
     def __init__(self, p_edb):
-        self._prims = []
         self._pedb = p_edb
-        self._primitives_by_layer = {}
-        # self.update_primitives()
 
     @property
     def _edb(self):
@@ -81,35 +78,6 @@ class EdbLayout(object):
         """
         return self._pedb.core_stackup.stackup_layers.layers
 
-    @pyaedt_function_handler()
-    def update_primitives(self):
-        """
-        Update a primitives list from the EDB database.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if self._active_layout:
-            self._prims = []
-            self._primitives_by_layer = {}
-            layoutInstance = self._active_layout.GetLayoutInstance()
-            layoutObjectInstances = layoutInstance.GetAllLayoutObjInstances()
-            for el in layoutObjectInstances.Items:
-                try:
-                    lay_obj = el.GetLayoutObj()
-                    lay_obj_str = lay_obj.ToString()
-                    if "Primitive" in lay_obj_str and "PadstackInstance" not in lay_obj_str:
-                        self._prims.append(EDBPrimitives(lay_obj, self._pedb))
-                except:
-                    continue
-            for lay in self.layers:
-                self._primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
-            self._logger.info("Primitives Updated")
-            return True
-        return False
-
     @property
     def primitives(self):
         """Primitives.
@@ -119,9 +87,11 @@ class EdbLayout(object):
         list of :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             List of primitives.
         """
-        if not self._prims:
-            self.update_primitives()
-        return self._prims
+        _prims = []
+        if self._active_layout:
+            for lay_obj in list(self._active_layout.Primitives):
+                _prims.append(EDBPrimitives(lay_obj, self._pedb))
+        return _prims
 
     @property
     def polygons_by_layer(self):
@@ -132,9 +102,26 @@ class EdbLayout(object):
         dict
             Dictionary of primitives with layer names as keys.
         """
-        if not self._primitives_by_layer:
-            self.update_primitives()
-        return self._primitives_by_layer
+        _primitives_by_layer = {}
+        for lay in self.layers:
+            _primitives_by_layer[lay] = self.get_polygons_by_layer(lay)
+        return _primitives_by_layer
+
+    @property
+    def primitives_by_layer(self):
+        """Primitives with layer names as keys.
+
+        Returns
+        -------
+        dict
+            Dictionary of primitives with layer names as keys.
+        """
+        _primitives_by_layer = {}
+        for lay in self.layers:
+            _primitives_by_layer[lay] = [
+                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetLayer().GetName() == lay
+            ]
+        return _primitives_by_layer
 
     @property
     def rectangles(self):
@@ -455,15 +442,6 @@ class EdbLayout(object):
         if polygon.IsNull():
             self._logger.error("Null path created")
             return False
-        else:
-            if not self._prims:
-                self.update_primitives()
-            else:
-                self._prims.append(EDBPrimitives(polygon, self._pedb))
-                if layer_name in self._primitives_by_layer:
-                    self._primitives_by_layer[layer_name].append(polygon)
-                else:
-                    self._primitives_by_layer[layer_name] = [polygon]
         return polygon
 
     @pyaedt_function_handler()
@@ -539,12 +517,18 @@ class EdbLayout(object):
             Polygon when successful, ``False`` when failed.
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
-        polygonData = self.shape_to_polygon_data(main_shape)
+        if isinstance(main_shape, EdbLayout.Shape):
+            polygonData = self.shape_to_polygon_data(main_shape)
+        else:
+            polygonData = main_shape
         if polygonData is None or polygonData.IsNull() or polygonData is False:
             self._logger.error("Failed to create main shape polygon data")
             return False
         for void in voids:
-            voidPolygonData = self.shape_to_polygon_data(void)
+            if isinstance(void, EdbLayout.Shape):
+                voidPolygonData = self.shape_to_polygon_data(void)
+            else:
+                voidPolygonData = void
             if voidPolygonData is None or voidPolygonData.IsNull() or polygonData is False:
                 self._logger.error("Failed to create void polygon data")
                 return False
@@ -554,14 +538,6 @@ class EdbLayout(object):
             self._logger.error("Null polygon created")
             return False
         else:
-            if not self._prims:
-                self.update_primitives()
-            else:
-                self._prims.append(EDBPrimitives(polygon, self._pedb))
-                if layer_name in list(self._primitives_by_layer.keys()):
-                    self._primitives_by_layer[layer_name].append(polygon)
-                else:
-                    self._primitives_by_layer[layer_name] = [polygon]
             return polygon
 
     @pyaedt_function_handler()
@@ -639,6 +615,33 @@ class EdbLayout(object):
                 self._get_edb_value(rotation),
             )
 
+    @pyaedt_function_handler
+    def delete_primitives(self, net_names):
+        """Delete primitives by net names.
+
+        Parameters
+        ----------
+        net_names : str, list
+            Names of the nets to delete.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> Edb.core_primitives.delete_primitives(net_names=["GND"])
+        """
+        if not isinstance(net_names, list):  # pragma: no cover
+            net_names = [net_names]
+
+        for p in self.primitives[:]:
+            if p.net_name in net_names:
+                p.delete()
+        return True
+
     @pyaedt_function_handler()
     def get_primitives(self, net_name=None, layer_name=None, prim_type=None, is_void=False):
         """Get primitives by conditions.
@@ -706,7 +709,6 @@ class EdbLayout(object):
             if res:
                 cloned_circle.SetIsNegative(True)
                 void_circle.Delete()
-        self.update_primitives()
         return True
 
     @pyaedt_function_handler()
@@ -1041,7 +1043,6 @@ class EdbLayout(object):
                 p1 = self._pedb.core_padstack.padstacks[pad].edb_padstack.GetData()
                 if len(p1.GetLayerNames()) > 1:
                     self._pedb.core_padstack.remove_pads_from_padstack(pad)
-        self.update_primitives()
         return True
 
     @pyaedt_function_handler()

@@ -25,6 +25,7 @@ import traceback
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import pyaedt_logger
 
 if os.name == "nt":
     IsWindows = True
@@ -40,7 +41,6 @@ else:
     import subprocess
 
 from pyaedt import __version__
-from pyaedt import aedt_logger
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.general_methods import _pythonver
@@ -118,19 +118,11 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
         Traceback data.
 
     """
-    if "aedt_logger" in dir(sys.modules["__main__"]):
-        messenger = sys.modules["__main__"].aedt_logger
-        tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split("\n")
-        messenger.error(str(ex_value))
-        for el in tblist:
-            messenger.error(el)
-    else:
-        tb_trace = traceback.format_tb(tb_data)
-        tblist = tb_trace[0].split("\n")
-        warnings.warn(str(ex_value))
-        for el in tblist:
-            warnings.warn(el)
+    tb_trace = traceback.format_tb(tb_data)
+    tblist = tb_trace[0].split("\n")
+    pyaedt_logger.error(str(ex_value))
+    for el in tblist:
+        pyaedt_logger.error(el)
 
 
 def _delete_objects():
@@ -139,22 +131,13 @@ def _delete_objects():
         del module.COMUtil
     except AttributeError:
         pass
-    try:
-        del module.aedt_logger
-    except AttributeError:
-        pass
+    pyaedt_logger.remove_all_project_file_logger()
     try:
         del module.oDesktop
     except AttributeError:
         pass
     try:
         del module.pyaedt_initialized
-    except AttributeError:
-        pass
-    try:
-        _global = logging.getLogger("Global")
-        for i in range(len(module._aedt_handler) - 1, -1, -1):
-            _global.removeHandler(module._aedt_handler[i])
     except AttributeError:
         pass
     try:
@@ -261,10 +244,10 @@ def force_close_desktop():
             del Module.oDesktop
             successfully_closed = True
         except:
-            Module.aedt_logger.error("Something went wrong in closing AEDT.")
+            pyaedt_logger.error("Something went wrong in closing AEDT.")
             successfully_closed = False
         finally:
-            log = logging.getLogger(__name__)
+            log = logging.getLogger("Global")
             handlers = log.handlers[:]
             for handler in handlers:
                 handler.close()
@@ -333,19 +316,19 @@ class Desktop:
 
     >>> import pyaedt
     >>> desktop = pyaedt.Desktop("2021.2", non_graphical=True)
-    pyaedt info: pyaedt v...
-    pyaedt info: Python version ...
+    pyaedt INFO: pyaedt v...
+    pyaedt INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt info: Project...
-    pyaedt info: Added design 'HFSSDesign1' of type HFSS.
+    pyaedt INFO: Project...
+    pyaedt INFO: Added design 'HFSSDesign1' of type HFSS.
 
     Launch AEDT 2021 R1 in graphical mode and initialize HFSS.
 
     >>> desktop = Desktop("2021.2")
-    pyaedt info: pyaedt v...
-    pyaedt info: Python version ...
+    pyaedt INFO: pyaedt v...
+    pyaedt INFO: Python version ...
     >>> hfss = pyaedt.Hfss(designname="HFSSDesign1")
-    pyaedt info: No project is defined. Project...
+    pyaedt INFO: No project is defined. Project...
     """
 
     def __init__(
@@ -376,9 +359,10 @@ class Desktop:
             self._main.isoutsideDesktop = True
         self.release_on_exit = True
         self.logfile = None
-        self._logger = aedt_logger.AedtLogger(filename=self.logfile, level=logging.DEBUG)
-        self._logger.info("Logger Started")
-        self._main.aedt_logger = self._logger
+
+        self._logger = pyaedt_logger
+        self._logger.info("using existing logger.")
+
         if "oDesktop" in dir():  # pragma: no cover
             self.release_on_exit = False
             self._main.oDesktop = oDesktop
@@ -545,9 +529,6 @@ class Desktop:
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        self._logger = aedt_logger.AedtLogger(filename=self.logfile, level=logging.DEBUG)
-        self._logger.info("Logger file %s in use.", self.logfile)
-        self._main.aedt_logger = self._logger
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
@@ -787,7 +768,7 @@ class Desktop:
     @property
     def messenger(self):
         """Messenger manager for the AEDT logger."""
-        return self._main.aedt_logger
+        return pyaedt_logger
 
     @property
     def logger(self):
@@ -1121,8 +1102,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
 
         """
@@ -1157,8 +1138,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.close_desktop() # doctest: +SKIP
 
         """
@@ -1171,8 +1152,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.enable_autosave()
 
         """
@@ -1185,8 +1166,8 @@ class Desktop:
         --------
         >>> import pyaedt
         >>> desktop = pyaedt.Desktop("2021.2")
-        pyaedt info: pyaedt v...
-        pyaedt info: Python version ...
+        pyaedt INFO: pyaedt v...
+        pyaedt INFO: Python version ...
         >>> desktop.disable_autosave()
 
         """
