@@ -1073,9 +1073,12 @@ class Edb(object):
             _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            for net in list(list(db2.CircuitCells)[0].GetLayout().Nets):
-                if not net.GetName() in included_nets_list:
-                    net.Delete()
+            try:
+                for net in list(list(db2.CircuitCells)[0].GetLayout().Nets):
+                    if not net.GetName() in included_nets_list:
+                        net.Delete()
+            except:
+                pass
             _success = db2.Save()
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
