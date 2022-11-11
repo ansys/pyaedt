@@ -1971,13 +1971,19 @@ class Excitations(object):
 
                 excitation_prop_dict["noisetemp"] = self._app.modeler.schematic.components[comp].parameters["noisetemp"]
 
-                excitation_prop_dict["SymbolType"] = self._app.design_properties["NexximPorts"]["Data"][port][
-                    "SymbolType"
-                ]
+                if not self._app.design_properties or not self._app.design_properties["NexximPorts"]["Data"]:
+                    excitation_prop_dict["SymbolType"] = 0
+                else:
+                    excitation_prop_dict["SymbolType"] = self._app.design_properties["NexximPorts"]["Data"][port][
+                        "SymbolType"
+                    ]
 
                 excitation_prop_dict["pnum"] = self._app.modeler.schematic.components[comp].parameters["pnum"]
                 source_port = []
-                enabled_ports = self._app.design_properties["ComponentConfigurationData"]["EnabledPorts"]
+                if not self._app.design_properties:
+                    enabled_ports = None
+                else:
+                    enabled_ports = self._app.design_properties["ComponentConfigurationData"]["EnabledPorts"]
                 if isinstance(enabled_ports, dict):
                     for source in enabled_ports:
                         if enabled_ports[source] and port in enabled_ports[source]:
@@ -1985,7 +1991,10 @@ class Excitations(object):
                 excitation_prop_dict["EnabledPorts"] = source_port
 
                 components_port = []
-                multiple = self._app.design_properties["ComponentConfigurationData"]["EnabledMultipleComponents"]
+                if not self._app.design_properties:
+                    multiple = None
+                else:
+                    multiple = self._app.design_properties["ComponentConfigurationData"]["EnabledMultipleComponents"]
                 if isinstance(multiple, dict):
                     for source in multiple:
                         if multiple[source] and port in multiple[source]:
@@ -1993,7 +2002,10 @@ class Excitations(object):
                 excitation_prop_dict["EnabledMultipleComponents"] = components_port
 
                 port_analyses = {}
-                enabled_analyses = self._app.design_properties["ComponentConfigurationData"]["EnabledAnalyses"]
+                if not self._app.design_properties:
+                    enabled_analyses = None
+                else:
+                    enabled_analyses = self._app.design_properties["ComponentConfigurationData"]["EnabledAnalyses"]
                 if isinstance(enabled_analyses, dict):
                     for source in enabled_analyses:
                         if (
@@ -2075,7 +2087,6 @@ class Excitations(object):
 
         """
         self._app.modeler._odesign.DeletePort(self.name)
-        del self._app.excitations[self.name]
         return True
 
     @property

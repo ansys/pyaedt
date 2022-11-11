@@ -213,10 +213,17 @@ class FieldAnalysisCircuit(Analysis):
             if not sorted(list(props.keys())) == sorted(self.source_names):
                 a = set(str(x) for x in props.keys())
                 b = set(str(x) for x in self.source_names)
-                unmatched_new_name = list(b - a)[0]
-                unmatched_old_name = list(a - b)[0]
-                props[unmatched_new_name] = props[unmatched_old_name]
-                del props[unmatched_old_name]
+                if len(a) == len(b):
+                    unmatched_new_name = list(b - a)[0]
+                    unmatched_old_name = list(a - b)[0]
+                    props[unmatched_new_name] = props[unmatched_old_name]
+                    del props[unmatched_old_name]
+                else:
+                    for old_source in props.keys():
+                        if old_source not in self.source_names:
+                            del props[old_source]
+                            break
+
         return props
 
     @property
@@ -267,10 +274,16 @@ class FieldAnalysisCircuit(Analysis):
             if not sorted(list(props.keys())) == sorted(self.excitation_names):
                 a = set(str(x) for x in props.keys())
                 b = set(str(x) for x in self.excitation_names)
-                unmatched_new_name = list(b - a)[0]
-                unmatched_old_name = list(a - b)[0]
-                props[unmatched_new_name] = props[unmatched_old_name]
-                del props[unmatched_old_name]
+                if len(a) == len(b):
+                    unmatched_new_name = list(b - a)[0]
+                    unmatched_old_name = list(a - b)[0]
+                    props[unmatched_new_name] = props[unmatched_old_name]
+                    del props[unmatched_old_name]
+                else:
+                    for old_port in props.keys():
+                        if old_port not in self.excitation_names:
+                            del props[old_port]
+                            return props
         return props
 
     @property

@@ -1090,6 +1090,10 @@ class Circuit(FieldAnalysisCircuit, object):
             return False
         new_source = Sources(self, name, source_type)
         new_source.create()
+        if not self._internal_sources:
+            self._internal_sources = {name: new_source}
+        else:
+            self._internal_sources.update({name: new_source})
         return new_source
 
     @pyaedt_function_handler()
