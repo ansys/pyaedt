@@ -25,10 +25,12 @@ settings.enable_desktop_logs = True
 
 class TestClass(BasisTest, object):
     def setup_class(self):
+        settings.enable_local_log_file = True
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, "Test_14")
 
     def teardown_class(self):
+        settings.enable_local_log_file = False
         BasisTest.my_teardown(self)
         shutil.rmtree(os.path.join(tempfile.gettempdir(), "log_testing"), ignore_errors=True)
 
