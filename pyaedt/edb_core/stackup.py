@@ -559,8 +559,8 @@ class Stackup(object):
 
         self._pedb.materials.add_conductor_material("copper", conductivity=5.8e7)
         self._pedb.materials.add_dielectric_material("FR4_epoxy", permittivity=4.3, loss_tangent=0.02)
-        self._pedb.materials.add_dielectric_material("SolderMask", permittivity=3, loss_tangent=0.035)
-        self._pedb.materials.add_dielectric_material("Air", permittivity=1, loss_tangent=0.0001)
+        self._pedb.materials.add_dielectric_material("SolderMask", permittivity=3.1, loss_tangent=0.035)
+        self._pedb.materials.add_dielectric_material("Air", permittivity=1.0006, loss_tangent=1.0000004)
 
         if soldermask:
             self.add_layer(
@@ -585,6 +585,7 @@ class Stackup(object):
                 material=dielectric_material,
                 thickness=dielectric_thickness,
                 layer_type="dielectric",
+                fillMaterial=dielectric_material,
             )
             layer_name = new_layer_name
             new_layer_name = "L" + str(layer - 1)
