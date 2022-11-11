@@ -366,28 +366,24 @@ def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
     ----------
     expressions :
         list of Drivers to include or all nets
-    reclist :
-        list of Receiver to include. Number of Driver = Number of Receiver an
-    tx_prefix :
-        prefix for TX (eg. "DIE")
-    rx_prefix :
-        prefix for RX (eg. "BGA")
+    tx_prefix : str
+        Prefix for TX (eg. "DIE").
+    rx_prefix : str
+        Prefix for RX (eg. "BGA").
 
     Returns
     -------
     type
-        list of string representing Insertion Losses of excitations
+        List of string representing Insertion Losses of excitations.
 
     """
     spar = []
-    left_list = []
-    right_list = []
     trlist = [i for i in expressions if tx_prefix in i]
-    reclist = [i for i in expressions if rx_prefix in i]
-    if len(trlist) != len(reclist):
+    receiver_list = [i for i in expressions if rx_prefix in i]
+    if len(trlist) != len(receiver_list):
         print("TX and RX should be same length lists")
         return False
-    for i, j in zip(trlist, reclist):
+    for i, j in zip(trlist, receiver_list):
         spar.append("S({},{})".format(i, j))
     return spar
 
@@ -467,7 +463,7 @@ def get_fext_xtalk_from_list(trlist, reclist, skip_same_index_couples=True):
     reclist :
         list of Receiver to include
     skip_same_index_couples :
-        Boolean ignore TX and RX couple with same index (Default value = True)
+        Boolean ignore TX and RX couple with same index. The default value is ``True``.
 
     Returns
     -------
@@ -487,25 +483,25 @@ def get_fext_xtalk_from_list(trlist, reclist, skip_same_index_couples=True):
 def get_fext_xtalk_from_prefix(expressions, tx_prefix, rx_prefix, skip_same_index_couples=True):
     """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
     be used to retrieve driver and receivers names. If skip_same_index_couples is true, the tx and rx with same index
-    position will be considered insertion losses and excluded from the list
+    position will be considered insertion losses and excluded from the list.
 
     Parameters
     ----------
     expressions :
         list of Receiver to include
-    tx_prefix :
+    tx_prefix : str
         prefix for TX (eg. "DIE")
     reclist :
         list of Receiver to include
-    rx_prefix :
+    rx_prefix : str
         prefix for RX (eg. "BGA")
-    skip_same_index_couples :
-        Boolean ignore TX and RX couple with same index (Default value = True)
+    skip_same_index_couples : bool
+        Boolean ignore TX and RX couple with same index. The default value is ``True``.
 
     Returns
     -------
     type
-        list of string representing Far End XTalks
+        List of string representing Far End XTalks.
 
     """
     fext = []
@@ -534,7 +530,7 @@ def get_worst_curve_from_solution_data(
         minimum frequency to analyze (None to 0) (Default value = None)
     freq_max :
         maximum frequency to analyze (None to max freq) (Default value = None)
-    worst_is_higher :
+    worst_is_higher : bool
         boolean. if True, the worst curve is the one with higher mean value (Default value = True)
     curve_list :
         list of curves on which to search. None to search on all curves (Default value = None)
@@ -575,15 +571,16 @@ def read_touchstone(file_path, verbose=False):
 
     Parameters
     ----------
-    file_path :
+    file_path : str
+        The path of the touchstone file.
 
-    verbose :
+    verbose : bool
          (Default value = False)
 
     Returns
     -------
     class:`nport.NPort`
-        NPort holding data contained in the Touchstone file
+        NPort holding data contained in the touchstone file.
 
     """
     re_filename = re.compile(r"\.s(?P<ports>\d+)+p", re.I)
@@ -623,12 +620,13 @@ def _parse_ports_name(file):
 
     Parameters
     ----------
-    file :
-
+    file : str
+        Path of the touchstone file.
 
     Returns
     -------
-
+    List of str
+        Names of the ports in the touchstone file.
     """
     portnames = []
     line = file.readline()

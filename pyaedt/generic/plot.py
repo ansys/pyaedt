@@ -1361,7 +1361,6 @@ class ModelPlotter(object):
         -------
         bool
         """
-        start = time.time()
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.meshes = None
         self.pv.background_color = [i / 255 for i in self.background_color]
@@ -1507,7 +1506,7 @@ class ModelPlotter(object):
         -------
         bool
         """
-        start = time.time()
+
         assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)

@@ -2058,8 +2058,8 @@ class Primitives(object):
 
         """
         if objname in self.object_id_dict:
-            id = self.get_obj_id(objname)
-            return self.objects[id]
+            object_id = self.get_obj_id(objname)
+            return self.objects[object_id]
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, stringname, case_sensitive=True):
