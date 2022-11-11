@@ -1026,7 +1026,6 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
@@ -1046,11 +1045,11 @@ class Edb(object):
         )
 
         # Create new cutout cell/design
+        included_nets_list = signal_list + reference_list
         included_nets = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
+            [net for net in list(self.active_layout.Nets) if net.GetName() in included_nets_list]
         )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
-
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
         id = 1
@@ -1075,7 +1074,11 @@ class Edb(object):
             _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            _success = db2.Save()
+            if len(list(db2.CircuitCells)) > 0:
+                for net in list(list(db2.CircuitCells)[0].GetLayout().Nets):
+                    if not net.GetName() in included_nets_list:
+                        net.Delete()
+                _success = db2.Save()
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
