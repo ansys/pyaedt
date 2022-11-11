@@ -563,7 +563,14 @@ class Stackup(object):
         self._pedb.materials.add_dielectric_material("Air", permittivity=1, loss_tangent=0.0001)
 
         if soldermask:
-            self.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layer_type="dielectric")
+            self.add_layer(
+                "SMB",
+                None,
+                "SolderMask",
+                thickness=soldermask_thickness,
+                layer_type="dielectric",
+                fillMaterial=dielectric_material,
+            )
             layer_name = "BOTTOM"
             self.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
         else:
@@ -597,6 +604,7 @@ class Stackup(object):
             material=dielectric_material,
             thickness=dielectric_thickness,
             layer_type="dielectric",
+            fillMaterial=dielectric_material,
         )
         layer_name = new_layer_name
 
@@ -605,7 +613,12 @@ class Stackup(object):
             self.add_layer(new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness)
             layer_name = new_layer_name
             self.add_layer(
-                "SMT", layer_name, material="SolderMask", thickness=soldermask_thickness, layer_type="dielectric"
+                "SMT",
+                layer_name,
+                material="SolderMask",
+                thickness=soldermask_thickness,
+                layer_type="dielectric",
+                fillMaterial=dielectric_material,
             )
         else:
             new_layer_name = "TOP"
