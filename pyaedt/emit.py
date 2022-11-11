@@ -16,6 +16,11 @@ class Result:
     """
     Provides the ``Result`` object.
 
+    Parameters
+    ----------
+    emit_obj : emit_obj object
+        Emit object used to create the result.
+
     Examples
     --------
     Create an instance of the ``Result`` object.
@@ -27,41 +32,27 @@ class Result:
 
     @pyaedt_function_handler()
     def __init__(self, emit_obj):
-        self.__result_loaded = False
+        self._result_loaded = False
         self.emit_api = mod.EmitApi()
         self.revisions_list = []
         self.location = emit_obj.oproject.GetPath()
-        self.curr_design = 0
+        self.current_design = 0
 
-    @pyaedt_function_handler()
-    def set_result_loaded(self):
-        """
-        Set the status of whether the result is loaded to ``True``.
-
-        Returns
-        -------
-
-        Examples
-        ----------
-        >>> aedtapp.results.set_result_loaded():
-        """
-        self.__result_loaded = True
-
-    @pyaedt_function_handler()
-    def get_result_loaded(self):
+    @property
+    def result_loaded(self):
         """
         Check whether the result is loaded.
 
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed.
-
-        Examples
-        ----------
-        >>>  if aedtapp.results.get_result_loaded():
+            ``True`` if the results are loaded and ``False`` if they are not.
         """
-        return self.__result_loaded
+        return self._result_loaded
+
+    @result_loaded.setter
+    def result_loaded(self, value):
+        self._result_loaded = value
 
     @staticmethod
     def interaction_domain():
@@ -399,10 +390,10 @@ class Emit(FieldAnalysisEmit, object):
         """
         if self.__emit_api_enabled:
             design = self.odesktop.GetActiveProject().GetActiveDesign()
-            if not self.results.curr_design == design.getRevision():
+            if not self.results.current_design == design.getRevision():
                 design.AddResult()
                 self.results.revisions_list.append(Revision(self))
-                self.results.curr_design = design.getRevision()
+                self.results.current_design = design.getRevision()
                 print("checkpoint - revision generated successfully")
                 return self.results.revisions_list[-1]
 
