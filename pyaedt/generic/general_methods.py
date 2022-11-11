@@ -1241,7 +1241,7 @@ class Settings(object):
         self.time_tick = time.time()
         self._global_log_file_name = "pyaedt_{}.log".format(os.path.split(os.path.expanduser("~"))[-1])
         self._enable_global_log_file = True
-        self._enable_local_log_file = True
+        self._enable_local_log_file = False
         self._global_log_file_size = 10
 
     @property
