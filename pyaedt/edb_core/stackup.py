@@ -2016,6 +2016,11 @@ class EdbStackup(object):
         if not layer_count % 2 == 0:
             return False
 
+        self._pedb.materials.add_conductor_material("copper", conductivity=5.8e7)
+        self._pedb.materials.add_dielectric_material("FR4_epoxy", permittivity=4.3, loss_tangent=0.02)
+        self._pedb.materials.add_dielectric_material("SolderMask", permittivity=3, loss_tangent=0.035)
+        self._pedb.materials.add_dielectric_material("Air", permittivity=1, loss_tangent=0.0001)
+
         if soldermask:
             self.stackup_layers.add_layer("SMB", None, "SolderMask", thickness=soldermask_thickness, layerType=1)
             layer_name = "BOTTOM"
