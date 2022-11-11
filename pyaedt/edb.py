@@ -1174,7 +1174,7 @@ class Edb(object):
         >>> edb.close_edb()
 
         """
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
             return False
         from concurrent.futures import ThreadPoolExecutor
@@ -1268,13 +1268,11 @@ class Edb(object):
                                             void_to_append = [
                                                 v for v in list_void if polys_clean.GetIntersectionType(v) == 2
                                             ]
-                                            poly_to_create.append(
-                                                [[polys_clean], prim_1.layer_name, net, void_to_append]
-                                            )
+                                            poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
                                 else:
-                                    poly_to_create.append([[p], prim_1.layer_name, net, list_void])
+                                    poly_to_create.append([p, prim_1.layer_name, net, list_void])
                             else:
-                                poly_to_create.append([[p], prim_1.layer_name, net, list_void])
+                                poly_to_create.append([p, prim_1.layer_name, net, list_void])
 
                     prims_to_delete.append(prim_1)
 
@@ -1297,8 +1295,7 @@ class Edb(object):
             pool.map(lambda item: clean_prim(item), polys)
 
         for el in poly_to_create:
-            for poly in el[0]:
-                self.core_primitives.create_polygon(poly, el[1], net_name=el[2], voids=el[3])
+            self.core_primitives.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
 
         for prim in prims_to_delete:
             prim.delete()
