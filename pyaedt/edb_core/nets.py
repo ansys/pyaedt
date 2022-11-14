@@ -267,7 +267,22 @@ class EdbNets(object):
 
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
+            list_components = []
+            for ic in self._pedb.core_components.ICs.values():
+                list_components.append(ic)
+            for io in self._pedb.core_components.IOs.values():
+                list_components.append(io)
+            for other in self._pedb.core_components.Others.values():
+                list_components.append(other)
+            for cap in self._pedb.core_components.capacitors.values():
+                list_components.append(cap)
             for comp in self._pedb.core_components.components.values():
+                list_components.append(comp)
+            for ind in self._pedb.core_components.inductors.values():
+                list_components.append(ind)
+            for res in self._pedb.core_components.resistors.values():
+                list_components.append(res)
+            for comp in list_components:
                 if not comp.is_enabled:
                     continue
                 net_names = comp.nets
