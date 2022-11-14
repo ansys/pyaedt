@@ -14,10 +14,16 @@ import warnings
 
 try:
     import clr
+    from System import Convert
+
+    edb_initialized = True
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("PythonNET is needed to run PyAEDT.")
+        warnings.warn(
+            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
+        )
+        edb_initialized = False
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import pyaedt_logger
@@ -29,6 +35,7 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -50,17 +57,6 @@ if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
-try:
-    import clr
-    from System import Convert
-
-    edb_initialized = True
-except ImportError:
-    if os.name != "posix":
-        warnings.warn(
-            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-        )
-        edb_initialized = False
 
 
 class Edb(object):
@@ -822,7 +818,7 @@ class Edb(object):
 
         """
         self._db.Close()
-        if self.log_name:
+        if self.log_name and settings.enable_local_log_file:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
         time.sleep(2)
@@ -833,7 +829,7 @@ class Edb(object):
         self._clean_variables()
         timeout = 4
         # TODO check if we can remove this sleep
-        # time.sleep(2)
+        time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
             timeout -= 1
@@ -973,11 +969,11 @@ class Edb(object):
         expansion_size,
         use_round_corner,
     ):
-        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 0]:
+        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
-        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 1]:
+        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
