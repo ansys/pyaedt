@@ -2,7 +2,6 @@ import math
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.component.component import Component
-from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.feature import Feature
 from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.layer_feature import (
     LayerFeature,
 )
@@ -167,9 +166,13 @@ class Step(object):
             layer_feature.color = layer.color
             for poly in layer._pclass._pedb.core_primitives.polygons_by_layer[layer.name]:
                 layer_feature.add_feature(poly)
-                feature = Feature()
-                feature.net = poly.net_name
-                feature.polygon.add_poly_step()
+            path_list = [
+                layout_obj
+                for layout_obj in layer._pclass._pedb.core_primitives.primitives_by_layer[layer.name]
+                if layout_obj.type == "Path"
+            ]
+            for path in path_list:
+                layer_feature.add_feature(path)
 
         return False
 

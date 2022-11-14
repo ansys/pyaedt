@@ -11,8 +11,9 @@ class Polygon(object):
 
     def add_poly_step(self, polygon=None):
         if polygon:
-            if polygon.polygon_data.IsClosed():
-                arcs = polygon.polygon_data.GetArcData()
+            polygon_data = polygon.GetPolygonData()
+            if polygon_data.IsClosed():
+                arcs = polygon_data.GetArcData()
                 for arc in arcs:
                     if arc.Height == 0:
                         new_segment_tep = PolyStep()

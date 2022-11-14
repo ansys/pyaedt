@@ -1,29 +1,23 @@
 import xml.etree.cElementTree as ET
 
-from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import PolyStep
-
 
 class Path(object):
     def __init__(self):
         self.location_x = 0.0
         self.location_y = 0.0
-        self._polysteps = []
+        self.polysteps = []
         self.line_width = ""
         self.width_ref_id = ""
 
-    @property
-    def polyline(self):
-        return self._polyline
+    def add_path_step(self, path_step=None):
+        if path_step:
+            self.line_width = path_step.primitive_object.GetWidth()  # Add unit converter
 
-    @polyline.setter
-    def polyline(self, value):
-        if isinstance(value, list):
-            if len([stp for stp in value if isinstance(stp, PolyStep)]) == len(value):
-                self._polysteps = value
-
-    def add_poly_step_to_polyline(self, poly_step=None):
-        if isinstance(poly_step, PolyStep):
-            self._polysteps.append(poly_step)
+            path_pt = PathStep()
+            for pt in list(path_step.primitive_object.GetPolygonData().Points):
+                path_pt.x = pt.X.ToDouble()  # add unit converter
+                path_pt.y = pt.Y.ToDouble()  # add unit converter
+                self.polysteps.append(path_pt)
 
     def write_xml(self, feature):
         if feature:

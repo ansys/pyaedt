@@ -19,10 +19,15 @@ class LayerFeature(object):
             if len([feat for feat in value if isinstance(feat, Feature)]) == len(value):
                 self._features = value
 
-    def add_feature(self, feature=None):
-        if isinstance(feature, Feature):
-            self._features.append(feature)
-            return True
+    def add_feature(self, obj_instance=None):
+        if obj_instance:
+            feature = Feature()
+            feature.net = obj_instance.net_name
+            if obj_instance.type == "Polygon":
+                feature.polygon.add_poly_step(obj_instance)
+            elif obj_instance.type == "Path":
+                feature.path.add_path_step(obj_instance)
+
         return False
 
     def write_xml(self, step):
