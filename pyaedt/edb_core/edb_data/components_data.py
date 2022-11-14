@@ -269,6 +269,13 @@ class EDBComponent(object):
     def __init__(self, components, cmp):
         self._pcomponents = components
         self.edbcomponent = cmp
+        self._layout_instance = None
+
+    @property
+    def layout_instance(self):
+        if self._layout_instance is None:
+            self._layout_instance = self.edbcomponent.GetLayout().GetLayoutInstance()
+        return self._layout_instance
 
     @property
     def _pedb(self):  # pragma: no cover
@@ -529,8 +536,9 @@ class EDBComponent(object):
         -------
         list
         """
-        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
-        cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
+        # layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        # cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
+        cmpinst = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
         center = cmpinst.GetCenter()
         return [center.X.ToDouble(), center.Y.ToDouble()]
 
@@ -545,11 +553,13 @@ class EDBComponent(object):
             coordinates in this order: [X lower left corner, Y lower left corner,
             X upper right corner, Y upper right corner].
         """
-        layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
-        _bbox = layinst.GetLayoutObjInstance(self.edbcomponent, None).GetBBox()
-        _pt1 = _bbox.Item1
-        _pt2 = _bbox.Item2
-        return [_pt1.X.ToDouble(), _pt1.Y.ToDouble(), _pt2.X.ToDouble(), _pt2.Y.ToDouble()]
+        # layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
+        # cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
+        cmpinst = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
+        bbox = cmpinst.GetBBox()
+        pt1 = bbox.Item1
+        pt2 = bbox.Item2
+        return [pt1.X.ToDouble(), pt1.Y.ToDouble(), pt2.X.ToDouble(), pt2.Y.ToDouble()]
 
     @property
     def rotation(self):
