@@ -647,11 +647,14 @@ class EDBPadstackInstance(object):
     def object_instance(self):
         """Edb Object Instance."""
         if not self._object_instance:
-            self._object_instance = (
-                self._edb_padstackinstance.GetLayout()
-                .GetLayoutInstance()
-                .GetLayoutObjInstance(self._edb_padstackinstance, None)
-            )
+            try:
+                self._object_instance = (
+                    self._edb_padstackinstance.GetLayout()
+                    .GetLayoutInstance()
+                    .GetLayoutObjInstance(self._edb_padstackinstance, None)
+                )
+            except:
+                pass
         return self._object_instance
 
     @property
@@ -812,6 +815,24 @@ class EDBPadstackInstance(object):
         start_layer = self._pedb.core_stackup.signal_layers[self.start_layer]._layer
         layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
         self._edb_padstackinstance.SetLayerRange(start_layer, layer)
+
+    @property
+    def layer_range_names(self):
+        """List of al layer to which padstack instance belongs."""
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+        started = False
+        layer_list = []
+        for layer_name in self._pedb.stackup.layers.keys():
+            if started:
+                layer_list.append(layer_name)
+                if layer_name == stop_layer.GetName():
+                    break
+            elif layer_name == start_layer.GetName():
+                started = True
+                layer_list.append(layer_name)
+                if layer_name == stop_layer.GetName():
+                    break
+        return layer_list
 
     @property
     def net_name(self):
@@ -1221,3 +1242,17 @@ class EDBPadstackInstance(object):
             path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
             created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
             return created_polygon
+
+    @pyaedt_function_handler()
+    def get_connected_object_id_set(self):
+        """Returns a list of all geometry physically connected to a given layout object.
+
+        Keyword Arguments:
+        layout -- Edb.Cell.Layout instance in which to work
+        layoutObj -- The layout object required for get_connected_obj_list() in determining connected geometry.
+
+        Returns a dict of the found connected objects IDs with Layout object.
+        """
+        layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
+        layoutObjInst = self.object_instance
+        return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]

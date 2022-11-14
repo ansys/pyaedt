@@ -30,6 +30,9 @@ from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import ExcitationPorts
+from pyaedt.edb_core.edb_data.sources import ExcitationProbes
+from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
@@ -319,6 +322,25 @@ class Edb(object):
             except:
                 pass
         return self._edblib
+
+    @property
+    def excitations(self):
+        """Get all layout excitations."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        terms = [i for i in terms if not i.IsReferenceTerminal()]
+        return {ter.GetName(): ExcitationPorts(self, ter) for ter in terms}
+
+    @property
+    def sources(self):
+        """Get all layout sources."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [3, 4, 7]]
+        return {ter.GetName(): ExcitationSources(self, ter) for ter in terms}
+
+    @property
+    def probes(self):
+        """Get all layout sources."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [8]]
+        return {ter.GetName(): ExcitationProbes(self, ter) for ter in terms}
 
     @pyaedt_function_handler()
     def open_edb(self, init_dlls=False):
@@ -832,8 +854,7 @@ class Edb(object):
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
         timeout = 4
-        # TODO check if we can remove this sleep
-        # time.sleep(2)
+        time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
             timeout -= 1
@@ -2094,3 +2115,44 @@ class Edb(object):
         EDBStatistics object from the loaded layout.
         """
         return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
+
+    @pyaedt_function_handler()
+    def are_port_reference_terminals_connected(self, common_reference=None):
+        """Returns True or False if all terminal references in design are connected.
+        If the reference nets are different, there is no hope of the terminal references are connected.
+        After we have identified a common reference net we need to loop the terminals again to get
+        the correct reference terminals that uses that net.
+
+        Parameters
+        ----------
+        common_reference : str, optional
+            Common Reference name. If `None` it will be searched in ports terminal.
+            If a string is passed then all excitations must have such reference assigned.
+
+        Returns
+        -------
+        bool
+            Either if the ports are connected to reference_name or not.
+        """
+        self.logger.reset_timer()
+        if not common_reference:
+            common_reference = list(
+                set([i.reference_net_name for i in self.excitations.values() if i.reference_net_name])
+            )
+            if len(common_reference) > 1:
+                self.logger.error("More than 1 reference found.")
+            common_reference = common_reference[0]
+        setList = [
+            set(i.reference_object.get_connected_object_id_set())
+            for i in self.excitations.values()
+            if i.reference_net_name == common_reference
+        ]
+
+        # Get the set intersections for all the ID sets.
+        iDintersection = set.intersection(*setList)
+        self.logger.info_timer(
+            "Terminal reference primitive IDs total intersections = {}\n\n".format(len(iDintersection))
+        )
+
+        # If the intersections are non-zero, the termimal references are connected.
+        return True if len(iDintersection) > 0 else False

@@ -2123,6 +2123,7 @@ if not config["skip_edb"]:
                 ["-40mm", "-10.2mm"],
                 horizontal_extent_factor=8,
             )
+            assert not edb.are_port_reference_terminals_connected()
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2478,6 +2479,7 @@ if not config["skip_edb"]:
             sim_setup.step_freq = 10e6
             sim_setup.use_default_cutout = False
             assert edbapp.build_simulation_project(sim_setup)
+            assert edbapp.are_port_reference_terminals_connected()
 
         def test_129_get_component_bounding_box(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2487,3 +2489,6 @@ if not config["skip_edb"]:
             component = edbapp.core_components.components["U2A5"]
             assert component.bounding_box
             assert isinstance(component.rotation, float)
+
+        def test_130_eligible_power_nets(self):
+            assert "GND" in [i.name for i in self.edbapp.core_nets.eligible_power_nets]

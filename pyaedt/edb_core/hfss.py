@@ -4,7 +4,6 @@ This module contains the ``EdbHfss`` class.
 import math
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.sources import Excitation
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -82,9 +81,17 @@ class EdbHfss(object):
     @property
     def excitations(self):
         """Get all excitations."""
-        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
-        terms = [i for i in terms if not i.IsReferenceTerminal()]
-        return {ter.GetName(): Excitation(self._pedb, ter, ter.GetName()) for ter in terms}
+        return self._pedb.excitations
+
+    @property
+    def sources(self):
+        """Get all sources."""
+        return self._pedb.sources
+
+    @property
+    def probes(self):
+        """Get all probes."""
+        return self._pedb.probes
 
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
