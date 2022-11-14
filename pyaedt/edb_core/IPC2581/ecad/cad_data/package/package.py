@@ -8,15 +8,15 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.package.pin import Pin
 
 
 class Package(object):
-    def __init__(self):
+    def __init__(self, ipc):
+        self._ipc = ipc
         self.name = ""
         self.type = "OTHER"
         self.pin_one = "1"
         self.pin_orientation = "OTHER"
         self.height = 0.1
-        self.assembly_drawing = AssemblyDrawing()
-        self.outline = Outline()
-        self.assembly_drawing = AssemblyDrawing()
+        self.assembly_drawing = AssemblyDrawing(self._ipc)
+        self.outline = Outline(self._ipc)
         self._pins = []
 
     @property

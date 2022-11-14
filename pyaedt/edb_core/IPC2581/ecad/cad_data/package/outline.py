@@ -4,8 +4,9 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
 
 class Outline:
-    def __init__(self):
-        self.polygon = Polygon()
+    def __init__(self, ipc):
+        self._ipc = ipc
+        self.polygon = Polygon(self._ipc)
         self.line_ref = ""
         self.pickup_point = ["0.0", "0.0"]
 

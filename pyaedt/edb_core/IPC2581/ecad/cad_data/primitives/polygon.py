@@ -3,8 +3,8 @@ import xml.etree.cElementTree as ET
 
 
 class Polygon(object):
-    def __init__(self):
-        # self._ipc = ipc
+    def __init__(self, ipc):
+        self._ipc = ipc
         self.is_void = False
         self.poly_steps = []
         self.solid_fill_id = ""
@@ -19,19 +19,17 @@ class Polygon(object):
                     if arc.Height == 0:
                         new_segment_tep = PolyStep()
                         new_segment_tep.poly_type = PolyType.Segment
-                        # new_segment_tep.x = self._ipc.from_meter_to_units(arc.End.X.ToDouble(), self._ipc.units)
-                        # new_segment_tep.y = self._ipc.from_meter_to_units(arc.End.Y.ToDouble(), self._ipc.units)
+                        new_segment_tep.x = self._ipc.from_meter_to_units(arc.End.X.ToDouble(), self._ipc.units)
+                        new_segment_tep.y = self._ipc.from_meter_to_units(arc.End.Y.ToDouble(), self._ipc.units)
                         self.poly_steps.append(new_segment_tep)
                     else:
                         arc_center = arc.GetCenter()
                         new_poly_step = PolyStep()
                         new_poly_step.poly_type = PolyType.Curve
-                        # new_poly_step.center_X = self._ipc.from_meter_to_units(arc_center.X.ToDouble(),
-                        # self._ipc.units)
-                        # new_poly_step.center_y = self._ipc.from_meter_to_units(arc_center.Y.ToDouble(),
-                        # self._ipc.units)
-                        # new_poly_step.x = self._ipc.from_meter_to_units(arc.End.X.ToDouble(), self._ipc.units)
-                        # new_poly_step.y = self._ipc.from_meter_to_units(arc.End.Y.ToDouble(), self._ipc.units)
+                        new_poly_step.center_X = self._ipc.from_meter_to_units(arc_center.X.ToDouble(), self._ipc.units)
+                        new_poly_step.center_y = self._ipc.from_meter_to_units(arc_center.Y.ToDouble(), self._ipc.units)
+                        new_poly_step.x = self._ipc.from_meter_to_units(arc.End.X.ToDouble(), self._ipc.units)
+                        new_poly_step.y = self._ipc.from_meter_to_units(arc.End.Y.ToDouble(), self._ipc.units)
                         new_poly_step.clock_wise = not arc.IsCCW()
                         self.poly_steps.append(new_poly_step)
 

@@ -121,7 +121,7 @@ class Step(object):
                 av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
                 if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
                     av_x = -av_x
-                package = Package()
+                package = Package(self._ipc)
                 package.name = component.part_name
                 package.height = ""
                 package.type = component.type
