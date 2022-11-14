@@ -187,7 +187,7 @@ class IPC2581(object):
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
 
-        for layer in self._pedb.stackup.layers:
+        for _, layer in self._pedb.stackup.layers.items():
             self.ecad.cad_data.cad_data_step.add_layer_feature(layer)
 
     @pyaedt_function_handler()

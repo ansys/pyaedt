@@ -2,6 +2,10 @@ import math
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.component.component import Component
+from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.feature import Feature
+from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.layer_feature import (
+    LayerFeature,
+)
 from pyaedt.edb_core.IPC2581.ecad.cad_data.logical_net.logical_net import LogicalNet
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.package import Package
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
@@ -158,7 +162,15 @@ class Step(object):
 
     def add_layer_feature(self, layer=None):
         if layer:
-            return True
+            layer_feature = LayerFeature()
+            layer_feature.layer_name = layer.name
+            layer_feature.color = layer.color
+            for poly in layer._pclass._pedb.core_primitives.polygons_by_layer[layer.name]:
+                layer_feature.add_feature(poly)
+                feature = Feature()
+                feature.net = poly.net_name
+                feature.polygon.add_poly_step()
+
         return False
 
     def write_xml(self, cad_data):
