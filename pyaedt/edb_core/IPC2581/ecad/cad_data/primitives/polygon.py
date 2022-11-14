@@ -9,10 +9,27 @@ class Polygon(object):
         self.solid_fill_id = ""
         self.cutout = []
 
-    def add_poly_step(self, poly_step=None):
-        if not isinstance(poly_step, PolyStep):
-            return False
-        self.poly_steps.append(poly_step)
+    def add_poly_step(self, polygon=None):
+        if polygon:
+            if polygon.polygon_data.IsClosed():
+                arcs = polygon.polygon_data.GetArcData()
+                for arc in arcs:
+                    if arc.Height == 0:
+                        new_segment_tep = PolyStep()
+                        new_segment_tep.poly_type = PolyType.Segment
+                        new_segment_tep.x = arc.End.X.ToDouble()  # add unit converter
+                        new_segment_tep.y = arc.End.Y.ToDouble()  # add unit converter
+                        self.poly_steps.append(new_segment_tep)
+                    else:
+                        arc_center = arc.GetCenter()
+                        new_poly_step = PolyStep()
+                        new_poly_step.poly_type = PolyType.Curve
+                        new_poly_step.center_X = arc_center.X.ToDouble()  # add unit converter
+                        new_poly_step.center_y = arc_center.Y.ToDouble()  # add unit converter
+                        new_poly_step.x = arc.End.X.ToDouble()  # add unit converter
+                        new_poly_step.y = arc.End.Y.ToDouble()  # add unit converter
+                        new_poly_step.clock_wise = not arc.IsCCW()
+                        self.poly_steps.append(new_poly_step)
 
     def add_cutout(self, cutout):
         if not isinstance(cutout, Cutout):

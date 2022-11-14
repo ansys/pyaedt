@@ -2,7 +2,9 @@ import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.drill import Drill
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
-from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_instance import PadstackInstance
+from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_instance import (
+    PadstackInstance,
+)
 from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.path import Path
 from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
@@ -40,8 +42,8 @@ class Feature(object):
             net.set("net", self.net)
             feature = ET.SubElement(net, "Features")
             location = ET.SubElement(feature, "Location")
-            location.set("x", self.x)
-            location.set("y", self.y)
+            location.set("x", str(self.x))
+            location.set("y", str(self.y))
             if self.feature_type == self.FeatureType.Polygon:
                 for polygon in self.polygon:
                     polygon.write_xml(feature)
