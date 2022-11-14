@@ -43,12 +43,8 @@ class IPC2581(object):
         self.ecad.design_name = self.design_name
         self.ecad.cad_header.units = self.units
         self.ecad.cad_data.stackup.name = self.design_name
-        if self.units == "mm":
-            self.ecad.cad_data.stackup.total_thickness = round(self._pedb.get_statistics().stackup_thickness * 1000, 3)
-        if self.units == "inch":
-            self.ecad.cad_data.stackup.total_thickness = round(
-                self._pedb.get_statistics().stackup_thickness * 39.3701, 3
-            )
+        self.from_meter_to_units(self._pedb.get_statistics().stackup_thickness, self.units)
+
         for layer_name in list(self._pedb.stackup.layers.keys()):
             self.content.add_layer_ref(layer_name)
             layer_color = self._pedb.stackup.layers[layer_name].color
@@ -92,10 +88,8 @@ class IPC2581(object):
             except:
                 pass
 
-        for path_width in list(set([path.GetWidth() for path in self._pedb.core_primitives.paths])):
-            if self.units == "mm":
-                converted_width = path_width / 1000
-            self.content.dict_line.add_line(str(converted_width))
+        # for path_width in list(set([path.GetWidth() for path in self._pedb.core_primitives.paths])):
+        #     self.content.dict_line.add_line(str(converted_width))
 
         # Bom
         for part_name, components in self._pedb.core_components.components_by_partname.items():

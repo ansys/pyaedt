@@ -160,8 +160,8 @@ class Step(object):
             self.components.append(ipc_component)
 
     def add_layer_feature(self, layer=None):
-        if layer:
-            layer_feature = LayerFeature()
+        if layer.type == "signal":
+            layer_feature = LayerFeature(self._ipc)
             layer_feature.layer_name = layer.name
             layer_feature.color = layer.color
             for poly in layer._pclass._pedb.core_primitives.polygons_by_layer[layer.name]:
@@ -173,6 +173,7 @@ class Step(object):
             ]
             for path in path_list:
                 layer_feature.add_feature(path)
+            self.layer_features.append(layer_feature)
 
         return False
 

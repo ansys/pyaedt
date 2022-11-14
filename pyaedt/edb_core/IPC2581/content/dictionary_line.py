@@ -1,10 +1,11 @@
 import xml.etree.cElementTree as ET
+
 from pyaedt.edb_core.IPC2581.content.entry_line import EntryLine
 
 
 class DictionaryLine(object):
     def __init__(self, content):
-        self._dict_lines = []
+        self._dict_lines = {}
         self.unit = content.units
 
     @property
@@ -20,7 +21,8 @@ class DictionaryLine(object):
         if width:
             line = EntryLine()
             line._line_width = width
-            self._dict_lines.append(line)
+            if not "ROUND_{}".format(width) in self._dict_lines:
+                self._dict_lines["ROUND_{}".format(width)] = line
 
     def write_xml(self, content=None):
         if content:

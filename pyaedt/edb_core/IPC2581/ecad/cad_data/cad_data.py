@@ -13,7 +13,7 @@ class CadData(object):
         self.units = units
         self._layers = []
         self.stackup = Stackup()
-        self.cad_data_step = Step(self, edb, self.units, ipc)
+        self.cad_data_step = Step(self, edb, self.units, self._ipc)
 
     @property
     def layers(self):

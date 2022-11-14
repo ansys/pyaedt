@@ -10,14 +10,15 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
 
 class Feature(object):
-    def __init__(self):
-        self.feature_type = self.FeatureType().Polygon
+    def __init__(self, ipc):
+        self._ipc = ipc
+        self.feature_type = FeatureType().Polygon
         self.net = ""
         self.x = 0.0
         self.y = 0.0
         self.polygon = Polygon()
         self._cutouts = []
-        self.path = Path()
+        self.path = Path(self._ipc)
         self.pad = PadstackDef()
         self.padstack_instance = PadstackInstance()
         self.drill = Drill()
@@ -44,12 +45,13 @@ class Feature(object):
             location = ET.SubElement(feature, "Location")
             location.set("x", str(self.x))
             location.set("y", str(self.y))
-            if self.feature_type == self.FeatureType.Polygon:
+            if self.feature_type == FeatureType.Polygon:
                 for polygon in self.polygon:
                     polygon.write_xml(feature)
-            elif self.feature_type == self.FeatureType.Paths:
+            elif self.feature_type == FeatureType.Path:
                 for path in self.path:
                     path.write_xml(feature)
 
-    class FeatureType:
-        (Polygon, Paths, Padstack, Via, Drill) = range(0, 5)
+
+class FeatureType:
+    (Polygon, Path, Padstack, Via, Drill) = range(0, 5)

@@ -1,10 +1,12 @@
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.feature import Feature
+from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.feature import FeatureType
 
 
 class LayerFeature(object):
-    def __init__(self):
+    def __init__(self, ipc):
+        self._ipc = ipc
         self.layer_name = ""
         self.color = ""
         self._features = []
@@ -21,14 +23,17 @@ class LayerFeature(object):
 
     def add_feature(self, obj_instance=None):
         if obj_instance:
-            feature = Feature()
+            feature = Feature(self._ipc)
             feature.net = obj_instance.net_name
             if obj_instance.type == "Polygon":
+                feature.feature_type = FeatureType.Polygon
                 feature.polygon.add_poly_step(obj_instance)
             elif obj_instance.type == "Path":
+                feature.feature_type = FeatureType.Path
                 feature.path.add_path_step(obj_instance)
-
-        return False
+            self._features.append(feature)
+        else:
+            return False
 
     def write_xml(self, step):
         if step:

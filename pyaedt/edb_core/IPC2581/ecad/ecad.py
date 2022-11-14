@@ -9,8 +9,8 @@ class Ecad(object):
         self.design_name = "Design"
         self.units = units
         self.cad_header = CadHeader()
-        self.cad_data = CadData(self, edb, units, ipc)
         self._ipc = ipc
+        self.cad_data = CadData(self, edb, units, self._ipc)
         self._pedb = edb
 
     def write_xml(self, root):
