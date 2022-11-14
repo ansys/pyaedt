@@ -273,6 +273,8 @@ class EDBComponent(object):
 
     @property
     def layout_instance(self):
+    """Edb layout instance object.
+    """
         if self._layout_instance is None:
             self._layout_instance = self.edbcomponent.GetLayout().GetLayoutInstance()
         return self._layout_instance
