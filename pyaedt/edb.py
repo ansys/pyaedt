@@ -20,7 +20,6 @@ try:
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("PythonNET is needed to run PyAEDT.")
         warnings.warn(
             "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
         )
