@@ -226,8 +226,8 @@ class EdbNets(object):
         outline : list, optional
             List of points of the outline to plot.
         plot_components_on_top : bool, optional
-            If `True`  the components placed on top layer are plotted.
-            If `False` the components are not plotted. (default)
+            If ``True``  the components placed on top layer are plotted.
+            If ``False`` the components are not plotted. (default)
             If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
         plot_components_on_bottom : bool, optional
             If `True`  the components placed on bottom layer are plotted.
