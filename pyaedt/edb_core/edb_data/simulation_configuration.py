@@ -181,6 +181,7 @@ class SimulationConfiguration(object):
         self._sources = []
         self._mesh_sizefactor = 0.0
         self._read_cfg()
+        self._use_default_cutout = True
 
     @property
     def filename(self):  # pragma: no cover
@@ -197,6 +198,20 @@ class SimulationConfiguration(object):
     def filename(self, value):
         if isinstance(value, str):  # pragma: no cover
             self._filename = value
+
+    @property
+    def use_default_cutout(self):  # pragma: no cover
+        """Either if use the default EDB Cutout or new pyaedt cutout.
+
+        Returns
+        -------
+        bool
+        """
+        return self._use_default_cutout
+
+    @use_default_cutout.setter
+    def use_default_cutout(self, value):  # pragma: no cover
+        self._use_default_cutout = value
 
     @property
     def generate_solder_balls(self):  # pragma: no cover
