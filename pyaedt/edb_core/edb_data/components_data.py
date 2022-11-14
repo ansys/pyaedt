@@ -536,8 +536,6 @@ class EDBComponent(object):
         -------
         list
         """
-        # layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
-        # cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
         cmpinst = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
         center = cmpinst.GetCenter()
         return [center.X.ToDouble(), center.Y.ToDouble()]
@@ -553,8 +551,6 @@ class EDBComponent(object):
             coordinates in this order: [X lower left corner, Y lower left corner,
             X upper right corner, Y upper right corner].
         """
-        # layinst = self.edbcomponent.GetLayout().GetLayoutInstance()
-        # cmpinst = layinst.GetLayoutObjInstance(self.edbcomponent, None)
         cmpinst = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
         bbox = cmpinst.GetBBox()
         pt1 = bbox.Item1
