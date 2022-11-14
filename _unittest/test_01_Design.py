@@ -304,6 +304,9 @@ class TestClass(BasisTest, object):
     def test_31_make_hidden_variable(self):
         self.aedtapp["my_hidden_variable"] = "15mm"
         assert self.aedtapp.hidden_variable("my_hidden_variable")
+        self.aedtapp.hidden_variable("my_hidden_variable", False)
+        assert self.aedtapp.hidden_variable(["my_oo_variable", "$dim", "my_hidden_variable"])
+        self.aedtapp.hidden_variable(["my_oo_variable", "$dim"], False)
 
     def test_32_make_read_only_variable(self):
         self.aedtapp["my_read_only_variable"] = "15mm"
