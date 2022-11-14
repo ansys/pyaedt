@@ -2397,7 +2397,7 @@ class GeometryModeler(Modeler, object):
 
         Parameters
         ----------
-        bjid : str, int, or  Object3d
+        objid : str, int, or  Object3d
             Name or ID of the object.
         position : float
             List of the ``[x, y, z]`` coordinates or
