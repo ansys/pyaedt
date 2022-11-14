@@ -255,7 +255,7 @@ class Result:
         ----------
         >>> radios = aedtapp.results.get_radio_names(Emit.tx_rx_mode.rx)
         """
-        if self.get_result_loaded():
+        if self.result_loaded:
             radios = self.emit_api.radio_names(tx_rx)
         else:
             radios = None
@@ -282,7 +282,7 @@ class Result:
         ----------
         >>> bands = aedtapp.results.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
         """
-        if self.get_result_loaded():
+        if self.result_loaded:
             bands = self.emit_api.band_names(radio_name, tx_rx_mode)
         else:
             bands = None
@@ -312,7 +312,7 @@ class Result:
         ----------
         >>> bands = aedtapp.results.get_band_names('Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
-        if self.get_result_loaded():
+        if self.result_loaded:
             freq = self.emit_api.active_frequencies(radio_name, band_name, tx_rx_mode)
         else:
             freq = None
@@ -607,7 +607,8 @@ class Emit(FieldAnalysisEmit, object):
         """
         if self.__emit_api_enabled:
             self._emit_api.load_result(path)
-            self.results.set_result_loaded()
+            self.results.result_loaded = True
+            print(self.results.result_loaded)
 
     @staticmethod
     def result_type():

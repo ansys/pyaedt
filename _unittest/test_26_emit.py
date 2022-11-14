@@ -208,6 +208,15 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
+    def test_InteractionDomain(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        testable_id = Interaction_Domain()
+        assert str(type(testable_id.emit_api)) == "<class 'EmitApiPython.EmitApi'>"
+        assert str(type(testable_id._obj)) == "<class 'EmitApiPython.InteractionDomain'>"
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
+    )
     def test_analyze_manually(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
         assert len(self.aedtapp.results.revisions_list) == 0
@@ -224,7 +233,7 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
-        assert self.aedtapp.results.get_result_loaded() is False
+        assert self.aedtapp.results.result_loaded is False
         self.aedtapp.analyze()
         assert len(self.aedtapp.results.revisions_list) == 1
         if self.aedtapp._emit_api is not None:
@@ -235,7 +244,7 @@ class TestClass(BasisTest, object):
                     subfolder = os.path.join(f.path, "EmitDesign1")
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             self.aedtapp._emit_api.load_result(file.path)
-            assert self.aedtapp.results.get_result_loaded()
+            assert self.aedtapp.results.result_loaded
             rev = Revision(self.aedtapp, "Revision 1")
             assert rev is not None
             domain = Interaction_Domain()
