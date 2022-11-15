@@ -462,7 +462,7 @@ class Excitation:
 
     """
 
-    def __init__(self, pedb, edb_terminal, name):
+    def  __init__(self, pedb, edb_terminal, name):
         self._pedb = pedb
         self._edb_terminal = edb_terminal
         self._name = name
@@ -516,7 +516,7 @@ class ExcitationDifferential:
         self._name = name
 
     @property
-    def edb(self):
+    def edb(self):  # pragma: no cover
         """Get edb."""
         return self._pedb.edb
 
