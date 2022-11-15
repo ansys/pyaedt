@@ -828,7 +828,7 @@ class ExcitationDifferential:
         self._name = name
 
     @property
-    def edb(self):
+    def edb(self):  # pragma: no cover
         """Get edb."""
         return self._pedb.edb
 
