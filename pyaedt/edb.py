@@ -37,6 +37,7 @@ from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
@@ -324,7 +325,13 @@ class Edb(object):
         """Get all layout excitations."""
         terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
         terms = [i for i in terms if not i.IsReferenceTerminal()]
-        return {ter.GetName(): ExcitationPorts(self, ter) for ter in terms}
+        temp = {}
+        for ter in terms:
+            if "BundleTerminal" in ter.GetType().ToString():
+                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+            else:
+                temp[ter.GetName()] = ExcitationPorts(self, ter)
+        return temp
 
     @property
     def sources(self):
