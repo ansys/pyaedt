@@ -12,20 +12,19 @@ import pkgutil
 import sys
 import time
 
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
-    import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
     _com = "pythonnet"
     import System
 elif os.name == "nt":  # pragma: no cover
     modules = [tup[1] for tup in pkgutil.iter_modules()]
-    if "clr" in modules:
-        import clr  # noqa: F401
+    if _clr:
         import win32com.client
 
         _com = "pythonnet_v3"

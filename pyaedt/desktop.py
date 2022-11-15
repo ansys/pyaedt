@@ -53,16 +53,16 @@ pathname = os.path.dirname(__file__)
 
 pyaedtversion = __version__
 
+from pyaedt.generic.clr_module import _clr
+
 if is_ironpython:
-    import clr  # IronPython C:\Program Files\AnsysEM\AnsysEM19.4\Win64\common\IronPython\ipy64.exe
 
     _com = "ironpython"
 elif IsWindows:  # pragma: no cover
     import pythoncom
 
     modules = [tup[1] for tup in pkgutil.iter_modules()]
-    if "clr" in modules:
-        import clr
+    if _clr:
         import win32com.client
 
         _com = "pythonnet_v3"
@@ -564,7 +564,7 @@ class Desktop:
         base_path = self._main.sDesktopinstallDirectory
         sys.path.append(base_path)
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
-        clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
+        _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
         AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil
@@ -632,7 +632,7 @@ class Desktop:
         sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
         launch_msg = "AEDT installation Path {}.".format(base_path)
         self.logger.info(launch_msg)
-        clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
+        _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
         AnsoftCOMUtil = __import__("Ansys.Ansoft.CoreCOMScripting")
         self.COMUtil = AnsoftCOMUtil.Ansoft.CoreCOMScripting.Util.COMUtil
         self._main.COMUtil = self.COMUtil

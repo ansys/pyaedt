@@ -2,23 +2,13 @@
 This module contains these classes: `EdbLayout` and `Shape`.
 """
 import math
-import os
-import warnings
 
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    from System import Tuple
-
-    # from System.Collections.Generic import List
-
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires the PythonNET package.")
 
 
 class EdbLayout(object):

@@ -12,20 +12,6 @@ import time
 import traceback
 import warnings
 
-try:
-    import clr
-    from System import Convert
-
-    edb_initialized = True
-    from System.Collections.Generic import List
-except ImportError:  # pragma: no cover
-    if os.name != "posix":
-        warnings.warn(
-            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-        )
-        edb_initialized = False
-    elif sys.version[0] == 3 and sys.version[1] < 7:
-        warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -42,6 +28,10 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
+from pyaedt.generic.clr_module import Convert
+from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import _clr
+from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -270,22 +260,22 @@ class Edb(object):
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
             if is_ironpython:
-                clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
-                clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-                clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+                _clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+                _clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+                _clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
-                clr.AddReference("Ansys.Ansoft.Edb")
-                clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-                clr.AddReference("Ansys.Ansoft.SimSetupData")
+                _clr.AddReference("Ansys.Ansoft.Edb")
+                _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+                _clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
             else:
                 self.base_path = env_path(self.edbversion)
             sys.path.append(self.base_path)
-            clr.AddReference("Ansys.Ansoft.Edb")
-            clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-            clr.AddReference("Ansys.Ansoft.SimSetupData")
+            _clr.AddReference("Ansys.Ansoft.Edb")
+            _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+            _clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, "common", "oa")
         os.environ["ANSYS_OADIR"] = oaDirectory
@@ -303,11 +293,11 @@ class Edb(object):
         """EDB library object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
             if os.name == "posix" and is_ironpython:
-                clr.AddReferenceToFile("EdbLib.dll")
-                clr.AddReferenceToFile("DataModel.dll")
+                _clr.AddReferenceToFile("EdbLib.dll")
+                _clr.AddReferenceToFile("DataModel.dll")
             else:
-                clr.AddReference("EdbLib")
-                clr.AddReference("DataModel")
+                _clr.AddReference("EdbLib")
+                _clr.AddReference("DataModel")
             self._edblib = __import__("EdbLib")
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             try:

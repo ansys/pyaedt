@@ -1,31 +1,19 @@
 # -*- coding: utf-8 -*-
 import json
 import math
-import os
 import random
 import re
 import string
-import warnings
 from collections import OrderedDict
 from decimal import Decimal
 
+from pyaedt.generic.clr_module import Double
+from pyaedt.generic.clr_module import List
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
-
-try:
-    import clr
-
-    clr.AddReference("System.Collections")
-    from System.Collections.Generic import List
-
-    clr.AddReference("System")
-    from System import Double
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("PythonNET is needed to run pyaedt")
 
 
 @pyaedt_function_handler()
