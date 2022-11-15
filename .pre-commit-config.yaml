@@ -37,7 +37,7 @@ repos:
       - --max-line-length=120
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.2.1
+  rev: v2.2.2
   hooks:
   - id: codespell
     args: ["--ignore-words=ignore_words.txt"]
