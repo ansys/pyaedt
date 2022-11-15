@@ -41,7 +41,7 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           sudo pip3 install --upgrade pip
-          python -m pip install virtualenv
+          python -m pip3 install virtualenv
           python -m venv .pyaedt_test_env
           source .pyaedt_test_env/bin/activate
           python -m pip install wheel setuptools -U
