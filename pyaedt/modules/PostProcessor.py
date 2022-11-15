@@ -855,7 +855,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         PlotName : str, optional
-            Name of the plot. The default is deleted all reports.
+            Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
 
         Returns
         -------
