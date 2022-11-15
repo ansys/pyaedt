@@ -14,17 +14,19 @@ import warnings
 
 try:
     import clr
+
+    clr.AddReference("System.Collections")
     from System import Convert
+    from System.Collections.Generic import List
 
     edb_initialized = True
-    from System.Collections.Generic import List
+
 except ImportError:  # pragma: no cover
-    if os.name != "posix":
-        warnings.warn(
-            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-        )
-        edb_initialized = False
-    elif sys.version[0] == 3 and sys.version[1] < 7:
+    warnings.warn(
+        "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
+    )
+    edb_initialized = False
+    if sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import pyaedt_logger
 from pyaedt import settings

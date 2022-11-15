@@ -818,7 +818,7 @@ class EDBPadstackInstance(object):
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
         started = False
         layer_list = []
-        for layer_name in self._pedb.stackup.layers.keys():
+        for layer_name in list(self._pedb.stackup.layers.keys()):
             if started:
                 layer_list.append(layer_name)
                 if layer_name == stop_layer.GetName():

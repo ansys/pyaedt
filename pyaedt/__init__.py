@@ -42,15 +42,18 @@ if os.name == "posix" and "IronPython" not in sys.version and ".NETFramework" no
     except ImportError:
         msg = "pythonnet or dotnetcore not installed. Pyaedt will work only in client mode."
         warnings.warn(msg)
+try:
+    # work around a number formatting bug in the EDB API for non-English locales
+    # described in #1980
+    import clr
 
-# work around a number formatting bug in the EDB API for non-English locales
-# described in #1980
-import clr as _clr
+    # _clr.AddReference("System.Runtime")
+    from System.Globalization import CultureInfo as _CultureInfo
 
-_clr.AddReference("System.Runtime")
-from System.Globalization import CultureInfo as _CultureInfo
-
-_CultureInfo.DefaultThreadCurrentCulture = _CultureInfo.InvariantCulture
+    _CultureInfo.DefaultThreadCurrentCulture = _CultureInfo.InvariantCulture
+except ImportError:
+    msg = "pythonnet not installed. Invariant Culture not applied."
+    warnings.warn(msg)
 
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
