@@ -2218,7 +2218,7 @@ class Icepak(FieldAnalysis3D):
         custom_y_resolution=None,
         power_in=0,
     ):
-        """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file.
+        """Create a PCB component in Icepak which links to an HFSS 3D Layout object linking only to the geometry file.
 
         .. note::
            No solution is linked.
