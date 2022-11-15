@@ -740,6 +740,32 @@ class TestClass(BasisTest, object):
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
+    def test_30a_add_mesh_link(self):
+        self.aedtapp.duplicate_design(self.aedtapp.design_name)
+        self.aedtapp.set_active_design(self.aedtapp.design_list[0])
+        assert self.aedtapp.setups[0].add_mesh_link(design_name=self.aedtapp.design_list[1])
+        meshlink_props = self.aedtapp.setups[0].props["MeshLink"]
+        assert meshlink_props["Project"] == "This Project*"
+        assert meshlink_props["PathRelativeTo"] == "TargetProject"
+        assert meshlink_props["Design"] == self.aedtapp.design_list[1]
+        assert meshlink_props["Soln"] == "MySetup : LastAdaptive"
+        assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
+        assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1], solution_name="MySetup : LastAdaptive"
+        )
+        assert not self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1], solution_name="Setup_Test : LastAdaptive"
+        )
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1],
+            parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1], project_name=example_project
+        )
+
     def test_31_create_microstrip_port(self):
         self.aedtapp.insert_design("Microstrip")
         self.aedtapp.solution_type = "Modal"
