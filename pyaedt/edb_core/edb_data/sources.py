@@ -462,7 +462,7 @@ class Excitation:
 
     """
 
-    def  __init__(self, pedb, edb_terminal, name):
+    def __init__(self, pedb, edb_terminal, name):
         self._pedb = pedb
         self._edb_terminal = edb_terminal
         self._name = name
