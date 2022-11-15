@@ -84,7 +84,13 @@ class EdbHfss(object):
         """Get all excitations."""
         terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
         terms = [i for i in terms if not i.IsReferenceTerminal()]
-        return {ter.GetName(): Excitation(self._pedb, ter, ter.GetName()) for ter in terms}
+        temp = {}
+        for ter in terms:
+            if "BundleTerminal" in ter.GetType().ToString():
+                temp[ter.GetName()] = ExcitationDifferential(self._pedb, ter, ter.GetName())
+            else:
+                temp[ter.GetName()] = Excitation(self._pedb, ter, ter.GetName())
+        return temp
 
     def _get_edb_value(self, value):
         return self._pedb.edb_value(value)
