@@ -37,6 +37,14 @@ jobs:
           python3 --version
           pip --version
 
+          sudo yum groupinstall "Development Tools" -y
+          sudo yum install gcc open-ssl-devel bzip2-devel libffi-devel -y
+          sudo wget https://www.python.org/ftp/python/3.10.2/Python-3.10.2.tgz
+          sudo tar -xzf Python-3.10.2.tgz
+          ./configure --enable-optimizations
+          make altinstall
+          python3.10 -V
+
 
       - name: 'Install pyaedt'
         run: |
