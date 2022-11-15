@@ -159,8 +159,9 @@ if not config["skip_edb"]:
             padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
-            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
-            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
+            if not is_ironpython:
+                assert padstack_instance.start_layer in padstack_instance.layer_range_names
+                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
             padstack_instance.position = [0.001, 0.002]
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
@@ -379,8 +380,8 @@ if not config["skip_edb"]:
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
-            assert self.edbapp.sources
-            assert not self.edbapp.probes
+            assert len(self.edbapp.sources) == 1
+            assert len(self.edbapp.probes) == 0
             assert list(self.edbapp.sources.values())[0].magnitude == 3.3
             assert list(self.edbapp.sources.values())[0].phase == 0
 
