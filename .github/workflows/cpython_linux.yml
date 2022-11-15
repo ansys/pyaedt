@@ -32,6 +32,7 @@ jobs:
           sudo yum update -y
           sudo yum install -y python3
           sudo yum install -y python-pip
+          sudo yum install epel-release
           sudo yum install python-pip
           python3 --version
           pip --version
@@ -39,7 +40,7 @@ jobs:
 
       - name: 'Install pyaedt'
         run: |
-          pip install --upgrade pip
+          pip3 install --upgrade pip
           python -m pip install pip -U
           python -m pip install virtualenv
           python -m venv .pyaedt_test_env
