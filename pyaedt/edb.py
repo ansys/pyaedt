@@ -1236,7 +1236,7 @@ class Edb(object):
         def subtract(poly, voids):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
-        def clean_prim(prim_1):
+        def clean_prim(prim_1):  # pragma: no cover
             net = prim_1.net_name
             if net in reference_list:
                 pdata = get_polygon_data(prim_1)
