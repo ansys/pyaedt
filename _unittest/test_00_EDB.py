@@ -377,6 +377,10 @@ if not config["skip_edb"]:
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
+            assert self.edbapp.sources
+            assert not self.edbapp.probes
+            assert list(self.edbapp.sources.values())[0].magnitude == 3.3
+            assert list(self.edbapp.sources.values())[0].phase == 0
 
         def test_39_create_current_source(self):
             assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
@@ -2480,6 +2484,18 @@ if not config["skip_edb"]:
             sim_setup.use_default_cutout = False
             assert edbapp.build_simulation_project(sim_setup)
             assert edbapp.are_port_reference_terminals_connected()
+            port1 = list(edbapp.excitations.values())[0]
+            assert port1.magnitude == 0.0
+            assert port1.phase == 0
+            assert port1.reference_net_name == "GND"
+            assert not port1.deembed
+            assert port1.impedance == 50.0
+            assert port1.deembed_length == 0
+            assert not port1.is_circuit
+            assert not port1.renormalize
+            assert port1.renormalize_z0 == (50.0, 0.0)
+            assert not port1.get_pin_group_terminal_reference_pin()
+            assert not port1.get_pad_edge_terminal_reference_pin()
 
         def test_129_get_component_bounding_box(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")

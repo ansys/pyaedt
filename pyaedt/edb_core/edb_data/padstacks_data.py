@@ -647,14 +647,11 @@ class EDBPadstackInstance(object):
     def object_instance(self):
         """Edb Object Instance."""
         if not self._object_instance:
-            try:
-                self._object_instance = (
-                    self._edb_padstackinstance.GetLayout()
-                    .GetLayoutInstance()
-                    .GetLayoutObjInstance(self._edb_padstackinstance, None)
-                )
-            except:
-                pass
+            self._object_instance = (
+                self._edb_padstackinstance.GetLayout()
+                .GetLayoutInstance()
+                .GetLayoutObjInstance(self._edb_padstackinstance, None)
+            )
         return self._object_instance
 
     @property

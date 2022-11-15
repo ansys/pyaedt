@@ -627,7 +627,7 @@ class ExcitationPorts(CommonExcitation):
 
         if self._edb_terminal.GetIsCircuitPort():  # sometimes padStackInstanceTerminals are really Circuit ports...WTF?
             return self.get_pin_group_terminal_reference_pin()
-        returnOK, padStackInstance, layer = self._edb_terminal.GetParameters()
+        _, padStackInstance, layer = self._edb_terminal.GetParameters()
 
         # Get the pastack instance of the terminal
         compInst = self._edb_terminal.GetComponent()
@@ -655,14 +655,17 @@ class ExcitationPorts(CommonExcitation):
             refPinList = pingroup.GetPins()
             return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
         elif self._edb_terminal.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
-            returnOK, padStackInstance, layer = self._edb_terminal.GetParameters()
+            _, padStackInstance, layer = self._edb_terminal.GetParameters()
             if refTerm.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
                 pingroup = refTerm.GetPinGroup()
                 refPinList = pingroup.GetPins()
                 return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
             else:
-                returnOK, refTermPSI, layer = refTerm.GetParameters()
-                return EDBPadstackInstance(refTermPSI, self._pedb)
+                try:
+                    returnOK, refTermPSI, layer = refTerm.GetParameters()
+                    return EDBPadstackInstance(refTermPSI, self._pedb)
+                except AttributeError:
+                    return None
         return None
 
     @pyaedt_function_handler()
@@ -677,7 +680,7 @@ class ExcitationPorts(CommonExcitation):
 
         ref_layer = self._edb_terminal.GetReferenceLayer()
         edges = self._edb_terminal.GetEdges()
-        return_ok, prim_value, point_data = edges[0].GetParameters()
+        _, prim_value, point_data = edges[0].GetParameters()
         X = point_data.X
         Y = point_data.Y
         shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
@@ -700,7 +703,7 @@ class ExcitationPorts(CommonExcitation):
         """
 
         ref_term = self._edb_terminal.GetReferenceTerminal()  # return value is type terminal
-        return_ok, point_data, layer = ref_term.GetParameters()
+        _, point_data, layer = ref_term.GetParameters()
         X = point_data.X
         Y = point_data.Y
         shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
@@ -733,15 +736,18 @@ class ExcitationPorts(CommonExcitation):
         -------
         :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`
         """
-        comp_inst = self._edb_properties.GetComponent()
+        comp_inst = self._edb_terminal.GetComponent()
         pins = self._pedb.core_components.get_pin_from_component(comp_inst.GetName())
-        edges = self._edb_properties.GetEdges()
-        return_ok, pad_edge_pstack_inst, pad_edge_layer, pad_edge_polygon_data = edges[0].GetParameters()
+        try:
+            edges = self._edb_terminal.GetEdges()
+        except AttributeError:
+            return None
+        _, pad_edge_pstack_inst, pad_edge_layer, pad_edge_polygon_data = edges[0].GetParameters()
         return self._get_closest_pin(pad_edge_pstack_inst, pins, gnd_net_name_preference)
 
     @pyaedt_function_handler()
     def _get_closest_pin(self, ref_pin, pin_list, gnd_net=None):
-        return_ok, pad_stack_inst_point, rotation = ref_pin.GetPositionAndRotation()  # get the xy of the padstack
+        _, pad_stack_inst_point, rotation = ref_pin.GetPositionAndRotation()  # get the xy of the padstack
         if gnd_net is not None:
             power_ground_net_names = [gnd_net]
         else:
@@ -757,7 +763,7 @@ class ExcitationPorts(CommonExcitation):
         for pin in comp_ref_pins:  # find the distance to all the pins to the terminal pin
             if pin.GetName() == ref_pin.GetName():  # skip the reference psi
                 continue
-            return_ok, pin_point, rotation = pin.GetPositionAndRotation()
+            _, pin_point, rotation = pin.GetPositionAndRotation()
             distance = pad_stack_inst_point.Distance(pin_point)
             if closest_pin_distance is None:
                 closest_pin_distance = distance
