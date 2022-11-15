@@ -221,8 +221,8 @@ class EdbNets(object):
         layers : str, list, optional
             Name of the layers to include in the plot. If `None` all the signal layers will be considered.
         color_by_net : bool, optional
-            If `True`  the plot will be colored by net.
-            If `False` the plot will be colored by layer. (default)
+            If ``True``  the plot will be colored by net.
+            If ``False`` the plot will be colored by layer. (default)
         outline : list, optional
             List of points of the outline to plot.
         plot_components_on_top : bool, optional
@@ -241,12 +241,14 @@ class EdbNets(object):
             using ast.literal_eval().
         """
         start_time = time.time()
-        if not layers:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
         if not nets:
             nets = list(self.nets.keys())
         if isinstance(nets, str):
             nets = [nets]
+        if not layers:
+            layers = list(self._pedb.core_stackup.signal_layers.keys())
+        if isinstance(layers, str):
+            layers = [layers]
         color_index = 0
         objects_lists = []
         label_colors = {}
@@ -546,29 +548,29 @@ class EdbNets(object):
         Parameters
         ----------
         nets : str, list
-            Name of the net or list of nets to plot. If `None` all nets will be plotted.
+            Name of the net or list of nets to plot. If ``None`` all nets will be plotted.
         layers : str, list, optional
-            Name of the layers to include in the plot. If `None` all the signal layers will be considered.
+            Name of the layers to include in the plot. If ``None`` all the signal layers will be considered.
         color_by_net : bool, optional
-            If `True`  the plot will be colored by net.
-            If `False` the plot will be colored by layer. (default)
+            If ``True``  the plot will be colored by net.
+            If ``False`` the plot will be colored by layer. (default)
         show_legend : bool, optional
-            If `True` the legend is shown in the plot. (default)
-            If `False` the legend is not shown.
+            If ``True`` the legend is shown in the plot. (default)
+            If ``False`` the legend is not shown.
         save_plot : str, optional
-            If `None` the plot will be shown.
+            If ``None`` the plot will be shown.
             If a file path is specified the plot will be saved to such file.
         outline : list, optional
             List of points of the outline to plot.
         size : tuple, optional
             Image size in pixel (width, height). Default value is ``(2000, 1000)``
         plot_components_on_top : bool, optional
-            If `True`  the components placed on top layer are plotted.
-            If `False` the components are not plotted. (default)
+            If ``True``  the components placed on top layer are plotted.
+            If ``False`` the components are not plotted. (default)
             If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
         plot_components_on_bottom : bool, optional
-            If `True`  the components placed on bottom layer are plotted.
-            If `False` the components are not plotted. (default)
+            If ``True``  the components placed on bottom layer are plotted.
+            If ``False`` the components are not plotted. (default)
             If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
         """
         if is_ironpython:

@@ -479,9 +479,9 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     ----------
     plot_data : list of list
         List of plot data. Every item has to be in the following format
-        For type `fill`: `[x points, y points, color, label, alpha, type=="fill"]`.
-        For type `path`: `[vertices, codes, color, label, alpha, type=="path"]`.
-        For type `contour`: `[vertices, codes, color, label, alpha, line_width, type=="contour"]`.
+        For type ``fill``: `[x points, y points, color, label, alpha, type=="fill"]`.
+        For type ``path``: `[vertices, codes, color, label, alpha, type=="path"]`.
+        For type ``contour``: `[vertices, codes, color, label, alpha, line_width, type=="contour"]`.
     size : tuple, optional
         Image size in pixel (width, height).
     show_legend : bool
