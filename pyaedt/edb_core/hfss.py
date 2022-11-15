@@ -544,7 +544,7 @@ class EdbHfss(object):
             [pos_term._edb_terminal, neg_term._edb_terminal], self._edb.Cell.Terminal.Terminal
         )
         _edb_boundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
-        return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal, port_name)
+        return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):

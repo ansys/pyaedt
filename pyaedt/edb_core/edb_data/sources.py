@@ -822,10 +822,14 @@ class ExcitationProbes(CommonExcitation):
 class ExcitationDifferential:
     """Manages differential excitation properties."""
 
-    def __init__(self, pedb, edb_boundle_terminal, name):
+    def __init__(self, pedb, edb_boundle_terminal):
         self._pedb = pedb
         self._edb_boundle_terminal = edb_boundle_terminal
-        self._name = name
+
+    @property
+    def name(self):
+        """Port Name."""
+        return self._edb_boundle_terminal.GetName()
 
     @property
     def edb(self):  # pragma: no cover
