@@ -118,22 +118,22 @@ class EdbNets(object):
         pwr_gnd_nets = []
         nets = list(self._active_layout.Nets)
         for net in nets:
-            totalPlaneArea = 0.0
-            totalTraceArea = 0.0
+            total_plane_area = 0.0
+            total_trace_area = 0.0
             for primitive in net.Primitives:
                 if primitive.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Bondwire:
                     continue
                 if primitive.GetPrimitiveType() != self._edb.Cell.Primitive.PrimitiveType.Path:
-                    totalPlaneArea += float(primitive.GetPolygonData().Area())
+                    total_plane_area += float(primitive.GetPolygonData().Area())
                 else:
-                    totalTraceArea += float(primitive.GetPolygonData().Area())
-            if totalPlaneArea == 0.0:
+                    total_trace_area += float(primitive.GetPolygonData().Area())
+            if total_plane_area == 0.0:
                 continue
-            if totalTraceArea == 0.0:
+            if total_trace_area == 0.0:
                 pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
                 continue
-            if totalPlaneArea > 0.0 and totalTraceArea > 0.0:
-                if totalPlaneArea / (totalPlaneArea + totalTraceArea) > threshold:
+            if total_plane_area > 0.0 and total_trace_area > 0.0:
+                if total_plane_area / (total_plane_area + total_trace_area) > threshold:
                     pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
         return pwr_gnd_nets
 

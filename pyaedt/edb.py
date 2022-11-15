@@ -2118,7 +2118,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def are_port_reference_terminals_connected(self, common_reference=None):
-        """Returns True or False if all terminal references in design are connected.
+        """Check if all terminal references in design are connected.
         If the reference nets are different, there is no hope of the terminal references are connected.
         After we have identified a common reference net we need to loop the terminals again to get
         the correct reference terminals that uses that net.

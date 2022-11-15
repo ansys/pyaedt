@@ -1245,13 +1245,12 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def get_connected_object_id_set(self):
-        """Returns a list of all geometry physically connected to a given layout object.
+        """Produce a list of all geometry physically connected to a given layout object.
 
-        Keyword Arguments:
-        layout -- Edb.Cell.Layout instance in which to work
-        layoutObj -- The layout object required for get_connected_obj_list() in determining connected geometry.
-
-        Returns a dict of the found connected objects IDs with Layout object.
+        Returns
+        -------
+            list
+            Found connected objects IDs with Layout object.
         """
         layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
         layoutObjInst = self.object_instance
