@@ -41,7 +41,6 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           sudo pip3 install --upgrade pip
-          python -m pip install pip -U
           python -m pip install virtualenv
           python -m venv .pyaedt_test_env
           source .pyaedt_test_env/bin/activate
