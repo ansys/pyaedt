@@ -671,9 +671,9 @@ class EdbPadstacks(object):
                 self._edb.Definition.PadType.RegularPad,
                 self._edb.Definition.PadGeometryType.Circle,
                 padparam_array,
-                value0,
-                value0,
-                value0,
+                offset_x,
+                offset_y,
+                rotation,
             )
 
             padstackData.SetPadParameters(
