@@ -32,7 +32,10 @@ jobs:
           sudo yum update -y
           sudo yum install -y python3
           sudo yum install -y python-pip
+          sudo yum install python-pip
           python3 --version
+          pip --version
+
 
       - name: 'Install pyaedt'
         run: |
