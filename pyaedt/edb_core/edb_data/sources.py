@@ -599,7 +599,7 @@ class ExcitationPorts(CommonExcitation):
             elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
                 self._reference_object = self.get_padstack_terminal_reference_pin()
             else:
-                self._pedb.logger.warning("Invalid Terminal Type={}".format(term.GetTerminalType()))
+                self._pedb.logger.warning("Invalid Terminal Type={}".format(term.GetTerminalType()))  # pragma: no cover
         return self._reference_object
 
     @property
@@ -608,7 +608,7 @@ class ExcitationPorts(CommonExcitation):
         ref_obj = self._reference_object if self._reference_object else self.reference_object
         if ref_obj:
             return ref_obj.net_name
-        return
+        return  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):
@@ -625,7 +625,7 @@ class ExcitationPorts(CommonExcitation):
         :class:`pyaedt.edb_core.edb_data.padstack_data.EDBPadstackInstance`
         """
 
-        if self._edb_terminal.GetIsCircuitPort():  # sometimes padStackInstanceTerminals are really Circuit ports...WTF?
+        if self._edb_terminal.GetIsCircuitPort():
             return self.get_pin_group_terminal_reference_pin()
         _, padStackInstance, layer = self._edb_terminal.GetParameters()
 
@@ -666,7 +666,7 @@ class ExcitationPorts(CommonExcitation):
                     return EDBPadstackInstance(refTermPSI, self._pedb)
                 except AttributeError:
                     return None
-        return None
+        return None  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_edge_terminal_reference_primitive(self):
@@ -690,7 +690,7 @@ class ExcitationPorts(CommonExcitation):
                 prim_shape_data = primitive.GetPolygonData()
                 if prim_shape_data.PointInPolygon(shape_pd):
                     return EDBPrimitives(primitive, self._pedb)
-        return None
+        return None  # pragma: no cover
 
     @pyaedt_function_handler()
     def get_point_terminal_reference_primitive(self):
@@ -756,13 +756,13 @@ class ExcitationPorts(CommonExcitation):
         if len(comp_ref_pins) == 0:
             self._pedb.logger.error(
                 "Terminal with PadStack Instance Name {} component has no reference pins.".format(ref_pin.GetName())
-            )
-            return None
+            )  # pragma: no cover
+            return None  # pragma: no cover
         closest_pin_distance = None
         pin_obj = None
         for pin in comp_ref_pins:  # find the distance to all the pins to the terminal pin
             if pin.GetName() == ref_pin.GetName():  # skip the reference psi
-                continue
+                continue  # pragma: no cover
             _, pin_point, rotation = pin.GetPositionAndRotation()
             distance = pad_stack_inst_point.Distance(pin_point)
             if closest_pin_distance is None:

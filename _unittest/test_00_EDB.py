@@ -159,6 +159,8 @@ if not config["skip_edb"]:
             padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
+            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
+            assert padstack_instance.stop_layer in padstack_instance.layer_range_names
             padstack_instance.position = [0.001, 0.002]
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
