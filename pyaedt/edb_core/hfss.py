@@ -485,7 +485,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        positive_primitive_id : int,
+        positive_primitive_id : int
             Primitive ID of the positive terminal.
         positive_points_on_edge : list
             Coordinate of the point to define the edge terminal.
