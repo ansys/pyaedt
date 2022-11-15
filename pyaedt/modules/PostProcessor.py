@@ -849,13 +849,13 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, PlotName):
-        """Delete a field plot report.
+    def delete_report(self, PlotName=None):
+        """Delete all reports or specific report.
 
         Parameters
         ----------
-        PlotName : str
-            Name of the field plot report.
+        PlotName : str, optional
+            Name of the plot. The default is deleted all reports.
 
         Returns
         -------
@@ -867,7 +867,10 @@ class PostProcessorCommon(object):
 
         >>> oModule.DeleteReports
         """
-        self.oreportsetup.DeleteReports([PlotName])
+        if PlotName:
+            self.oreportsetup.DeleteReports([PlotName])
+        else:
+            self.oreportsetup.DeleteAllReports()
         return True
 
     @pyaedt_function_handler()

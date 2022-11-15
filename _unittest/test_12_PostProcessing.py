@@ -610,6 +610,7 @@ class TestClass(BasisTest, object):
 
     def test_10_delete_report(self):
         assert self.aedtapp.post.delete_report("MyNewScattering")
+        assert self.aedtapp.post.delete_report()
 
     def test_12_steal_on_focus(self):
         assert self.aedtapp.post.steal_focus_oneditor()
