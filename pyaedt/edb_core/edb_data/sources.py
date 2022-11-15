@@ -840,3 +840,8 @@ class ExcitationDifferential:
     def terminals(self):
         """Get terminals belong to this excitation."""
         return {i.GetName(): ExcitationPorts(self._pedb, i) for i in list(self.edb_boundle_terminal.GetTerminals())}
+
+    @property
+    def reference_net_name(self):
+        """Reference Name. Not applicable to Differential pairs."""
+        return
