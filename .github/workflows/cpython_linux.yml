@@ -41,14 +41,14 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           sudo pip3 install --upgrade pip
-          python -m pip3 install virtualenv
-          python -m venv .pyaedt_test_env
+          python3 -m pip install virtualenv
+          python3 -m venv .pyaedt_test_env
           source .pyaedt_test_env/bin/activate
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
-          pip install .
-          pip install -r requirements_test.txt
-          pip install pytest-azurepipelines
+          python3 -m pip install wheel setuptools -U
+          python3 -c "import sys; print(sys.executable)"
+          pip3 install .
+          pip3 install -r requirements_test.txt
+          pip3 install pytest-azurepipelines
           cp "C:\actions-runner\opengl32.dll" "testenv\Lib\site-packages\vtkmodules"
           mkdir tmp
           cd tmp
