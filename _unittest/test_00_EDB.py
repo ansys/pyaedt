@@ -46,6 +46,9 @@ if not config["skip_edb"]:
             example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
             self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
             self.local_scratch.copyfolder(example_project2, self.target_path2)
+            example_project3 = os.path.join(local_path, "example_models", test_subfolder, "Galileo_edb_plot.aedb")
+            self.target_path3 = os.path.join(self.local_scratch.path, "Galileo_edb_plot_00.aedb")
+            self.local_scratch.copyfolder(example_project3, self.target_path3)
 
         def teardown_class(self):
             self.edbapp.close_edb()
@@ -772,14 +775,39 @@ if not config["skip_edb"]:
         def test_69_create_solder_balls_on_component(self):
             assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-        @pytest.mark.skipif(
-            is_ironpython,
-            reason="This test uses Matplotlib, which is not supported by IronPython.",
-        )
+        @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
         def test_70_plot_on_matplotlib(self):
-            local_png = os.path.join(self.local_scratch.path, "test.png")
-            self.edbapp.core_nets.plot(None, None, save_plot=local_png)
-            assert os.path.exists(local_png)
+            edb_plot = Edb(self.target_path3, edbversion=desktop_version)
+            local_png1 = os.path.join(self.local_scratch.path, "test1.png")
+            edb_plot.core_nets.plot(
+                nets=None,
+                layers=None,
+                save_plot=local_png1,
+                plot_components_on_top=True,
+                plot_components_on_bottom=True,
+                outline=[[-10e-3, -10e-3], [110e-3, -10e-3], [110e-3, 70e-3], [-10e-3, 70e-3]],
+            )
+            assert os.path.exists(local_png1)
+
+            local_png2 = os.path.join(self.local_scratch.path, "test2.png")
+            edb_plot.core_nets.plot(
+                nets="V3P3_S5",
+                layers=None,
+                save_plot=local_png2,
+                plot_components_on_top=True,
+                plot_components_on_bottom=True,
+            )
+            assert os.path.exists(local_png2)
+            local_png3 = os.path.join(self.local_scratch.path, "test3.png")
+            edb_plot.core_nets.plot(
+                nets=["LVL_I2C_SCL", "V3P3_S5", "GATE_V5_USB"],
+                layers="TOP",
+                color_by_net=True,
+                save_plot=local_png3,
+                plot_components_on_top=True,
+                plot_components_on_bottom=True,
+            )
+            assert os.path.exists(local_png3)
 
         def test_71_fix_circle_voids(self):
             assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
@@ -2096,8 +2124,33 @@ if not config["skip_edb"]:
             assert port_ver.hfss_type == "Gap"
             assert isinstance(port_ver.horizontal_extent_factor, float)
             assert isinstance(port_ver.vertical_extent_factor, float)
-            assert isinstance(port_ver.radial_extent_factor, float)
             assert port_ver.pec_launch_width
+            p = edb.core_primitives.create_trace(
+                path_list=[["-40mm", "-10mm"], ["-30mm", "-10mm"]],
+                layer_name="TOP",
+                net_name="SIGP",
+                width="0.1mm",
+                start_cap_style="Flat",
+                end_cap_style="Flat",
+            )
+
+            n = edb.core_primitives.create_trace(
+                path_list=[["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
+                layer_name="TOP",
+                net_name="SIGN",
+                width="0.1mm",
+                start_cap_style="Flat",
+                end_cap_style="Flat",
+            )
+            assert edb.core_hfss.create_wave_port(p.id, ["-30mm", "-10mm"], "p_port")
+
+            assert edb.core_hfss.create_differential_wave_port(
+                p.id,
+                ["-40mm", "-10mm"],
+                n.id,
+                ["-40mm", "-10.2mm"],
+                horizontal_extent_factor=8,
+            )
             edb.close_edb()
 
         def test_A119_insert_layer(self):

@@ -203,14 +203,23 @@ points_n = [
 # ~~~~~~~~~~~~~~~~~
 # Add traces to EDB.
 
+trace_p = []
+trace_n = []
 for n in range(len(points_p)):
-    path_p = edb.core_primitives.Shape("polygon", points=points_p[n])
-    edb.core_primitives.create_path(path_p, route_layer[n], width[n], net_name=net_p,
-                                    start_cap_style="Flat", end_cap_style="Flat")
-    path_n = edb.core_primitives.Shape("polygon", points=points_n[n])
-    edb.core_primitives.create_path(path_n, route_layer[n], width[n], net_name=net_n,
-                                    start_cap_style="Flat", end_cap_style="Flat")
+    trace_p.append(edb.core_primitives.create_trace(points_p[n], route_layer[n], width[n], net_p, "Flat", "Flat"))
+    trace_n.append(edb.core_primitives.create_trace(points_n[n], route_layer[n], width[n], net_n, "Flat", "Flat"))
 
+###############################################################################
+# Create wave ports
+# ~~~~~~~~~~~~~~~~~
+# Create wave ports:
+
+edb.core_hfss.create_differential_wave_port(trace_p[0].id, ["0.0", "($ms_width+$ms_spacing)/2"],
+                                            trace_n[0].id, ["0.0", "-($ms_width+$ms_spacing)/2"],
+                                            "wave_port_1")
+edb.core_hfss.create_differential_wave_port(trace_p[2].id, ["$pcb_len", "($ms_width+$ms_spacing)/2"],
+                                            trace_n[2].id, ["$pcb_len", "-($ms_width + $ms_spacing)/2"],
+                                            "wave_port_2")
 
 ###############################################################################
 # Draw ground polygons
@@ -279,15 +288,6 @@ edb.close_edb()
 # Open EDB in AEDT.
 
 h3d = Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.2", non_graphical=non_graphical)
-
-
-###############################################################################
-# Create wave ports
-# ~~~~~~~~~~~~~~~~~
-# Create wave ports:
-
-h3d.create_wave_port_from_two_conductors(["line_0", "line_1"], [0, 0])
-h3d.create_wave_port_from_two_conductors(["line_4", "line_5"], [5, 5])
 
 ###############################################################################
 # Add HFSS simulation setup

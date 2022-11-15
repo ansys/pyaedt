@@ -14,10 +14,16 @@ import warnings
 
 try:
     import clr
+    from System import Convert
+
+    edb_initialized = True
     from System.Collections.Generic import List
 except ImportError:  # pragma: no cover
     if os.name != "posix":
-        warnings.warn("PythonNET is needed to run PyAEDT.")
+        warnings.warn(
+            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
+        )
+        edb_initialized = False
     elif sys.version[0] == 3 and sys.version[1] < 7:
         warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import pyaedt_logger
@@ -29,6 +35,7 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -50,17 +57,6 @@ if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
-try:
-    import clr
-    from System import Convert
-
-    edb_initialized = True
-except ImportError:
-    if os.name != "posix":
-        warnings.warn(
-            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-        )
-        edb_initialized = False
 
 
 class Edb(object):
@@ -822,7 +818,7 @@ class Edb(object):
 
         """
         self._db.Close()
-        if self.log_name:
+        if self.log_name and settings.enable_local_log_file:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
         time.sleep(2)
@@ -832,6 +828,7 @@ class Edb(object):
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
         timeout = 4
+        # TODO check if we can remove this sleep
         time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
@@ -972,11 +969,11 @@ class Edb(object):
         expansion_size,
         use_round_corner,
     ):
-        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 0]:
+        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
             )
-        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 1]:
+        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
@@ -1025,7 +1022,6 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
@@ -1045,11 +1041,11 @@ class Edb(object):
         )
 
         # Create new cutout cell/design
+        included_nets_list = signal_list + reference_list
         included_nets = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
+            [net for net in list(self.active_layout.Nets) if net.GetName() in included_nets_list]
         )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
-
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
         id = 1
@@ -1074,7 +1070,11 @@ class Edb(object):
             _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            _success = db2.Save()
+            if len(list(db2.CircuitCells)) > 0:
+                for net in list(list(db2.CircuitCells)[0].GetLayout().Nets):
+                    if not net.GetName() in included_nets_list:
+                        net.Delete()
+                _success = db2.Save()
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
@@ -1114,6 +1114,7 @@ class Edb(object):
         number_of_threads=4,
         custom_extent=None,
         output_aedb_path=None,
+        remove_single_pin_components=False,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1144,6 +1145,8 @@ class Edb(object):
             Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
+        remove_single_pin_components : bool, optional
+            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
 
         Returns
         -------
@@ -1170,7 +1173,7 @@ class Edb(object):
         >>> edb.close_edb()
 
         """
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
             return False
         from concurrent.futures import ThreadPoolExecutor
@@ -1230,7 +1233,10 @@ class Edb(object):
         def intersect(poly1, poly2):
             return list(poly1.Intersect(poly2))
 
-        def clean_prim(prim_1):
+        def subtract(poly, voids):
+            return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
+
+        def clean_prim(prim_1):  # pragma: no cover
             net = prim_1.net_name
             if net in reference_list:
                 pdata = get_polygon_data(prim_1)
@@ -1240,17 +1246,33 @@ class Edb(object):
                 elif int_data != 2:
                     list_poly = intersect(_poly, get_polygon_data(prim_1))
                     if list_poly:
-                        list_void = []
                         voids = prim_1.voids
-                        if voids:
-                            for void in voids:
-                                void_pdata = get_polygon_data(void)
-                                int_data = _poly.GetIntersectionType(void_pdata)
-                                if int_data != 2 and int_data != 0:
-                                    list_void.extend(intersect(_poly, void_pdata))
-                                elif int_data == 2:
-                                    list_void.append(void_pdata)
-                        poly_to_create.append([list_poly, prim_1.layer_name, net, list_void])
+                        for p in list_poly:
+                            if p.IsNull():
+                                continue
+                            list_void = []
+                            void_to_subtract = []
+                            if voids:
+                                for void in voids:
+                                    void_pdata = get_polygon_data(void)
+                                    int_data = p.GetIntersectionType(void_pdata)
+                                    if int_data > 2:
+                                        void_to_subtract.append(void_pdata)
+                                    elif int_data == 2:
+                                        list_void.append(void_pdata)
+                                if void_to_subtract:
+                                    polys_cleans = subtract(p, void_to_subtract)
+                                    for polys_clean in polys_cleans:
+                                        if not polys_clean.IsNull():
+                                            void_to_append = [
+                                                v for v in list_void if polys_clean.GetIntersectionType(v) == 2
+                                            ]
+                                            poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
+                                else:
+                                    poly_to_create.append([p, prim_1.layer_name, net, list_void])
+                            else:
+                                poly_to_create.append([p, prim_1.layer_name, net, list_void])
+
                     prims_to_delete.append(prim_1)
 
         def pins_clean(pinst):
@@ -1272,20 +1294,21 @@ class Edb(object):
             pool.map(lambda item: clean_prim(item), polys)
 
         for el in poly_to_create:
-            for poly in el[0]:
-                self.core_primitives.create_polygon(poly, el[1], net_name=el[2], voids=el[3])
+            self.core_primitives.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
 
         for prim in prims_to_delete:
             prim.delete()
         self.logger.info_timer("Primitives cleanup completed")
         self.logger.reset_timer()
 
-        self.core_components.delete_single_pin_rlc()
         i = 0
         for comp, val in self.core_components.components.items():
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
+        if remove_single_pin_components:
+            self.core_components.delete_single_pin_rlc()
+
         self.core_components.refresh_components()
         self.logger.info("Deleted {} additional components".format(i))
 

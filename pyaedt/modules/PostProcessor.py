@@ -2288,6 +2288,15 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.EnterQty
         >>> oModule.EnterVol
         >>> oModule.ExportOnGrid
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> var = hfss.available_variations.nominal_w_values
+        >>> setup = "Setup1 : LastAdaptive"
+        >>> path = "Field.fld"
+        >>> hfss.post.export_field_file_on_grid("E", setup, var, path, 'Cartesian', [0, 0, 0],  intrinsics="8GHz")
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:
