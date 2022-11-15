@@ -1170,8 +1170,8 @@ class EdbHfss(object):
         """
         if not isinstance(simulation_setup, SimulationConfiguration):
             self._logger.error(
-                "Configure HFSS analysis requires and edb_data.simulation_configuration.SimulationConfiguration object as \
-                               argument"
+                "Configure HFSS analysis requires and edb_data.simulation_configuration.SimulationConfiguration object \
+                               as argument"
             )
             return False
         adapt = self._pedb.simsetupdata.AdaptiveFrequencyData()
@@ -1282,8 +1282,8 @@ class EdbHfss(object):
 
         if not isinstance(simulation_setup, SimulationConfiguration):
             self._logger.error(
-                "Trim component reference size requires an edb_data.simulation_configuration.SimulationConfiguration object \
-                               as argument"
+                "Trim component reference size requires an edb_data.simulation_configuration.SimulationConfiguration \
+                    object as argument"
             )
             return False
 
