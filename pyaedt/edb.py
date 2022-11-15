@@ -1272,7 +1272,7 @@ class Edb(object):
                 if int_data == 0:
                     prims_to_delete.append(prim_1)
                 elif int_data != 2:
-                    list_poly = intersect(_poly, get_polygon_data(prim_1))
+                    list_poly = intersect(_poly, pdata)
                     if list_poly:
                         voids = prim_1.voids
                         for p in list_poly:
@@ -1283,10 +1283,10 @@ class Edb(object):
                             if voids:
                                 for void in voids:
                                     void_pdata = get_polygon_data(void)
-                                    int_data = p.GetIntersectionType(void_pdata)
-                                    if int_data > 2:
+                                    int_data2 = p.GetIntersectionType(void_pdata)
+                                    if int_data2 > 2:
                                         void_to_subtract.append(void_pdata)
-                                    elif int_data == 2:
+                                    elif int_data2 == 2:
                                         list_void.append(void_pdata)
                                 if void_to_subtract:
                                     polys_cleans = subtract(p, void_to_subtract)

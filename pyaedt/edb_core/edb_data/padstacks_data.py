@@ -688,12 +688,11 @@ class EDBPadstackInstance(object):
             ``True`` when successful, ``False`` when failed.
         """
         if simple_check:
+            pos = [i for i in self.position]
             int_val = (
                 1
                 if polygon_data.PointInPolygon(
-                    self._pedb.edb.Geometry.PointData(
-                        self._pedb.edb_value(self.position[0]), self._pedb.edb_value(self.position[1])
-                    )
+                    self._pedb.edb.Geometry.PointData(self._pedb.edb_value(pos[0]), self._pedb.edb_value(pos[1]))
                 )
                 else 0
             )
@@ -873,11 +872,10 @@ class EDBPadstackInstance(object):
         list
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
-        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
         out = self._edb_padstackinstance.GetPositionAndRotationValue()
-
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
+        return []
 
     @position.setter
     def position(self, value):
