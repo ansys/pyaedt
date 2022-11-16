@@ -655,7 +655,7 @@ class ExcitationPorts(CommonExcitation):
 
     @pyaedt_function_handler()
     def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):
-        """This returns a string list of pad stacks instances and serves Coax wave ports,
+        """Get a list of pad stacks instances and serves Coax wave ports,
         pingroup terminals, PadEdge terminals.
 
         Parameters
