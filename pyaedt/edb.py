@@ -896,7 +896,7 @@ class Edb(object):
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
         if self.log_name:
-            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
 
         self.log_name = os.path.join(
@@ -998,21 +998,58 @@ class Edb(object):
         extent_type,
         expansion_size,
         use_round_corner,
+        use_pyaedt_extent=False,
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
+
+            if use_pyaedt_extent:
+                _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+            else:
+                _poly = self.active_layout.GetExpandedExtentFromNets(
+                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                )
         elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
         else:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-            _poly_list = convert_py_list_to_net_list([_poly])
-            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+            if use_pyaedt_extent:
+                _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+            else:
+                _poly = self.active_layout.GetExpandedExtentFromNets(
+                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                )
+                _poly_list = convert_py_list_to_net_list([_poly])
+                _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+        return _poly
+
+    def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+        names = []
+        _polys = []
+        for net in net_signals:
+            names.append(net.GetName())
+        for prim in self.core_primitives.primitives:
+            if prim.net_name in names:
+                _polys.extend(
+                    list(
+                        prim.primitive_object.GetPolygonData().Expand(
+                            expansion_size, tolerance, round_corner, round_extension
+                        )
+                    )
+                )
+        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
+        return _poly
+
+    def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+        names = []
+        _polys = []
+        for net in net_signals:
+            names.append(net.GetName())
+        for prim in self.core_primitives.primitives:
+            if prim.net_name in names:
+                _polys.append(prim.primitive_object.GetPolygonData())
+        _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
+        _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
     def create_cutout(
@@ -1024,6 +1061,7 @@ class Edb(object):
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
+        use_pyaedt_extent_computing=False,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1045,6 +1083,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
 
         Returns
         -------
@@ -1068,6 +1108,7 @@ class Edb(object):
             extent_type,
             expansion_size,
             use_round_corner,
+            use_pyaedt_extent_computing,
         )
 
         # Create new cutout cell/design
@@ -1145,6 +1186,7 @@ class Edb(object):
         custom_extent=None,
         output_aedb_path=None,
         remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1177,6 +1219,8 @@ class Edb(object):
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
         remove_single_pin_components : bool, optional
             Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
 
         Returns
         -------
@@ -1242,10 +1286,7 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
             )
             _poly = self._create_extent(
-                net_signals,
-                extent_type,
-                expansion_size,
-                use_round_corner,
+                net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
             )
 
         self.logger.info_timer("Expanded Net Polygon Creation")

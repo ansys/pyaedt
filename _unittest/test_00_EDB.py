@@ -582,7 +582,13 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            assert edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
+            assert edbapp.create_cutout(
+                ["A0_N", "A0_P"],
+                ["GND"],
+                output_aedb_path=output,
+                open_cutout_at_end=False,
+                use_pyaedt_extent_computing=True,
+            )
             assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
@@ -654,8 +660,9 @@ if not config["skip_edb"]:
                 signal_list=["V3P3_S0"],
                 reference_list=["GND"],
                 number_of_threads=4,
-                extent_type="Bounding",
+                extent_type="ConvexHull",
                 custom_extent=points,
+                use_pyaedt_extent_computing=True,
             )
             edbapp.close_edb()
 
