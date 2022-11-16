@@ -113,9 +113,8 @@ class IPC2581(object):
                 bom_item.add_refdes(cmp.refdes, cmp.placement_layer)
 
         # step
-        i = 0
+        # padstackdef
         for padstack_name, padstackdef in self._pedb.core_padstack.padstacks.items():
-            i += 1
             padstack_def = PadstackDef()
             padstack_def.name = padstack_name
             padstack_def.padstack_hole_def.name = padstack_name
@@ -211,12 +210,13 @@ class IPC2581(object):
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="THERMAL", primitive_ref=primitive_ref)
             if not padstack_def.name in self.ecad.cad_data.cad_data_step.padstack_defs:
                 self.ecad.cad_data.cad_data_step.padstack_defs[padstack_def.name] = padstack_def
-
+        # component def
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
-
+        # component pads
         for _, layer in self._pedb.stackup.layers.items():
             self.ecad.cad_data.cad_data_step.add_layer_feature(layer, top_bottom_layers)
+            # viadef
 
     @pyaedt_function_handler()
     def from_meter_to_units(self, value, units):

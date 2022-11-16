@@ -36,6 +36,18 @@ class LayerFeature(object):
         else:
             return False
 
+    def add_via_instance_feature(self, via=None, padstackdef=None):
+        if via and padstackdef:
+            feature = Feature(self._ipc)
+            feature.via.net = via.net_name
+            feature.feature_type = FeatureType.Via
+            feature.via.x = self._ipc.from_meter_to_units(via.position[0], self._ipc.units)
+            feature.via.y = self._ipc.from_meter_to_units(via.position[1], self._ipc.units)
+            feature.via.diameter = padstackdef.hole_finished_size
+            feature.via.hole_name = via.padstack_definition
+            feature.via.name = via.name
+            self.features.append(feature)
+
     def add_component_padstack_instance_feature(self, component=None, top_bottom_layers=[]):
         if component:
             cmp_x = self._ipc.from_meter_to_units(component.center[0], self._ipc.units)

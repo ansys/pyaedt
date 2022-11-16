@@ -181,6 +181,13 @@ class Step(object):
                     if cmp.placement_layer == layer.name
                 ]:
                     layer_feature.add_component_padstack_instance_feature(comp_instance, top_bottom_layers)
+            # trying with via as pin as well
+            vias = [via for via in list(self._pedb.core_padstack.padstack_instances.values())]
+            for via in vias:
+                padstack_def = self._pedb.core_padstack.padstacks[via.padstack_definition]
+                # if layer.name in padstack_def.pad_by_layer:
+                #    layer_feature.add_via_instance_feature(via, layer.name)
+                layer_feature.add_via_instance_feature(via, padstack_def)
 
     def write_xml(self, cad_data):
         if cad_data:

@@ -5,6 +5,7 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import Pads
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_instance import (
     PadstackInstance,
 )
+from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.via import Via
 from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.path import Path
 from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
@@ -22,6 +23,7 @@ class Feature(object):
         self.pad = PadstackDef()
         self.padstack_instance = PadstackInstance()
         self.drill = Drill()
+        self.via = Via()
 
     @property
     def cutouts(self):
