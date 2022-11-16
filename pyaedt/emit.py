@@ -42,8 +42,6 @@ class Interaction_Domain:
             > radio name
             > radio name and a band name
             > radio name, band name and a channel frequency
-        Returns
-        -------
 
         Examples
         ----------
@@ -96,10 +94,12 @@ class Interaction_Domain:
     def receiver_name(self):
         """
         Get the receiver name from the ``Interaction_Domain`` object.
+
         Returns
         -------
         receiver_name : str
             Receiver name associated with a domain.
+
         Examples
         ----------
         >>> rx_name = domain.receiver_name
@@ -110,10 +110,12 @@ class Interaction_Domain:
     def receiver_band_name(self):
         """
         Get the receiver band name from the ``Interaction_Domain`` object.
+
         Returns
         -------
         receiver_band_name : str
             Receiver band name associated with a domain.
+
         Examples
         ----------
         >>> rx_band_name = domain.receiver_band_name
@@ -124,10 +126,12 @@ class Interaction_Domain:
     def receiver_channel_frequency(self):
         """
         Get the receiver channel frequency from the ``Interaction_Domain`` object.
+
         Returns
         -------
         receiver_channel_frequency : float
             Receiver channel frequency associated with a domain.
+
         Examples
         ----------
         >>> rx_freq = domain.receiver_channel_frequency
@@ -138,10 +142,12 @@ class Interaction_Domain:
     def interferer_names(self):
         """
         Get the interferer names from the ``Interaction_Domain`` object.
+
         Returns
         -------
         interferer_names : list(str)
             Interferer names associated with a domain.
+
         Examples
         ----------
         >>> tx_names = domain.interferer_names
@@ -152,10 +158,12 @@ class Interaction_Domain:
     def interferer_band_names(self):
         """
         Get the interferer band names from the ``Interaction_Domain`` object.
+
         Returns
         -------
         interferer_band_names : list(str)
             Interferer band names associated with a domain.
+
         Examples
         ----------
         >>> tx_band_names = domain.interferer_band_names
@@ -166,10 +174,12 @@ class Interaction_Domain:
     def interferer_channel_frequencies(self):
         """
         Get the interferer channel frequencies from the ``Interaction_Domain`` object.
+
         Returns
         -------
         interferer_channel_frequencies : list(float)
             Interferer channel frequencies associated with a domain.
+
         Examples
         ----------
         >>> tx_frequencies = domain.interferer_channel_frequencies
@@ -181,10 +191,12 @@ class Interaction_Domain:
     def instance_count(self):
         """
         Get the instance count from the ``Interaction_Domain`` object.
+
         Returns
         -------
         instance_count: int
             Instance count associated with a domain
+
         Examples
         ----------
         >>> rx_name = domain.instance_count
@@ -258,6 +270,7 @@ class Result:
         -------
         radios:class:`list of str`
             list of tx or or rx radio names
+
         Examples
         ----------
         >>> radios = aedtapp.results.get_radio_names(Emit.tx_rx_mode.rx)
@@ -285,6 +298,7 @@ class Result:
         -------
         bands:class:`list of str`
             list of tx or or rx radio band names
+
         Examples
         ----------
         >>> bands = aedtapp.results.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
@@ -315,6 +329,7 @@ class Result:
         -------
         freq:class:`list of float`
             list of tx or or rx radio frequencies
+
         Examples
         ----------
         >>> bands = aedtapp.results.get_band_names('Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
@@ -404,6 +419,7 @@ class Revision:
         -------
         max_interferers : int
             Maximum number of simultaneous interferers associated with engine
+
         Examples
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
@@ -620,6 +636,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         result :class:`result_type`
             result type object which can later be assigned a status (emi, sensitivity, desense)
+
         Examples
         --------
         >>> Emit.result_type()
@@ -642,6 +659,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         tx_rx :class:`Emit.tx_rx_mode`
             mode status which can later be assigned a status (tx, rx)
+
         Examples
         --------
         >>> tx_rx = Emit.tx_rx_mode()
