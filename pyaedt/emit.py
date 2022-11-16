@@ -35,7 +35,6 @@ class Interaction_Domain:
         except NameError:
             raise ValueError("An Emit object must be initialized before an Interaction_Domain object is generated.")
 
-    @pyaedt_function_handler()
     def set_receiver(self, radioname, bandname="", frequency=-1):
         """
         Set the receiver, with optionality to specify the following:
