@@ -109,7 +109,7 @@ class EdbNets(object):
         Parameters
         ----------
         threshold : float, optional
-           Area ratio used by the get_power_ground_nets method.
+           Area ratio used by the ``get_power_ground_nets`` method.
 
         Returns
         -------
