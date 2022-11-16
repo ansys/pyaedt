@@ -558,11 +558,6 @@ class Stackup(object):
         if not layer_count % 2 == 0:
             return False
 
-        self._pedb.materials.add_conductor_material("copper", conductivity=5.8e7)
-        self._pedb.materials.add_dielectric_material("fr4_epoxy", permittivity=4.3, loss_tangent=0.02)
-        self._pedb.materials.add_dielectric_material("solder_mask", permittivity=3.1, loss_tangent=0.035)
-        self._pedb.materials.add_dielectric_material("air", permittivity=1.0006, loss_tangent=0, permeability=1.0000004)
-
         self.add_layer(
             "BOT",
             None,

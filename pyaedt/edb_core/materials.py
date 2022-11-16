@@ -362,13 +362,14 @@ class Materials(object):
 
     @pyaedt_function_handler
     def add_material(
-            self, name="air",
+            self,
+            name="air",
             permittivity=1.0006,
             permeability=1.0000004,
             conductivity=0,
             dielectric_loss_tangent=0,
             magnetic_loss_tangent=0,
-            dielectric_model="djordjevicsarkar",
+            dielectric_model=None,
     ):
         if not name in self.materials:
             self._edb.Definition.MaterialDef.Create(self._db, name)
