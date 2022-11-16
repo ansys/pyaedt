@@ -16,7 +16,7 @@ class Feature(object):
         self.net = ""
         self.x = 0.0
         self.y = 0.0
-        self.polygon = Polygon()
+        self.polygon = Polygon(self._ipc)
         self._cutouts = []
         self.path = Path(self._ipc)
         self.pad = PadstackDef()

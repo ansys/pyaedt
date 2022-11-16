@@ -19,7 +19,7 @@ class Step(object):
         self._ipc = ipc
         self.units = units
         self._cad_data = caddata
-        self._padstack_defs = []
+        self._padstack_defs = {}
         self._profile = Profile()
         self._packages = {}
         self._components = []
@@ -159,7 +159,7 @@ class Step(object):
             ipc_component.layer_ref = component.placement_layer
             self.components.append(ipc_component)
 
-    def add_layer_feature(self, layer=None):
+    def add_layer_feature(self, layer=None, top_bottom_layers=[]):
         if layer.type == "signal":
             layer_feature = LayerFeature(self._ipc)
             layer_feature.layer_name = layer.name
@@ -174,8 +174,13 @@ class Step(object):
             for path in path_list:
                 layer_feature.add_feature(path)
             self.layer_features.append(layer_feature)
-
-        return False
+            if layer.name in top_bottom_layers:
+                for comp_instance in [
+                    cmp
+                    for cmp in list(self._pedb.core_components.components.values())
+                    if cmp.placement_layer == layer.name
+                ]:
+                    layer_feature.add_component_padstack_instance_feature(comp_instance, top_bottom_layers)
 
     def write_xml(self, cad_data):
         if cad_data:

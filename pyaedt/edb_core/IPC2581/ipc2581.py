@@ -44,6 +44,8 @@ class IPC2581(object):
         self.ecad.cad_header.units = self.units
         self.ecad.cad_data.stackup.name = self.design_name
         self.from_meter_to_units(self._pedb.get_statistics().stackup_thickness, self.units)
+        layers_name = list(self._pedb.stackup.signal_layers.keys())
+        top_bottom_layers = [layers_name[0], layers_name[-1]]
 
         for layer_name in list(self._pedb.stackup.layers.keys()):
             self.content.add_layer_ref(layer_name)
@@ -126,14 +128,24 @@ class IPC2581(object):
                     pass
                 if pad.parameters_values:
                     if pad.geometry_type == 1:
-                        primitive_ref = "CIRCLE_{}".format(pad.parameters_values[0])
+                        primitive_ref = "CIRCLE_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units)
+                        )
                     elif pad.geometry_type == 2:
-                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[0])
+                        primitive_ref = "RECT_{}_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                        )
                     elif pad.geometry_type == 3:
-                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[1])
+                        primitive_ref = "RECT_{}_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                        )
                     elif pad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
-                            pad.parameters_values[0], pad.parameters_values[1], pad.parameters_values[2]
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(pad.parameters_values[2], self.units),
                         )
                     else:
                         primitive_ref = "Default"
@@ -145,14 +157,25 @@ class IPC2581(object):
                     pass
                 if antipad.parameters_values:
                     if antipad.geometry_type == 1:
-                        primitive_ref = "CIRCLE_{}".format(pad.parameters_values[0])
+                        primitive_ref = "CIRCLE_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units)
+                        )
                     elif antipad.geometry_type == 2:
-                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[0])
+                        primitive_ref = "RECT_{}_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                        )
                     elif antipad.geometry_type == 3:
-                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[1])
+                        primitive_ref = "RECT_{}_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1]),
+                            self.units,
+                        )
                     elif antipad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
-                            pad.parameters_values[0], pad.parameters_values[1], pad.parameters_values[2]
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(pad.parameters_values[2], self.units),
                         )
                     else:
                         primitive_ref = "Default"
@@ -164,35 +187,46 @@ class IPC2581(object):
                     pass
                 if thermalpad.parameters_values:
                     if thermalpad.geometry_type == 1:
-                        primitive_ref = "CIRCLE_{}".format(pad.parameters_values[0])
+                        primitive_ref = "CIRCLE_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units)
+                        )
                     elif thermalpad.geometry_type == 2:
-                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[0])
+                        primitive_ref = "RECT_{}_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                        )
                     elif thermalpad.geometry_type == 3:
-                        primitive_ref = "RECT_{}_{}".format(pad.parameters_values[0], pad.parameters_values[1])
+                        primitive_ref = "RECT_{}_{}".format(
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                        )
                     elif thermalpad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
-                            pad.parameters_values[0], pad.parameters_values[1], pad.parameters_values[2]
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(pad.parameters_values[2], self.units),
                         )
                     else:
                         primitive_ref = "Default"
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="THERMAL", primitive_ref=primitive_ref)
-            self.ecad.cad_data.cad_data_step.add_padstack_def(padstack_def)
+            if not padstack_def.name in self.ecad.cad_data.cad_data_step.padstack_defs:
+                self.ecad.cad_data.cad_data_step.padstack_defs[padstack_def.name] = padstack_def
 
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
 
         for _, layer in self._pedb.stackup.layers.items():
-            self.ecad.cad_data.cad_data_step.add_layer_feature(layer)
+            self.ecad.cad_data.cad_data_step.add_layer_feature(layer, top_bottom_layers)
 
     @pyaedt_function_handler()
     def from_meter_to_units(self, value, units):
         if units.lower() == "mm":
-            return value * 1000
+            return round(value * 1000, 4)
         if units.lower() == "um":
-            return value * 1e6
+            return round(value * 1e6, 4)
         if units.lower() == "mils":
-            return value * 39370.079
+            return round(value * 39370.079, 4)
         if units.lower() == "inch":
-            return value * 39.370079
+            return round(value * 39.370079, 4)
         if units.lower() == "cm":
-            return value * 100
+            return round(value * 100, 4)
