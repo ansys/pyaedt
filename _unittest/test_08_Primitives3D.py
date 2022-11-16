@@ -951,6 +951,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.points) == 2
         self.aedtapp.modeler.points[point.name].delete()
         assert name not in self.aedtapp.modeler.points
+        self.aedtapp.modeler.points
         assert len(self.aedtapp.modeler.point_objects) == 1
         assert len(self.aedtapp.modeler.point_names) == 1
         assert self.aedtapp.modeler.point_objects[0].name == "mypoint2"
@@ -959,7 +960,7 @@ class TestClass(BasisTest, object):
         name = "my_plane"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        plane = self.aedtapp.modeler.create_plane("-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", name)
+        plane = self.aedtapp.modeler.create_plane(name, "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm")
         assert name in self.aedtapp.modeler.planes
         plane.set_color("(143 175 158)")
         plane2 = self.aedtapp.modeler.create_plane([50, 30, 0], "my_plane2", "(100 100 100)")

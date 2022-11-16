@@ -1146,6 +1146,7 @@ class GeometryModeler(Modeler, object):
         # TODO Refactor this as a dictionary with names as key
         self._coordinate_systems = None
         self._user_lists = None
+        self._planes = None
         self._is3d = is3d
 
     @property
@@ -1161,6 +1162,13 @@ class GeometryModeler(Modeler, object):
         if not self._user_lists:
             self._user_lists = self._get_lists_data()
         return self._user_lists
+
+    @property
+    def planes(self):
+        """Planes."""
+        if not self._planes:
+            self._planes = self._get_planes_data()
+        return self._planes
 
     @property
     def oeditor(self):

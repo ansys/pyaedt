@@ -1309,7 +1309,7 @@ class Primitives(object):
         attributes.append("Color:="), attributes.append(color)
 
         _retry_ntimes(10, self.oeditor.CreateCutplane, parameters, attributes)
-        self._refresh_planes()
+        # self._refresh_planes()
         return self._create_object(name)
 
     @pyaedt_function_handler()
@@ -3585,16 +3585,16 @@ class Primitives(object):
             self._points = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
-    @pyaedt_function_handler()
-    def _refresh_plane(self):
-        test = list(self.oeditor.GetPlanes())
-        if test is None or test is False:
-            assert False, "Get Planes is failing"
-        elif test is True:
-            self._planes = []  # In IronPython True is returned when no points are present
-        else:
-            self._planes = list(test)
-        self._all_object_names = self._solids + self._sheets + self._lines + self._planes
+    # @pyaedt_function_handler()
+    # def _refresh_planes(self):
+    #     test = list(self.oeditor.GetPlanes())
+    #     if test is None or test is False:
+    #         assert False, "Get Planes is failing"
+    #     elif test is True:
+    #         self._planes = []  # In IronPython True is returned when no planes are present
+    #     else:
+    #         self._planes = list(test)
+    #     self._all_object_names = self._solids + self._sheets + self._lines + self._planes
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):
