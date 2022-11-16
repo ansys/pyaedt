@@ -25,7 +25,6 @@ class Interaction_Domain:
     >>> interaction = self.aedtapp.results.revisions_list[-1].run(domain)
     """
 
-    @pyaedt_function_handler()
     def __init__(self):
         self.emit_api = mod.EmitApi()
         self._obj = mod.InteractionDomain()
@@ -221,7 +220,6 @@ class Result:
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
     """
 
-    @pyaedt_function_handler()
     def __init__(self, emit_obj):
         self._result_loaded = False
         self.emit_api = mod.EmitApi()
@@ -363,7 +361,6 @@ class Revision:
     >>> rev.run(domain)
     """
 
-    @pyaedt_function_handler()
     def __init__(self, emit_obj, name=""):
         subfolder = ""
         for f in os.scandir(emit_obj.results.location):
