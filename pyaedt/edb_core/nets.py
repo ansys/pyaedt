@@ -103,7 +103,7 @@ class EdbNets(object):
 
     @property
     def eligible_power_nets(self, threshold=0.3):
-        """Returns a list of nets calculated by area to be eligible for PWR/Ground net classification.
+        """Return a list of nets calculated by area to be eligible for PWR/Ground net classification.
             It uses the same algorithm implemented in SIwave.
 
         Parameters

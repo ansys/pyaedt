@@ -318,11 +318,11 @@ class EDBPrimitives(object):
 
     @pyaedt_function_handler()
     def get_connected_object_id_set(self):
-        """Produce a list of all geometry physically connected to a given layout object.
+        """Produce a list of all geometries physically connected to a given layout object.
 
         Returns
         -------
-            list
+        list
             Found connected objects IDs with Layout object.
         """
         layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()

@@ -814,7 +814,7 @@ class EDBPadstackInstance(object):
 
     @property
     def layer_range_names(self):
-        """List of al layer to which padstack instance belongs."""
+        """List of all layers to which the padstack instance belongs."""
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
         started = False
         layer_list = []
@@ -1240,7 +1240,7 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def get_connected_object_id_set(self):
-        """Produce a list of all geometry physically connected to a given layout object.
+        """Produce a list of all geometries physically connected to a given layout object.
 
         Returns
         -------
