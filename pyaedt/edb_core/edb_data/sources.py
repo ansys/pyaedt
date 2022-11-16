@@ -460,22 +460,52 @@ class CommonExcitation(object):
 
     @property
     def name(self):
+        """Port Name.
+
+        Returns
+        -------
+        str
+        """
         return self._edb_terminal.GetName()
 
     @property
     def net_name(self):
+        """Net Name.
+
+        Returns
+        -------
+        str
+        """
         return self._edb_terminal.GetNet().GetName()
 
     @property
     def net(self):
+        """Net Object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+        """
         return EDBNetsData(self._edb_terminal.GetNet(), self._pedb)
 
     @property
     def terminal_type(self):
+        """Terminal Type.
+
+        Returns
+        -------
+        int
+        """
         return self._edb_terminal.GetTerminalType()
 
     @property
     def boundary_type(self):
+        """Boundary Type.
+
+        Returns
+        -------
+        int
+        """
         return self._edb_terminal.GetBoundaryType()
 
 
@@ -677,8 +707,8 @@ class ExcitationPorts(CommonExcitation):
 
     @pyaedt_function_handler()
     def get_edge_terminal_reference_primitive(self):
-        """This returns a string primitive instance instances and serves Edge ports,
-         wave ports and coupled edge ports that are directly connedted to primitives
+        """Check and  return a primitive instance that serves Edge ports,
+         wave ports and coupled edge ports that are directly connedted to primitives.
 
         Returns
         -------
@@ -701,7 +731,7 @@ class ExcitationPorts(CommonExcitation):
 
     @pyaedt_function_handler()
     def get_point_terminal_reference_primitive(self):
-        """This returns the primitive reference for the point terminal.
+        """Find and return the primitive reference for the point terminal or the padstack instance.
 
         Returns
         -------
