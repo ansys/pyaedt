@@ -380,10 +380,11 @@ if not config["skip_edb"]:
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
-            assert len(self.edbapp.sources) > 0
-            assert len(self.edbapp.probes) == 0
-            assert list(self.edbapp.sources.values())[0].magnitude == 3.3
-            assert list(self.edbapp.sources.values())[0].phase == 0
+            if not is_ironpython:
+                assert len(self.edbapp.sources) > 0
+                assert len(self.edbapp.probes) == 0
+                assert list(self.edbapp.sources.values())[0].magnitude == 3.3
+                assert list(self.edbapp.sources.values())[0].phase == 0
 
         def test_39_create_current_source(self):
             assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
