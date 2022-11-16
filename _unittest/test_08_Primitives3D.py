@@ -955,6 +955,32 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.point_names) == 1
         assert self.aedtapp.modeler.point_objects[0].name == "mypoint2"
 
+    def test_71_create_plane(self):
+        name = "my_plane"
+        if self.aedtapp.modeler[name]:
+            self.aedtapp.modeler.delete(name)
+        plane = self.aedtapp.modeler.create_plane("-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", name)
+        assert name in self.aedtapp.modeler.planes
+        plane.set_color("(143 175 158)")
+        plane2 = self.aedtapp.modeler.create_plane([50, 30, 0], "my_plane2", "(100 100 100)")
+        plane.logger.info("Creation and testing of a plane.")
+
+        assert plane.name == "my_plane"
+        assert plane.coordinate_system == "Global"
+        assert plane2.name == "my_plane2"
+        assert plane2.coordinate_system == "Global"
+
+        assert self.aedtapp.modeler.planes[plane.name] == plane
+        assert self.aedtapp.modeler.planes[plane2.name] == plane2
+
+        # Delete the first plane
+        assert len(self.aedtapp.modeler.planes) == 2
+        self.aedtapp.modeler.planes[plane.name].delete()
+        assert name not in self.aedtapp.modeler.planes
+        assert len(self.aedtapp.modeler.plane_objects) == 1
+        assert len(self.aedtapp.modeler.plane_names) == 1
+        assert self.aedtapp.modeler.plane_objects[0].name == "my_plane2"
+
     def test_71_create_choke(self):
         choke_file1 = os.path.join(
             local_path, "example_models", "choke_json_file", "choke_1winding_1Layer_Corrected.json"

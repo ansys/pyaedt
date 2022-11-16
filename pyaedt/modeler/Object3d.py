@@ -4833,3 +4833,206 @@ class Point(object):
     @pyaedt_function_handler()
     def _change_property(self, vPropChange):
         return self._primitives._change_point_property(vPropChange, self.name)
+
+
+class Plane(object):
+    """Manages plane attributes for the AEDT 3D Modeler.
+
+    Parameters
+    ----------
+    primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
+        Inherited parent object.
+    name : str
+        Name of the point.
+
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> primitives = aedtapp.modeler
+
+    Create a plane, to return an :class:`pyaedt.modeler.Object3d.Plane`.
+
+    >>> plane = primitives.create_plane([30, 30, 0], "my_point", (0, 195, 255))
+    >>> my_plane = primitives.planes[point.name]
+    """
+
+    def __init__(self, primitives, name):
+        self._name = name
+        self._plane_coordinate_system = "Global"
+        self._color = None
+        self._root_point = None
+        self._normal = None
+        self._primitives = primitives
+        self._all_props = None
+
+    @property
+    def m_Editor(self):
+        """Pointer to the oEditor object in the AEDT API. This property is
+        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        VertexPrimitive child objects.
+
+        Returns
+        -------
+        oEditor COM Object
+
+        """
+        return self._primitives.oeditor
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._primitives.logger
+
+    @property
+    def name(self):
+        """Name of the point as a string value.
+
+        Returns
+        -------
+        str
+           Name of object as a string value.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        return self._name
+
+    @name.setter
+    def name(self, plane_name):
+        if plane_name not in self._primitives.points.keys:
+            if plane_name != self._name:
+                name_property = []
+                name_property.append("NAME:Name")
+                name_property.append("Value:=")
+                name_property.append(plane_name)
+                changed_property = ["NAME:ChangedProps", name_property]
+                property_servers = ["NAME:PropServers"]
+                property_servers.append(self._name)
+                plane_tab = ["NAME:Geometry3DPlaneTab", property_servers, changed_property]
+                all_tabs = ["NAME:AllTabs", plane_tab]
+                _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
+                self._name = plane_name
+                self._primitives.cleanup_objects()
+        else:
+            self.logger.warning("A plane named '%s' already exists.", plane_name)
+
+    @property
+    def valid_properties(self):
+        """Valid properties.
+
+        References
+        ----------
+
+        >>> oEditor.GetProperties
+        """
+        if not self._all_props:
+            self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPlaneTab", self._name)
+        return self._all_props
+
+    # Note: We currently cannot get the color property value because
+    # when we try to access it, we only get access to the 'edit' button.
+    # Following is the line that we would use but it currently returns 'edit'.
+    # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
+    def set_color(self, color_value):
+        """Set symbol color.
+
+        Parameters
+        ----------
+        color_value : string
+            String exposing the new color of the plane in the format of "(001 255 255)".
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm","0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
+        >>> plane.set_color("(143 175 158)")
+
+        """
+        color_tuple = None
+        if isinstance(color_value, str):
+            try:
+                color_tuple = rgb_color_codes[color_value]
+            except KeyError:
+                parse_string = color_value.replace(")", "").replace("(", "").split()
+                if len(parse_string) == 3:
+                    color_tuple = tuple([int(x) for x in parse_string])
+        else:
+            try:
+                color_tuple = tuple([int(x) for x in color_value])
+            except ValueError:
+                pass
+
+        if color_tuple:
+            try:
+                R = clamp(color_tuple[0], 0, 255)
+                G = clamp(color_tuple[1], 0, 255)
+                B = clamp(color_tuple[2], 0, 255)
+                vColor = ["NAME:Color", "R:=", str(R), "G:=", str(G), "B:=", str(B)]
+                self._change_property(vColor)
+                self._color = (R, G, B)
+            except TypeError:
+                color_tuple = None
+        else:
+            msg_text = "Invalid color input {} for object {}.".format(color_value, self._name)
+            self._primitives.logger.warning(msg_text)
+
+    @property
+    def coordinate_system(self):
+        """Coordinate system of the plane.
+
+        Returns
+        -------
+        str
+            Name of the plane's coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self._plane_coordinate_system is not None:
+            return self._plane_coordinate_system
+        if "Orientation" in self.valid_properties:
+            self._plane_coordinate_system = _retry_ntimes(
+                10, self.m_Editor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Orientation"
+            )
+            return self._plane_coordinate_system
+
+    @coordinate_system.setter
+    def coordinate_system(self, new_coordinate_system):
+
+        coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
+        self._change_property(coordinate_system)
+        self._plane_coordinate_system = new_coordinate_system
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the plane.
+
+        References
+        ----------
+
+        >>> oEditor.Delete
+        """
+        arg = ["NAME:Selections", "Selections:=", self._name]
+        self.m_Editor.Delete(arg)
+        self._primitives.cleanup_objects()
+        self.__dict__ = {}
+
+    @pyaedt_function_handler()
+    def _change_property(self, vPropChange):
+        return self._primitives._change_plane_property(vPropChange, self.name)
