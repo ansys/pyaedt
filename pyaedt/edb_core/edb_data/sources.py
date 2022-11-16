@@ -819,7 +819,7 @@ class ExcitationPorts(CommonExcitation):
 
 
 class ExcitationSources(CommonExcitation):
-    """Manages sources properties.
+    """Manage sources properties.
 
     Parameters
     ----------
@@ -845,15 +845,17 @@ class ExcitationSources(CommonExcitation):
 
     @property
     def magnitude(self):
+        """Get the magnitude of the source."""
         return self._edb_terminal.GetSourceAmplitude().ToDouble()
 
     @property
     def phase(self):
+        """Get the phase of the source."""
         return self._edb_terminal.GetSourcePhase().ToDouble()
 
 
 class ExcitationProbes(CommonExcitation):
-    """Manages probes properties.
+    """Manage probes properties.
 
     Parameters
     ----------
@@ -877,7 +879,7 @@ class ExcitationProbes(CommonExcitation):
 
 
 class ExcitationDifferential:
-    """Manages differential excitation properties."""
+    """Manage differential excitation properties."""
 
     def __init__(self, pedb, edb_boundle_terminal):
         self._pedb = pedb
@@ -895,7 +897,7 @@ class ExcitationDifferential:
 
     @property
     def terminals(self):
-        """Get terminals belong to this excitation."""
+        """Get terminals belonging to this excitation."""
         return {i.GetName(): ExcitationPorts(self._pedb, i) for i in list(self.edb_boundle_terminal.GetTerminals())}
 
     @property
