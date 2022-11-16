@@ -511,12 +511,16 @@ class Setup(CommonSetup):
         >>> oModule.EditSetup
         """
         try:
+            if self.p_app.design_type == "Mechanical":
+                design_type = "ElectronicsDesktop"
+            else:
+                design_type = self.p_app.design_type
             if not design_name or design_name is None:
                 raise ValueError("Provide design name to add mesh link to.")
             # if self.p_app.solution_type == "SBR+":
             meshlinks = self.props["MeshLink"]
             meshlinks["ImportMesh"] = True
-            meshlinks["Product"] = self.p_app.design_type
+            meshlinks["Product"] = design_type
             if project_name != "This Project*":
                 if os.path.exists(project_name):
                     meshlinks["Project"] = project_name
@@ -526,6 +530,8 @@ class Setup(CommonSetup):
             else:
                 meshlinks["Project"] = project_name
                 meshlinks["PathRelativeTo"] = "TargetProject"
+                if design_name not in self.p_app.design_list:
+                    raise ValueError("Design does not exist in current project.")
                 meshlinks["Design"] = design_name
                 if solution_name is None:
                     meshlinks["Soln"] = "{} : LastAdaptive".format(
@@ -544,11 +550,10 @@ class Setup(CommonSetup):
                 parameters_dict = self.p_app.available_variations.nominal_w_values_dict
                 for el in parameters_dict:
                     meshlinks["Params"][el] = el
-                    meshlinks["Params"][el] = parameters_dict[el]
             else:
                 for el in parameters_dict:
                     if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
-                        meshlinks["Params"][el] = self._app.available_variations.nominal_w_values_dict[el]
+                        meshlinks["Params"][el] = el
                     else:
                         meshlinks["Params"][el] = parameters_dict[el]
             meshlinks["ForceSourceToSolve"] = force_source_to_solve

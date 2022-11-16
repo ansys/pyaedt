@@ -750,6 +750,7 @@ class TestClass(BasisTest, object):
         assert meshlink_props["Design"] == self.aedtapp.design_list[1]
         assert meshlink_props["Soln"] == "MySetup : LastAdaptive"
         assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
+        assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
         assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
         assert self.aedtapp.setups[0].add_mesh_link(
             design_name=self.aedtapp.design_list[1], solution_name="MySetup : LastAdaptive"
