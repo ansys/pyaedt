@@ -570,10 +570,12 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def impedance(self):
+        """Impedance of the port."""
         return self._edb_terminal.GetImpedance().ToDouble()
 
     @property
     def is_circuit(self):
+        """Return ``True`` if is a circuit port."""
         return self._edb_terminal.GetIsCircuitPort()
 
     @property
@@ -654,7 +656,7 @@ class ExcitationPorts(CommonExcitation):
     @pyaedt_function_handler()
     def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):
         """This returns a string list of pad stacks instances and serves Coax wave ports,
-        pingroup terminals, PadEdge terminals
+        pingroup terminals, PadEdge terminals.
 
         Parameters
         ----------
@@ -677,7 +679,7 @@ class ExcitationPorts(CommonExcitation):
 
     @pyaedt_function_handler()
     def get_pin_group_terminal_reference_pin(self, gnd_net_name_preference=None):
-        """This returns a list of pins and serves terminals connected to pingroups.
+        """Return a list of pins and serves terminals connected to pingroups.
 
         Parameters
         ----------
@@ -712,7 +714,7 @@ class ExcitationPorts(CommonExcitation):
     @pyaedt_function_handler()
     def get_edge_terminal_reference_primitive(self):
         """Check and  return a primitive instance that serves Edge ports,
-         wave ports and coupled edge ports that are directly connedted to primitives.
+        wave ports and coupled edge ports that are directly connedted to primitives.
 
         Returns
         -------
