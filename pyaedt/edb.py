@@ -2165,14 +2165,14 @@ class Edb(object):
     @pyaedt_function_handler()
     def are_port_reference_terminals_connected(self, common_reference=None):
         """Check if all terminal references in design are connected.
-        If the reference nets are different, there is no hope of the terminal references are connected.
+        If the reference nets are different, there is no hope for the terminal references to be connected.
         After we have identified a common reference net we need to loop the terminals again to get
         the correct reference terminals that uses that net.
 
         Parameters
         ----------
         common_reference : str, optional
-            Common Reference name. If `None` it will be searched in ports terminal.
+            Common Reference name. If ``None`` it will be searched in ports terminal.
             If a string is passed then all excitations must have such reference assigned.
 
         Returns
