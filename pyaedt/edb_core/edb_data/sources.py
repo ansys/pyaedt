@@ -544,30 +544,37 @@ class ExcitationPorts(CommonExcitation):
 
     @property
     def magnitude(self):
+        """Magnitude."""
         return self._edb_terminal.GetSourceAmplitude().ToDouble()
 
     @property
     def phase(self):
+        """Phase."""
         return self._edb_terminal.GetSourcePhase().ToDouble()
 
     @property
     def renormalize(self):
+        """Either if renormalize is active or not."""
         return self._edb_terminal.GetPortPostProcessingProp().DoRenormalize
 
     @property
     def deembed(self):
+        """Either if deembed is active or not."""
         return self._edb_terminal.GetPortPostProcessingProp().DoDeembed
 
     @property
     def deembed_gapport_inductance(self):
+        """Deembed Gap Port Inductance value."""
         return self._edb_terminal.GetPortPostProcessingProp().DoDeembedGapL
 
     @property
     def deembed_length(self):
+        """Deembed Length."""
         return self._edb_terminal.GetPortPostProcessingProp().DeembedLength.ToDouble()
 
     @property
     def renormalize_z0(self):
+        """Renormalize Z0 value (real, imag)."""
         return (
             self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item1,
             self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item2,
