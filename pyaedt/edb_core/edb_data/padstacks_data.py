@@ -1244,7 +1244,7 @@ class EDBPadstackInstance(object):
 
         Returns
         -------
-            list
+        list
             Found connected objects IDs with Layout object.
         """
         layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
