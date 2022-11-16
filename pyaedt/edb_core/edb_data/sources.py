@@ -522,7 +522,11 @@ class ExcitationPorts(CommonExcitation):
 
     Examples
     --------
-
+    This example shows how to access this class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> exc = edb.excitations
+    >>> print(exc["Port1"].name)
     """
 
     def __init__(self, pedb, edb_terminal):
@@ -825,8 +829,14 @@ class ExcitationSources(CommonExcitation):
         Edge terminal instance from edblib.
 
 
+
     Examples
     --------
+    This example shows how to access this class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> all_sources = edb.sources
+    >>> print(all_sources["VSource1"].name)
 
     """
 
@@ -855,7 +865,11 @@ class ExcitationProbes(CommonExcitation):
 
     Examples
     --------
-
+    This example shows how to access this class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> probes = edb.probes
+    >>> print(probes["Probe1"].name)
     """
 
     def __init__(self, pedb, edb_terminal):
