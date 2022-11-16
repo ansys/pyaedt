@@ -139,7 +139,7 @@ class EdbNets(object):
 
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
-        """Get the points of the arc
+        """Get the points of the arc.
 
         Parameters
         ----------
