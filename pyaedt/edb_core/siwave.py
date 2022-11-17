@@ -83,6 +83,21 @@ class EdbSiwave(object):
         return self._pedb.db
 
     @property
+    def excitations(self):
+        """Get all excitations."""
+        return self._pedb.excitations
+
+    @property
+    def sources(self):
+        """Get all sources."""
+        return self._pedb.sources
+
+    @property
+    def probes(self):
+        """Get all probes."""
+        return self._pedb.probes
+
+    @property
     def pin_groups(self):
         """All Layout Pin groups.
 

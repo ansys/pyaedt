@@ -108,6 +108,22 @@ class EdbLayout(object):
         return _primitives_by_layer
 
     @property
+    def primitives_by_net(self):
+        """Primitives with net names as keys.
+
+        Returns
+        -------
+        dict
+            Dictionary of primitives with nat names as keys.
+        """
+        _prim_by_net = {}
+        for net in list(self._pedb.core_nets.nets.keys()):
+            _prim_by_net[net] = [
+                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetNet().GetName() == net
+            ]
+        return _prim_by_net
+
+    @property
     def primitives_by_layer(self):
         """Primitives with layer names as keys.
 
