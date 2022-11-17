@@ -289,7 +289,8 @@ class TouchstoneData(object):
             return None
 
     def data_real(self, expression=None):
-        """Return the real part of data  of the given expression. if no expression is provided, first expression is provided
+        """Return the real part of data of the given expression.
+        If no expression is provided, first expression is provided.
 
         Parameters
         ----------
@@ -390,8 +391,8 @@ def get_insertion_losses_from_prefix(expressions, tx_prefix, rx_prefix):
 
 @pyaedt_function_handler()
 def get_insertion_losses_from_lists(txlist, reclist):
-    """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix can
-    be used to retrieve driver and receiver names.
+    """Get the list of all the Insertion Losses from two list of exctitations (driver and receiver). Optionally prefix
+    can be used to retrieve driver and receiver names.
     Example: excitation_names ["1"] ["2"] output ["S(1,2)"]
 
     Parameters
