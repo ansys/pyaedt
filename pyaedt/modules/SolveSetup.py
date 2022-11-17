@@ -485,7 +485,7 @@ class Setup(CommonSetup):
             If ``None`` the default value is ``setupname : LastAdaptive``.
         parameters_dict : dict, optional
             Dictionary of the parameters.
-            If None the default value is `appname.available_variations.nominal_w_values_dict`.
+            If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
