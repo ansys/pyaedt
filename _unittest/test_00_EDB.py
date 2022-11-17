@@ -665,6 +665,22 @@ if not config["skip_edb"]:
                 number_of_threads=4,
                 extent_type="ConvexHull",
                 custom_extent=points,
+            )
+            edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+        def test_55e_create_custom_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_4.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+            edbapp = Edb(target_path, edbversion=desktop_version)
+
+            assert edbapp.create_cutout_multithread(
+                signal_list=["V3P3_S0"],
+                reference_list=["GND"],
+                number_of_threads=4,
+                extent_type="ConvexHull",
                 use_pyaedt_extent_computing=True,
             )
             edbapp.close_edb()
