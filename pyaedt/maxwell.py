@@ -1557,10 +1557,10 @@ class Maxwell(object):
         self,
         master_entity,
         slave_entity,
-        u_vector_origin_coordinates_master,
-        u_vector_pos_coordinates_master,
-        u_vector_origin_coordinates_slave,
-        u_vector_pos_coordinates_slave,
+        u_vector_origin_coordinates_master=None,
+        u_vector_pos_coordinates_master=None,
+        u_vector_origin_coordinates_slave=None,
+        u_vector_pos_coordinates_slave=None,
         reverse_master=False,
         reverse_slave=False,
         same_as_master=True,
@@ -1574,14 +1574,18 @@ class Maxwell(object):
             ID of the master entity.
         slave_entity : int
             ID of the slave entity.
-        u_vector_origin_coordinates_master : list
+        u_vector_origin_coordinates_master : list, optional
             Master's list of U vector origin coordinates.
-        u_vector_pos_coordinates_master : list
+            Default value is ``["0mm", "0mm", "0mm"]``.
+        u_vector_pos_coordinates_master : list, optional
             Master's list of U vector position coordinates.
-        u_vector_origin_coordinates_slave : list
+            Default value is ``["0mm", "10mm", "0mm"]``.
+        u_vector_origin_coordinates_slave : list, optional
             Slave's list of U vector origin coordinates.
-        u_vector_pos_coordinates_slave : list
+            Default value is ``["0mm", "0mm", "0mm"]``.
+        u_vector_pos_coordinates_slave : list, optional
             Slave's list of U vector position coordinates.
+            Default value is ``["0mm", "-10mm", "0mm"]``.
         reverse_master : bool, optional
             Whether to reverse the master edge to the V direction. The default is ``False``.
         reverse_slave : bool, optional
@@ -1612,7 +1616,7 @@ class Maxwell(object):
             else:
                 bound_name_m = bound_name
                 bound_name_s = bound_name + "_dep"
-            if self.design_type == "Maxwell 2d":
+            if self.design_type == "Maxwell 2D":
                 props2 = OrderedDict({"Edges": master_entity, "ReverseV": reverse_master})
                 bound = BoundaryObject(self, bound_name_m, props2, "Independent")
                 if bound.create():
@@ -1633,7 +1637,15 @@ class Maxwell(object):
                     else:
                         return bound, False
             else:
-                if (
+                if u_vector_origin_coordinates_master is None:
+                    u_vector_origin_coordinates_master = ["0mm", "0mm", "0mm"]
+                elif u_vector_pos_coordinates_master is None:
+                    u_vector_pos_coordinates_master = ["0mm", "10mm", "0mm"]
+                elif u_vector_origin_coordinates_slave is None:
+                    u_vector_origin_coordinates_slave = ["0mm", "0mm", "0mm"]
+                elif u_vector_pos_coordinates_slave is None:
+                    u_vector_pos_coordinates_slave = ["0mm", "-10mm", "0mm"]
+                elif (
                     not isinstance(u_vector_origin_coordinates_master, list)
                     or not isinstance(u_vector_origin_coordinates_slave, list)
                     or not isinstance(u_vector_pos_coordinates_master, list)
