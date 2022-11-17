@@ -482,7 +482,7 @@ class Setup(CommonSetup):
             Name of the design.
         solution_name : str, optional
             Name of the solution in the format ``"setupname : solutionname"``.
-            If None the default value is ``setupname : LastAdaptive``.
+            If ``None`` the default value is ``setupname : LastAdaptive``.
         parameters_dict : dict, optional
             Dictionary of the parameters.
             If None the default value is `appname.available_variations.nominal_w_values_dict`.
