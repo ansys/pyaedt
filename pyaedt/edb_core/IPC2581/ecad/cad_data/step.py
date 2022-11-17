@@ -181,6 +181,7 @@ class Step(object):
                     if cmp.placement_layer == layer.name
                 ]:
                     layer_feature.add_component_padstack_instance_feature(comp_instance, top_bottom_layers)
+                    self.layer_features.append(layer_feature)
             # trying with via as pin as well
             vias = [via for via in list(self._pedb.core_padstack.padstack_instances.values())]
             for via in vias:
@@ -188,6 +189,22 @@ class Step(object):
                 # if layer.name in padstack_def.pad_by_layer:
                 #    layer_feature.add_via_instance_feature(via, layer.name)
                 layer_feature.add_via_instance_feature(via, padstack_def)
+                self.layer_features.append(layer_feature)
+
+    def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
+        if via_list:
+            drill_layer_feature = LayerFeature(self._ipc)
+            drill_layer_feature.is_drill_feature = True
+            drill_layer_feature.layer_name = layer_feature_name
+            for via in via_list:
+                try:
+                    via_diameter = self._pedb.core_padstack.padstacks[via.padstack_definition].hole_properties[0]
+                    drill_layer_feature.add_drill_feature(
+                        via, self._ipc.from_meter_to_units(via_diameter, self._ipc.units)
+                    )
+                except:
+                    pass
+            self.layer_features.append(drill_layer_feature)
 
     def write_xml(self, cad_data):
         if cad_data:

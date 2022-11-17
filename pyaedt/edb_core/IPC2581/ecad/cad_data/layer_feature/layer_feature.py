@@ -11,6 +11,7 @@ class LayerFeature(object):
         self.layer_name = ""
         self.color = ""
         self._features = []
+        self.is_drill_feature = False
 
     @property
     def features(self):
@@ -47,6 +48,15 @@ class LayerFeature(object):
             feature.via.hole_name = via.padstack_definition
             feature.via.name = via.name
             self.features.append(feature)
+
+    def add_drill_feature(self, via, diameter=0.0):
+        feature = Feature(self._ipc)
+        feature.feature_type = FeatureType.Drill
+        feature.drill.net = via.net_name
+        feature.drill.x = self._ipc.from_meter_to_units(via.position[0], self._ipc.units)
+        feature.drill.y = self._ipc.from_meter_to_units(via.position[1], self._ipc.units)
+        feature.drill.diameter = self._ipc.from_meter_to_units(diameter, self._ipc.units)
+        self.features.append(feature)
 
     def add_component_padstack_instance_feature(self, component=None, top_bottom_layers=[]):
         if component:

@@ -90,9 +90,6 @@ class IPC2581(object):
             except:
                 pass
 
-        # for path_width in list(set([path.GetWidth() for path in self._pedb.core_primitives.paths])):
-        #     self.content.dict_line.add_line(str(converted_width))
-
         # Bom
         for part_name, components in self._pedb.core_components.components_by_partname.items():
             bom_item = BomItem()
@@ -217,6 +214,15 @@ class IPC2581(object):
         for _, layer in self._pedb.stackup.layers.items():
             self.ecad.cad_data.cad_data_step.add_layer_feature(layer, top_bottom_layers)
             # viadef
+        # adding drill layer feature
+        via_list = [
+            obj
+            for obj in list(self._pedb.core_padstack.padstack_instances.values())
+            if not obj.start_layer == obj.stop_layer
+        ]
+        self.ecad.cad_data.cad_data_step.add_drill_layer_feature(
+            via_list, "DRILL_1-{}".format(len(list(self._pedb.stackup.layers.keys())))
+        )
 
     @pyaedt_function_handler()
     def from_meter_to_units(self, value, units):
