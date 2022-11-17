@@ -162,6 +162,9 @@ if not config["skip_edb"]:
             padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
+            if not is_ironpython:
+                assert padstack_instance.start_layer in padstack_instance.layer_range_names
+                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
             padstack_instance.position = [0.001, 0.002]
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
@@ -380,6 +383,11 @@ if not config["skip_edb"]:
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
+            if not is_ironpython:
+                assert len(self.edbapp.sources) > 0
+                assert len(self.edbapp.probes) == 0
+                assert list(self.edbapp.sources.values())[0].magnitude == 3.3
+                assert list(self.edbapp.sources.values())[0].phase == 0
 
         def test_39_create_current_source(self):
             assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
@@ -577,7 +585,13 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            assert edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
+            assert edbapp.create_cutout(
+                ["A0_N", "A0_P"],
+                ["GND"],
+                output_aedb_path=output,
+                open_cutout_at_end=False,
+                use_pyaedt_extent_computing=True,
+            )
             assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
@@ -649,8 +663,25 @@ if not config["skip_edb"]:
                 signal_list=["V3P3_S0"],
                 reference_list=["GND"],
                 number_of_threads=4,
-                extent_type="Bounding",
+                extent_type="ConvexHull",
                 custom_extent=points,
+            )
+            edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+        def test_55e_create_custom_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_4.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+            edbapp = Edb(target_path, edbversion=desktop_version)
+
+            assert edbapp.create_cutout_multithread(
+                signal_list=["V3P3_S0"],
+                reference_list=["GND"],
+                number_of_threads=4,
+                extent_type="ConvexHull",
+                use_pyaedt_extent_computing=True,
             )
             edbapp.close_edb()
 
@@ -2151,6 +2182,7 @@ if not config["skip_edb"]:
                 ["-40mm", "-10.2mm"],
                 horizontal_extent_factor=8,
             )
+            assert not edb.are_port_reference_terminals_connected()
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2506,6 +2538,19 @@ if not config["skip_edb"]:
             sim_setup.step_freq = 10e6
             sim_setup.use_default_cutout = False
             assert edbapp.build_simulation_project(sim_setup)
+            assert edbapp.are_port_reference_terminals_connected()
+            port1 = list(edbapp.excitations.values())[0]
+            assert port1.magnitude == 0.0
+            assert port1.phase == 0
+            assert port1.reference_net_name == "GND"
+            assert not port1.deembed
+            assert port1.impedance == 50.0
+            assert port1.deembed_length == 0
+            assert not port1.is_circuit
+            assert not port1.renormalize
+            assert port1.renormalize_z0 == (50.0, 0.0)
+            assert not port1.get_pin_group_terminal_reference_pin()
+            assert not port1.get_pad_edge_terminal_reference_pin()
 
         def test_129_get_component_bounding_box(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2515,3 +2560,6 @@ if not config["skip_edb"]:
             component = edbapp.core_components.components["U2A5"]
             assert component.bounding_box
             assert isinstance(component.rotation, float)
+
+        def test_130_eligible_power_nets(self):
+            assert "GND" in [i.name for i in self.edbapp.core_nets.eligible_power_nets]

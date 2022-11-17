@@ -77,7 +77,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
             Dictionary of signal nets.
         """
         nets = {}
@@ -92,7 +92,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
             Dictionary of power nets.
         """
         nets = {}
@@ -101,9 +101,45 @@ class EdbNets(object):
                 nets[net] = value
         return nets
 
+    @property
+    def eligible_power_nets(self, threshold=0.3):
+        """Return a list of nets calculated by area to be eligible for PWR/Ground net classification.
+            It uses the same algorithm implemented in SIwave.
+
+        Parameters
+        ----------
+        threshold : float, optional
+           Area ratio used by the ``get_power_ground_nets`` method.
+
+        Returns
+        -------
+        list of  :class:`pyaedt.edb_core.edb_data.EDBNetsData`
+        """
+        pwr_gnd_nets = []
+        nets = list(self._active_layout.Nets)
+        for net in nets:
+            total_plane_area = 0.0
+            total_trace_area = 0.0
+            for primitive in net.Primitives:
+                if primitive.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Bondwire:
+                    continue
+                if primitive.GetPrimitiveType() != self._edb.Cell.Primitive.PrimitiveType.Path:
+                    total_plane_area += float(primitive.GetPolygonData().Area())
+                else:
+                    total_trace_area += float(primitive.GetPolygonData().Area())
+            if total_plane_area == 0.0:
+                continue
+            if total_trace_area == 0.0:
+                pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                continue
+            if total_plane_area > 0.0 and total_trace_area > 0.0:
+                if total_plane_area / (total_plane_area + total_trace_area) > threshold:
+                    pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+        return pwr_gnd_nets
+
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
-        """Get the points of the arc
+        """Get the points of the arc.
 
         Parameters
         ----------
