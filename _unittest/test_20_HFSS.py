@@ -1119,3 +1119,70 @@ class TestClass(BasisTest, object):
         )
         assert not self.aedtapp.assign_symmetry(ids[0])
         assert not self.aedtapp.assign_symmetry("test")
+
+    def test_55_create_near_field_sphere(self):
+        air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
+        self.aedtapp.assign_radiation_boundary_to_objects(air)
+        bound = self.aedtapp.insert_near_field_sphere(
+            radius=20,
+            radius_units="cm",
+            x_start=-180,
+            x_stop=180,
+            x_step=10,
+            y_start=0,
+            y_stop=180,
+            y_step=10,
+            angle_units="deg",
+            custom_radiation_faces=None,
+            custom_coordinate_system=None,
+            name=None,
+        )
+        bound.name = "Test_Sphere"
+        assert self.aedtapp.field_setup_names()[0] == bound.name
+
+    def test_56_create_near_field_box(self):
+        bound = self.aedtapp.insert_near_field_box(
+            u_length=20,
+            u_samples=21,
+            v_length=20,
+            v_samples=21,
+            w_length=20,
+            w_samples=21,
+            units="mm",
+            custom_radiation_faces=None,
+            custom_coordinate_system=None,
+            name=None,
+        )
+
+        assert bound
+
+    def test_57_create_near_field_rectangle(self):
+        bound = self.aedtapp.insert_near_field_rectangle(
+            u_length=20,
+            u_samples=21,
+            v_length=20,
+            v_samples=21,
+            units="mm",
+            custom_radiation_faces=None,
+            custom_coordinate_system=None,
+            name=None,
+        )
+        bound.props["Length"] = "50mm"
+        assert bound
+
+    def test_58_create_near_field_line(self):
+        test_points = [
+            ["0mm", "0mm", "0mm"],
+            ["100mm", "20mm", "0mm"],
+            ["71mm", "71mm", "0mm"],
+            ["0mm", "100mm", "0mm"],
+        ]
+        line = self.aedtapp.modeler.create_polyline(test_points)
+        bound = self.aedtapp.insert_near_field_line(
+            line=line.name,
+            points=1000,
+            custom_radiation_faces=None,
+            name=None,
+        )
+        bound.props["NumPts"] = "200"
+        assert bound
