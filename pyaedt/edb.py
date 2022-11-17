@@ -32,6 +32,7 @@ from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.IPC2581.ipc2581 import IPC2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
@@ -45,7 +46,6 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
-from pyaedt.edb_core.IPC2581.ipc2581 import IPC2581
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -528,10 +528,11 @@ class Edb(object):
         self.open_edb()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581_beta(self, units="mm"):
+    def export_to_ipc2581_beta(self, units="mm", output_file=""):
         ipc = IPC2581(self, units)
-        #ipc.units = units
         ipc.load_ipc_model()
+        ipc.file_path = output_file
+        ipc.write_xml()
 
     @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="millimeter"):

@@ -1,8 +1,11 @@
 import xml.etree.cElementTree as ET
+
 from pyaedt.edb_core.IPC2581.content.dictionary_color import DictionaryColor
-from pyaedt.edb_core.IPC2581.content.layer_ref import LayerRef
 from pyaedt.edb_core.IPC2581.content.dictionary_line import DictionaryLine
-from pyaedt.edb_core.IPC2581.content.standard_geometries_dictionary import StandardGeometriesDictionary
+from pyaedt.edb_core.IPC2581.content.layer_ref import LayerRef
+from pyaedt.edb_core.IPC2581.content.standard_geometries_dictionary import (
+    StandardGeometriesDictionary,
+)
 
 
 class Content(object):
@@ -34,21 +37,20 @@ class Content(object):
             self._layer_ref.append(layer_ref)
 
     def write_wml(self, root=None):
-        if root:
-            content = ET.SubElement(root, "Content")
-            content.set("roleRef", "Owner")
-            if self.mode == self.Mode.Stackup:
-                function_mode = ET.SubElement(content, "FunctionMode")
-                function_mode.set("mode", "USERDEF")
-            step_ref = ET.SubElement(content, "StepRef")
-            step_ref.set("name", self.step_ref)
-            for lay in self.layer_ref:
-                lay.write_xml(content)
-            self.dict_colors.write_xml(content)
-            self.dict_path_width.write_xml(content)
-            self.standard_geometries_dict.write_xml(content)
+        content = ET.SubElement(root, "Content")
+        content.set("roleRef", "Owner")
+        if self.mode == self.Mode.Stackup:
+            function_mode = ET.SubElement(content, "FunctionMode")
+            function_mode.set("mode", "USERDEF")
+        step_ref = ET.SubElement(content, "StepRef")
+        step_ref.set("name", self.step_ref)
+        for lay in self.layer_ref:
+            lay.write_xml(content)
+        self.dict_colors.write_xml(content)
+        self.dict_line.write_xml(content)
+        self.standard_geometries_dict.write_xml(content)
 
-            # skipping user defined geometries
+        # skipping user defined geometries
 
     class Mode(object):
         (Stackup) = range(1)

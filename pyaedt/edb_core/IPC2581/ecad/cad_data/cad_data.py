@@ -34,9 +34,8 @@ class CadData(object):
         self.layers.append(layer)
 
     def write_xml(self, ecad):
-        if ecad:
-            cad_data = ET.SubElement(ecad, "CadData")
-            for layer in self.layers:
-                layer.write_xml(cad_data)
-            for step in self.cad_data_step:
-                step.write_xml(cad_data)
+        cad_data = ET.SubElement(ecad, "CadData")
+        for layer in self.layers:
+            layer.write_xml(cad_data)
+        for step in self.cad_data_step:
+            step.write_xml(cad_data)

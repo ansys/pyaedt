@@ -35,7 +35,10 @@ class IPC2581(object):
             self.logistic_header.write_xml(ipc)
             self.history_record.write_xml(ipc)
             self.bom.write_xml(ipc)
-            self.ecad.write_xml(ipc)
+            # self.ecad.write_xml(ipc)
+            ET.indent(ipc)
+            tree = ET.ElementTree(ipc)
+            tree.write(self.file_path)
 
     @pyaedt_function_handler()
     def load_ipc_model(self):

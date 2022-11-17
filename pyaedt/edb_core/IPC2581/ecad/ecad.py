@@ -14,10 +14,9 @@ class Ecad(object):
         self._pedb = edb
 
     def write_xml(self, root):
-        if root:
-            ecad = ET.SubElement(root, "Ecad")
-            ecad.set("name", self.design_name)
-            cad_header = ET.SubElement(ecad, CadHeader)
-            cad_header.set("units", self._ipc.units)
-            self.cad_header.write_xml(ecad)
-            self.cad_data.write_xml(ecad)
+        ecad = ET.SubElement(root, "Ecad")
+        ecad.set("name", self.design_name)
+        cad_header = ET.SubElement(ecad, CadHeader)
+        cad_header.set("units", self._ipc.units)
+        self.cad_header.write_xml(ecad)
+        self.cad_data.write_xml(ecad)

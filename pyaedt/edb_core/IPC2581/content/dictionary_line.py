@@ -6,7 +6,7 @@ from pyaedt.edb_core.IPC2581.content.entry_line import EntryLine
 class DictionaryLine(object):
     def __init__(self, content):
         self._dict_lines = {}
-        self.unit = content.units
+        self.units = content.units
 
     @property
     def dict_lines(self):
@@ -25,8 +25,7 @@ class DictionaryLine(object):
                 self._dict_lines["ROUND_{}".format(width)] = line
 
     def write_xml(self, content=None):
-        if content:
-            dict_line = ET.SubElement(content, "DictionaryLineDesc")
-            dict_line.set("units", self.units)
-            for line in self._dict_lines:
-                line.write_xml()
+        dict_line = ET.SubElement(content, "DictionaryLineDesc")
+        dict_line.set("units", self.units)
+        for line in list(self._dict_lines.values()):
+            line.write_xml(dict_line)

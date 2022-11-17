@@ -16,18 +16,21 @@ class HistoryRecord(object):
         self.certification_status = "CERTIFIED"
 
     def write_xml(self, root):
-        if root:
-            history_record = ET.SubElement(root, "HistoryRecord")
-            history_record.set("number", self.number)
-            history_record.set("origination", self.origination)
-            history_record.set("software", self.software)
-            history_record.set("lastChange", self.last_changes)
-            file_revision = ET.SubElement(history_record, "FileRevision")
-            file_revision.set("fileRevisionId", self.file_revision)
-            file_revision.set("comment", self.comment)
-            software_package = ET.SubElement(file_revision, "SoftwarePackage")
-            software_package.set("name", self.software_package)
-            software_package.set("revision", self.revision)
-            software_package.set(("vendor", self.vendor))
-            certification = ET.SubElement(software_package, "Certification")
-            certification.set("certificationStatus", self.certification_status)
+        history_record = ET.SubElement(root, "HistoryRecord")
+        history_record.set("number", self.number)
+        history_record.set(
+            "origination", "{}_{}_{}".format(self.origination.day, self.origination.month, self.origination.year)
+        )
+        history_record.set("software", self.software)
+        history_record.set(
+            "lastChange", "{}_{}_{}".format(self.origination.day, self.origination.month, self.origination.year)
+        )
+        file_revision = ET.SubElement(history_record, "FileRevision")
+        file_revision.set("fileRevisionId", self.file_revision)
+        file_revision.set("comment", self.comment)
+        software_package = ET.SubElement(file_revision, "SoftwarePackage")
+        software_package.set("name", self.software_package)
+        software_package.set("revision", self.revision)
+        software_package.set("vendor", self.vendor)
+        certification = ET.SubElement(software_package, "Certification")
+        certification.set("certificationStatus", self.certification_status)

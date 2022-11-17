@@ -25,7 +25,6 @@ class DictionaryColor(object):
         self._dict_colors.append(entry_color)
 
     def write_xml(self, content=None):
-        if content:
-            dict_color = ET.SubElement(content, "DictionaryColor")
-            for _color in self.dict_colors:
-                _color.write_xml(dict_color)
+        dict_color = ET.SubElement(content, "DictionaryColor")
+        for _color in self.dict_colors:
+            _color.write_xml(dict_color)

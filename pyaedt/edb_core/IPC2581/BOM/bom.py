@@ -9,13 +9,12 @@ class Bom(object):
         self.bom_items = []
 
     def write_xml(self, root):
-        if root:
-            bom = ET.SubElement(root, "Bom")
-            bom.set("name", self.name)
-            bom_header = ET.SubElement(bom, "BomHeader")
-            bom_header.set("assembly", self.name)
-            bom_header.set("revision", self.revision)
-            step_ref = ET.SubElement(bom_header, "StepRef")
-            step_ref.set("name", self.name)
-            for bom_item in self.bom_items:
-                bom_item.write_xml(bom_item)
+        bom = ET.SubElement(root, "Bom")
+        bom.set("name", self.name)
+        bom_header = ET.SubElement(bom, "BomHeader")
+        bom_header.set("assembly", self.name)
+        bom_header.set("revision", self.revision)
+        step_ref = ET.SubElement(bom_header, "StepRef")
+        step_ref.set("name", self.name)
+        for bom_item in self.bom_items:
+            bom_item.write_xml(bom_item)

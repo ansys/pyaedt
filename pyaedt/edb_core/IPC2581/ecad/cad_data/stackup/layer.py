@@ -36,12 +36,11 @@ class Layer(object):
             self._layer_polarity = value
 
     def write_xml(self, cad_data):
-        if cad_data:
-            layer = ET.SubElement(cad_data, "Layer")
-            layer.set("name", self.name)
-            layer.set("layerFunction", self.layer_function)
-            layer.set("side", self.layer_side)
-            layer.set("polarity", self.layer_polarity)
+        layer = ET.SubElement(cad_data, "Layer")
+        layer.set("name", self.name)
+        layer.set("layerFunction", self.layer_function)
+        layer.set("side", self.layer_side)
+        layer.set("polarity", self.layer_polarity)
 
 
 class Function(object):

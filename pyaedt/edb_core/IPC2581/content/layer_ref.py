@@ -6,6 +6,5 @@ class LayerRef(object):
         self.name = ""
 
     def write_xml(self, content=None):
-        if content:
-            layer_ref = ET.SubElement(content, "LayerRef")
-            layer_ref.set("name", self.name)
+        layer_ref = ET.SubElement(content, "LayerRef")
+        layer_ref.set("name", self.name)

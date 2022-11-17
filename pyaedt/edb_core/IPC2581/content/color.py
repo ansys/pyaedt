@@ -1,5 +1,6 @@
 import xml.etree.cElementTree as ET
 
+
 class Color(object):
     def __init__(self):
         self._r = 0
@@ -34,8 +35,7 @@ class Color(object):
             self._b = value
 
     def write_xml(self, entry_color=None):
-        if isinstance(entry_color):
-            color = ET.SubElement(entry_color, "Color")
-            color.set("r", str(self.r))
-            color.set("g", str(self.g))
-            color.set("b", str(self.b))
+        color = ET.SubElement(entry_color, "Color")
+        color.set("r", str(self.r))
+        color.set("g", str(self.g))
+        color.set("b", str(self.b))
