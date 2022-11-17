@@ -19,6 +19,7 @@ import time
 import traceback
 import warnings
 from collections import OrderedDict
+from contextlib import contextmanager
 from functools import update_wrapper
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
@@ -189,6 +190,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
+@contextmanager
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
