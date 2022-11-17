@@ -52,8 +52,7 @@ try:
 
     _CultureInfo.DefaultThreadCurrentCulture = _CultureInfo.InvariantCulture
 except ImportError:
-    msg = "pythonnet not installed. Invariant Culture not applied."
-    warnings.warn(msg)
+    warnings.warn("pythonnet not installed. Invariant Culture will not be applied.")
 
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
