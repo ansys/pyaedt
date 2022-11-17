@@ -34,9 +34,8 @@ class PadstackDef(object):
         self.padstack_pad_def.append(pad)
 
     def write_xml(self, step):
-        if step:
-            padstack_def = ET.SubElement(step, "PadStackDef")
-            padstack_def.set("name", self.name)
-            self.padstack_hole_def.write_xml(padstack_def)
-            for pad in self.padstack_pad_def:
-                pad.write_xml(padstack_def)
+        padstack_def = ET.SubElement(step, "PadStackDef")
+        padstack_def.set("name", self.name)
+        self.padstack_hole_def.write_xml(padstack_def)
+        for pad in self.padstack_pad_def:
+            pad.write_xml(padstack_def)

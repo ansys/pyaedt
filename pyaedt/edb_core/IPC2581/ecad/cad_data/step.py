@@ -207,14 +207,13 @@ class Step(object):
             self.layer_features.append(drill_layer_feature)
 
     def write_xml(self, cad_data):
-        if cad_data:
-            step = ET.SubElement(cad_data, "Step")
-            step.set("name", self.design_name)
-            for padsatck_def in self.padstack_defs:
-                padsatck_def.write_xml(step)
-            for package in self.packages:
-                package.write_xml(step)
-            for component in self.components:
-                component.write_xml(step)
-            for logical_net in self.logical_nets:
-                logical_net.write_xml(step)
+        step = ET.SubElement(cad_data, "Step")
+        step.set("name", self.design_name)
+        for padsatck_def in list(self.padstack_defs.values()):
+            padsatck_def.write_xml(step)
+        for package in list(self.packages.values()):
+            package.write_xml(step)
+        for component in list(self.components.values()):
+            component.write_xml(step)
+        for logical_net in self.logical_nets:
+            logical_net.write_xml(step)

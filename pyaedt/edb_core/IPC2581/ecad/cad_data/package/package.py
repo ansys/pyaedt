@@ -38,14 +38,13 @@ class Package(object):
         self.pins.append(added_pin)
 
     def write_xml(self, step):
-        if step:
-            package = ET.SubElement(step, "Package")
-            package.set("name", self.name)
-            package.set("type", self.type)
-            package.set("pinOne", self.pin_one)
-            package.set("pinOneOrientation", self.pin_orientation)
-            package.set("height", self.height)
-            self.outline.write_xml(package)
-            self.assembly_drawing.write_xml(step)
-            for pin in self.pins:
-                pin.write_xml(package)
+        package = ET.SubElement(step, "Package")
+        package.set("name", self.name)
+        package.set("type", self.type)
+        package.set("pinOne", self.pin_one)
+        package.set("pinOneOrientation", self.pin_orientation)
+        package.set("height", self.height)
+        self.outline.write_xml(package)
+        self.assembly_drawing.write_xml(step)
+        for pin in self.pins:
+            pin.write_xml(package)

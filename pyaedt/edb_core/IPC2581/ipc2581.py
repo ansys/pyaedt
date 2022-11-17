@@ -35,7 +35,7 @@ class IPC2581(object):
             self.logistic_header.write_xml(ipc)
             self.history_record.write_xml(ipc)
             self.bom.write_xml(ipc)
-            # self.ecad.write_xml(ipc)
+            self.ecad.write_xml(ipc)
             ET.indent(ipc)
             tree = ET.ElementTree(ipc)
             tree.write(self.file_path)
@@ -85,7 +85,9 @@ class IPC2581(object):
                     dielectric_constant=str(permitivity),
                     loss_tg=str(loss_tg),
                 )
-                self.ecad.cad_data.add_layer(layer_name=layer_name, layer_side="internal", polarity="positive")
+                self.ecad.cad_data.add_layer(
+                    layer_name=layer_name, layer_function=layer_type, layer_side="internal", polarity="positive"
+                )
                 self.ecad.cad_data.stackup.stackup_group.add_stackup_layer(
                     layer_name=layer_name,
                     thickness=self._pedb.stackup.layers[layer_name].thickness,

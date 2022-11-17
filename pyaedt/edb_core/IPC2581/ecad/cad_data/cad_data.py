@@ -19,12 +19,6 @@ class CadData(object):
     def layers(self):
         return self._layers
 
-    @layers.setter
-    def layers(self, value):
-        if isinstance(value, list):
-            if len([lay for lay in value if isinstance(lay, Layer)]):
-                self._layers = value
-
     def add_layer(self, layer_name="", layer_function="", layer_side="internal", polarity="positive"):
         layer = Layer()
         layer.name = layer_name
@@ -37,5 +31,4 @@ class CadData(object):
         cad_data = ET.SubElement(ecad, "CadData")
         for layer in self.layers:
             layer.write_xml(cad_data)
-        for step in self.cad_data_step:
-            step.write_xml(cad_data)
+        self.cad_data_step.write_xml(cad_data)
