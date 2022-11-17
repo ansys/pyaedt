@@ -210,7 +210,7 @@ class AedtLogger(object):
                 handler.close()
                 if handler in handlers:
                     self._global.removeHandler(handler)
-        self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
+                self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
 
     def remove_all_project_file_logger(self):
         """Remove all the local files from the logger handlers list."""
