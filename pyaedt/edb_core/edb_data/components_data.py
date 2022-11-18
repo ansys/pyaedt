@@ -775,8 +775,9 @@ class EDBComponent(object):
 
     @pyaedt_function_handler
     def refresh_pins(self):
-        self._pins = {p._edb_padstackinstance.GetName(): p for _, p in self._pedb.core_padstack.padstack_instances.items() if
-                p.is_pin and p.component.refdes == self.refdes}
+        _pins = {p._edb_padstackinstance.GetName(): p for _, p in self._pedb.core_padstack.padstack_instances.items() if
+                p.is_pin and not isinstance(p.component, str)}
+        self._pins = {name: p for name, p in _pins.items() if p.component.refdes == self.refdes}
 
     @pyaedt_function_handler
     def assign_spice_model(self, file_path, name=None):

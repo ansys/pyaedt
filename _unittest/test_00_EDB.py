@@ -91,7 +91,7 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
         def test_01C_create_coax_port_on_component(self):
-            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
+            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
 
         def test_02_get_properties(self):
             assert len(self.edbapp.core_components.components) > 0
