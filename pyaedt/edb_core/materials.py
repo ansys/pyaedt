@@ -369,7 +369,6 @@ class Materials(object):
             conductivity=0,
             dielectric_loss_tangent=0,
             magnetic_loss_tangent=0,
-            dielectric_model=None,
     ):
         if not name in self.materials:
             self._edb.Definition.MaterialDef.Create(self._db, name)
