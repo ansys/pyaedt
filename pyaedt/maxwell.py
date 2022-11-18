@@ -1585,7 +1585,7 @@ class Maxwell(object):
             The default value is ``None`` and in this case the coordinates will be ``["0mm", "0mm", "0mm"]``.
         u_vector_pos_coordinates_slave : list, optional
             Slave's list of U vector position coordinates.
-            Default value is ``["0mm", "-10mm", "0mm"]``.
+            The default value is ``None`` and in this case the coordinates will be ``["0mm", "0mm", "0mm"]``.
         reverse_master : bool, optional
             Whether to reverse the master edge to the V direction. The default is ``False``.
         reverse_slave : bool, optional
