@@ -270,6 +270,7 @@ class EDBComponent(object):
         self._pcomponents = components
         self.edbcomponent = cmp
         self._layout_instance = None
+        self._pins = {}
 
     @property
     def layout_instance(self):
@@ -608,10 +609,9 @@ class EDBComponent(object):
         dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
         """
-        pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items()]
-        pins = {p.name: p for p in pins if p.is_pin}
-        pins = {p._edb_padstackinstance.GetName(): p for number, p in pins.items() if p.component.refdes == self.refdes}
-        return pins
+        if not self._pins:
+            self.refresh_pins()
+        return self._pins
 
     @property
     def type(self):
@@ -772,6 +772,11 @@ class EDBComponent(object):
             logging.error("Fail to assign model on {}.".format(self.refdes))
             return False
         return True
+
+    @pyaedt_function_handler
+    def refresh_pins(self):
+        self._pins = {p._edb_padstackinstance.GetName(): p for _, p in self._pedb.core_padstack.padstack_instances.items() if
+                p.is_pin and p.component.refdes == self.refdes}
 
     @pyaedt_function_handler
     def assign_spice_model(self, file_path, name=None):

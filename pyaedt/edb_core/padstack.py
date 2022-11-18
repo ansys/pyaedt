@@ -30,7 +30,6 @@ class EdbPadstacks(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-        self._padstacks = {}
         self._padstack_instances = {}
 
     @property
@@ -162,11 +161,9 @@ class EdbPadstacks(object):
             List of padstack instances.
 
         """
-        layout_lobj_collection = list(self._active_layout.PadstackInstances)
-        _padstack_instances = {}
-        for lobj in layout_lobj_collection:
-            _padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
-        return _padstack_instances
+        if not self._padstack_instances:
+            self.refresh_padstack_instances()
+        return self._padstack_instances
 
     @property
     def pingroups(self):
@@ -299,6 +296,12 @@ class EdbPadstacks(object):
                 )
         PadStack.SetData(new_PadStackData)
 
+    @pyaedt_function_handler()
+    def refresh_padstack_instances(self):
+        edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
+        for edb_padstack_instance in edb_padstack_inst_list:
+            self._padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
+
     @pyaedt_function_handler
     def delete_padstack_instances(self, net_names):
         """Delete padstack instances by net names.
@@ -325,7 +328,7 @@ class EdbPadstacks(object):
             if p.name in net_names:
                 if not p.delete_padstack_instance():  # pragma: no cover
                     return False
-                self._padstacks.pop(p_id)
+                self._padstack_instances.pop(p_id)
         return True
 
     @pyaedt_function_handler()
@@ -812,7 +815,10 @@ class EdbPadstacks(object):
                 None,
             )
             padstack_instance.SetIsLayoutPin(is_pin)
-            return padstack_instance.GetId()
+            py_padstack_instance = EDBPadstackInstance(padstack_instance, self._pedb)
+            self._padstack_instances[padstack_instance.GetId()] = py_padstack_instance
+
+            return py_padstack_instance
         else:
             return False
 
