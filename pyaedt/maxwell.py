@@ -1552,162 +1552,6 @@ class Maxwell(object):
         self.odesign.ExportElementBasedHarmonicForce(output_directory, setup_name, freq_option, f1, f2)
         return output_directory
 
-    @pyaedt_function_handler()
-    def assign_master_slave(
-        self,
-        master_entity,
-        slave_entity,
-        u_vector_origin_coordinates_master=None,
-        u_vector_pos_coordinates_master=None,
-        u_vector_origin_coordinates_slave=None,
-        u_vector_pos_coordinates_slave=None,
-        reverse_master=False,
-        reverse_slave=False,
-        same_as_master=True,
-        bound_name=None,
-    ):
-        """Assign master and slave boundary conditions to two edges of the same object.
-
-        Parameters
-        ----------
-        master_entity : int
-            ID of the master entity.
-        slave_entity : int
-            ID of the slave entity.
-        u_vector_origin_coordinates_master : list, optional
-            Master's list of U vector origin coordinates.
-            The default value is ``None`` and in this case the coordinates will be ``["0mm", "0mm", "0mm"]``.
-        u_vector_pos_coordinates_master : list, optional
-            Master's list of U vector position coordinates.
-            The default value is ``None`` and in this case the coordinates will be ``["0mm", "0mm", "0mm"]``.
-        u_vector_origin_coordinates_slave : list, optional
-            Slave's list of U vector origin coordinates.
-            The default value is ``None`` and in this case the coordinates will be ``["0mm", "0mm", "0mm"]``.
-        u_vector_pos_coordinates_slave : list, optional
-            Slave's list of U vector position coordinates.
-            The default value is ``None`` and in this case the coordinates will be ``["0mm", "0mm", "0mm"]``.
-        reverse_master : bool, optional
-            Whether to reverse the master edge to the V direction. The default is ``False``.
-        reverse_slave : bool, optional
-            Whether to reverse the master edge to the U direction. The default is ``False``.
-        same_as_master : bool, optional
-            Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
-        bound_name : str, optional
-            Name of the master boundary. The default is ``None``, in which case the default name
-            is used. The name of the slave boundary has a ``_dep`` suffix.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Master and slave objects.
-
-        References
-        ----------
-
-        >>> oModule.AssignIndependent
-        >>> oModule.AssignDependent
-        """
-        try:
-            master_entity = self.modeler.convert_to_selections(master_entity, True)
-            slave_entity = self.modeler.convert_to_selections(slave_entity, True)
-            if not bound_name:
-                bound_name_m = generate_unique_name("Independent")
-                bound_name_s = generate_unique_name("Dependent")
-            else:
-                bound_name_m = bound_name
-                bound_name_s = bound_name + "_dep"
-            if self.design_type == "Maxwell 2D":
-                props2 = OrderedDict({"Edges": master_entity, "ReverseV": reverse_master})
-                bound = BoundaryObject(self, bound_name_m, props2, "Independent")
-                if bound.create():
-                    self.boundaries.append(bound)
-
-                    props2 = OrderedDict(
-                        {
-                            "Edges": slave_entity,
-                            "ReverseU": reverse_slave,
-                            "Independent": bound_name_m,
-                            "SameAsMaster": same_as_master,
-                        }
-                    )
-                    bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
-                    if bound2.create():
-                        self.boundaries.append(bound2)
-                        return bound, bound2
-                    else:
-                        return bound, False
-            else:
-                if u_vector_origin_coordinates_master is None:
-                    u_vector_origin_coordinates_master = ["0mm", "0mm", "0mm"]
-                elif u_vector_pos_coordinates_master is None:
-                    u_vector_pos_coordinates_master = ["0mm", "10mm", "0mm"]
-                elif u_vector_origin_coordinates_slave is None:
-                    u_vector_origin_coordinates_slave = ["0mm", "0mm", "0mm"]
-                elif u_vector_pos_coordinates_slave is None:
-                    u_vector_pos_coordinates_slave = ["0mm", "-10mm", "0mm"]
-                elif (
-                    not isinstance(u_vector_origin_coordinates_master, list)
-                    or not isinstance(u_vector_origin_coordinates_slave, list)
-                    or not isinstance(u_vector_pos_coordinates_master, list)
-                    or not isinstance(u_vector_pos_coordinates_slave, list)
-                ):
-                    raise ValueError("Please provide a list of coordinates for U vectors.")
-                elif [x for x in u_vector_origin_coordinates_master if not isinstance(x, str)]:
-                    raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
-                elif [x for x in u_vector_origin_coordinates_slave if not isinstance(x, str)]:
-                    raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
-                elif [x for x in u_vector_pos_coordinates_master if not isinstance(x, str)]:
-                    raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
-                elif [x for x in u_vector_pos_coordinates_slave if not isinstance(x, str)]:
-                    raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
-                elif len(u_vector_origin_coordinates_master) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
-                elif len(u_vector_origin_coordinates_slave) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
-                elif len(u_vector_pos_coordinates_master) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
-                elif len(u_vector_pos_coordinates_slave) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
-                u_master_vector_coordinates = OrderedDict(
-                    {
-                        "Coordinate System": "Global",
-                        "Origin": u_vector_origin_coordinates_master,
-                        "UPos": u_vector_pos_coordinates_master,
-                    }
-                )
-                props2 = OrderedDict(
-                    {"Faces": master_entity, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
-                )
-                bound = BoundaryObject(self, bound_name_m, props2, "Independent")
-                if bound.create():
-                    self.boundaries.append(bound)
-
-                    u_slave_vector_coordinates = OrderedDict(
-                        {
-                            "Coordinate System": "Global",
-                            "Origin": u_vector_origin_coordinates_slave,
-                            "UPos": u_vector_pos_coordinates_slave,
-                        }
-                    )
-
-                    props2 = OrderedDict(
-                        {
-                            "Faces": slave_entity,
-                            "CoordSysVector": u_slave_vector_coordinates,
-                            "ReverseU": reverse_slave,
-                            "Independent": bound_name_m,
-                            "RelationIsSame": same_as_master,
-                        }
-                    )
-                    bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
-                    if bound2.create():
-                        self.boundaries.append(bound2)
-                        return bound, bound2
-                    else:
-                        return bound, False
-        except:
-            return False, False
-
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 3D application interface.
@@ -2056,6 +1900,129 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         except:
             return conduction_paths
 
+    @pyaedt_function_handler()
+    def assign_master_slave(
+        self,
+        master_entity,
+        slave_entity,
+        u_vector_origin_coordinates_master,
+        u_vector_pos_coordinates_master,
+        u_vector_origin_coordinates_slave,
+        u_vector_pos_coordinates_slave,
+        reverse_master=False,
+        reverse_slave=False,
+        same_as_master=True,
+        bound_name=None,
+    ):
+        """Assign master and slave boundary conditions to two faces of the same object.
+
+        Parameters
+        ----------
+        master_entity : int
+            ID of the master entity.
+        slave_entity : int
+            ID of the slave entity.
+        u_vector_origin_coordinates_master : list
+            Master's list of U vector origin coordinates.
+        u_vector_pos_coordinates_master : list
+            Master's list of U vector position coordinates.
+        u_vector_origin_coordinates_slave : list
+            Slave's list of U vector origin coordinates.
+        u_vector_pos_coordinates_slave : list
+            Slave's list of U vector position coordinates.
+        reverse_master : bool, optional
+            Whether to reverse the master edge to the V direction. The default is ``False``.
+        reverse_slave : bool, optional
+            Whether to reverse the master edge to the U direction. The default is ``False``.
+        same_as_master : bool, optional
+            Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
+        bound_name : str, optional
+            Name of the master boundary. The default is ``None``, in which case the default name
+            is used. The name of the slave boundary has a ``_dep`` suffix.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Master and slave objects.
+
+        References
+        ----------
+
+        >>> oModule.AssignIndependent
+        >>> oModule.AssignDependent
+        """
+        try:
+            master_entity = self.modeler.convert_to_selections(master_entity, True)
+            slave_entity = self.modeler.convert_to_selections(slave_entity, True)
+            if not bound_name:
+                bound_name_m = generate_unique_name("Independent")
+                bound_name_s = generate_unique_name("Dependent")
+            else:
+                bound_name_m = bound_name
+                bound_name_s = bound_name + "_dep"
+            if (
+                not isinstance(u_vector_origin_coordinates_master, list)
+                or not isinstance(u_vector_origin_coordinates_slave, list)
+                or not isinstance(u_vector_pos_coordinates_master, list)
+                or not isinstance(u_vector_pos_coordinates_slave, list)
+            ):
+                raise ValueError("Please provide a list of coordinates for U vectors.")
+            elif [x for x in u_vector_origin_coordinates_master if not isinstance(x, str)]:
+                raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
+            elif [x for x in u_vector_origin_coordinates_slave if not isinstance(x, str)]:
+                raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
+            elif [x for x in u_vector_pos_coordinates_master if not isinstance(x, str)]:
+                raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
+            elif [x for x in u_vector_pos_coordinates_slave if not isinstance(x, str)]:
+                raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
+            elif len(u_vector_origin_coordinates_master) != 3:
+                raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
+            elif len(u_vector_origin_coordinates_slave) != 3:
+                raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
+            elif len(u_vector_pos_coordinates_master) != 3:
+                raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
+            elif len(u_vector_pos_coordinates_slave) != 3:
+                raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
+            u_master_vector_coordinates = OrderedDict(
+                {
+                    "Coordinate System": "Global",
+                    "Origin": u_vector_origin_coordinates_master,
+                    "UPos": u_vector_pos_coordinates_master,
+                }
+            )
+            props2 = OrderedDict(
+                {"Faces": master_entity, "CoordSysVector": u_master_vector_coordinates, "ReverseV": reverse_master}
+            )
+            bound = BoundaryObject(self, bound_name_m, props2, "Independent")
+            if bound.create():
+                self.boundaries.append(bound)
+
+                u_slave_vector_coordinates = OrderedDict(
+                    {
+                        "Coordinate System": "Global",
+                        "Origin": u_vector_origin_coordinates_slave,
+                        "UPos": u_vector_pos_coordinates_slave,
+                    }
+                )
+
+                props2 = OrderedDict(
+                    {
+                        "Faces": slave_entity,
+                        "CoordSysVector": u_slave_vector_coordinates,
+                        "ReverseU": reverse_slave,
+                        "Independent": bound_name_m,
+                        "RelationIsSame": same_as_master,
+                    }
+                )
+                bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
+                if bound2.create():
+                    self.boundaries.append(bound2)
+                    return bound, bound2
+                else:
+                    return bound, False
+        except:
+            return False, False
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D application interface.
@@ -2356,6 +2323,64 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @pyaedt_function_handler()
+    def assign_master_slave(
+        self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
+    ):
+        """Assign master and slave boundary conditions to two edges of the same object.
+        Parameters
+        ----------
+        master_edge : int
+            ID of the master edge.
+        slave_edge : int
+            ID of the slave edge.
+        reverse_master : bool, optional
+            Whether to reverse the master edge to the V direction. The default is ``False``.
+        reverse_slave : bool, optional
+            Whether to reverse the master edge to the U direction. The default is ``False``.
+        same_as_master : bool, optional
+            Whether the B-Field of the slave edge and master edge are the same. The default is ``True``.
+        bound_name : str, optional
+            Name of the master boundary. The default is ``None``, in which case the default name
+            is used. The name of the slave boundary has a ``_dep`` suffix.
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Master and slave objects.
+        References
+        ----------
+        >>> oModule.AssignIndependent
+        >>> oModule.AssignDependent
+        """
+        master_edge = self.modeler.convert_to_selections(master_edge, True)
+        slave_edge = self.modeler.convert_to_selections(slave_edge, True)
+        if not bound_name:
+            bound_name_m = generate_unique_name("Independent")
+            bound_name_s = generate_unique_name("Dependent")
+        else:
+            bound_name_m = bound_name
+            bound_name_s = bound_name + "_dep"
+        props2 = OrderedDict({"Edges": master_edge, "ReverseV": reverse_master})
+        bound = BoundaryObject(self, bound_name_m, props2, "Independent")
+        if bound.create():
+            self.boundaries.append(bound)
+
+            props2 = OrderedDict(
+                {
+                    "Edges": slave_edge,
+                    "ReverseU": reverse_slave,
+                    "Independent": bound_name_m,
+                    "SameAsMaster": same_as_master,
+                }
+            )
+            bound2 = BoundaryObject(self, bound_name_s, props2, "Dependent")
+            if bound2.create():
+                self.boundaries.append(bound2)
+                return bound, bound2
+            else:
+                return bound, False
+        return False, False
 
     @pyaedt_function_handler()
     def assign_end_connection(self, objects, resistance=0, inductance=0, bound_name=None):
