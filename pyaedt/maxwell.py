@@ -1661,13 +1661,13 @@ class Maxwell(object):
                 elif [x for x in u_vector_pos_coordinates_slave if not isinstance(x, str)]:
                     raise ValueError("Elements of coordinates system must be strings in the form of ``value+unit``.")
                 elif len(u_vector_origin_coordinates_master) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y anz coordinates.")
+                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
                 elif len(u_vector_origin_coordinates_slave) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y anz coordinates.")
+                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
                 elif len(u_vector_pos_coordinates_master) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y anz coordinates.")
+                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
                 elif len(u_vector_pos_coordinates_slave) != 3:
-                    raise ValueError("Vector must contain 3 elements for x, y anz coordinates.")
+                    raise ValueError("Vector must contain 3 elements for x, y and z coordinates.")
                 u_master_vector_coordinates = OrderedDict(
                     {
                         "Coordinate System": "Global",
