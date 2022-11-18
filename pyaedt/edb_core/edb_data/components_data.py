@@ -610,7 +610,7 @@ class EDBComponent(object):
         """
         pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items()]
         pins = {p.name: p for p in pins if p.is_pin}
-        pins = {number: p for number, p in pins.items() if p.component.refdes == self.refdes}
+        pins = {p._edb_padstackinstance.GetName(): p for number, p in pins.items() if p.component.refdes == self.refdes}
         return pins
 
     @property
