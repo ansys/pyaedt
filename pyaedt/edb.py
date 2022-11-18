@@ -191,10 +191,11 @@ class Edb(object):
         else:
             warnings.warn("Failed to initialize DLLs.")
 
-        self.materials.add_material()
-        self.materials.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
-        self.materials.add_material("fr4_epoxy", 4.4, 1, 0, 0.02, 0)
-        self.materials.add_material("solder_mask", 3.1, 1, 0, 0.035, 0)
+        if not self.materials.materials:
+            self.materials.add_material("air")
+            self.materials.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
+            self.materials.add_material("fr4_epoxy", 4.4, 1, 0, 0.02, 0)
+            self.materials.add_material("solder_mask", 3.1, 1, 0, 0.035, 0)
 
     def __enter__(self):
         return self
