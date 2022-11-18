@@ -197,7 +197,7 @@ class Hfss(FieldAnalysis3D, object):
             self._field_setups = self._get_rad_fields()
         return self._field_setups
 
-    @pyaedt_function_handler()
+    @property
     def field_setup_names(self):
         """List of AEDT radiation field names.
 
