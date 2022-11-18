@@ -596,12 +596,12 @@ class Stackup(object):
                 thickness=soldermask_thickness,
                 layer_type="dielectric",
                 fillMaterial=dielectric_material,
-                method="add_on_bottom"
+                method="add_on_bottom",
             )
             self.stackup_layers["TOP"].dielectric_fill = "solder_mask"
             self.stackup_layers["BOT"].dielectric_fill = "solder_mask"
 
-        for layer_num in np.arange(int(layer_count/2), 1, -1):
+        for layer_num in np.arange(int(layer_count / 2), 1, -1):
             # Generate upper half
             self.add_layer(
                 "L" + str(layer_num),
@@ -609,7 +609,7 @@ class Stackup(object):
                 material="copper",
                 thickness=inner_layer_thickness,
                 fillMaterial=dielectric_material,
-                method="insert_below"
+                method="insert_below",
             )
             self.add_layer(
                 "D" + str(layer_num - 1),
@@ -618,7 +618,7 @@ class Stackup(object):
                 thickness=dielectric_thickness,
                 layer_type="dielectric",
                 fillMaterial=dielectric_material,
-                method="insert_below"
+                method="insert_below",
             )
 
             # Generate lower half
@@ -628,7 +628,7 @@ class Stackup(object):
                 material="copper",
                 thickness=inner_layer_thickness,
                 fillMaterial=dielectric_material,
-                method="insert_above"
+                method="insert_above",
             )
             self.add_layer(
                 "D" + str(layer_count - layer_num + 1),
@@ -637,7 +637,7 @@ class Stackup(object):
                 thickness=dielectric_thickness,
                 layer_type="dielectric",
                 fillMaterial=dielectric_material,
-                method="insert_above"
+                method="insert_above",
             )
         return True
 
