@@ -585,6 +585,9 @@ class EdbPadstacks(object):
         offset_y="0.0",
         rotation="0.0",
         has_hole=True,
+        pad_offset_x="0.0",
+        pad_offset_y="0.0",
+        pad_rotation="0.0",
     ):
         """Create a padstack.
 
@@ -646,6 +649,10 @@ class EdbPadstacks(object):
         offset_y = self._get_edb_value(offset_y)
         rotation = self._get_edb_value(rotation)
 
+        pad_offset_x = self._get_edb_value(pad_offset_x)
+        pad_offset_y = self._get_edb_value(pad_offset_y)
+        pad_rotation = self._get_edb_value(pad_rotation)
+
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
         padstackData.SetHolePlatingPercentage(self._get_edb_value(20.0))
@@ -671,9 +678,9 @@ class EdbPadstacks(object):
                 self._edb.Definition.PadType.RegularPad,
                 self._edb.Definition.PadGeometryType.Circle,
                 padparam_array,
-                offset_x,
-                offset_y,
-                rotation,
+                pad_offset_x,
+                pad_offset_y,
+                pad_rotation,
             )
 
             padstackData.SetPadParameters(
