@@ -585,11 +585,8 @@ class EDBComponent(object):
         list
             List of Pins of Component.
         """
-        pins = [
-            p
-            for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
-        ]
+        pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items()]
+        pins = [p for p in pins if p.is_pin]
         return pins
 
     @property
