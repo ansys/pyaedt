@@ -199,7 +199,7 @@ def open_file(file_path, file_options="r"):
     file_path : str
         Full absolute path to the file (either local or remote).
     file_options : str, optional
-        Options for opening the file.
+        Options for opening the file. The default value is ``"r"`` for 'read' mode.
 
     Returns
     -------
@@ -208,12 +208,18 @@ def open_file(file_path, file_options="r"):
     """
     file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
     dir_name = os.path.dirname(file_path)
-    if os.path.exists(dir_name):
-        return open(file_path, file_options)
-    elif settings.remote_rpc_session:
-        return settings.remote_rpc_session.open_file(file_path, file_options)
-    else:
+    file = None
+    try:
+        if os.path.exists(dir_name):
+            file = open(file_path, file_options)
+            yield file
+        elif settings.remote_rpc_session:
+            file = settings.remote_rpc_session.open_file(file_path, file_options)
+            yield file
+    except:
         return False
+    finally:
+        file.close()
 
 
 def convert_remote_object(arg):
