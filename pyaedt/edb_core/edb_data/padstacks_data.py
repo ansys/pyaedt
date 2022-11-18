@@ -717,6 +717,14 @@ class EDBPadstackInstance(object):
             return False
 
     @property
+    def component(self):
+        comp_name = self._edb_padstackinstance.GetComponent().GetName()
+        if comp_name:
+            return self._pedb.core_components.components[comp_name]
+        else:
+            return ""
+
+    @property
     def pin(self):
         """Return Edb padstack object."""
         return self._edb_padstackinstance

@@ -577,8 +577,12 @@ class EDBComponent(object):
         list
             List of Pins of Component.
         """
-        pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items()]
-        pins = [p for p in pins if p.is_pin]
+        warnings.warn("`pinlist` is deprecated. Use `pins` property instead.", DeprecationWarning)
+        pins = [
+            p
+            for p in self.edbcomponent.LayoutObjs
+            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
+        ]
         return pins
 
     @property
@@ -604,9 +608,9 @@ class EDBComponent(object):
         dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
         """
-        pins = {}
-        for el in self.pinlist:
-            pins[el.GetName()] = EDBPadstackInstance(el, self._pcomponents._pedb)
+        pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items()]
+        pins = {p.name: p for p in pins if p.is_pin}
+        pins = {number: p for number, p in pins.items() if p.component.refdes == self.refdes}
         return pins
 
     @property
