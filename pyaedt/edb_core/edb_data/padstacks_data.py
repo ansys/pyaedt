@@ -937,6 +937,10 @@ class EDBPadstackInstance(object):
         self._edb_padstackinstance.SetName(value)
         self._edb_padstackinstance.SetProductProperty(self._pedb.edb.ProductId.Designer, 11, value)
 
+    @property
+    def pin_number(self):
+        return self._edb_padstackinstance.GetName()
+
     @pyaedt_function_handler()
     def parametrize_position(self, prefix=None):
         """Parametrize the instance position.

@@ -158,8 +158,8 @@ if not config["skip_edb"]:
             assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
             assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
-            padstack_id = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
+            padstack = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack.id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
             if not is_ironpython:
@@ -261,25 +261,24 @@ if not config["skip_edb"]:
             assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
             assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
             assert self.edbapp.core_components.components["R1"].pinlist
-            pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+                self.edbapp.core_components.components["R1"].pins["1"].lower_elevation
                 == self.edbapp.core_components.components["R1"].lower_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+                self.edbapp.core_components.components["R1"].pins["1"].placement_layer
                 == self.edbapp.core_components.components["R1"].placement_layer
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+                self.edbapp.core_components.components["R1"].pins["1"].upper_elevation
                 == self.edbapp.core_components.components["R1"].upper_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+                self.edbapp.core_components.components["R1"].pins["1"].top_bottom_association
                 == self.edbapp.core_components.components["R1"].top_bottom_association
             )
-            assert self.edbapp.core_components.components["R1"].pins[pinname].position
-            assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
+            assert self.edbapp.core_components.components["R1"].pins["1"].position
+            assert self.edbapp.core_components.components["R1"].pins["1"].rotation
 
         def test_18_components_from_net(self):
             assert self.edbapp.core_components.get_components_from_nets("A0_N")
