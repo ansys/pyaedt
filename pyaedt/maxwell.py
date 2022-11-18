@@ -2329,6 +2329,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         self, master_edge, slave_edge, reverse_master=False, reverse_slave=False, same_as_master=True, bound_name=None
     ):
         """Assign master and slave boundary conditions to two edges of the same object.
+
         Parameters
         ----------
         master_edge : int
@@ -2344,10 +2345,12 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         bound_name : str, optional
             Name of the master boundary. The default is ``None``, in which case the default name
             is used. The name of the slave boundary has a ``_dep`` suffix.
+
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`, :class:`pyaedt.modules.Boundary.BoundaryObject`
             Master and slave objects.
+
         References
         ----------
         >>> oModule.AssignIndependent
