@@ -1138,7 +1138,7 @@ class TestClass(BasisTest, object):
             name=None,
         )
         bound.name = "Test_Sphere"
-        assert self.aedtapp.field_setup_names()[0] == bound.name
+        assert self.aedtapp.field_setup_names[0] == bound.name
 
     def test_56_create_near_field_box(self):
         bound = self.aedtapp.insert_near_field_box(
