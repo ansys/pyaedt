@@ -5347,7 +5347,7 @@ class Hfss(FieldAnalysis3D, object):
         line : str
             Polyline name.
         points : float, str, optional
-            Number of points. The default is ``1000``.
+            Number of points. The default value is ``1000``.
         custom_radiation_faces : str, optional
             List of radiation faces to use for far field computation. The default is ``None``.
         name : str, optional
