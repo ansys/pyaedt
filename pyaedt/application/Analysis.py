@@ -1625,7 +1625,8 @@ class Analysis(Design, object):
         return dict
 
     @pyaedt_function_handler()
-    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+    def analyze_setup(self, name, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True,
+                      num_variations_to_distribute=None):
         """Analyze a design setup.
 
         Parameters
@@ -1642,6 +1643,8 @@ class Analysis(Design, object):
             Full path to custom ACF file. The default is ``None.``
         use_auto_settings : bool, optional
             Either if use or not auto settings in task/cores. It is not supported by all Setup.
+        num_variations_to_distribute: int, optional
+            Number of variations to distribute. For this to take effect use_auto_settings must be True.
 
         Returns
         -------
@@ -1695,6 +1698,8 @@ class Analysis(Design, object):
             if self.design_type == "Icepak":
                 use_auto_settings = False
             update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+            if num_variations_to_distribute:
+                update_hpc_option(target_name, 'NumVariationsToDistribute', num_variations_to_distribute, False)
 
             if settings.remote_rpc_session:
                 remote_name = (
