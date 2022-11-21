@@ -991,10 +991,9 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
         try:
             if p.name() in keys:
                 cmd = p.cmdline()
-                if "-grpcsrv" not in cmd:
-                    if non_graphical and "-ng" in cmd or not non_graphical:
-                        if not version or (version and version in cmd[0]):
-                            sessions.append(p.pid)
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        sessions.append(p.pid)
         except:
             pass
     return sessions
