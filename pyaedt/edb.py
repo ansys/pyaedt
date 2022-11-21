@@ -1224,7 +1224,7 @@ class Edb(object):
             Whether to use pyaedt extent computing (experimental).
         extent_defeature : float, optional
             Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
-            It applies only to Conforming bounding box. Default value is 0 which disable it.
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
 
         Returns
         -------
