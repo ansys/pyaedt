@@ -1088,11 +1088,10 @@ class SolutionData(object):
             csv_list.append(output)
 
         txt_file_name = csv_dir + "fft_list.txt"
-        textfile = open_file(txt_file_name, "w")
+        with open_file(os.path.join(csv_dir, "fft_list.txt"), "w") as textfile:
+            for element in csv_list:
+                textfile.write(element + "\n")
 
-        for element in csv_list:
-            textfile.write(element + "\n")
-        textfile.close()
         return txt_file_name
 
 
