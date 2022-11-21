@@ -211,7 +211,7 @@ def open_file(file_path, file_options="r"):
     elif settings.remote_rpc_session:
         return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
-        settings.logger.error("The file: %s does not exits", dir_name)
+        settings.logger.error("The file: %s does not exist", dir_name)
 
 
 def convert_remote_object(arg):
