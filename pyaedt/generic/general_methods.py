@@ -961,6 +961,46 @@ def _create_json_file(json_dict, full_json_path):
 
 
 @pyaedt_function_handler()
+def com_active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active COM AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specififying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+        Whether to check for student version sessions. The default is ``False``.
+    non_graphical : bool, optional
+        Whether to check only for active non-graphical sessions. The default is ``False``.
+
+    Returns
+    -------
+    list
+        List of AEDT PIDs.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if "-grpcsrv" not in cmd:
+                    if non_graphical and "-ng" in cmd or not non_graphical:
+                        if not version or (version and version in cmd[0]):
+                            sessions.append(p.pid)
+        except:
+            pass
+    return sessions
+
+
+@pyaedt_function_handler()
 def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active gRPC AEDT sessions.
 
