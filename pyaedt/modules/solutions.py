@@ -1088,7 +1088,7 @@ class SolutionData(object):
             csv_list.append(output)
 
         txt_file_name = csv_dir + "fft_list.txt"
-        with open_file(os.path.join(csv_dir, "fft_list.txt"), "w") as textfile:
+        with open_file(txt_file_name, "w") as textfile:
             for element in csv_list:
                 textfile.write(element + "\n")
 
