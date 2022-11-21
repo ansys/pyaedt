@@ -174,22 +174,16 @@ class Step(object):
             for path in path_list:
                 layer_feature.add_feature(path)
             self.layer_features.append(layer_feature)
-            if layer.name in top_bottom_layers:
-                for comp_instance in [
-                    cmp
-                    for cmp in list(self._pedb.core_components.components.values())
-                    if cmp.placement_layer == layer.name
-                ]:
-                    layer_feature.add_component_padstack_instance_feature(comp_instance, top_bottom_layers)
-                    self.layer_features.append(layer_feature)
-            # trying with via as pin as well
-            vias = [via for via in list(self._pedb.core_padstack.padstack_instances.values())]
-            for via in vias:
-                padstack_def = self._pedb.core_padstack.padstacks[via.padstack_definition]
-                # if layer.name in padstack_def.pad_by_layer:
-                #    layer_feature.add_via_instance_feature(via, layer.name)
-                layer_feature.add_via_instance_feature(via, padstack_def)
-                self.layer_features.append(layer_feature)
+            for _, padstack_instance in layer._pclass._pedb.core_padstack.padstack_instances.items():
+                padstack_instance_cmp = padstack_instance._edb_padstackinstance.GetComponent().GetName()
+                if not padstack_instance_cmp == "":
+                    component_inst = self._pedb.core_components.components[padstack_instance_cmp]
+                    layer_feature.add_component_padstack_instance_feature(
+                        component_inst, padstack_instance, top_bottom_layers
+                    )
+                else:
+                    padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
+                    layer_feature.add_via_instance_feature(padstack_instance, padstack_def)
 
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
         if via_list:
@@ -217,3 +211,5 @@ class Step(object):
             component.write_xml(step)
         for logical_net in self.logical_nets:
             logical_net.write_xml(step)
+        for layer_feature in self.layer_features:
+            layer_feature.write_xml(step)

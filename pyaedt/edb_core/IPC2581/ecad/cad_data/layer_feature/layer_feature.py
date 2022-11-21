@@ -37,16 +37,17 @@ class LayerFeature(object):
         else:
             return False
 
-    def add_via_instance_feature(self, via=None, padstackdef=None):
-        if via and padstackdef:
+    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None):
+        if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
-            feature.via.net = via.net_name
-            feature.feature_type = FeatureType.Via
-            feature.via.x = self._ipc.from_meter_to_units(via.position[0], self._ipc.units)
-            feature.via.y = self._ipc.from_meter_to_units(via.position[1], self._ipc.units)
-            feature.via.diameter = padstackdef.hole_finished_size
-            feature.via.hole_name = via.padstack_definition
-            feature.via.name = via.name
+            feature.padstack_instance.net = padstack_inst.net_name
+            feature.padstack_instance.isvia = True
+            feature.feature_type = FeatureType.PadstackInstance
+            feature.padstack_instance.x = self._ipc.from_meter_to_units(padstack_inst.position[0], self._ipc.units)
+            feature.padstack_instance.y = self._ipc.from_meter_to_units(padstack_inst.position[1], self._ipc.units)
+            feature.padstack_instance.diameter = padstackdef.hole_finished_size
+            feature.padstack_instance.hole_name = padstack_inst.padstack_definition
+            feature.padstack_instance.name = padstack_inst.name
             self.features.append(feature)
 
     def add_drill_feature(self, via, diameter=0.0):
@@ -58,13 +59,13 @@ class LayerFeature(object):
         feature.drill.diameter = self._ipc.from_meter_to_units(diameter, self._ipc.units)
         self.features.append(feature)
 
-    def add_component_padstack_instance_feature(self, component=None, top_bottom_layers=[]):
+    def add_component_padstack_instance_feature(self, component=None, pin=None, top_bottom_layers=[]):
         if component:
             cmp_x = self._ipc.from_meter_to_units(component.center[0], self._ipc.units)
             cmp_y = self._ipc.from_meter_to_units(component.center[1], self._ipc.units)
             _cos = math.cos(component.rotation)
             _sin = math.sin(component.rotation)
-            for _, pin in component.pins.items():
+            if pin:
                 is_via = False
                 if not pin.start_layer == pin.stop_layer:
                     is_via = True
@@ -79,7 +80,7 @@ class LayerFeature(object):
                     mirror = True
                     rotation = -cmp_rot_deg - pin.rotation * 180 / math.pi
                 feature = Feature(self._ipc)
-                feature.feature_type = FeatureType.Padstack
+                feature.feature_type = FeatureType.PadstackInstance
                 feature.net = pin.net_name
                 feature.padstack_instance.net = pin.net_name
                 feature.padstack_instance.pin = pin.name

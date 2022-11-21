@@ -215,10 +215,9 @@ class IPC2581(object):
         # component def
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
-        # component pads
+        # padstack instances
         for _, layer in self._pedb.stackup.layers.items():
             self.ecad.cad_data.cad_data_step.add_layer_feature(layer, top_bottom_layers)
-            # viadef
         # adding drill layer feature
         via_list = [
             obj

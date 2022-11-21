@@ -43,9 +43,9 @@ class Polygon(object):
             contour = ET.SubElement(feature, "Contour")
             polygon = ET.SubElement(contour, "Polygon")
             polygon_begin = ET.SubElement(polygon, "PolyBegin")
-            polygon_begin.set("x", self.polygon.poly_steps[0].x)
-            polygon_begin.set("y", self.polygon.poly_steps[0].y)
-            for poly_step in self.polygon.poly_steps[1:]:
+            polygon_begin.set("x", self.poly_steps[0].x)
+            polygon_begin.set("y", self.poly_steps[0].y)
+            for poly_step in self.poly_steps[1:]:
                 poly_step.write_xml(polygon)
             for cutout in self.cutout:
                 cutout.write_xml(contour)

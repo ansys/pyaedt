@@ -1,11 +1,9 @@
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.drill import Drill
-from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_instance import (
     PadstackInstance,
 )
-from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.via import Via
 from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.path import Path
 from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
@@ -20,10 +18,10 @@ class Feature(object):
         self.polygon = Polygon(self._ipc)
         self._cutouts = []
         self.path = Path(self._ipc)
-        self.pad = PadstackDef()
+        # self.pad = PadstackDef()
         self.padstack_instance = PadstackInstance()
         self.drill = Drill()
-        self.via = Via()
+        # self.via = Via()
 
     @property
     def cutouts(self):
@@ -48,12 +46,12 @@ class Feature(object):
             location.set("x", str(self.x))
             location.set("y", str(self.y))
             if self.feature_type == FeatureType.Polygon:
-                for polygon in self.polygon:
-                    polygon.write_xml(feature)
+                self.polygon.write_xml(feature)
             elif self.feature_type == FeatureType.Path:
-                for path in self.path:
-                    path.write_xml(feature)
+                self.path.write_xml(feature)
+            elif self.feature_type == FeatureType.PadstackInstance:
+                self.padstack_instance.write_xml(feature)
 
 
 class FeatureType:
-    (Polygon, Path, Padstack, Via, Drill) = range(0, 5)
+    (Polygon, Path, PadstackInstance, Drill) = range(0, 4)
