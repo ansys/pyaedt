@@ -1649,7 +1649,7 @@ class Analysis(Design, object):
             Full path to custom ACF file. The default is ``None.``
         use_auto_settings : bool, optional
             Either if use or not auto settings in task/cores. It is not supported by all Setup.
-        num_variations_to_distribute: int, optional
+        num_variations_to_distribute : int, optional
             Number of variations to distribute. For this to take effect use_auto_settings must be True.
 
         Returns
