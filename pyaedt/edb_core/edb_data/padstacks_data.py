@@ -718,6 +718,7 @@ class EDBPadstackInstance(object):
 
     @property
     def component(self):
+        """Get component this padstack belong to."""
         comp_name = self._edb_padstackinstance.GetComponent().GetName()
         if comp_name in self._pedb.core_components.components:
             return self._pedb.core_components.components[comp_name]
@@ -939,6 +940,7 @@ class EDBPadstackInstance(object):
 
     @property
     def pin_number(self):
+        """Get pin number."""
         return self._edb_padstackinstance.GetName()
 
     @pyaedt_function_handler()

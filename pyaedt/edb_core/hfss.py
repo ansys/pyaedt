@@ -454,7 +454,7 @@ class EdbHfss(object):
         if not isinstance(net_list, list):
             net_list = [net_list]
         for ref in ref_des_list:
-            for pin_num, py_inst in self._pedb.core_components.components[ref].pins.items():
+            for _, py_inst in self._pedb.core_components.components[ref].pins.items():
                 if py_inst.net_name in net_list and py_inst.is_pin:
                     port_name = "{}_{}_{}".format(ref, py_inst.net_name, py_inst.pin.GetName())
                     (

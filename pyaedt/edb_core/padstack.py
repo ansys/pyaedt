@@ -300,10 +300,12 @@ class EdbPadstacks(object):
     def refresh_padstack_instances(self):
         edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
         for edb_padstack_instance in edb_padstack_inst_list:
-            self._padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
+            self._padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(
+                edb_padstack_instance, self._pedb
+            )
 
     @pyaedt_function_handler
-    def delete_padstack_instances(self, net_names):
+    def delete_padstack_instances(self, net_names):  # pragma: no cover
         """Delete padstack instances by net names.
 
         Parameters
