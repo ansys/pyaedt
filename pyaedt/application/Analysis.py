@@ -1694,7 +1694,7 @@ class Analysis(Design, object):
             update_hpc_option(target_name, "DesignType", self.design_type, True)
             if self.design_type == "Icepak":
                 use_auto_settings = False
-            update_hpc_option(target_name, "UseAutoSettings", self.design_type, use_auto_settings)
+            update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
 
             if settings.remote_rpc_session:
                 remote_name = (
