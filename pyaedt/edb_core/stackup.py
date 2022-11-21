@@ -9,8 +9,9 @@ import difflib
 import json
 import logging
 import math
-import numpy as np
 import warnings
+
+import numpy as np
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration

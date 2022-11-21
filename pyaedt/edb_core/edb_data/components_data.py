@@ -2,7 +2,6 @@ import logging
 import re
 import warnings
 
-from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
