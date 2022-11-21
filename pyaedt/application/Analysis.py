@@ -1650,7 +1650,7 @@ class Analysis(Design, object):
         use_auto_settings : bool, optional
             Either if use or not auto settings in task/cores. It is not supported by all Setup.
         num_variations_to_distribute : int, optional
-            Number of variations to distribute. For this to take effect use_auto_settings must be True.
+            Number of variations to distribute. For this to take effect ``use_auto_settings`` must be set to ``True``.
 
         Returns
         -------
