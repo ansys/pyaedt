@@ -204,14 +204,14 @@ def open_file(file_path, file_options="r"):
     object
         Opened file.
     """
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
     dir_name = os.path.dirname(file_path)
     if os.path.exists(dir_name):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:
         return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
-        return False
+        settings.logger.error("The file: %s does not exits", dir_name)
 
 
 def convert_remote_object(arg):
