@@ -41,16 +41,12 @@ class Feature(object):
         if layer_feature:
             net = ET.SubElement("Set")
             net.set("net", self.net)
-            feature = ET.SubElement(net, "Features")
-            location = ET.SubElement(feature, "Location")
-            location.set("x", str(self.x))
-            location.set("y", str(self.y))
             if self.feature_type == FeatureType.Polygon:
-                self.polygon.write_xml(feature)
+                self.polygon.write_xml(net)
             elif self.feature_type == FeatureType.Path:
-                self.path.write_xml(feature)
+                self.path.write_xml(net)
             elif self.feature_type == FeatureType.PadstackInstance:
-                self.padstack_instance.write_xml(feature)
+                self.padstack_instance.write_xml(net)
 
 
 class FeatureType:

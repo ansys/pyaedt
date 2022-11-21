@@ -26,14 +26,18 @@ class Path(object):
                 path_pt.y = self._ipc.from_meter_to_units(pt.Y.ToDouble(), self._ipc.units)
                 self.polysteps.append(path_pt)
 
-    def write_xml(self, feature):
-        if feature:
-            polyline = ET.SubElement(feature, "Polyline")
-            polyline_begin = ET.SubElement(polyline, "PolyBegin")
-            polyline_begin.set("x", self.path.polyline[0].x)
-            polyline_begin.set("y", self.path.polyline[0].y)
-            for poly_step in self.path.polyline[1:]:
-                poly_step.write_xml()
+    def write_xml(self, net_root):
+        feature = ET.SubElement(net_root, "Features")
+        polyline = ET.SubElement(feature, "Polyline")
+        polyline_begin = ET.SubElement(polyline, "PolyBegin")
+        polyline_begin.set("x", self._ipc.from_meter_to_units(self.polysteps[0].x, self._ipc.units))
+        polyline_begin.set("y", self._ipc.from_meter_to_units(self.polysteps[0].y, self._ipc.units))
+        for poly_step in self.polysteps[1:]:
+            poly_step_segment = ET.SubElement(polyline, "PolyStepSegment")
+            poly_step_segment.set("x", self._ipc.from_meter_to_units(poly_step.x, self._ipc.units))
+            poly_step_segment.set("y", self._ipc.from_meter_to_units(poly_step.y, self._ipc.units))
+        line_disc_ref = ET.SubElement(polyline, "LineDescRef")
+        line_disc_ref.set("id", self.width_ref_id)
 
 
 class PathStep(object):
