@@ -1705,7 +1705,7 @@ class Analysis(Design, object):
                 use_auto_settings = False
             update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
             if num_variations_to_distribute:
-                update_hpc_option(target_name, 'NumVariationsToDistribute', num_variations_to_distribute, False)
+                update_hpc_option(target_name, "NumVariationsToDistribute", num_variations_to_distribute, False)
 
             if settings.remote_rpc_session:
                 remote_name = (
