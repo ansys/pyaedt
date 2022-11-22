@@ -29,10 +29,10 @@ class Component(object):
         non_standard_attribute.set("value", self.value)
         non_standard_attribute.set("type", "STRING")
         xform = ET.SubElement(component, "Xform")
-        xform.set("rotation", self.rotation)
+        xform.set("rotation", str(self.rotation))
         location = ET.SubElement(component, "Location")
-        location.set("x", self.location[0])
-        location.set("y", self.location[1])
+        location.set("x", str(self.location[0]))
+        location.set("y", str(self.location[1]))
 
 
 class Type(object):

@@ -13,7 +13,7 @@ class Pin(object):
 
     def write_xml(self, package):
         pin = ET.SubElement(package, "Pin")
-        pin.set("number", self.number)
+        pin.set("number", str(self.number))
         pin.set("type", "THRU")
         pin.set("electricalType", self.electrical_type)
 

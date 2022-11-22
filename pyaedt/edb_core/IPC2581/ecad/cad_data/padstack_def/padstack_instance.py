@@ -43,10 +43,10 @@ class PadstackInstance(object):
             pad = ET.SubElement(net_root, "Pad")
             pad.set("padstackDefRef", self.padstack_def)
             xform = ET.SubElement(pad, "Xform")
-            xform.set("rotation", self.rotation)
+            xform.set("rotation", str(self.rotation))
             location = ET.SubElement(pad, "Location")
-            location.set("x", self.x)
-            location.set("y", self.y)
+            location.set("x", str(self.x))
+            location.set("y", str(self.y))
             primitive_ref = ET.SubElement(pad, "StandardPrimitiveRef")
             primitive_ref.set("id", self.standard_primimtive_ref)
             if self.refdes:

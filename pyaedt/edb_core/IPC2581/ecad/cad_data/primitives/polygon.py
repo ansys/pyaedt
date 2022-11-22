@@ -46,8 +46,8 @@ class Polygon(object):
         contour = ET.SubElement(feature, "Contour")
         polygon = ET.SubElement(contour, "Polygon")
         polygon_begin = ET.SubElement(polygon, "PolyBegin")
-        polygon_begin.set("x", self._ipc.from_meter_to_units(self.poly_steps[0].x, self._ipc.units))
-        polygon_begin.set("y", self._ipc.from_meter_to_units(self.poly_steps[0].y, self._ipc.units))
+        polygon_begin.set("x", str(self._ipc.from_meter_to_units(self.poly_steps[0].x, self._ipc.units)))
+        polygon_begin.set("y", str(self._ipc.from_meter_to_units(self.poly_steps[0].y, self._ipc.units)))
         for poly_step in self.poly_steps[1:]:
             poly_step.write_xml(polygon, self._ipc)
         for cutout in self.cutout:
@@ -62,19 +62,19 @@ class Cutout(Polygon):
         if contour:
             cutout = ET.SubElement(contour, "Cutout")
             cutout_begin = ET.SubElement(cutout, "PolyBegin")
-            cutout_begin.set("x", ipc.from_meter_to_units(self.poly_steps[0].x, ipc.units))
-            cutout_begin.set("y", ipc.from_meter_to_units(self.poly_steps[0].y, ipc.units))
+            cutout_begin.set("x", str(ipc.from_meter_to_units(self.poly_steps[0].x, ipc.units)))
+            cutout_begin.set("y", str(ipc.from_meter_to_units(self.poly_steps[0].y, ipc.units)))
             for poly_step in self.poly_steps[1:]:
                 if poly_step.poly_type == 1:
                     poly = ET.SubElement(cutout, "PolyStepSegment")
-                    poly.set("x", ipc.from_meter_to_units(poly_step.x, ipc.units))
-                    poly.set("y", ipc.from_meter_to_units(poly_step.y, ipc.units))
+                    poly.set("x", str(ipc.from_meter_to_units(poly_step.x, ipc.units)))
+                    poly.set("y", str(ipc.from_meter_to_units(poly_step.y, ipc.units)))
                 elif poly_step.poly_type == 2:
                     poly = ET.SubElement(cutout, "PolyStepCurve")
-                    poly.set("x", ipc.from_meter_to_units(poly_step.x, ipc.units))
-                    poly.set("y", ipc.from_meter_to_units(poly_step.y, ipc.units))
-                    poly.set("centerX", ipc.from_meter_to_units(poly_step.center_X, ipc.units))
-                    poly.set("centerY", ipc.from_meter_to_units(poly_step.center_y, ipc.units))
+                    poly.set("x", str(ipc.from_meter_to_units(poly_step.x, ipc.units)))
+                    poly.set("y", str(ipc.from_meter_to_units(poly_step.y, ipc.units)))
+                    poly.set("centerX", str(ipc.from_meter_to_units(poly_step.center_X, ipc.units)))
+                    poly.set("centerY", str(ipc.from_meter_to_units(poly_step.center_y, ipc.units)))
                     poly.set("clockwise", str(poly_step.clock_wise))
 
 
@@ -91,14 +91,14 @@ class PolyStep(object):
         if polygon:
             if self.poly_type == 1:
                 poly = ET.SubElement(polygon, "PolyStepSegment")
-                poly.set("x", ipc.from_meter_to_units(self.x, ipc.units))
-                poly.set("y", ipc.from_meter_to_units(self.y, ipc.units))
+                poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
+                poly.set("y", str(ipc.from_meter_to_units(self.y, ipc.units)))
             elif self.poly_type == 2:
                 poly = ET.SubElement(polygon, "PolyStepCurve")
-                poly.set("x", ipc.from_meter_to_units(self.x, ipc.units))
-                poly.set("y", ipc.from_meter_to_units(self.y, ipc.units))
-                poly.set("centerX", ipc.from_meter_to_units(self.center_X, ipc.units))
-                poly.set("centerY", ipc.from_meter_to_units(self.center_y, ipc.units))
+                poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
+                poly.set("y", str(ipc.from_meter_to_units(self.y, ipc.units)))
+                poly.set("centerX", str(ipc.from_meter_to_units(self.center_X, ipc.units)))
+                poly.set("centerY", str(ipc.from_meter_to_units(self.center_y, ipc.units)))
                 poly.set("clockwise", str(self.clock_wise))
 
 

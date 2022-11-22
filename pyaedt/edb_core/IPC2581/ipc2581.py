@@ -230,6 +230,8 @@ class IPC2581(object):
 
     @pyaedt_function_handler()
     def from_meter_to_units(self, value, units):
+        if isinstance(value, str):
+            value = float(value)
         if units.lower() == "mm":
             return round(value * 1000, 4)
         if units.lower() == "um":
