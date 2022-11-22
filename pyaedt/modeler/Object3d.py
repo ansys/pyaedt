@@ -3632,7 +3632,9 @@ class CircuitComponent(object):
         try:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
 
-            if not pins or pins is True:
+            if not pins:
+                return []
+            elif pins is True:
                 self._pins.append(CircuitPins(self, self.composed_name))
                 return self._pins
             for pin in pins:
