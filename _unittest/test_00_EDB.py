@@ -638,6 +638,7 @@ if not config["skip_edb"]:
                     reference_list=["GND"],
                     extent_type="Bounding",
                     number_of_threads=4,
+                    extent_defeature=0.001,
                 )
                 assert "A0_N" not in edbapp.core_nets.nets
             edbapp.close_edb()
