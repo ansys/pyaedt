@@ -15,6 +15,7 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
+
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
@@ -622,7 +623,9 @@ class Icepak(FieldAnalysis3D):
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
-        warnings.warn('This method is deprecated in 0.6.27. Please use create_two_resistor_network_block', DeprecationWarning)
+        warnings.warn(
+            "This method is deprecated in 0.6.27. Please use create_two_resistor_network_block", DeprecationWarning
+        )
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
                 gravity_dir = gravity_dir - 3
@@ -1248,8 +1251,6 @@ class Icepak(FieldAnalysis3D):
         self.modeler.unite(list_to_move)
         self.modeler[list_to_move[0]].name = "HeatSink1"
         return True
-
-
 
     @pyaedt_function_handler()
     def edit_design_settings(
@@ -2041,7 +2042,7 @@ class Icepak(FieldAnalysis3D):
         custom_y_resolution=None,
         power_in=0,
     ):
-        """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file.
+        """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
         .. note::
            No solution is linked.
@@ -2666,76 +2667,74 @@ class Icepak(FieldAnalysis3D):
         return True
 
     @pyaedt_function_handler()
-    def create_two_resistor_network_block(
-            self,
-            object_name,
-            power,
-            rjb,
-            rjc,
-            placement
-    ):
-        """ Function to create 2-Resistor network object.
-            This method is going to replace create_network_block method.
+    def create_two_resistor_network_block(self, object_name, power, rjb, rjc, placement):
+        """Function to create 2-Resistor network object.
+        This method is going to replace create_network_block method.
 
-            Parameters
-            ----------
-            object_name: str
-                name of the object (3D block primitive) on which 2-R network is to be created
-            power: float
-                junction power in [W]
-            rjb: float
-                Junction to board thermal resistance in [K/W]
-            rjc: float
-                Junction to case thermal resistance in [K/W]
-            placement: str
-                Acceptable entries are "top" or "bottom"
-                "top": network block is placed on top of board
-                "bottom": network block is placed on bottom of board
+        Parameters
+        ----------
+        object_name: str
+            name of the object (3D block primitive) on which 2-R network is to be created
+        power: float
+            junction power in [W]
+        rjb: float
+            Junction to board thermal resistance in [K/W]
+        rjc: float
+            Junction to case thermal resistance in [K/W]
+        placement: str
+            Acceptable entries are "top" or "bottom"
+            "top": network block is placed on top of board
+            "bottom": network block is placed on bottom of board
 
-            Returns
-            -------
-            :class:`pyaedt.modules.Boundary.BoundaryObject`
-                Boundary object.
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
 
-            References
-            ----------
+        References
+        ----------
 
-            >>> oModule.AssignNetworkBoundary
+        >>> oModule.AssignNetworkBoundary
 
-            Examples
-            --------
+        Examples
+        --------
 
-            >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
-            >>> block = icepak.create_two_resistor_network_block("NetworkBox1", "2W", 20, 10, "top")
-            >>> block.props["Nodes"]["Internal"][0]
-            '2W'
+        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
+        >>> block = icepak.create_two_resistor_network_block("NetworkBox1", "2W", 20, 10, "top")
+        >>> block.props["Nodes"]["Internal"][0]
+        '2W'
         """
         object_handle = self.modeler.get_object_from_name(object_name)
         placement = placement.casefold()
-        if placement == 'top':
+        if placement == "top":
             board_face_id = object_handle.top_face_z.id
             case_face_id = object_handle.bottom_face_z.id
-            board_side = 'bottom'
-            case_side = 'top'
+            board_side = "bottom"
+            case_side = "top"
         else:
             board_face_id = object_handle.bottom_face_z.id
             case_face_id = object_handle.top_face_z.id
-            board_side = 'top'
-            case_side = 'bottom'
+            board_side = "top"
+            case_side = "bottom"
 
         # Define network properties in props directory
-        props = {"Faces": [board_face_id, case_face_id], "Nodes": OrderedDict(
-            {
-                "Case_side(" + case_side + ")": [case_face_id, "NoResistance"],
-                "Board_side(" + board_side + ")": [board_face_id, "NoResistance"],
-                "Internal": [power],
-            }
-        ), "Links": OrderedDict(
-            {
-                "Rjc": ["Case_side(" + case_side + ")", "Internal", "R", str(rjc) + "cel_per_w"],
-                "Rjb": ["Board_side(" + board_side + ")", "Internal", "R", str(rjb) + "cel_per_w"],
-            }
-        ), "SchematicData": ({})}
+        props = {
+            "Faces": [board_face_id, case_face_id],
+            "Nodes": OrderedDict(
+                {
+                    "Case_side(" + case_side + ")": [case_face_id, "NoResistance"],
+                    "Board_side(" + board_side + ")": [board_face_id, "NoResistance"],
+                    "Internal": [power],
+                }
+            ),
+            "Links": OrderedDict(
+                {
+                    "Rjc": ["Case_side(" + case_side + ")", "Internal", "R", str(rjc) + "cel_per_w"],
+                    "Rjb": ["Board_side(" + board_side + ")", "Internal", "R", str(rjb) + "cel_per_w"],
+                }
+            ),
+            "SchematicData": ({}),
+        }
 
         # Default material is Ceramic Material
         self.modeler[object_name].material_name = "Ceramic_material"
@@ -2844,9 +2843,9 @@ class Icepak(FieldAnalysis3D):
         >>> oDesign.ImportIDF
         """
         if not library_path:
-            if board_path.endswith('.emn'):
+            if board_path.endswith(".emn"):
                 library_path = board_path[:-3] + "emp"
-            if board_path.endswith('.bdf'):
+            if board_path.endswith(".bdf"):
                 library_path = board_path[:-3] + "ldf"
         if not control_path and os.path.exists(board_path[:-3] + "xml"):
             control_path = board_path[:-3] + "xml"
@@ -2934,5 +2933,3 @@ class Icepak(FieldAnalysis3D):
         )
         self.modeler.add_new_objects()
         return True
-
-
