@@ -638,6 +638,7 @@ if not config["skip_edb"]:
                     reference_list=["GND"],
                     extent_type="Bounding",
                     number_of_threads=4,
+                    extent_defeature=0.001,
                 )
                 assert "A0_N" not in edbapp.core_nets.nets
             edbapp.close_edb()
@@ -2507,7 +2508,7 @@ if not config["skip_edb"]:
             sim_setup.components = ["U2A5", "U1B5"]
             sim_setup.use_default_coax_port_radial_extension = False
             sim_setup.cutout_subdesign_expansion = 0.001
-            sim_setup.start_frequency = 0
+            sim_setup.start_freq = 0
             sim_setup.stop_freq = 20e9
             sim_setup.step_freq = 10e6
             assert edbapp.build_simulation_project(sim_setup)
@@ -2533,7 +2534,7 @@ if not config["skip_edb"]:
             sim_setup.components = ["U2A5", "U1B5"]
             sim_setup.use_default_coax_port_radial_extension = False
             sim_setup.cutout_subdesign_expansion = 0.001
-            sim_setup.start_frequency = 0
+            sim_setup.start_freq = 0
             sim_setup.stop_freq = 20e9
             sim_setup.step_freq = 10e6
             sim_setup.use_default_cutout = False
