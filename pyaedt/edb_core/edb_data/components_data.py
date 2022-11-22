@@ -775,11 +775,7 @@ class EDBComponent(object):
     @pyaedt_function_handler
     def refresh_pins(self):  # pragma: no cover
         """Refresh pin dictionary."""
-        _pins = [
-            p
-            for _, p in self._pedb.core_padstack.padstack_instances.items()
-            if p.is_pin and p.component
-        ]
+        _pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items() if p.is_pin and p.component]
         self._pins = {p.pin_number: p for p in _pins if p.component.refdes == self.refdes}
 
     @pyaedt_function_handler
