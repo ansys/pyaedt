@@ -1625,14 +1625,16 @@ class Analysis(Design, object):
         return dict
 
     @pyaedt_function_handler()
-    def analyze_setup(self,
-                      name,
-                      num_cores=None,
-                      num_tasks=None,
-                      num_gpu=None,
-                      acf_file=None,
-                      use_auto_settings=True,
-                      num_variations_to_distribute=None):
+    def analyze_setup(
+        self,
+        name,
+        num_cores=None,
+        num_tasks=None,
+        num_gpu=None,
+        acf_file=None,
+        use_auto_settings=True,
+        num_variations_to_distribute=None,
+    ):
         """Analyze a design setup.
 
         Parameters
