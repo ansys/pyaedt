@@ -20,8 +20,8 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 pd = None
 if not is_ironpython:
     try:
-        import pandas as pd
         import numpy as np
+        import pandas as pd
     except ImportError:
         warnings.warn(
             "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
