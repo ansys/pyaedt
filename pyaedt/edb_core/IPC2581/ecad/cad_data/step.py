@@ -207,7 +207,7 @@ class Step(object):
             padsatck_def.write_xml(step)
         for package in list(self.packages.values()):
             package.write_xml(step)
-        for component in list(self.components.values()):
+        for component in self.components:
             component.write_xml(step)
         for logical_net in self.logical_nets:
             logical_net.write_xml(step)

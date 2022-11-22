@@ -12,7 +12,7 @@ class Pin(object):
         self.is_via = False
 
     def write_xml(self, package):
-        pin = ET.SubElement("Pin")
+        pin = ET.SubElement(package, "Pin")
         pin.set("number", self.number)
         pin.set("type", "THRU")
         pin.set("electricalType", self.electrical_type)

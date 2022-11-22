@@ -103,11 +103,10 @@ class LayerFeature(object):
             return "default_value"
 
     def write_xml(self, step):
-        if step:
-            layer_feature = ET.SubElement(step, "LayerFeature")
-            layer_feature.set("layerRef", self.layer_name)
-            color_set = ET.SubElement(layer_feature, "Set")
-            color_ref = ET.SubElement(color_set, "ColorRef")
-            color_ref.set("id", self.color)
-            for feature in self.features:
-                feature.write_xml(layer_feature)
+        layer_feature = ET.SubElement(step, "LayerFeature")
+        layer_feature.set("layerRef", self.layer_name)
+        color_set = ET.SubElement(layer_feature, "Set")
+        color_ref = ET.SubElement(color_set, "ColorRef")
+        color_ref.set("id", self.color)
+        for feature in self.features:
+            feature.write_xml(layer_feature)
