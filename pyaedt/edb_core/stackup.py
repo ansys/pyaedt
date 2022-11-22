@@ -11,8 +11,6 @@ import logging
 import math
 import warnings
 
-import numpy as np
-
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
@@ -23,6 +21,7 @@ pd = None
 if not is_ironpython:
     try:
         import pandas as pd
+        import numpy as np
     except ImportError:
         warnings.warn(
             "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
