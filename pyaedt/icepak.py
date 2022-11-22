@@ -2673,18 +2673,18 @@ class Icepak(FieldAnalysis3D):
 
         Parameters
         ----------
-        object_name: str
+        object_name : str
             name of the object (3D block primitive) on which 2-R network is to be created
-        power: float
+        power : float
             junction power in [W]
-        rjb: float
+        rjb : float
             Junction to board thermal resistance in [K/W]
-        rjc: float
+        rjc : float
             Junction to case thermal resistance in [K/W]
-        placement: str
+        placement : str
             Acceptable entries are "top" or "bottom"
-            "top": network block is placed on top of board
-            "bottom": network block is placed on bottom of board
+            "top" : network block is placed on top of board
+            "bottom" : network block is placed on bottom of board
 
         Returns
         -------
@@ -2705,7 +2705,7 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         object_handle = self.modeler.get_object_from_name(object_name)
-        placement = placement.casefold()
+        placement = placement.lower()
         if placement == "top":
             board_face_id = object_handle.top_face_z.id
             case_face_id = object_handle.bottom_face_z.id
