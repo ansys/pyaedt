@@ -1952,7 +1952,7 @@ class SimulationConfiguration(object):
                                 else:
                                     print("Unprocessed value for RadiationBox '{0}'".format(value))
                             elif i.lower().startswith("startfreq"):
-                                self.start_frequency = value
+                                self.start_freq = value
                             elif i.lower().startswith("stopfreq"):
                                 self.stop_freq = value
                             elif i.lower().startswith("sweeptype"):
