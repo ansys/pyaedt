@@ -977,6 +977,8 @@ class Components(object):
         ----------
         pingroup : Edb pin group.
 
+        component : str or EdbComponent
+
         isref : bool
 
         Returns
@@ -984,7 +986,10 @@ class Components(object):
         Edb pin group terminal.
         """
         if component:
-            cmp_name = component.GetName()
+            if not isinstance(component, self._edb.Cell.Hierarchy.Component):
+                cmp_name = component
+            else:
+                cmp_name = component.GetName()
         else:
             cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
