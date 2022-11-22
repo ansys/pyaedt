@@ -12,7 +12,7 @@ class Path(object):
         self.entry_line = EntryLine()
         self.width_ref_id = ""
 
-    def add_path_step(self, path_step=None):
+    def add_path_step(self, feature=None, path_step=None):
         self.line_width = self._ipc.from_meter_to_units(path_step.primitive_object.GetWidth(), self._ipc.units)
         self.width_ref_id = "ROUND_{}".format(self.line_width)
         if not self.width_ref_id in self._ipc.content.dict_line.dict_lines:
@@ -23,7 +23,7 @@ class Path(object):
         for pt in list(path_step.primitive_object.GetPolygonData().Points):
             path_pt.x = str(self._ipc.from_meter_to_units(pt.X.ToDouble(), self._ipc.units))
             path_pt.y = str(self._ipc.from_meter_to_units(pt.Y.ToDouble(), self._ipc.units))
-            self.polysteps.append(path_pt)
+            feature.path.polysteps.append(path_pt)
 
     def write_xml(self, net_root):
         feature = ET.SubElement(net_root, "Features")

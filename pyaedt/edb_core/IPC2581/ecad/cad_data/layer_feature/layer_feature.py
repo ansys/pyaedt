@@ -32,7 +32,7 @@ class LayerFeature(object):
                 feature.polygon.add_poly_step(obj_instance)
             elif obj_instance.type == "Path":
                 feature.feature_type = FeatureType.Path
-                feature.path.add_path_step(obj_instance)
+                feature.path.add_path_step(feature, obj_instance)
             layer_feature.append(feature)
         else:
             return False

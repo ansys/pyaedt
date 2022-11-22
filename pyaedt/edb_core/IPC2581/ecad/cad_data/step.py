@@ -185,31 +185,31 @@ class Step(object):
                 layer_feature.add_via_instance_feature(layer_feature.features, padstack_instance, padstack_def)
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
+    def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
+        if via_list:
+            drill_layer_feature = LayerFeature(self._ipc)
+            drill_layer_feature.is_drill_feature = True
+            drill_layer_feature.layer_name = layer_feature_name
+            for via in via_list:
+                try:
+                    via_diameter = self._pedb.core_padstack.padstacks[via.padstack_definition].hole_properties[0]
+                    drill_layer_feature.add_drill_feature(
+                        via, self._ipc.from_meter_to_units(via_diameter, self._ipc.units)
+                    )
+                except:
+                    pass
+            self.layer_features.append(drill_layer_feature)
 
-def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
-    if via_list:
-        drill_layer_feature = LayerFeature(self._ipc)
-        drill_layer_feature.is_drill_feature = True
-        drill_layer_feature.layer_name = layer_feature_name
-        for via in via_list:
-            try:
-                via_diameter = self._pedb.core_padstack.padstacks[via.padstack_definition].hole_properties[0]
-                drill_layer_feature.add_drill_feature(via, self._ipc.from_meter_to_units(via_diameter, self._ipc.units))
-            except:
-                pass
-        self.layer_features.append(drill_layer_feature)
-
-
-def write_xml(self, cad_data):
-    step = ET.SubElement(cad_data, "Step")
-    step.set("name", self.design_name)
-    for padsatck_def in list(self.padstack_defs.values()):
-        padsatck_def.write_xml(step)
-    for package in list(self.packages.values()):
-        package.write_xml(step)
-    for component in self.components:
-        component.write_xml(step)
-    for logical_net in self.logical_nets:
-        logical_net.write_xml(step)
-    for layer_feature in self.layer_features:
-        layer_feature.write_xml(step)
+    def write_xml(self, cad_data):
+        step = ET.SubElement(cad_data, "Step")
+        step.set("name", self.design_name)
+        for padsatck_def in list(self.padstack_defs.values()):
+            padsatck_def.write_xml(step)
+        for package in list(self.packages.values()):
+            package.write_xml(step)
+        for component in self.components:
+            component.write_xml(step)
+        for logical_net in self.logical_nets:
+            logical_net.write_xml(step)
+        for layer_feature in self.layer_features:
+            layer_feature.write_xml(step)
