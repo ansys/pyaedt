@@ -294,18 +294,18 @@ class TestClass(BasisTest, object):
             tx_freqs.append(tx_frequencies[0])
         domain.set_interferers(radiosTX, tx_bands, tx_freqs)
         interaction = self.aedtapp.results.revisions_list[-1].run(domain)
-        instance = interaction.worst_instance(Emit.result_type().sensitivity)
-        assert instance.value(Emit.result_type().emi) == 76.02
-        assert instance.value(Emit.result_type().desense) == 3.01
-        assert instance.value(Emit.result_type().sensitivity) == -66.99
+        instance = interaction.get_worst_instance(Emit.result_type().sensitivity)
+        assert instance.get_value(Emit.result_type().emi) == 76.02
+        assert instance.get_value(Emit.result_type().desense) == 3.01
+        assert instance.get_value(Emit.result_type().sensitivity) == -66.99
         instance = None
-        instance = interaction.instance(domain._obj)
-        assert instance.value(Emit.result_type().emi) == 76.02
-        assert instance.value(Emit.result_type().desense) == 3.01
-        assert instance.value(Emit.result_type().sensitivity) == -66.99
+        instance = interaction.get_instance(domain._obj)
+        assert instance.get_value(Emit.result_type().emi) == 76.02
+        assert instance.get_value(Emit.result_type().desense) == 3.01
+        assert instance.get_value(Emit.result_type().sensitivity) == -66.99
         available_warning = interaction.get_availability_warning(domain._obj)
-        assert available_warning == "Availability only defined for 1 to 1 runs"
-        availability = interaction.availability(domain._obj)
+        assert available_warning == "Availability only defined for 1 to 1 runs."
+        availability = interaction.get_availability(domain._obj)
         assert availability == -1.0
         valid_availability = interaction.has_valid_availability(domain._obj)
         assert valid_availability is False
@@ -350,7 +350,7 @@ class TestClass(BasisTest, object):
         assert domain.instance_count == 31626
         available_warning = interaction.get_availability_warning(domain._obj)
         assert available_warning == ""
-        availability = interaction.availability(domain._obj)
+        availability = interaction.get_availability(domain._obj)
         assert availability == 1.0
         valid_availability = interaction.has_valid_availability(domain._obj)
         assert valid_availability
