@@ -1,4 +1,5 @@
 import copy
+import csv
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _arg2dict
@@ -42,6 +43,10 @@ class CommonOptimetrics(PropsManager, object):
 
         if optimtype == "OptiParametric":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultparametricSetup))
+            if not inputd and self._app.design_type == "Icepak":
+                self.props["ProdOptiSetupDataV2"] = OrderedDict(
+                    {"SaveFields": False, "FastOptimetrics": False, "SolveWithCopiedMeshOnly": True}
+                )
         if optimtype == "OptiDesignExplorer":
             self.props = SetupProps(self, inputd or copy.deepcopy(defaultdxSetup))
         if optimtype == "OptiOptimization":
@@ -239,6 +244,12 @@ class CommonOptimetrics(PropsManager, object):
 
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
+
+        for _ in range(2):
+            arg[8].pop(1)
+        for variation in self.props["Sweep Operations"]["add"]:
+            arg[8].append("add:=")
+            arg[8].append(variation)
 
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -1068,9 +1079,31 @@ class ParametricSetups(object):
         """
         if not parametricname:
             parametricname = generate_unique_name("Parametric")
-        self.optimodule.ImportSetup("OptiParametric", ["NAME:" + parametricname, filename])
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
+        setup.props["Sim. Setups"] = [setup.name for setup in self._app.setups]
+        with open(filename, "r") as csvfile:
+            csvreader = csv.DictReader(csvfile)
+            setup.props["Sweeps"]["SweepDefinition"] = [
+                OrderedDict(
+                    {
+                        "Variable": var_name,
+                        "Data": self._app.variable_manager.variables[var_name].expression,
+                        "OffsetF1": False,
+                        "Synchronize": 0,
+                    }
+                )
+                for var_name in csvreader.fieldnames
+            ]
+            setup.props["Sweep Operations"] = OrderedDict({"add": [line for line in csvreader.reader]})
+        args = ["NAME:" + parametricname]
+        _dict2arg(setup.props, args)
+        for _ in range(2):
+            args[8].pop(1)
+        for variation in setup.props["Sweep Operations"]["add"]:
+            args[8].append("add:=")
+            args[8].append(variation)
+        self.optimodule.InsertSetup("OptiParametric", args)
         self.setups.append(setup)
         return True
 
