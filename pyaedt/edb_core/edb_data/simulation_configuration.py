@@ -3,6 +3,7 @@ import os
 import warnings
 from collections import OrderedDict
 
+
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.edb_data.sources import SourceType
@@ -20,6 +21,32 @@ try:
 except ImportError:
     if os.name != "posix":
         warnings.warn("This module requires pythonnet.")
+
+
+class ViaSettings(object):
+
+    def __init__(self, edb_via_settings):
+        self._edb_via_settings = edb_via_settings
+
+    @property
+    def via_density(self):
+        return self._edb_via_settings.ViaDensity
+
+    @property
+    def via_material(self):
+        return self._edb_via_settings.ViaMaterial
+
+    @property
+    def via_num_sizes(self):
+        return self._edb_via_settings.ViaNumSizes
+
+    @via_num_sizes.setter
+    def via_num_sizes(self, value):
+        self._edb_via_settings.ViaNumSizes = value
+
+    @property
+    def via_style(self):
+        return self._edb_via_settings.ViaStyle
 
 
 class SimulationConfiguration(object):
@@ -82,7 +109,9 @@ class SimulationConfiguration(object):
     SignalLayersProperties = []
     """
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, edbapp=None):
+        self._edb = edbapp
+
         self._filename = filename
         self._setup_name = "Pyaedt_setup"
         self._generate_solder_balls = True
@@ -182,6 +211,23 @@ class SimulationConfiguration(object):
         self._mesh_sizefactor = 0.0
         self._read_cfg()
         self._use_default_cutout = True
+
+    @property
+    def hfss_simulation_settings(self):
+        return self._edb.Utility.HFSSSimulationSetup(self._sim_setup_info)
+
+    @property
+    def _sim_setup_info(self):
+        return self._edb.sim_setup_data.SimSetupInfo[self._edb.sim_setup_data.HFSSSimulationSettings]()
+
+    @property
+    def _simulation_settings(self):
+        return self._sim_setup_info.SimulationSettings
+
+    @property
+    def via_settings(self):
+        edb_via_settings = self._simulation_settings.get_ViaSettings()
+        return ViaSettings(edb_via_settings)
 
     @property
     def filename(self):  # pragma: no cover
@@ -2374,7 +2420,6 @@ class SimulationConfiguration(object):
             return True
         except:  # pragma: no cover
             return False
-
 
 class SiwaveDCSetupTemplate(object):
     """Manages Siwave DC settings data.
