@@ -1187,6 +1187,7 @@ class Edb(object):
         output_aedb_path=None,
         remove_single_pin_components=False,
         use_pyaedt_extent_computing=False,
+        extent_defeature=0,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1221,6 +1222,9 @@ class Edb(object):
             Remove all Single Pin RLC after the cutout is completed. Default is `False`.
         use_pyaedt_extent_computing : bool, optional
             Whether to use pyaedt extent computing (experimental).
+        extent_defeature : float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
 
         Returns
         -------
@@ -1288,6 +1292,8 @@ class Edb(object):
             _poly = self._create_extent(
                 net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
             )
+            if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
+                _poly = _poly.Defeature(extent_defeature)
 
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
