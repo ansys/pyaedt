@@ -723,7 +723,7 @@ class EDBPadstackInstance(object):
         if comp_name in self._pedb.core_components.components:
             return self._pedb.core_components.components[comp_name]
         else:
-            return ""
+            return
 
     @property
     def pin(self):
