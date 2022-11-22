@@ -22,9 +22,6 @@ class StackupGroup(object):
             if len([lay for lay in value if isinstance(lay, Layer)]):
                 self._stackup_layers = value
 
-    def write_xml(self):
-        pass
-
     def add_stackup_layer(self, layer_name="", thickness="", tol_minus="0.0", tol_plus="0.0", sequence=""):
         stackup_layer = StackupLayer()
         stackup_layer.layer_name = layer_name
@@ -34,13 +31,11 @@ class StackupGroup(object):
         stackup_layer.sequence = sequence
         self._stackup_layers.append(stackup_layer)
 
-
-def write_xml(self, stackup):
-    if stackup:
+    def write_xml(self, stackup):
         stackup_group = ET.SubElement(stackup, "StackupGroup")
         stackup_group.set("name", "GROUP_PRIMARY")
-        stackup_group.set("thickness", self.thickness)
-        stackup_group.set("tolPlus", self.tol_plus)
-        stackup_group.set("tolMinus", self.tol_minus)
+        stackup_group.set("thickness", str(self.thickness))
+        stackup_group.set("tolPlus", str(self.tol_plus))
+        stackup_group.set("tolMinus", str(self.tol_minus))
         for layer in self.stackup_layers:
             layer.write_xml(stackup_group)

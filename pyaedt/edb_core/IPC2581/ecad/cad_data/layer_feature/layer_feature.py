@@ -23,7 +23,7 @@ class LayerFeature(object):
             if len([feat for feat in value if isinstance(feat, Feature)]) == len(value):
                 self._features = value
 
-    def add_feature(self, obj_instance=None):
+    def add_feature(self, layer_feature=None, obj_instance=None):
         if obj_instance:
             feature = Feature(self._ipc)
             feature.net = obj_instance.net_name
@@ -33,11 +33,11 @@ class LayerFeature(object):
             elif obj_instance.type == "Path":
                 feature.feature_type = FeatureType.Path
                 feature.path.add_path_step(obj_instance)
-            self.features.append(feature)
+            layer_feature.append(feature)
         else:
             return False
 
-    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None):
+    def add_via_instance_feature(self, layer_feature=None, padstack_inst=None, padstackdef=None):
         if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
             feature.padstack_instance.net = padstack_inst.net_name
@@ -48,7 +48,7 @@ class LayerFeature(object):
             feature.padstack_instance.diameter = padstackdef.hole_finished_size
             feature.padstack_instance.hole_name = padstack_inst.padstack_definition
             feature.padstack_instance.name = padstack_inst.name
-            self.features.append(feature)
+            layer_feature.append(feature)
 
     def add_drill_feature(self, via, diameter=0.0):
         feature = Feature(self._ipc)
@@ -59,7 +59,9 @@ class LayerFeature(object):
         feature.drill.diameter = self._ipc.from_meter_to_units(diameter, self._ipc.units)
         self.features.append(feature)
 
-    def add_component_padstack_instance_feature(self, component=None, pin=None, top_bottom_layers=[]):
+    def add_component_padstack_instance_feature(
+        self, layer_feature=None, component=None, pin=None, top_bottom_layers=[]
+    ):
         if component:
             cmp_x = self._ipc.from_meter_to_units(component.center[0], self._ipc.units)
             cmp_y = self._ipc.from_meter_to_units(component.center[1], self._ipc.units)
@@ -93,7 +95,7 @@ class LayerFeature(object):
                 feature.padstack_instance.standard_primimtive_ref = self._get_primitive_ref(
                     pin.padstack_definition, component.placement_layer
                 )
-                self.features.append(feature)
+                layer_feature.append(feature)
 
     def _get_primitive_ref(self, padstack_def=None, layer=None):
         if padstack_def and layer:

@@ -23,12 +23,10 @@ class Stackup(object):
                 self._stackup_group = value
 
     def write_xml(self, cad_data):
-        if cad_data:
-            stackup = ET.SubElement(cad_data, "Stackup")
-            stackup.set("name", self.name)
-            stackup.set("overallThickness", self.total_thickness)
-            stackup.set("tolPlus", self.tol_plus)
-            stackup.set("tolMinus", self.tol_min)
-            stackup.set("whereMeasured", self.where_measured)
-            for stackup_group in self.stackup_group:
-                stackup_group.write_xml(stackup)
+        stackup = ET.SubElement(cad_data, "Stackup")
+        stackup.set("name", self.name)
+        stackup.set("overallThickness", str(self.total_thickness))
+        stackup.set("tolPlus", str(self.tol_plus))
+        stackup.set("tolMinus", str(self.tol_min))
+        stackup.set("whereMeasured", self.where_measured)
+        self.stackup_group.write_xml(stackup)

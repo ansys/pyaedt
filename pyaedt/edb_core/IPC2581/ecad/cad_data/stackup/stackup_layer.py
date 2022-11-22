@@ -11,12 +11,11 @@ class StackupLayer(object):
         self.spec_ref = "SPEC_{}".format(self.layer_name)
 
     def write_xml(self, stackup_group):
-        if stackup_group:
-            stackup_layer = ET.SubElement(stackup_group, "StackupLayer")
-            stackup_layer.set("layerOrGroupRef", self.layer_name)
-            stackup_layer.set("thickness", self.thickness)
-            stackup_layer.set("tolPlus", self.tol_plus)
-            stackup_layer.set("tolMinus", self.tol_minus)
-            stackup_layer.set("tolMinus", self.sequence)
-            spec_ref = ET.SubElement(stackup_layer, "SpecRef")
-            spec_ref.set("id", self.spec_ref)
+        stackup_layer = ET.SubElement(stackup_group, "StackupLayer")
+        stackup_layer.set("layerOrGroupRef", self.layer_name)
+        stackup_layer.set("thickness", str(self.thickness))
+        stackup_layer.set("tolPlus", str(self.tol_plus))
+        stackup_layer.set("tolMinus", str(self.tol_minus))
+        stackup_layer.set("tolMinus", self.sequence)
+        spec_ref = ET.SubElement(stackup_layer, "SpecRef")
+        spec_ref.set("id", self.spec_ref)

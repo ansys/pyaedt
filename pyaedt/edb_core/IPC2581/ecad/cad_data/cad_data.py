@@ -31,4 +31,5 @@ class CadData(object):
         cad_data = ET.SubElement(ecad, "CadData")
         for layer in self.layers:
             layer.write_xml(cad_data)
+        self.stackup.write_xml(cad_data)
         self.cad_data_step.write_xml(cad_data)
