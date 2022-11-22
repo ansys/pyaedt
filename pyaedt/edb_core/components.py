@@ -996,7 +996,7 @@ class Components(object):
         if cmp_name:
             term_name = generate_unique_name("{0}.{1}.Pingroup".format(cmp_name, net_name), n=2)
         else:
-            term_name = generate_unique_name("{1}.Pingroup".format(cmp_name, net_name), n=2)
+            term_name = generate_unique_name("{0}.Pingroup".format(net_name), n=2)
 
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
