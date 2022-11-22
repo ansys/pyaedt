@@ -510,3 +510,27 @@ class TestClass(BasisTest, object):
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
         assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=source_project_path)
+
+    def test_42_new_network_block_defn(self):
+        self.aedtapp.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
+        self.aedtapp.modeler.create_box([15, 25, 35], [10, 10, 10], "network_box2", "copper")
+        result = self.aedtapp.create_two_resistor_network_block("network_box", "5W", 2.5, 5, "top")
+        result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "10W", 2.5, 5, "bottom")
+        assert result.props["Nodes"]["Internal"][0] == "5W"
+        assert result2.props["Nodes"]["Internal"][0] == "10W"
+
+    def test_43_import_idf(self):
+        self.aedtapp.insert_design("IDF")
+        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"))
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            filter_cap=True,
+            filter_ind=True,
+            filter_res=True,
+            filter_height_under=2,
+            filter_height_exclude_2d=False,
+            internal_layer_coverage=20,
+            internal_layer_number=5,
+            internal_thick=0.05,
+            high_surface_thick="0.1in",
+        )

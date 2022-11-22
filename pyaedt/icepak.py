@@ -5,6 +5,7 @@ from __future__ import absolute_import  # noreorder
 import csv
 import math
 import os
+import warnings
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
@@ -579,6 +580,9 @@ class Icepak(FieldAnalysis3D):
     ):
         """Create a network block.
 
+        .. deprecated:: 0.6.27
+            This method will be replaced by `create_two_resistor_network_block`.
+
         Parameters
         ----------
         object_name : str
@@ -618,6 +622,7 @@ class Icepak(FieldAnalysis3D):
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
+        warnings.warn('This method is deprecated in 0.6.27. Please use create_two_resistor_network_block', DeprecationWarning)
         if object_name in self.modeler.object_names:
             if gravity_dir > 2:
                 gravity_dir = gravity_dir - 3
@@ -1244,189 +1249,7 @@ class Icepak(FieldAnalysis3D):
         self.modeler[list_to_move[0]].name = "HeatSink1"
         return True
 
-    @pyaedt_function_handler()
-    def import_idf(
-        self,
-        board_path,
-        library_path=None,
-        control_path=None,
-        filter_cap=False,
-        filter_ind=False,
-        filter_res=False,
-        filter_height_under=None,
-        filter_height_exclude_2d=False,
-        power_under=None,
-        create_filtered_as_non_model=False,
-        high_surface_thick="0.07mm",
-        low_surface_thick="0.07mm",
-        internal_thick="0.07mm",
-        internal_layer_number=2,
-        high_surface_coverage=30,
-        low_surface_coverage=30,
-        internal_layer_coverage=30,
-        trace_material="Cu-Pure",
-        substrate_material="FR-4",
-        create_board=True,
-        model_board_as_rect=False,
-        model_device_as_rect=True,
-        cutoff_height="5mm",
-        component_lib="",
-    ):
-        """Import an IDF file into an Icepak design.
 
-        Parameters
-        ----------
-        board_path : str
-            Full path to the EMN file.
-        library_path : str
-            Full path to the EMP file. The default is ``None``, in which case a search for an EMP file
-            with the same name as the EMN file is performed in the folder with the EMN file.
-        control_path : str
-            Full path to the XML file. The default is ``None``, in which case a search for an XML file
-            with the same name as the EMN file is performed in the folder with the EMN file.
-        filter_cap : bool, optional
-            Whether to filter capacitors from the IDF file. The default is ``False``.
-        filter_ind : bool, optional
-            Whether to filter inductors from the IDF file. The default is ``False``.
-        filter_res : bool, optional
-            Whether to filter resistors from the IDF file. The default is ``False``.
-        filter_height_under : float or str, optional
-            Filter components under a given height. The default is ``None``, in which case
-            no components are filtered based on height.
-        filter_height_exclude_2d : bool, optional
-            Whether to filter 2D components from the IDF file. The default is ``False``.
-        power_under : float or str, optional
-            Filter components with power under a given mW. The default is ``None``, in which
-            case no components are filtered based on power.
-        create_filtered_as_non_model : bool, optional
-            Whether to set imported filtered components as ``Non-Model``. The default is ``False``.
-        high_surface_thick : float or str optional
-            High surface thickness. The default is ``"0.07mm"``.
-        low_surface_thick : float or str, optional
-            Low surface thickness. The default is ``"0.07mm"``.
-        internal_thick : float or str, optional
-            Internal layer thickness. The default is ``"0.07mm"``.
-        internal_layer_number : int, optional
-            Number of internal layers. The default is ``2``.
-        high_surface_coverage : float, optional
-            High surface material coverage. The default is ``30``.
-        low_surface_coverage : float, optional
-            Low surface material coverage. The default is ``30``.
-        internal_layer_coverage : float, optional
-            Internal layer material coverage. The default is ``30``.
-        trace_material : str, optional
-            Trace material. The default is ``"Cu-Pure"``.
-        substrate_material : str, optional
-            Substrate material. The default is ``"FR-4"``.
-        create_board : bool, optional
-            Whether to create the board. The default is ``True``.
-        model_board_as_rect : bool, optional
-            Whether to create the board as a rectangle. The default is ``False``.
-        model_device_as_rect : bool, optional
-            Whether to create the components as rectangles. The default is ``True``.
-        cutoff_height : str or float, optional
-            Cutoff height. The default is ``None``.
-        component_lib : str, optional
-            Full path to the component library.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.ImportIDF
-        """
-        if not library_path:
-            library_path = board_path[:-3] + "emp"
-        if not control_path and os.path.exists(board_path[:-3] + "xml"):
-            control_path = board_path[:-3] + "xml"
-        else:
-            control_path = ""
-        filters = []
-        if filter_cap:
-            filters.append("Cap")
-        if filter_ind:
-            filters.append("Ind")
-        if filter_res:
-            filters.append("Res")
-        if filter_height_under:
-            filters.append("Height")
-        else:
-            filter_height_under = "0.1mm"
-        if power_under:
-            filters.append("Power")
-        else:
-            power_under = "10mW"
-        if filter_height_exclude_2d:
-            filters.append("HeightExclude2D")
-        if cutoff_height:
-            cutoff = True
-        else:
-            cutoff = False
-        if component_lib:
-            replace_device = True
-        else:
-            replace_device = False
-        self.odesign.ImportIDF(
-            [
-                "NAME:Settings",
-                "Board:=",
-                board_path.replace("\\", "\\\\"),
-                "Library:=",
-                library_path.replace("\\", "\\\\"),
-                "Control:=",
-                control_path.replace("\\", "\\\\"),
-                "Filters:=",
-                filters,
-                "CreateFilteredAsNonModel:=",
-                create_filtered_as_non_model,
-                "HeightVal:=",
-                self._arg_with_units(filter_height_under),
-                "PowerVal:=",
-                self._arg_with_units(power_under, "mW"),
-                [
-                    "NAME:definitionOverridesMap",
-                ],
-                ["NAME:instanceOverridesMap"],
-                "HighSurfThickness:=",
-                self._arg_with_units(high_surface_thick),
-                "LowSurfThickness:=",
-                self._arg_with_units(low_surface_thick),
-                "InternalLayerThickness:=",
-                self._arg_with_units(internal_thick),
-                "NumInternalLayer:=",
-                internal_layer_number,
-                "HighSurfaceCopper:=",
-                high_surface_coverage,
-                "LowSurfaceCopper:=",
-                low_surface_coverage,
-                "InternalLayerCopper:=",
-                internal_layer_coverage,
-                "TraceMaterial:=",
-                trace_material,
-                "SubstrateMaterial:=",
-                substrate_material,
-                "CreateBoard:=",
-                create_board,
-                "ModelBoardAsRect:=",
-                model_board_as_rect,
-                "ModelDeviceAsRect:=",
-                model_device_as_rect,
-                "Cutoff:=",
-                cutoff,
-                "CutoffHeight:=",
-                self._arg_with_units(cutoff_height),
-                "ReplaceDevices:=",
-                replace_device,
-                "CompLibDir:=",
-                component_lib,
-            ]
-        )
-        self.modeler.add_new_objects()
-        return True
 
     @pyaedt_function_handler()
     def edit_design_settings(
@@ -2218,7 +2041,7 @@ class Icepak(FieldAnalysis3D):
         custom_y_resolution=None,
         power_in=0,
     ):
-        """Create a PCB component in Icepak which links to an HFSS 3D Layout object linking only to the geometry file.
+        """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object linking only to the geometry file.
 
         .. note::
            No solution is linked.
@@ -2841,3 +2664,275 @@ class Icepak(FieldAnalysis3D):
                     sm.surface_incident_absorptance = oo.GetPropEvaluatedValue("Solar Normal Absorptance")
                 self.materials.surface_material_keys[mat.lower()] = sm
         return True
+
+    @pyaedt_function_handler()
+    def create_two_resistor_network_block(
+            self,
+            object_name,
+            power,
+            rjb,
+            rjc,
+            placement
+    ):
+        """ Function to create 2-Resistor network object.
+            This method is going to replace create_network_block method.
+
+            Parameters
+            ----------
+            object_name: str
+                name of the object (3D block primitive) on which 2-R network is to be created
+            power: float
+                junction power in [W]
+            rjb: float
+                Junction to board thermal resistance in [K/W]
+            rjc: float
+                Junction to case thermal resistance in [K/W]
+            placement: str
+                Acceptable entries are "top" or "bottom"
+                "top": network block is placed on top of board
+                "bottom": network block is placed on bottom of board
+
+            Returns
+            -------
+            :class:`pyaedt.modules.Boundary.BoundaryObject`
+                Boundary object.
+
+            References
+            ----------
+
+            >>> oModule.AssignNetworkBoundary
+
+            Examples
+            --------
+
+            >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
+            >>> block = icepak.create_two_resistor_network_block("NetworkBox1", "2W", 20, 10, "top")
+            >>> block.props["Nodes"]["Internal"][0]
+            '2W'
+        """
+        object_handle = self.modeler.get_object_from_name(object_name)
+        placement = placement.casefold()
+        if placement == 'top':
+            board_face_id = object_handle.top_face_z.id
+            case_face_id = object_handle.bottom_face_z.id
+            board_side = 'bottom'
+            case_side = 'top'
+        else:
+            board_face_id = object_handle.bottom_face_z.id
+            case_face_id = object_handle.top_face_z.id
+            board_side = 'top'
+            case_side = 'bottom'
+
+        # Define network properties in props directory
+        props = {"Faces": [board_face_id, case_face_id], "Nodes": OrderedDict(
+            {
+                "Case_side(" + case_side + ")": [case_face_id, "NoResistance"],
+                "Board_side(" + board_side + ")": [board_face_id, "NoResistance"],
+                "Internal": [power],
+            }
+        ), "Links": OrderedDict(
+            {
+                "Rjc": ["Case_side(" + case_side + ")", "Internal", "R", str(rjc) + "cel_per_w"],
+                "Rjb": ["Board_side(" + board_side + ")", "Internal", "R", str(rjb) + "cel_per_w"],
+            }
+        ), "SchematicData": ({})}
+
+        # Default material is Ceramic Material
+        self.modeler[object_name].material_name = "Ceramic_material"
+
+        # Create boundary condition and set Solve Inside to No
+        bound = BoundaryObject(self, object_name, props, "Network")
+        if bound.create():
+            self.boundaries.append(bound)
+            self.modeler.primitives[object_name].solve_inside = False
+            return bound
+        return None
+
+    @pyaedt_function_handler()
+    def import_idf(
+        self,
+        board_path,
+        library_path=None,
+        control_path=None,
+        filter_cap=False,
+        filter_ind=False,
+        filter_res=False,
+        filter_height_under=None,
+        filter_height_exclude_2d=False,
+        power_under=None,
+        create_filtered_as_non_model=False,
+        high_surface_thick="0.07mm",
+        low_surface_thick="0.07mm",
+        internal_thick="0.07mm",
+        internal_layer_number=2,
+        high_surface_coverage=30,
+        low_surface_coverage=30,
+        internal_layer_coverage=30,
+        trace_material="Cu-Pure",
+        substrate_material="FR-4",
+        create_board=True,
+        model_board_as_rect=False,
+        model_device_as_rect=True,
+        cutoff_height="5mm",
+        component_lib="",
+    ):
+        """Import an IDF file into an Icepak design.
+
+        Parameters
+        ----------
+        board_path : str
+            Full path to the EMN/BDF file.
+        library_path : str
+            Full path to the EMP/LDF file. The default is ``None``, in which case a search for an EMP/LDF file
+            with the same name as the EMN/BDF file is performed in the folder with the EMN/BDF file.
+        control_path : str
+            Full path to the XML file. The default is ``None``, in which case a search for an XML file
+            with the same name as the EMN/BDF file is performed in the folder with the EMN/BDF file.
+        filter_cap : bool, optional
+            Whether to filter capacitors from the IDF file. The default is ``False``.
+        filter_ind : bool, optional
+            Whether to filter inductors from the IDF file. The default is ``False``.
+        filter_res : bool, optional
+            Whether to filter resistors from the IDF file. The default is ``False``.
+        filter_height_under : float or str, optional
+            Filter components under a given height. The default is ``None``, in which case
+            no components are filtered based on height.
+        filter_height_exclude_2d : bool, optional
+            Whether to filter 2D components from the IDF file. The default is ``False``.
+        power_under : float or str, optional
+            Filter components with power under a given mW. The default is ``None``, in which
+            case no components are filtered based on power.
+        create_filtered_as_non_model : bool, optional
+            Whether to set imported filtered components as ``Non-Model``. The default is ``False``.
+        high_surface_thick : float or str optional
+            High surface thickness. The default is ``"0.07mm"``.
+        low_surface_thick : float or str, optional
+            Low surface thickness. The default is ``"0.07mm"``.
+        internal_thick : float or str, optional
+            Internal layer thickness. The default is ``"0.07mm"``.
+        internal_layer_number : int, optional
+            Number of internal layers. The default is ``2``.
+        high_surface_coverage : float, optional
+            High surface material coverage. The default is ``30``.
+        low_surface_coverage : float, optional
+            Low surface material coverage. The default is ``30``.
+        internal_layer_coverage : float, optional
+            Internal layer material coverage. The default is ``30``.
+        trace_material : str, optional
+            Trace material. The default is ``"Cu-Pure"``.
+        substrate_material : str, optional
+            Substrate material. The default is ``"FR-4"``.
+        create_board : bool, optional
+            Whether to create the board. The default is ``True``.
+        model_board_as_rect : bool, optional
+            Whether to create the board as a rectangle. The default is ``False``.
+        model_device_as_rect : bool, optional
+            Whether to create the components as rectangles. The default is ``True``.
+        cutoff_height : str or float, optional
+            Cutoff height. The default is ``None``.
+        component_lib : str, optional
+            Full path to the component library.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.ImportIDF
+        """
+        if not library_path:
+            if board_path.endswith('.emn'):
+                library_path = board_path[:-3] + "emp"
+            if board_path.endswith('.bdf'):
+                library_path = board_path[:-3] + "ldf"
+        if not control_path and os.path.exists(board_path[:-3] + "xml"):
+            control_path = board_path[:-3] + "xml"
+        else:
+            control_path = ""
+        filters = []
+        if filter_cap:
+            filters.append("Cap")
+        if filter_ind:
+            filters.append("Ind")
+        if filter_res:
+            filters.append("Res")
+        if filter_height_under:
+            filters.append("Height")
+        else:
+            filter_height_under = "0.1mm"
+        if power_under:
+            filters.append("Power")
+        else:
+            power_under = "10mW"
+        if filter_height_exclude_2d:
+            filters.append("HeightExclude2D")
+        if cutoff_height:
+            cutoff = True
+        else:
+            cutoff = False
+        if component_lib:
+            replace_device = True
+        else:
+            replace_device = False
+        self.odesign.ImportIDF(
+            [
+                "NAME:Settings",
+                "Board:=",
+                board_path.replace("\\", "\\\\"),
+                "Library:=",
+                library_path.replace("\\", "\\\\"),
+                "Control:=",
+                control_path.replace("\\", "\\\\"),
+                "Filters:=",
+                filters,
+                "CreateFilteredAsNonModel:=",
+                create_filtered_as_non_model,
+                "HeightVal:=",
+                self._arg_with_units(filter_height_under),
+                "PowerVal:=",
+                self._arg_with_units(power_under, "mW"),
+                [
+                    "NAME:definitionOverridesMap",
+                ],
+                ["NAME:instanceOverridesMap"],
+                "HighSurfThickness:=",
+                self._arg_with_units(high_surface_thick),
+                "LowSurfThickness:=",
+                self._arg_with_units(low_surface_thick),
+                "InternalLayerThickness:=",
+                self._arg_with_units(internal_thick),
+                "NumInternalLayer:=",
+                internal_layer_number,
+                "HighSurfaceCopper:=",
+                high_surface_coverage,
+                "LowSurfaceCopper:=",
+                low_surface_coverage,
+                "InternalLayerCopper:=",
+                internal_layer_coverage,
+                "TraceMaterial:=",
+                trace_material,
+                "SubstrateMaterial:=",
+                substrate_material,
+                "CreateBoard:=",
+                create_board,
+                "ModelBoardAsRect:=",
+                model_board_as_rect,
+                "ModelDeviceAsRect:=",
+                model_device_as_rect,
+                "Cutoff:=",
+                cutoff,
+                "CutoffHeight:=",
+                self._arg_with_units(cutoff_height),
+                "ReplaceDevices:=",
+                replace_device,
+                "CompLibDir:=",
+                component_lib,
+            ]
+        )
+        self.modeler.add_new_objects()
+        return True
+
+
