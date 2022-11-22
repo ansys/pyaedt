@@ -3633,7 +3633,8 @@ class CircuitComponent(object):
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
 
             if not pins or pins is True:
-                return []
+                self._pins.append(CircuitPins(self, self.composed_name))
+                return self._pins
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
