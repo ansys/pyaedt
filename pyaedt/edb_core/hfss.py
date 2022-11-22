@@ -1153,6 +1153,10 @@ class EdbHfss(object):
         self._active_layout.GetCell().SetHFSSExtentInfo(hfss_extent)  # returns void
         return True
 
+    @pyaedt_function_handler
+    def add_hfss_analysis_setup(self, simulation_setup=None):
+        pass
+
     @pyaedt_function_handler()
     def configure_hfss_analysis_setup(self, simulation_setup=None):
         """
