@@ -521,7 +521,9 @@ class TestClass(BasisTest, object):
 
     def test_43_import_idf(self):
         self.aedtapp.insert_design("IDF")
-        assert self.aedtapp.import_idf(os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"))
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf")
+        )
         assert self.aedtapp.import_idf(
             os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
             filter_cap=True,
