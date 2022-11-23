@@ -117,6 +117,16 @@ jobs:
           git remote add origin https://${{ secrets.PYAEDT_DOCS }}@github.com/pyansys/PyAEDT-docs
           git push -u origin master --force
 
+  full_documentation_json:
+    # The type of runner that the job will run on
+    name: full_documentation_json
+    needs: [full_documentation]
+    runs-on: [Windows, pyaedt]
+    strategy:
+      matrix:
+        python-version: [3.8]
+    steps:
+      - uses: actions/checkout@v3
 
       # used for documentation deployment
       - name: Get Bot Application Token
@@ -140,6 +150,7 @@ jobs:
           python -c "import sys; print(sys.executable)"
           pip install -r requirements.txt
           pip install -r requirements_docs.txt
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
       - name: Build json documentation
         run: |
