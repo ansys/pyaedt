@@ -23,6 +23,10 @@ from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
+from pyaedt.edb_core.edb_data.sources import ExcitationPorts
+from pyaedt.edb_core.edb_data.sources import ExcitationProbes
+from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
@@ -305,6 +309,31 @@ class Edb(object):
             except:
                 pass
         return self._edblib
+
+    @property
+    def excitations(self):
+        """Get all layout excitations."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        terms = [i for i in terms if not i.IsReferenceTerminal()]
+        temp = {}
+        for ter in terms:
+            if "BundleTerminal" in ter.GetType().ToString():
+                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+            else:
+                temp[ter.GetName()] = ExcitationPorts(self, ter)
+        return temp
+
+    @property
+    def sources(self):
+        """Get all layout sources."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [3, 4, 7]]
+        return {ter.GetName(): ExcitationSources(self, ter) for ter in terms}
+
+    @property
+    def probes(self):
+        """Get all layout sources."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [8]]
+        return {ter.GetName(): ExcitationProbes(self, ter) for ter in terms}
 
     @pyaedt_function_handler()
     def open_edb(self, init_dlls=False):
@@ -818,7 +847,6 @@ class Edb(object):
         self.logger.info("EDB file release time: {0:.2f}ms".format(elapsed_time * 1000.0))
         self._clean_variables()
         timeout = 4
-        # TODO check if we can remove this sleep
         time.sleep(2)
         while gc.collect() != 0 and timeout > 0:
             time.sleep(1)
@@ -856,7 +884,7 @@ class Edb(object):
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
         if self.log_name:
-            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
 
         self.log_name = os.path.join(
@@ -958,21 +986,58 @@ class Edb(object):
         extent_type,
         expansion_size,
         use_round_corner,
+        use_pyaedt_extent=False,
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
+
+            if use_pyaedt_extent:
+                _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+            else:
+                _poly = self.active_layout.GetExpandedExtentFromNets(
+                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                )
         elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
         else:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-            _poly_list = convert_py_list_to_net_list([_poly])
-            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+            if use_pyaedt_extent:
+                _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+            else:
+                _poly = self.active_layout.GetExpandedExtentFromNets(
+                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                )
+                _poly_list = convert_py_list_to_net_list([_poly])
+                _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+        return _poly
+
+    def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+        names = []
+        _polys = []
+        for net in net_signals:
+            names.append(net.GetName())
+        for prim in self.core_primitives.primitives:
+            if prim.net_name in names:
+                _polys.extend(
+                    list(
+                        prim.primitive_object.GetPolygonData().Expand(
+                            expansion_size, tolerance, round_corner, round_extension
+                        )
+                    )
+                )
+        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
+        return _poly
+
+    def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+        names = []
+        _polys = []
+        for net in net_signals:
+            names.append(net.GetName())
+        for prim in self.core_primitives.primitives:
+            if prim.net_name in names:
+                _polys.append(prim.primitive_object.GetPolygonData())
+        _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
+        _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
     def create_cutout(
@@ -984,6 +1049,7 @@ class Edb(object):
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
+        use_pyaedt_extent_computing=False,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1005,6 +1071,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
 
         Returns
         -------
@@ -1028,6 +1096,7 @@ class Edb(object):
             extent_type,
             expansion_size,
             use_round_corner,
+            use_pyaedt_extent_computing,
         )
 
         # Create new cutout cell/design
@@ -1105,6 +1174,8 @@ class Edb(object):
         custom_extent=None,
         output_aedb_path=None,
         remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
+        extent_defeature=0,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1137,6 +1208,11 @@ class Edb(object):
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
         remove_single_pin_components : bool, optional
             Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
+        extent_defeature : float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
 
         Returns
         -------
@@ -1202,11 +1278,10 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
             )
             _poly = self._create_extent(
-                net_signals,
-                extent_type,
-                expansion_size,
-                use_round_corner,
+                net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
             )
+            if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
+                _poly = _poly.Defeature(extent_defeature)
 
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
@@ -1234,7 +1309,7 @@ class Edb(object):
                 if int_data == 0:
                     prims_to_delete.append(prim_1)
                 elif int_data != 2:
-                    list_poly = intersect(_poly, get_polygon_data(prim_1))
+                    list_poly = intersect(_poly, pdata)
                     if list_poly:
                         voids = prim_1.voids
                         for p in list_poly:
@@ -1245,10 +1320,10 @@ class Edb(object):
                             if voids:
                                 for void in voids:
                                     void_pdata = get_polygon_data(void)
-                                    int_data = p.GetIntersectionType(void_pdata)
-                                    if int_data > 2:
+                                    int_data2 = p.GetIntersectionType(void_pdata)
+                                    if int_data2 > 2:
                                         void_to_subtract.append(void_pdata)
-                                    elif int_data == 2:
+                                    elif int_data2 == 2:
                                         list_void.append(void_pdata)
                                 if void_to_subtract:
                                     polys_cleans = subtract(p, void_to_subtract)
@@ -2080,3 +2155,44 @@ class Edb(object):
         EDBStatistics object from the loaded layout.
         """
         return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
+
+    @pyaedt_function_handler()
+    def are_port_reference_terminals_connected(self, common_reference=None):
+        """Check if all terminal references in design are connected.
+        If the reference nets are different, there is no hope for the terminal references to be connected.
+        After we have identified a common reference net we need to loop the terminals again to get
+        the correct reference terminals that uses that net.
+
+        Parameters
+        ----------
+        common_reference : str, optional
+            Common Reference name. If ``None`` it will be searched in ports terminal.
+            If a string is passed then all excitations must have such reference assigned.
+
+        Returns
+        -------
+        bool
+            Either if the ports are connected to reference_name or not.
+        """
+        self.logger.reset_timer()
+        if not common_reference:
+            common_reference = list(
+                set([i.reference_net_name for i in self.excitations.values() if i.reference_net_name])
+            )
+            if len(common_reference) > 1:
+                self.logger.error("More than 1 reference found.")
+            common_reference = common_reference[0]
+        setList = [
+            set(i.reference_object.get_connected_object_id_set())
+            for i in self.excitations.values()
+            if i.reference_net_name == common_reference
+        ]
+
+        # Get the set intersections for all the ID sets.
+        iDintersection = set.intersection(*setList)
+        self.logger.info_timer(
+            "Terminal reference primitive IDs total intersections = {}\n\n".format(len(iDintersection))
+        )
+
+        # If the intersections are non-zero, the termimal references are connected.
+        return True if len(iDintersection) > 0 else False

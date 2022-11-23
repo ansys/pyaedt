@@ -865,9 +865,19 @@ class FieldSetup(BoundaryCommon, object):
         self.auto_update = False
         self._app = app
         self.type = component_type
-        self.name = component_name
+        self._name = component_name
         self.props = BoundaryProps(self, OrderedDict(props))
         self.auto_update = True
+
+    @property
+    def name(self):
+        """Variable name."""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._app.oradfield.RenameSetup(self._name, value)
+        self._name = value
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
@@ -1283,6 +1293,21 @@ class FarFieldSetup(FieldSetup, object):
         if "ElevationStep" in self.props:
             self.props["ElevationStep"] = _dim_arg(value, self.units)
             self.update()
+
+
+class NearFieldSetup(FieldSetup, object):
+    """Manages Near Field Component data and execution.
+
+    Examples
+    --------
+    in this example the rectangle1 returned object is a ``pyaedt.modules.Boundary.NearFieldSetup``
+    >>> from pyaedt import Hfss
+    >>> hfss = Hfss()
+    >>> rectangle1 = hfss.insert_near_field_rectangle()
+    """
+
+    def __init__(self, app, component_name, props, component_type):
+        FieldSetup.__init__(self, app, component_name, props, component_type)
 
 
 class Matrix(object):
