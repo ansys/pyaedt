@@ -1,42 +1,512 @@
 import re
 import sys
 
-try:
-    from pyaedt.circuit import Circuit
-    from pyaedt.desktop import Desktop
-    from pyaedt.edb import Edb
-    from pyaedt.emit import Emit
-    from pyaedt.hfss import Hfss
-    from pyaedt.hfss3dlayout import Hfss3dLayout
-    from pyaedt.icepak import Icepak
-    from pyaedt.maxwell import Maxwell2d
-    from pyaedt.maxwell import Maxwell3d
-    from pyaedt.maxwellcircuit import MaxwellCircuit
-    from pyaedt.mechanical import Mechanical
-    from pyaedt.q3d import Q2d
-    from pyaedt.q3d import Q3d
-    from pyaedt.rmxprt import Rmxprt
-    from pyaedt.siwave import Siwave
-    from pyaedt.twinbuilder import TwinBuilder
-    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
-except ImportError:
-    from pyaedt.circuit import Circuit
-    from pyaedt.desktop import Desktop
-    from pyaedt.edb import Edb
-    from pyaedt.emit import Emit
-    from pyaedt.hfss import Hfss
-    from pyaedt.hfss3dlayout import Hfss3dLayout
-    from pyaedt.icepak import Icepak
-    from pyaedt.maxwell import Maxwell2d
-    from pyaedt.maxwell import Maxwell3d
-    from pyaedt.maxwellcircuit import MaxwellCircuit
-    from pyaedt.mechanical import Mechanical
-    from pyaedt.q3d import Q2d
-    from pyaedt.q3d import Q3d
-    from pyaedt.rmxprt import Rmxprt
-    from pyaedt.siwave import Siwave
-    from pyaedt.twinbuilder import TwinBuilder
-    from pyaedt.twinbuilder import TwinBuilder as Simplorer  # noqa: F401 # namespace only for backward compatibility
+
+# lazy imports
+def Circuit(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.circuit import Circuit as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Hfss(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.hfss import Hfss as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Icepak(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.icepak import Icepak as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Emit(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.emit import Emit as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Hfss3dLayout(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.hfss3dlayout import Hfss3dLayout as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Maxwell2d(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.maxwell import Maxwell2d as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Maxwell3d(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.maxwell import Maxwell3d as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def MaxwellCircuit(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.maxwellcircuit import MaxwellCircuit as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Mechanical(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.mechanical import Mechanical as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Q2d(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.q3d import Q2d as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Q3d(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.q3d import Q3d as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Rmxprt(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.rmxprt import Rmxprt as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def TwinBuilder(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.twinbuilder import TwinBuilder as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Simplorer(
+    projectname=None,
+    designname=None,
+    solution_type=None,
+    setup_name=None,
+    specified_version=None,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.twinbuilder import TwinBuilder as app
+
+    return app(
+        projectname=projectname,
+        designname=designname,
+        solution_type=solution_type,
+        setup_name=setup_name,
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Desktop(
+    specified_version=True,
+    non_graphical=False,
+    new_desktop_session=False,
+    close_on_exit=False,
+    student_version=False,
+    machine="",
+    port=0,
+    aedt_process_id=None,
+):
+    from pyaedt.desktop import Desktop as app
+
+    return app(
+        specified_version=specified_version,
+        non_graphical=non_graphical,
+        new_desktop_session=new_desktop_session,
+        close_on_exit=close_on_exit,
+        student_version=student_version,
+        machine=machine,
+        port=port,
+        aedt_process_id=aedt_process_id,
+    )
+
+
+def Edb(
+    edbpath=None,
+    cellname=None,
+    isreadonly=False,
+    edbversion=None,
+    isaedtowned=False,
+    oproject=None,
+    student_version=False,
+    use_ppe=False,
+):
+    from pyaedt.edb import Edb as app
+
+    return app(
+        edbpath=edbpath,
+        cellname=cellname,
+        isreadonly=isreadonly,
+        edbversion=edbversion,
+        isaedtowned=isaedtowned,
+        oproject=oproject,
+        student_version=student_version,
+        use_ppe=use_ppe,
+    )
+
+
+def Siwave(
+    specified_version=None,
+):
+    from pyaedt.siwave import Siwave as app
+
+    return app(
+        specified_version=specified_version,
+    )
 
 
 app_map = {
@@ -69,7 +539,7 @@ def get_pyaedt_app(project_name=None, design_name=None):
 
     Returns
     -------
-    :class:`pyaedt.Hfss`
+    :def :`pyaedt.Hfss`
         Any of the Pyaedt App initialized.
     """
     main = sys.modules["__main__"]

@@ -43,8 +43,6 @@ try:  # work around a number formatting bug in the EDB API for non-English local
     from System.Globalization import CultureInfo as _CultureInfo
 
     _CultureInfo.DefaultThreadCurrentCulture = _CultureInfo.InvariantCulture
-    _clr.AddReference("System.Collections")
-    _clr.AddReference("System")
     from System import Array
     from System import Convert
     from System import Double
