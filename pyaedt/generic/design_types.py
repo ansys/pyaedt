@@ -464,10 +464,10 @@ def Simplorer(
 
 
 def Desktop(
-    specified_version=True,
+    specified_version=None,
     non_graphical=False,
-    new_desktop_session=False,
-    close_on_exit=False,
+    new_desktop_session=True,
+    close_on_exit=True,
     student_version=False,
     machine="",
     port=0,
