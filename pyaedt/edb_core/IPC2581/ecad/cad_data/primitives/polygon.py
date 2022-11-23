@@ -88,18 +88,17 @@ class PolyStep(object):
         self.clock_wise = False
 
     def write_xml(self, polygon, ipc):
-        if polygon:
-            if self.poly_type == 1:
-                poly = ET.SubElement(polygon, "PolyStepSegment")
-                poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
-                poly.set("y", str(ipc.from_meter_to_units(self.y, ipc.units)))
-            elif self.poly_type == 2:
-                poly = ET.SubElement(polygon, "PolyStepCurve")
-                poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
-                poly.set("y", str(ipc.from_meter_to_units(self.y, ipc.units)))
-                poly.set("centerX", str(ipc.from_meter_to_units(self.center_X, ipc.units)))
-                poly.set("centerY", str(ipc.from_meter_to_units(self.center_y, ipc.units)))
-                poly.set("clockwise", str(self.clock_wise))
+        if self.poly_type == 0:
+            poly = ET.SubElement(polygon, "PolyStepSegment")
+            poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
+            poly.set("y", str(ipc.from_meter_to_units(self.y, ipc.units)))
+        elif self.poly_type == 1:
+            poly = ET.SubElement(polygon, "PolyStepCurve")
+            poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
+            poly.set("y", str(ipc.from_meter_to_units(self.y, ipc.units)))
+            poly.set("centerX", str(ipc.from_meter_to_units(self.center_X, ipc.units)))
+            poly.set("centerY", str(ipc.from_meter_to_units(self.center_y, ipc.units)))
+            poly.set("clockwise", str(self.clock_wise))
 
 
 class PolyType(object):

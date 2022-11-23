@@ -164,25 +164,24 @@ class Step(object):
         layer_feature.layer_name = layer.name
         layer_feature.color = layer.color
         for poly in layer._pclass._pedb.core_primitives.polygons_by_layer[layer.name]:
-            layer_feature.add_feature(layer_feature.features, poly)
+            layer_feature.add_feature(poly)
         path_list = [
             layout_obj
             for layout_obj in layer._pclass._pedb.core_primitives.primitives_by_layer[layer.name]
             if layout_obj.type == "Path"
         ]
         for path in path_list:
-            layer_feature.add_feature(layer_feature.features, path)
-        # self.layer_features.append(layer_feature)
+            layer_feature.add_feature(path)
         for _, padstack_instance in layer._pclass._pedb.core_padstack.padstack_instances.items():
             padstack_instance_cmp = padstack_instance._edb_padstackinstance.GetComponent().GetName()
             if not padstack_instance_cmp == "":
                 component_inst = self._pedb.core_components.components[padstack_instance_cmp]
                 layer_feature.add_component_padstack_instance_feature(
-                    layer_feature.features, component_inst, padstack_instance, top_bottom_layers
+                    component_inst, padstack_instance, top_bottom_layers
                 )
             else:
                 padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
-                layer_feature.add_via_instance_feature(layer_feature.features, padstack_instance, padstack_def)
+                layer_feature.add_via_instance_feature(padstack_instance, padstack_def)
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
