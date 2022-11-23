@@ -163,9 +163,7 @@ class EdbPadstacks(object):
         padstack_instances = {}
         edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
         for edb_padstack_instance in edb_padstack_inst_list:
-            padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(
-                edb_padstack_instance, self._pedb
-            )
+            padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
         return padstack_instances
 
     @property
