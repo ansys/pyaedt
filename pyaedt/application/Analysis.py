@@ -1350,12 +1350,10 @@ class Analysis(Design, object):
             setup = SetupHFSSAuto(self, setuptype, name)
         elif setuptype == 4:
             setup = SetupSBR(self, setuptype, name)
-        elif setuptype in [1, 2, 3]:
-            setup = SetupHFSS(self, setuptype, name)
         elif setuptype in [5, 6, 7, 8, 9, 10]:
             setup = SetupMaxwell(self, setuptype, name)
         else:
-            setup = Setup(self, setuptype, name)
+            setup = SetupHFSS(self, setuptype, name)
 
         if self.design_type == "HFSS":
             if not self.excitations and "MaxDeltaS" in setup.props:
