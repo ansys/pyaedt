@@ -17,6 +17,7 @@ def Circuit(
     port=0,
     aedt_process_id=None,
 ):
+    """Circuit Class."""
     from pyaedt.circuit import Circuit as app
 
     return app(
@@ -49,6 +50,7 @@ def Hfss(
     port=0,
     aedt_process_id=None,
 ):
+    """Hfss Class."""
     from pyaedt.hfss import Hfss as app
 
     return app(
@@ -81,6 +83,7 @@ def Icepak(
     port=0,
     aedt_process_id=None,
 ):
+    """Icepak Class."""
     from pyaedt.icepak import Icepak as app
 
     return app(
@@ -113,6 +116,7 @@ def Emit(
     port=0,
     aedt_process_id=None,
 ):
+    """Emit Class."""
     from pyaedt.emit import Emit as app
 
     return app(
@@ -145,6 +149,7 @@ def Hfss3dLayout(
     port=0,
     aedt_process_id=None,
 ):
+    """Hfss3dLayout Class."""
     from pyaedt.hfss3dlayout import Hfss3dLayout as app
 
     return app(
@@ -177,6 +182,7 @@ def Maxwell2d(
     port=0,
     aedt_process_id=None,
 ):
+    """Maxwell2d Class."""
     from pyaedt.maxwell import Maxwell2d as app
 
     return app(
@@ -209,6 +215,7 @@ def Maxwell3d(
     port=0,
     aedt_process_id=None,
 ):
+    """Maxwell3d Class."""
     from pyaedt.maxwell import Maxwell3d as app
 
     return app(
@@ -231,7 +238,6 @@ def MaxwellCircuit(
     projectname=None,
     designname=None,
     solution_type=None,
-    setup_name=None,
     specified_version=None,
     non_graphical=False,
     new_desktop_session=False,
@@ -241,13 +247,13 @@ def MaxwellCircuit(
     port=0,
     aedt_process_id=None,
 ):
+    """MaxwellCircuit Class."""
     from pyaedt.maxwellcircuit import MaxwellCircuit as app
 
     return app(
         projectname=projectname,
         designname=designname,
         solution_type=solution_type,
-        setup_name=setup_name,
         specified_version=specified_version,
         non_graphical=non_graphical,
         new_desktop_session=new_desktop_session,
@@ -273,6 +279,7 @@ def Mechanical(
     port=0,
     aedt_process_id=None,
 ):
+    """Mechanical Class."""
     from pyaedt.mechanical import Mechanical as app
 
     return app(
@@ -305,6 +312,7 @@ def Q2d(
     port=0,
     aedt_process_id=None,
 ):
+    """Q2D Class."""
     from pyaedt.q3d import Q2d as app
 
     return app(
@@ -337,6 +345,7 @@ def Q3d(
     port=0,
     aedt_process_id=None,
 ):
+    """Q3D Class."""
     from pyaedt.q3d import Q3d as app
 
     return app(
@@ -369,6 +378,7 @@ def Rmxprt(
     port=0,
     aedt_process_id=None,
 ):
+    """Rmxprt Class."""
     from pyaedt.rmxprt import Rmxprt as app
 
     return app(
@@ -401,6 +411,7 @@ def TwinBuilder(
     port=0,
     aedt_process_id=None,
 ):
+    """TwinBuilder Class."""
     from pyaedt.twinbuilder import TwinBuilder as app
 
     return app(
@@ -433,6 +444,7 @@ def Simplorer(
     port=0,
     aedt_process_id=None,
 ):
+    """Simplorer Class."""
     from pyaedt.twinbuilder import TwinBuilder as app
 
     return app(
@@ -461,6 +473,7 @@ def Desktop(
     port=0,
     aedt_process_id=None,
 ):
+    """Desktop Class."""
     from pyaedt.desktop import Desktop as app
 
     return app(
@@ -485,6 +498,7 @@ def Edb(
     student_version=False,
     use_ppe=False,
 ):
+    """Edb Class."""
     from pyaedt.edb import Edb as app
 
     return app(
@@ -502,6 +516,7 @@ def Edb(
 def Siwave(
     specified_version=None,
 ):
+    """Siwave Class."""
     from pyaedt.siwave import Siwave as app
 
     return app(
