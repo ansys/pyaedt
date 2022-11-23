@@ -580,7 +580,9 @@ class EDBComponent(object):
         pins = [
             p
             for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin() and p.GetComponent().GetName() == self.refdes
+            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+            and p.IsLayoutPin()
+            and p.GetComponent().GetName() == self.refdes
         ]
         return pins
 
