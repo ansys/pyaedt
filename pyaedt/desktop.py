@@ -57,7 +57,7 @@ modules = [tup[1] for tup in pkgutil.iter_modules()]
 
 if is_ironpython:
     _com = "ironpython"
-elif IsWindows and "clr" in modules:  # pragma: no cover
+elif IsWindows and "pythonnet" in modules:  # pragma: no cover
     _com = "pythonnet_v3"
 else:
     _com = "gprc_v3"
