@@ -7,8 +7,6 @@ import string
 from collections import OrderedDict
 from decimal import Decimal
 
-from pyaedt.generic.clr_module import Double
-from pyaedt.generic.clr_module import List
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.Object3d import EdgePrimitive
@@ -175,6 +173,9 @@ def create_list_for_csharp(input_list, return_strings=False):
     -------
 
     """
+    from pyaedt.generic.clr_module import Double
+    from pyaedt.generic.clr_module import List
+
     if return_strings:
         col = List[str]()
     else:
@@ -203,6 +204,8 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     -------
 
     """
+    from pyaedt.generic.clr_module import List
+
     new_table = List[List[str]]()
     for col in input_list_of_list:
         newcol = create_list_for_csharp(col, return_strings)

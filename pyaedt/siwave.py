@@ -18,23 +18,6 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
-if is_ironpython:
-
-    _com = "pythonnet"
-    import System
-elif os.name == "nt":  # pragma: no cover
-    modules = [tup[1] for tup in pkgutil.iter_modules()]
-    if _clr:
-        import win32com.client
-
-        _com = "pythonnet_v3"
-    elif "win32com" in modules:
-        import win32com.client
-
-        _com = "pywin32"
-    else:
-        raise Exception("Error. No win32com.client or PythonNET modules are found. They need to be installed.")
-
 
 class Siwave:
     """Initializes SIwave based on the inputs provided and manages SIwave release and closing.
@@ -75,6 +58,21 @@ class Siwave:
         return self.version_keys[0]
 
     def __init__(self, specified_version=None):  # pragma: no cover
+        if is_ironpython:
+            _com = "pythonnet"
+            import System
+        elif os.name == "nt":  # pragma: no cover
+            modules = [tup[1] for tup in pkgutil.iter_modules()]
+            if _clr:
+                import win32com.client
+
+                _com = "pythonnet_v3"
+            elif "win32com" in modules:
+                import win32com.client
+
+                _com = "pywin32"
+            else:
+                raise Exception("Error. No win32com.client or PythonNET modules are found. They need to be installed.")
         self._main = sys.modules["__main__"]
         print("Launching Siwave Init")
         if "oSiwave" in dir(self._main) and self._main.oSiwave is not None:
