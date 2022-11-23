@@ -151,7 +151,10 @@ class IPC2581(object):
             elif components[0].type == "Inductor":
                 bom_item.charactistics.value = components[0].ind_value
             for cmp in components:
-                bom_item.add_refdes(cmp.refdes, cmp.placement_layer)
+                bom_item.add_refdes(
+                    component_name=cmp.refdes, placement_layer=cmp.placement_layer, package_def="", populate=True
+                )
+            self.bom.bom_items.append(bom_item)
 
     @pyaedt_function_handler()
     def add_layers_info(self):

@@ -17,4 +17,4 @@ class Bom(object):
         step_ref = ET.SubElement(bom_header, "StepRef")
         step_ref.set("name", self.name)
         for bom_item in self.bom_items:
-            bom_item.write_xml(bom_item)
+            bom_item.write_xml(bom)
