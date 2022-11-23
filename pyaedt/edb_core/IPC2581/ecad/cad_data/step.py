@@ -192,9 +192,7 @@ class Step(object):
             for via in via_list:
                 try:
                     via_diameter = self._pedb.core_padstack.padstacks[via.padstack_definition].hole_properties[0]
-                    drill_layer_feature.add_drill_feature(
-                        via, self._ipc.from_meter_to_units(via_diameter, self._ipc.units)
-                    )
+                    drill_layer_feature.add_drill_feature(via, via_diameter)
                 except:
                     pass
             self.layer_features.append(drill_layer_feature)

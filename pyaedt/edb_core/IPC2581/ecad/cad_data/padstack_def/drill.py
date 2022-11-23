@@ -1,3 +1,6 @@
+import xml.etree.cElementTree as ET
+
+
 class Drill(object):
     def __init__(self):
         self.net = ""
@@ -10,3 +13,16 @@ class Drill(object):
         self.min_tol = "0.0"
         self.x = "0.0"
         self.y = "0.0"
+
+    def write_xml(self, net):
+        net.set("geometry", "VIA")
+        color_ref = ET.SubElement(net, "ColorRef")
+        color_ref.set("id", "")
+        hole = ET.SubElement(net, "Hole")
+        hole.set("name", self.hole_name)
+        hole.set("diameter", str(self.diameter))
+        hole.set("platingStatus", "VIA")
+        hole.set("plusTol", str(self.plus_tol))
+        hole.set("minusTol", str(self.min_tol))
+        hole.set("x", str(self.x))
+        hole.set("y", str(self.y))

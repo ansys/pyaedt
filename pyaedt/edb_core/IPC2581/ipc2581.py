@@ -31,7 +31,7 @@ class IPC2581(object):
         self.add_pdstack_definition()
         self.add_components()
         self.add_layer_features()
-        # self.add_drills()
+        self.add_drills()
 
     @pyaedt_function_handler()
     def add_pdstack_definition(self):

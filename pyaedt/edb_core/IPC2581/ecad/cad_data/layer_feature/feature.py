@@ -46,6 +46,8 @@ class Feature(object):
             self.path.write_xml(net)
         elif self.feature_type == FeatureType.PadstackInstance:
             self.padstack_instance.write_xml(net)
+        elif self.feature_type == FeatureType.Drill:
+            self.drill.write_xml(net)
 
 
 class FeatureType:
