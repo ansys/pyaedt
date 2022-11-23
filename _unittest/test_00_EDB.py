@@ -986,7 +986,6 @@ if not config["skip_edb"]:
             assert solder_ball_height == 0.00033
             assert len(vector) == 2
             edb2.close_edb()
-            del edb2
 
         def test_80_edb_without_path(self):
             edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
