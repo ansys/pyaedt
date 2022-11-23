@@ -2,6 +2,7 @@ import logging
 import re
 import warnings
 
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.general_methods import is_ironpython
 
 if not is_ironpython:
@@ -269,7 +270,6 @@ class EDBComponent(object):
         self._pcomponents = components
         self.edbcomponent = cmp
         self._layout_instance = None
-        self._pins = {}
 
     @property
     def layout_instance(self):
@@ -577,11 +577,10 @@ class EDBComponent(object):
         list
             List of Pins of Component.
         """
-        warnings.warn("`pinlist` is deprecated. Use `pins` property instead.", DeprecationWarning)
         pins = [
             p
             for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
+            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin() and p.GetComponent().GetName() == self.refdes
         ]
         return pins
 
@@ -608,9 +607,10 @@ class EDBComponent(object):
         dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
         """
-        if not self._pins:
-            self.refresh_pins()
-        return self._pins
+        pins = {}
+        for el in self.pinlist:
+            pins[el.GetName()] = EDBPadstackInstance(el, self._pcomponents._pedb)
+        return pins
 
     @property
     def type(self):
@@ -771,12 +771,6 @@ class EDBComponent(object):
             logging.error("Fail to assign model on {}.".format(self.refdes))
             return False
         return True
-
-    @pyaedt_function_handler
-    def refresh_pins(self):  # pragma: no cover
-        """Refresh pin dictionary."""
-        _pins = [p for _, p in self._pedb.core_padstack.padstack_instances.items() if p.is_pin and p.component]
-        self._pins = {p.pin_number: p for p in _pins if p.component.refdes == self.refdes}
 
     @pyaedt_function_handler
     def assign_spice_model(self, file_path, name=None):
