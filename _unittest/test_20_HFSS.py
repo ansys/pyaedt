@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from _unittest.conftest import config
 
@@ -749,7 +750,8 @@ class TestClass(BasisTest, object):
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
         assert meshlink_props["Design"] == self.aedtapp.design_list[1]
         assert meshlink_props["Soln"] == "MySetup : LastAdaptive"
-        assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
+        assert list(meshlink_props["Params"].keys()) == self.aedtapp.available_variations.variables
+        assert list(meshlink_props["Params"].values()) == self.aedtapp.available_variations.variables
         assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
         assert self.aedtapp.setups[0].add_mesh_link(
             design_name=self.aedtapp.design_list[1], solution_name="MySetup : LastAdaptive"
@@ -762,9 +764,12 @@ class TestClass(BasisTest, object):
             parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
+        example_project_copy = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(
             design_name=self.aedtapp.design_list[1], project_name=example_project
         )
+        os.remove(example_project_copy)
 
     def test_31_create_microstrip_port(self):
         self.aedtapp.insert_design("Microstrip")

@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from _unittest.conftest import BasisTest  # Setup paths for module imports
 from _unittest.conftest import config  # Setup paths for module imports
@@ -124,3 +125,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.setups[0].add_mesh_link(
             design_name="MechanicalDesign2", solution_name="MySetupAuto : LastAdaptive"
         )
+        example_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, test_project_name + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name="MechanicalDesign2", project_name=example_project_copy
+        )
+        os.remove(example_project_copy)

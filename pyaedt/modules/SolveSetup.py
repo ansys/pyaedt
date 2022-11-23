@@ -511,16 +511,23 @@ class Setup(CommonSetup):
         >>> oModule.EditSetup
         """
         try:
+            meshlinks = self.props["MeshLink"]
+            # design type
             if self.p_app.design_type == "Mechanical":
                 design_type = "ElectronicsDesktop"
+            elif self.p_app.design_type == "Maxwell 2D" or self.p_app.design_type == "Maxwell 3D":
+                design_type = "Maxwell"
             else:
                 design_type = self.p_app.design_type
+            meshlinks["Product"] = design_type
+            # design name
             if not design_name or design_name is None:
                 raise ValueError("Provide design name to add mesh link to.")
-            # if self.p_app.solution_type == "SBR+":
-            meshlinks = self.props["MeshLink"]
-            meshlinks["ImportMesh"] = True
-            meshlinks["Product"] = design_type
+            elif design_name not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                meshlinks["Design"] = design_name
+            # project name
             if project_name != "This Project*":
                 if os.path.exists(project_name):
                     meshlinks["Project"] = project_name
@@ -530,21 +537,21 @@ class Setup(CommonSetup):
             else:
                 meshlinks["Project"] = project_name
                 meshlinks["PathRelativeTo"] = "TargetProject"
-                if design_name not in self.p_app.design_list:
-                    raise ValueError("Design does not exist in current project.")
-                meshlinks["Design"] = design_name
-                if solution_name is None:
-                    meshlinks["Soln"] = "{} : LastAdaptive".format(
-                        self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()[0]
-                    )
-                elif (
-                    solution_name.split()[0]
-                    in self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()
-                ):
-                    meshlinks["Soln"] = "{} : LastAdaptive".format(solution_name.split()[0])
-                else:
-                    raise ValueError("Setup does not exist in current design.")
-
+            # if self.p_app.solution_type == "SBR+":
+            meshlinks["ImportMesh"] = True
+            # solution name
+            if solution_name is None:
+                meshlinks["Soln"] = "{} : LastAdaptive".format(
+                    self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()[0]
+                )
+            elif (
+                solution_name.split()[0]
+                in self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()
+            ):
+                meshlinks["Soln"] = "{} : LastAdaptive".format(solution_name.split()[0])
+            else:
+                raise ValueError("Setup does not exist in current design.")
+            # parameters
             meshlinks["Params"] = OrderedDict({})
             if parameters_dict is None:
                 parameters_dict = self.p_app.available_variations.nominal_w_values_dict
@@ -559,7 +566,8 @@ class Setup(CommonSetup):
             meshlinks["ForceSourceToSolve"] = force_source_to_solve
             meshlinks["PreservePartnerSoln"] = preserve_partner_solution
             meshlinks["ApplyMeshOp"] = apply_mesh_operations
-            meshlinks["AdaptPort"] = adapt_port
+            if self.p_app.design_type != "Maxwell 2D" or self.p_app.design_type != "Maxwell 3D":
+                meshlinks["AdaptPort"] = adapt_port
             self.update()
             return True
         except:
