@@ -786,8 +786,8 @@ class EDBPadstackInstance(object):
 
     @start_layer.setter
     def start_layer(self, layer_name):
-        stop_layer = self._pedb.core_stackup.signal_layers[self.stop_layer]._layer
-        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        stop_layer = self._pedb.stackup.signal_layers[self.stop_layer]._edb_layer
+        layer = self._pedb.stackup.signal_layers[layer_name]._edb_layer
         self._edb_padstackinstance.SetLayerRange(layer, stop_layer)
 
     @property
@@ -808,8 +808,8 @@ class EDBPadstackInstance(object):
 
     @stop_layer.setter
     def stop_layer(self, layer_name):
-        start_layer = self._pedb.core_stackup.signal_layers[self.start_layer]._layer
-        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        start_layer = self._pedb.stackup.signal_layers[self.start_layer]._edb_layer
+        layer = self._pedb.stackup.signal_layers[layer_name]._edb_layer
         self._edb_padstackinstance.SetLayerRange(start_layer, layer)
 
     @property
@@ -818,15 +818,22 @@ class EDBPadstackInstance(object):
         _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
         started = False
         layer_list = []
+        start_layer_name = start_layer.GetName()
+        stop_layer_name = stop_layer.GetName()
         for layer_name in list(self._pedb.stackup.layers.keys()):
             if started:
                 layer_list.append(layer_name)
-                if layer_name == stop_layer.GetName():
+                if layer_name == stop_layer_name or layer_name == start_layer_name:
                     break
-            elif layer_name == start_layer.GetName():
+            elif layer_name == start_layer_name:
                 started = True
                 layer_list.append(layer_name)
-                if layer_name == stop_layer.GetName():
+                if layer_name == stop_layer_name:
+                    break
+            elif layer_name == stop_layer_name:
+                started = True
+                layer_list.append(layer_name)
+                if layer_name == start_layer_name:
                     break
         return layer_list
 

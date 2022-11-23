@@ -1556,16 +1556,16 @@ class Edb(object):
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
                 net = self.core_nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
-                sign_layers = list(self.core_stackup.signal_layers.keys())
+                sign_layers = list(self.stackup.signal_layers.keys())
                 if not p.start_layer:
-                    fromlayer = self.core_stackup.signal_layers[sign_layers[-1]]._layer
+                    fromlayer = self.stackup.signal_layers[sign_layers[-1]]._edb_layer
                 else:
-                    fromlayer = self.core_stackup.signal_layers[p.start_layer]._layer
+                    fromlayer = self.stackup.signal_layers[p.start_layer]._edb_layer
 
                 if not p.stop_layer:
-                    tolayer = self.core_stackup.signal_layers[sign_layers[0]]._layer
+                    tolayer = self.stackup.signal_layers[sign_layers[0]]._edb_layer
                 else:
-                    tolayer = self.core_stackup.signal_layers[p.stop_layer]._layer
+                    tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
                 for pad in list(self.core_padstack.padstacks.keys()):
                     if pad == p.padstack_definition:
@@ -1605,7 +1605,7 @@ class Edb(object):
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)
-        layers = self.core_stackup.stackup_layers.signal_layers
+        layers = self.stackup.signal_layers
         for layer in list(layers.keys()):
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:

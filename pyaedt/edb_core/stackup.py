@@ -1235,10 +1235,10 @@ class Stackup(object):
         float
             The thickness value.
         """
-        layers_name = list(self.layers.keys())
-        bottom_layer = self.layers[layers_name[0]]
-        top_layer = self.layers[layers_name[-1]]
-        thickness = top_layer.lower_elevation + top_layer.thickness_value - bottom_layer.lower_elevation
+        layers_name = list(self.stackup_layers.keys())
+        bottom_layer = self.stackup_layers[layers_name[0]]
+        top_layer = self.stackup_layers[layers_name[-1]]
+        thickness = top_layer.lower_elevation + top_layer.thickness - bottom_layer.lower_elevation
         return thickness
 
     @pyaedt_function_handler()
@@ -1279,11 +1279,11 @@ class Stackup(object):
                     for el in list(self.layers.keys()):
                         if el == layer:
                             break
-                        elevation += self.layers[el].thickness_value
-                        last_layer_thickess = self.layers[el].thickness_value
+                        elevation += self.layers[el].thickness
+                        last_layer_thickess = self.layers[el].thickness
                         layer1 = el
                     if layer1 != layer:
-                        self.layers[layer1].thickness_value = val.solder_ball_height - elevation + last_layer_thickess
+                        self.layers[layer1].thickness = val.solder_ball_height - elevation + last_layer_thickess
                     elif val.solder_ball_height > elevation:
                         self.add_layer(
                             "Top_Air",
@@ -1296,14 +1296,14 @@ class Stackup(object):
                     elevation = 0
                     layer1 = layer
                     last_layer_thickess = 0
-                    for el in list(self.layers.keys())[::-1]:
+                    for el in list(self.stackup_layers.keys())[::-1]:
                         if el == layer:
                             break
                         layer1 = el
-                        elevation += self.layers[el].thickness_value
-                        last_layer_thickess = self.layers[el].thickness_value
+                        elevation += self.layers[el].thickness
+                        last_layer_thickess = self.layers[el].thickness
                     if layer1 != layer:
-                        self.layers[layer1].thickness_value = val.solder_ball_height - elevation + last_layer_thickess
+                        self.layers[layer1].thickness = val.solder_ball_height - elevation + last_layer_thickess
                     elif val.solder_ball_height > elevation:
                         self.add_layer(
                             "Bottom_air",
@@ -1454,7 +1454,7 @@ class Stackup(object):
         >>> edb2 = Edb(edbpath=targetfile2, edbversion="2021.2")
         >>> hosting_cmp = edb1.core_components.get_component_by_name("U100")
         >>> mounted_cmp = edb2.core_components.get_component_by_name("BGA")
-        >>> edb2.core_stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
+        >>> edb2.stackup.place_in_layout(edb1.active_cell, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
         """
@@ -1575,7 +1575,7 @@ class Stackup(object):
         --------
         >>> edb1 = Edb(edbpath=targetfile1,  edbversion="2021.2")
         >>> a3dcomp_path = "connector.a3dcomp"
-        >>> edb1.core_stackup.place_a3dcomp_3d_placement(a3dcomp_path, angle=0.0, offset_x="1mm",
+        >>> edb1.stackup.place_a3dcomp_3d_placement(a3dcomp_path, angle=0.0, offset_x="1mm",
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
         """

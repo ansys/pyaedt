@@ -541,7 +541,7 @@ class Materials(object):
         >>> freq = [0, 2, 3, 4, 5, 6]
         >>> rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
         >>> loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
-        >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
+        >>> diel = edb.materials.add_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
         """
         frequencies = [float(i) for i in frequencies]
         permittivities = [float(i) for i in permittivities]
@@ -586,10 +586,12 @@ class Materials(object):
 
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
-        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
+        >>> my_material = edb_app.materials.duplicate("copper", "my_new_copper")
 
         """
-        if material_name in self.materials and new_material_name not in self.materials:
+        material_list = {i.lower(): i for i in list(self.materials.keys())}
+        if material_name.lower() in material_list and new_material_name not in self.materials:
+            material_name = material_list[material_name.lower()]
             permittivity = self._edb_value(self.materials[material_name].permittivity)
             permeability = self._edb_value(self.materials[material_name].permeability)
             conductivity = self._edb_value(self.materials[material_name].conductivity)
