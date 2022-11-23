@@ -1088,9 +1088,9 @@ class Stackup(object):
             ``True`` when successful, ``False`` when failed.
         """
         if only_metals:
-            input_layers = self._pedb.Cell.LayerTypeSet.SignalLayerSet
+            input_layers = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
         else:
-            input_layers = self._pedb.Cell.LayerTypeSet.StackupLayerSet
+            input_layers = self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet
 
         res, topl, topz, bottoml, bottomz = self._layer_collection.GetTopBottomStackupLayers(input_layers)
         return topl.GetName(), topz, bottoml.GetName(), bottomz
@@ -1113,18 +1113,18 @@ class Stackup(object):
         """
         try:
             lc = self._layer_collection
-            new_lc = self._pedb.Cell.LayerCollection()
+            new_lc = self._pedb.edb.Cell.LayerCollection()
             lc_mode = lc.GetMode()
             new_lc.SetMode(lc_mode)
             max_elevation = 0.0
-            for layer in lc.Layers(self._pedb.Cell.LayerTypeSet.StackupLayerSet):
+            for layer in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet):
                 if "RadBox" not in layer.GetName():  # Ignore RadBox
                     lower_elevation = layer.GetLowerElevation() * 1.0e6
                     upper_elevation = layer.GetUpperElevation() * 1.0e6
                     max_elevation = max([max_elevation, lower_elevation, upper_elevation])
 
             non_stackup_layers = []
-            for layer in lc.Layers(self._pedb.Cell.LayerTypeSet.AllLayerSet):
+            for layer in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet):
                 cloned_layer = layer.Clone()
                 if not cloned_layer.IsStackupLayer():
                     non_stackup_layers.append(cloned_layer)
@@ -1134,32 +1134,32 @@ class Stackup(object):
                     updated_lower_el = max_elevation - upper_elevation
                     val = self._edb_value("{}um".format(updated_lower_el))
                     cloned_layer.SetLowerElevation(val)
-                    if cloned_layer.GetTopBottomAssociation() == self._pedb.Cell.TopBottomAssociation.TopAssociated:
-                        cloned_layer.SetTopBottomAssociation(self._pedb.Cell.TopBottomAssociation.BottomAssociated)
+                    if cloned_layer.GetTopBottomAssociation() == self._pedb.edb.Cell.TopBottomAssociation.TopAssociated:
+                        cloned_layer.SetTopBottomAssociation(self._pedb.edb.Cell.TopBottomAssociation.BottomAssociated)
                     else:
-                        cloned_layer.SetTopBottomAssociation(self._pedb.Cell.TopBottomAssociation.TopAssociated)
+                        cloned_layer.SetTopBottomAssociation(self._pedb.edb.Cell.TopBottomAssociation.TopAssociated)
                     new_lc.AddStackupLayerAtElevation(cloned_layer)
 
-            vialayers = [lay for lay in lc.Layers(self._pedb.Cell.LayerTypeSet.StackupLayerSet) if lay.IsViaLayer()]
+            vialayers = [lay for lay in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet) if lay.IsViaLayer()]
             for layer in vialayers:
                 cloned_via_layer = layer.Clone()
                 upper_ref_name = layer.GetRefLayerName(True)
                 lower_ref_name = layer.GetRefLayerName(False)
                 upper_ref = [
                     lay
-                    for lay in lc.Layers(self._pedb.Cell.LayerTypeSet.AllLayerSet)
+                    for lay in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)
                     if lay.GetName() == upper_ref_name
                 ][0]
                 lower_ref = [
                     lay
-                    for lay in lc.Layers(self._pedb.Cell.LayerTypeSet.AllLayerSet)
+                    for lay in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)
                     if lay.GetName() == lower_ref_name
                 ][0]
                 cloned_via_layer.SetRefLayer(lower_ref, True)
                 cloned_via_layer.SetRefLayer(upper_ref, False)
                 ref_layer_in_flipped_stackup = [
                     lay
-                    for lay in new_lc.Layers(self._pedb.Cell.LayerTypeSet.AllLayerSet)
+                    for lay in new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)
                     if lay.GetName() == upper_ref_name
                 ][0]
                 via_layer_lower_elevation = (
@@ -1205,7 +1205,7 @@ class Stackup(object):
                         cmp_prop.SetDieProperty(die_prop)
                 cmp.SetComponentProperty(cmp_prop)
 
-            lay_list = list(new_lc.Layers(self._pedb.Cell.LayerTypeSet.SignalLayerSet))
+            lay_list = list(new_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))
             for padstack in list(self._pedb.core_padstack.padstack_instances.values()):
                 start_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.start_layer]
                 stop_layer_id = [lay.GetLayerId() for lay in list(lay_list) if lay.GetName() == padstack.stop_layer]
@@ -1224,7 +1224,7 @@ class Stackup(object):
         type
             Types of layers.
         """
-        return self._pedb.Cell.LayerType
+        return self._pedb.edb.Cell.LayerType
 
     @pyaedt_function_handler()
     def get_layout_thickness(self):
@@ -1387,7 +1387,7 @@ class Stackup(object):
             list_cells = self._pedb.db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
         self._pedb.active_layout.GetCell().SetBlackBox(True)
-        cell_inst2 = self._pedb.Cell.Hierarchy.CellInstance.Create(
+        cell_inst2 = self._pedb.edb.Cell.Hierarchy.CellInstance.Create(
             edb_cell.GetLayout(), self._pedb.active_layout.GetCell().GetName(), self._pedb.active_layout
         )
         cell_trans = cell_inst2.GetTransform()
@@ -1400,9 +1400,13 @@ class Stackup(object):
         stackup_target = edb_cell.GetLayout().GetLayerCollection()
 
         if place_on_top:
-            cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._pedb.Cell.LayerTypeSet.SignalLayerSet))[0])
+            cell_inst2.SetPlacementLayer(
+                list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[0]
+            )
         else:
-            cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._pedb.Cell.LayerTypeSet.SignalLayerSet))[-1])
+            cell_inst2.SetPlacementLayer(
+                list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[-1]
+            )
 
         return True
 
@@ -1492,19 +1496,23 @@ class Stackup(object):
             list_cells = self._pedb.db.CopyCells(_dbCell)
             edb_cell = list_cells[0]
         self._pedb.active_layout.GetCell().SetBlackBox(True)
-        cell_inst2 = self._pedb.Cell.Hierarchy.CellInstance.Create(
+        cell_inst2 = self._pedb.edb.Cell.Hierarchy.CellInstance.Create(
             edb_cell.GetLayout(), self._pedb.active_layout.GetCell().GetName(), self._pedb.active_layout
         )
 
-        stackup_target = self._pedb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
-        stackup_source = self._pedb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
+        stackup_target = self._pedb.edb.Cell.LayerCollection(edb_cell.GetLayout().GetLayerCollection())
+        stackup_source = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
 
         if place_on_top:
-            cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._pedb.Cell.LayerTypeSet.SignalLayerSet))[0])
+            cell_inst2.SetPlacementLayer(
+                list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[0]
+            )
         else:
-            cell_inst2.SetPlacementLayer(list(stackup_target.Layers(self._pedb.Cell.LayerTypeSet.SignalLayerSet))[-1])
+            cell_inst2.SetPlacementLayer(
+                list(stackup_target.Layers(self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet))[-1]
+            )
         cell_inst2.SetIs3DPlacement(True)
-        sig_set = self._pedb.Cell.LayerTypeSet.SignalLayerSet
+        sig_set = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
         res = stackup_target.GetTopBottomStackupLayers(sig_set)
         target_top_elevation = res[2]
         target_bottom_elevation = res[4]
@@ -1527,10 +1535,10 @@ class Stackup(object):
 
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        point3d_t = self._pedb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
-        point_loc = self._pedb.Geometry.Point3DData(zero_data, zero_data, zero_data)
-        point_from = self._pedb.Geometry.Point3DData(one_data, zero_data, zero_data)
-        point_to = self._pedb.Geometry.Point3DData(
+        point3d_t = self._pedb.edb.Geometry.Point3DData(_offset_x, _offset_y, h_stackup)
+        point_loc = self._pedb.edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
+        point_from = self._pedb.edb.Geometry.Point3DData(one_data, zero_data, zero_data)
+        point_to = self._pedb.edb.Geometry.Point3DData(
             self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
         )
         cell_inst2.Set3DTransformation(point_loc, point_from, point_to, rotation, point3d_t)
@@ -1573,15 +1581,15 @@ class Stackup(object):
         """
         zero_data = self._edb_value(0.0)
         one_data = self._edb_value(1.0)
-        local_origin = self._pedb.Geometry.Point3DData(zero_data, zero_data, zero_data)
-        rotation_axis_from = self._pedb.Geometry.Point3DData(one_data, zero_data, zero_data)
+        local_origin = self._pedb.edb.Geometry.Point3DData(zero_data, zero_data, zero_data)
+        rotation_axis_from = self._pedb.edb.Geometry.Point3DData(one_data, zero_data, zero_data)
         _angle = angle * math.pi / 180.0
-        rotation_axis_to = self._pedb.Geometry.Point3DData(
+        rotation_axis_to = self._pedb.edb.Geometry.Point3DData(
             self._edb_value(math.cos(_angle)), self._edb_value(-1 * math.sin(_angle)), zero_data
         )
 
-        stackup_target = self._pedb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
-        sig_set = self._pedb.Cell.LayerTypeSet.SignalLayerSet
+        stackup_target = self._pedb.edb.Cell.LayerCollection(self._pedb.active_layout.GetLayerCollection())
+        sig_set = self._pedb.edb.Cell.LayerTypeSet.SignalLayerSet
         res = stackup_target.GetTopBottomStackupLayers(sig_set)
         target_top_elevation = res[2]
         target_bottom_elevation = res[4]
@@ -1592,9 +1600,9 @@ class Stackup(object):
             flip_angle = self._edb_value("180deg")
             elevation = target_bottom_elevation
         h_stackup = self._edb_value(elevation)
-        location = self._pedb.Geometry.Point3DData(self._edb_value(offset_x), self._edb_value(offset_y), h_stackup)
+        location = self._pedb.edb.Geometry.Point3DData(self._edb_value(offset_x), self._edb_value(offset_y), h_stackup)
 
-        mcad_model = self._pedb.McadModel.Create3DComp(self._pedb.active_layout, a3dcomp_path)
+        mcad_model = self._pedb.edb.McadModel.Create3DComp(self._pedb.active_layout, a3dcomp_path)
         if mcad_model.IsNull():  # pragma: no cover
             logger.error("Failed to create MCAD model from a3dcomp")
             return False
@@ -1632,12 +1640,12 @@ class Stackup(object):
         if not isinstance(simulation_setup, SimulationConfiguration):
             return False
         cell = self._pedb.builder.cell
-        this_lc = self._pedb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
-        all_layers = list(this_lc.Layers(self._pedb.Cell.LayerTypeSet.AllLayerSet))
+        this_lc = self._pedb.edb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
+        all_layers = list(this_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet))
 
-        signal_layers = [lay for lay in all_layers if lay.GetLayerType() == self._pedb.Cell.LayerType.SignalLayer]
+        signal_layers = [lay for lay in all_layers if lay.GetLayerType() == self._pedb.edb.Cell.LayerType.SignalLayer]
 
-        new_layers = list(all_layers.Where(lambda lyr: lyr.GetLayerType() != self._pedb.Cell.LayerType.SignalLayer))
+        new_layers = list(all_layers.Where(lambda lyr: lyr.GetLayerType() != self._pedb.edb.Cell.LayerType.SignalLayer))
 
         if simulation_setup.signal_layer_etching_instances:
             for layer in signal_layers:
@@ -1662,7 +1670,7 @@ class Stackup(object):
 
                 new_layers.Add(new_signal_lay)
 
-            layers_with_etching = self._pedb.Cell.LayerCollection()
+            layers_with_etching = self._pedb.edb.Cell.LayerCollection()
             if not layers_with_etching.AddLayers(new_layers):
                 return False
 
