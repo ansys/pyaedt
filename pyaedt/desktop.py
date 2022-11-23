@@ -627,6 +627,8 @@ class Desktop:
         version_key,
         aedt_process_id=None,
     ):
+        import pythoncom
+
         from pyaedt.generic.clr_module import _clr
 
         if os.name == "posix":
