@@ -706,7 +706,11 @@ class Stackup(object):
         -------
         dict
         """
-        return {l.GetName(): LayerEdbClass(self, l.GetName()) for l in self._edb_layer_list}
+        _lays = {}
+        for l in self._edb_layer_list:
+            name = l.GetName()
+            _lays[name] = LayerEdbClass(self, name)
+        return _lays
 
     @property
     def signal_layers(self):

@@ -134,9 +134,10 @@ class EdbLayout(object):
         """
         _primitives_by_layer = {}
         for lay in self.layers:
-            _primitives_by_layer[lay] = [
-                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetLayer().GetName() == lay
-            ]
+            _primitives_by_layer[lay] = []
+        for i in self._active_layout.Primitives:
+            lay = i.GetLayer().GetName()
+            _primitives_by_layer[lay].append(EDBPrimitives(i, self._pedb))
         return _primitives_by_layer
 
     @property

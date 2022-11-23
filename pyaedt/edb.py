@@ -1605,8 +1605,8 @@ class Edb(object):
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)
-        layers = self.stackup.signal_layers
-        for layer in list(layers.keys()):
+        layers = [i for i in list(self.stackup.signal_layers.keys())]
+        for layer in layers:
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:
                 self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")
