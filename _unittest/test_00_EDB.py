@@ -1557,14 +1557,16 @@ if not config["skip_edb"]:
             app_edb = Edb(edbversion=desktop_version)
             assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
             app_edb.close_edb()
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.stackup.create_symmetric_stackup(9)
-            assert app_edb.stackup.create_symmetric_stackup(8)
-            app_edb.close_edb()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close_edb()
+            if is_ironpython:
+                app_edb = Edb(edbversion=desktop_version)
+                assert not app_edb.stackup.create_symmetric_stackup(9)
+                assert app_edb.stackup.create_symmetric_stackup(8)
+                app_edb.close_edb()
+
+                app_edb = Edb(edbversion=desktop_version)
+                assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
+                app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
             assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
