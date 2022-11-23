@@ -1498,7 +1498,7 @@ class Q3d(QExtractor, object):
             Name of the net. The default is ``None``.
         sourcename : str,  optional
             Name of the source. The default is ``None``.
-        terminal_type: str
+        terminal_type : str
             Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
@@ -1595,7 +1595,7 @@ class Q3d(QExtractor, object):
             Name of the net. The default is ``None``.
         sinkname : str, optional
             Name of the sink. The default is ``None``.
-        terminal_type: str
+        terminal_type : str
             Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
