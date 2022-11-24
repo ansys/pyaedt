@@ -45,15 +45,24 @@ class StandardGeometriesDictionary(object):
     def write_xml(self, content_section=None):
         standard_dict = ET.SubElement(content_section, "DictionaryStandard")
         standard_dict.set("units", self.units)
-        for standard_circle in list(self.standard_circ_dict.values()):
-            standard_circle.write_xml(standard_dict)
-        for standard_rect in list(self.standard_rect_dict.values()):
-            standard_rect.write_xml(standard_dict)
+        for standard_name, circle_val in self.standard_circ_dict.items():
+            if circle_val:
+                entry_standard = ET.SubElement(standard_dict, "EntryStandard")
+                entry_standard.set("id", standard_name)
+                circle = ET.SubElement(entry_standard, "Circle")
+                circle.set("diameter", circle_val)
+        for standard_name, rect_val in self.standard_rect_dict.items():
+            if rect_val:
+                entry_standard = ET.SubElement(standard_dict, "EntryStandard")
+                entry_standard.set("id", standard_name)
+                rec_center = ET.SubElement(entry_standard, "RectCenter")
+                rec_center.set("width", rect_val[0])
+                rec_center.set("height", rect_val[1])
 
     def add_circle(self, diameter):
         circle = StandardCircle()
         circle.diameter = diameter
         circle.fill_id = "SOLID_FILL"
-        entry_key = "CIRCLE_{}".format(diameter)
+        entry_key = "CIRCLE_{}".format(diameter[0])
         if not entry_key in self.standard_circ_dict:
-            self.standard_circ_dict[entry_key] = diameter
+            self.standard_circ_dict[entry_key] = str(diameter[0])

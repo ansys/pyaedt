@@ -40,10 +40,14 @@ class IPC2581(object):
             padstack_def.name = padstack_name
             padstack_def.padstack_hole_def.name = padstack_name
             if padstackdef.hole_properties:
-                padstack_def.padstack_hole_def.diameter = str(padstackdef.hole_properties[0])
+                padstack_def.padstack_hole_def.diameter = self.from_meter_to_units(
+                    padstackdef.hole_properties[0], self.units
+                )
             for layer, pad in padstackdef.pad_by_layer.items():
                 try:
-                    self.content.standard_geometries_dict.add_circle(pad.parameters_value)
+                    self.content.standard_geometries_dict.add_circle(
+                        self.from_meter_to_units(pad.parameters_values, self.units)
+                    )
                 except:
                     pass
                 if pad.parameters_values:
@@ -72,7 +76,9 @@ class IPC2581(object):
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="REGULAR", primitive_ref=primitive_ref)
             for layer, antipad in padstackdef.antipad_by_layer.items():
                 try:
-                    self.content.standard_geometries_dict.add_circle(antipad.parameters_value)
+                    self.content.standard_geometries_dict.add_circle(
+                        self.from_meter_to_units(antipad.parameters_values, self.units)
+                    )
                 except:
                     pass
                 if antipad.parameters_values:
@@ -102,7 +108,9 @@ class IPC2581(object):
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="ANTIPAD", primitive_ref=primitive_ref)
             for layer, thermalpad in padstackdef.thermalpad_by_layer.items():
                 try:
-                    self.content.standard_geometries_dict.add_circle(thermalpad.parameters_value)
+                    self.content.standard_geometries_dict.add_circle(
+                        self.from_meter_to_units(thermalpad.parameters_values, self.units)
+                    )
                 except:
                     pass
                 if thermalpad.parameters_values:
@@ -241,16 +249,33 @@ class IPC2581(object):
     def from_meter_to_units(self, value, units):
         if isinstance(value, str):
             value = float(value)
-        if units.lower() == "mm":
-            return round(value * 1000, 4)
-        if units.lower() == "um":
-            return round(value * 1e6, 4)
-        if units.lower() == "mils":
-            return round(value * 39370.079, 4)
-        if units.lower() == "inch":
-            return round(value * 39.370079, 4)
-        if units.lower() == "cm":
-            return round(value * 100, 4)
+        if isinstance(value, list):
+            returned_list = []
+            for val in value:
+                if isinstance(val, str):
+                    val = float(val)
+                if units.lower() == "mm":
+                    returned_list.append(round(val * 1000, 4))
+                if units.lower() == "um":
+                    returned_list.append(round(val * 1e6, 4))
+                if units.lower() == "mils":
+                    returned_list.append(round(val * 39370.079, 4))
+                if units.lower() == "inch":
+                    returned_list.append(round(val * 39.370079, 4))
+                if units.lower() == "cm":
+                    returned_list.append(round(val * 100, 4))
+            return returned_list
+        else:
+            if units.lower() == "mm":
+                return round(value * 1000, 4)
+            if units.lower() == "um":
+                return round(value * 1e6, 4)
+            if units.lower() == "mils":
+                return round(value * 39370.079, 4)
+            if units.lower() == "inch":
+                return round(value * 39.370079, 4)
+            if units.lower() == "cm":
+                return round(value * 100, 4)
 
     def write_xml(self):
         if self.file_path:
