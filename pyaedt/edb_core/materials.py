@@ -6,12 +6,8 @@ import warnings
 
 from pyaedt import is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    import clr
-except ImportError:
-    warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +55,7 @@ class Material(object):
     @pyaedt_function_handler()
     def _get_property(self, property_name):
         if is_ironpython:  # pragma: no cover
-            property_box = clr.StrongBox[float]()
+            property_box = _clr.StrongBox[float]()
             self._edb_material_def.GetProperty(property_name, property_box)
             return float(property_box)
         else:
