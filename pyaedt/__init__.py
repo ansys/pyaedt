@@ -18,7 +18,6 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
-from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.generic.general_methods import generate_unique_folder_name
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import generate_unique_project_name
