@@ -56,12 +56,6 @@ packages = [
     "pyaedt.emit_core",
     "pyaedt.examples",
     "pyaedt.rpc",
-    "pyaedt.third_party",
-    "pyaedt.third_party.ironpython",
-    "pyaedt.third_party.ironpython.rpyc_27",
-    "pyaedt.third_party.ironpython.rpyc_27.core",
-    "pyaedt.third_party.ironpython.rpyc_27.lib",
-    "pyaedt.third_party.ironpython.rpyc_27.utils",
 ]
 
 data_files = [
