@@ -4,9 +4,7 @@
 import codecs
 import json
 import math
-import os
 import re
-import warnings
 
 from pyaedt import _retry_ntimes
 from pyaedt import generate_unique_name
@@ -17,19 +15,12 @@ from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.generic.clr_module import String
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-
-try:
-    import clr
-
-    clr.AddReference("System")
-    from System import String
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires PythonNet.")
 
 
 def resistor_value_parser(RValue):
@@ -1862,7 +1853,7 @@ class Components(object):
         if isinstance(pin, EDBPadstackInstance):
             pin = pin._edb_padstackinstance
         if is_ironpython:
-            name = clr.Reference[String]()
+            name = _clr.Reference[String]()
             pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
         else:
             val = String("")

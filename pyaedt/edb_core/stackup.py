@@ -27,10 +27,8 @@ if not is_ironpython:
             "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
         )
 
-try:
-    import clr
-except ImportError:
-    warnings.warn("This module requires the PythonNET package.")
+
+from pyaedt.generic.clr_module import _clr
 
 logger = logging.getLogger(__name__)
 
@@ -1448,7 +1446,7 @@ class EdbStackup(object):
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
             if is_ironpython:  # pragma: no cover
-                property_box = clr.StrongBox[float]()
+                property_box = _clr.StrongBox[float]()
                 original_material.GetProperty(self.material_name_to_id(property_name), property_box)
                 return float(property_box)
             else:
