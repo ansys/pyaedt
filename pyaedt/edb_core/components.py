@@ -1169,6 +1169,7 @@ class Components(object):
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
         # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
         # new_cmp.SetTransform(cmp_transform)
+        self._cmp[new_cmp.GetName()] = EDBComponent(self, new_cmp)
         return new_cmp
         # except:
         #    return (False, None)

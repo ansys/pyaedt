@@ -78,7 +78,7 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
         def test_01C_create_coax_port_on_component(self):
-            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
+            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
 
         def test_02_get_properties(self):
             assert len(self.edbapp.core_components.components) > 0
@@ -145,8 +145,8 @@ if not config["skip_edb"]:
             assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
             assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
-            padstack_id = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
+            padstack = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack.id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
             if not is_ironpython:
@@ -248,25 +248,27 @@ if not config["skip_edb"]:
             assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
             assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
             assert self.edbapp.core_components.components["R1"].pinlist
-            pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
+            assert self.edbapp.core_components.components["R1"].pins
+            assert self.edbapp.core_components.components["R1"].pins["1"].pin_number
+            assert self.edbapp.core_components.components["R1"].pins["1"].component
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+                self.edbapp.core_components.components["R1"].pins["1"].lower_elevation
                 == self.edbapp.core_components.components["R1"].lower_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+                self.edbapp.core_components.components["R1"].pins["1"].placement_layer
                 == self.edbapp.core_components.components["R1"].placement_layer
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+                self.edbapp.core_components.components["R1"].pins["1"].upper_elevation
                 == self.edbapp.core_components.components["R1"].upper_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+                self.edbapp.core_components.components["R1"].pins["1"].top_bottom_association
                 == self.edbapp.core_components.components["R1"].top_bottom_association
             )
-            assert self.edbapp.core_components.components["R1"].pins[pinname].position
-            assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
+            assert self.edbapp.core_components.components["R1"].pins["1"].position
+            assert self.edbapp.core_components.components["R1"].pins["1"].rotation
 
         def test_18_components_from_net(self):
             assert self.edbapp.core_components.get_components_from_nets("A0_N")
@@ -1536,22 +1538,24 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.core_stackup.create_symmetric_stackup(9)
-            assert app_edb.core_stackup.create_symmetric_stackup(8)
-            app_edb.close_edb()
+            if not is_ironpython:
+                app_edb = Edb(edbversion=desktop_version)
+                assert not app_edb.core_stackup.create_symmetric_stackup(9)
+                assert app_edb.core_stackup.create_symmetric_stackup(8)
+                app_edb.close_edb()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close_edb()
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.stackup.create_symmetric_stackup(9)
-            assert app_edb.stackup.create_symmetric_stackup(8)
-            app_edb.close_edb()
+                app_edb = Edb(edbversion=desktop_version)
+                assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
+                app_edb.close_edb()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close_edb()
+                app_edb = Edb(edbversion=desktop_version)
+                assert not app_edb.stackup.create_symmetric_stackup(9)
+                assert app_edb.stackup.create_symmetric_stackup(8)
+                app_edb.close_edb()
+
+                app_edb = Edb(edbversion=desktop_version)
+                assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
+                app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
             assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])

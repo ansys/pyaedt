@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 pd = None
 if not is_ironpython:
     try:
+        import numpy as np
         import pandas as pd
     except ImportError:
         warnings.warn(
@@ -555,10 +556,10 @@ class Stackup(object):
         inner_layer_thickness="17um",
         outer_layer_thickness="50um",
         dielectric_thickness="100um",
-        dielectric_material="FR4_epoxy",
+        dielectric_material="fr4_epoxy",
         soldermask=True,
         soldermask_thickness="20um",
-    ):
+    ):  # pragma: no cover
         """Create a symmetric stackup.
 
         Parameters
@@ -584,73 +585,87 @@ class Stackup(object):
         if not layer_count % 2 == 0:
             return False
 
-        self._pedb.materials.add_conductor_material("copper", conductivity=5.8e7)
-        self._pedb.materials.add_dielectric_material("FR4_epoxy", permittivity=4.3, loss_tangent=0.02)
-        self._pedb.materials.add_dielectric_material("SolderMask", permittivity=3.1, loss_tangent=0.035)
-        self._pedb.materials.add_dielectric_material("Air", permittivity=1.0006, loss_tangent=1.0000004)
-
-        if soldermask:
-            self.add_layer(
-                "SMB",
-                None,
-                "SolderMask",
-                thickness=soldermask_thickness,
-                layer_type="dielectric",
-                fillMaterial=dielectric_material,
-            )
-            layer_name = "BOTTOM"
-            self.add_layer(layer_name, "SMB", fillMaterial="SolderMask", thickness=outer_layer_thickness)
-        else:
-            layer_name = "BOTTOM"
-            self.add_layer(layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
-
-        for layer in range(layer_count - 1, 1, -1):
-            new_layer_name = "D" + str(layer - 1)
-            self.add_layer(
-                new_layer_name,
-                layer_name,
-                material=dielectric_material,
-                thickness=dielectric_thickness,
-                layer_type="dielectric",
-                fillMaterial=dielectric_material,
-            )
-            layer_name = new_layer_name
-            new_layer_name = "L" + str(layer - 1)
-            self.add_layer(
-                new_layer_name,
-                layer_name,
-                material="copper",
-                fillMaterial=dielectric_material,
-                thickness=inner_layer_thickness,
-            )
-            layer_name = new_layer_name
-
-        new_layer_name = "D1"
         self.add_layer(
-            new_layer_name,
-            layer_name,
-            material=dielectric_material,
+            "BOT",
+            None,
+            material="copper",
+            thickness=outer_layer_thickness,
+            fillMaterial=dielectric_material,
+        )
+        self.add_layer(
+            "D" + str(int(layer_count / 2)),
+            None,
+            material="fr4_epoxy",
             thickness=dielectric_thickness,
             layer_type="dielectric",
             fillMaterial=dielectric_material,
         )
-        layer_name = new_layer_name
-
+        self.add_layer(
+            "TOP",
+            None,
+            material="copper",
+            thickness=outer_layer_thickness,
+            fillMaterial=dielectric_material,
+        )
         if soldermask:
-            new_layer_name = "TOP"
-            self.add_layer(new_layer_name, layer_name, fillMaterial="SolderMask", thickness=outer_layer_thickness)
-            layer_name = new_layer_name
             self.add_layer(
                 "SMT",
-                layer_name,
-                material="SolderMask",
+                None,
+                material="solder_mask",
                 thickness=soldermask_thickness,
                 layer_type="dielectric",
                 fillMaterial=dielectric_material,
             )
-        else:
-            new_layer_name = "TOP"
-            self.add_layer(new_layer_name, layer_name, fillMaterial="Air", thickness=outer_layer_thickness)
+            self.add_layer(
+                "SMB",
+                None,
+                material="solder_mask",
+                thickness=soldermask_thickness,
+                layer_type="dielectric",
+                fillMaterial=dielectric_material,
+                method="add_on_bottom",
+            )
+            self.stackup_layers["TOP"].dielectric_fill = "solder_mask"
+            self.stackup_layers["BOT"].dielectric_fill = "solder_mask"
+
+        for layer_num in np.arange(int(layer_count / 2), 1, -1):
+            # Generate upper half
+            self.add_layer(
+                "L" + str(layer_num),
+                "TOP",
+                material="copper",
+                thickness=inner_layer_thickness,
+                fillMaterial=dielectric_material,
+                method="insert_below",
+            )
+            self.add_layer(
+                "D" + str(layer_num - 1),
+                "TOP",
+                material=dielectric_material,
+                thickness=dielectric_thickness,
+                layer_type="dielectric",
+                fillMaterial=dielectric_material,
+                method="insert_below",
+            )
+
+            # Generate lower half
+            self.add_layer(
+                "L" + str(layer_count - layer_num + 1),
+                "BOT",
+                material="copper",
+                thickness=inner_layer_thickness,
+                fillMaterial=dielectric_material,
+                method="insert_above",
+            )
+            self.add_layer(
+                "D" + str(layer_count - layer_num + 1),
+                "BOT",
+                material=dielectric_material,
+                thickness=dielectric_thickness,
+                layer_type="dielectric",
+                fillMaterial=dielectric_material,
+                method="insert_above",
+            )
         return True
 
     @property

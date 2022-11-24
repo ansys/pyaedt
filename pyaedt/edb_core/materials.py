@@ -357,6 +357,29 @@ class Materials(object):
         """Retrieve dictionary of material from material library."""
         return {obj.GetName(): Material(self, obj) for obj in list(self._db.MaterialDefs)}
 
+    @pyaedt_function_handler
+    def add_material(
+        self,
+        name="air",
+        permittivity=1.0006,
+        permeability=1.0000004,
+        conductivity=0,
+        dielectric_loss_tangent=0,
+        magnetic_loss_tangent=0,
+    ):
+        if not name in self.materials:
+            self._edb.Definition.MaterialDef.Create(self._db, name)
+            new_material = self.materials[name]
+            new_material.permittivity = permittivity
+            new_material.permeability = permeability
+            new_material.conductivity = conductivity
+            new_material.loss_tangent = dielectric_loss_tangent
+            new_material.magnetic_loss_tangent = magnetic_loss_tangent
+            return new_material
+        else:  # pragma: no cover
+            warnings.warn("Material {} already exists in material library.".format(name))
+            return False
+
     @pyaedt_function_handler()
     def add_conductor_material(self, name, conductivity):
         """Add a new conductor material in library.
@@ -374,13 +397,15 @@ class Materials(object):
             self._edb.Definition.MaterialDef.Create(self._db, name)
             new_material = self.materials[name]
             new_material.conductivity = conductivity
+            new_material.permittivity = 1
+            new_material.permeability = 1
             return new_material
         else:  # pragma: no cover
             warnings.warn("Material {} already exists in material library.".format(name))
             return False
 
     @pyaedt_function_handler()
-    def add_dielectric_material(self, name, permittivity, loss_tangent):
+    def add_dielectric_material(self, name, permittivity, loss_tangent, permeability=1):
         """Add a new dielectric material in library.
 
         Parameters
@@ -391,6 +416,8 @@ class Materials(object):
             Permittivity of the new material.
         loss_tangent : float
             Loss tangent of the new material.
+        permeability: float
+            Permeability of the new material.
         Returns
         -------
 
@@ -400,6 +427,7 @@ class Materials(object):
             new_material = self.materials[name]
             new_material.permittivity = permittivity
             new_material.loss_tangent = loss_tangent
+            new_material.permeability = permeability
             return new_material
         else:
             warnings.warn("Material {} already exists in material library.".format(name))

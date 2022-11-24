@@ -23,8 +23,6 @@ class EdbPadstacks(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-        self._padstacks = {}
-        self._padstack_instances = {}
 
     @property
     def _builder(self):
@@ -155,11 +153,11 @@ class EdbPadstacks(object):
             List of padstack instances.
 
         """
-        layout_lobj_collection = list(self._active_layout.PadstackInstances)
-        _padstack_instances = {}
-        for lobj in layout_lobj_collection:
-            _padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
-        return _padstack_instances
+        padstack_instances = {}
+        edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
+        for edb_padstack_instance in edb_padstack_inst_list:
+            padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
+        return padstack_instances
 
     @property
     def pingroups(self):
@@ -293,7 +291,7 @@ class EdbPadstacks(object):
         PadStack.SetData(new_PadStackData)
 
     @pyaedt_function_handler
-    def delete_padstack_instances(self, net_names):
+    def delete_padstack_instances(self, net_names):  # pragma: no cover
         """Delete padstack instances by net names.
 
         Parameters
@@ -318,7 +316,6 @@ class EdbPadstacks(object):
             if p.name in net_names:
                 if not p.delete_padstack_instance():  # pragma: no cover
                     return False
-                self._padstacks.pop(p_id)
         return True
 
     @pyaedt_function_handler()
@@ -578,6 +575,9 @@ class EdbPadstacks(object):
         offset_y="0.0",
         rotation="0.0",
         has_hole=True,
+        pad_offset_x="0.0",
+        pad_offset_y="0.0",
+        pad_rotation="0.0",
     ):
         """Create a padstack.
 
@@ -639,6 +639,10 @@ class EdbPadstacks(object):
         offset_y = self._get_edb_value(offset_y)
         rotation = self._get_edb_value(rotation)
 
+        pad_offset_x = self._get_edb_value(pad_offset_x)
+        pad_offset_y = self._get_edb_value(pad_offset_y)
+        pad_rotation = self._get_edb_value(pad_rotation)
+
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
         padstackData.SetHolePlatingPercentage(self._get_edb_value(20.0))
@@ -664,9 +668,9 @@ class EdbPadstacks(object):
                 self._edb.Definition.PadType.RegularPad,
                 self._edb.Definition.PadGeometryType.Circle,
                 padparam_array,
-                value0,
-                value0,
-                value0,
+                pad_offset_x,
+                pad_offset_y,
+                pad_rotation,
             )
 
             padstackData.SetPadParameters(
@@ -798,7 +802,9 @@ class EdbPadstacks(object):
                 None,
             )
             padstack_instance.SetIsLayoutPin(is_pin)
-            return padstack_instance.GetId()
+            py_padstack_instance = EDBPadstackInstance(padstack_instance, self._pedb)
+
+            return py_padstack_instance
         else:
             return False
 

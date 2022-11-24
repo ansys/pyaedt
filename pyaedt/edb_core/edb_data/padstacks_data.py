@@ -717,6 +717,15 @@ class EDBPadstackInstance(object):
             return False
 
     @property
+    def component(self):
+        """Get component this padstack belong to."""
+        comp_name = self._edb_padstackinstance.GetComponent().GetName()
+        if comp_name in self._pedb.core_components.components:
+            return self._pedb.core_components.components[comp_name]
+        else:  # pragma: no cover
+            return
+
+    @property
     def pin(self):
         """Return Edb padstack object."""
         return self._edb_padstackinstance
@@ -935,6 +944,11 @@ class EDBPadstackInstance(object):
     def name(self, value):
         self._edb_padstackinstance.SetName(value)
         self._edb_padstackinstance.SetProductProperty(self._pedb.edb.ProductId.Designer, 11, value)
+
+    @property
+    def pin_number(self):
+        """Get pin number."""
+        return self._edb_padstackinstance.GetName()
 
     @pyaedt_function_handler()
     def parametrize_position(self, prefix=None):
