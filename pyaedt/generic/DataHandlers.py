@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 import math
-import os
 import random
 import re
 import string
-import warnings
 from collections import OrderedDict
 from decimal import Decimal
 
@@ -14,18 +12,6 @@ from pyaedt.generic.general_methods import settings
 from pyaedt.modeler.Object3d import EdgePrimitive
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import VertexPrimitive
-
-try:
-    import clr
-
-    clr.AddReference("System.Collections")
-    from System.Collections.Generic import List
-
-    clr.AddReference("System")
-    from System import Double
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("PythonNET is needed to run pyaedt")
 
 
 @pyaedt_function_handler()
@@ -187,6 +173,9 @@ def create_list_for_csharp(input_list, return_strings=False):
     -------
 
     """
+    from pyaedt.generic.clr_module import Double
+    from pyaedt.generic.clr_module import List
+
     if return_strings:
         col = List[str]()
     else:
@@ -215,6 +204,8 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     -------
 
     """
+    from pyaedt.generic.clr_module import List
+
     new_table = List[List[str]]()
     for col in input_list_of_list:
         newcol = create_list_for_csharp(col, return_strings)

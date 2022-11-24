@@ -6,21 +6,10 @@ This module contains EDB general methods and related methods.
 from __future__ import absolute_import  # noreorder
 
 import logging
-import os
-import warnings
 
+from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    import clr
-
-    clr.AddReference("System.Collections")
-    from System import Tuple
-    from System.Collections.Generic import List
-
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires PythonNET.")
 
 logger = logging.getLogger(__name__)
 

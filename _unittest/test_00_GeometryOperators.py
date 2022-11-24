@@ -1,17 +1,10 @@
 import math
 
-import clr
-
-from pyaedt.modeler.GeometryOperators import GeometryOperators as go
-
-clr.AddReference("System.Collections")
-from System import Double
-from System.Collections.Generic import List
-
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT
 from pyaedt.generic.constants import unit_converter
+from pyaedt.modeler.GeometryOperators import GeometryOperators as go
 
 try:
     import pytest  # noqa: F401
@@ -38,6 +31,9 @@ class TestClass:
         pass
 
     def test_List2list(self):
+        from pyaedt.generic.clr_module import Double
+        from pyaedt.generic.clr_module import List
+
         List_str = List[str]()
         List_str.Add("one")
         List_str.Add("two")
