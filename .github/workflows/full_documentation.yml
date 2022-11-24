@@ -150,6 +150,7 @@ jobs:
           python -c "import sys; print(sys.executable)"
           pip install -r requirements.txt
           pip install -r requirements_docs.txt
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "jsondoc\Lib\site-packages\vtkmodules" -Force
 
       - name: Build json documentation
         run: |
