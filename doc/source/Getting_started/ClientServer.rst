@@ -80,5 +80,7 @@ and, finally connect to the remote session and execute pyaedt code.
 The client can be used also to upload or download files from the server.
 
 .. code:: python
+
     cl1.filemanager.upload(local_path, remote_path)
     file_content = cl1.open_file(remote_file)
+
