@@ -383,6 +383,22 @@ if not config["skip_edb"]:
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
 
+            assert self.edbapp.core_siwave.create_pin_group_on_net(
+                reference_designator="U3A1", net_name="GND", group_name="gnd"
+            )
+            self.edbapp.core_siwave.create_pin_group(
+                reference_designator="U3A1", pin_numbers=[16, 17], group_name="vrm_pos"
+            )
+            self.edbapp.core_siwave.create_current_source_on_pin_group(
+                pos_pin_group_name="vrm_pos", neg_pin_group_name="gnd", name="vrm_current_source"
+            )
+
+            self.edbapp.core_siwave.create_pin_group(
+                reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos"
+            )
+
+            self.edbapp.core_siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", "vrm_voltage_source")
+
         def test_39_create_dc_terminal(self):
             assert self.edbapp.core_siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
 
