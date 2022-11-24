@@ -701,7 +701,7 @@ class Materials(object):
         else:
             original_material = self._edb.Definition.MaterialDef.FindByName(self._pedb._db, material_name)
             if is_ironpython:  # pragma: no cover
-                property_box = clr.StrongBox[float]()
+                property_box = _clr.StrongBox[float]()
                 original_material.GetProperty(self.material_name_to_id(property_name), property_box)
                 return float(property_box)
             else:
