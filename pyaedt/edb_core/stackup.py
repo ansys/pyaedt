@@ -9,6 +9,7 @@ import json
 import logging
 import math
 import warnings
+from collections import OrderedDict
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
@@ -677,22 +678,21 @@ class Stackup(object):
         class : Ansys.Ansoft.Edb.Cell.LayerCollection
             Collection of layers.
         """
-
         lc_readonly = self._pedb._active_layout.GetLayerCollection()
         layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
         layer_collection = self._pedb.edb.Cell.LayerCollection()
-
+        layers.reverse()
         flag_first_layer = True
         for lyr in layers:
             if not lyr.IsStackupLayer():
                 continue
             lyr_clone = lyr.Clone()
-            lyr_name = lyr.GetName()
             if flag_first_layer:
                 layer_collection.AddLayerTop(lyr_clone)
                 flag_first_layer = False
             else:
                 layer_collection.AddLayerAbove(lyr_clone, lyr_name)
+            lyr_name = lyr_clone.GetName()
 
         for lyr in layers:
             if not lyr.IsStackupLayer():
@@ -716,7 +716,7 @@ class Stackup(object):
         -------
         dict
         """
-        _lays = {}
+        _lays = OrderedDict()
         for l in self._edb_layer_list:
             name = l.GetName()
             _lays[name] = LayerEdbClass(self, name)
@@ -731,7 +731,9 @@ class Stackup(object):
         dict
         """
         layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
-        return {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() == layer_type}
+        return OrderedDict(
+            {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() == layer_type}
+        )
 
     @property
     def stackup_layers(self):
@@ -745,7 +747,9 @@ class Stackup(object):
             self._pedb.edb.Cell.LayerType.SignalLayer,
             self._pedb.edb.Cell.LayerType.DielectricLayer,
         ]
-        return {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() in layer_type}
+        return OrderedDict(
+            {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() in layer_type}
+        )
 
     @property
     def non_stackup_layers(self):
@@ -782,6 +786,7 @@ class Stackup(object):
             new_layer_collection = self._pedb.edb.Cell.LayerCollection()
         else:
             new_layer_collection = self._layer_collection
+
         if operation == "change_position":
             for lyr in edb_layers:
                 if not (layer_clone.GetName() == lyr.GetName()):
@@ -916,7 +921,8 @@ class Stackup(object):
         if layer_type in ["signal", "dielectric"]:
             new_layer = self._create_stackup_layer(layer_name, thickness, layer_type)
             new_layer.SetMaterial(material)
-            new_layer.SetFillMaterial(fillMaterial)
+            if layer_type != "dielectric":
+                new_layer.SetFillMaterial(fillMaterial)
             new_layer.SetNegative(is_negative)
             self._set_layout_stackup(new_layer, method, base_layer)
 
@@ -1286,45 +1292,57 @@ class Stackup(object):
         for el, val in self._pedb.core_components.components.items():
             if val.solder_ball_height:
                 layer = val.placement_layer
-                if layer == list(self.signal_layers.keys())[0]:
-                    elevation = 0
-                    layer1 = layer
-                    last_layer_thickess = 0
-                    for el in list(self.layers.keys()):
-                        if el == layer:
+                if layer == list(self.stackup_layers.keys())[0]:
+                    self.add_layer(
+                        "Bottom_air",
+                        base_layer=list(self.stackup_layers.keys())[-1],
+                        method="insert_below",
+                        material="air",
+                        thickness=val.solder_ball_height,
+                        layer_type="dielectric",
+                    )
+                elif layer == list(self.stackup_layers.keys())[-1]:
+                    self.add_layer(
+                        "Top_Air",
+                        base_layer=layer,
+                        material="air",
+                        thickness=val.solder_ball_height,
+                        layer_type="dielectric",
+                    )
+                elif layer == list(self.signal_layers.keys())[0]:
+                    elevation = val.solder_ball_height
+                    diel = layer
+                    for k, v in self.stackup_layers.items():
+                        if k == layer:
                             break
-                        elevation += self.layers[el].thickness
-                        last_layer_thickess = self.layers[el].thickness
-                        layer1 = el
-                    if layer1 != layer:
-                        self.layers[layer1].thickness = val.solder_ball_height - elevation + last_layer_thickess
-                    elif val.solder_ball_height > elevation:
-                        self.add_layer(
-                            "Top_Air",
-                            base_layer=layer1,
-                            material="air",
-                            thickness=val.solder_ball_height - elevation,
-                            layer_type="dielectric",
-                        )
-                else:
-                    elevation = 0
-                    layer1 = layer
-                    last_layer_thickess = 0
-                    for el in list(self.stackup_layers.keys())[::-1]:
-                        if el == layer:
-                            break
-                        layer1 = el
-                        elevation += self.layers[el].thickness
-                        last_layer_thickess = self.layers[el].thickness
-                    if layer1 != layer:
-                        self.layers[layer1].thickness = val.solder_ball_height - elevation + last_layer_thickess
-                    elif val.solder_ball_height > elevation:
+                        else:
+                            diel = k
+                            elevation -= v.thickness
+                    if elevation > 0:
                         self.add_layer(
                             "Bottom_air",
-                            base_layer=None,
+                            base_layer=diel,
                             method="add_on_bottom",
                             material="air",
-                            thickness=val.solder_ball_height - elevation,
+                            thickness=val.solder_ball_height,
+                            layer_type="dielectric",
+                        )
+                elif layer == list(self.signal_layers.keys())[-1]:
+                    elevation = val.solder_ball_height
+                    start = False
+                    diel = layer
+                    for k, v in self.stackup_layers.items():
+                        if k == layer:
+                            start = True
+                        elif start:
+                            elevation -= v.thickness
+                            diel = k
+                    if elevation > 0:
+                        self.add_layer(
+                            "Top_Air",
+                            base_layer=diel,
+                            material="air",
+                            thickness=elevation,
                             layer_type="dielectric",
                         )
         return True

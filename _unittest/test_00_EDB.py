@@ -38,8 +38,8 @@ if not config["skip_edb"]:
         def setup_class(self):
             BasisTest.my_setup(self)
             self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
-            example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
             self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
@@ -971,7 +971,7 @@ if not config["skip_edb"]:
                 flipped=True,
             )
             assert result
-            assert abs(rotation + math.pi / 2) < 1e-9
+            assert abs(rotation - math.pi / 2) < 1e-9
             assert solder_ball_height == 0.00033
             assert len(vector) == 2
             edb2.close_edb()
