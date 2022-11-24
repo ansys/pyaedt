@@ -1,5 +1,6 @@
 from __future__ import absolute_import  # noreorder
 
+import difflib
 import logging
 import warnings
 
@@ -632,3 +633,84 @@ class Materials(object):
                 else:
                     self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
             self.materials[material["name"]]._load(material)
+
+    @pyaedt_function_handler
+    def material_name_to_id(self, property_name):
+        """Convert a material property name to a material property ID.
+
+        Parameters
+        ----------
+        property_name : str
+            Name of the material property.
+
+        Returns
+        -------
+        ID of the material property.
+        """
+        props = {
+            "Permittivity": self._edb.Definition.MaterialPropertyId.Permittivity,
+            "Permeability": self._edb.Definition.MaterialPropertyId.Permeability,
+            "Conductivity": self._edb.Definition.MaterialPropertyId.Conductivity,
+            "DielectricLossTangent": self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
+            "MagneticLossTangent": self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
+            "ThermalConductivity": self._edb.Definition.MaterialPropertyId.ThermalConductivity,
+            "MassDensity": self._edb.Definition.MaterialPropertyId.MassDensity,
+            "SpecificHeat": self._edb.Definition.MaterialPropertyId.SpecificHeat,
+            "YoungsModulus": self._edb.Definition.MaterialPropertyId.YoungsModulus,
+            "PoissonsRatio": self._edb.Definition.MaterialPropertyId.PoissonsRatio,
+            "ThermalExpansionCoefficient": self._edb.Definition.MaterialPropertyId.ThermalExpansionCoefficient,
+            "InvalidProperty": self._edb.Definition.MaterialPropertyId.InvalidProperty,
+        }
+
+        found_el = difflib.get_close_matches(property_name, list(props.keys()), 1, 0.7)
+        if found_el:
+            return props[found_el[0]]
+        else:
+            return self._edb.Definition.MaterialPropertyId.InvalidProperty
+
+    @pyaedt_function_handler()
+    def get_property_by_material_name(self, property_name, material_name):
+        """Get the property of a material. If it is executed in IronPython,
+         you must only use the first element of the returned tuple, which is a float.
+
+        Parameters
+        ----------
+        material_name : str
+            Name of the existing material.
+        property_name : str
+            Name of the material property.
+            ``permittivity``
+            ``permeability``
+            ``conductivity``
+            ``dielectric_loss_tangent``
+            ``magnetic_loss_tangent``
+
+        Returns
+        -------
+        float
+            the float value of the property.
+
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
+        >>> edb_value = returned_tuple[0]
+        >>> float_value = returned_tuple[1]
+
+        """
+        if self._edb.Definition.MaterialDef.FindByName(self._pedb._db, material_name).IsNull():
+            self._pedb.logger.error("This material doesn't exists.")
+        else:
+            original_material = self._edb.Definition.MaterialDef.FindByName(self._pedb._db, material_name)
+            if is_ironpython:  # pragma: no cover
+                property_box = clr.StrongBox[float]()
+                original_material.GetProperty(self.material_name_to_id(property_name), property_box)
+                return float(property_box)
+            else:
+                _, property_box = original_material.GetProperty(
+                    self.material_name_to_id(property_name), self._edb_value(0.0)
+                )
+                return property_box.ToDouble()
+        return False

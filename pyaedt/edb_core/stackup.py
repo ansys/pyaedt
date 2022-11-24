@@ -5,7 +5,6 @@ This module contains the `EdbStackup` class.
 
 from __future__ import absolute_import  # noreorder
 
-import difflib
 import json
 import logging
 import math
@@ -26,10 +25,6 @@ if not is_ironpython:
             "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
         )
 
-try:
-    import clr
-except ImportError:
-    warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
 
@@ -1786,6 +1781,9 @@ class EdbStackup(object):
     def create_dielectric(self, name, permittivity=1, loss_tangent=0):
         """Create a dielectric with simple properties.
 
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.create_dielectric` function instead.
+
         Parameters
         ----------
         name : str
@@ -1800,12 +1798,15 @@ class EdbStackup(object):
         type
             Material definition.
         """
+        warnings.warn("Use `Edb.materials.create_dielectric` function instead.", DeprecationWarning)
         return self._pedb.materials.add_dielectric_material(name, permittivity=permittivity, loss_tangent=loss_tangent)
 
     @pyaedt_function_handler()
     def create_conductor(self, name, conductivity=1e6):
         """Create a conductor with simple properties.
 
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.add_conductor_material` function instead.
         Parameters
         ----------
         name : str
@@ -1818,6 +1819,8 @@ class EdbStackup(object):
         type
             Material definition.
         """
+        warnings.warn("Use `Edb.materials.add_conductor_material` function instead.", DeprecationWarning)
+
         return self._pedb.materials.add_conductor_material(name, conductivity=conductivity)
 
     @pyaedt_function_handler()
@@ -1832,6 +1835,9 @@ class EdbStackup(object):
         higher_frequency,
     ):
         """Create a dielectric with the Debye model.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.add_debye_material` function instead.
 
         Parameters
         ----------
@@ -1859,6 +1865,8 @@ class EdbStackup(object):
         type
             Material definition.
         """
+        warnings.warn("Use `Edb.materials.add_debye_material` function instead.", DeprecationWarning)
+
         return self._pedb.materials.add_debye_material(
             name=name,
             permittivity_low=relative_permittivity_low,
@@ -1878,6 +1886,9 @@ class EdbStackup(object):
         loss_tangents,
     ):
         """Create a dielectric with the Multipole Debye model.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.add_multipole_debye_material` function instead.
 
         Parameters
         ----------
@@ -1904,6 +1915,8 @@ class EdbStackup(object):
         >>> loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
         >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
         """
+        warnings.warn("Use `Edb.materials.add_multipole_debye_material` function instead.", DeprecationWarning)
+
         return self._pedb.materials.add_multipole_debye_material(
             name=name,
             frequencies=frequencies,
@@ -1915,11 +1928,16 @@ class EdbStackup(object):
     def get_layout_thickness(self):
         """Return the layout thickness.
 
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.get_layout_thickness` function instead.
+
         Returns
         -------
         float
             The thickness value.
         """
+        warnings.warn("Use `Edb.materials.get_layout_thickness` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.get_layout_thickness()
 
     @pyaedt_function_handler()
@@ -1927,6 +1945,9 @@ class EdbStackup(object):
         """Duplicate a material from the database.
         It duplicates these five properties: ``permittivity``, ``permeability``, ` conductivity,``
         ``dielectriclosstangent``, and ``magneticlosstangent``.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.duplicate` function instead.
 
         Parameters
         ----------
@@ -1948,11 +1969,16 @@ class EdbStackup(object):
         >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
 
         """
+        warnings.warn("Use `Edb.materials.duplicate` function instead.", DeprecationWarning)
+
         return self._pedb.materials.duplicate(material_name, new_material_name)
 
     @pyaedt_function_handler
     def material_name_to_id(self, property_name):
         """Convert a material property name to a material property ID.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.material_name_to_id` function instead.
 
         Parameters
         ----------
@@ -1963,31 +1989,17 @@ class EdbStackup(object):
         -------
         ID of the material property.
         """
-        props = {
-            "Permittivity": self._edb.Definition.MaterialPropertyId.Permittivity,
-            "Permeability": self._edb.Definition.MaterialPropertyId.Permeability,
-            "Conductivity": self._edb.Definition.MaterialPropertyId.Conductivity,
-            "DielectricLossTangent": self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
-            "MagneticLossTangent": self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
-            "ThermalConductivity": self._edb.Definition.MaterialPropertyId.ThermalConductivity,
-            "MassDensity": self._edb.Definition.MaterialPropertyId.MassDensity,
-            "SpecificHeat": self._edb.Definition.MaterialPropertyId.SpecificHeat,
-            "YoungsModulus": self._edb.Definition.MaterialPropertyId.YoungsModulus,
-            "PoissonsRatio": self._edb.Definition.MaterialPropertyId.PoissonsRatio,
-            "ThermalExpansionCoefficient": self._edb.Definition.MaterialPropertyId.ThermalExpansionCoefficient,
-            "InvalidProperty": self._edb.Definition.MaterialPropertyId.InvalidProperty,
-        }
+        warnings.warn("Use `Edb.materials.material_name_to_id` function instead.", DeprecationWarning)
 
-        found_el = difflib.get_close_matches(property_name, list(props.keys()), 1, 0.7)
-        if found_el:
-            return props[found_el[0]]
-        else:
-            return self._edb.Definition.MaterialPropertyId.InvalidProperty
+        return self._pedb.materials.material_name_to_id(property_name)
 
     @pyaedt_function_handler()
     def get_property_by_material_name(self, property_name, material_name):
         """Get the property of a material. If it is executed in IronPython,
          you must only use the first element of the returned tuple, which is a float.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.get_property_by_material_name` function instead.
 
         Parameters
         ----------
@@ -2016,20 +2028,9 @@ class EdbStackup(object):
         >>> float_value = returned_tuple[1]
 
         """
-        if self._edb.Definition.MaterialDef.FindByName(self._db, material_name).IsNull():
-            self._logger.error("This material doesn't exists.")
-        else:
-            original_material = self._edb.Definition.MaterialDef.FindByName(self._db, material_name)
-            if is_ironpython:  # pragma: no cover
-                property_box = clr.StrongBox[float]()
-                original_material.GetProperty(self.material_name_to_id(property_name), property_box)
-                return float(property_box)
-            else:
-                _, property_box = original_material.GetProperty(
-                    self.material_name_to_id(property_name), self._get_edb_value(0.0)
-                )
-                return property_box.ToDouble()
-        return False
+        warnings.warn("Use `Edb.materials.get_property_by_material_name` function instead.", DeprecationWarning)
+
+        return self._pedb.materials.get_property_by_material_name(property_name, material_name)
 
     @pyaedt_function_handler()
     def adjust_solder_dielectrics(self):
@@ -2037,10 +2038,15 @@ class EdbStackup(object):
         This method identifies the solder-ball height and adjust the dielectric thickness on top (or bottom) to fit
         the thickness in order to merge another layout.
 
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.adjust_solder_dielectrics` function instead.
+
         Returns
         -------
         bool
         """
+        warnings.warn("Use `Edb.stackup.adjust_solder_dielectrics` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.adjust_solder_dielectrics()
 
     @pyaedt_function_handler()
@@ -2055,6 +2061,9 @@ class EdbStackup(object):
     ):
         """Place current Cell into another cell using layer placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.place_in_layout` function instead.
 
         Parameters
         ----------
@@ -2096,6 +2105,8 @@ class EdbStackup(object):
         ...                                   offset_y=vector[1], flipped_stackup=False, place_on_top=True,
         ...                                   )
         """
+        warnings.warn("Use `Edb.stackup.place_in_layout` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.place_in_layout(
             edb=edb,
             angle=angle,
@@ -2118,6 +2129,9 @@ class EdbStackup(object):
     ):
         """Place current Cell into another cell using 3d placement method.
         Flip the current layer stackup of a layout if requested. Transform parameters currently not supported.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.place_in_layout_3d_placement` function instead.
 
         Parameters
         ----------
@@ -2153,6 +2167,8 @@ class EdbStackup(object):
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
         """
+        warnings.warn("Use `Edb.stackup.place_in_layout_3d_placement` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.place_in_layout_3d_placement(
             edb=edb,
             angle=angle,
@@ -2168,6 +2184,9 @@ class EdbStackup(object):
         """Place a 3D Component into current layout.
          3D Component ports are not visible via EDB. They will be visible after the EDB has been opened in Ansys
          Electronics Desktop as a project.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.place_a3dcomp_3d_placement` function instead.
 
         Parameters
         ----------
@@ -2198,6 +2217,8 @@ class EdbStackup(object):
         ...                                   offset_y="2mm", flipped_stackup=False, place_on_top=True,
         ...                                   )
         """
+        warnings.warn("Use `Edb.stackup.place_a3dcomp_3d_placement` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.place_a3dcomp_3d_placement(
             a3dcomp_path=a3dcomp_path, angle=angle, offset_x=offset_x, offset_y=offset_y, place_on_top=place_on_top
         )
@@ -2205,6 +2226,9 @@ class EdbStackup(object):
     @pyaedt_function_handler()
     def flip_design(self):
         """Flip the current design of a layout.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.flip_design` function instead.
 
         Returns
         -------
@@ -2218,6 +2242,8 @@ class EdbStackup(object):
         >>> edb.save()
         >>> edb.close_edb()
         """
+        warnings.warn("Use `Edb.stackup.flip_design` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.flip_design()
 
     @pyaedt_function_handler()
@@ -2225,6 +2251,9 @@ class EdbStackup(object):
         self, name, relative_permittivity, loss_tangent, test_frequency, dc_permittivity=None, dc_conductivity=None
     ):
         """Create a Djordjevic_Sarkar dielectric.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.materials.add_djordjevicsarkar_material` function instead.
 
         Parameters
         ----------
@@ -2245,6 +2274,8 @@ class EdbStackup(object):
         type
             Material definition.
         """
+        warnings.warn("Use `Edb.materials.add_djordjevicsarkar_material` function instead.", DeprecationWarning)
+
         return self._pedb.materials.add_djordjevicsarkar_material(
             name=name,
             permittivity=relative_permittivity,
@@ -2258,6 +2289,9 @@ class EdbStackup(object):
     def stackup_limits(self, only_metals=False):
         """Retrieve stackup limits.
 
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.stackup_limits` function instead.
+
         Parameters
         ----------
         only_metals : bool, optional
@@ -2268,6 +2302,8 @@ class EdbStackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        warnings.warn("Use `Edb.stackup.stackup_limits` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.stackup_limits(only_metals=only_metals)
 
     def create_symmetric_stackup(
@@ -2281,6 +2317,9 @@ class EdbStackup(object):
         soldermask_thickness="20um",
     ):
         """Create a symmetric stackup.
+
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.create_symmetric_stackup` function instead.
 
         Parameters
         ----------
@@ -2302,6 +2341,8 @@ class EdbStackup(object):
         -------
         bool
         """
+        warnings.warn("Use `Edb.stackup.create_symmetric_stackup` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.create_symmetric_stackup(
             layer_count=layer_count,
             inner_layer_thickness=inner_layer_thickness,
@@ -2316,6 +2357,9 @@ class EdbStackup(object):
     def set_etching_layers(self, simulation_setup=None):
         """Set the etching layer parameters for a layout stackup.
 
+        .. deprecated:: 0.6.27
+           Use :func:`Edb.stackup.create_symmetric_stackup` function instead.
+
         Parameters
         ----------
         simulation_setup : EDB_DATA_SimulationConfiguration object
@@ -2325,4 +2369,6 @@ class EdbStackup(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        warnings.warn("Use `Edb.stackup.set_etching_layers` function instead.", DeprecationWarning)
+
         return self._pedb.stackup.set_etching_layers(simulation_setup=simulation_setup)
