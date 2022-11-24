@@ -1467,7 +1467,8 @@ class Stackup(object):
         if solder_height <= 0:
             if flipped_stackup and not place_on_top or (place_on_top and not flipped_stackup):
                 minimum_elevation = None
-                for lay in self.signal_layers.values():
+                layers_from_the_bottom = sorted(self.signal_layers.values(), key=lambda lay: lay.upper_elevation)
+                for lay in layers_from_the_bottom:
                     if minimum_elevation is None:
                         minimum_elevation = lay.lower_elevation
                     elif lay.lower_elevation > minimum_elevation:
