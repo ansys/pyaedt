@@ -368,8 +368,8 @@ class TestClass(BasisTest, object):
         assert meshlink_props["PathRelativeTo"] == "TargetProject"
         assert meshlink_props["Design"] == "Y_Connections"
         assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
-        assert list(meshlink_props["Params"].keys()) == self.aedtapp.available_variations.variables
-        assert list(meshlink_props["Params"].values()) == self.aedtapp.available_variations.variables
+        assert sorted(list(meshlink_props["Params"].keys())) == sorted(self.aedtapp.available_variations.variables)
+        assert sorted(list(meshlink_props["Params"].values())) == sorted(self.aedtapp.available_variations.variables)
         assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
         assert self.aedtapp.setups[0].add_mesh_link(design_name="Y_Connections", solution_name="Setup1 : LastAdaptive")
         assert not self.aedtapp.setups[0].add_mesh_link(
