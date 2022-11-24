@@ -1310,7 +1310,7 @@ class Stackup(object):
                             method="add_on_bottom",
                             material="air",
                             thickness=val.solder_ball_height - elevation,
-                            layerType="dielectric",
+                            layer_type="dielectric",
                         )
         return True
 
