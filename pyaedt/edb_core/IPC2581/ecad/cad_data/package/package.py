@@ -5,6 +5,7 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.package.assembly_drawing import (
 )
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.outline import Outline
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.pin import Pin
+from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import PolyStep
 
 
 class Package(object):
@@ -20,6 +21,7 @@ class Package(object):
         self.assembly_drawing = AssemblyDrawing(self._ipc)
         self.outline = Outline(self._ipc)
         self._pins = []
+        self.pickup_point = [0.0, 0.0]
 
     @property
     def pins(self):  # pragma no cover
@@ -38,6 +40,34 @@ class Package(object):
         added_pin.number = number
         added_pin.primitive_def = primitive_ref
         self.pins.append(added_pin)
+
+    def add_component_outline(self, component):
+        if component:
+            _bbox = component.bounding_box
+            component_bounding_box = [
+                self._ipc.from_meter_to_units(_bbox[0], self._ipc.units),
+                self._ipc.from_meter_to_units(_bbox[1], self._ipc.units),
+                self._ipc.from_meter_to_units(_bbox[2], self._ipc.units),
+                self._ipc.from_meter_to_units(_bbox[3], self._ipc.units),
+            ]
+            poly_step1 = PolyStep()
+            poly_step2 = PolyStep()
+            poly_step3 = PolyStep()
+            poly_step4 = PolyStep()
+            poly_step1.x = component_bounding_box[0]
+            poly_step1.y = component_bounding_box[1]
+            poly_step2.x = component_bounding_box[2]
+            poly_step2.y = component_bounding_box[1]
+            poly_step3.x = component_bounding_box[2]
+            poly_step3.y = component_bounding_box[3]
+            poly_step4.x = component_bounding_box[0]
+            poly_step4.y = component_bounding_box[3]
+            self.outline.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4]
+            try:
+                self._ipc.content.dict_line["ROUND_0"] = 0.0
+            except:
+                pass
+            self.outline.line_ref = "ROUND_0"
 
     def write_xml(self, step):  # pragma no cover
         package = ET.SubElement(step, "Package")

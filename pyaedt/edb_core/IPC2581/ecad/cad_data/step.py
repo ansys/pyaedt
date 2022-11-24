@@ -122,6 +122,7 @@ class Step(object):
                 if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
                     av_x = -av_x
                 package = Package(self._ipc)
+                package.add_component_outline(component)
                 package.name = component.part_name
                 package.height = ""
                 package.type = component.type
