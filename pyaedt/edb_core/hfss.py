@@ -454,22 +454,22 @@ class EdbHfss(object):
         if not isinstance(net_list, list):
             net_list = [net_list]
         for ref in ref_des_list:
-            for pin in self._pedb.core_components.components[ref].pins.items():
-                if pin[1].net_name in net_list and pin[1].pin.IsLayoutPin():
-                    port_name = "{}_{}_{}".format(ref, pin[1].net_name, pin[1].pin.GetName())
+            for _, py_inst in self._pedb.core_components.components[ref].pins.items():
+                if py_inst.net_name in net_list and py_inst.is_pin:
+                    port_name = "{}_{}_{}".format(ref, py_inst.net_name, py_inst.pin.GetName())
                     (
                         res,
                         from_layer_pos,
                         to_layer_pos,
-                    ) = pin[1].pin.GetLayerRange()
+                    ) = py_inst.pin.GetLayerRange()
                     if (
                         res
                         and from_layer_pos
                         and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                             self._active_layout,
-                            pin[1].pin.GetNet(),
+                            py_inst.pin.GetNet(),
                             port_name,
-                            pin[1].pin,
+                            py_inst.pin,
                             to_layer_pos,
                         )
                     ):
