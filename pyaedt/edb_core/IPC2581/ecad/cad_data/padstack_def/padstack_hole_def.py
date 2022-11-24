@@ -2,6 +2,8 @@ import xml.etree.cElementTree as ET
 
 
 class PadstackHoleDef(object):
+    """Class describing IPC2581 pad-stack hole definition."""
+
     def __init__(self):
         self.name = ""
         self.diameter = 0.0
@@ -11,13 +13,12 @@ class PadstackHoleDef(object):
         self.x = 0.0
         self.y = 0.0
 
-    def write_xml(self, padstackdef):
-        if padstackdef:
-            padstack_hole = ET.SubElement(padstackdef, "PadstackHoleDef")
-            padstack_hole.set("name", self.name)
-            padstack_hole.set("diameter", self.diameter)
-            padstack_hole.set("platingStatus", self.plating_status)
-            padstack_hole.set("plusTol", self.plus_tol)
-            padstack_hole.set("minusTol", self.minus_tol)
-            padstack_hole.set("x", self.x)
-            padstack_hole.set("y", self.y)
+    def write_xml(self, padstackdef):  # pragma no cover
+        padstack_hole = ET.SubElement(padstackdef, "PadstackHoleDef")
+        padstack_hole.set("name", self.name)
+        padstack_hole.set("diameter", str(self.diameter))
+        padstack_hole.set("platingStatus", str(self.plating_status))
+        padstack_hole.set("plusTol", str(self.plus_tol))
+        padstack_hole.set("minusTol", str(self.minus_tol))
+        padstack_hole.set("x", str(self.x))
+        padstack_hole.set("y", str(self.y))

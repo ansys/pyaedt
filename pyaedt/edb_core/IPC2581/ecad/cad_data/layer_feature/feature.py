@@ -9,6 +9,8 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
 
 class Feature(object):
+    """Class describing IPC 2581 features."""
+
     def __init__(self, ipc):
         self._ipc = ipc
         self.feature_type = FeatureType().Polygon
@@ -37,7 +39,7 @@ class Feature(object):
         if isinstance(cutout, Polygon):
             self._cutouts.append(cutout)
 
-    def write_xml(self, layer_feature):
+    def write_xml(self, layer_feature):  # pragma no cover
         net = ET.SubElement(layer_feature, "Set")
         net.set("net", self.net)
         if self.feature_type == FeatureType.Polygon:

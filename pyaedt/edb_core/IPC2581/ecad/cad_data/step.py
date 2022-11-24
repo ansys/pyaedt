@@ -152,8 +152,11 @@ class Step(object):
             except:
                 pass
             ipc_component.refdes = component.refdes
-            ipc_component.location = component.center
-            ipc_component.rotation = component.rotation
+            ipc_component.location = [
+                self._ipc.from_meter_to_units(component.center[0], self.units),
+                self._ipc.from_meter_to_units(component.center[1], self.units),
+            ]
+            ipc_component.rotation = component.rotation * 180 / math.pi
             ipc_component.package_ref = component.part_name
             ipc_component.part = component.part_name
             ipc_component.layer_ref = component.placement_layer

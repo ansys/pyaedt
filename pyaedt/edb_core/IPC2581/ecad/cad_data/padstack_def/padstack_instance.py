@@ -2,6 +2,8 @@ import xml.etree.cElementTree as ET
 
 
 class PadstackInstance(object):
+    """Class describing IPC2581 pad-stack instance."""
+
     def __init__(self):
         self.isvia = False
         self.padstack_def = ""
@@ -14,7 +16,7 @@ class PadstackInstance(object):
         self.net = ""
         self.mirror = False
 
-    def write_xml(self, net_root):
+    def write_xml(self, net_root):  # pragma no cover
         if self.isvia:
             if not self.refdes:
                 net_root.set("testPoint", "false")

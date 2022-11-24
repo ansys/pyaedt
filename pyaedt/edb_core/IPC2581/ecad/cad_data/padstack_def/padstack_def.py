@@ -9,13 +9,15 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_pad_def import 
 
 
 class PadstackDef(object):
+    """Class describing IPC2581 pad-stack definition."""
+
     def __init__(self):
         self.name = ""
         self.padstack_hole_def = PadstackHoleDef()
         self._padstack_pad_def = []
 
     @property
-    def padstack_pad_def(self):
+    def padstack_pad_def(self):  # pragma no cover
         return self._padstack_pad_def
 
     @padstack_pad_def.setter
@@ -24,7 +26,7 @@ class PadstackDef(object):
             if len([pad for pad in value if isinstance(pad, PadstackPadDef)]) == len(value):
                 self._padstack_pad_def = value
 
-    def add_padstack_pad_def(self, layer="", pad_use="REGULAR", x="0.0", y="0.0", primitive_ref=""):
+    def add_padstack_pad_def(self, layer="", pad_use="REGULAR", x="0.0", y="0.0", primitive_ref=""):  # pragma no cover
         pad = PadstackPadDef()
         pad.layer_ref = layer
         pad.pad_use = pad_use
@@ -33,7 +35,7 @@ class PadstackDef(object):
         pad.primitive_ref = primitive_ref
         self.padstack_pad_def.append(pad)
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         padstack_def = ET.SubElement(step, "PadStackDef")
         padstack_def.set("name", self.name)
         self.padstack_hole_def.write_xml(padstack_def)

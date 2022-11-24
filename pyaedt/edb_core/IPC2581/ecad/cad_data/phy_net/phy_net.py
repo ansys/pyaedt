@@ -2,12 +2,14 @@ import xml.etree.cElementTree as ET
 
 
 class PhyNet(object):
+    """Class describing IPC2581 physical net."""
+
     def __init__(self):
         self._name = ""
         self._phy_net_points = []
 
     @property
-    def name(self):
+    def name(self):  # pragma no cover
         return self._name
 
     @name.setter
@@ -16,7 +18,7 @@ class PhyNet(object):
             self._name = value
 
     @property
-    def phy_net_points(self):
+    def phy_net_points(self):  # pragma no cover
         return self._phy_net_points
 
     @phy_net_points.setter
@@ -25,11 +27,11 @@ class PhyNet(object):
             if len([net for net in value if isinstance(net, PhyNetPoint)]) == len(value):
                 self._phy_net_points = value
 
-    def add_phy_net_point(self, point=None):
+    def add_phy_net_point(self, point=None):  # pragma no cover
         if isinstance(point, PhyNetPoint):
             self._phy_net_points.append(point)
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         if step:
             phy_net = ET.SubElement(step, "PhyNet")
             for phy_net_point in self.phy_net_points:
@@ -37,6 +39,8 @@ class PhyNet(object):
 
 
 class PhyNetPoint(object):
+    """Class describing IPC2581 physical net point."""
+
     def __init__(self):
         self.x = 0.0
         self.y = 0.0
@@ -47,7 +51,7 @@ class PhyNetPoint(object):
         self.standard_primitive_id = ""
 
     @property
-    def exposure(self):
+    def exposure(self):  # pragma no cover
         if self._exposure == ExposureType.Exposed:
             return "EXPOSED"
         elif self._exposure == ExposureType.CoveredPrimary:
@@ -55,7 +59,7 @@ class PhyNetPoint(object):
         elif self._exposure == ExposureType.CoveredSecondary:
             return "COVERED_SECONDARY"
 
-    def write_xml(self, phynet):
+    def write_xml(self, phynet):  # pragma no cover
         if phynet:
             phynet_point = ET.SubElement(phynet, "PhyNetPoint")
             phynet_point.set("x", self.x)

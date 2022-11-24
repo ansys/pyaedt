@@ -4,13 +4,15 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import Polygon
 
 
 class Outline:
+    """Class describing IPC2581 outline."""
+
     def __init__(self, ipc):
         self._ipc = ipc
         self.polygon = Polygon(self._ipc)
         self.line_ref = ""
         self.pickup_point = ["0.0", "0.0"]
 
-    def write_xml(self, package):
+    def write_xml(self, package):  # pragma no cover
         outline = ET.SubElement(package, "Outline")
         polygon = ET.SubElement(outline, "Polygon")
         polygon_begin = ET.SubElement(polygon, "PolyBegin")

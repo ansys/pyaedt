@@ -2,11 +2,13 @@ import xml.etree.cElementTree as ET
 
 
 class LogicalNet(object):
+    """Class describing IPC2581 logical net."""
+
     def __init__(self):
         self.name = ""
         self.pin_ref = []
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         if step:
             logical_net = ET.SubElement(step, "LogicalNet")
             logical_net.set("name", self.name)
@@ -15,11 +17,13 @@ class LogicalNet(object):
 
 
 class PinRef(object):
+    """Class describing IPC2581 pin."""
+
     def __init__(self):
         self.pin = ""
         self.component_ref = ""
 
-    def write_xml(self, logical_net):
+    def write_xml(self, logical_net):  # pragma no cover
         if logical_net:
             pin_ref = ET.SubElement(logical_net, "PinRef")
             pin_ref.set("pin", self.pin)

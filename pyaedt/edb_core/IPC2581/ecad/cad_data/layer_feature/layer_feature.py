@@ -6,6 +6,8 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.layer_feature.feature import FeatureT
 
 
 class LayerFeature(object):
+    """Class describing IPC2581 layer feature."""
+
     def __init__(self, ipc):
         self._ipc = ipc
         self.layer_name = ""
@@ -14,7 +16,7 @@ class LayerFeature(object):
         self.is_drill_feature = False
 
     @property
-    def features(self):
+    def features(self):  # pragma no cover
         return self._features
 
     @features.setter
@@ -23,7 +25,7 @@ class LayerFeature(object):
             if len([feat for feat in value if isinstance(feat, Feature)]) == len(value):
                 self._features = value
 
-    def add_feature(self, obj_instance=None):
+    def add_feature(self, obj_instance=None):  # pragma no cover
         if obj_instance:
             feature = Feature(self._ipc)
             feature.net = obj_instance.net_name
@@ -37,7 +39,7 @@ class LayerFeature(object):
         else:
             return False
 
-    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None):
+    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None):  # pragma no cover
         if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
             feature.padstack_instance.net = padstack_inst.net_name
@@ -50,7 +52,7 @@ class LayerFeature(object):
             feature.padstack_instance.name = padstack_inst.name
             self.features.append(feature)
 
-    def add_drill_feature(self, via, diameter=0.0):
+    def add_drill_feature(self, via, diameter=0.0):  # pragma no cover
         feature = Feature(self._ipc)
         feature.feature_type = FeatureType.Drill
         feature.drill.net = via.net_name
@@ -59,7 +61,9 @@ class LayerFeature(object):
         feature.drill.diameter = self._ipc.from_meter_to_units(diameter, self._ipc.units)
         self.features.append(feature)
 
-    def add_component_padstack_instance_feature(self, component=None, pin=None, top_bottom_layers=[]):
+    def add_component_padstack_instance_feature(
+        self, component=None, pin=None, top_bottom_layers=[]
+    ):  # pragma no cover
         if component:
             cmp_x = self._ipc.from_meter_to_units(component.center[0], self._ipc.units)
             cmp_y = self._ipc.from_meter_to_units(component.center[1], self._ipc.units)
@@ -102,7 +106,7 @@ class LayerFeature(object):
                     return pad_def.primitive_ref
             return "default_value"
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         layer_feature = ET.SubElement(step, "LayerFeature")
         layer_feature.set("layerRef", self.layer_name)
         color_set = ET.SubElement(layer_feature, "Set")

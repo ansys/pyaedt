@@ -2,6 +2,8 @@ import xml.etree.cElementTree as ET
 
 
 class Component(object):
+    """Class containing IPC2581 component information."""
+
     def __init__(self):
         self.refdes = ""
         self.package_ref = ""
@@ -15,7 +17,7 @@ class Component(object):
         self.type = Type().Rlc
         self.value = ""
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         component = ET.SubElement(step, "Component")
         component.set("refDes", self.refdes)
         component.set("packageRef", self.package_ref)
@@ -26,7 +28,7 @@ class Component(object):
         component.set("height", self.height)
         non_standard_attribute = ET.SubElement(component, "NonstandardAttribute")
         non_standard_attribute.set("name", "VALUE")
-        non_standard_attribute.set("value", self.value)
+        non_standard_attribute.set("value", str(self.value))
         non_standard_attribute.set("type", "STRING")
         xform = ET.SubElement(component, "Xform")
         xform.set("rotation", str(self.rotation))

@@ -8,6 +8,8 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.package.pin import Pin
 
 
 class Package(object):
+    """Class describing IPC2581 package definition."""
+
     def __init__(self, ipc):
         self._ipc = ipc
         self.name = ""
@@ -20,7 +22,7 @@ class Package(object):
         self._pins = []
 
     @property
-    def pins(self):
+    def pins(self):  # pragma no cover
         return self._pins
 
     @pins.setter
@@ -29,7 +31,7 @@ class Package(object):
             if len([pin for pin in value if isinstance(pin, Pin)]) == len(value):
                 self._pins = value
 
-    def add_pin(self, number=0, x=0.0, y=0.0, primitive_ref=""):
+    def add_pin(self, number=0, x=0.0, y=0.0, primitive_ref=""):  # pragma no cover
         added_pin = Pin()
         added_pin.x = x
         added_pin.y = y
@@ -37,7 +39,7 @@ class Package(object):
         added_pin.primitive_def = primitive_ref
         self.pins.append(added_pin)
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         package = ET.SubElement(step, "Package")
         package.set("name", self.name)
         package.set("type", self.type)

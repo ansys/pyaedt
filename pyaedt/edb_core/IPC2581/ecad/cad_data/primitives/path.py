@@ -6,6 +6,8 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.primitives.polygon import PolyType
 
 
 class Path(object):
+    """Class describing IPC2581 traces."""
+
     def __init__(self, ipc):
         self._ipc = ipc
         self.location_x = 0.0
@@ -14,7 +16,7 @@ class Path(object):
         self.entry_line = EntryLine()
         self.width_ref_id = ""
 
-    def add_path_step(self, feature=None, path_step=None):
+    def add_path_step(self, feature=None, path_step=None):  # pragma no cover
         self.line_width = self._ipc.from_meter_to_units(path_step.primitive_object.GetWidth(), self._ipc.units)
         self.width_ref_id = "ROUND_{}".format(self.line_width)
         if not self.width_ref_id in self._ipc.content.dict_line.dict_lines:
@@ -40,7 +42,7 @@ class Path(object):
                 new_poly_step.clock_wise = not arc.IsCCW()
                 self.poly_steps.append(new_poly_step)
 
-    def write_xml(self, net_root):
+    def write_xml(self, net_root):  # pragma no cover
         feature = ET.SubElement(net_root, "Features")
         polyline = ET.SubElement(feature, "Polyline")
         polyline_begin = ET.SubElement(polyline, "PolyBegin")

@@ -2,6 +2,8 @@ import xml.etree.cElementTree as ET
 
 
 class Drill(object):
+    """Class describing IPC2581 drill feature."""
+
     def __init__(self):
         self.net = ""
         self.component = ""
@@ -14,7 +16,7 @@ class Drill(object):
         self.x = "0.0"
         self.y = "0.0"
 
-    def write_xml(self, net):
+    def write_xml(self, net):  # pragma no cover
         net.set("geometry", "VIA")
         color_ref = ET.SubElement(net, "ColorRef")
         color_ref.set("id", "")
