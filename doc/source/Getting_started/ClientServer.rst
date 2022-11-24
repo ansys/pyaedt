@@ -43,8 +43,9 @@ On a CPython Server run the service pyaedt_service_manager that will listen on p
 for incoming requests of connection from clients. Port is configurable.
 Requirements:
 
-- Python 3.7+ Virtual Environment. You could use the CPython in AEDT installation folder but you need to add the python lib folder to the LD_LIBRARY_PATH.
-- Pyaedt > 0.6.0
+- Python 3.7+ Virtual Environment. You could use the CPython in AEDT installation folder but you need to add the
+  Python lib folder to the LD_LIBRARY_PATH.
+- pyaedt > 0.6.0
 - export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64 #Win64 in case of Windows Server
 - export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
 
@@ -56,9 +57,8 @@ Requirements:
     pyaedt_service_manager()
 
 
-On any Windows client machine user needs to establish the connection using create_session method.
-After the connection is established then the user can launch AEDT in grpc mode on the server on a specific port
-and, finally connect to the remote session and execute pyaedt code.
+On any Windows client machine user needs to establish the connection as shown in example below.
+AEDT can be launched directly while creating the session or after the connection is established.
 
 .. code:: python
 
@@ -69,8 +69,8 @@ and, finally connect to the remote session and execute pyaedt code.
     cl2 = create_session("server_name", launch_aedt_on_server=False)
     cl2.aedt(port=17880, non_graphical=True)
 
-After the connection is established then the user can launch AEDT in grpc mode on the server on a specific port
-and, finally connect to the remote session and execute pyaedt code.
+
+Once AEDT is started then user can connect an application to it.
 
 .. code:: python
 
