@@ -47,8 +47,6 @@ class TestClass(BasisTest, object):
         assert bound.props["Temperature"] == "35deg"
 
     def test_05_assign_load(self):
-        # self.aedtapp.oproject.InsertDesign("HFSS", "HFSSDesign1", "HFSS Terminal Network", "")
-        # self.aedtapp.set_active_design("HFSSDesign1")
         hfss = Hfss(specified_version=desktop_version)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
@@ -70,8 +68,6 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
     def test_07_assign_thermal_loss(self):
-        # self.aedtapp.InsertDesign("Icepak", "IcepakDesign1", "SteadyState TemperatureAndFlow", "")
-        # self.aedtapp.set_active_design("IcepakDesign1")
         ipk = Icepak(
             solution_type=self.aedtapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow, specified_version=desktop_version
         )
