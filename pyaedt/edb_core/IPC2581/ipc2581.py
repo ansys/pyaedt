@@ -242,7 +242,7 @@ class IPC2581(object):
             if not obj.start_layer == obj.stop_layer
         ]
         self.ecad.cad_data.cad_data_step.add_drill_layer_feature(
-            via_list, "DRILL_1-{}".format(len(list(self._pedb.stackup.layers.keys())))
+            via_list, "DRILL_1-{}".format(len(list(self._pedb.stackup.signal_layers.keys())))
         )
 
     @pyaedt_function_handler()
