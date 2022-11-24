@@ -261,6 +261,9 @@ if not config["skip_edb"]:
             assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
             assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
             assert self.edbapp.core_components.components["R1"].pinlist
+            assert self.edbapp.core_components.components["R1"].pins
+            assert self.edbapp.core_components.components["R1"].pins["1"].pin_number
+            assert self.edbapp.core_components.components["R1"].pins["1"].component
             assert (
                 self.edbapp.core_components.components["R1"].pins["1"].lower_elevation
                 == self.edbapp.core_components.components["R1"].lower_elevation

@@ -722,7 +722,7 @@ class EDBPadstackInstance(object):
         comp_name = self._edb_padstackinstance.GetComponent().GetName()
         if comp_name in self._pedb.core_components.components:
             return self._pedb.core_components.components[comp_name]
-        else:
+        else:  # pragma: no cover
             return
 
     @property

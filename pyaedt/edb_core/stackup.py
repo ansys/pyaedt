@@ -532,7 +532,7 @@ class Stackup(object):
         dielectric_material="fr4_epoxy",
         soldermask=True,
         soldermask_thickness="20um",
-    ):
+    ):  # pragma: no cover
         """Create a symmetric stackup.
 
         Parameters
