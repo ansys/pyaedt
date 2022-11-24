@@ -736,9 +736,8 @@ class TestClass(BasisTest, object):
             parameters_dict=self.m3dtransient.available_variations.nominal_w_values_dict,
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, transient + ".aedt")
-        example_project_copy = os.path.join(local_path, "example_models", test_subfolder, transient + "_copy.aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, transient + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert self.m3dtransient.setups[0].add_mesh_link(
             design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
         )
-        os.remove(example_project_copy)
