@@ -764,12 +764,11 @@ class TestClass(BasisTest, object):
             parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
         )
         example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
-        example_project_copy = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + "_copy.aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, diff_proj_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(
-            design_name=self.aedtapp.design_list[1], project_name=example_project
+            design_name=self.aedtapp.design_list[1], project_name=example_project_copy
         )
-        os.remove(example_project_copy)
 
     def test_31_create_microstrip_port(self):
         self.aedtapp.insert_design("Microstrip")
