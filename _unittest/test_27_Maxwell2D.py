@@ -371,9 +371,7 @@ class TestClass(BasisTest, object):
         assert list(meshlink_props["Params"].keys()) == self.aedtapp.available_variations.variables
         assert list(meshlink_props["Params"].values()) == self.aedtapp.available_variations.variables
         assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
-        assert self.aedtapp.setups[0].add_mesh_link(
-            design_name="Y_Connections", solution_name="Setup1 : LastAdaptive"
-        )
+        assert self.aedtapp.setups[0].add_mesh_link(design_name="Y_Connections", solution_name="Setup1 : LastAdaptive")
         assert not self.aedtapp.setups[0].add_mesh_link(
             design_name="Y_Connections", solution_name="Setup_Test : LastAdaptive"
         )
@@ -388,4 +386,3 @@ class TestClass(BasisTest, object):
             design_name=self.aedtapp.design_list[1], project_name=example_project_copy
         )
         os.remove(example_project_copy)
-

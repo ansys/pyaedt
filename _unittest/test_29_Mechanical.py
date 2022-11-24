@@ -128,7 +128,5 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, test_project_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
-        assert self.aedtapp.setups[0].add_mesh_link(
-            design_name="MechanicalDesign2", project_name=example_project_copy
-        )
+        assert self.aedtapp.setups[0].add_mesh_link(design_name="MechanicalDesign2", project_name=example_project_copy)
         os.remove(example_project_copy)
