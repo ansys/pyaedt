@@ -408,7 +408,7 @@ if not config["skip_edb"]:
                 reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos"
             )
 
-            self.edbapp.core_siwave.create_voltage_source_on_pin_group("sink_pos", "gnd")
+            self.edbapp.core_siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", "vrm_voltage_source")
 
         def test_39_create_dc_terminal(self):
             assert self.edbapp.core_siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
