@@ -107,7 +107,7 @@ sim_setup.do_cutout_subdesign = True
 sim_setup.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C", "PCIE0_TX0_P", "PCIE0_TX0_N"]
 sim_setup.components = ["U2A5", "J2L1"]
 sim_setup.power_nets = ["GND"]
-sim_setup.start_frequency = "100Hz"
+sim_setup.start_freq = "100Hz"
 sim_setup.stop_freq = "6GHz"
 sim_setup.step_freq = "10MHz"
 

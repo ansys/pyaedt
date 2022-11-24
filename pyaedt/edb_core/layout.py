@@ -108,6 +108,22 @@ class EdbLayout(object):
         return _primitives_by_layer
 
     @property
+    def primitives_by_net(self):
+        """Primitives with net names as keys.
+
+        Returns
+        -------
+        dict
+            Dictionary of primitives with nat names as keys.
+        """
+        _prim_by_net = {}
+        for net in list(self._pedb.core_nets.nets.keys()):
+            _prim_by_net[net] = [
+                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetNet().GetName() == net
+            ]
+        return _prim_by_net
+
+    @property
     def primitives_by_layer(self):
         """Primitives with layer names as keys.
 
@@ -485,7 +501,7 @@ class EdbLayout(object):
         pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
         """
         path = self.Shape("Polygon", points=path_list)
-        prim = self.create_path(
+        primitive = self.create_path(
             path,
             layer_name=layer_name,
             net_name=net_name,
@@ -495,7 +511,7 @@ class EdbLayout(object):
             corner_style=corner_style,
         )
 
-        return EDBPrimitives(prim, self._pedb)
+        return EDBPrimitives(primitive, self._pedb)
 
     @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):

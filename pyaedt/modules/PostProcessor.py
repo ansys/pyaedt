@@ -849,13 +849,13 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, PlotName):
-        """Delete a field plot report.
+    def delete_report(self, PlotName=None):
+        """Delete all reports or specific report.
 
         Parameters
         ----------
-        PlotName : str
-            Name of the field plot report.
+        PlotName : str, optional
+            Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
 
         Returns
         -------
@@ -867,7 +867,10 @@ class PostProcessorCommon(object):
 
         >>> oModule.DeleteReports
         """
-        self.oreportsetup.DeleteReports([PlotName])
+        if PlotName:
+            self.oreportsetup.DeleteReports([PlotName])
+        else:
+            self.oreportsetup.DeleteAllReports()
         return True
 
     @pyaedt_function_handler()
@@ -2288,6 +2291,15 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.EnterQty
         >>> oModule.EnterVol
         >>> oModule.ExportOnGrid
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> var = hfss.available_variations.nominal_w_values
+        >>> setup = "Setup1 : LastAdaptive"
+        >>> path = "Field.fld"
+        >>> hfss.post.export_field_file_on_grid("E", setup, var, path, 'Cartesian', [0, 0, 0],  intrinsics="8GHz")
         """
         self.logger.info("Exporting %s field. Be patient", quantity_name)
         if not solution:

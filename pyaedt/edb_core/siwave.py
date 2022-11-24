@@ -83,6 +83,21 @@ class EdbSiwave(object):
         return self._pedb.db
 
     @property
+    def excitations(self):
+        """Get all excitations."""
+        return self._pedb.excitations
+
+    @property
+    def sources(self):
+        """Get all sources."""
+        return self._pedb.sources
+
+    @property
+    def probes(self):
+        """Get all probes."""
+        return self._pedb.probes
+
+    @property
     def pin_groups(self):
         """All Layout Pin groups.
 
@@ -1007,20 +1022,20 @@ class EdbSiwave(object):
                 sweep.UseQ3DForDC = simulation_setup.use_q3d_for_dc
                 sweep.RelativeSError = simulation_setup.relative_error
                 sweep.InterpUsePortImpedance = False
-                sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_frequency) - 0) < 1e-9
+                sweep.EnforceCausality = (GeometryOperators.parse_dim_arg(simulation_setup.start_freq) - 0) < 1e-9
                 sweep.EnforcePassivity = simulation_setup.enforce_passivity
                 sweep.PassivityTolerance = simulation_setup.passivity_tolerance
                 sweep.Frequencies.Clear()
                 if simulation_setup.sweep_type == SweepType.LogCount:  # pragma: no cover
                     self._setup_decade_count_sweep(
                         sweep,
-                        simulation_setup.start_frequency,
+                        simulation_setup.start_freq,
                         simulation_setup.stop_freq,
                         simulation_setup.decade_count,
                     )
                 else:
                     sweep.Frequencies = self._pedb.simsetupdata.SweepData.SetFrequencies(
-                        simulation_setup.start_frequency, simulation_setup.stop_freq, simulation_setup.step_freq
+                        simulation_setup.start_freq, simulation_setup.stop_freq, simulation_setup.step_freq
                     )
                 simsetup_info.SweepDataList.Add(sweep)
             except Exception as err:

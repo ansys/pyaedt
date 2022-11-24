@@ -204,14 +204,14 @@ def open_file(file_path, file_options="r"):
     object
         Opened file.
     """
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
     dir_name = os.path.dirname(file_path)
     if os.path.exists(dir_name):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:
         return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
-        return False
+        settings.logger.error("The file: %s does not exist", dir_name)
 
 
 def convert_remote_object(arg):
@@ -961,6 +961,45 @@ def _create_json_file(json_dict, full_json_path):
 
 
 @pyaedt_function_handler()
+def com_active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active COM AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+        Whether to check for student version sessions. The default is ``False``.
+    non_graphical : bool, optional
+        Whether to check only for active non-graphical sessions. The default is ``False``.
+
+    Returns
+    -------
+    list
+        List of AEDT PIDs.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        sessions.append(p.pid)
+        except:
+            pass
+    return sessions
+
+
+@pyaedt_function_handler()
 def grpc_active_sessions(version=None, student_version=False, non_graphical=False):
     """Get information for the active gRPC AEDT sessions.
 
@@ -1241,7 +1280,7 @@ class Settings(object):
         self.time_tick = time.time()
         self._global_log_file_name = "pyaedt_{}.log".format(os.path.split(os.path.expanduser("~"))[-1])
         self._enable_global_log_file = True
-        self._enable_local_log_file = True
+        self._enable_local_log_file = False
         self._global_log_file_size = 10
 
     @property

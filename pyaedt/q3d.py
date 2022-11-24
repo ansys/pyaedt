@@ -1483,7 +1483,9 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
-    def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
+    def assign_source_to_sheet(
+        self, sheetname, objectname=None, netname=None, sourcename=None, terminal_type="voltage"
+    ):
         """Generate a source on a sheet.
 
         Parameters
@@ -1496,6 +1498,8 @@ class Q3d(QExtractor, object):
             Name of the net. The default is ``None``.
         sourcename : str,  optional
             Name of the source. The default is ``None``.
+        terminal_type : str
+            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
         -------
@@ -1513,10 +1517,16 @@ class Q3d(QExtractor, object):
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
-        props["TerminalType"] = "ConstantVoltage"
+
+        if terminal_type == "current":
+            terminal_str = "UniformCurrent"
+        else:
+            terminal_str = "ConstantVoltage"
+
+        props["TerminalType"] = terminal_str
         if netname:
             props["Net"] = netname
-        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict({"Objects": sheetname, "TerminalType": terminal_str, "Net": netname})
         bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
@@ -1572,7 +1582,7 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
-    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
+    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None, terminal_type="voltage"):
         """Generate a sink on a sheet.
 
         Parameters
@@ -1585,6 +1595,8 @@ class Q3d(QExtractor, object):
             Name of the net. The default is ``None``.
         sinkname : str, optional
             Name of the sink. The default is ``None``.
+        terminal_type : str
+            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
         -------
@@ -1602,11 +1614,18 @@ class Q3d(QExtractor, object):
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
-        props["TerminalType"] = "ConstantVoltage"
+
+        if terminal_type == "current":
+            terminal_str = "UniformCurrent"
+        else:
+            terminal_str = "ConstantVoltage"
+
+        props["TerminalType"] = terminal_str
+
         if netname:
             props["Net"] = netname
 
-        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict({"Objects": sheetname, "TerminalType": terminal_str, "Net": netname})
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
