@@ -1286,7 +1286,7 @@ class Stackup(object):
                     elif val.solder_ball_height > elevation:
                         self.add_layer(
                             "Top_Air",
-                            start_layer=layer1,
+                            base_layer=layer1,
                             material="air",
                             thickness=val.solder_ball_height - elevation,
                             layer_type="dielectric",
@@ -1306,7 +1306,7 @@ class Stackup(object):
                     elif val.solder_ball_height > elevation:
                         self.add_layer(
                             "Bottom_air",
-                            start_layer=None,
+                            base_layer=None,
                             method="add_on_bottom",
                             material="air",
                             thickness=val.solder_ball_height - elevation,
