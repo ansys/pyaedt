@@ -1549,7 +1549,7 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
-            if is_ironpython:
+            if not is_ironpython:
                 app_edb = Edb(edbversion=desktop_version)
                 assert not app_edb.core_stackup.create_symmetric_stackup(9)
                 assert app_edb.core_stackup.create_symmetric_stackup(8)
