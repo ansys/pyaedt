@@ -382,6 +382,7 @@ class TestClass(BasisTest, object):
         example_project = os.path.join(local_path, "example_models", test_subfolder, test_name + ".aedt")
         example_project_copy = os.path.join(self.local_scratch.path, test_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
+        assert os.path.exists(example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(
-            design_name=self.aedtapp.design_list[1], project_name=example_project_copy
+            design_name=self.aedtapp.design_list[0], project_name=example_project_copy
         )
