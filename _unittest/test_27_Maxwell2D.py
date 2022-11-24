@@ -388,3 +388,4 @@ class TestClass(BasisTest, object):
             design_name=self.aedtapp.design_list[1], project_name=example_project_copy
         )
         os.remove(example_project_copy)
+
