@@ -1292,6 +1292,40 @@ class Q3d(QExtractor, object):
         return net_names
 
     @pyaedt_function_handler()
+    def objects_from_nets(self, nets, materials=None):
+        """Find the objects that belongs to a net. Material can be applied as filter.
+
+        Parameters
+        ----------
+        nets : str, list
+            Nets to search for.
+        materials : str, list, optional
+            Materials to filter the nets objects.
+
+        Returns
+        -------
+        dict
+            Dictionary of net name and objects that belongs to it.
+        """
+        if isinstance(nets, str):
+            nets = [nets]
+        if isinstance(materials, str):
+            materials = [materials]
+        elif not materials:
+            materials = []
+        objects = {}
+        for net in nets:
+            for bound in self.boundaries:
+                if net == bound.name and "Net" in bound.type:
+                    obj_list = self.modeler.convert_to_selections(bound.props.get("Objects", []), True)
+                    if materials:
+                        obj_list = [
+                            self.modeler[i].name for i in obj_list if self.modeler[i].material_name in materials
+                        ]
+                    objects[net] = obj_list
+        return objects
+
+    @pyaedt_function_handler()
     def net_sources(self, net_name):
         """Check if a net has sources and return a list of source names.
 
