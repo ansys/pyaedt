@@ -207,7 +207,7 @@ class SiwaveSolve(object):
         if not output_folder:
             output_folder = os.path.dirname(self.projectpath)
         output_list = []
-        scriptname = os.path.join(output_folder, "export_results.py")
+        scriptname = os.path.normpath(os.path.join(os.path.normpath(output_folder), "export_results.py"))
         with open(scriptname, "w") as f:
             f.write("oApp.OpenProject(r'{}')\n".format(siwave_project))
             if html_report:
