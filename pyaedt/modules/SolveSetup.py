@@ -1328,6 +1328,7 @@ class Setup3DLayout(CommonSetup):
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
         self.omodule.ExportToHfss(self.name, file_fullname)
         timeout = 20
+        time.sleep(2)
         while timeout > 0:
             timeout -= 1
             if os.path.exists(file_fullname):
@@ -1364,7 +1365,7 @@ class Setup3DLayout(CommonSetup):
             timeout -= 1
             if os.path.exists(file_fullname):
                 timeout = 0
-            time.sleep(1)
+            time.sleep(2)
         return True
 
     @pyaedt_function_handler()
