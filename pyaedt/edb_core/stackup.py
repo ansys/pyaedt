@@ -551,6 +551,57 @@ class Stackup(object):
     def __init__(self, pedb):
         self._pedb = pedb
 
+    @property
+    def layer_types(self):
+        """Layer types.
+
+        Returns
+        -------
+        type
+            Types of layers.
+        """
+        return self._pedb.edb.Cell.LayerType
+
+    @pyaedt_function_handler()
+    def _int_to_layer_types(self, val):
+        if int(val) == 0:
+            return self.layer_types.SignalLayer
+        elif int(val) == 1:
+            return self.layer_types.DielectricLayer
+        elif int(val) == 2:
+            return self.layer_types.ConductingLayer
+        elif int(val) == 3:
+            return self.layer_types.AirlinesLayer
+        elif int(val) == 4:
+            return self.layer_types.ErrorsLayer
+        elif int(val) == 5:
+            return self.layer_types.SymbolLayer
+        elif int(val) == 6:
+            return self.layer_types.MeasureLayer
+        elif int(val) == 8:
+            return self.layer_types.AssemblyLayer
+        elif int(val) == 9:
+            return self.layer_types.SilkscreenLayer
+        elif int(val) == 10:
+            return self.layer_types.SolderMaskLayer
+        elif int(val) == 11:
+            return self.layer_types.SolderPasteLayer
+        elif int(val) == 12:
+            return self.layer_types.GlueLayer
+        elif int(val) == 13:
+            return self.layer_types.WirebondLayer
+        elif int(val) == 14:
+            return self.layer_types.UserLayer
+        elif int(val) == 16:
+            return self.layer_types.SIwaveHFSSSolverRegions
+        elif int(val) == 17:
+            return self.layer_types.PostprocessingLayer
+        elif int(val) == 18:
+            return self.layer_types.LayerTypesCount
+        elif int(val) == -1:
+            return self.layer_types.UndefinedLayerType
+
+    @pyaedt_function_handler()
     def create_symmetric_stackup(
         self,
         layer_count,
@@ -681,23 +732,9 @@ class Stackup(object):
         lc_readonly = self._pedb._active_layout.GetLayerCollection()
         layers = list(list(lc_readonly.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)))
         layer_collection = self._pedb.edb.Cell.LayerCollection()
-        layers.reverse()
-        flag_first_layer = True
-        for lyr in layers:
-            if not lyr.IsStackupLayer():
-                continue
-            lyr_clone = lyr.Clone()
-            if flag_first_layer:
-                layer_collection.AddLayerTop(lyr_clone)
-                flag_first_layer = False
-            else:
-                layer_collection.AddLayerAbove(lyr_clone, lyr_name)
-            lyr_name = lyr_clone.GetName()
-
-        for lyr in layers:
-            if not lyr.IsStackupLayer():
-                layer_collection.AddLayerTop(lyr.Clone())
-
+        layer_collection.SetMode(lc_readonly.GetMode())
+        for layer in layers:
+            layer_collection.AddLayerBottom(layer.Clone())
         return layer_collection
 
     @property
@@ -782,10 +819,17 @@ class Stackup(object):
 
         """
         edb_layers = self._edb_layer_list
+        non_stackup = []
         if operation in ["change_attribute", "change_name", "change_position"]:
             new_layer_collection = self._pedb.edb.Cell.LayerCollection()
         else:
-            new_layer_collection = self._layer_collection
+            new_layer_collection = self._pedb.edb.Cell.LayerCollection()
+            for layer in edb_layers:
+                to_layer = layer.Clone()
+                if to_layer.IsStackupLayer():
+                    new_layer_collection.AddLayerBottom(to_layer)
+                else:
+                    non_stackup.append(to_layer)
 
         if operation == "change_position":
             for lyr in edb_layers:
@@ -805,18 +849,20 @@ class Stackup(object):
                     new_layer_collection.AddLayerBottom(lyr)
                 else:
                     new_layer_collection.AddLayerBottom(layer_clone)
-
-        elif operation == "insert_below":
-            new_layer_collection.AddLayerBelow(layer_clone, base_layer)
-        elif operation == "insert_above":
-            new_layer_collection.AddLayerAbove(layer_clone, base_layer)
-        elif operation == "add_on_top":
-            new_layer_collection.AddLayerTop(layer_clone)
-        elif operation == "add_on_bottom":
-            new_layer_collection.AddLayerBottom(layer_clone)
         else:
-            new_layer_collection.AddLayerTop(layer_clone)
-
+            if operation == "insert_below":
+                new_layer_collection.AddLayerBelow(layer_clone, base_layer)
+            elif operation == "insert_above":
+                new_layer_collection.AddLayerAbove(layer_clone, base_layer)
+            elif operation == "add_on_top":
+                new_layer_collection.AddLayerTop(layer_clone)
+            elif operation == "add_on_bottom":
+                new_layer_collection.AddLayerBottom(layer_clone)
+            else:
+                new_layer_collection.AddLayerTop(layer_clone)
+            for lay in non_stackup:
+                new_layer = self._pedb.edb.Cell.Layer(lay.GetName(), self._int_to_layer_types(lay.GetLayerType()))
+                new_layer_collection.AddLayerBottom(new_layer)
         return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
     @pyaedt_function_handler()
@@ -1244,16 +1290,6 @@ class Stackup(object):
             return True
         except:
             return False
-
-    def layer_types(self):
-        """Layer types.
-
-        Returns
-        -------
-        type
-            Types of layers.
-        """
-        return self._pedb.edb.Cell.LayerType
 
     @pyaedt_function_handler()
     def get_layout_thickness(self):
@@ -1775,7 +1811,7 @@ class EdbStackup(object):
         type
             Types of layers.
         """
-        return self._edb.Cell.LayerType
+        return self._pedb.edb.Cell.LayerType
 
     @property
     def materials(self):
