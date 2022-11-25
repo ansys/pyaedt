@@ -271,11 +271,11 @@ class SiwaveSolve(object):
             _exe = '"' + os.path.join(self.installer_path, "siwave") + '"'
         else:
             _exe = '"' + os.path.join(self.installer_path, "siwave.exe") + '"'
-        command = [_exe]
+        command = [_exe.replace("\\", "\\\\")]
         if hidden:
             command.append("-embedding")
         command.append("-RunScriptAndExit")
-        command.append('"' + scriptname + '"')
+        command.append('"' + scriptname.replace("\\", "\\\\") + '"')
         print(command)
         subprocess.check_output(" ".join(command))
         # p1 = subprocess.call(" ".join(command))
