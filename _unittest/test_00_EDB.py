@@ -1535,7 +1535,7 @@ if not config["skip_edb"]:
                 f.writelines("PowerNets = ['GND']\n")
                 f.writelines("Components = ['U2A5', 'U1B5']")
             sim_config = SimulationConfiguration(cfg_file)
-            assert Edb(arget_path).build_simulation_project(sim_config)
+            assert Edb(target_path).build_simulation_project(sim_config)
 
         def test_84_set_component_type(self):
             comp = self.edbapp.core_components.components["R2L18"]

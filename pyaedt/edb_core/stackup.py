@@ -912,11 +912,17 @@ class Stackup(object):
         -------
 
         """
-        if material not in self._pedb.materials.materials:
+        materials_lower = {m.lower(): m for m in list(self._pedb.materials.materials.keys())}
+        if material.lower() not in materials_lower:
             logger.error(material + " does not exist in material library")
+        else:
+            material = materials_lower[material.lower()]
 
-        if fillMaterial not in self._pedb.materials.materials:
-            logger.error(fillMaterial + " does not exist in material library")
+        if layer_type != "dielectric":
+            if fillMaterial.lower() not in materials_lower:
+                logger.error(fillMaterial + " does not exist in material library")
+            else:
+                fillMaterial = materials_lower[fillMaterial.lower()]
 
         if layer_type in ["signal", "dielectric"]:
             new_layer = self._create_stackup_layer(layer_name, thickness, layer_type)
