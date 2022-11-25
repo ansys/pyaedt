@@ -77,7 +77,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
             Dictionary of signal nets.
         """
         nets = {}
@@ -92,7 +92,7 @@ class EdbNets(object):
 
         Returns
         -------
-        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNets`]
+        dict[str, :class:`pyaedt.edb_core.edb_data.EDBNetsData`]
             Dictionary of power nets.
         """
         nets = {}
@@ -101,9 +101,45 @@ class EdbNets(object):
                 nets[net] = value
         return nets
 
+    @property
+    def eligible_power_nets(self, threshold=0.3):
+        """Return a list of nets calculated by area to be eligible for PWR/Ground net classification.
+            It uses the same algorithm implemented in SIwave.
+
+        Parameters
+        ----------
+        threshold : float, optional
+           Area ratio used by the ``get_power_ground_nets`` method.
+
+        Returns
+        -------
+        list of  :class:`pyaedt.edb_core.edb_data.EDBNetsData`
+        """
+        pwr_gnd_nets = []
+        nets = list(self._active_layout.Nets)
+        for net in nets:
+            total_plane_area = 0.0
+            total_trace_area = 0.0
+            for primitive in net.Primitives:
+                if primitive.GetPrimitiveType() == self._edb.Cell.Primitive.PrimitiveType.Bondwire:
+                    continue
+                if primitive.GetPrimitiveType() != self._edb.Cell.Primitive.PrimitiveType.Path:
+                    total_plane_area += float(primitive.GetPolygonData().Area())
+                else:
+                    total_trace_area += float(primitive.GetPolygonData().Area())
+            if total_plane_area == 0.0:
+                continue
+            if total_trace_area == 0.0:
+                pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+                continue
+            if total_plane_area > 0.0 and total_trace_area > 0.0:
+                if total_plane_area / (total_plane_area + total_trace_area) > threshold:
+                    pwr_gnd_nets.append(EDBNetsData(net, self._pedb))
+        return pwr_gnd_nets
+
     @staticmethod
     def _eval_arc_points(p1, p2, h, n=6, tol=1e-12):
-        """Get the points of the arc
+        """Get the points of the arc.
 
         Parameters
         ----------
@@ -209,6 +245,8 @@ class EdbNets(object):
         layers=None,
         color_by_net=False,
         outline=None,
+        plot_components_on_top=False,
+        plot_components_on_bottom=False,
     ):
         """Return List of points for Matplotlib 2D Chart.
 
@@ -219,10 +257,18 @@ class EdbNets(object):
         layers : str, list, optional
             Name of the layers to include in the plot. If `None` all the signal layers will be considered.
         color_by_net : bool, optional
-            If `True`  the plot will be colored by net.
-            If `False` the plot will be colored by layer. (default)
+            If ``True``  the plot will be colored by net.
+            If ``False`` the plot will be colored by layer. (default)
         outline : list, optional
             List of points of the outline to plot.
+        plot_components_on_top : bool, optional
+            If ``True``  the components placed on top layer are plotted.
+            If ``False`` the components are not plotted. (default)
+            If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
+        plot_components_on_bottom : bool, optional
+            If ``True``  the components placed on bottom layer are plotted.
+            If ``False`` the components are not plotted. (default)
+            If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
         Returns
         -------
         list, str
@@ -231,123 +277,260 @@ class EdbNets(object):
             using ast.literal_eval().
         """
         start_time = time.time()
-        color_index = 0
-        if not layers:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
         if not nets:
             nets = list(self.nets.keys())
-        objects_lists = []
-        label_colors = {}
-        if outline:
-            x1 = [i[0] for i in outline]
-            y1 = [i[1] for i in outline]
-            objects_lists.append([x1, y1, "b", "Outline", 0.3, "fill"])
         if isinstance(nets, str):
             nets = [nets]
+        if not layers:
+            layers = list(self._pedb.stackup.signal_layers.keys())
+        if isinstance(layers, str):
+            layers = [layers]
+        color_index = 0
+        objects_lists = []
+        label_colors = {}
+        n_label = 0
+        max_labels = 10
+
+        if outline:
+            xt = [i[0] for i in outline]
+            yt = [i[1] for i in outline]
+            xc, yc = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
+            vertices = [(i, j) for i, j in zip(xc, yc)]
+            codes = [2 for _ in vertices]
+            codes[0] = 1
+            vertices.append((0, 0))
+            codes.append(79)
+            objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
+            n_label += 1
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[0]
+        if plot_components_on_top or plot_components_on_bottom:
+            nc = 0
+            for comp in self._pedb.core_components.components.values():
+                if not comp.is_enabled:
+                    continue
+                net_names = comp.nets
+                if not any([i in nets for i in net_names]):
+                    continue
+                layer_name = comp.placement_layer
+                if layer_name not in layers:
+                    continue
+                if plot_components_on_top and layer_name == top_layer:
+                    component_color = (184 / 255, 115 / 255, 51 / 255)  # this is the color used in AEDT
+                    label = "Component on top layer"
+                elif plot_components_on_bottom and layer_name == bottom_layer:
+                    component_color = (41 / 255, 171 / 255, 135 / 255)  # 41, 171, 135
+                    label = "Component on bottom layer"
+                else:
+                    continue
+                cbb = comp.bounding_box
+                x = [cbb[0], cbb[0], cbb[2], cbb[2]]
+                y = [cbb[1], cbb[3], cbb[3], cbb[1]]
+                vertices = [(i, j) for i, j in zip(x, y)]
+                codes = [2 for _ in vertices]
+                codes[0] = 1
+                vertices.append((0, 0))
+                codes.append(79)
+                if label not in label_colors:
+                    label_colors[label] = component_color
+                    objects_lists.append([vertices, codes, label_colors[label], label, 1.0, 2.0, "contour"])
+                    n_label += 1
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], None, 1.0, 2.0, "contour"])
+                nc += 1
+            self._logger.debug("Plotted {} component(s)".format(nc))
 
         for path in self._pedb.core_primitives.paths:
             if path.is_void:
                 continue
             net_name = path.net_name
             layer_name = path.layer_name
-            if net_name in nets and layer_name in layers:
-                x, y = path.points()
-                if not x:
-                    continue
-                if not color_by_net:
-                    label = "Layer " + layer_name
-                    if label not in label_colors:
+            if net_name not in nets or layer_name not in layers:
+                continue
+            x, y = path.points()
+            if not x:
+                continue
+            create_label = False
+            if not color_by_net:
+                label = "Layer " + layer_name
+                if label not in label_colors:
+                    try:
                         color = path.layer.GetColor()
-                        try:
-                            c = (
-                                float(color.Item1 / 255),
-                                float(color.Item2 / 255),
-                                float(color.Item3 / 255),
-                            )
-                            label_colors[label] = c
-                        except:
-                            label_colors[label] = list(CSS4_COLORS.keys())[color_index]
-                            color_index += 1
-                            if color_index >= len(CSS4_COLORS):
-                                color_index = 0
-                        objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
-                    else:
-                        objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
-
-                else:
-                    label = "Net " + net_name
-                    if label not in label_colors:
-                        label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                        c = (
+                            float(color.Item1 / 255),
+                            float(color.Item2 / 255),
+                            float(color.Item3 / 255),
+                        )
+                    except:
+                        c = list(CSS4_COLORS.keys())[color_index]
                         color_index += 1
                         if color_index >= len(CSS4_COLORS):
                             color_index = 0
-                        objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
-                    else:
-                        objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+                    label_colors[label] = c
+                    create_label = True
+            else:
+                label = "Net " + net_name
+                if label not in label_colors:
+                    label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                    color_index += 1
+                    if color_index >= len(CSS4_COLORS):
+                        color_index = 0
+                    create_label = True
+
+            if create_label and n_label <= max_labels:
+                objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                n_label += 1
+            else:
+                objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
 
         for poly in self._pedb.core_primitives.polygons:
             if poly.is_void:
                 continue
             net_name = poly.net_name
             layer_name = poly.layer_name
-            if net_name in nets and layer_name in layers:
-                xt, yt = poly.points()
-                if not xt:
-                    continue
-                x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
-                vertices = [(i, j) for i, j in zip(x, y)]
-                codes = [2 for _ in vertices]
-                codes[0] = 1
-                vertices.append((0, 0))
-                codes.append(79)
+            if net_name not in nets or layer_name not in layers:
+                continue
+            xt, yt = poly.points()
+            if not xt:
+                continue
+            x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
+            vertices = [(i, j) for i, j in zip(x, y)]
+            codes = [2 for _ in vertices]
+            codes[0] = 1
+            vertices.append((0, 0))
+            codes.append(79)
 
-                for void in poly.voids:
-                    xvt, yvt = void.points()
-                    if xvt:
-                        xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
-                        tmpV = [(i, j) for i, j in zip(xv, yv)]
-                        vertices.extend(tmpV)
-                        tmpC = [2 for _ in tmpV]
-                        tmpC[0] = 1
-                        codes.extend(tmpC)
-                        vertices.append((0, 0))
-                        codes.append(79)
+            for void in poly.voids:
+                xvt, yvt = void.points()
+                if xvt:
+                    xv, yv = GeometryOperators.orient_polygon(xvt, yvt, clockwise=False)
+                    tmpV = [(i, j) for i, j in zip(xv, yv)]
+                    vertices.extend(tmpV)
+                    tmpC = [2 for _ in tmpV]
+                    tmpC[0] = 1
+                    codes.extend(tmpC)
+                    vertices.append((0, 0))
+                    codes.append(79)
 
-                if not color_by_net:
-                    label = "Layer " + layer_name
-                    if label not in label_colors:
+            create_label = False
+            if not color_by_net:
+                label = "Layer " + layer_name
+                if label not in label_colors:
+                    try:
                         color = poly.GetLayer().GetColor()
-                        try:
-                            c = (
-                                float(color.Item1 / 255),
-                                float(color.Item2 / 255),
-                                float(color.Item3 / 255),
-                            )
-                            label_colors[label] = c
-                        except:
-                            label_colors[label] = list(CSS4_COLORS.keys())[color_index]
-                            color_index += 1
-                            if color_index >= len(CSS4_COLORS):
-                                color_index = 0
-                        # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
-
-                    else:
-                        # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
-
-                else:
-                    label = "Net " + net_name
-                    if label not in label_colors:
-                        label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                        c = (
+                            float(color.Item1 / 255),
+                            float(color.Item2 / 255),
+                            float(color.Item3 / 255),
+                        )
+                    except:
+                        c = list(CSS4_COLORS.keys())[color_index]
                         color_index += 1
                         if color_index >= len(CSS4_COLORS):
                             color_index = 0
-                        # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
-                    else:
-                        # create patch from path
-                        objects_lists.append([vertices, codes, label_colors[label], "", 0.4, "path"])
+                    label_colors[label] = c
+                    create_label = True
+            else:
+                label = "Net " + net_name
+                if label not in label_colors:
+                    label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                    color_index += 1
+                    if color_index >= len(CSS4_COLORS):
+                        color_index = 0
+                    create_label = True
+
+            if create_label and n_label <= max_labels:
+                objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                n_label += 1
+            else:
+                objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
+
+        for circle in self._pedb.core_primitives.circles:
+            if circle.is_void:
+                continue
+            net_name = circle.net_name
+            layer_name = circle.layer_name
+            if net_name not in nets or layer_name not in layers:
+                continue
+            x, y = circle.points()
+            if not x:
+                continue
+            create_label = False
+            if not color_by_net:
+                label = "Layer " + layer_name
+                if label not in label_colors:
+                    try:
+                        color = circle.layer.GetColor()
+                        c = (
+                            float(color.Item1 / 255),
+                            float(color.Item2 / 255),
+                            float(color.Item3 / 255),
+                        )
+                    except:
+                        c = list(CSS4_COLORS.keys())[color_index]
+                        color_index += 1
+                        if color_index >= len(CSS4_COLORS):
+                            color_index = 0
+                    label_colors[label] = c
+                    create_label = True
+            else:
+                label = "Net " + net_name
+                if label not in label_colors:
+                    label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                    color_index += 1
+                    if color_index >= len(CSS4_COLORS):
+                        color_index = 0
+                    create_label = True
+
+            if create_label and n_label <= max_labels:
+                objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                n_label += 1
+            else:
+                objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+
+        for rect in self._pedb.core_primitives.rectangles:
+            if rect.is_void:
+                continue
+            net_name = rect.net_name
+            layer_name = rect.layer_name
+            if net_name not in nets or layer_name not in layers:
+                continue
+            x, y = rect.points()
+            if not x:
+                continue
+            create_label = False
+            if not color_by_net:
+                label = "Layer " + layer_name
+                if label not in label_colors:
+                    try:
+                        color = rect.layer.GetColor()
+                        c = (
+                            float(color.Item1 / 255),
+                            float(color.Item2 / 255),
+                            float(color.Item3 / 255),
+                        )
+                    except:
+                        c = list(CSS4_COLORS.keys())[color_index]
+                        color_index += 1
+                        if color_index >= len(CSS4_COLORS):
+                            color_index = 0
+                    label_colors[label] = c
+                    create_label = True
+            else:
+                label = "Net " + net_name
+                if label not in label_colors:
+                    label_colors[label] = list(CSS4_COLORS.keys())[color_index]
+                    color_index += 1
+                    if color_index >= len(CSS4_COLORS):
+                        color_index = 0
+                    create_label = True
+
+            if create_label and n_label <= max_labels:
+                objects_lists.append([x, y, label_colors[label], label, 0.4, "fill"])
+                n_label += 1
+            else:
+                objects_lists.append([x, y, label_colors[label], None, 0.4, "fill"])
+
         end_time = time.time() - start_time
         self._logger.info("Nets Point Generation time %s seconds", round(end_time, 3))
         if os.getenv("PYAEDT_SERVER_AEDT_PATH", None):
@@ -392,28 +575,38 @@ class EdbNets(object):
         save_plot=None,
         outline=None,
         size=(2000, 1000),
+        plot_components_on_top=False,
+        plot_components_on_bottom=False,
     ):
         """Plot a Net to Matplotlib 2D Chart.
 
         Parameters
         ----------
         nets : str, list
-            Name of the net or list of nets to plot. If `None` all nets will be plotted.
+            Name of the net or list of nets to plot. If ``None`` all nets will be plotted.
         layers : str, list, optional
-            Name of the layers to include in the plot. If `None` all the signal layers will be considered.
+            Name of the layers to include in the plot. If ``None`` all the signal layers will be considered.
         color_by_net : bool, optional
-            If `True`  the plot will be colored by net.
-            If `False` the plot will be colored by layer. (default)
+            If ``True``  the plot will be colored by net.
+            If ``False`` the plot will be colored by layer. (default)
         show_legend : bool, optional
-            If `True` the legend is shown in the plot. (default)
-            If `False` the legend is not shown.
+            If ``True`` the legend is shown in the plot. (default)
+            If ``False`` the legend is not shown.
         save_plot : str, optional
-            If `None` the plot will be shown.
+            If ``None`` the plot will be shown.
             If a file path is specified the plot will be saved to such file.
         outline : list, optional
             List of points of the outline to plot.
         size : tuple, optional
             Image size in pixel (width, height). Default value is ``(2000, 1000)``
+        plot_components_on_top : bool, optional
+            If ``True``  the components placed on top layer are plotted.
+            If ``False`` the components are not plotted. (default)
+            If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
+        plot_components_on_bottom : bool, optional
+            If ``True``  the components placed on bottom layer are plotted.
+            If ``False`` the components are not plotted. (default)
+            If nets and/or layers is specified, only the components belonging to the specified nets/layers are plotted.
         """
         if is_ironpython:
             self._logger.warning("Plot functionalities are enabled only in CPython.")
@@ -423,6 +616,8 @@ class EdbNets(object):
             layers,
             color_by_net,
             outline,
+            plot_components_on_top,
+            plot_components_on_bottom,
         )
         plot_matplotlib(
             object_lists,

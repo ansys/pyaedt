@@ -463,25 +463,42 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def add_mesh_link(self, design_name, solution_name, parameters_dict, project_name="This Project*"):
+    def add_mesh_link(
+        self,
+        design_name,
+        solution_name=None,
+        parameters_dict=None,
+        project_name="This Project*",
+        force_source_to_solve=True,
+        preserve_partner_solution=True,
+        apply_mesh_operations=True,
+        adapt_port=True,
+    ):
         """Add a mesh link to another design.
 
         Parameters
         ----------
         design_name : str
             Name of the design.
-        solution_name : str
+        solution_name : str, optional
             Name of the solution in the format ``"setupname : solutionname"``.
-            Optionally use :attr:`appname.nominal_adaptive` to get the
-            nominal adaptive or :attr:`appname.nominal_sweep` to get the
-            nominal sweep.
-        parameters_dict : dict
-            Dictionary of the parameters. Optionally use
-            :attr:`appname.available_variations.nominal_w_values_dict`
-            to get the nominal values.
+            If ``None`` the default value is ``setupname : LastAdaptive``.
+        parameters_dict : dict, optional
+            Dictionary of the parameters.
+            If ``None`` the default value is `appname.available_variations.nominal_w_values_dict`.
         project_name : str, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
+        force_source_to_solve : bool, optional
+            Default value is ``True``.
+        preserve_partner_solution : bool, optional
+            Default value is ``True``.
+        apply_mesh_operations : bool, optional
+            Apply mesh operations in target design on the imported mesh.
+            Default value is ``True``.
+        adapt_port : bool, optional
+            Perform port adapt/seeding in target solve setup.
+            Default value is ``True``.
 
         Returns
         -------
@@ -493,24 +510,68 @@ class Setup(CommonSetup):
 
         >>> oModule.EditSetup
         """
-        meshlinks = self.props["MeshLink"]
-        meshlinks["ImportMesh"] = True
-        meshlinks["Project"] = project_name
-        meshlinks["Product"] = "ElectronicsDesktop"
-        meshlinks["Design"] = design_name
-        meshlinks["Soln"] = solution_name
-        meshlinks["Params"] = OrderedDict({})
-        for el in parameters_dict:
-            if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
-                meshlinks["Params"][el] = el
+        try:
+            meshlinks = self.props["MeshLink"]
+            # design type
+            if self.p_app.design_type == "Mechanical":
+                design_type = "ElectronicsDesktop"
+            elif self.p_app.design_type == "Maxwell 2D" or self.p_app.design_type == "Maxwell 3D":
+                design_type = "Maxwell"
             else:
-                meshlinks["Params"][el] = parameters_dict[el]
-        meshlinks["ForceSourceToSolve"] = True
-        meshlinks["PreservePartnerSoln"] = True
-        meshlinks["PathRelativeTo"] = "TargetProject"
-        meshlinks["ApplyMeshOp"] = True
-        self.update()
-        return True
+                design_type = self.p_app.design_type
+            meshlinks["Product"] = design_type
+            # design name
+            if not design_name or design_name is None:
+                raise ValueError("Provide design name to add mesh link to.")
+            elif design_name not in self.p_app.design_list:
+                raise ValueError("Design does not exist in current project.")
+            else:
+                meshlinks["Design"] = design_name
+            # project name
+            if project_name != "This Project*":
+                if os.path.exists(project_name):
+                    meshlinks["Project"] = project_name
+                    meshlinks["PathRelativeTo"] = "SourceProduct"
+                else:
+                    raise ValueError("Project file path provided does not exist.")
+            else:
+                meshlinks["Project"] = project_name
+                meshlinks["PathRelativeTo"] = "TargetProject"
+            # if self.p_app.solution_type == "SBR+":
+            meshlinks["ImportMesh"] = True
+            # solution name
+            if solution_name is None:
+                meshlinks["Soln"] = "{} : LastAdaptive".format(
+                    self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()[0]
+                )
+            elif (
+                solution_name.split()[0]
+                in self.p_app.oproject.GetDesign(design_name).GetChildObject("Analysis").GetChildNames()
+            ):
+                meshlinks["Soln"] = "{} : LastAdaptive".format(solution_name.split()[0])
+            else:
+                raise ValueError("Setup does not exist in current design.")
+            # parameters
+            meshlinks["Params"] = OrderedDict({})
+            if parameters_dict is None:
+                parameters_dict = self.p_app.available_variations.nominal_w_values_dict
+                for el in parameters_dict:
+                    meshlinks["Params"][el] = el
+            else:
+                for el in parameters_dict:
+                    if el in list(self._app.available_variations.nominal_w_values_dict.keys()):
+                        meshlinks["Params"][el] = el
+                    else:
+                        meshlinks["Params"][el] = parameters_dict[el]
+            meshlinks["ForceSourceToSolve"] = force_source_to_solve
+            meshlinks["PreservePartnerSoln"] = preserve_partner_solution
+            meshlinks["ApplyMeshOp"] = apply_mesh_operations
+            if self.p_app.design_type != "Maxwell 2D" or self.p_app.design_type != "Maxwell 3D":
+                meshlinks["AdaptPort"] = adapt_port
+            self.update()
+            return True
+        except:
+            return False
 
 
 class SetupCircuit(CommonSetup):

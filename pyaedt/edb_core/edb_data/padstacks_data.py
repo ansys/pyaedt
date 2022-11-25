@@ -688,12 +688,11 @@ class EDBPadstackInstance(object):
             ``True`` when successful, ``False`` when failed.
         """
         if simple_check:
+            pos = [i for i in self.position]
             int_val = (
                 1
                 if polygon_data.PointInPolygon(
-                    self._pedb.edb.Geometry.PointData(
-                        self._pedb.edb_value(self.position[0]), self._pedb.edb_value(self.position[1])
-                    )
+                    self._pedb.edb.Geometry.PointData(self._pedb.edb_value(pos[0]), self._pedb.edb_value(pos[1]))
                 )
                 else 0
             )
@@ -716,6 +715,15 @@ class EDBPadstackInstance(object):
             return True
         else:
             return False
+
+    @property
+    def component(self):
+        """Get component this padstack belong to."""
+        comp_name = self._edb_padstackinstance.GetComponent().GetName()
+        if comp_name in self._pedb.core_components.components:
+            return self._pedb.core_components.components[comp_name]
+        else:  # pragma: no cover
+            return
 
     @property
     def pin(self):
@@ -787,8 +795,8 @@ class EDBPadstackInstance(object):
 
     @start_layer.setter
     def start_layer(self, layer_name):
-        stop_layer = self._pedb.core_stackup.signal_layers[self.stop_layer]._layer
-        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        stop_layer = self._pedb.stackup.signal_layers[self.stop_layer]._edb_layer
+        layer = self._pedb.stackup.signal_layers[layer_name]._edb_layer
         self._edb_padstackinstance.SetLayerRange(layer, stop_layer)
 
     @property
@@ -809,9 +817,34 @@ class EDBPadstackInstance(object):
 
     @stop_layer.setter
     def stop_layer(self, layer_name):
-        start_layer = self._pedb.core_stackup.signal_layers[self.start_layer]._layer
-        layer = self._pedb.core_stackup.signal_layers[layer_name]._layer
+        start_layer = self._pedb.stackup.signal_layers[self.start_layer]._edb_layer
+        layer = self._pedb.stackup.signal_layers[layer_name]._edb_layer
         self._edb_padstackinstance.SetLayerRange(start_layer, layer)
+
+    @property
+    def layer_range_names(self):
+        """List of all layers to which the padstack instance belongs."""
+        _, start_layer, stop_layer = self._edb_padstackinstance.GetLayerRange()
+        started = False
+        layer_list = []
+        start_layer_name = start_layer.GetName()
+        stop_layer_name = stop_layer.GetName()
+        for layer_name in list(self._pedb.stackup.layers.keys()):
+            if started:
+                layer_list.append(layer_name)
+                if layer_name == stop_layer_name or layer_name == start_layer_name:
+                    break
+            elif layer_name == start_layer_name:
+                started = True
+                layer_list.append(layer_name)
+                if layer_name == stop_layer_name:
+                    break
+            elif layer_name == stop_layer_name:
+                started = True
+                layer_list.append(layer_name)
+                if layer_name == start_layer_name:
+                    break
+        return layer_list
 
     @property
     def net_name(self):
@@ -855,11 +888,10 @@ class EDBPadstackInstance(object):
         list
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
-        point_data = self._pedb.edb.Geometry.PointData(self._pedb.edb_value(0.0), self._pedb.edb_value(0.0))
         out = self._edb_padstackinstance.GetPositionAndRotationValue()
-
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
+        return []
 
     @position.setter
     def position(self, value):
@@ -912,6 +944,11 @@ class EDBPadstackInstance(object):
     def name(self, value):
         self._edb_padstackinstance.SetName(value)
         self._edb_padstackinstance.SetProductProperty(self._pedb.edb.ProductId.Designer, 11, value)
+
+    @property
+    def pin_number(self):
+        """Get pin number."""
+        return self._edb_padstackinstance.GetName()
 
     @pyaedt_function_handler()
     def parametrize_position(self, prefix=None):
@@ -1221,3 +1258,16 @@ class EDBPadstackInstance(object):
             path = self._pedb.core_primitives.Shape("polygon", points=new_rect)
             created_polygon = self._pedb.core_primitives.create_polygon(path, layer_name)
             return created_polygon
+
+    @pyaedt_function_handler()
+    def get_connected_object_id_set(self):
+        """Produce a list of all geometries physically connected to a given layout object.
+
+        Returns
+        -------
+        list
+            Found connected objects IDs with Layout object.
+        """
+        layoutInst = self._edb_padstackinstance.GetLayout().GetLayoutInstance()
+        layoutObjInst = self.object_instance
+        return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]

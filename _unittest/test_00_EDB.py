@@ -25,8 +25,6 @@ from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
 try:
-    import unittest.mock
-
     import pytest
 except ImportError:  # pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
@@ -40,12 +38,18 @@ if not config["skip_edb"]:
         def setup_class(self):
             BasisTest.my_setup(self)
             self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
-            example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
             self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
             self.local_scratch.copyfolder(example_project2, self.target_path2)
+            example_project3 = os.path.join(local_path, "example_models", test_subfolder, "Galileo_edb_plot.aedb")
+            self.target_path3 = os.path.join(self.local_scratch.path, "Galileo_edb_plot_00.aedb")
+            self.local_scratch.copyfolder(example_project3, self.target_path3)
+            example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+            self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
+            self.local_scratch.copyfolder(example_project4, self.target_path4)
 
         def teardown_class(self):
             self.edbapp.close_edb()
@@ -60,17 +64,6 @@ if not config["skip_edb"]:
             # Export should be made with units set to default -millimeter-.
             self.edbapp.export_to_ipc2581(ipc_path, "mm")
             assert os.path.exists(ipc_path)
-
-            if not is_ironpython:
-                # Test the export_to_ipc2581 method when IPC8521.ExportIPC2581FromLayout raises an exception internally.
-                with unittest.mock.patch("pyaedt.Edb.edblib", new_callable=unittest.mock.PropertyMock) as edblib_mock:
-                    Edb.edblib.IPC8521 = unittest.mock.Mock()
-                    Edb.edblib.IPC8521.IPCExporter = unittest.mock.Mock()
-                    Edb.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout = unittest.mock.Mock(
-                        side_effect=Exception("Exception for testing raised in ExportIPC2581FromLayout.")
-                    )
-
-                    assert not self.edbapp.export_to_ipc2581(os.path.exists(ipc_path))
 
         def test_01_find_by_name(self):
             comp = self.edbapp.core_components.get_component_by_name("J1")
@@ -88,7 +81,7 @@ if not config["skip_edb"]:
             assert not self.edbapp.core_padstack.get_via_instance_from_net(["GND2"])
 
         def test_01C_create_coax_port_on_component(self):
-            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQS_N<1>")
+            assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
 
         def test_02_get_properties(self):
             assert len(self.edbapp.core_components.components) > 0
@@ -155,10 +148,13 @@ if not config["skip_edb"]:
             assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y"], "myVia")
             assert self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*2"], "myVia_bullet")
 
-            padstack_id = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
-            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack_id]
+            padstack = self.edbapp.core_padstack.place_padstack(["via_x", "via_x+via_y*3"], "myVia", is_pin=True)
+            padstack_instance = self.edbapp.core_padstack.padstack_instances[padstack.id]
             assert padstack_instance.is_pin
             assert padstack_instance.position
+            if not is_ironpython:
+                assert padstack_instance.start_layer in padstack_instance.layer_range_names
+                assert padstack_instance.stop_layer in padstack_instance.layer_range_names
             padstack_instance.position = [0.001, 0.002]
             assert padstack_instance.position == [0.001, 0.002]
             assert padstack_instance.parametrize_position()
@@ -255,25 +251,27 @@ if not config["skip_edb"]:
             assert isinstance(self.edbapp.core_components.components["R1"].upper_elevation, float)
             assert self.edbapp.core_components.components["R1"].top_bottom_association == 0
             assert self.edbapp.core_components.components["R1"].pinlist
-            pinname = self.edbapp.core_components.components["R1"].pinlist[0].GetName()
+            assert self.edbapp.core_components.components["R1"].pins
+            assert self.edbapp.core_components.components["R1"].pins["1"].pin_number
+            assert self.edbapp.core_components.components["R1"].pins["1"].component
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].lower_elevation
+                self.edbapp.core_components.components["R1"].pins["1"].lower_elevation
                 == self.edbapp.core_components.components["R1"].lower_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].placement_layer
+                self.edbapp.core_components.components["R1"].pins["1"].placement_layer
                 == self.edbapp.core_components.components["R1"].placement_layer
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].upper_elevation
+                self.edbapp.core_components.components["R1"].pins["1"].upper_elevation
                 == self.edbapp.core_components.components["R1"].upper_elevation
             )
             assert (
-                self.edbapp.core_components.components["R1"].pins[pinname].top_bottom_association
+                self.edbapp.core_components.components["R1"].pins["1"].top_bottom_association
                 == self.edbapp.core_components.components["R1"].top_bottom_association
             )
-            assert self.edbapp.core_components.components["R1"].pins[pinname].position
-            assert self.edbapp.core_components.components["R1"].pins[pinname].rotation
+            assert self.edbapp.core_components.components["R1"].pins["1"].position
+            assert self.edbapp.core_components.components["R1"].pins["1"].rotation
 
         def test_18_components_from_net(self):
             assert self.edbapp.core_components.get_components_from_nets("A0_N")
@@ -377,11 +375,32 @@ if not config["skip_edb"]:
             )
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "VSource_" in self.edbapp.core_siwave.create_voltage_source_on_pin(pins[300], pins[10], 3.3, 0)
+            if not is_ironpython:
+                assert len(self.edbapp.sources) > 0
+                assert len(self.edbapp.probes) == 0
+                assert list(self.edbapp.sources.values())[0].magnitude == 3.3
+                assert list(self.edbapp.sources.values())[0].phase == 0
 
         def test_39_create_current_source(self):
             assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
             assert "I22" == self.edbapp.core_siwave.create_current_source_on_pin(pins[301], pins[10], 0.1, 0, "I22")
+
+            assert self.edbapp.core_siwave.create_pin_group_on_net(
+                reference_designator="U3A1", net_name="GND", group_name="gnd"
+            )
+            self.edbapp.core_siwave.create_pin_group(
+                reference_designator="U3A1", pin_numbers=[16, 17], group_name="vrm_pos"
+            )
+            self.edbapp.core_siwave.create_current_source_on_pin_group(
+                pos_pin_group_name="vrm_pos", neg_pin_group_name="gnd", name="vrm_current_source"
+            )
+
+            self.edbapp.core_siwave.create_pin_group(
+                reference_designator="U3A1", pin_numbers=[14, 15], group_name="sink_pos"
+            )
+
+            self.edbapp.core_siwave.create_voltage_source_on_pin_group("sink_pos", "gnd", "vrm_voltage_source")
 
         def test_39_create_dc_terminal(self):
             assert self.edbapp.core_siwave.create_dc_terminal("U2A5", "DDR3_DM1", "dc_terminal1") == "dc_terminal1"
@@ -574,7 +593,13 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             output = os.path.join(self.local_scratch.path, "cutout.aedb")
-            assert edbapp.create_cutout(["A0_N", "A0_P"], ["GND"], output_aedb_path=output, open_cutout_at_end=False)
+            assert edbapp.create_cutout(
+                ["A0_N", "A0_P"],
+                ["GND"],
+                output_aedb_path=output,
+                open_cutout_at_end=False,
+                use_pyaedt_extent_computing=True,
+            )
             assert edbapp.create_cutout(
                 ["A0_N", "A0_P"],
                 ["GND"],
@@ -621,6 +646,7 @@ if not config["skip_edb"]:
                     reference_list=["GND"],
                     extent_type="Bounding",
                     number_of_threads=4,
+                    extent_defeature=0.001,
                 )
                 assert "A0_N" not in edbapp.core_nets.nets
             edbapp.close_edb()
@@ -646,8 +672,25 @@ if not config["skip_edb"]:
                 signal_list=["V3P3_S0"],
                 reference_list=["GND"],
                 number_of_threads=4,
-                extent_type="Bounding",
+                extent_type="ConvexHull",
                 custom_extent=points,
+            )
+            edbapp.close_edb()
+
+        @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+        def test_55e_create_custom_cutout(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_4.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+
+            edbapp = Edb(target_path, edbversion=desktop_version)
+
+            assert edbapp.create_cutout_multithread(
+                signal_list=["V3P3_S0"],
+                reference_list=["GND"],
+                number_of_threads=4,
+                extent_type="ConvexHull",
+                use_pyaedt_extent_computing=True,
             )
             edbapp.close_edb()
 
@@ -772,14 +815,39 @@ if not config["skip_edb"]:
         def test_69_create_solder_balls_on_component(self):
             assert self.edbapp.core_components.set_solder_ball("U2A5")
 
-        @pytest.mark.skipif(
-            is_ironpython,
-            reason="This test uses Matplotlib, which is not supported by IronPython.",
-        )
+        @pytest.mark.skipif(is_ironpython, reason="This test uses Matplotlib, which is not supported by IronPython.")
         def test_70_plot_on_matplotlib(self):
-            local_png = os.path.join(self.local_scratch.path, "test.png")
-            self.edbapp.core_nets.plot(None, None, save_plot=local_png)
-            assert os.path.exists(local_png)
+            edb_plot = Edb(self.target_path3, edbversion=desktop_version)
+            local_png1 = os.path.join(self.local_scratch.path, "test1.png")
+            edb_plot.core_nets.plot(
+                nets=None,
+                layers=None,
+                save_plot=local_png1,
+                plot_components_on_top=True,
+                plot_components_on_bottom=True,
+                outline=[[-10e-3, -10e-3], [110e-3, -10e-3], [110e-3, 70e-3], [-10e-3, 70e-3]],
+            )
+            assert os.path.exists(local_png1)
+
+            local_png2 = os.path.join(self.local_scratch.path, "test2.png")
+            edb_plot.core_nets.plot(
+                nets="V3P3_S5",
+                layers=None,
+                save_plot=local_png2,
+                plot_components_on_top=True,
+                plot_components_on_bottom=True,
+            )
+            assert os.path.exists(local_png2)
+            local_png3 = os.path.join(self.local_scratch.path, "test3.png")
+            edb_plot.core_nets.plot(
+                nets=["LVL_I2C_SCL", "V3P3_S5", "GATE_V5_USB"],
+                layers="TOP",
+                color_by_net=True,
+                save_plot=local_png3,
+                plot_components_on_top=True,
+                plot_components_on_bottom=True,
+            )
+            assert os.path.exists(local_png3)
 
         def test_71_fix_circle_voids(self):
             assert self.edbapp.core_primitives.fix_circle_void_for_clipping()
@@ -885,7 +953,7 @@ if not config["skip_edb"]:
             edb2.close_edb()
 
         def test_79_get_placement_vector(self):
-            edb2 = Edb(self.target_path, edbversion=desktop_version)
+            edb2 = Edb(self.target_path4, edbversion=desktop_version)
             for cmpname, cmp in edb2.core_components.components.items():
                 assert isinstance(cmp.solder_ball_placement, int)
             mounted_cmp = edb2.core_components.get_component_by_name("BGA")
@@ -926,7 +994,6 @@ if not config["skip_edb"]:
             assert solder_ball_height == 0.00033
             assert len(vector) == 2
             edb2.close_edb()
-            del edb2
 
         def test_80_edb_without_path(self):
             edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
@@ -1460,15 +1527,15 @@ if not config["skip_edb"]:
 
         def test_83_build_siwave_project_from_config_file(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
-            self.local_scratch.copyfolder(example_project, self.target_path)
-            cfg_file = os.path.join(self.target_path, "test.cfg")
+            target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
+            cfg_file = os.path.join(target_path, "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'SiwaveSYZ'\n")
                 f.writelines("PowerNets = ['GND']\n")
                 f.writelines("Components = ['U2A5', 'U1B5']")
             sim_config = SimulationConfiguration(cfg_file)
-            assert Edb(self.target_path).build_simulation_project(sim_config)
+            assert Edb(target_path).build_simulation_project(sim_config)
 
         def test_84_set_component_type(self):
             comp = self.edbapp.core_components.components["R2L18"]
@@ -1490,22 +1557,24 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.deactivate_rlc_component(component="C2", create_circuit_port=False)
 
         def test_86_create_symmetric_stackup(self):
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.core_stackup.create_symmetric_stackup(9)
-            assert app_edb.core_stackup.create_symmetric_stackup(8)
-            app_edb.close_edb()
+            if not is_ironpython:
+                app_edb = Edb(edbversion=desktop_version)
+                assert not app_edb.core_stackup.create_symmetric_stackup(9)
+                assert app_edb.core_stackup.create_symmetric_stackup(8)
+                app_edb.close_edb()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close_edb()
-            app_edb = Edb(edbversion=desktop_version)
-            assert not app_edb.stackup.create_symmetric_stackup(9)
-            assert app_edb.stackup.create_symmetric_stackup(8)
-            app_edb.close_edb()
+                app_edb = Edb(edbversion=desktop_version)
+                assert app_edb.core_stackup.create_symmetric_stackup(8, soldermask=False)
+                app_edb.close_edb()
 
-            app_edb = Edb(edbversion=desktop_version)
-            assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
-            app_edb.close_edb()
+                app_edb = Edb(edbversion=desktop_version)
+                assert not app_edb.stackup.create_symmetric_stackup(9)
+                assert app_edb.stackup.create_symmetric_stackup(8)
+                app_edb.close_edb()
+
+                app_edb = Edb(edbversion=desktop_version)
+                assert app_edb.stackup.create_symmetric_stackup(8, soldermask=False)
+                app_edb.close_edb()
 
         def test_86B_create_rectangle(self):
             assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
@@ -1917,8 +1986,8 @@ if not config["skip_edb"]:
 
         def test_A105_add_soure(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
-            self.local_scratch.copyfolder(example_project, self.target_path)
+            target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
             sim_config = SimulationConfiguration()
             sim_config.add_voltage_source(
                 name="test_v_source",
@@ -2123,6 +2192,7 @@ if not config["skip_edb"]:
                 ["-40mm", "-10.2mm"],
                 horizontal_extent_factor=8,
             )
+            assert not edb.are_port_reference_terminals_connected()
             edb.close_edb()
 
         def test_A119_insert_layer(self):
@@ -2447,7 +2517,7 @@ if not config["skip_edb"]:
             sim_setup.components = ["U2A5", "U1B5"]
             sim_setup.use_default_coax_port_radial_extension = False
             sim_setup.cutout_subdesign_expansion = 0.001
-            sim_setup.start_frequency = 0
+            sim_setup.start_freq = 0
             sim_setup.stop_freq = 20e9
             sim_setup.step_freq = 10e6
             assert edbapp.build_simulation_project(sim_setup)
@@ -2473,11 +2543,24 @@ if not config["skip_edb"]:
             sim_setup.components = ["U2A5", "U1B5"]
             sim_setup.use_default_coax_port_radial_extension = False
             sim_setup.cutout_subdesign_expansion = 0.001
-            sim_setup.start_frequency = 0
+            sim_setup.start_freq = 0
             sim_setup.stop_freq = 20e9
             sim_setup.step_freq = 10e6
             sim_setup.use_default_cutout = False
             assert edbapp.build_simulation_project(sim_setup)
+            assert edbapp.are_port_reference_terminals_connected()
+            port1 = list(edbapp.excitations.values())[0]
+            assert port1.magnitude == 0.0
+            assert port1.phase == 0
+            assert port1.reference_net_name == "GND"
+            assert not port1.deembed
+            assert port1.impedance == 50.0
+            assert port1.deembed_length == 0
+            assert not port1.is_circuit
+            assert not port1.renormalize
+            assert port1.renormalize_z0 == (50.0, 0.0)
+            assert not port1.get_pin_group_terminal_reference_pin()
+            assert not port1.get_pad_edge_terminal_reference_pin()
 
         def test_129_get_component_bounding_box(self):
             target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
@@ -2487,3 +2570,6 @@ if not config["skip_edb"]:
             component = edbapp.core_components.components["U2A5"]
             assert component.bounding_box
             assert isinstance(component.rotation, float)
+
+        def test_130_eligible_power_nets(self):
+            assert "GND" in [i.name for i in self.edbapp.core_nets.eligible_power_nets]

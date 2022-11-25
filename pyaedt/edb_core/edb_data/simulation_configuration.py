@@ -1,11 +1,12 @@
 import json
 import os
-import warnings
 from collections import OrderedDict
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.generic.clr_module import Dictionary
+from pyaedt.generic.clr_module import String
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
@@ -13,13 +14,6 @@ from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import validate_enum_class_value
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    from System import String
-    from System.Collections.Generic import Dictionary
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires pythonnet.")
 
 
 class SimulationConfiguration(object):
@@ -1952,7 +1946,7 @@ class SimulationConfiguration(object):
                                 else:
                                     print("Unprocessed value for RadiationBox '{0}'".format(value))
                             elif i.lower().startswith("startfreq"):
-                                self.start_frequency = value
+                                self.start_freq = value
                             elif i.lower().startswith("stopfreq"):
                                 self.stop_freq = value
                             elif i.lower().startswith("sweeptype"):

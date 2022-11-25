@@ -90,6 +90,10 @@ These classes are the containers of data read from the EDB file:
    primitives_data.EDBPrimitives
    simulation_configuration.SiwaveDCSetupTemplate
    simulation_configuration.SimulationConfiguration
+   sources.ExcitationPorts
+   sources.ExcitationProbes
+   sources.ExcitationSources
+   sources.ExcitationDifferential
 
 
 .. code:: python
