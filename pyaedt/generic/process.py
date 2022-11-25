@@ -207,7 +207,7 @@ class SiwaveSolve(object):
         if not output_folder:
             output_folder = os.path.dirname(self.projectpath)
         output_list = []
-        scriptname = os.path.join(output_folder, "export_results.py")
+        scriptname = os.path.normpath(os.path.join(os.path.normpath(output_folder), "export_results.py"))
         with open(scriptname, "w") as f:
             f.write("oApp.OpenProject(r'{}')\n".format(siwave_project))
             if html_report:
@@ -271,11 +271,11 @@ class SiwaveSolve(object):
             _exe = '"' + os.path.join(self.installer_path, "siwave") + '"'
         else:
             _exe = '"' + os.path.join(self.installer_path, "siwave.exe") + '"'
-        command = [_exe.replace("\\", "\\\\")]
+        command = [_exe]
         if hidden:
             command.append("-embedding")
         command.append("-RunScriptAndExit")
-        command.append('"' + scriptname.replace("\\", "\\\\") + '"')
+        command.append('"' + scriptname + '"')
         print(command)
         subprocess.check_output(" ".join(command))
         # p1 = subprocess.call(" ".join(command))
