@@ -66,7 +66,7 @@ class EdbLayout(object):
         dict
             Dictionary of layers.
         """
-        return self._pedb.core_stackup.stackup_layers.layers
+        return self._pedb.stackup.layers
 
     @property
     def primitives(self):
@@ -124,9 +124,10 @@ class EdbLayout(object):
         """
         _primitives_by_layer = {}
         for lay in self.layers:
-            _primitives_by_layer[lay] = [
-                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetLayer().GetName() == lay
-            ]
+            _primitives_by_layer[lay] = []
+        for i in self._active_layout.Primitives:
+            lay = i.GetLayer().GetName()
+            _primitives_by_layer[lay].append(EDBPrimitives(i, self._pedb))
         return _primitives_by_layer
 
     @property
@@ -1002,7 +1003,7 @@ class EdbLayout(object):
         if isinstance(layer_name, str):
             layer_name = [layer_name]
         if not layer_name:
-            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+            layer_name = list(self._pedb.stackup.signal_layers.keys())
 
         for lay in layer_name:
             self._logger.info("Uniting Objects on layer %s.", lay)
@@ -1200,7 +1201,7 @@ class EdbLayout(object):
 
         """
         stat_model = EDBStatistics()
-        stat_model.num_layers = len(list(self._pedb.core_stackup.stackup_layers.layers.values()))
+        stat_model.num_layers = len(list(self._pedb.stackup.stackup_layers.values()))
         stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
         stat_model.num_resistors = len(self._pedb.core_components.resistors)
         stat_model.num_inductors = len(self._pedb.core_components.inductors)
@@ -1217,7 +1218,7 @@ class EdbLayout(object):
         stat_model.num_traces = len(self._pedb.core_primitives.paths)
         stat_model.num_polygons = len(self._pedb.core_primitives.polygons)
         stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
-        stat_model.stackup_thickness = self._pedb.core_stackup.get_layout_thickness()
+        stat_model.stackup_thickness = self._pedb.stackup.get_layout_thickness()
         if evaluate_area:
             if net_list:
                 netlist = list(self._pedb.core_nets.nets.keys())

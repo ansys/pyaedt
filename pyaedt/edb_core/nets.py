@@ -282,7 +282,7 @@ class EdbNets(object):
         if isinstance(nets, str):
             nets = [nets]
         if not layers:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
+            layers = list(self._pedb.stackup.signal_layers.keys())
         if isinstance(layers, str):
             layers = [layers]
         color_index = 0
@@ -302,7 +302,8 @@ class EdbNets(object):
             codes.append(79)
             objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
             n_label += 1
-
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[0]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
             for comp in self._pedb.core_components.components.values():
@@ -314,8 +315,6 @@ class EdbNets(object):
                 layer_name = comp.placement_layer
                 if layer_name not in layers:
                     continue
-                top_layer = list(self._pedb.core_stackup.signal_layers.keys())[-1]
-                bottom_layer = list(self._pedb.core_stackup.signal_layers.keys())[0]
                 if plot_components_on_top and layer_name == top_layer:
                     component_color = (184 / 255, 115 / 255, 51 / 255)  # this is the color used in AEDT
                     label = "Component on top layer"

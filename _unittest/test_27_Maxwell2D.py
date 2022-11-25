@@ -384,5 +384,5 @@ class TestClass(BasisTest, object):
         shutil.copyfile(example_project, example_project_copy)
         assert os.path.exists(example_project_copy)
         assert self.aedtapp.setups[0].add_mesh_link(
-            design_name=self.aedtapp.design_list[0], project_name=example_project_copy
+            design_name="Basis_Model_For_Test", project_name=example_project_copy
         )
