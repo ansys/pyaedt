@@ -9,6 +9,7 @@ from __future__ import absolute_import  # noreorder
 
 import logging
 import os.path
+import time
 import warnings
 from collections import OrderedDict
 
@@ -1326,6 +1327,12 @@ class Setup3DLayout(CommonSetup):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
         self.omodule.ExportToHfss(self.name, file_fullname)
+        timeout = 20
+        while timeout > 0:
+            timeout -= 1
+            if os.path.exists(file_fullname):
+                timeout = 0
+            time.sleep(1)
         return True
 
     @pyaedt_function_handler()
@@ -1352,6 +1359,12 @@ class Setup3DLayout(CommonSetup):
             return False
         file_fullname = os.path.splitext(file_fullname)[0] + ".aedt"
         self.omodule.ExportToQ3d(self.name, file_fullname)
+        timeout = 20
+        while timeout > 0:
+            timeout -= 1
+            if os.path.exists(file_fullname):
+                timeout = 0
+            time.sleep(1)
         return True
 
     @pyaedt_function_handler()
