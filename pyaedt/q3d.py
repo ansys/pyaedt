@@ -1298,9 +1298,9 @@ class Q3d(QExtractor, object):
         Parameters
         ----------
         nets : str, list
-            Nets to search for.
+            Nets to search for. Case insensitive.
         materials : str, list, optional
-            Materials to filter the nets objects.
+            Materials to filter the nets objects. Case insensitive.
 
         Returns
         -------
@@ -1313,14 +1313,15 @@ class Q3d(QExtractor, object):
             materials = [materials]
         elif not materials:
             materials = []
+        materials = [i.lower() for i in materials]
         objects = {}
         for net in nets:
             for bound in self.boundaries:
-                if net == bound.name and "Net" in bound.type:
+                if net.lower() == bound.name.lower() and "Net" in bound.type:
                     obj_list = self.modeler.convert_to_selections(bound.props.get("Objects", []), True)
                     if materials:
                         obj_list = [
-                            self.modeler[i].name for i in obj_list if self.modeler[i].material_name in materials
+                            self.modeler[i].name for i in obj_list if self.modeler[i].material_name.lower() in materials
                         ]
                     objects[net] = obj_list
         return objects
