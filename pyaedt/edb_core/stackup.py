@@ -1138,9 +1138,10 @@ class Stackup(object):
             new_lc.SetMode(lc_mode)
             max_elevation = 0.0
             for layer in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet):
+
                 if "RadBox" not in layer.GetName():  # Ignore RadBox
-                    lower_elevation = layer.GetLowerElevation() * 1.0e6
-                    upper_elevation = layer.GetUpperElevation() * 1.0e6
+                    lower_elevation = layer.Clone().GetLowerElevation() * 1.0e6
+                    upper_elevation = layer.Clone().GetUpperElevation() * 1.0e6
                     max_elevation = max([max_elevation, lower_elevation, upper_elevation])
 
             non_stackup_layers = []
@@ -1149,8 +1150,8 @@ class Stackup(object):
                 if not cloned_layer.IsStackupLayer():
                     non_stackup_layers.append(cloned_layer)
                     continue
-                if "RadBox" not in layer.GetName() and not layer.IsViaLayer():
-                    upper_elevation = layer.GetUpperElevation() * 1.0e6
+                if "RadBox" not in cloned_layer.GetName() and not cloned_layer.IsViaLayer():
+                    upper_elevation = cloned_layer.GetUpperElevation() * 1.0e6
                     updated_lower_el = max_elevation - upper_elevation
                     val = self._edb_value("{}um".format(updated_lower_el))
                     cloned_layer.SetLowerElevation(val)
@@ -1160,11 +1161,13 @@ class Stackup(object):
                         cloned_layer.SetTopBottomAssociation(self._pedb.edb.Cell.TopBottomAssociation.TopAssociated)
                     new_lc.AddStackupLayerAtElevation(cloned_layer)
 
-            vialayers = [lay for lay in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet) if lay.IsViaLayer()]
+            vialayers = [
+                lay for lay in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet) if lay.Clone().IsViaLayer()
+            ]
             for layer in vialayers:
                 cloned_via_layer = layer.Clone()
-                upper_ref_name = layer.GetRefLayerName(True)
-                lower_ref_name = layer.GetRefLayerName(False)
+                upper_ref_name = cloned_via_layer.GetRefLayerName(True)
+                lower_ref_name = cloned_via_layer.GetRefLayerName(False)
                 upper_ref = [
                     lay
                     for lay in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet)
@@ -1309,42 +1312,11 @@ class Stackup(object):
                         thickness=val.solder_ball_height,
                         layer_type="dielectric",
                     )
-                elif layer == list(self.signal_layers.keys())[0]:
-                    elevation = val.solder_ball_height
-                    diel = layer
-                    for k, v in self.stackup_layers.items():
-                        if k == layer:
-                            break
-                        else:
-                            diel = k
-                            elevation -= v.thickness
-                    if elevation > 0:
-                        self.add_layer(
-                            "Bottom_air",
-                            base_layer=diel,
-                            method="add_on_bottom",
-                            material="air",
-                            thickness=val.solder_ball_height,
-                            layer_type="dielectric",
-                        )
                 elif layer == list(self.signal_layers.keys())[-1]:
-                    elevation = val.solder_ball_height
-                    start = False
-                    diel = layer
-                    for k, v in self.stackup_layers.items():
-                        if k == layer:
-                            start = True
-                        elif start:
-                            elevation -= v.thickness
-                            diel = k
-                    if elevation > 0:
-                        self.add_layer(
-                            "Top_Air",
-                            base_layer=diel,
-                            material="air",
-                            thickness=elevation,
-                            layer_type="dielectric",
-                        )
+                    list(self.stackup_layers.values())[-1].thickness = val.solder_ball_height
+
+                elif layer == list(self.signal_layers.keys())[0]:
+                    list(self.stackup_layers.values())[0].thickness = val.solder_ball_height
         return True
 
     @pyaedt_function_handler()
