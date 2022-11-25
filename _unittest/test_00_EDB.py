@@ -38,8 +38,8 @@ if not config["skip_edb"]:
         def setup_class(self):
             BasisTest.my_setup(self)
             self.edbapp = BasisTest.add_edb(self, test_project_name, subfolder=test_subfolder)
-            example_project = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "Package_test_00.aedb")
+            example_project = os.path.join(local_path, "example_models", test_subfolder, "example_package.aedb")
+            self.target_path = os.path.join(self.local_scratch.path, "example_package.aedb")
             self.local_scratch.copyfolder(example_project, self.target_path)
             example_project2 = os.path.join(local_path, "example_models", test_subfolder, "simple.aedb")
             self.target_path2 = os.path.join(self.local_scratch.path, "simple_00.aedb")
@@ -47,6 +47,9 @@ if not config["skip_edb"]:
             example_project3 = os.path.join(local_path, "example_models", test_subfolder, "Galileo_edb_plot.aedb")
             self.target_path3 = os.path.join(self.local_scratch.path, "Galileo_edb_plot_00.aedb")
             self.local_scratch.copyfolder(example_project3, self.target_path3)
+            example_project4 = os.path.join(local_path, "example_models", test_subfolder, "Package.aedb")
+            self.target_path4 = os.path.join(self.local_scratch.path, "Package_00.aedb")
+            self.local_scratch.copyfolder(example_project4, self.target_path4)
 
         def teardown_class(self):
             self.edbapp.close_edb()
@@ -950,7 +953,7 @@ if not config["skip_edb"]:
             edb2.close_edb()
 
         def test_79_get_placement_vector(self):
-            edb2 = Edb(self.target_path, edbversion=desktop_version)
+            edb2 = Edb(self.target_path4, edbversion=desktop_version)
             for cmpname, cmp in edb2.core_components.components.items():
                 assert isinstance(cmp.solder_ball_placement, int)
             mounted_cmp = edb2.core_components.get_component_by_name("BGA")
@@ -991,7 +994,6 @@ if not config["skip_edb"]:
             assert solder_ball_height == 0.00033
             assert len(vector) == 2
             edb2.close_edb()
-            del edb2
 
         def test_80_edb_without_path(self):
             edbapp_without_path = Edb(edbversion=desktop_version, isreadonly=False)
@@ -1525,15 +1527,15 @@ if not config["skip_edb"]:
 
         def test_83_build_siwave_project_from_config_file(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
-            self.local_scratch.copyfolder(example_project, self.target_path)
-            cfg_file = os.path.join(self.target_path, "test.cfg")
+            target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
+            cfg_file = os.path.join(target_path, "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'SiwaveSYZ'\n")
                 f.writelines("PowerNets = ['GND']\n")
                 f.writelines("Components = ['U2A5', 'U1B5']")
             sim_config = SimulationConfiguration(cfg_file)
-            assert Edb(self.target_path).build_simulation_project(sim_config)
+            assert Edb(target_path).build_simulation_project(sim_config)
 
         def test_84_set_component_type(self):
             comp = self.edbapp.core_components.components["R2L18"]
@@ -1984,8 +1986,8 @@ if not config["skip_edb"]:
 
         def test_A105_add_soure(self):
             example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            self.target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
-            self.local_scratch.copyfolder(example_project, self.target_path)
+            target_path = os.path.join(self.local_scratch.path, "test_create_source", "Galileo.aedb")
+            self.local_scratch.copyfolder(example_project, target_path)
             sim_config = SimulationConfiguration()
             sim_config.add_voltage_source(
                 name="test_v_source",
