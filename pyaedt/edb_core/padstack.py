@@ -354,7 +354,7 @@ class EdbPadstacks(object):
         )
         newdefdata.SetSolderBallPlacement(sball_placement)
         psdef.SetData(newdefdata)
-        sball_layer = [lay for lay in self._layers.edb_layers if lay.GetName() == sballLayer_name][0]
+        sball_layer = [lay._edb_layer for lay in list(self._layers.values()) if lay.name == sballLayer_name][0]
         if sball_layer is not None:
             padstackInst.SetSolderBallLayer(sball_layer)
             return True
@@ -379,6 +379,8 @@ class EdbPadstacks(object):
         """
         if isinstance(padstackinstance, int):
             padstackinstance = self.padstack_instances[padstackinstance]._edb_padstackinstance
+        elif isinstance(padstackinstance, EDBPadstackInstance):
+            padstackinstance = padstackinstance._edb_padstackinstance
         cmp_name = padstackinstance.GetComponent().GetName()
         if cmp_name == "":
             cmp_name = "no_comp"
