@@ -162,6 +162,11 @@ class Edb(object):
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
+            elif edbpath.endswith("edb.def"):
+                self.edbpath = os.path.dirname(edbpath)
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+                self.open_edb()
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 if settings.enable_local_log_file and self.log_name:

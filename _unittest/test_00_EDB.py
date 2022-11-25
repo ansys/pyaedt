@@ -889,7 +889,8 @@ if not config["skip_edb"]:
             assert self.edbapp.core_components.short_component_pins("U10", ["2", "5"])
 
         def test_77_flip_layer_stackup(self):
-            edb1 = Edb(self.target_path2, edbversion=desktop_version)
+            edb_path = os.path.join(self.target_path2, "edb.def")
+            edb1 = Edb(edb_path, edbversion=desktop_version)
 
             edb2 = Edb(self.target_path, edbversion=desktop_version)
             assert edb2.core_stackup.place_in_layout_3d_placement(
