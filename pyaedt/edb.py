@@ -31,6 +31,7 @@ from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.edb_core.simulation_setup import SimulationSetups
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
@@ -229,6 +230,7 @@ class Edb(object):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
         self._materials = Materials(self)
+        self._simulation_setups = SimulationSetups(self)
 
         self.logger.info("Objects Initialized")
 
@@ -664,6 +666,11 @@ class Edb(object):
             self._materials = Materials(self)
         return self._materials
 
+    @property
+    def simulation_setups(self):
+        if not self._simulation_setups and self.builder:
+            self._simulation_setups = SimulationSetups(self)
+        return self._simulation_setups
     @property
     def core_padstack(self):
         """Core padstack."""
