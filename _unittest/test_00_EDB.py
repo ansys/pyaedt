@@ -1436,13 +1436,13 @@ if not config["skip_edb"]:
             sim_config.mesh_sizefactor = 0.1
             assert sim_config.mesh_sizefactor == 0.1
             assert not sim_config.do_lambda_refinement
-            edb.core_hfss.configure_hfss_analysis_setup(sim_config)
-            assert len(list(edb.active_cell.SimulationSetups)) == 1
-            setup = list(edb.active_cell.SimulationSetups)[0]
-            ssi = setup.GetSimSetupInfo()
-            assert len(list(ssi.SweepDataList)) == 1
-            sweep = list(ssi.SweepDataList)[0]
-            assert not sweep.EnforceCausality
+            assert edb.core_hfss.configure_hfss_analysis_setup(sim_config)
+            print(edb.simulation_setups.setups)
+            edb.simulation_setups.add_hfss_simulation_setup()
+
+        def test_A116b_simulation_setup(self):
+            self.edbapp.simulation_setups.hfss_simulation_setup()
+
 
         def test_119_add_hfss_config(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
