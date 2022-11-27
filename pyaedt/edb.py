@@ -670,6 +670,11 @@ class Edb(object):
             self._simulation_setups = SimulationSetups(self)
         return self._simulation_setups
     @property
+    def simulation_setups(self):
+        if not self._simulation_setups and self.builder:
+            self._simulation_setups = SimulationSetups(self)
+        return self._simulation_setups
+    @property
     def core_padstack(self):
         """Core padstack."""
         if not self._padstack and self.builder:
