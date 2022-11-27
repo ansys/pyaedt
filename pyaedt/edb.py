@@ -665,7 +665,6 @@ class Edb(object):
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
-
     @property
     def simulation_setups(self):
         if not self._simulation_setups and self.builder:
