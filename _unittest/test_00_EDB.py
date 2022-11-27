@@ -1441,7 +1441,8 @@ if not config["skip_edb"]:
             edb.simulation_setups.add_hfss_simulation_setup()
 
         def test_A116b_simulation_setup(self):
-            self.edbapp.simulation_setups.hfss_simulation_setup()
+            hfss_sim_setup = self.edbapp.simulation_setups.create_hfss_simulation_setup()
+            print("***")
 
 
         def test_119_add_hfss_config(self):

@@ -21,15 +21,12 @@ class HFSSSimulationSetup(object):
             else:
                 self._name = name
 
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[self._edb.simsetupdata.HFSSSimulationSettings]()
-            self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings.OrderBasis = BasisOrder.Mixed
-            self._edb_sim_setup_info.Name = self.name
-
-            self._edb_sim_setup_info.SimulationSettings.DefeatureSettings.DefeatureAbsLength = "1um"
+            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+                self._edb.simsetupdata.HFSSSimulationSettings]()
             self._update_setup()
 
-
     def _update_setup(self):
+
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.simulation_setups.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
@@ -41,9 +38,51 @@ class HFSSSimulationSetup(object):
 
     @property
     def hfss_solver_settings(self):
-        return self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
+        """
+        EnhancedLowFreqAccuracy: bool
+        OrderBasis
+        RelativeResidual
+        SolverType
+        UseShellElements
+         
+        Returns
+        -------
+
+        """
+        settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
+        return {
+            "EnhancedLowFreqAccuracy": settings.EnhancedLowFreqAccuracy,
+            "OrderBasis": settings.OrderBasis,
+            "RelativeResidual": settings.RelativeResidual,
+            "SolverType": settings.SolverType.ToString(),
+            "UseShellElements": settings.UseShellElements
+        }
+
+    
+    @property
+    def AdaptiveSettings(self):
+        return self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+    
+    @property
+    def DefeatureSettings(self):
+        return 
+    
+    @property
+    def ViaSettings(self):
+        return
 
     @property
+    def AdvancedMeshSettings(self):
+        return
+
+    @property
+    def CurveApproxSettings(self):
+        return
+
+    @property
+    def DCRSettings(self):
+        return
+
     def ss1(self):
         adapt = self._edb.simsetupdata.AdaptiveFrequencyData()
         self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList = convert_py_list_to_net_list(
