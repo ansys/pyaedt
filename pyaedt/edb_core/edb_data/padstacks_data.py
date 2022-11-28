@@ -698,7 +698,7 @@ class EDBPadstack(object):
                     via._edb_padstackinstance.GetNet(),
                     self._get_edb_value(pos[0]),
                     self._get_edb_value(pos[1]),
-                    self._get_edb_value(rad2 * aspect_ratio),
+                    self._get_edb_value(rad2),
                 )
                 if len(self.pad_by_layer[self.via_stop_layer].parameters) == 0:
                     self._edb.Cell.Primitive.Polygon.Create(
