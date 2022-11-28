@@ -1,5 +1,7 @@
+
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
@@ -62,25 +64,73 @@ class HFSSSimulationSetup(object):
 
     @hfss_solver_settings.setter
     def hfss_solver_settings(self, values):
-        hfss_solver_settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
+        settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
         if "enhanced_low_freq_accuracy" in values:
-            hfss_solver_settings.EnhancedLowFreqAccuracy = values["enhanced_low_freq_accuracy"]
+            settings.EnhancedLowFreqAccuracy = values["enhanced_low_freq_accuracy"]
         if "order_basis" in values:
-            hfss_solver_settings.OrderBasis = values["order_basis"]
+            settings.OrderBasis = values["order_basis"]
         if "RelativeResidual" in values:
-            hfss_solver_settings.RelativeResidual = values["RelativeResidual"]
+            settings.RelativeResidual = values["RelativeResidual"]
         if "solver_type" in values:
-            hfss_solver_settings.SolverType = values["solver_type"]
+            settings.SolverType = values["solver_type"]
         if "use_shell_elements" in values:
-            hfss_solver_settings.UseShellElements = values["use_shell_elements"]
+            settings.UseShellElements = values["use_shell_elements"]
     
     @property
     def adaptive_settings(self):
         settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_freq_list = []
+        for i in list(settings.AdaptiveFrequencyDataList):
+            adaptive_freq_list.append({
+                "adaptive_frequency": i.AdaptiveFrequency,
+                "max_delta": i.MaxDelta,
+                "max_passes": i.MaxPasses
+            })
+
         return {
-            "": settings
+            "adaptive_frequency_data_list": adaptive_freq_list,
+            "adapt_type": settings.AdaptType.ToString(),
+            "basic": settings.Basic,
+            "do_adaptive": settings.DoAdaptive,
+            "max_refinement": settings.MaxRefinement,
+            "max_refine_per_pass": settings.MaxRefinePerPass,
+            "min_passes": settings.MinPasses,
+            "save_fields": settings.SaveFields,
+            "save_rad_field_only": settings.SaveRadFieldsOnly,
+            "use_convergence_matrix": settings.UseConvergenceMatrix,
+            "use_max_refinement": settings.UseMaxRefinement,
         }
 
+    @adaptive_settings.setter
+    def adaptive_settngs(self, values):
+        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        if "adaptive_frequency_data_list" in values:
+            adaptive_frequency_data = self._edb.simsetupdata.AdaptiveFrequencyData()
+            for i in values["adaptive_frequency_data_list"]:
+                adaptive_frequency_data.AdaptiveFrequency = i["adaptive_frequency"]
+                adaptive_frequency_data.MaxDelta = i["max_delta"]
+                adaptive_frequency_data.MaxPasses = i["max_passes"]
+                settings.AdaptiveFrequencyDataList.append(adaptive_frequency_data)
+        if "adapt_type" in values:
+            settings.AdaptType = values["adapt_type"]
+        if "basic" in values:
+            settings.Basic = values["basic"]
+        if "do_adaptive" in values:
+            settings.DoAdaptive = values["do_adaptive"]
+        if "max_refinement" in values:
+            settings.MaxRefinement = values["max_refinement"]
+        if "max_refine_per_pass" in values:
+            settings.MaxRefinePerPass = values["max_refine_per_pass"]
+        if "min_passes" in values:
+            settings.MinPasses = values["min_passes"]
+        if "save_fields" in values:
+            settings.SaveFields = values["save_fields"]
+        if "save_rad_field_only" in values:
+            settings.SaveRadFieldsOnly = values["save_rad_field_only"]
+        if "use_convergence_matrix" in values:
+            settings.UseConvergenceMatrix = values["use_convergence_matrix"]
+        if "use_max_refinement" in values:
+            settings.UseMaxRefinement = values["use_max_refinement"]
     @property
     def DefeatureSettings(self):
         return 
@@ -90,7 +140,8 @@ class HFSSSimulationSetup(object):
         return
 
     @property
-    def AdvancedMeshSettings(self):
+    def advanced_mesh_settings(self):
+        settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
         return
 
     @property
