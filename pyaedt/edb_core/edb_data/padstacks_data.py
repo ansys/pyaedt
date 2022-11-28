@@ -656,7 +656,7 @@ class EDBPadstack(object):
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
-        start_elevation = layers[self.via_start_layer].elevation
+        start_elevation = layers[self.via_start_layer].lower_elevation
 
         rad1 = self.hole_properties[0] / 2
         rad2 = rad1 * aspect_ratio
