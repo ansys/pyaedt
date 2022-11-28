@@ -1355,8 +1355,8 @@ if not config["skip_edb"]:
             assert edb_stats.num_resistors
 
         def test_113_set_bounding_box_extent(self):
-            source_path = os.path.join(local_path, "example_models", test_subfolder, "test_0107.aedb")
-            target_path = os.path.join(self.local_scratch.path, "test_0111.aedb")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "test_107.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_113.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edb = Edb(target_path)
             initial_extent_info = edb.active_cell.GetHFSSExtentInfo()
