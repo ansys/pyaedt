@@ -76,11 +76,10 @@ from datetime import datetime
 from zipfile import ZIP_DEFLATED
 from zipfile import ZipFile
 
-import clr
-
 import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt import is_ironpython
 from pyaedt.desktop import Desktop
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 if os.name == "posix" and is_ironpython:
@@ -89,21 +88,21 @@ else:
     import subprocess
 
 if is_ironpython:
-    clr.AddReference("PresentationFramework")
-    clr.AddReference("PresentationCore")
-    clr.AddReference("System.Windows")
-    clr.AddReference("System.Windows.Forms")
-    clr.AddReference("System.Drawing")
+    _clr.AddReference("PresentationFramework")
+    _clr.AddReference("PresentationCore")
+    _clr.AddReference("System.Windows")
+    _clr.AddReference("System.Windows.Forms")
+    _clr.AddReference("System.Drawing")
 else:
-    clr.AddReference("System.Xml")
-    clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
-    clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
-    clr.AddReference("System.Windows.Forms")
-    clr.AddReference("System")
+    _clr.AddReference("System.Xml")
+    _clr.AddReference("PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+    _clr.AddReference("PresentationCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+    _clr.AddReference("System.Windows.Forms")
+    _clr.AddReference("System")
     from System.IO import StreamReader
     from System.Windows.Markup import XamlReader
 
-    clr.AddReference("System.Windows")
+    _clr.AddReference("System.Windows")
 
 from System import Environment
 from System import Uri
@@ -1045,7 +1044,7 @@ class WPFToolkit(Window):
     def launch_gui(self):
         """Shows the Wpf UI."""
         if sys.implementation.name == "ironpython":
-            clr.AddReference("IronPython.wpf")
+            _clr.AddReference("IronPython.wpf")
             import wpf
 
             wpf.LoadComponent(self, self.xaml_file)

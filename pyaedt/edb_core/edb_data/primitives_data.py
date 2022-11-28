@@ -28,7 +28,7 @@ class EDBPrimitives(object):
 
     def __init__(self, raw_primitive, core_app):
         self._app = core_app
-        self._core_stackup = core_app.core_stackup
+        self._core_stackup = core_app.stackup
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
 
@@ -301,7 +301,7 @@ class EDBPrimitives(object):
     @layer_name.setter
     def layer_name(self, val):
         if val in self._core_stackup.stackup_layers.layers:
-            lay = self._core_stackup.stackup_layers.layers[val]._layer
+            lay = self._core_stackup.stackup_layers.layers[val]._edb_layer
             self.primitive_object.SetLayer(lay)
         elif not isinstance(val, str):
             try:

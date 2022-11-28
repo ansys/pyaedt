@@ -1222,7 +1222,9 @@ class EdbSiwave(object):
         return self.create_pin_group(reference_designator, pin_names, group_name)
 
     @pyaedt_function_handler
-    def create_current_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+    def create_current_source_on_pin_group(
+        self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None
+    ):
         """Create current source between two pin groups.
 
         Parameters
@@ -1241,14 +1243,17 @@ class EdbSiwave(object):
         """
         pos_pin_group = self.pin_groups[pos_pin_group_name]
         pos_terminal = pos_pin_group.create_current_source_terminal(magnitude, phase)
-
+        if name:
+            pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_current_source_terminal()
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
 
     @pyaedt_function_handler
-    def create_voltage_source_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0):
+    def create_voltage_source_on_pin_group(
+        self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None
+    ):
         """Create voltage source between two pin groups.
 
         Parameters
@@ -1267,7 +1272,8 @@ class EdbSiwave(object):
         """
         pos_pin_group = self.pin_groups[pos_pin_group_name]
         pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
-
+        if name:
+            pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_voltage_source_terminal(magnitude, phase)
         pos_terminal.SetReferenceTerminal(neg_terminal)

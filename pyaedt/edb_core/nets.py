@@ -5,6 +5,7 @@ import os
 import time
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -282,7 +283,7 @@ class EdbNets(object):
         if isinstance(nets, str):
             nets = [nets]
         if not layers:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
+            layers = list(self._pedb.stackup.signal_layers.keys())
         if isinstance(layers, str):
             layers = [layers]
         color_index = 0
@@ -302,7 +303,8 @@ class EdbNets(object):
             codes.append(79)
             objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
             n_label += 1
-
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[0]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
             for comp in self._pedb.core_components.components.values():
@@ -314,8 +316,6 @@ class EdbNets(object):
                 layer_name = comp.placement_layer
                 if layer_name not in layers:
                     continue
-                top_layer = list(self._pedb.core_stackup.signal_layers.keys())[-1]
-                bottom_layer = list(self._pedb.core_stackup.signal_layers.keys())[0]
                 if plot_components_on_top and layer_name == top_layer:
                     component_color = (184 / 255, 115 / 255, 51 / 255)  # this is the color used in AEDT
                     label = "Component on top layer"
@@ -894,3 +894,87 @@ class EdbNets(object):
             if net_name == net:
                 return True
         return False
+
+    @pyaedt_function_handler()
+    def find_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
+        """Find and fix disjoint nets from a given netlist.
+
+        Parameters
+        ----------
+        net_list : str, list, optional
+            List of nets on which check disjoints. If `None` is provided then the algorithm will loop on all nets.
+        keep_only_main_net : bool, optional
+            Remove all secondary nets other than principal one (the one with more objects in it). Default is `False`.
+        clean_disjoints_less_than : bool, optional
+            Clean all disjoint nets with area less than specified area in square meters. Default is `0.0` to disable it.
+
+        Returns
+        -------
+        List
+            New nets created.
+
+        Examples
+        --------
+
+        >>> renamed_nets = edb_core.core_nets.find_and_fix_disjoint_nets(["GND","Net2"])
+        """
+
+        self._logger.reset_timer()
+        if not net_list:
+            net_list = list(self.nets.keys())
+        elif isinstance(net_list, str):
+            net_list = [net_list]
+        _objects_list = {}
+        _padstacks_list = {}
+        for prim in self._pedb.core_primitives.primitives:
+            n_name = prim.net_name
+            if n_name in _objects_list:
+                _objects_list[n_name].append(prim)
+            else:
+                _objects_list[n_name] = [prim]
+        for pad in list(self._pedb.core_padstack.padstack_instances.values()):
+            n_name = pad.net_name
+            if n_name in _padstacks_list:
+                _padstacks_list[n_name].append(pad)
+            else:
+                _padstacks_list[n_name] = [pad]
+        new_nets = []
+        disjoints_objects = []
+
+        for net in net_list:
+            net_groups = []
+            obj_dict = {}
+            for i in _objects_list.get(net, []):
+                obj_dict[i.id] = i
+            for i in _padstacks_list.get(net, []):
+                obj_dict[i.id] = i
+            objs = list(obj_dict.values())
+            l = len(objs)
+            while l > 0:
+                l1 = objs[0].get_connected_object_id_set()
+                l1.append(objs[0].id)
+                net_groups.append(l1)
+                objs = [i for i in objs if i.id not in l1]
+                l = len(objs)
+            if len(net_groups) > 1:
+                sorted_list = sorted(net_groups, key=len, reverse=True)
+                for disjoints in sorted_list[1:]:
+                    if keep_only_main_net:
+                        for geo in disjoints:
+                            obj_dict[geo].delete()
+                    elif len(disjoints) == 1 and (
+                        isinstance(obj_dict[disjoints[0]], EDBPadstackInstance)
+                        or clean_disjoints_less_than
+                        and obj_dict[disjoints[0]].area() < clean_disjoints_less_than
+                    ):
+                        obj_dict[disjoints[0]].delete()
+                    else:
+                        new_net_name = generate_unique_name(net, n=3)
+                        if self.find_or_create_net(new_net_name):
+                            new_nets.append(new_net_name)
+                            for geo in disjoints:
+                                obj_dict[geo].net_name = new_net_name
+                            disjoints_objects.extend(disjoints)
+        self._logger.info_timer("Disjoint Cleanup Completed.")
+        self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
+        return new_nets

@@ -454,22 +454,22 @@ class EdbHfss(object):
         if not isinstance(net_list, list):
             net_list = [net_list]
         for ref in ref_des_list:
-            for pin in self._pedb.core_components.components[ref].pins.items():
-                if pin[1].net_name in net_list and pin[1].pin.IsLayoutPin():
-                    port_name = "{}_{}_{}".format(ref, pin[1].net_name, pin[1].pin.GetName())
+            for _, py_inst in self._pedb.core_components.components[ref].pins.items():
+                if py_inst.net_name in net_list and py_inst.is_pin:
+                    port_name = "{}_{}_{}".format(ref, py_inst.net_name, py_inst.pin.GetName())
                     (
                         res,
                         from_layer_pos,
                         to_layer_pos,
-                    ) = pin[1].pin.GetLayerRange()
+                    ) = py_inst.pin.GetLayerRange()
                     if (
                         res
                         and from_layer_pos
                         and self._edb.Cell.Terminal.PadstackInstanceTerminal.Create(
                             self._active_layout,
-                            pin[1].pin.GetNet(),
+                            py_inst.pin.GetNet(),
                             port_name,
-                            pin[1].pin,
+                            py_inst.pin,
                             to_layer_pos,
                         )
                     ):
@@ -639,7 +639,7 @@ class EdbHfss(object):
             self._logger.error("No polygon provided for port {} creation".format(port_name))
             return False
         if reference_layer:
-            reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            reference_layer = self._pedb.stackup.signal_layers[reference_layer]._edb_layer
             if not reference_layer:
                 self._logger.error("Specified layer for port {} creation was not found".format(port_name))
         if not isinstance(terminal_point, list):
@@ -792,7 +792,7 @@ class EdbHfss(object):
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
         if reference_layer:
-            reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+            reference_layer = self._pedb.stackup.signal_layers[reference_layer]._edb_layer
             pos_edge_term.SetReferenceLayer(reference_layer)
 
         prop = ", ".join(
@@ -920,7 +920,7 @@ class EdbHfss(object):
             edges_pts = []
             if isinstance(reference_layer, str):
                 try:
-                    reference_layer = self._pedb.core_stackup.signal_layers[reference_layer]._layer
+                    reference_layer = self._pedb.stackup.signal_layers[reference_layer]._edb_layer
                 except:
                     raise Exception("Failed to get the layer {}".format(reference_layer))
             if not isinstance(reference_layer, self._edb.Cell.ILayerReadOnly):

@@ -19,10 +19,7 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-if is_ironpython:
-    import pyaedt.third_party.ironpython.rpyc_27 as rpyc
-    from pyaedt.third_party.ironpython.rpyc_27 import ThreadedServer
-else:
+if not is_ironpython:
     import rpyc
     from rpyc import ThreadedServer
 
@@ -822,77 +819,6 @@ class PyaedtServiceWindows(rpyc.Service):
         )
         self.app.append(aedtapp)
         return aedtapp
-
-
-class PyaedtServiceLinux(rpyc.Service):
-    """Server Pyaedt rpyc Service."""
-
-    def on_connect(self, connection):
-        self.connection = connection
-        self.app = []
-        self._beta_options = []
-
-    def on_disconnect(self, connection):
-        pass
-
-    def exposed_close_connection(self):
-        return True
-
-    def exposed_run_script(self, script, ansysem_path=None, non_graphical=True):
-        """Run script on AEDT in the server.
-
-        Parameters
-        ----------
-        script : str or list
-            It can be the full path of the script file or a list of command to execute on the server.
-        ansysem_path : str, optional
-            Full path to AEDT Installation folder.
-        non_graphical : bool, optional
-            Set AEDT to run either in graphical or non graphical. Default is non-grahical
-
-        Returns
-        -------
-        str
-        """
-        if isinstance(script, list):
-            script_file = os.path.join(tempfile.gettempdir(), generate_unique_name("pyaedt_script") + ".py")
-            package_paths = site.getsitepackages()
-            with open(script_file, "w") as f:
-                f.write("import sys\n")
-                for pack_path in package_paths:
-                    f.write('sys.path.append("{}")\n'.format(pack_path))
-                for line in script:
-                    f.write(line + "\n")
-        elif os.path.exists(script):
-            script_file = script
-        else:
-            return "File wrong or wrong commands."
-        executable = "ansysedt"
-        if not ansysem_path:
-            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
-        if not non_graphical:
-            non_graphical = os.getenv("PYAEDT_SERVER_AEDT_NG", "True").lower() in ("true", "1", "t")
-        if ansysem_path:
-            if non_graphical:
-                ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
-                if self._beta_options:
-                    for opt in range(self._beta_options.__len__()):
-                        if self._beta_options[opt] not in ng_feature:
-                            ng_feature += "," + self._beta_options[opt]
-                command = [os.path.join(ansysem_path, executable), ng_feature, "-ng", "-RunScriptAndExit", script_file]
-            else:
-                ng_feature = "-features=SF159726_SCRIPTOBJECT"
-                if self._beta_options:
-                    for opt in range(self._beta_options.__len__()):
-                        if self._beta_options[opt] not in ng_feature:
-                            ng_feature += "," + self._beta_options[opt]
-                command = [os.path.join(ansysem_path, executable), ng_feature, "-RunScriptAndExit", script_file]
-            p = subprocess.Popen(command)
-            p.wait()
-            return "Script Executed."
-
-        else:
-            return "Ansys EM not found or wrong AEDT Version."
 
 
 class GlobalService(rpyc.Service):

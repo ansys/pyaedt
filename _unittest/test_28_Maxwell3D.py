@@ -1,5 +1,6 @@
 # Setup paths for module imports
 import os
+import shutil
 import tempfile
 
 from _unittest.conftest import BasisTest
@@ -713,3 +714,30 @@ class TestClass(BasisTest, object):
             u_vector_origin_coordinates_slave=["0mm", "0mm"],
             u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
         ) == (False, False)
+
+    def test_45_add_mesh_link(self):
+        self.m3dtransient.duplicate_design(self.m3dtransient.design_name)
+        self.m3dtransient.set_active_design(self.m3dtransient.design_list[1])
+        assert self.m3dtransient.setups[0].add_mesh_link(design_name=self.m3dtransient.design_list[0])
+        meshlink_props = self.m3dtransient.setups[0].props["MeshLink"]
+        assert meshlink_props["Project"] == "This Project*"
+        assert meshlink_props["PathRelativeTo"] == "TargetProject"
+        assert meshlink_props["Design"] == self.m3dtransient.design_list[0]
+        assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
+        assert not self.m3dtransient.setups[0].add_mesh_link(design_name="")
+        assert self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0], solution_name="Setup1 : LastAdaptive"
+        )
+        assert not self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0], solution_name="Setup_Test : LastAdaptive"
+        )
+        assert self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0],
+            parameters_dict=self.m3dtransient.available_variations.nominal_w_values_dict,
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, transient + ".aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, transient + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
+        assert self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
+        )
