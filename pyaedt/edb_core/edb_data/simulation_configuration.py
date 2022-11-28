@@ -43,6 +43,32 @@ class ViaSettings(object):
         return self._edb_via_settings.ViaStyle
 
 
+class ViaSettings(object):
+
+    def __init__(self, edb_via_settings):
+        self._edb_via_settings = edb_via_settings
+
+    @property
+    def via_density(self):
+        return self._edb_via_settings.ViaDensity
+
+    @property
+    def via_material(self):
+        return self._edb_via_settings.ViaMaterial
+
+    @property
+    def via_num_sizes(self):
+        return self._edb_via_settings.ViaNumSizes
+
+    @via_num_sizes.setter
+    def via_num_sizes(self, value):
+        self._edb_via_settings.ViaNumSizes = value
+
+    @property
+    def via_style(self):
+        return self._edb_via_settings.ViaStyle
+
+
 class SimulationConfiguration(object):
     """Provides an ASCII simulation configuration file parser.
 
