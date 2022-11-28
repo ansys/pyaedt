@@ -638,7 +638,7 @@ class EDBPadstack(object):
         convert_only_signal_vias : bool, optional
             Either to convert only vias belonging to signal nets or all vias. Defaults is ``True``.
         aspect_ratio : float, optional
-            Ratio between top and bottom face of trapezoid.
+            Ratio between top and bottom face of trapezoid. The default value is ``0.75``.
 
         Returns
         -------
