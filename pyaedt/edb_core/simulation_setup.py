@@ -1,5 +1,6 @@
 
 from pyaedt.edb_core.edb_data.simulation_setup_data import HFSSSimulationSetup
+from pyaedt.edb_core.edb_data.simulation_setup_data import SIWaveDCIRSimulationSetup
 
 
 class SimulationSetups(object):
@@ -14,3 +15,6 @@ class SimulationSetups(object):
     def create_hfss_simulation_setup(self):
         return HFSSSimulationSetup(self._edb)
 
+    @property
+    def create_siwave_dcir_simulation_setup(self):
+        return SIWaveDCIRSimulationSetup()
