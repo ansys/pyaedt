@@ -75,9 +75,12 @@ class HFSSSimulationSetup(object):
             hfss_solver_settings.UseShellElements = values["use_shell_elements"]
     
     @property
-    def AdaptiveSettings(self):
-        return self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-    
+    def adaptive_settings(self):
+        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        return {
+            "": settings
+        }
+
     @property
     def DefeatureSettings(self):
         return 
