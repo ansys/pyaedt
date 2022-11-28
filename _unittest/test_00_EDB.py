@@ -1690,5 +1690,5 @@ if not config["skip_edb"]:
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_microvias(False)
             assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_microvias(False)
-            assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_microvias(False, is_upside=True)
+            assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_microvias(False)
             edbapp.close_edb()
