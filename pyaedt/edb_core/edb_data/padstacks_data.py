@@ -1,4 +1,5 @@
 import math
+import warnings
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -857,6 +858,19 @@ class EDBPadstackInstance(object):
         """
         return self._edb_padstackinstance.GetNet().GetName()
 
+    @net_name.setter
+    def net_name(self, val):
+        if val in self._pedb.core_nets.nets:
+            net = self._pedb.core_nets.nets[val].net_object
+            self._edb_padstackinstance.SetNet(net)
+        elif not isinstance(val, str):
+            try:
+                self._edb_padstackinstance.SetNet(val)
+            except:
+                raise AttributeError("Value inserted not found. Input has to be net name or net object.")
+        else:
+            raise AttributeError("Value inserted not found. Input has to be net name or net object.")
+
     @property
     def is_pin(self):
         """Determines whether this padstack instance is a layout pin.
@@ -977,6 +991,17 @@ class EDBPadstackInstance(object):
 
     @pyaedt_function_handler()
     def delete_padstack_instance(self):
+        """Delete this padstack instance.
+
+        .. deprecated:: 0.6.28
+           Use :func:`delete` property instead.
+        """
+        warnings.warn("`delete_padstack_instance` is deprecated. Use `delete` instead.", DeprecationWarning)
+        self._edb_padstackinstance.Delete()
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
         """Delete this padstack instance."""
         self._edb_padstackinstance.Delete()
         return True

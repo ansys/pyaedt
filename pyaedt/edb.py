@@ -1269,7 +1269,7 @@ class Edb(object):
 
         for i in self.core_padstack.padstack_instances.values():
             if i.net_name not in all_list:
-                i.delete_padstack_instance()
+                i.delete()
         for i in self.core_primitives.primitives:
             if i.net_name not in all_list:
                 i.delete()
@@ -1361,7 +1361,7 @@ class Edb(object):
         #     pins_clean(item)
 
         for pin in pins_to_delete:
-            pin.delete_padstack_instance()
+            pin.delete()
 
         self.logger.info_timer("Padstack Instances removal completed")
         self.logger.reset_timer()
