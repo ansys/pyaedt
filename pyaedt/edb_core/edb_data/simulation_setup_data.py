@@ -53,26 +53,26 @@ class HFSSSimulationSetup(object):
         """
         settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
         return {
-            "EnhancedLowFreqAccuracy": settings.EnhancedLowFreqAccuracy,
-            "OrderBasis": settings.OrderBasis,
-            "RelativeResidual": settings.RelativeResidual,
-            "SolverType": settings.SolverType.ToString(),
-            "UseShellElements": settings.UseShellElements
+            "enhanced_low_freq_accuracy": settings.EnhancedLowFreqAccuracy,
+            "order_basis": settings.OrderBasis,
+            "relative_residual": settings.RelativeResidual,
+            "solver_type": settings.SolverType.ToString(),
+            "use_shell_elements": settings.UseShellElements
         }
 
     @hfss_solver_settings.setter
     def hfss_solver_settings(self, values):
         hfss_solver_settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
-        if "EnhancedLowFreqAccuracy" in values:
-            hfss_solver_settings.EnhancedLowFreqAccuracy = values["EnhancedLowFreqAccuracy"]
-        if "OrderBasis" in values:
-            hfss_solver_settings.OrderBasis = values["OrderBasis"]
+        if "enhanced_low_freq_accuracy" in values:
+            hfss_solver_settings.EnhancedLowFreqAccuracy = values["enhanced_low_freq_accuracy"]
+        if "order_basis" in values:
+            hfss_solver_settings.OrderBasis = values["order_basis"]
         if "RelativeResidual" in values:
             hfss_solver_settings.RelativeResidual = values["RelativeResidual"]
-        if "SolverType" in values:
-            hfss_solver_settings.SolverType = values["SolverType"]
-        if "UseShellElements" in values:
-            hfss_solver_settings.UseShellElements = values["UseShellElements"]
+        if "solver_type" in values:
+            hfss_solver_settings.SolverType = values["solver_type"]
+        if "use_shell_elements" in values:
+            hfss_solver_settings.UseShellElements = values["use_shell_elements"]
     
     @property
     def AdaptiveSettings(self):
