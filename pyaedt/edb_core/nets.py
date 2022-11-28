@@ -896,7 +896,7 @@ class EdbNets(object):
         return False
 
     @pyaedt_function_handler()
-    def fix_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
+    def find_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
         """Find and fix disjoint nets from a given netlist
 
         Parameters
@@ -908,11 +908,15 @@ class EdbNets(object):
         clean_disjoints_less_than : bool, optional
             Clean all disjoint nets with area less than specified area in square meters. Default is `0.0` to disable it.
 
-
         Returns
         -------
         List
             New nets created.
+
+        Examples
+        --------
+
+        >>> renamed_nets = edb_core.core_nets.find_and_fix_disjoint_nets(["GND","Net2"])
         """
 
         self._logger.reset_timer()
@@ -966,10 +970,11 @@ class EdbNets(object):
                         obj_dict[disjoints[0]].delete()
                     else:
                         new_net_name = generate_unique_name(net, n=3)
-                        new_nets.append(new_net_name)
-                        for geo in disjoints:
-                            obj_dict[geo].net_name = new_net_name
-                        disjoints_objects.extend(disjoints)
+                        if self.find_or_create_net(new_net_name):
+                            new_nets.append(new_net_name)
+                            for geo in disjoints:
+                                obj_dict[geo].net_name = new_net_name
+                            disjoints_objects.extend(disjoints)
         self._logger.info_timer("Disjoint Cleanup Completed.")
         self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
         return new_nets

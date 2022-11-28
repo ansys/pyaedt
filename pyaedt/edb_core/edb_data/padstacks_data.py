@@ -867,9 +867,9 @@ class EDBPadstackInstance(object):
             try:
                 self._edb_padstackinstance.SetNet(val)
             except:
-                raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+                raise AttributeError("Value inserted not found. Input has to be net name or net object.")
         else:
-            raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+            raise AttributeError("Value inserted not found. Input has to be net name or net object.")
 
     @property
     def is_pin(self):

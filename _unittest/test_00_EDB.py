@@ -649,10 +649,10 @@ if not config["skip_edb"]:
                     extent_defeature=0.001,
                 )
                 assert "A0_N" not in edbapp.core_nets.nets
-                assert isinstance(edbapp.core_nets.fix_and_fix_disjoint_nets("GND"), list)
-                assert isinstance(edbapp.core_nets.fix_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
+                assert isinstance(edbapp.core_nets.find_and_fix_disjoint_nets("GND"), list)
+                assert isinstance(edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
                 assert isinstance(
-                    edbapp.core_nets.fix_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list
+                    edbapp.core_nets.find_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list
                 )
             edbapp.close_edb()
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
