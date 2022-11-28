@@ -645,8 +645,7 @@ class EDBPadstack(object):
         if self.via_start_layer == self.via_stop_layer:
             self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
         layout = self._ppadstack._pedb._active_layout
-
-        layers = self._ppadstack._pedb.stackup.layers
+        layers = self._ppadstack._pedb.stackup.signal_layers
         layer_names = [i for i in list(layers.keys())]
         if abs(layer_names.index(self.via_start_layer) - layer_names.index(self.via_stop_layer)) > 1:
             self._ppadstack._pedb.logger.error(
@@ -654,12 +653,8 @@ class EDBPadstack(object):
             )
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
-        h = (
-            layers[self.via_start_layer].lower_elevation
-            - layers[self.via_stop_layer].lower_elevation
-            - layers[self.via_stop_layer].thickness
-        )
-        diam = h / aspect_ratio / 2
+        rad = self.hole_properties[0] / 2
+        i = 0
         for via in list(self.padstack_instances.values()):
             if convert_only_signal_vias and via.net_name in signal_nets or not convert_only_signal_vias:
                 pos = via.position
@@ -669,20 +664,57 @@ class EDBPadstack(object):
                     via._edb_padstackinstance.GetNet(),
                     self._get_edb_value(pos[0]),
                     self._get_edb_value(pos[1]),
-                    self._get_edb_value(h / 2),
+                    self._get_edb_value(rad),
                 )
+                if len(self.pad_by_layer[self.via_start_layer].parameters) == 0:
+                    self._edb.Cell.Primitive.Polygon.Create(
+                        layout,
+                        self.via_start_layer,
+                        via._edb_padstackinstance.GetNet(),
+                        self.pad_by_layer[self.via_start_layer].polygon_data,
+                    )
+                else:
+                    self._edb.Cell.Primitive.Circle.Create(
+                        layout,
+                        self.via_start_layer,
+                        via._edb_padstackinstance.GetNet(),
+                        self._get_edb_value(pos[0]),
+                        self._get_edb_value(pos[1]),
+                        self._get_edb_value(self.pad_by_layer[self.via_start_layer].parameters_values[0] / 2),
+                    )
+
                 cloned_circle2 = self._edb.Cell.Primitive.Circle.Create(
                     layout,
                     self.via_stop_layer,
                     via._edb_padstackinstance.GetNet(),
                     self._get_edb_value(pos[0]),
                     self._get_edb_value(pos[1]),
-                    self._get_edb_value(diam),
+                    self._get_edb_value(rad * aspect_ratio),
                 )
-                s3d = self._edb.Cell.Hierarchy.Structure3D.Create(layout, "Via{}".format(via.id))
+                if len(self.pad_by_layer[self.via_stop_layer].parameters) == 0:
+                    self._edb.Cell.Primitive.Polygon.Create(
+                        layout,
+                        self.via_stop_layer,
+                        via._edb_padstackinstance.GetNet(),
+                        self.pad_by_layer[self.via_stop_layer].polygon_data,
+                    )
+                else:
+                    self._edb.Cell.Primitive.Circle.Create(
+                        layout,
+                        self.via_stop_layer,
+                        via._edb_padstackinstance.GetNet(),
+                        self._get_edb_value(pos[0]),
+                        self._get_edb_value(pos[1]),
+                        self._get_edb_value(self.pad_by_layer[self.via_stop_layer].parameters_values[0] / 2),
+                    )
+                s3d = self._edb.Cell.Hierarchy.Structure3D.Create(layout, "via3d_{}".format(via.id))
                 s3d.AddMember(cloned_circle)
                 s3d.AddMember(cloned_circle2)
+                s3d.SetMaterial(self.material)
+                s3d.SetMeshClosureProp(self._edb.Cell.Hierarchy.Structure3D.TClosure.EndsClosed)
                 via.delete()
+                i += 1
+        self._ppadstack._pedb.logger.info("{} Converted successfully to 3D Objects.".format(i))
         return True
 
 
