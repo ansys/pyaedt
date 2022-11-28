@@ -1682,3 +1682,13 @@ if not config["skip_edb"]:
             loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
             assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
             edbapp.close_edb()
+
+        def test_128_microvias(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_128_microvias.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_microvias(False)
+            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_microvias(False)
+            assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_microvias(False)
+            edbapp.close_edb()
