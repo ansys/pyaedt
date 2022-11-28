@@ -630,7 +630,7 @@ class EDBPadstack(object):
         }
 
     @pyaedt_function_handler()
-    def convert_to_microvias(self, convert_only_signal_vias=True, aspect_ratio=0.75, is_upside=False):
+    def convert_to_microvias(self, convert_only_signal_vias=True, aspect_ratio=0.75):
         """Convert actual padstack instance to microvias with a given aspect ration.
 
         Parameters
@@ -639,9 +639,6 @@ class EDBPadstack(object):
             Either to convert only vias belonging to signal nets or all vias. Defaults is `True`.
         aspect_ratio : float, optional
             Ratio between top and bottom face of trapezoid.
-        is_upside : bool, optional
-            Either if Trapezioid biggest face is on bottom or top.
-            Default is `False` which have the biggest face on top.
 
         Returns
         -------
@@ -658,12 +655,14 @@ class EDBPadstack(object):
             )
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
+        res, topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
+        start_elevation = layers[self.via_start_layer].elevation
+
         rad1 = self.hole_properties[0] / 2
         rad2 = rad1 * aspect_ratio
-        if is_upside:
+        if start_elevation < (topz + bottomz) / 2:
             rad1, rad2 = rad2, rad1
         i = 0
-
         for via in list(self.padstack_instances.values()):
             if convert_only_signal_vias and via.net_name in signal_nets or not convert_only_signal_vias:
                 pos = via.position
