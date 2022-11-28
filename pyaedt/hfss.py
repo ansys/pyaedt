@@ -5790,7 +5790,7 @@ class Hfss(FieldAnalysis3D, object):
         """
         try:
             if self.solution_type not in ["Modal", "Eigenmode"]:
-                self.logger.error("Symmetry is only available with 'Modal' solution type.")
+                self.logger.error("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
                 return False
 
             if symmetry_name is None:
