@@ -23,6 +23,8 @@ class HFSSSimulationSetup(object):
 
             self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
                 self._edb.simsetupdata.HFSSSimulationSettings]()
+
+            self.hfss_solver_settings = {"OrderBasis": 0}
             self._update_setup()
 
     def _update_setup(self):
@@ -40,7 +42,7 @@ class HFSSSimulationSetup(object):
     def hfss_solver_settings(self):
         """
         EnhancedLowFreqAccuracy: bool
-        OrderBasis
+        OrderBasis: 0=Mixed, 1=Zero, 2=1st order, 3=2nd order
         RelativeResidual
         SolverType
         UseShellElements
@@ -58,6 +60,19 @@ class HFSSSimulationSetup(object):
             "UseShellElements": settings.UseShellElements
         }
 
+    @hfss_solver_settings.setter
+    def hfss_solver_settings(self, values):
+        hfss_solver_settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
+        if "EnhancedLowFreqAccuracy" in values:
+            hfss_solver_settings.EnhancedLowFreqAccuracy = values["EnhancedLowFreqAccuracy"]
+        if "OrderBasis" in values:
+            hfss_solver_settings.OrderBasis = values["OrderBasis"]
+        if "RelativeResidual" in values:
+            hfss_solver_settings.RelativeResidual = values["RelativeResidual"]
+        if "SolverType" in values:
+            hfss_solver_settings.SolverType = values["SolverType"]
+        if "UseShellElements" in values:
+            hfss_solver_settings.UseShellElements = values["UseShellElements"]
     
     @property
     def AdaptiveSettings(self):
@@ -99,4 +114,6 @@ class HFSSSimulationSetup(object):
             "1GHz",
         )
 
-        print(self._edb_sim_setup_info.SweepDataList.Add(sweep))
+class  SIWaveDCIRSimulationSetup(object):
+    def __init__(self):
+        pass
