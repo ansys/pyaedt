@@ -630,13 +630,18 @@ class EDBPadstack(object):
         }
 
     @pyaedt_function_handler()
-    def convert_to_microvias(self, convert_only_signal_vias=True, aspect_ratio=0.75):
+    def convert_to_microvias(self, convert_only_signal_vias=True, aspect_ratio=0.75, is_upside=False):
         """Convert actual padstack instance to microvias with a given aspect ration.
 
         Parameters
         ----------
         convert_only_signal_vias : bool, optional
+            Either to convert only vias belonging to signal nets or all vias. Defaults is `True`.
         aspect_ratio : float, optional
+            Ratio between top and bottom face of trapezoid.
+        is_upside : bool, optional
+            Either if Trapezioid biggest face is on bottom or top.
+            Default is `False` which have the biggest face on top.
 
         Returns
         -------
@@ -653,8 +658,12 @@ class EDBPadstack(object):
             )
         if convert_only_signal_vias:
             signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
-        rad = self.hole_properties[0] / 2
+        rad1 = self.hole_properties[0] / 2
+        rad2 = rad1 * aspect_ratio
+        if is_upside:
+            rad1, rad2 = rad2, rad1
         i = 0
+
         for via in list(self.padstack_instances.values()):
             if convert_only_signal_vias and via.net_name in signal_nets or not convert_only_signal_vias:
                 pos = via.position
@@ -664,7 +673,7 @@ class EDBPadstack(object):
                     via._edb_padstackinstance.GetNet(),
                     self._get_edb_value(pos[0]),
                     self._get_edb_value(pos[1]),
-                    self._get_edb_value(rad),
+                    self._get_edb_value(rad1),
                 )
                 if len(self.pad_by_layer[self.via_start_layer].parameters) == 0:
                     self._edb.Cell.Primitive.Polygon.Create(
@@ -689,7 +698,7 @@ class EDBPadstack(object):
                     via._edb_padstackinstance.GetNet(),
                     self._get_edb_value(pos[0]),
                     self._get_edb_value(pos[1]),
-                    self._get_edb_value(rad * aspect_ratio),
+                    self._get_edb_value(rad2 * aspect_ratio),
                 )
                 if len(self.pad_by_layer[self.via_stop_layer].parameters) == 0:
                     self._edb.Cell.Primitive.Polygon.Create(
