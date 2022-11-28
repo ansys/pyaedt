@@ -897,7 +897,7 @@ class EdbNets(object):
 
     @pyaedt_function_handler()
     def find_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
-        """Find and fix disjoint nets from a given netlist
+        """Find and fix disjoint nets from a given netlist.
 
         Parameters
         ----------
