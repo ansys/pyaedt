@@ -161,7 +161,7 @@ if not config["skip_edb"]:
             assert isinstance(padstack_instance.rotation, float)
             self.edbapp.core_padstack.create_circular_padstack(padstackname="mycircularvia")
             assert "mycircularvia" in list(self.edbapp.core_padstack.padstacks.keys())
-            assert padstack_instance.delete_padstack_instance()
+            assert padstack_instance.delete()
 
         def test_08_nets_query(self):
             signalnets = self.edbapp.core_nets.signal_nets
@@ -649,6 +649,11 @@ if not config["skip_edb"]:
                     extent_defeature=0.001,
                 )
                 assert "A0_N" not in edbapp.core_nets.nets
+                assert isinstance(edbapp.core_nets.fix_and_fix_disjoint_nets("GND"), list)
+                assert isinstance(edbapp.core_nets.fix_and_fix_disjoint_nets("GND", keep_only_main_net=True), list)
+                assert isinstance(
+                    edbapp.core_nets.fix_and_fix_disjoint_nets("GND", clean_disjoints_less_than=0.005), list
+                )
             edbapp.close_edb()
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
