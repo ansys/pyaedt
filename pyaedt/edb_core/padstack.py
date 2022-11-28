@@ -314,7 +314,7 @@ class EdbPadstacks(object):
 
         for p_id, p in self.padstack_instances.items():
             if p.name in net_names:
-                if not p.delete_padstack_instance():  # pragma: no cover
+                if not p.delete():  # pragma: no cover
                     return False
         return True
 
