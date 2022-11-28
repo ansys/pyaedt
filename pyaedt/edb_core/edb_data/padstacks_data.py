@@ -331,6 +331,11 @@ class EDBPadstack(object):
         pass
 
     @property
+    def name(self):
+        """Padstack Definition Name."""
+        return self.edb_padstack.GetName()
+
+    @property
     def _padstack_methods(self):
         return self._ppadstack._padstack_methods
 
@@ -609,6 +614,75 @@ class EDBPadstack(object):
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetMaterial(materialname)
         self.edb_padstack.SetData(newPadstackDefinitionData)
+
+    @property
+    def padstack_instances(self):
+
+        """Get all the vias that belongs to active Padstack definition.
+
+        Returns
+        -------
+        dict
+        """
+        return {
+            id: via for id, via in self._ppadstack.padstack_instances.items() if via.padstack_definition == self.name
+        }
+
+    @pyaedt_function_handler()
+    def convert_to_microvias(self, convert_only_signal_vias=True, aspect_ratio=0.75):
+        """Convert actual padstack instance to microvias with a given aspect ration.
+
+        Parameters
+        ----------
+        convert_only_signal_vias : bool, optional
+        aspect_ratio : float, optional
+
+        Returns
+        -------
+        bool
+        """
+        if self.via_start_layer == self.via_stop_layer:
+            self._ppadstack._pedb.logger.error("Microvias cannot be applied when Start and Stop Layers are the same.")
+        layout = self._ppadstack._pedb._active_layout
+
+        layers = self._ppadstack._pedb.stackup.layers
+        layer_names = [i for i in list(layers.keys())]
+        if abs(layer_names.index(self.via_start_layer) - layer_names.index(self.via_stop_layer)) > 1:
+            self._ppadstack._pedb.logger.error(
+                "Microvias cannot be applied when Start and Stop Layers are not adjacent."
+            )
+        if convert_only_signal_vias:
+            signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
+        h = (
+            layers[self.via_start_layer].lower_elevation
+            - layers[self.via_stop_layer].lower_elevation
+            - layers[self.via_stop_layer].thickness
+        )
+        diam = h / aspect_ratio / 2
+        for via in list(self.padstack_instances.values()):
+            if convert_only_signal_vias and via.net_name in signal_nets or not convert_only_signal_vias:
+                pos = via.position
+                cloned_circle = self._edb.Cell.Primitive.Circle.Create(
+                    layout,
+                    self.via_start_layer,
+                    via._edb_padstackinstance.GetNet(),
+                    self._get_edb_value(pos[0]),
+                    self._get_edb_value(pos[1]),
+                    self._get_edb_value(h / 2),
+                )
+                cloned_circle2 = self._edb.Cell.Primitive.Circle.Create(
+                    layout,
+                    self.via_stop_layer,
+                    via._edb_padstackinstance.GetNet(),
+                    self._get_edb_value(pos[0]),
+                    self._get_edb_value(pos[1]),
+                    self._get_edb_value(diam),
+                )
+                s3d = self._edb.Cell.Hierarchy.Structure3D.Create(layout, "Via{}".format(via.id))
+                s3d.AddMember(cloned_circle)
+                s3d.AddMember(cloned_circle2)
+                via.delete()
+        return True
 
 
 class EDBPadstackInstance(object):
