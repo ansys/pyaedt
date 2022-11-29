@@ -1081,7 +1081,6 @@ class ParametricSetups(object):
             parametricname = generate_unique_name("Parametric")
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
-        print(setup.props)
         setup.props["Sim. Setups"] = [setup.name for setup in self._app.setups]
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
