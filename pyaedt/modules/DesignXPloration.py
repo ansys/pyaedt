@@ -247,7 +247,7 @@ class CommonOptimetrics(PropsManager, object):
 
         if self.soltype == "OptiParametric" and len(arg[8]) == 2:
             arg[8] = []
-            for variation in self.props["Sweep Operations"]["add"]:
+            for variation in self.props["Sweep Operations"].get("add", []):
                 arg[8].append("add:=")
                 arg[8].append(variation)
 
