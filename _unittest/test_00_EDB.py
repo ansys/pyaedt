@@ -1697,3 +1697,11 @@ if not config["skip_edb"]:
             edbapp = Edb(self.target_path4, edbversion=desktop_version)
             assert len(edbapp.core_padstack.padstacks["C4_POWER_1"].split_to_microvias()) > 0
             edbapp.close_edb()
+
+        def test_129_hfss_simulation_setup(self):
+            setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
+            setup1.add_frequency_sweep()
+            assert "setup1" in self.edbapp.simulation_setups.setups
+            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
+            assert "setup1" not in self.edbapp.simulation_setups.setups
+            assert "setup1a" in self.edbapp.simulation_setups.setups
