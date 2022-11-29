@@ -90,7 +90,7 @@ class FreqSweep(object):
         self._edb_sweep_data.SetFrequencies(value)
 
 
-class Hfss3dlSimulationSetup(object):
+class HfssSimulationSetup(object):
     def __init__(self, edb, name=None, edb_hfss_sim_setup=None):
         self._edb = edb
 
@@ -112,7 +112,7 @@ class Hfss3dlSimulationSetup(object):
 
     def _update_setup(self):
 
-        self._edb_sim_setup = self._edb.edb.Utility.Hfss3dlSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb.Utility.HfssSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.simulation_setups.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
         return self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
