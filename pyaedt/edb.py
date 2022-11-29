@@ -162,6 +162,11 @@ class Edb(object):
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
+            elif edbpath.endswith("edb.def"):
+                self.edbpath = os.path.dirname(edbpath)
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+                self.open_edb()
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 if settings.enable_local_log_file and self.log_name:
@@ -1264,7 +1269,7 @@ class Edb(object):
 
         for i in self.core_padstack.padstack_instances.values():
             if i.net_name not in all_list:
-                i.delete_padstack_instance()
+                i.delete()
         for i in self.core_primitives.primitives:
             if i.net_name not in all_list:
                 i.delete()
@@ -1356,7 +1361,7 @@ class Edb(object):
         #     pins_clean(item)
 
         for pin in pins_to_delete:
-            pin.delete_padstack_instance()
+            pin.delete()
 
         self.logger.info_timer("Padstack Instances removal completed")
         self.logger.reset_timer()
