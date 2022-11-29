@@ -786,6 +786,7 @@ class Stackup(object):
             self._pedb.edb.Cell.LayerType.SignalLayer,
             self._pedb.edb.Cell.LayerType.DielectricLayer,
         ]
+        _lays = OrderedDict()
         for name, obj in self.layers.items():
             if obj._edb_layer.GetLayerType() in layer_type:
                 _lays[name] = obj
