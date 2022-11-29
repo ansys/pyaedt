@@ -246,7 +246,7 @@ class CommonOptimetrics(PropsManager, object):
         _dict2arg(self.props, arg)
 
         if self.soltype == "OptiParametric" and len(arg[8]) == 2:
-            arg[8] = []
+            arg[8] = ["NAME:Sweep Operations"]
             for variation in self.props["Sweep Operations"].get("add", []):
                 arg[8].append("add:=")
                 arg[8].append(variation)
@@ -1081,6 +1081,7 @@ class ParametricSetups(object):
             parametricname = generate_unique_name("Parametric")
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
+        print(setup.props)
         setup.props["Sim. Setups"] = [setup.name for setup in self._app.setups]
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
@@ -1099,9 +1100,8 @@ class ParametricSetups(object):
             setup.props["Sweep Operations"] = OrderedDict({"add": [list(line.values()) for line in csvreader]})
         args = ["NAME:" + parametricname]
         _dict2arg(setup.props, args)
-        for _ in range(2):
-            args[8].pop(1)
-        for variation in setup.props["Sweep Operations"]["add"]:
+        args[8] = ["NAME:Sweep Operations"]
+        for variation in setup.props["Sweep Operations"].get("add", []):
             args[8].append("add:=")
             args[8].append(variation)
         self.optimodule.InsertSetup("OptiParametric", args)
