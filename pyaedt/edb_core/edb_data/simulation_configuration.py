@@ -17,6 +17,11 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class SimulationConfigurationBatch(object):
+    """Class containing all Cuotut and Batch analysis settings.
+    The class is part of `SimulationConfiguration` class as a property.
+
+    """
+
     def __init__(self):
         self._signal_nets = []
         self._power_nets = []
@@ -466,6 +471,11 @@ class SimulationConfigurationBatch(object):
 
 
 class SimulationConfigurationDc(object):
+    """Class containing all DC analysis settings.
+    The class is part of `SimulationConfiguration` class as a property.
+
+    """
+
     def __init__(self):
         self._dc_compute_inductance = False
         self._dc_contact_radius = "100um"
@@ -1011,6 +1021,11 @@ class SimulationConfigurationDc(object):
 
 
 class SimulationConfigurationAc(object):
+    """Class containing all AC analysis settings.
+    The class is part of `SimulationConfiguration` class as a property.
+
+    """
+
     def __init__(self):
         self._sweep_interpolating = True
         self._use_q3d_for_dc = False
@@ -1712,58 +1727,25 @@ class SimulationConfiguration(object):
     This parser supports all types of inputs for setting up and automating any kind
     of SI or PI simulation with HFSS 3D Layout or Siwave. If fields are omitted, default
     values are applied. This class can be instantiated directly from
-    Configuration file. example:
-    SolverType = 'Hfss3DLayout'
-    GenerateSolerdBalls = 'True'
-    SignalNets = ['net1', 'net2']
-    PowerNets = ['gnd']
-    Components = []
-    SolderBallsDiams = ['0.077mm', '0.077mm']
-    UseDefaultCoaxPortRadialExtentFactor='True'
-    TrimRefSize='False'
-    CutoutSubdesignType='Conformal'
-    CutoutSubdesignExpansion='0.1'
-    CutoutSubdesignRoundCorners='True'
-    SweepInterpolating='True'
-    UseQ3DForDC='True'
-    RelatirelativeveErrorS='0.5'
-    UseErrorZ0='False'
-    PercentErrorZ0='1'
-    EnforceCausality='True'
-    EnforcePassivity='True'
-    PassivityTolerance='0.0001'
-    SweepName='Sweep1'
-    RadiationBox='ConvexHull'
-    StartFreq = '0.0GHz'
-    StopFreq = '10.001GHz'
-    SweepType='LinearStep'
-    StepFreq = '0.040004GHz'
-    Mesh_Freq = '3GHz'
-    MaxNumPasses='30'
-    MaxMagDeltaS='0.03'
-    MinNumPasses='1'
-    BasisOrder='Mixed'
-    DoLambdaRefinement='True'
-    ArcAngle='30deg'
-    StartAzimuth='0'
-    MaxArcPoints='8'
-    UseArcToChordError='True'
-    ArcToChordError='1um'
-    DefeatureAbsLength='1um'
-    DefeatureLayout='True'
-    MinimumVoidSuface = '0'
-    MaxSufDev = '0.001'
-    ProcessPadstackDefinitions = 'False'
-    ReturnCurrentDistribution = 'True'
-    IgnoreNonFunctionalPads =  'True'
-    IncludeInterPlaneCoupling = 'True'
-    XtalkThreshold = '-50'
-    MinVoidArea = '0.01mm2'
-    MinPadAreaToMesh = '0.01mm2'
-    SnapLengthThreshold = '2.5um'
-    DcMinPlaneAreaToMesh = '8mil2'
-    MaxInitMeshEdgeLength = '14.5mil'
-    SignalLayersProperties = []
+    Configuration file.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb()
+    >>> sim_setup = edb.new_simulation_configuration()
+    >>> sim_setup.solver_type = SolverType.SiwaveSYZ
+    >>> sim_setup.cutout_subdesign_expansion = 0.01
+    >>> sim_setup.do_cutout_subdesign = True
+    >>> sim_setup.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C"]
+    >>> sim_setup.components = ["U2A5", "J2L1"]
+    >>> sim_setup.power_nets = ["GND"]
+    >>> sim_setup.start_freq = "100Hz"
+    >>> sim_setup.stop_freq = "6GHz"
+    >>> sim_setup.step_freq = "10MHz"
+    >>> sim_setup.export_json(os.path.join(project_path, "configuration.json"))
+    >>> sim_setup.build_simulation_project(sim_setup)
+
     """
 
     def __getattr__(self, item):
@@ -1779,28 +1761,59 @@ class SimulationConfiguration(object):
             raise AttributeError("Attribute {} not present.".format(item))
 
     def __setattr__(self, key, value):
-        if "dc_settings" in dir(self) and key in dir(self.dc):
+        if "dc_settings" in dir(self) and key in dir(self.dc_settings):
             return self.dc_settings.__setattr__(key, value)
-        elif "ac_settings" in dir(self) and key in dir(self.ac):
+        elif "ac_settings" in dir(self) and key in dir(self.ac_settings):
             return self.ac_settings.__setattr__(key, value)
-        elif "batch_solve_settings" in dir(self) and key in dir(self.batch):
+        elif "batch_solve_settings" in dir(self) and key in dir(self.batch_solve_settings):
             return self.batch_solve_settings.__setattr__(key, value)
         else:
             return super(SimulationConfiguration, self).__setattr__(key, value)
 
     def __init__(self, filename=None, edb=None):
         self._filename = filename
-        self._pedb = edb
-        self.dc_settings = SimulationConfigurationDc()
-        self.ac_settings = SimulationConfigurationAc()
-        self.batch_solve_settings = SimulationConfigurationBatch()
+        self._dc_settings = SimulationConfigurationDc()
+        self._ac_settings = SimulationConfigurationAc()
+        self._batch_solve_settings = SimulationConfigurationBatch()
         self._setup_name = "Pyaedt_setup"
         self._solver_type = SolverType.Hfss3dLayout
         if self._filename and os.path.splitext(self._filename)[1] == ".json":
             self.import_json(filename)
         self._read_cfg()
+        self._pedb = edb
 
-    def build(self):
+    @property
+    def dc_settins(self):
+        """DC Settings class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationDc`
+        """
+        return self._dc_settings
+
+    @property
+    def ac_settins(self):
+        """AC Settings class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationAc`
+        """
+        return self._ac_settings
+
+    @property
+    def batch_solve_settings(self):
+        """Cutout and Batch Settings class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationBatch`
+        """
+        return self._batch_solve_settings
+
+    def build_simulation_project(self):
+        """Build active simulation project. This method requires to be run inside Edb Class."""
         if self._pedb:
             return self._pedb.build_simulation_project(self)
 

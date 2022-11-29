@@ -2208,3 +2208,7 @@ class Edb(object):
 
         # If the intersections are non-zero, the termimal references are connected.
         return True if len(iDintersection) > 0 else False
+
+    @pyaedt_function_handler()
+    def new_simulation_configuration(self, filename=None):
+        return SimulationConfiguration(filename, self)
