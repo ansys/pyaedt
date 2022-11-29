@@ -15,7 +15,7 @@ class FreqSweep(object):
 
         if edb_sweep_data:
             self._edb_sweep_data = edb_sweep_data
-            self._name = self._edb_sweep_data.GetName()
+            self._name = self._edb_sweep_data.Name
         else:
             if not name:
                 self._name = generate_unique_name("sweep")
@@ -41,69 +41,56 @@ class FreqSweep(object):
         return
 
     @property
-    def use_q3d_to_solve_dc_point(self):
-        return
+    def frequencies(self):
+        return list(self._edb_sweep_data.Frequencies)
 
     @property
-    def frequency_sweeps(self):
-        return
-
-    @property
-    def interpolation_advanced_options(self):
-        return
+    def matrix_conv_entry_list(self):
+        return list(self._edb_sweep_data.matrix_conv_entry_list)
 
     @property
     def options(self):
         settings = self._edb_sweep_data
 
         return {
+            "name": settings.Name,
+            "enabled": settings.Enabled,
             "adaptive_sampling": settings.AdaptiveSampling,
             "adv_dc_extrapolation": settings.AdvDCExtrapolation,
             "auto_s_mat_only_solve": settings.AutoSMatOnlySolve,
-            "compute_dc_point": settings.ComputeDCPoint,
             "enforce_causality": settings.EnforceCausality,
             "enforce_dc_and_causality": settings.EnforceDCAndCausality,
             "enforce_passivity": settings.EnforcePassivity,
-            "fast_sweep": settings.FastSweep,
             "frequency_string": settings.FrequencyString,
+            "freq_sweep_type": settings.FreqSweepType.ToString(),
             "interp_use_full_basis": settings.InterpUseFullBasis,
             "interp_use_port_impedance": settings.InterpUsePortImpedance,
             "interp_use_prop_const": settings.InterpUsePropConst,
             "interp_use_s_matrix": settings.InterpUseSMatrix,
-            "is_discrete": settings.IsDiscrete,
             "max_solutions": settings.MaxSolutions,
             "min_freq_s_mat_only_solve": settings.MinFreqSMatOnlySolve,
             "min_solved_freq": settings.MinSolvedFreq,
-            "num_parallel_hfss_regions": settings.NumParallelHFSSRegions,
             "passivity_tolerance": settings.PassivityTolerance,
             "relative_s_error": settings.RelativeSError,
-            "siwave_with_3d_ddm": settings.SIwaveWith3DDDM,
             "save_fields": settings.SaveFields,
             "save_rad_fields_only": settings.SaveRadFieldsOnly,
-            "use_hfss_solver_region_parallel_solve": settings.UseHFSSSolverRegionParallelSolve,
-            "use_hfss_solver_region_sch_gen": settings.UseHFSSSolverRegionSchGen,
-            "use_hfss_solver_regions": settings.UseHFSSSolverRegions,
             "use_q3d_for_dc": settings.UseQ3DForDC,
         }
 
+    def apply_frequency_unit(self, def_freq, frequency):
 
+        self._edb_sweep_data.ApplyFrequencyUnit(def_freq, frequency)
+
+    def set_frequencies(self, freq_sweep_string):
         """
-        "apply_frequency_unit": settings.ApplyFrequencyUnit,
-        "matrix_conv_entry_list": settings.MatrixConvEntryList,
-        "set_frequencies": settings.SetFrequencies,
-            "set_frequency_string": settings.SetFrequencyString,
-            "set_log_frequencies": settings.SetLogFrequencies,
-            "t_freq_sweep_type": settings.TFreqSweepType,
-            "get_default_frequency_data": settings.GetDefaultFrequencyData,
-            "frequencies": settings.Frequencies,
-            "freq_sweep_type": settings.FreqSweepType,
-                        "hfss_solver_regions_setup_name": settings.HFSSSolverRegionsSetupName,
-            "hfss_solver_regions_sweep_name": settings.HFSSSolverRegionsSweepName,
-            "parallel_hfss_region_sim_config": settings.ParallelHFSSRegionSimConfig,
-        """
+        [[LIN, 0.1GHz, 20GHz, 0.05GHz],
+        [LINC, 0GHz, 1Hz, 1],
+        [DEC, 1kHz, 0.1GHz, 10]]"""
+        value = " ".join([" ".join(sweeps) for sweeps in freq_sweep_string])
+        self._edb_sweep_data.SetFrequencies(value)
 
 
-class HFSSSimulationSetup(object):
+class Hfss3dlSimulationSetup(object):
     def __init__(self, edb, name=None, edb_hfss_sim_setup=None):
         self._edb = edb
 
@@ -125,7 +112,7 @@ class HFSSSimulationSetup(object):
 
     def _update_setup(self):
 
-        self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
+        self._edb_sim_setup = self._edb.edb.Utility.Hfss3dlSimulationSetup(self._edb_sim_setup_info)
         if self.name in self._edb.simulation_setups.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
         return self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
@@ -134,7 +121,7 @@ class HFSSSimulationSetup(object):
     def frequency_sweeps(self):
         sweep_data_list = {}
         for i in list(self._edb_sim_setup_info.SweepDataList):
-            sweep_data_list[i.GetName()] = FreqSweep(self, i.GetName(), i)
+            sweep_data_list[i.Name] = FreqSweep(self, i.Name, i)
         return sweep_data_list
     @property
     def name(self):

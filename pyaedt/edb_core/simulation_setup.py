@@ -1,5 +1,5 @@
 
-from pyaedt.edb_core.edb_data.simulation_setup_data import HFSSSimulationSetup
+from pyaedt.edb_core.edb_data.simulation_setup_data import Hfss3dlSimulationSetup
 
 
 class SimulationSetups(object):
@@ -9,7 +9,7 @@ class SimulationSetups(object):
 
     @property
     def setups(self):
-        return {i.GetName(): HFSSSimulationSetup(self._edb, i.GetName, i) for i in list(self._edb._active_layout.GetCell().SimulationSetups)}
+        return {i.GetName(): Hfss3dlSimulationSetup(self._edb, i.GetName, i) for i in list(self._edb._active_layout.GetCell().SimulationSetups)}
 
     @property
     def hfss_setups(self):
@@ -18,4 +18,4 @@ class SimulationSetups(object):
     def create_hfss_simulation_setup(self, name=None):
         if name in self.setups:
             return False
-        return HFSSSimulationSetup(self._edb, name)
+        return Hfss3dlSimulationSetup(self._edb, name)
