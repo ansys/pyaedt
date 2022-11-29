@@ -643,6 +643,7 @@ class EDBPadstack(object):
             Either to convert only vias belonging to signal nets or all vias. Defaults is ``True``.
         aspect_ratio : float, optional
             Ratio between top and bottom face of trapezoid. The default value is ``0.75``.
+            The bottom hole will be ``0.75*HoleDepth/HoleDiam``.
 
         Returns
         -------
@@ -657,9 +658,10 @@ class EDBPadstack(object):
             signal_nets = [i for i in list(self._ppadstack._pedb.core_nets.signal_nets.keys())]
         topl, topz, bottoml, bottomz = self._ppadstack._pedb.stackup.stackup_limits(True)
         start_elevation = layers[self.via_start_layer].lower_elevation
-
+        diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
         rad1 = self.hole_properties[0] / 2
-        rad2 = rad1 * aspect_ratio
+        rad2 = (aspect_ratio * diel_thick / self.hole_properties[0]) / 2
+
         if start_elevation < (topz + bottomz) / 2:
             rad1, rad2 = rad2, rad1
         i = 0
