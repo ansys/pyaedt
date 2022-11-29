@@ -762,7 +762,6 @@ class EDBPadstack(object):
                 start = layer_name
                 stop = layer_names[layer_names.index(layer_name) + 1]
                 new_padstack_name = "MV_{}_{}_{}".format(self.name, start, stop)
-                excluded = [i for i in layer_names if i not in [start, stop]]
                 included = [start, stop]
                 new_padstack_definition_data = self._ppadstack._pedb.edb.Definition.PadstackDefData.Create()
                 new_padstack_definition_data.AddLayers(convert_py_list_to_net_list(included))

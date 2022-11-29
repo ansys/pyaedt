@@ -768,9 +768,11 @@ class Stackup(object):
         dict
         """
         layer_type = self._pedb.edb.Cell.LayerType.SignalLayer
-        return OrderedDict(
-            {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() == layer_type}
-        )
+        _lays = OrderedDict()
+        for name, obj in self.layers.items():
+            if obj._edb_layer.GetLayerType() == layer_type:
+                _lays[name] = obj
+        return _lays
 
     @property
     def stackup_layers(self):
@@ -784,9 +786,10 @@ class Stackup(object):
             self._pedb.edb.Cell.LayerType.SignalLayer,
             self._pedb.edb.Cell.LayerType.DielectricLayer,
         ]
-        return OrderedDict(
-            {name: obj for name, obj in self.layers.items() if obj._edb_layer.GetLayerType() in layer_type}
-        )
+        for name, obj in self.layers.items():
+            if obj._edb_layer.GetLayerType() in layer_type:
+                _lays[name] = obj
+        return _lays
 
     @property
     def non_stackup_layers(self):
