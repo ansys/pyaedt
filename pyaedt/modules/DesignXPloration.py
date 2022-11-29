@@ -245,11 +245,12 @@ class CommonOptimetrics(PropsManager, object):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
 
-        for _ in range(2):
-            arg[8].pop(1)
-        for variation in self.props["Sweep Operations"]["add"]:
-            arg[8].append("add:=")
-            arg[8].append(variation)
+        if self.soltype == "OptiParametric" and len(arg[8]) == 2:
+            for _ in range(2):
+                arg[8].pop(1)
+            for variation in self.props["Sweep Operations"]["add"]:
+                arg[8].append("add:=")
+                arg[8].append(variation)
 
         self.omodule.EditSetup(self.name, arg)
         return True
@@ -1084,18 +1085,19 @@ class ParametricSetups(object):
         setup.props["Sim. Setups"] = [setup.name for setup in self._app.setups]
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
+            firstDataLine = next(csvreader)
             setup.props["Sweeps"]["SweepDefinition"] = [
                 OrderedDict(
                     {
                         "Variable": var_name,
-                        "Data": self._app.variable_manager.variables[var_name].expression,
+                        "Data": firstDataLine[var_name],
                         "OffsetF1": False,
                         "Synchronize": 0,
                     }
                 )
                 for var_name in csvreader.fieldnames
             ]
-            setup.props["Sweep Operations"] = OrderedDict({"add": [line for line in csvreader.reader]})
+            setup.props["Sweep Operations"] = OrderedDict({"add": [list(line.values()) for line in csvreader]})
         args = ["NAME:" + parametricname]
         _dict2arg(setup.props, args)
         for _ in range(2):
