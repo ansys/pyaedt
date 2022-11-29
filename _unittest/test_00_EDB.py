@@ -1688,7 +1688,12 @@ if not config["skip_edb"]:
             target_path = os.path.join(self.local_scratch.path, "test_128_microvias.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
-            assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_microvias(False)
-            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_microvias(False)
-            assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_microvias(False)
+            assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_3d_microvias(False)
+            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_3d_microvias(False)
+            assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
+            edbapp.close_edb()
+
+        def test_129_split_microvias(self):
+            edbapp = Edb(self.target_path4, edbversion=desktop_version)
+            assert len(edbapp.core_padstack.padstacks["C4_POWER_1"].split_to_microvias()) > 0
             edbapp.close_edb()
