@@ -1715,7 +1715,7 @@ class Analysis(Design, object):
             if isinstance(allowed_distribution_types, list):
                 num_adt = len(allowed_distribution_types)
                 adt_string = "', '".join(allowed_distribution_types)
-                adt_string = f"[{num_adt}: '{adt_string}']"
+                adt_string = "[{}: '{}']".format(num_adt, adt_string)
                 update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, seperator="")
 
             if settings.remote_rpc_session:
