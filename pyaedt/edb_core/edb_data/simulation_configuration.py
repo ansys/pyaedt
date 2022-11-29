@@ -1802,7 +1802,7 @@ class SimulationConfiguration(object):
 
     def build(self):
         if self._pedb:
-            self._pedb.build_simulation_project(self)
+            return self._pedb.build_simulation_project(self)
 
     @property
     def solver_type(self):  # pragma: no cover
