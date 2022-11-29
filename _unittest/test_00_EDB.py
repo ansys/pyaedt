@@ -1692,3 +1692,11 @@ if not config["skip_edb"]:
             assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_microvias(False)
             assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_microvias(False)
             edbapp.close_edb()
+
+        def test_129_hfss_simulation_setup(self):
+            setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
+            setup1.add_frequency_sweep()
+            assert "setup1" in self.edbapp.simulation_setups.setups
+            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
+            assert "setup1" not in self.edbapp.simulation_setups.setups
+            assert "setup1a" in self.edbapp.simulation_setups.setups
