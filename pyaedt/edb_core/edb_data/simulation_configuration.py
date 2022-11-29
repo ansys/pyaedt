@@ -208,7 +208,7 @@ class SimulationConfiguration(object):
 
     @property
     def hfss_simulation_settings(self):
-        return self._edb.Utility.HFSSSimulationSetup(self._sim_setup_info)
+        return self._edb.Utility.Hfss3dlSimulationSetup(self._sim_setup_info)
 
     @property
     def _sim_setup_info(self):
