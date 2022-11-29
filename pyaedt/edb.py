@@ -2108,7 +2108,8 @@ class Edb(object):
                         output_aedb_path=simulation_setup.output_aedb,
                     )
                     self.logger.info("Cutout processed.")
-
+            else:
+                self.save_edb_as(simulation_setup.output_aedb)
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
