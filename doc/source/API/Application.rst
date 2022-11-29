@@ -33,22 +33,20 @@ Example without desktop:
      circuit.release_desktop()
 
 
-.. currentmodule:: pyaedt
-
 .. autosummary::
    :toctree: _autosummary
 
-   Desktop
-   Hfss
-   Q3d
-   Q2d
-   Maxwell2d
-   Maxwell3d
-   Icepak
-   Hfss3dLayout
-   Mechanical
-   Rmxprt
-   Circuit
-   Emit
-   TwinBuilder
+   pyaedt.desktop.Desktop
+   pyaedt.hfss.Hfss
+   pyaedt.q3d.Q3d
+   pyaedt.q3d.Q2d
+   pyaedt.maxwell.Maxwell2d
+   pyaedt.maxwell.Maxwell3d
+   pyaedt.icepak.Icepak
+   pyaedt.hfss3dlayout.Hfss3dLayout
+   pyaedt.mechanical.Mechanical
+   pyaedt.rmxprt.Rmxprt
+   pyaedt.circuit.Circuit
+   pyaedt.emit.Emit
+   pyaedt.twinbuilder.TwinBuilder
 
