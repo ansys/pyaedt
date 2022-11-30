@@ -1703,8 +1703,19 @@ if not config["skip_edb"]:
             setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
             self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
             assert "setup1" not in self.edbapp.simulation_setups.setups
-            setup1.
 
+            hfss_solver_settings = setup1.hfss_solver_settings
+            hfss_solver_settings["order_basis"] = 2
+            setup1.hfss_solver_settings = hfss_solver_settings
+            assert setup1.hfss_solver_settings["order_basis"] == 2
+
+            adaptive_settings = setup1.adaptive_settings
+            adaptive_settings["max_refine_per_pass"] = 20
+            setup1.adaptive_settings = adaptive_settings
+            assert setup1.adaptive_settings["max_refine_per_pass"] == 20
+
+            defeature_settings = setup1.defeature_settings
+            defeature_settings
             assert "setup1a" in self.edbapp.simulation_setups.setups
 
             setup1a = self.edbapp.simulation_setups.setups["setup1a"]
@@ -1716,7 +1727,4 @@ if not config["skip_edb"]:
                     ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
                 ],
             )
-            assert "sweep1" in setup1.frequency_sweeps
-
-
-
+            assert "sweep1" in setup1a.frequency_sweeps

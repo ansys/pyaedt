@@ -157,7 +157,11 @@ class FreqSweep(object):
 
 class HfssSimulationSetup(object):
     """Manages EDB methods for hfss simulation setup."""
-
+    TAdaptType = {"kSingle": 0,
+                  "kMultiFrequencies": 1,
+                  "kBroadband": 2,
+                  "kNumAdaptTypes": 3,
+                  }
     def __init__(self, edb, name=None, edb_hfss_sim_setup=None):
         self._edb = edb
         self._name = None
@@ -266,10 +270,8 @@ class HfssSimulationSetup(object):
             settings.EnhancedLowFreqAccuracy = values["enhanced_low_freq_accuracy"]
         if "order_basis" in values:
             settings.OrderBasis = values["order_basis"]
-        if "RelativeResidual" in values:
-            settings.RelativeResidual = values["RelativeResidual"]
-        if "solver_type" in values:
-            settings.SolverType = values["solver_type"]
+        if "relative_residual" in values:
+            settings.RelativeResidual = values["relative_residual"]
         if "use_shell_elements" in values:
             settings.UseShellElements = values["use_shell_elements"]
         self._update_setup()
@@ -303,14 +305,15 @@ class HfssSimulationSetup(object):
         """Set adaptive settings"""
         settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         if "adaptive_frequency_data_list" in values:
+            settings.AdaptiveFrequencyDataList.Clear()
             adaptive_frequency_data = self._edb.simsetupdata.AdaptiveFrequencyData()
             for i in values["adaptive_frequency_data_list"]:
                 adaptive_frequency_data.AdaptiveFrequency = i["adaptive_frequency"]
                 adaptive_frequency_data.MaxDelta = i["max_delta"]
                 adaptive_frequency_data.MaxPasses = i["max_passes"]
-                settings.AdaptiveFrequencyDataList.append(adaptive_frequency_data)
+                settings.AdaptiveFrequencyDataList.Add(adaptive_frequency_data)
         if "adapt_type" in values:
-            settings.AdaptType = values["adapt_type"]
+            settings.AdaptType = self.TAdaptType[values["adapt_type"]]
         if "basic" in values:
             settings.Basic = values["basic"]
         if "do_adaptive" in values:
