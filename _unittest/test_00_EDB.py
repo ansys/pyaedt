@@ -1700,8 +1700,10 @@ if not config["skip_edb"]:
 
         def test_129_hfss_simulation_setup(self):
             setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
-            setup1.add_frequency_sweep()
+            setup1.add_frequency_sweep("sweep1")
+            assert "sweep1" in setup1.frequency_sweeps
             assert "setup1" in self.edbapp.simulation_setups.setups
             self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
             assert "setup1" not in self.edbapp.simulation_setups.setups
             assert "setup1a" in self.edbapp.simulation_setups.setups
+            #self.edbapp.save_edb_as(r"C:\ansysdev\_aedt_workspace\sim_cfg_refactor\hfss_setup.aedb")
