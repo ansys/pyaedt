@@ -6,7 +6,6 @@ import time
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -540,30 +539,35 @@ class EdbNets(object):
             return objects_lists
 
     @pyaedt_function_handler()
-    def classify_nets(self, simulation_configuration_object=None):
-        """Sort nets based on SimulationConfiguration object.
-        If nets specified as ``power/ground`` or ``signal`` in the simulation
-        configuration object are not initially sorted.
-        in EDB, they are sorted accordingly.
+    def classify_nets(self, power_nets=None, signal_nets=None):
+        """Reassign power/ground or signal nets based on list of nets.
 
         Parameters
         ----------
-        simulation_configuration_object :
-                         :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration`.
+        power_nets : str, list, optional
+            List of power nets to assign. Default is `None`.
+        signal_nets : str, list, optional
+            List of signal nets to assign. Default is `None`.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not isinstance(simulation_configuration_object, SimulationConfiguration):  # pragma: no cover
-            return False
-        for net in simulation_configuration_object.power_nets:
-            if net in self.signal_nets:  # pragma: no cover
-                self.signal_nets[net].net_object.SetIsPowerGround(True)
-        for net in simulation_configuration_object.signal_nets:
-            if net in self.power_nets:  # pragma: no cover
-                self.power_nets[net].net_object.SetIsPowerGround(False)
+        if isinstance(power_nets, str):
+            power_nets = []
+        elif not power_nets:
+            power_nets = []
+        if isinstance(signal_nets, str):
+            signal_nets = []
+        elif not signal_nets:
+            signal_nets = []
+        for net in power_nets:
+            if net in self.nets:
+                self.nets[net].net_object.SetIsPowerGround(True)
+        for net in signal_nets:
+            if net in self.nets:
+                self.nets[net].net_object.SetIsPowerGround(False)
         return True
 
     @pyaedt_function_handler()

@@ -2044,7 +2044,7 @@ class Edb(object):
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
 
     @pyaedt_function_handler()
-    def build_simulation_project(self, simulation_setup=None):
+    def build_simulation_project(self, simulation_setup):
         """Build a ready-to-solve simulation project.
 
         Parameters
@@ -2072,10 +2072,18 @@ class Edb(object):
         >>> edb.close_edb()
         """
         self.logger.info("Building simulation project.")
+        legacy_name = self.edbpath
+        if simulation_setup.output_aedb:
+            self.save_edb_as(simulation_setup.output_aedb)
         try:
-            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
-                return False
-            self.core_nets.classify_nets(simulation_setup)
+            if simulation_setup.signal_layer_etching_instances:
+                for layer in simulation_setup.signal_layer_etching_instances:
+                    if layer in self.stackup.layers:
+                        idx = simulation_setup.signal_layer_etching_instances.index(layer)
+                        if len(simulation_setup.etching_factor_instances) > idx:
+                            self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
+
+            self.core_nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
@@ -2086,7 +2094,6 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        output_aedb_path=simulation_setup.output_aedb,
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
@@ -2104,10 +2111,8 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        output_aedb_path=simulation_setup.output_aedb,
                     )
                     self.logger.info("Cutout processed.")
-
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
@@ -2152,6 +2157,11 @@ class Edb(object):
                 self.core_components.create_source_on_component(simulation_setup.sources)
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
+            self.save_edb()
+            if not simulation_setup.open_edb_after_build and simulation_setup.output_aedb:
+                self.close_edb()
+                self.edbpath = legacy_name
+                self.open_edb(True)
             return True
         except:  # pragma: no cover
             return False
@@ -2206,3 +2216,7 @@ class Edb(object):
 
         # If the intersections are non-zero, the termimal references are connected.
         return True if len(iDintersection) > 0 else False
+
+    @pyaedt_function_handler()
+    def new_simulation_configuration(self, filename=None):
+        return SimulationConfiguration(filename, self)
