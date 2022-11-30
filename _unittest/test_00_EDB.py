@@ -1689,6 +1689,7 @@ if not config["skip_edb"]:
             assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
             edbapp.close_edb()
             edbapp = Edb(edbversion=desktop_version)
+            assert "air" in edbapp.materials.materials
             edbapp.close_edb()
 
         def test_128_microvias(self):
