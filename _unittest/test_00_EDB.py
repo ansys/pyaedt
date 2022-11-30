@@ -1125,10 +1125,7 @@ if not config["skip_edb"]:
             assert not failing_test_02
 
         def test_104_classify_nets(self):
-            sim_setup = SimulationConfiguration()
-            sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
-            sim_setup.signal_nets = ["V3P3_S0"]
-            self.edbapp.core_nets.classify_nets(sim_setup)
+            assert self.edbapp.core_nets.classify_nets(["RSVD_0", "RSVD_1"], ["V3P3_S0"])
 
         def test_105_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_bottom_place.aedb")
@@ -1281,11 +1278,12 @@ if not config["skip_edb"]:
             edb.close_edb()
 
         def test_108_create_dc_simulation(self):
+
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", test_subfolder, "dc_flow.aedb"),
                 edbversion=desktop_version,
             )
-            sim_setup = SimulationConfiguration()
+            sim_setup = edb.new_simulation_configuration()
             sim_setup.do_cutout_subdesign = False
             sim_setup.solver_type = SolverType.SiwaveDC
             sim_setup.add_voltage_source(
@@ -1302,7 +1300,15 @@ if not config["skip_edb"]:
                 negative_node_net="HV_DC+",
             )
             assert len(sim_setup.sources) == 2
-            assert edb.build_simulation_project(sim_setup)
+            sim_setup.open_edb_after_build = False
+            sim_setup.batch_solve_settings.output_aedb = os.path.join(self.local_scratch.path, "build.aedb")
+            original_path = edb.edbpath
+            assert sim_setup.build_simulation_project()
+            assert edb.edbpath == original_path
+            sim_setup.open_edb_after_build = True
+            assert sim_setup.build_simulation_project()
+            assert edb.edbpath == os.path.join(self.local_scratch.path, "build.aedb")
+
             edb.close_edb()
 
         def test_109_add_soure(self):
