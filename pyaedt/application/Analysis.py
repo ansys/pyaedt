@@ -1716,7 +1716,7 @@ class Analysis(Design, object):
                 num_adt = len(allowed_distribution_types)
                 adt_string = "', '".join(allowed_distribution_types)
                 adt_string = "[{}: '{}']".format(num_adt, adt_string)
-                update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, seperator="")
+                update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, separator="")
 
             if settings.remote_rpc_session:
                 remote_name = (
