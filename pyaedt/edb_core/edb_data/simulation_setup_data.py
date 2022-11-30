@@ -81,6 +81,7 @@ class FreqSweep(object):
 
     def _update_sweep(self):
         """Update sweep."""
+        self._hfss_sim_setup._edb_sim_setup_info.SweepDataList.Clear()
         self._hfss_sim_setup._edb_sim_setup_info.SweepDataList.Add(self._edb_sweep_data)
         self._hfss_sim_setup._update_setup()
 
