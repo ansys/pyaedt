@@ -1,6 +1,66 @@
 from pyaedt.generic.general_methods import generate_unique_name
 
 
+class MeshOperations(object):
+    def __init__(self, parent, mesh_operation):
+        self._parent = parent
+        self.mesh_operation = mesh_operation
+
+    @property
+    def enabled(self):
+        return self.mesh_operation.Enabled
+
+    @property
+    def mesh_operation_type(self):
+        return self.mesh_operation.MeshOpType
+
+    @property
+    def mesh_region(self):
+        return self.mesh_operation.MeshRegion
+
+    @property
+    def name(self):
+        return self.mesh_operation.Name
+
+    @property
+    def nets_layers_list(self):
+        return self.mesh_operation.NetsLayersList
+
+    @property
+    def refine_inside(self):
+        return self.mesh_operation.RefineInside
+
+    @enabled.setter
+    def enabled(self, value):
+        self.mesh_operation.Enabled = value
+        self._parent._update_setup()
+
+    @mesh_operation_type.setter
+    def mesh_operation_type(self, value):
+        self.mesh_operation.MeshOpType = value
+        self._parent._update_setup()
+
+    @mesh_region.setter
+    def mesh_region(self, value):
+        self.mesh_operation.MeshRegion = value
+        self._parent._update_setup()
+
+    @name.setter
+    def name(self, value):
+        self.mesh_operation.Name = value
+        self._parent._update_setup()
+
+    @nets_layers_list.setter
+    def nets_layers_list(self, value):
+        self.mesh_operation.NetsLayersList = value
+        self._parent._update_setup()
+
+    @refine_inside.setter
+    def refine_inside(self, value):
+        self.mesh_operation.RefineInside = value
+        self._parent._update_setup()
+
+
 class FreqSweep(object):
     """Manages EDB methods for frequency sweep."""
 
@@ -170,6 +230,7 @@ class HfssSimulationSetup(object):
     def __init__(self, edb, name=None, edb_hfss_sim_setup=None):
         self._edb = edb
         self._name = None
+        self._mesh_operations = {}
 
         if edb_hfss_sim_setup:
             self._edb_sim_setup = edb_hfss_sim_setup
@@ -189,8 +250,15 @@ class HfssSimulationSetup(object):
             self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
             self._update_setup()
 
-    def _update_setup(self):
+    @property
+    def edb_sim_setup_info(self):
+        return self._edb_sim_setup_info
 
+    def _update_setup(self):
+        settings = self._edb_sim_setup_info.AdaptiveSettings.AdaptiveFrequencyDataList
+        settings.Clear()
+        for mop in self.mesh_operations:
+            settings.Add(mop.mesh_operation)
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
         if self._name in self._edb.simulation_setups.setups:
@@ -520,34 +588,37 @@ class HfssSimulationSetup(object):
     @property
     def mesh_operations(self):
         """Get mesh operations."""
+        if self._mesh_operations:
+            return self._mesh_operations
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
-        mesh_operation_list = []
+        self._mesh_operations = {}
         for i in list(settings):
-            mesh_operation_list.append(
-                {
-                    "enabled": i.Enabled,
-                    "max_delta": i.MeshOpType,
-                    "mesh_region": i.MeshRegion,
-                    "name": i.Name,
-                    "nets_layers_list": i.NetsLayersList,
-                    "refine_inside": i.RefineInside,
-                }
-            )
-        return mesh_operation_list
+            self._mesh_operations[i.Name] = MeshOperations(self, i)
+        return self._mesh_operations
 
-    @mesh_operations.setter
-    def mesh_operations(self, values):
-        """Set mesh operations."""
-        settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
+    def add_mesh_operation(self, mesh_operation_type, mesh_region, net_layer_list, refine_inside, mesh_operation_name):
+        """Add a new mesh operation to the setup.
+
+        Parameters
+        ----------
+        mesh_operation_type
+        mesh_region
+        net_layer_list
+        refine_inside
+        mesh_operation_name
+
+        Returns
+        -------
+
+        """
         mesh_operation = self._edb.simsetupdata.MeshOperation()
-        for i in values:
-            mesh_operation.Enabled = i["enabled"]
-            mesh_operation.MeshOpType = i["max_delta"]
-            mesh_operation.MeshRegion = i["mesh_region"]
-            mesh_operation.Name = i["name"]
-            mesh_operation.NetsLayersList = i["nets_layers_list"]
-            mesh_operation.RefineInside = i["refine_inside"]
-            settings.AdaptiveFrequencyDataList.append(mesh_operation)
+        mesh_operation.Enabled = True
+        mesh_operation.MeshOpType = mesh_operation_type
+        mesh_operation.MeshRegion = mesh_region
+        mesh_operation.Name = refine_inside
+        mesh_operation.NetsLayersList = net_layer_list
+        mesh_operation.RefineInside = mesh_operation_name
+        self.mesh_operations[mesh_operation_name] = MeshOperations(self, mesh_operation)
         self._update_setup()
 
     def add_frequency_sweep(self, name=None, frequency_sweep=None):
