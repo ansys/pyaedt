@@ -3,6 +3,7 @@ from pyaedt.generic.general_methods import generate_unique_name
 
 class FreqSweep(object):
     """Manages EDB methods for frequency sweep."""
+
     def __init__(self, hfss_sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
 
         self._hfss_sim_setup = hfss_sim_setup
@@ -78,9 +79,9 @@ class FreqSweep(object):
         edb_freq_sweep_type = self._edb_sweep_data.TFreqSweepType
         freq_sweep_type = {
             "kInterpolatingSweep": edb_freq_sweep_type.kInterpolatingSweep,
-            "kDiscreteSweep":edb_freq_sweep_type.kDiscreteSweep,
-            "kBroadbandFastSweep":edb_freq_sweep_type.kBroadbandFastSweep,
-            "kNumSweepTypes":edb_freq_sweep_type.kNumSweepTypes
+            "kDiscreteSweep": edb_freq_sweep_type.kDiscreteSweep,
+            "kBroadbandFastSweep": edb_freq_sweep_type.kBroadbandFastSweep,
+            "kNumSweepTypes": edb_freq_sweep_type.kNumSweepTypes,
         }
         settings = self._edb_sweep_data
         if "name" in values:
@@ -312,7 +313,7 @@ class HfssSimulationSetup(object):
             "kMultiFrequencies": edb_adapt_type.kMultiFrequencies,
             "kBroadband": edb_adapt_type.kBroadband,
             "kNumAdaptTypes": edb_adapt_type.kNumAdaptTypes,
-            }
+        }
         settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         if "adaptive_frequency_data_list" in values:
             settings.AdaptiveFrequencyDataList.Clear()

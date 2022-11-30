@@ -1764,4 +1764,3 @@ if not config["skip_edb"]:
             assert "setup1" not in self.edbapp.simulation_setups.setups
             assert "setup1a" in self.edbapp.simulation_setups.setups
             setup1a = self.edbapp.simulation_setups.setups["setup1a"]
-
