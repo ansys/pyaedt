@@ -1685,7 +1685,6 @@ if not config["skip_edb"]:
             edbapp = Edb(edbversion=desktop_version)
             edbapp.close_edb()
 
-
         def test_128_microvias(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
             target_path = os.path.join(self.local_scratch.path, "test_128_microvias.aedb")
