@@ -554,7 +554,7 @@ class HfssSimulationSetup(object):
 
         Parameters
         ----------
-        name: str, optinal
+        name: str, optional
             Name of the frequency sweep.
         frequency_sweep: list, optional
 
