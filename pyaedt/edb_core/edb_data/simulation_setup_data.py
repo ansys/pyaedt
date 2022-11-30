@@ -132,7 +132,8 @@ class HfssSimulationSetup(object):
             self._name = self._edb_sim_setup_info.Name
         else:
             self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.HFSSSimulationSettings]()
+                self._edb.simsetupdata.HFSSSimulationSettings
+            ]()
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("hfss")
             else:
@@ -199,7 +200,7 @@ class HfssSimulationSetup(object):
         RelativeResidual
         SolverType
         UseShellElements
-         
+
         Returns
         -------
 
@@ -210,7 +211,7 @@ class HfssSimulationSetup(object):
             "order_basis": settings.OrderBasis,
             "relative_residual": settings.RelativeResidual,
             "solver_type": settings.SolverType.ToString(),
-            "use_shell_elements": settings.UseShellElements
+            "use_shell_elements": settings.UseShellElements,
         }
 
     @hfss_solver_settings.setter
@@ -233,11 +234,9 @@ class HfssSimulationSetup(object):
         settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_freq_list = []
         for i in list(settings.AdaptiveFrequencyDataList):
-            adaptive_freq_list.append({
-                "adaptive_frequency": i.AdaptiveFrequency,
-                "max_delta": i.MaxDelta,
-                "max_passes": i.MaxPasses
-            })
+            adaptive_freq_list.append(
+                {"adaptive_frequency": i.AdaptiveFrequency, "max_delta": i.MaxDelta, "max_passes": i.MaxPasses}
+            )
 
         return {
             "adaptive_frequency_data_list": adaptive_freq_list,
@@ -449,14 +448,16 @@ class HfssSimulationSetup(object):
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
         mesh_operation_list = []
         for i in list(settings.MeshOperations):
-            mesh_operation_list.append({
-                "enabled": i.Enabled,
-                "max_delta": i.MeshOpType,
-                "mesh_region": i.MeshRegion,
-                "name": i.Name,
-                "nets_layers_list": i.NetsLayersList,
-                "refine_inside": i.RefineInside,
-            })
+            mesh_operation_list.append(
+                {
+                    "enabled": i.Enabled,
+                    "max_delta": i.MeshOpType,
+                    "mesh_region": i.MeshRegion,
+                    "name": i.Name,
+                    "nets_layers_list": i.NetsLayersList,
+                    "refine_inside": i.RefineInside,
+                }
+            )
         return mesh_operation_list
 
     @mesh_operations.setter
