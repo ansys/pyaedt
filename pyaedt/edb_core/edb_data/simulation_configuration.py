@@ -110,7 +110,7 @@ class SimulationConfigurationBatch(object):
 
     @dielectric_extent.setter
     def dielectric_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._dielectric_extent = value
 
     @property
@@ -126,7 +126,7 @@ class SimulationConfigurationBatch(object):
 
     @airbox_horizontal_extent.setter
     def airbox_horizontal_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._airbox_horizontal_extent = value
 
     @property
@@ -142,7 +142,7 @@ class SimulationConfigurationBatch(object):
 
     @airbox_negative_vertical_extent.setter
     def airbox_negative_vertical_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._airbox_negative_vertical_extent = value
 
     @property
@@ -158,7 +158,7 @@ class SimulationConfigurationBatch(object):
 
     @airbox_positive_vertical_extent.setter
     def airbox_positive_vertical_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._airbox_positive_vertical_extent = value
 
     @property
@@ -333,7 +333,7 @@ class SimulationConfigurationBatch(object):
 
     @cutout_subdesign_expansion.setter
     def cutout_subdesign_expansion(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._cutout_subdesign_expansion = value
 
     @property
@@ -643,7 +643,7 @@ class SimulationConfigurationDc(object):
 
     @dc_error_energy.setter
     def dc_error_energy(self, value):
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._dc_error_energy = value
 
     @property
@@ -777,7 +777,7 @@ class SimulationConfigurationDc(object):
 
     @dc_percent_local_refinement.setter
     def dc_percent_local_refinement(self, value):
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._dc_percent_local_refinement = value
 
     @property
@@ -1116,7 +1116,7 @@ class SimulationConfigurationAc(object):
 
     @relative_error.setter
     def relative_error(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._relative_error = value
 
     @property
@@ -1150,7 +1150,7 @@ class SimulationConfigurationAc(object):
 
     @percentage_error_z0.setter
     def percentage_error_z0(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._percentage_error_z0 = value
 
     @property
@@ -1199,7 +1199,7 @@ class SimulationConfigurationAc(object):
 
     @passivity_tolerance.setter
     def passivity_tolerance(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._passivity_tolerance = value
 
     @property
@@ -1359,7 +1359,7 @@ class SimulationConfigurationAc(object):
 
     @max_mag_delta_s.setter
     def max_mag_delta_s(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._max_mag_delta_s = value
 
     @property
@@ -1439,7 +1439,7 @@ class SimulationConfigurationAc(object):
 
     @start_azimuth.setter
     def start_azimuth(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._start_azimuth = value
 
     @property
@@ -1538,7 +1538,7 @@ class SimulationConfigurationAc(object):
 
     @minimum_void_surface.setter
     def minimum_void_surface(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._minimum_void_surface = value
 
     @property
@@ -1554,7 +1554,7 @@ class SimulationConfigurationAc(object):
 
     @max_suf_dev.setter
     def max_suf_dev(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._max_suf_dev = value
 
     @property
@@ -1636,7 +1636,7 @@ class SimulationConfigurationAc(object):
 
     @xtalk_threshold.setter
     def xtalk_threshold(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._xtalk_threshold = value
 
     @property
@@ -1715,7 +1715,7 @@ class SimulationConfigurationAc(object):
 
     @mesh_sizefactor.setter
     def mesh_sizefactor(self, value):
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._mesh_sizefactor = value
             if value > 0.0:
                 self._do_lambda_refinement = False
@@ -1735,14 +1735,14 @@ class SimulationConfiguration(object):
     >>> edb = Edb()
     >>> sim_setup = edb.new_simulation_configuration()
     >>> sim_setup.solver_type = SolverType.SiwaveSYZ
-    >>> sim_setup.cutout_subdesign_expansion = 0.01
-    >>> sim_setup.do_cutout_subdesign = True
-    >>> sim_setup.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C"]
-    >>> sim_setup.components = ["U2A5", "J2L1"]
-    >>> sim_setup.power_nets = ["GND"]
-    >>> sim_setup.start_freq = "100Hz"
-    >>> sim_setup.stop_freq = "6GHz"
-    >>> sim_setup.step_freq = "10MHz"
+    >>> sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
+    >>> sim_setup.batch_solve_settings.do_cutout_subdesign = True
+    >>> sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C"]
+    >>> sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
+    >>> sim_setup.batch_solve_settings.power_nets = ["GND"]
+    >>> sim_setup.ac_settings.start_freq = "100Hz"
+    >>> sim_setup.ac_settings.stop_freq = "6GHz"
+    >>> sim_setup.ac_settings.step_freq = "10MHz"
     >>> sim_setup.export_json(os.path.join(project_path, "configuration.json"))
     >>> sim_setup.build_simulation_project(sim_setup)
 
@@ -1761,17 +1761,18 @@ class SimulationConfiguration(object):
             raise AttributeError("Attribute {} not present.".format(item))
 
     def __setattr__(self, key, value):
-        if "dc_settings" in dir(self) and key in dir(self.dc_settings):
+        if "_dc_settings" in dir(self) and key in dir(self._dc_settings):
             return self.dc_settings.__setattr__(key, value)
-        elif "ac_settings" in dir(self) and key in dir(self.ac_settings):
+        elif "_ac_settings" in dir(self) and key in dir(self._ac_settings):
             return self.ac_settings.__setattr__(key, value)
-        elif "batch_solve_settings" in dir(self) and key in dir(self.batch_solve_settings):
+        elif "_batch_solve_settings" in dir(self) and key in dir(self._batch_solve_settings):
             return self.batch_solve_settings.__setattr__(key, value)
         else:
             return super(SimulationConfiguration, self).__setattr__(key, value)
 
     def __init__(self, filename=None, edb=None):
         self._filename = filename
+        self._open_edb_after_build = True
         self._dc_settings = SimulationConfigurationDc()
         self._ac_settings = SimulationConfigurationAc()
         self._batch_solve_settings = SimulationConfigurationBatch()
@@ -1783,7 +1784,22 @@ class SimulationConfiguration(object):
         self._pedb = edb
 
     @property
-    def dc_settins(self):
+    def open_edb_after_build(self):
+        """Either if open the Edb after the build or not.
+
+        Returns
+        -------
+        bool
+        """
+        return self._open_edb_after_build
+
+    @open_edb_after_build.setter
+    def open_edb_after_build(self, value):
+        if isinstance(value, bool):
+            self._open_edb_after_build = value
+
+    @property
+    def dc_settings(self):
         """DC Settings class.
 
         Returns
@@ -1793,7 +1809,7 @@ class SimulationConfiguration(object):
         return self._dc_settings
 
     @property
-    def ac_settins(self):
+    def ac_settings(self):
         """AC Settings class.
 
         Returns
@@ -2123,6 +2139,46 @@ class SimulationConfiguration(object):
             print("Error reading cfg file: {}".format(e.message))
             raise
 
+    def _dict_to_json(self, dict_out, dict_in=None):
+        exclude = ["_pedb"]
+        for k, v in dict_in.items():
+            if k in exclude:
+                continue
+            if k[0] == "_":
+                if k[1:] in ["dc_settings", "ac_settings", "batch_solve_settings"]:
+                    dict_out[k[1:]] = {}
+                    dict_out[k[1:]] = self._dict_to_json(dict_out[k[1:]], self.__getattr__(k).__dict__)
+                elif k == "_sources":
+                    sources_out = [src._json_format() for src in v]
+                    dict_out[k[1:]] = sources_out
+                elif k == "_dc_source_terms_to_ground":
+                    dc_term_gnd = {}
+                    for k2 in list(v.Keys):  # pragma: no cover
+                        dc_term_gnd[k2] = v[k2]
+                    dict_out[k[1:]] = dc_term_gnd
+                else:
+                    dict_out[k[1:]] = v
+            else:
+                dict_out[k] = v
+        return dict_out
+
+    def _json_to_dict(self, json_dict):
+        for k, v in json_dict.items():
+            if k == "sources":
+                for src in json_dict[k]:  # pragma: no cover
+                    source = Source()
+                    source._read_json(src)
+                    self.batch_solve_settings.sources.append(source)
+            elif k == "dc_source_terms_to_ground":
+                dc_term_gnd = Dictionary[str, int]()
+                for k1, v1 in json_dict[k]:  # pragma: no cover
+                    dc_term_gnd[k1] = v1
+                self.dc_source_terms_to_ground = dc_term_gnd
+            elif k in ["dc_settings", "ac_settings", "batch_solve_settings"]:
+                self._json_to_dict(v)
+            else:
+                self.__setattr__(k, v)
+
     @pyaedt_function_handler()
     def export_json(self, output_file):
         """Export Json file from SimulationConfiguration object.
@@ -2145,20 +2201,7 @@ class SimulationConfiguration(object):
         >>> config.export_json(r"C:\Temp\test_json\test.json")
         """
         dict_out = {}
-        for k, v in self.__dict__.items():
-            if k[0] == "_":
-                if k == "_sources":
-                    sources_out = [src._json_format() for src in v]
-                    dict_out[k[1:]] = sources_out
-                if k == "_dc_source_terms_to_ground":
-                    dc_term_gnd = {}
-                    for k2 in list(v.Keys):  # pragma: no cover
-                        dc_term_gnd[k2] = v[k2]
-                    dict_out[k[1:]] = dc_term_gnd
-                else:
-                    dict_out[k[1:]] = v
-            else:
-                dict_out[k] = v
+        dict_out = self._dict_to_json(dict_out, self.__dict__)
         if output_file:
             with open(output_file, "w") as write_file:
                 json.dump(dict_out, write_file, indent=4)
@@ -2189,18 +2232,7 @@ class SimulationConfiguration(object):
         if input_file:
             f = open(input_file)
             json_dict = json.load(f)  # pragma: no cover
-            for k, v in json_dict.items():
-                if k == "sources":
-                    for src in json_dict[k]:  # pragma: no cover
-                        source = Source()
-                        source._read_json(src)
-                        self.sources.append(source)
-                if k == "dc_source_terms_to_ground":
-                    dc_term_gnd = Dictionary[str, int]()
-                    for k1, v1 in json_dict[k]:  # pragma: no cover
-                        dc_term_gnd[k1] = v1
-                    self.dc_source_terms_to_ground = dc_term_gnd
-                self.__setattr__(k, v)
+            self._json_to_dict(json_dict)
             self.filename = input_file
             return True
         else:
