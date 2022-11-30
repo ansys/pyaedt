@@ -1701,8 +1701,6 @@ if not config["skip_edb"]:
 
         def test_129_hfss_simulation_setup(self):
             setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
-            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
-            assert "setup1" not in self.edbapp.simulation_setups.setups
 
             hfss_solver_settings = setup1.hfss_solver_settings
             hfss_solver_settings["order_basis"] = 2
@@ -1715,11 +1713,39 @@ if not config["skip_edb"]:
             assert setup1.adaptive_settings["max_refine_per_pass"] == 20
 
             defeature_settings = setup1.defeature_settings
-            defeature_settings
-            assert "setup1a" in self.edbapp.simulation_setups.setups
+            defeature_settings["remove_floating_geometry"] = True
+            setup1.defeature_settings = defeature_settings
+            assert setup1.defeature_settings["remove_floating_geometry"] == True
 
-            setup1a = self.edbapp.simulation_setups.setups["setup1a"]
-            setup1a.add_frequency_sweep(
+            via_settings = setup1.via_settings
+            via_settings["via_num_sides"] = 12
+            setup1.via_settings = via_settings
+            assert setup1.via_settings["via_num_sides"] == 12
+
+            advanced_mesh_settings = setup1.advanced_mesh_settings
+            advanced_mesh_settings["replace3_d_triangles"] = False
+            setup1.advanced_mesh_settings = advanced_mesh_settings
+            assert setup1.advanced_mesh_settings["replace3_d_triangles"] == False
+
+            curve_approx_settings = setup1.curve_approx_settings
+            curve_approx_settings["max_arc_points"] = 12
+            setup1.curve_approx_settings = curve_approx_settings
+            assert setup1.curve_approx_settings["max_arc_points"] == 12
+
+            dcr_settings = setup1.dcr_settings
+            dcr_settings["conduction_max_passes"] = 12
+            setup1.dcr_settings = dcr_settings
+            assert setup1.dcr_settings["conduction_max_passes"] == 12
+
+            hfss_port_settings = setup1.hfss_port_settings
+            hfss_port_settings["max_triangles_wave_port"] = 600
+            setup1.hfss_port_settings = hfss_port_settings
+            assert setup1.hfss_port_settings["max_triangles_wave_port"] == 600
+
+            mesh_operations = setup1.mesh_operations
+            setup1.mesh_operations = mesh_operations
+
+            setup1.add_frequency_sweep(
                 "sweep1",
                 frequency_sweep=[
                     ["linear count", "0", "1kHz", 1],
@@ -1727,4 +1753,15 @@ if not config["skip_edb"]:
                     ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
                 ],
             )
-            assert "sweep1" in setup1a.frequency_sweeps
+            assert "sweep1" in setup1.frequency_sweeps
+            sweep1 = setup1.frequency_sweeps["sweep1"]
+            settings = sweep1.settings
+            settings["adaptive_sampling"] = True
+            sweep1.settings = settings
+            assert sweep1.settings["adaptive_sampling"]
+
+            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
+            assert "setup1" not in self.edbapp.simulation_setups.setups
+            assert "setup1a" in self.edbapp.simulation_setups.setups
+            setup1a = self.edbapp.simulation_setups.setups["setup1a"]
+

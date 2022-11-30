@@ -75,6 +75,13 @@ class FreqSweep(object):
     @settings.setter
     def settings(self, values):
         """Set settings."""
+        edb_freq_sweep_type = self._edb_sweep_data.TFreqSweepType
+        freq_sweep_type = {
+            "kInterpolatingSweep": edb_freq_sweep_type.kInterpolatingSweep,
+            "kDiscreteSweep":edb_freq_sweep_type.kDiscreteSweep,
+            "kBroadbandFastSweep":edb_freq_sweep_type.kBroadbandFastSweep,
+            "kNumSweepTypes":edb_freq_sweep_type.kNumSweepTypes
+        }
         settings = self._edb_sweep_data
         if "name" in values:
             settings.Name = values["name"]
@@ -91,7 +98,7 @@ class FreqSweep(object):
         if "enforce_passivity" in values:
             settings.EnforcePassivity = values["enforce_passivity"]
         if "freq_sweep_type" in values:
-            settings.FreqSweepType = values["freq_sweep_type"]
+            settings.FreqSweepType = freq_sweep_type[values["freq_sweep_type"]]
         if "interp_use_full_basis" in values:
             settings.InterpUseFullBasis = values["interp_use_full_basis"]
         if "interp_use_port_impedance" in values:
@@ -157,11 +164,7 @@ class FreqSweep(object):
 
 class HfssSimulationSetup(object):
     """Manages EDB methods for hfss simulation setup."""
-    TAdaptType = {"kSingle": 0,
-                  "kMultiFrequencies": 1,
-                  "kBroadband": 2,
-                  "kNumAdaptTypes": 3,
-                  }
+
     def __init__(self, edb, name=None, edb_hfss_sim_setup=None):
         self._edb = edb
         self._name = None
@@ -303,6 +306,13 @@ class HfssSimulationSetup(object):
     @adaptive_settings.setter
     def adaptive_settings(self, values):
         """Set adaptive settings"""
+        edb_adapt_type = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings.AdaptType
+        adapt_type = {
+            "kSingle": edb_adapt_type.kSingle,
+            "kMultiFrequencies": edb_adapt_type.kMultiFrequencies,
+            "kBroadband": edb_adapt_type.kBroadband,
+            "kNumAdaptTypes": edb_adapt_type.kNumAdaptTypes,
+            }
         settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         if "adaptive_frequency_data_list" in values:
             settings.AdaptiveFrequencyDataList.Clear()
@@ -313,7 +323,7 @@ class HfssSimulationSetup(object):
                 adaptive_frequency_data.MaxPasses = i["max_passes"]
                 settings.AdaptiveFrequencyDataList.Add(adaptive_frequency_data)
         if "adapt_type" in values:
-            settings.AdaptType = self.TAdaptType[values["adapt_type"]]
+            settings.AdaptType = adapt_type[values["adapt_type"]]
         if "basic" in values:
             settings.Basic = values["basic"]
         if "do_adaptive" in values:
@@ -354,23 +364,23 @@ class HfssSimulationSetup(object):
     def defeature_settings(self, values):
         """Set defeature settings."""
         settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
-        if "defeature_abs_length" in values["DefeatureAbsLength"]:
+        if "defeature_abs_length" in values:
             settings.DefeatureAbsLength = values["defeature_abs_length"]
-        if "defeature_ratio" in values["DefeatureRatio"]:
+        if "defeature_ratio" in values:
             settings.DefeatureRatio = values["defeature_ratio"]
-        if "healing_option" in values["HealingOption"]:
+        if "healing_option" in values:
             settings.HealingOption = values["healing_option"]
-        if "model_type" in values["ModelType"]:
+        if "model_type" in values:
             settings.ModelType = values["model_type"]
-        if "remove_floating_geometry" in values["RemoveFloatingGeometry"]:
+        if "remove_floating_geometry" in values:
             settings.RemoveFloatingGeometry = values["remove_floating_geometry"]
-        if "small_void_area" in values["SmallVoidArea"]:
+        if "small_void_area" in values:
             settings.SmallVoidArea = values["small_void_area"]
-        if "union_polygons" in values["UnionPolygons"]:
+        if "union_polygons" in values:
             settings.UnionPolygons = values["union_polygons"]
-        if "use_defeature" in values["UseDefeature"]:
+        if "use_defeature" in values:
             settings.UseDefeature = values["use_defeature"]
-        if "use_defeature_abs_length" in values["UseDefeatureAbsLength"]:
+        if "use_defeature_abs_length" in values:
             settings.UseDefeatureAbsLength = values["use_defeature_abs_length"]
         self._update_setup()
 
@@ -390,15 +400,15 @@ class HfssSimulationSetup(object):
     def via_settings(self, values):
         """Set via settings."""
         settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
-        if "t25_d_via_style" in values["T25DViaStyle"]:
+        if "t25_d_via_style" in values:
             settings.T25DViaStyle = values["t25_d_via_style"]
-        if "via_density" in values["ViaDensity"]:
+        if "via_density" in values:
             settings.ViaDensity = values["via_density"]
-        if "via_material" in values["ViaMaterial"]:
+        if "via_material" in values:
             settings.ViaMaterial = values["via_material"]
-        if "via_num_sides" in values["ViaNumSides"]:
+        if "via_num_sides" in values:
             settings.ViaNumSides = values["via_num_sides"]
-        if "via_style" in values["ViaStyle"]:
+        if "via_style" in values:
             settings.ViaStyle = values["via_style"]
         self._update_setup()
 
@@ -416,11 +426,11 @@ class HfssSimulationSetup(object):
     def advanced_mesh_settings(self, values):
         """Set advanced mesh settings."""
         settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
-        if "layer_snap_tol" in values["LayerSnapTol"]:
+        if "layer_snap_tol" in values:
             settings.LayerSnapTol = values["layer_snap_tol"]
-        if "mesh_display_attributes" in values["MeshDisplayAttributes"]:
+        if "mesh_display_attributes" in values:
             settings.MeshDisplayAttributes = values["mesh_display_attributes"]
-        if "replace3_d_triangles" in values["Replace3DTriangles"]:
+        if "replace3_d_triangles" in values:
             settings.Replace3DTriangles = values["replace3_d_triangles"]
         self._update_setup()
 
@@ -495,13 +505,13 @@ class HfssSimulationSetup(object):
     def hfss_port_settings(self, values):
         """Set hfss port settings."""
         settings = self._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
-        if "max_delta_z0" in values["MaxDeltaZ0"]:
+        if "max_delta_z0" in values:
             settings.MaxDeltaZ0 = values["max_delta_z0"]
-        if "max_triangles_wave_port" in values["MaxTrianglesWavePort"]:
+        if "max_triangles_wave_port" in values:
             settings.MaxTrianglesWavePort = values["max_triangles_wave_port"]
-        if "min_triangles_wave_port" in values["MinTrianglesWavePort"]:
+        if "min_triangles_wave_port" in values:
             settings.MinTrianglesWavePort = values["min_triangles_wave_port"]
-        if "set_triangles_wave_port" in values["SetTrianglesWavePort"]:
+        if "set_triangles_wave_port" in values:
             settings.SetTrianglesWavePort = values["set_triangles_wave_port"]
         self._update_setup()
 
@@ -510,7 +520,7 @@ class HfssSimulationSetup(object):
         """Get mesh operations."""
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
         mesh_operation_list = []
-        for i in list(settings.MeshOperations):
+        for i in list(settings):
             mesh_operation_list.append(
                 {
                     "enabled": i.Enabled,
