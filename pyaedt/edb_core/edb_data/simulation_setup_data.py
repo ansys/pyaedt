@@ -1,11 +1,4 @@
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.edb_core.general import convert_py_list_to_net_list
-
-from pyaedt.generic.constants import BasisOrder
-from pyaedt.generic.constants import CutoutSubdesignType
-from pyaedt.generic.constants import RadiationBoxType
-from pyaedt.generic.constants import SolverType
-from pyaedt.generic.constants import SweepType
 
 
 class FreqSweep(object):
