@@ -1749,9 +1749,14 @@ if not config["skip_edb"]:
             assert setup1.dcr_settings["conduction_max_passes"] == 12
 
             hfss_port_settings = setup1.hfss_port_settings
-            hfss_port_settings["max_triangles_wave_port"] = 600
-            setup1.hfss_port_settings = hfss_port_settings
-            assert setup1.hfss_port_settings["max_triangles_wave_port"] == 600
+            hfss_port_settings.max_delta_z0 = 0.5
+            assert hfss_port_settings.max_delta_z0 == 0.5
+            hfss_port_settings.max_triangles_wave_port = 1000
+            assert hfss_port_settings.max_triangles_wave_port == 1000
+            hfss_port_settings.min_triangles_wave_port = 200
+            assert hfss_port_settings.min_triangles_wave_port == 200
+            hfss_port_settings.set_triangles_wave_port = True
+            assert hfss_port_settings.set_triangles_wave_port
 
             mesh_operations = setup1.mesh_operations
             setup1.mesh_operations = mesh_operations

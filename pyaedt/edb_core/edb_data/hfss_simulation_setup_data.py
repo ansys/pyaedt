@@ -61,6 +61,49 @@ class MeshOperations(object):
         self._parent._update_setup()
 
 
+class HfssPortSettings(object):
+    """ Manages EDB methods for hfss port settings."""
+    def __init__(self, parent, hfss_port_settings):
+        self._parent = parent
+        self._hfss_port_settings = hfss_port_settings
+
+    @property
+    def max_delta_z0(self):
+        return self._hfss_port_settings.MaxDeltaZ0
+
+    @max_delta_z0.setter
+    def max_delta_z0(self, value):
+        self._hfss_port_settings.MaxDeltaZ0 = value
+        self._parent._update_setup()
+
+    @property
+    def max_triangles_wave_port(self):
+        return self._hfss_port_settings.MaxTrianglesWavePort
+
+    @max_triangles_wave_port.setter
+    def max_triangles_wave_port(self, value):
+        self._hfss_port_settings.MaxTrianglesWavePort = value
+        self._parent._update_setup()
+
+    @property
+    def min_triangles_wave_port(self):
+        return self._hfss_port_settings.MinTrianglesWavePort
+
+    @min_triangles_wave_port.setter
+    def min_triangles_wave_port(self, value):
+        self._hfss_port_settings.MinTrianglesWavePort = value
+        self._parent._update_setup()
+
+    @property
+    def enable_set_triangles_wave_port(self):
+        return self._hfss_port_settings.SetTrianglesWavePort
+
+    @enable_set_triangles_wave_port.setter
+    def enable_set_triangles_wave_port(self, value):
+        self._hfss_port_settings.SetTrianglesWavePort = value
+        self._parent._update_setup()
+
+
 class FreqSweep(object):
     """Manages EDB methods for frequency sweep."""
 
@@ -255,7 +298,7 @@ class HfssSimulationSetup(object):
         return self._edb_sim_setup_info
 
     def _update_setup(self):
-        settings = self._edb_sim_setup_info.AdaptiveSettings.AdaptiveFrequencyDataList
+        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList
         settings.Clear()
         for mop in self.mesh_operations:
             settings.Add(mop.mesh_operation)
@@ -562,28 +605,9 @@ class HfssSimulationSetup(object):
 
     @property
     def hfss_port_settings(self):
-        """Get hfss prot settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
-        return {
-            "max_delta_z0": settings.MaxDeltaZ0,
-            "max_triangles_wave_port": settings.MaxTrianglesWavePort,
-            "min_triangles_wave_port": settings.MinTrianglesWavePort,
-            "set_triangles_wave_port": settings.SetTrianglesWavePort,
-        }
-
-    @hfss_port_settings.setter
-    def hfss_port_settings(self, values):
-        """Set hfss port settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
-        if "max_delta_z0" in values:
-            settings.MaxDeltaZ0 = values["max_delta_z0"]
-        if "max_triangles_wave_port" in values:
-            settings.MaxTrianglesWavePort = values["max_triangles_wave_port"]
-        if "min_triangles_wave_port" in values:
-            settings.MinTrianglesWavePort = values["min_triangles_wave_port"]
-        if "set_triangles_wave_port" in values:
-            settings.SetTrianglesWavePort = values["set_triangles_wave_port"]
-        self._update_setup()
+        """Hfss prot settings."""
+        hfss_port_settings = self._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
+        return HfssPortSettings(self, hfss_port_settings)
 
     @property
     def mesh_operations(self):
