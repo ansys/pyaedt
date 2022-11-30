@@ -1655,7 +1655,7 @@ class Analysis(Design, object):
         num_variations_to_distribute : int, optional
             Number of variations to distribute. For this to take effect ``use_auto_settings`` must be set to ``True``.
         allowed_distribution_types : list, optional
-            List of strings, each string represents a distribution type, The default ``None`` does nothing. An empty
+            List of strings. Each string represents a distribution type. The default value ``None`` does nothing. An empty
             list ``[]`` disables all types.
 
         Returns
