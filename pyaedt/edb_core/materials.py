@@ -339,6 +339,11 @@ class Materials(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
+        if not self.materials:
+            self.add_material("air")
+            self.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
+            self.add_material("fr4_epoxy", 4.4, 1, 0, 0.02, 0)
+            self.add_material("solder_mask", 3.1, 1, 0, 0.035, 0)
 
     @pyaedt_function_handler()
     def _edb_value(self, value):

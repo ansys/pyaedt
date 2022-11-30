@@ -2667,87 +2667,6 @@ class Icepak(FieldAnalysis3D):
         return True
 
     @pyaedt_function_handler()
-    def create_two_resistor_network_block(self, object_name, power, rjb, rjc, placement):
-        """Function to create 2-Resistor network object.
-        This method is going to replace create_network_block method.
-
-        Parameters
-        ----------
-        object_name : str
-            name of the object (3D block primitive) on which 2-R network is to be created
-        power : float
-            junction power in [W]
-        rjb : float
-            Junction to board thermal resistance in [K/W]
-        rjc : float
-            Junction to case thermal resistance in [K/W]
-        placement : str
-            Acceptable entries are "top" or "bottom"
-            "top" : network block is placed on top of board
-            "bottom" : network block is placed on bottom of board
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object.
-
-        References
-        ----------
-
-        >>> oModule.AssignNetworkBoundary
-
-        Examples
-        --------
-
-        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
-        >>> block = icepak.create_two_resistor_network_block("NetworkBox1", "2W", 20, 10, "top")
-        >>> block.props["Nodes"]["Internal"][0]
-        '2W'
-        """
-        object_handle = self.modeler.get_object_from_name(object_name)
-        placement = placement.lower()
-        if placement == "top":
-            board_face_id = object_handle.top_face_z.id
-            case_face_id = object_handle.bottom_face_z.id
-            board_side = "bottom"
-            case_side = "top"
-        else:
-            board_face_id = object_handle.bottom_face_z.id
-            case_face_id = object_handle.top_face_z.id
-            board_side = "top"
-            case_side = "bottom"
-
-        # Define network properties in props directory
-        props = {
-            "Faces": [board_face_id, case_face_id],
-            "Nodes": OrderedDict(
-                {
-                    "Case_side(" + case_side + ")": [case_face_id, "NoResistance"],
-                    "Board_side(" + board_side + ")": [board_face_id, "NoResistance"],
-                    "Internal": [power],
-                }
-            ),
-            "Links": OrderedDict(
-                {
-                    "Rjc": ["Case_side(" + case_side + ")", "Internal", "R", str(rjc) + "cel_per_w"],
-                    "Rjb": ["Board_side(" + board_side + ")", "Internal", "R", str(rjb) + "cel_per_w"],
-                }
-            ),
-            "SchematicData": ({}),
-        }
-
-        # Default material is Ceramic Material
-        self.modeler[object_name].material_name = "Ceramic_material"
-
-        # Create boundary condition and set Solve Inside to No
-        bound = BoundaryObject(self, object_name, props, "Network")
-        if bound.create():
-            self.boundaries.append(bound)
-            self.modeler.primitives[object_name].solve_inside = False
-            return bound
-        return None
-
-    @pyaedt_function_handler()
     def import_idf(
         self,
         board_path,
@@ -2933,3 +2852,111 @@ class Icepak(FieldAnalysis3D):
         )
         self.modeler.add_new_objects()
         return True
+
+    @pyaedt_function_handler()
+    def create_two_resistor_network_block(self, object_name, pcb, power, rjb, rjc):
+        """Function to create 2-Resistor network object.
+        This method is going to replace create_network_block method.
+
+        Parameters
+        ----------
+        object_name : str
+            name of the object (3D block primitive) on which 2-R network is to be created
+        pcb : str
+            name of board touching the network block. If the board is a PCB 3D component, enter name of
+            3D component instance
+        power : float
+            junction power in [W]
+        rjb : float
+            Junction to board thermal resistance in [K/W]
+        rjc : float
+            Junction to case thermal resistance in [K/W]
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignNetworkBoundary
+
+        Examples
+        --------
+        >>> board = icepak.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
+        >>> box = icepak.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
+        >>> network_block = icepak.create_two_resistor_network_block_new("network_box1", "board", "5W", 2.5, 5)
+        >>> network_block.props["Nodes"]["Internal"][0]
+        '5W'
+        """
+
+        def get_face_normal(obj_face):
+            vertex1 = obj_face.vertices[0].position
+            vertex2 = obj_face.vertices[1].position
+            fc = obj_face.center_from_aedt
+            v1 = [i - j for i, j in zip(vertex1, fc)]
+            v2 = [i - j for i, j in zip(vertex2, fc)]
+            n = GeometryOperators.v_cross(v1, v2)
+            normalized_n = GeometryOperators.normalize_vector(n)
+            return normalized_n
+
+        net_handle = self.modeler.get_object_from_name(object_name)
+        if pcb in self.modeler.user_defined_component_names:
+            part_names = sorted(self.modeler.get_3d_component_object_list(componentname=pcb))
+            pcb_layers = [part_names[0], part_names[-1]]
+            for layer in pcb_layers:
+                x = self.modeler.get_object_from_name(object_name).get_touching_faces(layer)
+                if x:
+                    board_side = x[0]
+                    board_side_normal = get_face_normal(board_side)
+                    pcb_handle = self.modeler.get_object_from_name(layer)
+            pcb_faces = pcb_handle.faces_by_area(area=1e-5, area_filter=">=")
+            for face in pcb_faces:
+                pcb_normal = get_face_normal(face)
+                dot_product = round(sum([x * y for x, y in zip(board_side_normal, pcb_normal)]))
+                if dot_product == -1:
+                    pcb_face = face
+            pcb_face_normal = get_face_normal(pcb_face)
+        else:
+            pcb_handle = self.modeler.get_object_from_name(pcb)
+            board_side = self.modeler.get_object_from_name(object_name).get_touching_faces(pcb)[0]
+            board_side_normal = get_face_normal(board_side)
+            for face in pcb_handle.faces:
+                pcb_normal = get_face_normal(face)
+                dot_product = round(sum([x * y for x, y in zip(board_side_normal, pcb_normal)]))
+                if dot_product == -1:
+                    pcb_face = face
+            pcb_face_normal = get_face_normal(pcb_face)
+
+        for face in net_handle.faces:
+            net_face_normal = get_face_normal(face)
+            dot_product = round(sum([x * y for x, y in zip(net_face_normal, pcb_face_normal)]))
+            if dot_product == 1:
+                case_side = face
+
+        props = {
+            "Faces": [board_side.id, case_side.id],
+            "Nodes": OrderedDict(
+                {
+                    "Case_side(" + str(case_side) + ")": [case_side.id, "NoResistance"],
+                    "Board_side(" + str(board_side) + ")": [board_side.id, "NoResistance"],
+                    "Internal": [power],
+                }
+            ),
+            "Links": OrderedDict(
+                {
+                    "Rjc": ["Case_side(" + str(case_side) + ")", "Internal", "R", str(rjc) + "cel_per_w"],
+                    "Rjb": ["Board_side(" + str(board_side) + ")", "Internal", "R", str(rjb) + "cel_per_w"],
+                }
+            ),
+            "SchematicData": ({}),
+        }
+
+        self.modeler.primitives[object_name].material_name = "Ceramic_material"
+        bound = BoundaryObject(self, object_name, props, "Network")
+        if bound.create():
+            self.boundaries.append(bound)
+            self.modeler.primitives[object_name].solve_inside = False
+            return bound
+        return None

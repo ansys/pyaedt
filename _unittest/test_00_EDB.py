@@ -1125,10 +1125,7 @@ if not config["skip_edb"]:
             assert not failing_test_02
 
         def test_104_classify_nets(self):
-            sim_setup = SimulationConfiguration()
-            sim_setup.power_nets = ["RSVD_0", "RSVD_1"]
-            sim_setup.signal_nets = ["V3P3_S0"]
-            self.edbapp.core_nets.classify_nets(sim_setup)
+            assert self.edbapp.core_nets.classify_nets(["RSVD_0", "RSVD_1"], ["V3P3_S0"])
 
         def test_105_place_a3dcomp_3d_placement(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "lam_for_bottom_place.aedb")
@@ -1281,11 +1278,12 @@ if not config["skip_edb"]:
             edb.close_edb()
 
         def test_108_create_dc_simulation(self):
+
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", test_subfolder, "dc_flow.aedb"),
                 edbversion=desktop_version,
             )
-            sim_setup = SimulationConfiguration()
+            sim_setup = edb.new_simulation_configuration()
             sim_setup.do_cutout_subdesign = False
             sim_setup.solver_type = SolverType.SiwaveDC
             sim_setup.add_voltage_source(
@@ -1302,7 +1300,15 @@ if not config["skip_edb"]:
                 negative_node_net="HV_DC+",
             )
             assert len(sim_setup.sources) == 2
-            assert edb.build_simulation_project(sim_setup)
+            sim_setup.open_edb_after_build = False
+            sim_setup.batch_solve_settings.output_aedb = os.path.join(self.local_scratch.path, "build.aedb")
+            original_path = edb.edbpath
+            assert sim_setup.build_simulation_project()
+            assert edb.edbpath == original_path
+            sim_setup.open_edb_after_build = True
+            assert sim_setup.build_simulation_project()
+            assert edb.edbpath == os.path.join(self.local_scratch.path, "build.aedb")
+
             edb.close_edb()
 
         def test_109_add_soure(self):
@@ -1682,6 +1688,9 @@ if not config["skip_edb"]:
             loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
             assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
             edbapp.close_edb()
+            edbapp = Edb(edbversion=desktop_version)
+            assert "air" in edbapp.materials.materials
+            edbapp.close_edb()
 
         def test_128_microvias(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
@@ -1689,7 +1698,9 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_3d_microvias(False)
-            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_3d_microvias(False)
+            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_3d_microvias(
+                False, hole_wall_angle=10
+            )
             assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
             edbapp.close_edb()
 

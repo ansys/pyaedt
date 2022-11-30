@@ -12,7 +12,6 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1675,62 +1674,6 @@ class Stackup(object):
 
         return True
 
-    @pyaedt_function_handler()
-    def set_etching_layers(self, simulation_setup=None):
-        """Set the etching layer parameters for a layout stackup.
-
-        Parameters
-        ----------
-        simulation_setup : EDB_DATA_SimulationConfiguration object
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        if not isinstance(simulation_setup, SimulationConfiguration):
-            return False
-        cell = self._pedb.builder.cell
-        this_lc = self._pedb.edb.Cell.LayerCollection(cell.GetLayout().GetLayerCollection())
-        all_layers = list(this_lc.Layers(self._pedb.edb.Cell.LayerTypeSet.AllLayerSet))
-
-        signal_layers = [lay for lay in all_layers if lay.GetLayerType() == self._pedb.edb.Cell.LayerType.SignalLayer]
-
-        new_layers = list(all_layers.Where(lambda lyr: lyr.GetLayerType() != self._pedb.edb.Cell.LayerType.SignalLayer))
-
-        if simulation_setup.signal_layer_etching_instances:
-            for layer in signal_layers:
-                if not layer.GetName() in simulation_setup.signal_layer_etching_instances:
-                    self._pedb.logger.error(
-                        "Signal layer {0} is not found in the etching layers specified in the cfg, "
-                        "skipping the etching factor assignment".format(layer.GetName())
-                    )
-                    new_signal_lay = layer.Clone()
-                else:
-                    new_signal_lay = layer.Clone()
-                    new_signal_lay.SetEtchFactorEnabled(True)
-                    etching_factor = float(
-                        simulation_setup.etching_factor_instances[
-                            simulation_setup.signal_layer_etching_instances.index(layer.GetName())
-                        ]
-                    )
-                    new_signal_lay.SetEtchFactor(etching_factor)
-                    self._pedb.logger.info(
-                        "Setting etching factor {0} on layer {1}".format(str(etching_factor), layer.GetName())
-                    )
-
-                new_layers.Add(new_signal_lay)
-
-            layers_with_etching = self._pedb.edb.Cell.LayerCollection()
-            if not layers_with_etching.AddLayers(new_layers):
-                return False
-
-            if not cell.GetLayout().SetLayerCollection(layers_with_etching):
-                return False
-
-            return True
-        return True
-
 
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property.
@@ -2403,23 +2346,3 @@ class EdbStackup(object):
             soldermask=soldermask,
             soldermask_thickness=soldermask_thickness,
         )
-
-    @pyaedt_function_handler()
-    def set_etching_layers(self, simulation_setup=None):
-        """Set the etching layer parameters for a layout stackup.
-
-        .. deprecated:: 0.6.27
-           Use :func:`Edb.stackup.create_symmetric_stackup` function instead.
-
-        Parameters
-        ----------
-        simulation_setup : EDB_DATA_SimulationConfiguration object
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-        warnings.warn("Use `Edb.stackup.set_etching_layers` function instead.", DeprecationWarning)
-
-        return self._pedb.stackup.set_etching_layers(simulation_setup=simulation_setup)
