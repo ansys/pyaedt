@@ -1701,7 +1701,14 @@ if not config["skip_edb"]:
 
         def test_129_hfss_simulation_setup(self):
             setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
-            setup1.add_frequency_sweep(
+            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
+            assert "setup1" not in self.edbapp.simulation_setups.setups
+            setup1.
+
+            assert "setup1a" in self.edbapp.simulation_setups.setups
+
+            setup1a = self.edbapp.simulation_setups.setups["setup1a"]
+            setup1a.add_frequency_sweep(
                 "sweep1",
                 frequency_sweep=[
                     ["linear count", "0", "1kHz", 1],
@@ -1710,7 +1717,6 @@ if not config["skip_edb"]:
                 ],
             )
             assert "sweep1" in setup1.frequency_sweeps
-            assert "setup1" in self.edbapp.simulation_setups.setups
-            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
-            assert "setup1" not in self.edbapp.simulation_setups.setups
-            assert "setup1a" in self.edbapp.simulation_setups.setups
+
+
+
