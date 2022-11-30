@@ -9,7 +9,7 @@ from pyaedt.generic.constants import SweepType
 
 
 class FreqSweep(object):
-    def __init__(self, hfss_sim_setup, freq_sweep_string=None, name=None, edb_sweep_data=None):
+    def __init__(self, hfss_sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
         self._hfss_sim_setup = hfss_sim_setup
 
         if edb_sweep_data:
@@ -20,17 +20,10 @@ class FreqSweep(object):
                 self._name = generate_unique_name("sweep")
             else:
                 self._name = name
-
             self._edb_sweep_data = self._hfss_sim_setup._edb.simsetupdata.SweepData(self._name)
-            self.set_frequencies_log_scale()
-            self.set_frequencies_linear_scale()
-            #self.set_frequencies()
+            self.set_frequencies(frequency_sweep)
 
     def _update_sweep(self):
-        freq_sweeps = self._hfss_sim_setup.frequency_sweeps
-        if self.name in freq_sweeps:
-            edb_sweep = freq_sweeps[self.name]._edb_sweep_data
-            self._hfss_sim_setup._edb_sim_setup_info.SweepDataList.remove(edb_sweep)
         self._hfss_sim_setup._edb_sim_setup_info.SweepDataList.Add(self._edb_sweep_data)
         self._hfss_sim_setup._update_setup()
 
@@ -72,7 +65,6 @@ class FreqSweep(object):
             "enforce_causality": settings.EnforceCausality,
             "enforce_dc_and_causality": settings.EnforceDCAndCausality,
             "enforce_passivity": settings.EnforcePassivity,
-            "frequency_string": settings.FrequencyString,
             "freq_sweep_type": settings.FreqSweepType.ToString(),
             "interp_use_full_basis": settings.InterpUseFullBasis,
             "interp_use_port_impedance": settings.InterpUsePortImpedance,
@@ -89,19 +81,43 @@ class FreqSweep(object):
         }
 
     def apply_frequency_unit(self, def_freq, frequency):
-
         self._edb_sweep_data.ApplyFrequencyUnit(def_freq, frequency)
 
-    def set_frequencies(self, freq_sweep_string="Linear Step: 0GHz to 20GHz, step=0.05GHz"):
+    def _set_frequencies(self, freq_sweep_string="Linear Step: 0GHz to 20GHz, step=0.05GHz"):
         self._edb_sweep_data.SetFrequencies(freq_sweep_string)
         self._update_sweep()
 
     def set_frequencies_linear_scale(self, start="0.1GHz", stop="20GHz", step="50MHz"):
-        self._edb_sweep_data.SetFrequencies(start, stop, step)
+        self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, step)
+        self._update_sweep()
+
+    def set_frequencies_linear_count(self, start="1kHz", stop="0.1GHz", count=10):
+        self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, count)
         self._update_sweep()
 
     def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
-        self._edb_sweep_data.SetLogFrequencies(start, stop, samples)
+        self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetLogFrequencies(start, stop, samples)
+        self._update_sweep()
+
+    def set_frequencies(self, frequency_list=None):
+        if not frequency_list:
+            frequency_list = [
+                ["linear count", "0", "1kHz", 1],
+                ["log scale", "1kHz", "0.1GHz", 10],
+                ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+            ]
+        temp = []
+        for i in frequency_list:
+            if i[0] == "linear count":
+                temp.extend(list(self._edb_sweep_data.SetFrequencies(i[1], i[2], i[3])))
+            elif i[0] == "linear scale":
+                temp.extend(list(self._edb_sweep_data.SetFrequencies(i[1], i[2], i[3])))
+            elif i[0] == "log scale":
+                temp.extend(list(self._edb_sweep_data.SetLogFrequencies(i[1], i[2], i[3])))
+            else:
+                return False
+        for i in temp:
+            self._edb_sweep_data.Frequencies.Add(i)
         self._update_sweep()
 
 
@@ -457,9 +473,9 @@ class HfssSimulationSetup(object):
             settings.AdaptiveFrequencyDataList.append(mesh_operation)
         self._update_setup()
 
-    def add_frequency_sweep(self, name=None, freq_sweep_string=None):
+    def add_frequency_sweep(self, name=None, frequency_sweep=None):
         if name in self.frequency_sweeps:
             return False
         if not name:
             name = generate_unique_name("sweep")
-        return FreqSweep(self, freq_sweep_string, name)
+        return FreqSweep(self, frequency_sweep, name)

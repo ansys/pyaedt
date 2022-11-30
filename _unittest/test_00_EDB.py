@@ -1436,6 +1436,7 @@ if not config["skip_edb"]:
             sim_config.mesh_sizefactor = 0.1
             assert sim_config.mesh_sizefactor == 0.1
             assert not sim_config.do_lambda_refinement
+            sim_config.start_freq = "1GHz"
             edb.core_hfss.configure_hfss_analysis_setup(sim_config)
             assert len(list(edb.active_cell.SimulationSetups)) == 1
             setup = list(edb.active_cell.SimulationSetups)[0]
@@ -1700,10 +1701,16 @@ if not config["skip_edb"]:
 
         def test_129_hfss_simulation_setup(self):
             setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
-            setup1.add_frequency_sweep("sweep1")
+            setup1.add_frequency_sweep(
+                "sweep1",
+                frequency_sweep=
+                [
+                    ["linear count", "0", "1kHz", 1],
+                    ["log scale", "1kHz", "0.1GHz", 10],
+                    ["linear scale", "0.1GHz", "10GHz", "0.1GHz"]
+                ])
             assert "sweep1" in setup1.frequency_sweeps
             assert "setup1" in self.edbapp.simulation_setups.setups
             self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
             assert "setup1" not in self.edbapp.simulation_setups.setups
             assert "setup1a" in self.edbapp.simulation_setups.setups
-            #self.edbapp.save_edb_as(r"C:\ansysdev\_aedt_workspace\sim_cfg_refactor\hfss_setup.aedb")
