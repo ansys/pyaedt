@@ -1,4 +1,4 @@
-from pyaedt.edb_core.edb_data.simulation_setup_data import HfssSimulationSetup
+from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 
 
 class SimulationSetups(object):

@@ -561,7 +561,7 @@ class HfssSimulationSetup(object):
 
         Returns
         ----------
-        pyaedt.edb_core.edb_data.simulation_setup_data.FreqSweep
+        pyaedt.edb_core.edb_data.hfss_simulation_setup_data.FreqSweep
         """
         if name in self.frequency_sweeps:
             return False
