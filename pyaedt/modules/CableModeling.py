@@ -1284,35 +1284,38 @@ class Cable:
                     cable_terminations_to_include = json_dict["CableHarness_prop"]["CableTerminationsToInclude"]
                     # check if cable to include in harness exists in current project
                     self.args = []
-                    for x in cable_terminations_to_include:
+                    for cable_termination in cable_terminations_to_include:
                         if (
-                            x["CableName"]
+                            cable_termination["CableName"]
                             in [
                                 cable.get(self.cable_harness_bundle)
                                 for cable in self.cables_in_bundle_list_dict
                                 if self.cable_harness_bundle in cable.keys()
                             ][0]
                         ):
-                            if x["Assignment"] not in [
+                            if cable_termination["Assignment"] not in [
                                 "Reference Conductor",
                                 "Input Terminations",
                                 "Output Terminations",
                             ]:
                                 msg = "Invalid cable harness assignment."
                                 raise ValueError(msg)
-                            elif x["Assignment"] == "Reference Conductor":
-                                ref_cond = ["NAME:RefConductors", x["CableName"]]
+                            elif cable_termination["Assignment"] == "Reference Conductor":
+                                ref_cond = ["NAME:RefConductors", cable_termination["CableName"]]
                                 self.args.append(ref_cond)
-                            elif x["Assignment"] == "Input Terminations" or x["Assignment"] == "Output Terminations":
+                            elif (
+                                cable_termination["Assignment"] == "Input Terminations"
+                                or cable_termination["Assignment"] == "Output Terminations"
+                            ):
                                 terminations = []
-                                if x["Assignment"] == "Input Terminations":
+                                if cable_termination["Assignment"] == "Input Terminations":
                                     terminations.append("NAME:InputTerminations")
-                                elif x["Assignment"] == "Output Terminations":
+                                elif cable_termination["Assignment"] == "Output Terminations":
                                     terminations.append("NAME:OutputTerminations")
-                                terminations.append("{}:=".format(x["CableName"]))
+                                terminations.append("{}:=".format(cable_termination["CableName"]))
                                 assignment_type = []
-                                if x["AssignmentType"] == "Impedance":
-                                    if decompose_variable_value(x["Impedance"])[1] not in [
+                                if cable_termination["AssignmentType"] == "Impedance":
+                                    if decompose_variable_value(cable_termination["Impedance"])[1] not in [
                                         "GOhm",
                                         "kOhm",
                                         "megohm",
@@ -1324,22 +1327,22 @@ class Cable:
                                         raise ValueError(msg)
                                     else:
                                         assignment_type.append("Imped:=")
-                                        assignment_type.append(x["Impedance"])
-                                elif x["AssignmentType"] == "Source":
+                                        assignment_type.append(cable_termination["Impedance"])
+                                elif cable_termination["AssignmentType"] == "Source":
                                     assignment_type.append("Source:=")
-                                    if x["Source"]["Type"] not in ["Single Value", "Transient"]:
+                                    if cable_termination["Source"]["Type"] not in ["Single Value", "Transient"]:
                                         msg = "Invalid source type value."
                                         raise ValueError(msg)
-                                    elif x["Source"]["Type"] == "Transient":
-                                        if x["Source"]["Signal"] not in self.existing_sources_names:
+                                    elif cable_termination["Source"]["Type"] == "Transient":
+                                        if cable_termination["Source"]["Signal"] not in self.existing_sources_names:
                                             msg = "Source name doesn't exist in current project."
                                             raise ValueError(msg)
                                         else:
-                                            assignment_type.append('"{}"'.format(x["Source"]["Signal"]))
+                                            assignment_type.append('"{}"'.format(cable_termination["Source"]["Signal"]))
                                             assignment_type.append("Imped:=")
-                                            assignment_type.append(x["Source"]["ImpedanceValue"])
-                                    elif x["Source"]["Type"] == "Single Value":
-                                        if decompose_variable_value(x["Source"]["Signal"])[1] not in [
+                                            assignment_type.append(cable_termination["Source"]["ImpedanceValue"])
+                                    elif cable_termination["Source"]["Type"] == "Single Value":
+                                        if decompose_variable_value(cable_termination["Source"]["Signal"])[1] not in [
                                             "fV",
                                             "pV",
                                             "nV",
@@ -1350,7 +1353,9 @@ class Cable:
                                             "megV",
                                             "gV",
                                             "dBV",
-                                        ] and decompose_variable_value(x["Source"]["ImpedanceValue"])[1] not in [
+                                        ] and decompose_variable_value(cable_termination["Source"]["ImpedanceValue"])[
+                                            1
+                                        ] not in [
                                             "GOhm",
                                             "kOhm",
                                             "megohm",
@@ -1361,9 +1366,9 @@ class Cable:
                                             msg = "Invalid source signal units."
                                             raise ValueError(msg)
                                         else:
-                                            assignment_type.append(x["Source"]["Signal"])
+                                            assignment_type.append(cable_termination["Source"]["Signal"])
                                             assignment_type.append("Imped:=")
-                                            assignment_type.append(x["Source"]["ImpedanceValue"])
+                                            assignment_type.append(cable_termination["Source"]["ImpedanceValue"])
                                 terminations.append(assignment_type)
                                 assignment_type = ["Imped:=", "50ohm"]
                                 for cable in [
@@ -1371,7 +1376,7 @@ class Cable:
                                     for x in self.cables_in_bundle_list_dict
                                     if self.cable_harness_bundle in x.keys()
                                 ][0]:
-                                    if cable != x["CableName"]:
+                                    if cable != cable_termination["CableName"]:
                                         terminations.append("{}:=".format(cable))
                                         terminations.append(assignment_type)
                                 self.args.append(terminations)

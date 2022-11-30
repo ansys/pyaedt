@@ -12,22 +12,6 @@ import time
 import traceback
 import warnings
 
-try:
-    import clr
-
-    clr.AddReference("System.Collections")
-    from System import Convert
-    from System.Collections.Generic import List
-
-    edb_initialized = True
-
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-    )
-    edb_initialized = False
-    if sys.version[0] == 3 and sys.version[1] < 7:
-        warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -48,6 +32,10 @@ from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
+from pyaedt.generic.clr_module import Convert
+from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import _clr
+from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -174,6 +162,11 @@ class Edb(object):
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
+            elif edbpath.endswith("edb.def"):
+                self.edbpath = os.path.dirname(edbpath)
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+                self.open_edb()
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 if settings.enable_local_log_file and self.log_name:
@@ -190,6 +183,12 @@ class Edb(object):
                 self.logger.info("Failed to initialize DLLs.")
         else:
             warnings.warn("Failed to initialize DLLs.")
+
+        if not self.materials.materials:
+            self.materials.add_material("air")
+            self.materials.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
+            self.materials.add_material("fr4_epoxy", 4.4, 1, 0, 0.02, 0)
+            self.materials.add_material("solder_mask", 3.1, 1, 0, 0.035, 0)
 
     def __enter__(self):
         return self
@@ -276,22 +275,22 @@ class Edb(object):
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
             if is_ironpython:
-                clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
-                clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-                clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+                _clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+                _clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+                _clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
-                clr.AddReference("Ansys.Ansoft.Edb")
-                clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-                clr.AddReference("Ansys.Ansoft.SimSetupData")
+                _clr.AddReference("Ansys.Ansoft.Edb")
+                _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+                _clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
             else:
                 self.base_path = env_path(self.edbversion)
             sys.path.append(self.base_path)
-            clr.AddReference("Ansys.Ansoft.Edb")
-            clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-            clr.AddReference("Ansys.Ansoft.SimSetupData")
+            _clr.AddReference("Ansys.Ansoft.Edb")
+            _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+            _clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, "common", "oa")
         os.environ["ANSYS_OADIR"] = oaDirectory
@@ -309,11 +308,11 @@ class Edb(object):
         """EDB library object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
             if os.name == "posix" and is_ironpython:
-                clr.AddReferenceToFile("EdbLib.dll")
-                clr.AddReferenceToFile("DataModel.dll")
+                _clr.AddReferenceToFile("EdbLib.dll")
+                _clr.AddReferenceToFile("DataModel.dll")
             else:
-                clr.AddReference("EdbLib")
-                clr.AddReference("DataModel")
+                _clr.AddReference("EdbLib")
+                _clr.AddReference("DataModel")
             self._edblib = __import__("EdbLib")
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             try:
@@ -1270,7 +1269,7 @@ class Edb(object):
 
         for i in self.core_padstack.padstack_instances.values():
             if i.net_name not in all_list:
-                i.delete_padstack_instance()
+                i.delete()
         for i in self.core_primitives.primitives:
             if i.net_name not in all_list:
                 i.delete()
@@ -1362,7 +1361,7 @@ class Edb(object):
         #     pins_clean(item)
 
         for pin in pins_to_delete:
-            pin.delete_padstack_instance()
+            pin.delete()
 
         self.logger.info_timer("Padstack Instances removal completed")
         self.logger.reset_timer()
@@ -1556,16 +1555,16 @@ class Edb(object):
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
                 net = self.core_nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
-                sign_layers = list(self.core_stackup.signal_layers.keys())
+                sign_layers = list(self.stackup.signal_layers.keys())
                 if not p.start_layer:
-                    fromlayer = self.core_stackup.signal_layers[sign_layers[-1]]._layer
+                    fromlayer = self.stackup.signal_layers[sign_layers[-1]]._edb_layer
                 else:
-                    fromlayer = self.core_stackup.signal_layers[p.start_layer]._layer
+                    fromlayer = self.stackup.signal_layers[p.start_layer]._edb_layer
 
                 if not p.stop_layer:
-                    tolayer = self.core_stackup.signal_layers[sign_layers[0]]._layer
+                    tolayer = self.stackup.signal_layers[sign_layers[0]]._edb_layer
                 else:
-                    tolayer = self.core_stackup.signal_layers[p.stop_layer]._layer
+                    tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
                 for pad in list(self.core_padstack.padstacks.keys()):
                     if pad == p.padstack_definition:
@@ -1605,8 +1604,8 @@ class Edb(object):
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)
-        layers = self.core_stackup.stackup_layers.signal_layers
-        for layer in list(layers.keys()):
+        layers = [i for i in list(self.stackup.signal_layers.keys())]
+        for layer in layers:
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:
                 self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")

@@ -24,7 +24,6 @@ from functools import update_wrapper
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-main_module = sys.modules["__main__"]
 try:
     import ScriptEnv
 
@@ -32,7 +31,6 @@ try:
 except:
     inside_desktop = False
 
-is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
 if not is_ironpython:
     import psutil
@@ -97,7 +95,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     message_to_print = ""
     try:
-        messages = list(main_module.oDesktop.GetMessages("", "", 2))
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
     except AttributeError:
         messages = []
     except TypeError:
@@ -214,63 +212,6 @@ def open_file(file_path, file_options="r"):
         settings.logger.error("The file: %s does not exist", dir_name)
 
 
-def convert_remote_object(arg):
-    """Convert a remote list or dictionary to a native list or dictionary.
-
-    .. note::
-        This method is needed only on a Cpython-to-Ironpython connection.
-
-    Parameters
-    ----------
-    arg : dict or list
-        Dictionary or list to convert.
-
-    Returns
-    -------
-    dict or list
-        Converted dictionary or list
-    """
-    if _check_types(arg) == "list":
-        if arg.__len__() > 0:
-            if (
-                isinstance(arg[0], (int, float, str))
-                or _check_types(arg[0]) == "list"
-                or _check_types(arg[0]) == "dict"
-            ):
-                a = list(ast.literal_eval(str(arg)))
-                for i, el in enumerate(a):
-                    a[i] = convert_remote_object(el)
-                return a
-            else:
-                return [arg[i] for i in range(arg.__len__())]
-        else:
-            return []
-    elif _check_types(arg) == "dict":
-        a = dict(ast.literal_eval(str(arg)))
-        for k, v in a.items():
-            a[k] = convert_remote_object(v)
-        return a
-    return arg
-
-
-def _remote_list_conversion(args):
-    new_args = []
-    if args:
-        for arg in args:
-            new_args.append(convert_remote_object(arg))
-    return new_args
-
-
-def _remote_dict_conversion(args):
-    if args:
-        new_kwargs = {}
-        for arg in args:
-            new_kwargs[arg] = convert_remote_object(args[arg])
-    else:
-        new_kwargs = args
-    return new_kwargs
-
-
 def _log_method(func, new_args, new_kwargs):
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
         return
@@ -351,11 +292,6 @@ def _function_handler_wrapper(user_function):
             result = user_function(*args, **kwargs)
             return result
         else:
-            if is_remote_server:
-                converted_args = _remote_list_conversion(args)
-                converted_kwargs = _remote_dict_conversion(kwargs)
-                args = converted_args
-                kwargs = converted_kwargs
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
@@ -363,8 +299,7 @@ def _function_handler_wrapper(user_function):
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
+                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
                 return False
             except ValueError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
@@ -376,9 +311,8 @@ def _function_handler_wrapper(user_function):
                 _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
                 return False
             except IndexError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
-                    return False
+                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
+                return False
             except AssertionError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
                 return False
