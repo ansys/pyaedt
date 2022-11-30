@@ -1688,6 +1688,9 @@ if not config["skip_edb"]:
             loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
             assert edbapp.materials.add_multipole_debye_material("My_MP_Debye2", freq, rel_perm, loss_tan)
             edbapp.close_edb()
+            edbapp = Edb(edbversion=desktop_version)
+            assert "air" in edbapp.materials.materials
+            edbapp.close_edb()
 
         def test_128_microvias(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
