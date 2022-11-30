@@ -1085,6 +1085,10 @@ class ParametricSetups(object):
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             firstDataLine = next(csvreader)
+            try:
+                csvreader.fieldnames.remove("*")  # remove index field if present
+            except ValueError:
+                pass
             setup.props["Sweeps"]["SweepDefinition"] = [
                 OrderedDict(
                     {
@@ -1096,7 +1100,9 @@ class ParametricSetups(object):
                 )
                 for var_name in csvreader.fieldnames
             ]
-            setup.props["Sweep Operations"] = OrderedDict({"add": [list(line.values()) for line in csvreader]})
+            setup.props["Sweep Operations"] = OrderedDict(
+                {"add": [[line[var_name] for var_name in csvreader.fieldnames] for line in csvreader]}
+            )
         args = ["NAME:" + parametricname]
         _dict2arg(setup.props, args)
         args[8] = ["NAME:Sweep Operations"]
