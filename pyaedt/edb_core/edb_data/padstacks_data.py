@@ -634,14 +634,14 @@ class EDBPadstack(object):
         }
 
     @pyaedt_function_handler()
-    def convert_to_3d_microvias(self, convert_only_signal_vias=True, angle=15):
+    def convert_to_3d_microvias(self, convert_only_signal_vias=True, hole_wall_angle=15):
         """Convert actual padstack instance to microvias 3D Objects with a given aspect ratio.
 
         Parameters
         ----------
         convert_only_signal_vias : bool, optional
             Either to convert only vias belonging to signal nets or all vias. Defaults is ``True``.
-        angle : float, optional
+        hole_wall_angle : float, optional
             Angle of laser penetration in deg. It will define the bottom hole diameter with the following formula:
             HoleDiameter -2*tan(laser_angle* Hole depth). Hole depth is the height of the via (dielectric thickness).
             The default value is ``15``.
@@ -662,7 +662,7 @@ class EDBPadstack(object):
         start_elevation = layers[self.via_start_layer].lower_elevation
         diel_thick = abs(start_elevation - layers[self.via_stop_layer].upper_elevation)
         rad1 = self.hole_properties[0] / 2
-        rad2 = self.hole_properties[0] / 2 - math.tan(angle * diel_thick * math.pi / 180)
+        rad2 = self.hole_properties[0] / 2 - math.tan(hole_wall_angle * diel_thick * math.pi / 180)
 
         if start_elevation < (topz + bottomz) / 2:
             rad1, rad2 = rad2, rad1

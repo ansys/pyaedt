@@ -1689,7 +1689,9 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(source_path, target_path)
             edbapp = Edb(target_path, edbversion=desktop_version)
             assert edbapp.core_padstack.padstacks["Padstack_Circle"].convert_to_3d_microvias(False)
-            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_3d_microvias(False, angle=10)
+            assert edbapp.core_padstack.padstacks["Padstack_Rectangle"].convert_to_3d_microvias(
+                False, hole_wall_angle=10
+            )
             assert edbapp.core_padstack.padstacks["Padstack_Polygon_p12"].convert_to_3d_microvias(False)
             edbapp.close_edb()
 
