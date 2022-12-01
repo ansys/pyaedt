@@ -164,7 +164,7 @@ class EdbFrequencySweep(object):
 
     @property
     def max_solutions(self):
-        """Max solutions.
+        """Maximum solutions.
 
         Returns
         -------
