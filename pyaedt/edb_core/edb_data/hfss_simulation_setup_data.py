@@ -1,5 +1,6 @@
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class EdbFrequencySweep(object):
@@ -20,6 +21,7 @@ class EdbFrequencySweep(object):
             self._edb_sweep_data = self._sim_setup._edb.simsetupdata.SweepData(self._name)
             self.set_frequencies(frequency_sweep)
 
+    @pyaedt_function_handler()
     def _update_sweep(self):
         """Update sweep."""
         self._sim_setup._edb_sim_setup_info.SweepDataList.Clear()
@@ -228,22 +230,27 @@ class EdbFrequencySweep(object):
         self._edb_sweep_data.UseQ3DForDC = value
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def _set_frequencies(self, freq_sweep_string="Linear Step: 0GHz to 20GHz, step=0.05GHz"):
         self._edb_sweep_data.SetFrequencies(freq_sweep_string)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies_linear_scale(self, start="0.1GHz", stop="20GHz", step="50MHz"):
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, step)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies_linear_count(self, start="1kHz", stop="0.1GHz", count=10):
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, count)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetLogFrequencies(start, stop, samples)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies(self, frequency_list=None):
         if not frequency_list:
             frequency_list = [
@@ -480,6 +487,7 @@ class AdaptiveSettings(object):
     def adaptive_frequency_data_list(self):
         return [AdaptiveFrequencyData(i) for i in list(self.adaptive_settings.AdaptiveFrequencyDataList)]
 
+    @pyaedt_function_handler()
     def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s="0.02"):
         adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
         data = AdaptiveFrequencyData(adaptive_frequency_data)
@@ -520,6 +528,7 @@ class HfssSimulationSetup(object):
     def edb_sim_setup_info(self):
         return self._edb_sim_setup_info
 
+    @pyaedt_function_handler()
     def _update_setup(self):
         mesh_operations = self._edb_sim_setup_info.SimulationSettings.MeshOperations
         mesh_operations.Clear()
@@ -528,7 +537,7 @@ class HfssSimulationSetup(object):
 
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
-        if self._name in self._edb.simulation_setups.setups:
+        if self._name in self._edb.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
         self._name = self.name
         return self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
@@ -591,61 +600,6 @@ class HfssSimulationSetup(object):
         """Get adaptive settings."""
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         return AdaptiveSettings(self, adaptive_settings)
-
-        """
-        return {
-            "adapt_type": settings.AdaptType.ToString(),
-            "basic": settings.Basic,
-            "do_adaptive": settings.DoAdaptive,
-            "max_refinement": settings.MaxRefinement,
-            "max_refine_per_pass": settings.MaxRefinePerPass,
-            "min_passes": settings.MinPasses,
-            "save_fields": settings.SaveFields,
-            "save_rad_field_only": settings.SaveRadFieldsOnly,
-            "use_convergence_matrix": settings.UseConvergenceMatrix,
-            "use_max_refinement": settings.UseMaxRefinement,
-        }"""
-
-    @adaptive_settings.setter
-    def adaptive_settings(self, values):
-        """Set adaptive settings"""
-        edb_adapt_type = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings.AdaptType
-        adapt_type = {
-            "kSingle": edb_adapt_type.kSingle,
-            "kMultiFrequencies": edb_adapt_type.kMultiFrequencies,
-            "kBroadband": edb_adapt_type.kBroadband,
-            "kNumAdaptTypes": edb_adapt_type.kNumAdaptTypes,
-        }
-        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        if "adaptive_frequency_data_list" in values:
-            settings.AdaptiveFrequencyDataList.Clear()
-            adaptive_frequency_data = self._edb.simsetupdata.AdaptiveFrequencyData()
-            for i in values["adaptive_frequency_data_list"]:
-                adaptive_frequency_data.AdaptiveFrequency = i["adaptive_frequency"]
-                adaptive_frequency_data.MaxDelta = i["max_delta"]
-                adaptive_frequency_data.MaxPasses = i["max_passes"]
-                settings.AdaptiveFrequencyDataList.Add(adaptive_frequency_data)
-        if "adapt_type" in values:
-            settings.AdaptType = adapt_type[values["adapt_type"]]
-        if "basic" in values:
-            settings.Basic = values["basic"]
-        if "do_adaptive" in values:
-            settings.DoAdaptive = values["do_adaptive"]
-        if "max_refinement" in values:
-            settings.MaxRefinement = values["max_refinement"]
-        if "max_refine_per_pass" in values:
-            settings.MaxRefinePerPass = values["max_refine_per_pass"]
-        if "min_passes" in values:
-            settings.MinPasses = values["min_passes"]
-        if "save_fields" in values:
-            settings.SaveFields = values["save_fields"]
-        if "save_rad_field_only" in values:
-            settings.SaveRadFieldsOnly = values["save_rad_field_only"]
-        if "use_convergence_matrix" in values:
-            settings.UseConvergenceMatrix = values["use_convergence_matrix"]
-        if "use_max_refinement" in values:
-            settings.UseMaxRefinement = values["use_max_refinement"]
-        self._update_setup()
 
     @property
     def defeature_settings(self):
@@ -810,6 +764,7 @@ class HfssSimulationSetup(object):
             self._mesh_operations[i.Name] = MeshOperation(self, i)
         return self._mesh_operations
 
+    @pyaedt_function_handler()
     def add_mesh_operation(
         self,
         name,
@@ -843,6 +798,7 @@ class HfssSimulationSetup(object):
         self.mesh_operations[name] = MeshOperation(self, mesh_operation)
         self._update_setup()
 
+    @pyaedt_function_handler()
     def add_frequency_sweep(self, name=None, frequency_sweep=None):
         """Add frequency sweep.
 
@@ -862,11 +818,14 @@ class HfssSimulationSetup(object):
             name = generate_unique_name("sweep")
         return EdbFrequencySweep(self, frequency_sweep, name)
 
+    @pyaedt_function_handler()
     def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
+        return True
 
+    @pyaedt_function_handler()
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
@@ -875,6 +834,7 @@ class HfssSimulationSetup(object):
                 return False
         return True
 
+    @pyaedt_function_handler()
     def set_solution_broadband(
         self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"
     ):
