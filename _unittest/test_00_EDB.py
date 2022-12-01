@@ -1844,7 +1844,6 @@ if not config["skip_edb"]:
             assert not setup1.plot_jv
             assert setup1.refine_bondwires
             assert setup1.refine_vias
-            assert first_source in setup1.source_terms_to_ground
 
         def test_131_siwave_ac_simulation_setup(self):
             setup1 = self.edbapp.create_siwave_syz_setup("AC1")
