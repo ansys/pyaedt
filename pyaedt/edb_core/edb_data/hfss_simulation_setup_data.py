@@ -58,6 +58,7 @@ class EdbFrequencySweep(object):
         Returns
         -------
         bool
+            ``True`` if adaptive sampling is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.AdaptiveSampling
 
