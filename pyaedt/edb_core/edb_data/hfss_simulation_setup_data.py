@@ -528,7 +528,7 @@ class HfssSimulationSetup(object):
 
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
-        if self._name in self._edb.simulation_setups.setups:
+        if self._name in self._edb.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
         self._name = self.name
         return self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
@@ -865,7 +865,7 @@ class HfssSimulationSetup(object):
     def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
-        self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
+        return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
