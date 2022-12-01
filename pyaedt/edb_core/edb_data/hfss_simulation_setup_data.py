@@ -475,10 +475,106 @@ class AdaptiveSettings(object):
     def __init__(self, parent, adaptive_settings):
         self._parent = parent
         self.adaptive_settings = adaptive_settings
+        self._adapt_type_mapping = {
+            "kSingle": self.adaptive_settings.AdaptType.kSingle,
+            "kMultiFrequencies": self.adaptive_settings.AdaptType.kMultiFrequencies,
+            "kBroadband": self.adaptive_settings.AdaptType.kBroadband,
+            "kNumAdaptTypes": self.adaptive_settings.AdaptType.kNumAdaptTypes,
+        }
 
     @property
     def adaptive_frequency_data_list(self):
         return [AdaptiveFrequencyData(i) for i in list(self.adaptive_settings.AdaptiveFrequencyDataList)]
+
+    @property
+    def adapt_type(self):
+        return self.adaptive_settings.AdaptType.ToString()
+
+    @adapt_type.setter
+    def adapt_type(self, value):
+        self.adaptive_settings.AdaptType = self._adapt_type_mapping[value]
+        self._parent._update_setup()
+
+    @property
+    def basic(self):
+        return self.adaptive_settings.Basic
+
+    @basic.setter
+    def basic(self, value):
+        self.adaptive_settings.Basic = value
+        self._parent._update_setup()
+
+    @property
+    def do_adaptive(self):
+        return self.adaptive_settings.DoAdaptive
+
+    @do_adaptive.setter
+    def do_adaptive(self, value):
+        self.adaptive_settings.DoAdaptive = value
+        self._parent._update_setup()
+
+    @property
+    def max_refinement(self):
+        return self.adaptive_settings.MaxRefinement
+
+    @max_refinement.setter
+    def max_refinement(self, value):
+        self.adaptive_settings.MaxRefinement = value
+        self._parent._update_setup()
+
+    @property
+    def max_refine_per_pass(self):
+        return self.adaptive_settings.MaxRefinePerPass
+
+    @max_refine_per_pass.setter
+    def max_refine_per_pass(self, value):
+        self.adaptive_settings.MaxRefinePerPass = value
+        self._parent._update_setup()
+
+    @property
+    def min_passes(self):
+        return self.adaptive_settings.MinPasses
+
+    @min_passes.setter
+    def min_passes(self, value):
+        self.adaptive_settings.MinPasses = value
+        self._parent._update_setup()
+
+    @property
+    def save_fields(self):
+        return self.adaptive_settings.SaveFields
+
+    @save_fields.setter
+    def save_fields(self, value):
+        self.adaptive_settings.SaveFields = value
+        self._parent._update_setup()
+
+    @property
+    def save_rad_field_only(self):
+        return self.adaptive_settings.SaveRadFieldsOnly
+
+    @save_rad_field_only.setter
+    def save_rad_field_only(self, value):
+        self.adaptive_settings.SaveRadFieldsOnly = value
+        self._parent._update_setup()
+
+    @property
+    def use_convergence_matrix(self):
+        return self.adaptive_settings.UseConvergenceMatrix
+
+    @use_convergence_matrix.setter
+    def use_convergence_matrix(self, value):
+        self.adaptive_settings.UseConvergenceMatrix = value
+        self._parent._update_setup()
+
+    @property
+    def use_max_refinement(self):
+        return self.adaptive_settings.UseMaxRefinement
+
+    @use_max_refinement.setter
+    def use_max_refinement(self, value):
+        self.adaptive_settings.UseMaxRefinement = value
+        self._parent._update_setup()
 
     def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s="0.02"):
         adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
@@ -591,61 +687,6 @@ class HfssSimulationSetup(object):
         """Get adaptive settings."""
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         return AdaptiveSettings(self, adaptive_settings)
-
-        """
-        return {
-            "adapt_type": settings.AdaptType.ToString(),
-            "basic": settings.Basic,
-            "do_adaptive": settings.DoAdaptive,
-            "max_refinement": settings.MaxRefinement,
-            "max_refine_per_pass": settings.MaxRefinePerPass,
-            "min_passes": settings.MinPasses,
-            "save_fields": settings.SaveFields,
-            "save_rad_field_only": settings.SaveRadFieldsOnly,
-            "use_convergence_matrix": settings.UseConvergenceMatrix,
-            "use_max_refinement": settings.UseMaxRefinement,
-        }"""
-
-    @adaptive_settings.setter
-    def adaptive_settings(self, values):
-        """Set adaptive settings"""
-        edb_adapt_type = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings.AdaptType
-        adapt_type = {
-            "kSingle": edb_adapt_type.kSingle,
-            "kMultiFrequencies": edb_adapt_type.kMultiFrequencies,
-            "kBroadband": edb_adapt_type.kBroadband,
-            "kNumAdaptTypes": edb_adapt_type.kNumAdaptTypes,
-        }
-        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        if "adaptive_frequency_data_list" in values:
-            settings.AdaptiveFrequencyDataList.Clear()
-            adaptive_frequency_data = self._edb.simsetupdata.AdaptiveFrequencyData()
-            for i in values["adaptive_frequency_data_list"]:
-                adaptive_frequency_data.AdaptiveFrequency = i["adaptive_frequency"]
-                adaptive_frequency_data.MaxDelta = i["max_delta"]
-                adaptive_frequency_data.MaxPasses = i["max_passes"]
-                settings.AdaptiveFrequencyDataList.Add(adaptive_frequency_data)
-        if "adapt_type" in values:
-            settings.AdaptType = adapt_type[values["adapt_type"]]
-        if "basic" in values:
-            settings.Basic = values["basic"]
-        if "do_adaptive" in values:
-            settings.DoAdaptive = values["do_adaptive"]
-        if "max_refinement" in values:
-            settings.MaxRefinement = values["max_refinement"]
-        if "max_refine_per_pass" in values:
-            settings.MaxRefinePerPass = values["max_refine_per_pass"]
-        if "min_passes" in values:
-            settings.MinPasses = values["min_passes"]
-        if "save_fields" in values:
-            settings.SaveFields = values["save_fields"]
-        if "save_rad_field_only" in values:
-            settings.SaveRadFieldsOnly = values["save_rad_field_only"]
-        if "use_convergence_matrix" in values:
-            settings.UseConvergenceMatrix = values["use_convergence_matrix"]
-        if "use_max_refinement" in values:
-            settings.UseMaxRefinement = values["use_max_refinement"]
-        self._update_setup()
 
     @property
     def defeature_settings(self):
@@ -865,10 +906,12 @@ class HfssSimulationSetup(object):
     def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        adaptive_settings.adapt_type = "kSingle"
         return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.adapt_type = "kMultiFrequencies"
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         for i in frequencies:
             if not self.adaptive_settings.add_adaptive_frequency_data(i, max_num_passes, max_delta_s):
@@ -879,6 +922,7 @@ class HfssSimulationSetup(object):
         self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"
     ):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.adapt_type = "kBroadband"
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         if not self.adaptive_settings.add_adaptive_frequency_data(low_frequency, max_num_passes, max_delta_s):
             return False

@@ -1713,8 +1713,8 @@ if not config["skip_edb"]:
         def test_129_hfss_simulation_setup(self):
             setup1 = self.edbapp.create_hfss_simulation_setup("setup1")
             assert setup1.set_solution_single_frequency()
-            #assert setup1.set_solution_multi_frequencies()
-            #assert setup1.set_solution_broadband()
+            assert setup1.set_solution_multi_frequencies()
+            assert setup1.set_solution_broadband()
 
             hfss_solver_settings = setup1.hfss_solver_settings
             hfss_solver_settings.enhanced_low_freq_accuracy = True
