@@ -380,7 +380,7 @@ class AdaptiveSettings(object):
         data.max_passes = max_num_passes
         data.max_delta = max_delta_s
         self.adaptive_settings.AdaptiveFrequencyDataList.Add(data._adaptive_frequency_data)
-        self._parent._update_setup()
+        return self._parent._update_setup()
         
 
 class HfssSimulationSetup(object):
@@ -423,8 +423,9 @@ class HfssSimulationSetup(object):
 
         if self._name in self._edb.simulation_setups.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
-        self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
         self._name = self.name
+        return self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
+
 
     @property
     def frequency_sweeps(self):
@@ -755,20 +756,25 @@ class HfssSimulationSetup(object):
             name = generate_unique_name("sweep")
         return FreqSweep(self, frequency_sweep, name)
 
-    def set_solution_single_frequency(self, frequency, max_num_passes=10, max_delta_s="0.02"):
+    def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
-    def set_solution_multi_frequencies(self, frequencies, max_num_passes=10, max_delta_s="0.02"):
+    def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         for i in frequencies:
-            self.adaptive_settings.add_adaptive_frequency_data(i, max_num_passes, max_delta_s)
+            if not self.adaptive_settings.add_adaptive_frequency_data(i, max_num_passes, max_delta_s):
+                return False
+        return True
 
     def set_solution_broadband(self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
-        self.adaptive_settings.add_adaptive_frequency_data(low_frequency, max_num_passes, max_delta_s)
-        self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s)
+        if not self.adaptive_settings.add_adaptive_frequency_data(low_frequency, max_num_passes, max_delta_s):
+            return False
+        if not self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s):
+            return False
+        return True
         
