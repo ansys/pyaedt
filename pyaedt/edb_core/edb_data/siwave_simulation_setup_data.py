@@ -680,7 +680,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def edb_sim_setup_info(self):
-        """Edb Internal Simulation Setup Object."""
+        """EDB internal simulation setup object."""
         return self._edb_sim_setup_info
 
     @pyaedt_function_handler()
