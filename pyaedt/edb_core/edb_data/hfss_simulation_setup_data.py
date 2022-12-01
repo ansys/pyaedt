@@ -1474,9 +1474,9 @@ class HfssSimulationSetup(object):
         frequency : str, float, optional
             Adaptive Frequency. Default is ``5GHz``.
         max_num_passes : int, optional
-            Maximum number of passes. Default i si ``10`α.
+            Maximum number of passes. Default is ``10``.
         max_delta_s : float, optional
-            Maximum Delta S. Default i s ``0.02``.
+            Maximum Delta S. Default is ``0.02``.
 
         Returns
         -------
