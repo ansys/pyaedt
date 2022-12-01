@@ -1123,6 +1123,61 @@ class CurveApproxSettings(object):
         self._parent._update_setup()
 
 
+class DcrSettings(object):
+    """Manages EDB methods for dcr settings."""
+    def __init__(self, parent):
+        self._parent = parent
+
+    @property
+    def _dcr_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.DCRSettings
+
+    @property
+    def conduction_max_passes(self):
+        return self._dcr_settings.ConductionMaxPasses
+
+    @conduction_max_passes.setter
+    def conduction_max_passes(self, value):
+        self._dcr_settings.ConductionMaxPasses = value
+        self._parent._update_setup()
+
+    @property
+    def conduction_min_converged_passes(self):
+        return self._dcr_settings.ConductionMinConvergedPasses
+
+    @conduction_min_converged_passes.setter
+    def conduction_min_converged_passes(self, value):
+        self._dcr_settings.ConductionMinConvergedPasses = value
+        self._parent._update_setup()
+
+    @property
+    def Conduction_min_passes(self):
+        return self._dcr_settings.ConductionMinPasses
+
+    @Conduction_min_passes.setter
+    def Conduction_min_passes(self, value):
+        self._dcr_settings.ConductionMinPasses = value
+        self._parent._update_setup()
+
+    @property
+    def conduction_per_error(self):
+        return self._dcr_settings.ConductionPerError
+
+    @conduction_per_error.setter
+    def conduction_per_error(self,value):
+        self._dcr_settings.ConductionPerError = value
+        self._parent._update_setup()
+
+    @property
+    def conduction_per_refine(self):
+        return self._dcr_settings.ConductionPerRefine
+
+    @conduction_per_refine.setter
+    def conduction_per_refine(self, value):
+        self._dcr_settings.ConductionPerRefine = value
+        self._parent._update_setup()
+
+
 class HfssSimulationSetup(object):
     """Manages EDB methods for hfss simulation setup."""
 
@@ -1281,30 +1336,7 @@ class HfssSimulationSetup(object):
     @property
     def dcr_settings(self):
         """Get dcr settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.DCRSettings
-        return {
-            "conduction_max_passes": settings.ConductionMaxPasses,
-            "conduction_min_converged_passes": settings.ConductionMinConvergedPasses,
-            "Conduction_min_passes": settings.ConductionMinPasses,
-            "conduction_per_error": settings.ConductionPerError,
-            "conduction_per_refine": settings.ConductionPerRefine,
-        }
-
-    @dcr_settings.setter
-    def dcr_settings(self, values):
-        """Set dcr settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.DCRSettings
-        if "conduction_max_passes" in values:
-            settings.ConductionMaxPasses = values["conduction_max_passes"]
-        if "conduction_min_converged_passes" in values:
-            settings.ConductionMinConvergedPasses = values["conduction_min_converged_passes"]
-        if "Conduction_min_passes" in values:
-            settings.ConductionMinPasses = values["Conduction_min_passes"]
-        if "conduction_per_error" in values:
-            settings.ConductionPerError = values["conduction_per_error"]
-        if "conduction_per_refine" in values:
-            settings.ConductionPerRefine = values["conduction_per_refine"]
-        self._update_setup()
+        return DcrSettings(self)
 
     @property
     def hfss_port_settings(self):
