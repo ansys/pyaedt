@@ -2276,7 +2276,7 @@ class Edb(object):
         """
         return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
 
-    def create_hfss_simulation_setup(self, name=None):
+    def create_hfss_setup(self, name=None):
         """Create a new setup from template.
 
         Parameters
@@ -2290,7 +2290,7 @@ class Edb(object):
 
         Examples
         --------
-        >>> setup1 = edbapp.create_hfss_simulation_setup("setup1")
+        >>> setup1 = edbapp.create_hfss_setup("setup1")
         >>> setup1.hfss_port_settings.max_delta_z0 = 0.5
         """
         if name in self.setups:

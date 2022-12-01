@@ -802,8 +802,9 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             return False
         if not name:
             name = generate_unique_name("sweep")
-        self._sweep_data_list[name] = EdbFrequencySweep(self, frequency_sweep, name)
-        return self._sweep_data_list[name]
+        sweep = EdbFrequencySweep(self, frequency_sweep, name)
+        self._sweep_data_list[name] = sweep
+        return sweep
 
 
 class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):

@@ -1468,7 +1468,7 @@ class HfssSimulationSetup(object):
 
     @pyaedt_function_handler()
     def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s=0.02):
-        """Set Single Frequency Solution
+        """Set Single Frequency Solution.
 
         Parameters
         ----------
@@ -1484,9 +1484,8 @@ class HfssSimulationSetup(object):
         bool
 
         """
-        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        adaptive_settings.AdaptiveFrequencyDataList.Clear()
-        adaptive_settings.adapt_type = "kSingle"
+        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        self.adaptive_settings.adapt_type = "kSingle"
         return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
     @pyaedt_function_handler()
@@ -1507,9 +1506,8 @@ class HfssSimulationSetup(object):
         bool
 
         """
-        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        adaptive_settings.adapt_type = "kMultiFrequencies"
-        adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        self.adaptive_settings.adapt_type = "kMultiFrequencies"
+        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         for i in frequencies:
             if not self.adaptive_settings.add_adaptive_frequency_data(i, max_num_passes, max_delta_s):
                 return False
@@ -1536,9 +1534,8 @@ class HfssSimulationSetup(object):
         -------
         bool
         """
-        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        adaptive_settings.adapt_type = "kBroadband"
-        adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        self.adaptive_settings.adapt_type = "kBroadband"
+        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         if not self.adaptive_settings.add_adaptive_frequency_data(low_frequency, max_num_passes, max_delta_s):
             return False
         if not self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s):

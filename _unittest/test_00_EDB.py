@@ -1707,7 +1707,7 @@ if not config["skip_edb"]:
             edbapp.close_edb()
 
         def test_129_hfss_simulation_setup(self):
-            setup1 = self.edbapp.create_hfss_simulation_setup("setup1")
+            setup1 = self.edbapp.create_hfss_setup("setup1")
             assert setup1.set_solution_single_frequency()
             assert setup1.set_solution_multi_frequencies()
             assert setup1.set_solution_broadband()

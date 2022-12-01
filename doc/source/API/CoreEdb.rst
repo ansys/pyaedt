@@ -99,8 +99,16 @@ These classes are the containers of data read from the EDB file:
    sources.ExcitationDifferential
    hfss_simulation_setup_data.HfssSimulationSetup
    hfss_simulation_setup_data.EdbFrequencySweep
+   hfss_simulation_setup_data.DcrSettings
+   hfss_simulation_setup_data.CurveApproximationSettings
+   hfss_simulation_setup_data.AdvancedMeshSettings
+   hfss_simulation_setup_data.ViaSettings
+   hfss_simulation_setup_data.DefeatureSettings
+   hfss_simulation_setup_data.AdaptiveSettings
+   hfss_simulation_setup_data.AdaptiveFrequencyData
+   hfss_simulation_setup_data.HfssSolverSettings
    hfss_simulation_setup_data.HfssPortSettings
-   hfss_simulation_setup_data.HfssMeshOperation
+   hfss_simulation_setup_data.MeshOperation
    siwave_simulation_setup_data.SiwaveSYZSimulationSetup
    siwave_simulation_setup_data.SiwaveDCSimulationSetup
 
