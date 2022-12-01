@@ -53,7 +53,7 @@ class EdbFrequencySweep(object):
 
     @property
     def adaptive_sampling(self):
-        """Use adaptive sampling.
+        """Whether adaptive sampling is used.
 
         Returns
         -------
