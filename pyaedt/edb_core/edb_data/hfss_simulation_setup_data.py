@@ -28,7 +28,7 @@ class EdbFrequencySweep(object):
         for el in list(self._sim_setup.frequency_sweeps.values()):
             self._sim_setup._edb_sim_setup_info.SweepDataList.Add(el._edb_sweep_data)
         self._sim_setup._edb_sim_setup_info.SweepDataList.Add(self._edb_sweep_data)
-        self._sim_setup._update_setup()
+        return self._sim_setup._update_setup()
 
     @property
     def name(self):
@@ -53,78 +53,192 @@ class EdbFrequencySweep(object):
 
     @property
     def adaptive_sampling(self):
+        """Use adaptive sampling.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.AdaptiveSampling
 
     @property
     def adv_dc_extrapolation(self):
+        """Turn on advanced DC Extrapolation.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.AdvDCExtrapolation
 
     @property
     def auto_s_mat_only_solve(self):
+        """Auto/Manual SMatrix only solve.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.AutoSMatOnlySolve
 
     @property
     def enforce_causality(self):
+        """Enforce causality during interpolating sweep.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.EnforceCausality
 
     @property
     def enforce_dc_and_causality(self):
+        """Enforce DC point and causality.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.EnforceDCAndCausality
 
     @property
     def enforce_passivity(self):
+        """Enforce passivity during interpolating sweep.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.EnforcePassivity
 
     @property
     def freq_sweep_type(self):
+        """Sweep type (interpolation, discrete or Broadband Fast).
+
+        Returns
+        -------
+        str
+        """
         return self._edb_sweep_data.FreqSweepType.ToString()
 
     @property
     def interp_use_full_basis(self):
+        """Use Full basis.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.InterpUseFullBasis
 
     @property
     def interp_use_port_impedance(self):
+        """Use Port impedance.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.InterpUsePortImpedance
 
     @property
     def interp_use_prop_const(self):
+        """Use propagation constants.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.InterpUsePropConst
 
     @property
     def interp_use_s_matrix(self):
+        """Use S matrix.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.InterpUseSMatrix
 
     @property
     def max_solutions(self):
+        """Max solutions.
+
+        Returns
+        -------
+        int
+        """
         return self._edb_sweep_data.MaxSolutions
 
     @property
     def min_freq_s_mat_only_solve(self):
+        """Minimum frequency SMatrix only solve.
+
+        Returns
+        -------
+        str
+        """
         return self._edb_sweep_data.MinFreqSMatOnlySolve
 
     @property
     def min_solved_freq(self):
+        """Minimum solved frequency.
+
+        Returns
+        -------
+        str
+        """
         return self._edb_sweep_data.MinSolvedFreq
 
     @property
     def passivity_tolerance(self):
+        """Tolerance for passivity enforcement.
+
+        Returns
+        -------
+        float
+        """
         return self._edb_sweep_data.PassivityTolerance
 
     @property
     def relative_s_error(self):
+        """Specify S-parameter error tolerance for interpolating sweep.
+
+        Returns
+        -------
+        float
+        """
         return self._edb_sweep_data.RelativeSError
 
     @property
     def save_fields(self):
+        """Enable or disable extraction of surface current data .
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.SaveFields
 
     @property
     def save_rad_fields_only(self):
+        """Enable or disable save radiated fields only.
+
+        Returns
+        -------
+        bool
+        """
         return self._edb_sweep_data.SaveRadFieldsOnly
 
     @property
     def use_q3d_for_dc(self):
+        """Enable Q3D solver for DC point extraction .
+
+        Returns
+        -------
+        float
+        """
         return self._edb_sweep_data.UseQ3DForDC
 
     @adaptive_sampling.setter
@@ -237,21 +351,88 @@ class EdbFrequencySweep(object):
 
     @pyaedt_function_handler()
     def set_frequencies_linear_scale(self, start="0.1GHz", stop="20GHz", step="50MHz"):
+        """Set a linear scale frequency sweep.
+
+        Parameters
+        ----------
+        start : str, float
+            Start frequency.
+        stop : str, float
+            Stop frequency.
+        step : str, float
+            Step frequency
+
+        Returns
+        -------
+        bool
+        """
+        start = self._sim_setup._edb.arg_to_dim(start, "Hz")
+        stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
+        step = self._sim_setup._edb.arg_to_dim(step, "Hz")
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, step)
-        self._update_sweep()
+        return self._update_sweep()
 
     @pyaedt_function_handler()
     def set_frequencies_linear_count(self, start="1kHz", stop="0.1GHz", count=10):
+        """Set a linear count frequency sweep.
+
+        Parameters
+        ----------
+        start : str, float
+            Start frequency.
+        stop : str, float
+            Stop frequency.
+        count : int
+            Step frequency
+
+        Returns
+        -------
+        bool
+        """
+        start = self._sim_setup._edb.arg_to_dim(start, "Hz")
+        stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, count)
-        self._update_sweep()
+        return self._update_sweep()
 
     @pyaedt_function_handler()
     def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
+        """Set a log count frequency sweep.
+
+        Parameters
+        ----------
+        start : str, float
+            Start frequency.
+        stop : str, float
+            Stop frequency.
+        samples : int
+            Step frequency
+
+        Returns
+        -------
+        bool
+        """
+        start = self._sim_setup._edb.arg_to_dim(start, "Hz")
+        stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetLogFrequencies(start, stop, samples)
-        self._update_sweep()
+        return self._update_sweep()
 
     @pyaedt_function_handler()
     def set_frequencies(self, frequency_list=None):
+        """Set frequency list to the sweep frequencies.
+
+        Parameters
+        ----------
+        frequency_list : list
+            List of lists of 4 elements. Each list has to contain:
+              1- freq type ("linear count", "log scale" or "linear scale")
+              2- start frequency
+              3- stop frequency
+              3- step frequency or count
+
+        Returns
+        -------
+        bool
+        """
         if not frequency_list:
             frequency_list = [
                 ["linear count", "0", "1kHz", 1],
@@ -270,7 +451,7 @@ class EdbFrequencySweep(object):
                 return False
         for i in temp:
             self._edb_sweep_data.Frequencies.Add(i)
-        self._update_sweep()
+        return self._update_sweep()
 
 
 class MeshOperation(object):
@@ -286,10 +467,22 @@ class MeshOperation(object):
 
     @property
     def enabled(self):
+        """Enabled.
+
+        Returns
+        -------
+        bool
+        """
         return self.mesh_operation.Enabled
 
     @property
     def mesh_operation_type(self):
+        """Mesh operation type.
+
+        Returns
+        -------
+        int
+        """
         return self.mesh_operation.MeshOpType
 
     @mesh_operation_type.setter
@@ -298,14 +491,32 @@ class MeshOperation(object):
 
     @property
     def mesh_region(self):
+        """Mesh region object.
+
+        Returns
+        -------
+        object
+        """
         return self.mesh_operation.MeshRegion
 
     @property
     def name(self):
+        """Mesh operation Name.
+
+        Returns
+        -------
+        str
+        """
         return self.mesh_operation.Name
 
     @property
     def nets_layers_list(self):
+        """List of nets and layers.
+
+        Returns
+        -------
+        list
+        """
         return self.mesh_operation.NetsLayersList
 
     @nets_layers_list.setter
@@ -318,6 +529,12 @@ class MeshOperation(object):
 
     @property
     def refine_inside(self):
+        """Refine inside objects.
+
+        Returns
+        -------
+        bool
+        """
         return self.mesh_operation.RefineInside
 
     @enabled.setter
@@ -360,6 +577,12 @@ class HfssPortSettings(object):
 
     @property
     def max_delta_z0(self):
+        """Maximum change to Z0 in successive passes.
+
+        Returns
+        -------
+        float
+        """
         return self._hfss_port_settings.MaxDeltaZ0
 
     @max_delta_z0.setter
@@ -369,6 +592,12 @@ class HfssPortSettings(object):
 
     @property
     def max_triangles_wave_port(self):
+        """Max number of triangles allowed for wave ports.
+
+        Returns
+        -------
+        int
+        """
         return self._hfss_port_settings.MaxTrianglesWavePort
 
     @max_triangles_wave_port.setter
@@ -378,6 +607,12 @@ class HfssPortSettings(object):
 
     @property
     def min_triangles_wave_port(self):
+        """Minimum number of triangles allowed for wave ports.
+
+        Returns
+        -------
+        int
+        """
         return self._hfss_port_settings.MinTrianglesWavePort
 
     @min_triangles_wave_port.setter
@@ -387,6 +622,12 @@ class HfssPortSettings(object):
 
     @property
     def enable_set_triangles_wave_port(self):
+        """Enable setting of min/max mesh limits for wave ports.
+
+        Returns
+        -------
+        bool
+        """
         return self._hfss_port_settings.SetTrianglesWavePort
 
     @enable_set_triangles_wave_port.setter
@@ -404,6 +645,12 @@ class HfssSolverSettings(object):
 
     @property
     def enhanced_low_freq_accuracy(self):
+        """Enable legacy low frequency sampling.
+
+        Returns
+        -------
+        float
+        """
         return self._hfss_solver_settings.EnhancedLowFreqAccuracy
 
     @enhanced_low_freq_accuracy.setter
@@ -413,17 +660,22 @@ class HfssSolverSettings(object):
 
     @property
     def order_basis(self):
-        """Get order basis"""
+        """Get or Specify order of the basis functions for HFSS : 0=Mixed, 1=Zero, 2=1st order, 3=2nd order."""
         return self._hfss_solver_settings.OrderBasis
 
     @order_basis.setter
     def order_basis(self, value):
-        """OrderBasis: 0=Mixed, 1=Zero, 2=1st order, 3=2nd order"""
         self._hfss_solver_settings.OrderBasis = value
         self._parent._update_setup()
 
     @property
     def relative_residual(self):
+        """Specify the residual used by the iterative solver.
+
+        Returns
+        -------
+        float
+        """
         return self._hfss_solver_settings.RelativeResidual
 
     @relative_residual.setter
@@ -433,10 +685,22 @@ class HfssSolverSettings(object):
 
     @property
     def solver_type(self):
+        """Get solver type to use (Direct/Iterative/Auto) for HFSS.
+
+        Returns
+        -------
+        int
+        """
         return self._hfss_solver_settings.SolverType
 
     @property
     def use_shell_elements(self):
+        """Enable use of Shell Elements.
+
+        Returns
+        -------
+        bool
+        """
         return self._hfss_solver_settings.UseShellElements
 
     @use_shell_elements.setter
@@ -453,6 +717,12 @@ class AdaptiveFrequencyData(object):
 
     @property
     def adaptive_frequency(self):
+        """Adaptive frequency for this setup.
+
+        Returns
+        -------
+        str
+        """
         return self._adaptive_frequency_data.AdaptiveFrequency
 
     @adaptive_frequency.setter
@@ -461,14 +731,26 @@ class AdaptiveFrequencyData(object):
 
     @property
     def max_delta(self):
+        """The maximum change of S-parameters between two consecutive passes, which serves as a stopping criteria.
+
+        Returns
+        -------
+        str
+        """
         return self._adaptive_frequency_data.MaxDelta
 
     @max_delta.setter
     def max_delta(self, value):
-        self._adaptive_frequency_data.MaxDelta = value
+        self._adaptive_frequency_data.MaxDelta = str(value)
 
     @property
     def max_passes(self):
+        """The maximum allowed number of mesh refinement cycles.
+
+        Returns
+        -------
+        int
+        """
         return self._adaptive_frequency_data.MaxPasses
 
     @max_passes.setter
@@ -485,15 +767,36 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_frequency_data_list(self):
+        """List of all adaptive Frequency Data.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveFrequencyData`
+        """
         return [AdaptiveFrequencyData(i) for i in list(self.adaptive_settings.AdaptiveFrequencyDataList)]
 
     @pyaedt_function_handler()
-    def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s="0.02"):
+    def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s=0.02):
+        """
+
+        Parameters
+        ----------
+        frequency : str, float
+            Frequency with units or float frequency (in Hz).
+        max_num_passes : int, optional
+            Maximum number of passes. Default is ``10``.
+        max_delta_s : float, optional
+            Maximum Delta S. Default is ``0.02``.
+
+        Returns
+        -------
+        boo
+        """
         adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
         data = AdaptiveFrequencyData(adaptive_frequency_data)
-        data.adaptive_frequency = frequency
+        data.adaptive_frequency = self._parent._edb.arg_with_dim(frequency, "Hz")
         data.max_passes = max_num_passes
-        data.max_delta = max_delta_s
+        data.max_delta = str(max_delta_s)
         self.adaptive_settings.AdaptiveFrequencyDataList.Add(data._adaptive_frequency_data)
         return self._parent._update_setup()
 
@@ -804,9 +1107,9 @@ class HfssSimulationSetup(object):
 
         Parameters
         ----------
-        name: str, optional
+        name : str, optional
             Name of the frequency sweep.
-        frequency_sweep: list, optional
+        frequency_sweep : list, optional
 
         Returns
         ----------
@@ -819,7 +1122,22 @@ class HfssSimulationSetup(object):
         return EdbFrequencySweep(self, frequency_sweep, name)
 
     @pyaedt_function_handler()
-    def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s="0.02"):
+    def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s=0.02):
+        """Set Single Frequency Solution
+
+        Parameters
+        ----------
+        frequency : str, float, optional
+            Adaptive Frequency. Default is ``5GHz``.
+        max_num_passes : int, optional
+            Maximum number of passes. Default i si ``10`α.
+        max_delta_s : float, optional
+            Maximum Delta S. Default i s ``0.02``.
+
+        Returns
+        -------
+
+        """
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
