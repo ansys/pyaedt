@@ -693,7 +693,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def dc_settings(self):
-        """Siwave DC Settings.
+        """Siwave DC settings.
 
         Returns
         -------
