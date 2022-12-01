@@ -749,7 +749,7 @@ class EdbSiwave(object):
     def add_siwave_dc_analysis(self, name=None):
         """Add a Siwave DC analysis in EDB.
 
-        If Setup is present it will be deleted and replaced by new
+        If a setup is present, it is deleted and replaced with
         actual settings.
 
         .. note::
