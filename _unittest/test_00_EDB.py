@@ -1712,61 +1712,57 @@ if not config["skip_edb"]:
             assert setup1.set_solution_multi_frequencies()
             assert setup1.set_solution_broadband()
 
-            hfss_solver_settings = setup1.hfss_solver_settings
-            hfss_solver_settings.enhanced_low_freq_accuracy = True
-            hfss_solver_settings.order_basis = 1
-            hfss_solver_settings.relative_residual = 0.0002
-            hfss_solver_settings.use_shell_elements = True
+            setup1.hfss_solver_settings.enhanced_low_freq_accuracy = True
+            setup1.hfss_solver_settings.order_basis = 1
+            setup1.hfss_solver_settings.relative_residual = 0.0002
+            setup1.hfss_solver_settings.use_shell_elements = True
 
             hfss_solver_settings = self.edbapp.setups["setup1"].hfss_solver_settings
             assert hfss_solver_settings.order_basis == 1
             assert hfss_solver_settings.relative_residual == 0.0002
             assert hfss_solver_settings.solver_type
             assert hfss_solver_settings.enhanced_low_freq_accuracy
-            #assert hfss_solver_settings.use_shell_elements
+            assert not hfss_solver_settings.use_shell_elements
 
-            adaptive_settings = setup1.adaptive_settings
-            assert adaptive_settings.add_adaptive_frequency_data("5GHz", 8, "0.01")
-            assert adaptive_settings.adaptive_frequency_data_list
-            adaptive_settings.adapt_type = "kBroadband"
-            adaptive_settings.basic = False
-            adaptive_settings.do_adaptive = False
-            adaptive_settings.max_refinement = 1000001
-            adaptive_settings.max_refine_per_pass = 20
-            adaptive_settings.min_passes = 2
-            adaptive_settings.save_fields = True
-            adaptive_settings.save_rad_field_only = True
-            adaptive_settings.use_convergence_matrix = True
-            adaptive_settings.use_max_refinement = True
+            assert setup1.adaptive_settings.add_adaptive_frequency_data("5GHz", 8, "0.01")
+            assert setup1.adaptive_settings.adaptive_frequency_data_list
+            setup1.adaptive_settings.adapt_type = "kBroadband"
+            setup1.adaptive_settings.basic = False
+            setup1.adaptive_settings.do_adaptive = False
+            setup1.adaptive_settings.max_refinement = 1000001
+            setup1.adaptive_settings.max_refine_per_pass = 20
+            setup1.adaptive_settings.min_passes = 2
+            setup1.adaptive_settings.save_fields = True
+            setup1.adaptive_settings.save_rad_field_only = True
+            setup1.adaptive_settings.use_convergence_matrix = True
+            setup1.adaptive_settings.use_max_refinement = True
 
-            adaptive_settings = self.edbapp.setups["setup1"].adaptive_settings
-            assert adaptive_settings.adapt_type == "kBroadband"
-            assert not adaptive_settings.basic
-            assert not adaptive_settings.do_adaptive
-            assert adaptive_settings.max_refinement == 1000001
-            assert adaptive_settings.max_refine_per_pass == 20
-            assert adaptive_settings.min_passes == 2
-            assert adaptive_settings.save_fields
-            assert adaptive_settings.save_rad_field_only
-            #assert adaptive_settings.use_convergence_matrix
-            assert adaptive_settings.use_max_refinement
+            assert self.edbapp.setups["setup1"].adaptive_settings.adapt_type == "kBroadband"
+            assert not self.edbapp.setups["setup1"].adaptive_settings.basic
+            assert not self.edbapp.setups["setup1"].adaptive_settings.do_adaptive
+            assert self.edbapp.setups["setup1"].adaptive_settings.max_refinement == 1000001
+            assert self.edbapp.setups["setup1"].adaptive_settings.max_refine_per_pass == 20
+            assert self.edbapp.setups["setup1"].adaptive_settings.min_passes == 2
+            assert self.edbapp.setups["setup1"].adaptive_settings.save_fields
+            assert self.edbapp.setups["setup1"].adaptive_settings.save_rad_field_only
+            # assert adaptive_settings.use_convergence_matrix
+            assert self.edbapp.setups["setup1"].adaptive_settings.use_max_refinement
 
-            defeature_settings = setup1.defeature_settings
-            defeature_settings.defeature_abs_length = "1um"
-            defeature_settings.defeature_ratio = 1e-5
-            defeature_settings.healing_option = 0
-            defeature_settings.model_type = 1
-            defeature_settings.remove_floating_geometry = True
-            defeature_settings.small_void_area = 0.1
-            defeature_settings.union_polygons = False
-            defeature_settings.use_defeature = False
-            defeature_settings.use_defeature_abs_length = True
+            setup1.defeature_settings.defeature_abs_length = "1um"
+            setup1.defeature_settings.defeature_ratio = 1e-5
+            setup1.defeature_settings.healing_option = 0
+            setup1.defeature_settings.model_type = 1
+            setup1.defeature_settings.remove_floating_geometry = True
+            setup1.defeature_settings.small_void_area = 0.1
+            setup1.defeature_settings.union_polygons = False
+            setup1.defeature_settings.use_defeature = False
+            setup1.defeature_settings.use_defeature_abs_length = True
 
             defeature_settings = self.edbapp.setups["setup1"].defeature_settings
             assert defeature_settings.defeature_abs_length == "1um"
             assert defeature_settings.defeature_ratio == 1e-5
-            #assert defeature_settings.healing_option == 0
-            #assert defeature_settings.model_type == 1
+            # assert defeature_settings.healing_option == 0
+            # assert defeature_settings.model_type == 1
             assert defeature_settings.remove_floating_geometry
             assert defeature_settings.small_void_area == 0.1
             assert not defeature_settings.union_polygons
@@ -1783,8 +1779,7 @@ if not config["skip_edb"]:
             assert via_settings.via_density == 1
             assert via_settings.via_material == "pec"
             assert via_settings.via_num_sides == 8
-            #assert via_settings.via_style == "kNum25DViaStyle"
-
+            # assert via_settings.via_style == "kNum25DViaStyle"
 
             advanced_mesh_settings = setup1.advanced_mesh_settings
             advanced_mesh_settings.layer_snap_tol = "1e-6"

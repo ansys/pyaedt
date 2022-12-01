@@ -571,9 +571,12 @@ class MeshOperation(object):
 class HfssPortSettings(object):
     """Manages EDB methods for hfss port settings."""
 
-    def __init__(self, parent, hfss_port_settings):
+    def __init__(self, parent):
         self._parent = parent
-        self._hfss_port_settings = hfss_port_settings
+
+    @property
+    def _hfss_port_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
 
     @property
     def max_delta_z0(self):
@@ -639,9 +642,12 @@ class HfssPortSettings(object):
 class HfssSolverSettings(object):
     """Manages EDB methods for hfss solver settings."""
 
-    def __init__(self, parent, hfss_solver_settings):
+    def __init__(self, parent):
         self._parent = parent
-        self._hfss_solver_settings = hfss_solver_settings
+
+    @property
+    def _hfss_solver_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
 
     @property
     def enhanced_low_freq_accuracy(self):
@@ -761,15 +767,18 @@ class AdaptiveFrequencyData(object):
 class AdaptiveSettings(object):
     """Manages EDB methods for adaptive settings."""
 
-    def __init__(self, parent, adaptive_settings):
+    def __init__(self, parent):
         self._parent = parent
-        self.adaptive_settings = adaptive_settings
         self._adapt_type_mapping = {
             "kSingle": self.adaptive_settings.AdaptType.kSingle,
             "kMultiFrequencies": self.adaptive_settings.AdaptType.kMultiFrequencies,
             "kBroadband": self.adaptive_settings.AdaptType.kBroadband,
             "kNumAdaptTypes": self.adaptive_settings.AdaptType.kNumAdaptTypes,
         }
+
+    @property
+    def adaptive_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
 
     @property
     def adaptive_frequency_data_list(self):
@@ -900,9 +909,12 @@ class AdaptiveSettings(object):
 class DefeatureSettings(object):
     """Manages EDB methods for defeature settings."""
 
-    def __init__(self, parent, defeature_settings):
+    def __init__(self, parent):
         self._parent = parent
-        self._defeature_settings = defeature_settings
+
+    @property
+    def _defeature_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.DefeatureSettings
 
     @property
     def defeature_abs_length(self):
@@ -989,9 +1001,12 @@ class DefeatureSettings(object):
 
 class ViaSettings(object):
     """Manages EDB methods for via settings."""
-    def __init__(self, parent, via_settings):
+
+    def __init__(
+        self,
+        parent,
+    ):
         self._parent = parent
-        self._via_settings = via_settings
         self._via_style_mapping = {
             "k25DViaWirebond": self._via_settings.T25DViaStyle.k25DViaWirebond,
             "k25DViaRibbon": self._via_settings.T25DViaStyle.k25DViaRibbon,
@@ -999,6 +1014,10 @@ class ViaSettings(object):
             "k25DViaField": self._via_settings.T25DViaStyle.k25DViaField,
             "kNum25DViaStyle": self._via_settings.T25DViaStyle.kNum25DViaStyle,
         }
+
+    @property
+    def _via_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.ViaSettings
 
     @property
     def via_density(self):
@@ -1039,9 +1058,13 @@ class ViaSettings(object):
 
 class AdvancedMeshSettings(object):
     """Manages EDB methods for advanced mesh settings."""
-    def __init__(self, parent, advanced_mesh_settings):
+
+    def __init__(self, parent):
         self._parent = parent
-        self._advanced_mesh_settings = advanced_mesh_settings
+
+    @property
+    def _advanced_mesh_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
 
     @property
     def layer_snap_tol(self):
@@ -1073,9 +1096,13 @@ class AdvancedMeshSettings(object):
 
 class CurveApproxSettings(object):
     """Manages EDB methods for curve approx settings."""
-    def __init__(self, parent, curve_approx_settings):
+
+    def __init__(self, parent):
         self._parent = parent
-        self._curve_approx_settings = curve_approx_settings
+
+    @property
+    def _curve_approx_settings(self):
+        return self._parent._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
 
     @property
     def arc_angle(self):
@@ -1163,9 +1190,14 @@ class HfssSimulationSetup(object):
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
         if self._name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
+            self._edb.active_cell.DeleteSimulationSetup(self._name)
         self._name = self.name
-        return self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
+        self._edb.active_cell.AddSimulationSetup(self._edb_sim_setup)
+        for i in list(self._edb.active_cell.SimulationSetups):
+            if i.GetSimSetupInfo().Name == self._name:
+                self._edb_sim_setup_info = i.GetSimSetupInfo()
+                return True
+        return False
 
     @property
     def frequency_sweeps(self):
@@ -1217,32 +1249,27 @@ class HfssSimulationSetup(object):
     @property
     def hfss_solver_settings(self):
         """Manages EDB methods for hfss solver settings."""
-        hfss_solver_settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
-        return HfssSolverSettings(self, hfss_solver_settings)
+        return HfssSolverSettings(self)
 
     @property
     def adaptive_settings(self):
         """Get adaptive settings."""
-        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        return AdaptiveSettings(self, adaptive_settings)
+        return AdaptiveSettings(self)
 
     @property
     def defeature_settings(self):
         """Get defeature settings."""
-        defeature_settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
-        return DefeatureSettings(self, defeature_settings)
+        return DefeatureSettings(self)
 
     @property
     def via_settings(self):
         """Get via settings."""
-        via_settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
-        return ViaSettings(self, via_settings)
+        return ViaSettings(self)
 
     @property
     def advanced_mesh_settings(self):
         """Get advanced mesh settings."""
-        advanced_mesh_settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
-        return AdvancedMeshSettings(self, advanced_mesh_settings)
+        return AdvancedMeshSettings(self)
 
     @advanced_mesh_settings.setter
     def advanced_mesh_settings(self, values):
@@ -1259,8 +1286,7 @@ class HfssSimulationSetup(object):
     @property
     def curve_approx_settings(self):
         """Get curve approx settings."""
-        curve_approx_settings = self._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
-        return CurveApproxSettings(self, curve_approx_settings)
+        return CurveApproxSettings(self)
 
     @curve_approx_settings.setter
     def curve_approx_settings(self, values):
@@ -1309,8 +1335,7 @@ class HfssSimulationSetup(object):
     @property
     def hfss_port_settings(self):
         """Hfss prot settings."""
-        hfss_port_settings = self._edb_sim_setup_info.SimulationSettings.HFSSPortSettings
-        return HfssPortSettings(self, hfss_port_settings)
+        return HfssPortSettings(self)
 
     @property
     def mesh_operations(self):
@@ -1421,4 +1446,3 @@ class HfssSimulationSetup(object):
         if not self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s):
             return False
         return True
-
