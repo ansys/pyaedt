@@ -32,7 +32,7 @@ class EdbFrequencySweep(object):
 
     @property
     def name(self):
-        """Get name of this sweep."""
+        """Name of the sweep."""
         return self._edb_sweep_data.Name
 
     @name.setter
