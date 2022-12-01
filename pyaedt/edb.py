@@ -2268,7 +2268,7 @@ class Edb(object):
 
     @property
     def siwave_ac_setups(self):
-        """Active Siwave SYZ Setups.
+        """Active Siwave SYZ setups.
 
         Returns
         -------
