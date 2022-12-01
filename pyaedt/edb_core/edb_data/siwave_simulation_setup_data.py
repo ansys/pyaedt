@@ -756,7 +756,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def use_custom_settings(self):
-        """Use Custom Settings.
+        """Whether to use custom settings.
 
         Returns
         -------
