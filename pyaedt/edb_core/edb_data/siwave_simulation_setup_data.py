@@ -864,7 +864,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
     @property
     def source_terms_to_ground(self):
-        """Retrieve the dictionary of grounded terminals.
+        """Dictionary of grounded terminals.
 
         Returns
         -------
