@@ -709,7 +709,7 @@ class HfssSolverSettings(object):
 
     @property
     def use_shell_elements(self):
-        """Enable use of Shell Elements.
+        """Enable use of shell elements.
 
         Returns
         -------
