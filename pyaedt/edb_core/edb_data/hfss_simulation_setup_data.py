@@ -629,7 +629,7 @@ class HfssPortSettings(object):
 
     @property
     def enable_set_triangles_wave_port(self):
-        """Enable setting of min/max mesh limits for wave ports.
+        """Enable setting of minimum and maximum mesh limits for wave ports.
 
         Returns
         -------
