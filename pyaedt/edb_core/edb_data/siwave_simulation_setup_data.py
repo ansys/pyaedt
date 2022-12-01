@@ -734,7 +734,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def si_slider_postion(self):
-        """SI solider position. Values from 1 to 3."""
+        """SI solider position. Values are from ``1`` to ``3``."""
         return self._edb_sim_setup_info.SimulationSettings.SISliderPos
 
     @enabled.setter
