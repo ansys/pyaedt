@@ -1844,7 +1844,7 @@ if not config["skip_edb"]:
             assert not setup1.plot_jv
             assert setup1.refine_bondwires
             assert setup1.refine_vias
-            if not self.edbapp.sources:
+            if len(self.edbapp.sources) == 0:
                 self.edbapp.core_siwave.create_voltage_source_on_net("U2A5", "PCIE_RBIAS", "U2A5", "GND", 3.3, 0)
             first_source = list(self.edbapp.sources.keys())[0]
             setup1.add_source_terminal_to_ground(list(self.edbapp.sources.keys())[0], 1)
