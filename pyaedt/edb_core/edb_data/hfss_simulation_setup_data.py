@@ -876,7 +876,7 @@ class AdaptiveSettings(object):
 
     @property
     def min_passes(self):
-        """Minimum passes.
+        """Minimum number of passes.
 
         Returns
         -------
