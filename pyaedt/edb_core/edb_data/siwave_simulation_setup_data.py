@@ -498,7 +498,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def compute_inductance(self):
-        """Compute Inductance.
+        """Whether to compute Inductance.
 
         Returns
         -------
