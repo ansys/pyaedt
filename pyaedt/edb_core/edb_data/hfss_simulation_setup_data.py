@@ -6,32 +6,18 @@ class MeshOperation(object):
     def __init__(self, parent, mesh_operation):
         self._parent = parent
         self.mesh_operation = mesh_operation
-        self._mesh_op_mapping = {
-            "kMeshSetupBase": self.mesh_operation_type.kMeshSetupBase,
-            "kMeshSetupLength": self.mesh_operation_type.kMeshSetupLength,
-            "kMeshSetupSkinDepth": self.mesh_operation_type.kMeshSetupSkinDepth,
-            "kNumMeshOpTypes": self.mesh_operation_type.kNumMeshOpTypes,
-        }
+        self._mesh_op_mapping = {"kMeshSetupBase": self.mesh_operation_type.kMeshSetupBase,
+                                 "kMeshSetupLength": self.mesh_operation_type.kMeshSetupLength,
+                                 "kMeshSetupSkinDepth": self.mesh_operation_type.kMeshSetupSkinDepth,
+                                 "kNumMeshOpTypes": self.mesh_operation_type.kNumMeshOpTypes}
 
     @property
     def enabled(self):
-        """Check if Mesh Operation is Enabled.
-
-        Returns
-        -------
-        bool
-        """
         return self.mesh_operation.Enabled
 
     @property
     def mesh_operation_type(self):
-        """Check if Mesh Operation Type.
-
-        Returns
-        -------
-        str
-        """
-        return self.mesh_operation.MeshOpType.ToString()
+        return self.mesh_operation.MeshOpType
 
     @mesh_operation_type.setter
     def mesh_operation_type(self, value):
@@ -39,32 +25,14 @@ class MeshOperation(object):
 
     @property
     def mesh_region(self):
-        """Mesh Region.
-
-        Returns
-        -------
-        str
-        """
         return self.mesh_operation.MeshRegion
 
     @property
     def name(self):
-        """Name.
-
-        Returns
-        -------
-        str
-        """
         return self.mesh_operation.Name
 
     @property
     def nets_layers_list(self):
-        """Tuple of layers and net names to which mesh operation is assigned.
-
-        Returns
-        -------
-        tuple
-        """
         return self.mesh_operation.NetsLayersList
 
     @nets_layers_list.setter
@@ -77,12 +45,6 @@ class MeshOperation(object):
 
     @property
     def refine_inside(self):
-        """Refine Inside.
-
-        Returns
-        -------
-        bool
-        """
         return self.mesh_operation.RefineInside
 
     @enabled.setter
@@ -117,8 +79,7 @@ class MeshOperation(object):
 
 
 class HfssPortSettings(object):
-    """Manages EDB methods for hfss port settings."""
-
+    """ Manages EDB methods for hfss port settings."""
     def __init__(self, parent, hfss_port_settings):
         self._parent = parent
         self._hfss_port_settings = hfss_port_settings
@@ -160,12 +121,12 @@ class HfssPortSettings(object):
         self._parent._update_setup()
 
 
-class EdbFrequencySweep(object):
+class FreqSweep(object):
     """Manages EDB methods for frequency sweep."""
 
-    def __init__(self, sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
+    def __init__(self, hfss_sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
 
-        self._sim_setup = sim_setup
+        self._hfss_sim_setup = hfss_sim_setup
 
         if edb_sweep_data:
             self._edb_sweep_data = edb_sweep_data
@@ -175,16 +136,14 @@ class EdbFrequencySweep(object):
                 self._name = generate_unique_name("sweep")
             else:
                 self._name = name
-            self._edb_sweep_data = self._sim_setup._edb.simsetupdata.SweepData(self._name)
+            self._edb_sweep_data = self._hfss_sim_setup._edb.simsetupdata.SweepData(self._name)
             self.set_frequencies(frequency_sweep)
 
     def _update_sweep(self):
         """Update sweep."""
-        self._sim_setup._edb_sim_setup_info.SweepDataList.Clear()
-        for el in list(self._sim_setup.frequency_sweeps.values()):
-            self._sim_setup._edb_sim_setup_info.SweepDataList.Add(el._edb_sweep_data)
-        self._sim_setup._edb_sim_setup_info.SweepDataList.Add(self._edb_sweep_data)
-        self._sim_setup._update_setup()
+        self._hfss_sim_setup._edb_sim_setup_info.SweepDataList.Clear()
+        self._hfss_sim_setup._edb_sim_setup_info.SweepDataList.Add(self._edb_sweep_data)
+        self._hfss_sim_setup._update_setup()
 
     @property
     def name(self):
@@ -208,183 +167,84 @@ class EdbFrequencySweep(object):
         return list(self._edb_sweep_data.Frequencies)
 
     @property
-    def adaptive_sampling(self):
-        return self._edb_sweep_data.AdaptiveSampling
+    def settings(self):
+        """Get settings."""
+        settings = self._edb_sweep_data
 
-    @property
-    def adv_dc_extrapolation(self):
-        return self._edb_sweep_data.AdvDCExtrapolation
+        return {
+            "name": settings.Name,
+            "adaptive_sampling": settings.AdaptiveSampling,
+            "adv_dc_extrapolation": settings.AdvDCExtrapolation,
+            "auto_s_mat_only_solve": settings.AutoSMatOnlySolve,
+            "enforce_causality": settings.EnforceCausality,
+            "enforce_dc_and_causality": settings.EnforceDCAndCausality,
+            "enforce_passivity": settings.EnforcePassivity,
+            "freq_sweep_type": settings.FreqSweepType.ToString(),
+            "interp_use_full_basis": settings.InterpUseFullBasis,
+            "interp_use_port_impedance": settings.InterpUsePortImpedance,
+            "interp_use_prop_const": settings.InterpUsePropConst,
+            "interp_use_s_matrix": settings.InterpUseSMatrix,
+            "max_solutions": settings.MaxSolutions,
+            "min_freq_s_mat_only_solve": settings.MinFreqSMatOnlySolve,
+            "min_solved_freq": settings.MinSolvedFreq,
+            "passivity_tolerance": settings.PassivityTolerance,
+            "relative_s_error": settings.RelativeSError,
+            "save_fields": settings.SaveFields,
+            "save_rad_fields_only": settings.SaveRadFieldsOnly,
+            "use_q3d_for_dc": settings.UseQ3DForDC,
+        }
 
-    @property
-    def auto_s_mat_only_solve(self):
-        return self._edb_sweep_data.AutoSMatOnlySolve
-
-    @property
-    def enforce_causality(self):
-        return self._edb_sweep_data.EnforceCausality
-
-    @property
-    def enforce_dc_and_causality(self):
-        return self._edb_sweep_data.EnforceDCAndCausality
-
-    @property
-    def enforce_passivity(self):
-        return self._edb_sweep_data.EnforcePassivity
-
-    @property
-    def freq_sweep_type(self):
-        return self._edb_sweep_data.FreqSweepType.ToString()
-
-    @property
-    def interp_use_full_basis(self):
-        return self._edb_sweep_data.InterpUseFullBasis
-
-    @property
-    def interp_use_port_impedance(self):
-        return self._edb_sweep_data.InterpUsePortImpedance
-
-    @property
-    def interp_use_prop_const(self):
-        return self._edb_sweep_data.InterpUsePropConst
-
-    @property
-    def interp_use_s_matrix(self):
-        return self._edb_sweep_data.InterpUseSMatrix
-
-    @property
-    def max_solutions(self):
-        return self._edb_sweep_data.MaxSolutions
-
-    @property
-    def min_freq_s_mat_only_solve(self):
-        return self._edb_sweep_data.MinFreqSMatOnlySolve
-
-    @property
-    def min_solved_freq(self):
-        return self._edb_sweep_data.MinSolvedFreq
-
-    @property
-    def passivity_tolerance(self):
-        return self._edb_sweep_data.PassivityTolerance
-
-    @property
-    def relative_s_error(self):
-        return self._edb_sweep_data.RelativeSError
-
-    @property
-    def save_fields(self):
-        return self._edb_sweep_data.SaveFields
-
-    @property
-    def save_rad_fields_only(self):
-        return self._edb_sweep_data.SaveRadFieldsOnly
-
-    @property
-    def use_q3d_for_dc(self):
-        return self._edb_sweep_data.UseQ3DForDC
-
-    @adaptive_sampling.setter
-    def adaptive_sampling(self, value):
-        self._edb_sweep_data.AdaptiveSampling = value
-        self._update_sweep()
-
-    @adv_dc_extrapolation.setter
-    def adv_dc_extrapolation(self, value):
-        self._edb_sweep_data.AdvDCExtrapolation = value
-        self._update_sweep()
-
-    @auto_s_mat_only_solve.setter
-    def auto_s_mat_only_solve(self, value):
-        self._edb_sweep_data.AutoSMatOnlySolve = value
-        self._update_sweep()
-
-    @enforce_causality.setter
-    def enforce_causality(self, value):
-        self._edb_sweep_data.EnforceCausality = value
-        self._update_sweep()
-
-    @enforce_dc_and_causality.setter
-    def enforce_dc_and_causality(self, value):
-        self._edb_sweep_data.EnforceDCAndCausality = value
-        self._update_sweep()
-
-    @enforce_passivity.setter
-    def enforce_passivity(self, value):
-        self._edb_sweep_data.EnforcePassivity = value
-        self._update_sweep()
-
-    @freq_sweep_type.setter
-    def freq_sweep_type(self, value):
+    @settings.setter
+    def settings(self, values):
+        """Set settings."""
         edb_freq_sweep_type = self._edb_sweep_data.TFreqSweepType
-        if value in [0, "kInterpolatingSweep"]:
-            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kInterpolatingSweep
-        elif value in [1, "kDiscreteSweep"]:
-            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kDiscreteSweep
-        elif value in [2, "kBroadbandFastSweep"]:
-            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kBroadbandFastSweep
-        elif value in [3, "kNumSweepTypes"]:
-            self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kNumSweepTypes
-        self._edb_sweep_data.FreqSweepType.ToString()
-
-    @interp_use_full_basis.setter
-    def interp_use_full_basis(self, value):
-        self._edb_sweep_data.InterpUseFullBasis = value
-        self._update_sweep()
-
-    @interp_use_port_impedance.setter
-    def interp_use_port_impedance(self, value):
-        self._edb_sweep_data.InterpUsePortImpedance = value
-        self._update_sweep()
-
-    @interp_use_prop_const.setter
-    def interp_use_prop_const(self, value):
-        self._edb_sweep_data.InterpUsePropConst = value
-        self._update_sweep()
-
-    @interp_use_s_matrix.setter
-    def interp_use_s_matrix(self, value):
-        self._edb_sweep_data.InterpUseSMatrix = value
-        self._update_sweep()
-
-    @max_solutions.setter
-    def max_solutions(self, value):
-        self._edb_sweep_data.MaxSolutions = value
-        self._update_sweep()
-
-    @min_freq_s_mat_only_solve.setter
-    def min_freq_s_mat_only_solve(self, value):
-        self._edb_sweep_data.MinFreqSMatOnlySolve = value
-        self._update_sweep()
-
-    @min_solved_freq.setter
-    def min_solved_freq(self, value):
-        self._edb_sweep_data.MinSolvedFreq = value
-        self._update_sweep()
-
-    @passivity_tolerance.setter
-    def passivity_tolerance(self, value):
-        self._edb_sweep_data.PassivityTolerance = value
-        self._update_sweep()
-
-    @relative_s_error.setter
-    def relative_s_error(self, value):
-        self._edb_sweep_data.RelativeSError = value
-        self._update_sweep()
-
-    @save_fields.setter
-    def save_fields(self, value):
-        self._edb_sweep_data.SaveFields = value
-        self._update_sweep()
-
-    @save_rad_fields_only.setter
-    def save_rad_fields_only(self, value):
-        self._edb_sweep_data.SaveRadFieldsOnly = value
-        self._update_sweep()
-
-    @use_q3d_for_dc.setter
-    def use_q3d_for_dc(self, value):
-        self._edb_sweep_data.UseQ3DForDC = value
-        self._update_sweep()
+        freq_sweep_type = {
+            "kInterpolatingSweep": edb_freq_sweep_type.kInterpolatingSweep,
+            "kDiscreteSweep": edb_freq_sweep_type.kDiscreteSweep,
+            "kBroadbandFastSweep": edb_freq_sweep_type.kBroadbandFastSweep,
+            "kNumSweepTypes": edb_freq_sweep_type.kNumSweepTypes,
+        }
+        settings = self._edb_sweep_data
+        if "name" in values:
+            settings.Name = values["name"]
+        if "adaptive_sampling" in values:
+            settings.AdaptiveSampling = values["adaptive_sampling"]
+        if "adv_dc_extrapolation" in values:
+            settings.AdvDCExtrapolation = values["adv_dc_extrapolation"]
+        if "auto_s_mat_only_solve" in values:
+            settings.AutoSMatOnlySolve = values["auto_s_mat_only_solve"]
+        if "enforce_causality" in values:
+            settings.EnforceCausality = values["enforce_causality"]
+        if "enforce_dc_and_causality" in values:
+            settings.EnforceDCAndCausality = values["enforce_dc_and_causality"]
+        if "enforce_passivity" in values:
+            settings.EnforcePassivity = values["enforce_passivity"]
+        if "freq_sweep_type" in values:
+            settings.FreqSweepType = freq_sweep_type[values["freq_sweep_type"]]
+        if "interp_use_full_basis" in values:
+            settings.InterpUseFullBasis = values["interp_use_full_basis"]
+        if "interp_use_port_impedance" in values:
+            settings.InterpUsePortImpedance = values["interp_use_port_impedance"]
+        if "interp_use_prop_const" in values:
+            settings.InterpUsePropConst = values["interp_use_prop_const"]
+        if "interp_use_s_matrix" in values:
+            settings.InterpUseSMatrix = values["interp_use_s_matrix"]
+        if "max_solutions" in values:
+            settings.MaxSolutions = values["max_solutions"]
+        if "min_freq_s_mat_only_solve" in values:
+            settings.MinFreqSMatOnlySolve = values["min_freq_s_mat_only_solve"]
+        if "min_solved_freq" in values:
+            settings.MinSolvedFreq = values["min_solved_freq"]
+        if "passivity_tolerance" in values:
+            settings.PassivityTolerance = values["passivity_tolerance"]
+        if "relative_s_error" in values:
+            settings.RelativeSError = values["relative_s_error"]
+        if "save_fields" in values:
+            settings.SaveFields = values["save_fields"]
+        if "save_rad_fields_only" in values:
+            settings.SaveRadFieldsOnly = values["save_rad_fields_only"]
+        if "use_q3d_for_dc" in values:
+            settings.UseQ3DForDC = values["use_q3d_for_dc"]
 
     def _set_frequencies(self, freq_sweep_string="Linear Step: 0GHz to 20GHz, step=0.05GHz"):
         self._edb_sweep_data.SetFrequencies(freq_sweep_string)
@@ -424,6 +284,105 @@ class EdbFrequencySweep(object):
         self._update_sweep()
 
 
+class HfssSolverSettings(object):
+    """Manages EDB methods for hfss solver settings."""
+
+    def __init__(self, parent, hfss_solver_settings):
+        self._parent = parent
+        self._hfss_solver_settings = hfss_solver_settings
+
+    @property
+    def enhanced_low_freq_accuracy(self):
+        return self._hfss_solver_settings.EnhancedLowFreqAccuracy
+
+    @enhanced_low_freq_accuracy.setter
+    def enhanced_low_freq_accuracy(self, value):
+        self._hfss_solver_settings.EnhancedLowFreqAccuracy = value
+        self._parent._update_setup()
+
+    @property
+    def order_basis(self):
+        """Get order basis"""
+        return self._hfss_solver_settings.OrderBasis
+
+    @order_basis.setter
+    def order_basis(self, value):
+        """OrderBasis: 0=Mixed, 1=Zero, 2=1st order, 3=2nd order"""
+        self._hfss_solver_settings.OrderBasis = value
+        self._parent._update_setup()
+
+    @property
+    def relative_residual(self):
+        return self._hfss_solver_settings.RelativeResidual
+
+    @relative_residual.setter
+    def relative_residual(self, value):
+        self._hfss_solver_settings.RelativeResidual = value
+        self._parent._update_setup()
+
+    @property
+    def solver_type(self):
+        return self._hfss_solver_settings.SolverType
+
+    @property
+    def use_shell_elements(self):
+        return self._hfss_solver_settings.UseShellElements
+
+    @use_shell_elements.setter
+    def use_shell_elements(self, value):
+        self._hfss_solver_settings.UseShellElements = value
+        self._parent._update_setup()
+
+class AdaptiveFrequencyData(object):
+    """Manages EDB methods for adaptive frequency data."""
+    def __init__(self, adaptive_frequency_data):
+        self._adaptive_frequency_data = adaptive_frequency_data
+
+    @property
+    def adaptive_frequency(self):
+        return self._adaptive_frequency_data.AdaptiveFrequency
+
+    @adaptive_frequency.setter
+    def adaptive_frequency(self, value):
+        self._adaptive_frequency_data.AdaptiveFrequency = value
+
+    @property
+    def max_delta(self):
+        return self._adaptive_frequency_data.MaxDelta
+
+    @max_delta.setter
+    def max_delta(self, value):
+        self._adaptive_frequency_data.MaxDelta = value
+
+    @property
+    def max_passes(self):
+        return self._adaptive_frequency_data.MaxPasses
+
+    @max_passes.setter
+    def max_passes(self, value):
+        self._adaptive_frequency_data.MaxPasses = value
+
+
+class AdaptiveSettings(object):
+    """Manages EDB methods for adaptive settings."""
+    def __init__(self, parent, adaptive_settings):
+        self._parent = parent
+        self.adaptive_settings = adaptive_settings
+
+    @property
+    def adaptive_frequency_data_list(self):
+        return [AdaptiveFrequencyData(i) for i in list(self.adaptive_settings.AdaptiveFrequencyDataList)]
+    
+    def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s="0.02"):
+        adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
+        data = AdaptiveFrequencyData(adaptive_frequency_data)
+        data.adaptive_frequency = frequency
+        data.max_passes = max_num_passes
+        data.max_delta = max_delta_s
+        self.adaptive_settings.AdaptiveFrequencyDataList.Add(data._adaptive_frequency_data)
+        self._parent._update_setup()
+        
+
 class HfssSimulationSetup(object):
     """Manages EDB methods for hfss simulation setup."""
 
@@ -445,7 +404,7 @@ class HfssSimulationSetup(object):
             else:
                 self._edb_sim_setup_info.Name = name
             self._name = name
-            self.hfss_solver_settings = {"OrderBasis": 0}
+            self.hfss_solver_settings.order_basis = 0
 
             self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
             self._update_setup()
@@ -462,7 +421,7 @@ class HfssSimulationSetup(object):
 
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
-        if self._name in self._edb.setups:
+        if self._name in self._edb.simulation_setups.setups:
             self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
         self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
         self._name = self.name
@@ -472,7 +431,7 @@ class HfssSimulationSetup(object):
         """Get frequency sweep list."""
         sweep_data_list = {}
         for i in list(self._edb_sim_setup_info.SweepDataList):
-            sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
+            sweep_data_list[i.Name] = FreqSweep(self, None, i.Name, i)
         return sweep_data_list
 
     @property
@@ -516,52 +475,18 @@ class HfssSimulationSetup(object):
 
     @property
     def hfss_solver_settings(self):
-        """Get hfss solver settings.
-        EnhancedLowFreqAccuracy: bool
-        OrderBasis: 0=Mixed, 1=Zero, 2=1st order, 3=2nd order
-        RelativeResidual
-        SolverType
-        UseShellElements
-
-        Returns
-        -------
-
-        """
-        settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
-        return {
-            "enhanced_low_freq_accuracy": settings.EnhancedLowFreqAccuracy,
-            "order_basis": settings.OrderBasis,
-            "relative_residual": settings.RelativeResidual,
-            "solver_type": settings.SolverType.ToString(),
-            "use_shell_elements": settings.UseShellElements,
-        }
-
-    @hfss_solver_settings.setter
-    def hfss_solver_settings(self, values):
-        """Set hfss solver settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
-        if "enhanced_low_freq_accuracy" in values:
-            settings.EnhancedLowFreqAccuracy = values["enhanced_low_freq_accuracy"]
-        if "order_basis" in values:
-            settings.OrderBasis = values["order_basis"]
-        if "relative_residual" in values:
-            settings.RelativeResidual = values["relative_residual"]
-        if "use_shell_elements" in values:
-            settings.UseShellElements = values["use_shell_elements"]
-        self._update_setup()
+        """Manages EDB methods for hfss solver settings."""
+        hfss_solver_settings = self._edb_sim_setup_info.SimulationSettings.HFSSSolverSettings
+        return HfssSolverSettings(self, hfss_solver_settings)
 
     @property
     def adaptive_settings(self):
         """Get adaptive settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
-        adaptive_freq_list = []
-        for i in list(settings.AdaptiveFrequencyDataList):
-            adaptive_freq_list.append(
-                {"adaptive_frequency": i.AdaptiveFrequency, "max_delta": i.MaxDelta, "max_passes": i.MaxPasses}
-            )
+        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        return AdaptiveSettings(self, adaptive_settings)
 
+        """
         return {
-            "adaptive_frequency_data_list": adaptive_freq_list,
             "adapt_type": settings.AdaptType.ToString(),
             "basic": settings.Basic,
             "do_adaptive": settings.DoAdaptive,
@@ -572,7 +497,7 @@ class HfssSimulationSetup(object):
             "save_rad_field_only": settings.SaveRadFieldsOnly,
             "use_convergence_matrix": settings.UseConvergenceMatrix,
             "use_max_refinement": settings.UseMaxRefinement,
-        }
+        }"""
 
     @adaptive_settings.setter
     def adaptive_settings(self, values):
@@ -779,12 +704,12 @@ class HfssSimulationSetup(object):
         return self._mesh_operations
 
     def add_mesh_operation(
-        self,
-        mesh_operation_name,
-        net_layer_list,
-        mesh_operation_type="kMeshSetupLength",
-        refine_inside=False,
-        mesh_region=None,
+            self,
+            name,
+            net_layer_list,
+            mesh_operation_type="kMeshSetupLength",
+            refine_inside=False,
+            mesh_region=None,
     ):
         """Add a new mesh operation to the setup.
 
@@ -795,7 +720,7 @@ class HfssSimulationSetup(object):
         net_layer_list
             {"A0_N": ["TOP", "PWR"]}
         refine_inside
-        mesh_operation_name
+        name
 
         Returns
         -------
@@ -805,10 +730,10 @@ class HfssSimulationSetup(object):
         mesh_operation.enabled = True
         mesh_operation.mesh_operation_type = mesh_operation_type
         mesh_operation.mesh_region = mesh_region
-        mesh_operation.name = mesh_operation_name
+        mesh_operation.name = name
         mesh_operation.nets_layers_list = net_layer_list
         mesh_operation.refine_inside = refine_inside
-        self.mesh_operations[mesh_operation_name] = MeshOperation(self, mesh_operation)
+        self.mesh_operations[name] = MeshOperation(self, mesh_operation)
         self._update_setup()
 
     def add_frequency_sweep(self, name=None, frequency_sweep=None):
@@ -822,10 +747,28 @@ class HfssSimulationSetup(object):
 
         Returns
         ----------
-        pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep
+        pyaedt.edb_core.edb_data.hfss_simulation_setup_data.FreqSweep
         """
         if name in self.frequency_sweeps:
             return False
         if not name:
             name = generate_unique_name("sweep")
-        return EdbFrequencySweep(self, frequency_sweep, name)
+        return FreqSweep(self, frequency_sweep, name)
+
+    def set_solution_single_frequency(self, frequency, max_num_passes=10, max_delta_s="0.02"):
+        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
+
+    def set_solution_multi_frequencies(self, frequencies, max_num_passes=10, max_delta_s="0.02"):
+        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        for i in frequencies:
+            self.adaptive_settings.add_adaptive_frequency_data(i, max_num_passes, max_delta_s)
+
+    def set_solution_broadband(self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"):
+        adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.AdaptiveFrequencyDataList.Clear()
+        self.adaptive_settings.add_adaptive_frequency_data(low_frequency, max_num_passes, max_delta_s)
+        self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s)
+        
