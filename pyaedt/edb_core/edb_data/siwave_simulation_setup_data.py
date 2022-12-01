@@ -724,7 +724,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def enabled(self):
-        """Check if setup is enabled."""
+        """Whether the setup is enabled."""
         return self._edb_sim_setup_info.SimulationSettings.Enabled
 
     @property
