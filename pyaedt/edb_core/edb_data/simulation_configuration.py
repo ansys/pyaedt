@@ -196,7 +196,7 @@ class SimulationConfigurationBatch(object):
 
         Returns
         -------
-        list[str]
+        List[str]
             List of signal net names.
         """
 
