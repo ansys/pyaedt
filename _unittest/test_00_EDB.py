@@ -1711,7 +1711,7 @@ if not config["skip_edb"]:
             edbapp.close_edb()
 
         def test_129_hfss_simulation_setup(self):
-            setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
+            setup1 = self.edbapp.create_hfss_simulation_setup("setup1")
 
             hfss_solver_settings = setup1.hfss_solver_settings
             hfss_solver_settings["order_basis"] = 2
@@ -1749,12 +1749,17 @@ if not config["skip_edb"]:
             assert setup1.dcr_settings["conduction_max_passes"] == 12
 
             hfss_port_settings = setup1.hfss_port_settings
-            hfss_port_settings["max_triangles_wave_port"] = 600
-            setup1.hfss_port_settings = hfss_port_settings
-            assert setup1.hfss_port_settings["max_triangles_wave_port"] == 600
+            hfss_port_settings.max_delta_z0 = 0.5
+            assert hfss_port_settings.max_delta_z0 == 0.5
+            hfss_port_settings.max_triangles_wave_port = 1000
+            assert hfss_port_settings.max_triangles_wave_port == 1000
+            hfss_port_settings.min_triangles_wave_port = 200
+            assert hfss_port_settings.min_triangles_wave_port == 200
+            hfss_port_settings.set_triangles_wave_port = True
+            assert hfss_port_settings.set_triangles_wave_port
 
-            mesh_operations = setup1.mesh_operations
-            setup1.mesh_operations = mesh_operations
+            # mesh_operations = setup1.mesh_operations
+            # setup1.mesh_operations = mesh_operations
 
             setup1.add_frequency_sweep(
                 "sweep1",
@@ -1771,6 +1776,6 @@ if not config["skip_edb"]:
             sweep1.settings = settings
             assert sweep1.settings["adaptive_sampling"]
 
-            self.edbapp.simulation_setups.setups["setup1"].name = "setup1a"
-            assert "setup1" not in self.edbapp.simulation_setups.setups
-            assert "setup1a" in self.edbapp.simulation_setups.setups
+            self.edbapp.setups["setup1"].name = "setup1a"
+            assert "setup1" not in self.edbapp.setups
+            assert "setup1a" in self.edbapp.setups

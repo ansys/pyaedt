@@ -21,8 +21,15 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
+    SiwaveDCSimulationSetup,
+)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
+    SiwaveSYZSimulationSetup,
+)
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
@@ -31,7 +38,6 @@ from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
-from pyaedt.edb_core.simulation_setup import SimulationSetups
 from pyaedt.edb_core.stackup import Stackup
 from pyaedt.generic.clr_module import Convert
 from pyaedt.generic.clr_module import List
@@ -224,7 +230,6 @@ class Edb(object):
         self._core_primitives = EdbLayout(self)
         self._stackup2 = Stackup(self)
         self._materials = Materials(self)
-        self._simulation_setups = SimulationSetups(self)
 
         self.logger.info("Objects Initialized")
 
@@ -659,12 +664,6 @@ class Edb(object):
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
-
-    @property
-    def simulation_setups(self):
-        if not self._simulation_setups and self.builder:
-            self._simulation_setups = SimulationSetups(self)
-        return self._simulation_setups
 
     @property
     def core_padstack(self):
@@ -2223,3 +2222,124 @@ class Edb(object):
     @pyaedt_function_handler()
     def new_simulation_configuration(self, filename=None):
         return SimulationConfiguration(filename, self)
+
+    @property
+    def setups(self):
+        """Active setups in Edb.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`] or
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`] or
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
+
+        """
+        """Get the dictionary of all EDB HFSS and SIWAVE setups"""
+        _setups = {}
+        for i in list(self._edb._active_layout.GetCell().SimulationSetups):
+            if i.GetType() == self._edb.edb.Utility.SimulationSetupType.kHFSS:
+                _setups[i.GetName()] = HfssSimulationSetup(self._edb, i.GetName(), i)
+            elif i.GetType() == self._edb.edb.Utility.SimulationSetupType.kSIWave:
+                _setups[i.GetName()] = SiwaveSYZSimulationSetup(self._edb, i.GetName(), i)
+            elif i.GetType() == self._edb.edb.Utility.SimulationSetupType.kSIWaveDCIR:
+                _setups[i.GetName()] = SiwaveDCSimulationSetup(self._edb, i.GetName(), i)
+        return _setups
+
+    @property
+    def hfss_setups(self):
+        """Active Hfss Setup in Edb.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`]
+
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
+
+    @property
+    def siwave_dc_setups(self):
+        """Active Siwave DC IR Setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`]
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kSIWave"}
+
+    @property
+    def siwave_ac_setups(self):
+        """Active Siwave SYZ Setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
+
+    def create_hfss_simulation_setup(self, name=None):
+        """Create a new setup from template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.HfssSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_hfss_simulation_setup("setup1")
+        >>> setup1.hfss_port_settings.max_delta_z0 = 0.5
+        """
+        if name in self.setups:
+            return False
+        return HfssSimulationSetup(self._edb, name)
+
+    def create_siwave_syz_setup(self, name=None):
+        """Create a new setup from template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.SiwaveSYZSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_syz_setup("setup1")
+        >>> setup1.add_frequency_sweep(frequency_sweep=[
+        ...                           ["linear count", "0", "1kHz", 1],
+        ...                           ["log scale", "1kHz", "0.1GHz", 10],
+        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ...                           ])
+        """
+        if name in self.setups:
+            return False
+        return SiwaveSYZSimulationSetup(self._edb, name)
+
+    def create_siwave_dc_setup(self, name=None):
+        """Create a new setup from template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.SiwaveSYZSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_dc_setup("setup1")
+        >>> setup1.mesh_bondwires = True
+
+        """
+        if name in self.setups:
+            return False
+        return SiwaveDCSimulationSetup(self._edb, name)
