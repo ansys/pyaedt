@@ -796,7 +796,7 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_frequency_data_list(self):
-        """List of all adaptive Frequency Data.
+        """List of all adaptive frequency data.
 
         Returns
         -------
