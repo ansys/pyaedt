@@ -52,7 +52,7 @@ def convert_pytuple_to_nettuple(_tuple):
 
 @pyaedt_function_handler()
 def convert_pydict_to_netdict(input_dict):
-    """Convert a Python dictionarty to a Net dictionary.
+    """Convert a Python dictionary to a .NET dictionary.
 
     Parameters
     ----------
