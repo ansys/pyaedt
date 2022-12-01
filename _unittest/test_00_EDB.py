@@ -1711,17 +1711,22 @@ if not config["skip_edb"]:
             edbapp.close_edb()
 
         def test_129_hfss_simulation_setup(self):
-            setup1 = self.edbapp.create_hfss_simulation_setup("setup1")
+            setup1 = self.edbapp.simulation_setups.create_hfss_simulation_setup("setup1")
+
 
             hfss_solver_settings = setup1.hfss_solver_settings
-            hfss_solver_settings["order_basis"] = 2
-            setup1.hfss_solver_settings = hfss_solver_settings
-            assert setup1.hfss_solver_settings["order_basis"] == 2
+            hfss_solver_settings.enhanced_low_freq_accuracy = True
+            assert hfss_solver_settings.enhanced_low_freq_accuracy
+            hfss_solver_settings.order_basis = 1
+            assert hfss_solver_settings.order_basis == 1
+            hfss_solver_settings.relative_residual = 0.0002
+            assert hfss_solver_settings.relative_residual == 0.0002
+            assert hfss_solver_settings.solver_type
+            hfss_solver_settings.use_shell_elements = True
+            assert hfss_solver_settings.use_shell_elements
 
             adaptive_settings = setup1.adaptive_settings
-            adaptive_settings["max_refine_per_pass"] = 20
-            setup1.adaptive_settings = adaptive_settings
-            assert setup1.adaptive_settings["max_refine_per_pass"] == 20
+            adaptive_settings.add_adaptive_frequency_data("5GHz", 8, "0.01")
 
             defeature_settings = setup1.defeature_settings
             defeature_settings["remove_floating_geometry"] = True
