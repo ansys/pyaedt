@@ -856,7 +856,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
         self._update_setup()
 
     @property
-    def dc_source_terms_to_ground(self):
+    def source_terms_to_ground(self):
         """Retrieve the dictionary of grounded terminals.
 
         Returns
@@ -882,7 +882,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
         bool
 
         """
-        terminals = self.dc_source_terms_to_ground
+        terminals = self.source_terms_to_ground
         terminals[source_name] = terminal
         self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
             terminals
