@@ -699,7 +699,8 @@ class EdbSiwave(object):
         accuracy_level : int, optional
            Level of accuracy of SI slider. The default is ``1``.
         decade_count : int
-            The default is ``10``. Value used for Linear Count and Decade Count Sweep types.
+            The default is ``10``. The value for this parameter is used for these sweep types:
+            linear count and decade count.
             It is alternative to step_freq which is used for Linear Scale sweep.
         sweeptype : int, optional
             Type of the sweep. The default is ``1``. Options are ``0`` linear count, ``1`` linear scale and ``2``
