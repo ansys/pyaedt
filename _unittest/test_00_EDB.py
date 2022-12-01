@@ -1728,7 +1728,6 @@ if not config["skip_edb"]:
             assert setup1.adaptive_settings.adaptive_frequency_data_list
             setup1.adaptive_settings.adapt_type = "kBroadband"
             setup1.adaptive_settings.basic = False
-            setup1.adaptive_settings.do_adaptive = False
             setup1.adaptive_settings.max_refinement = 1000001
             setup1.adaptive_settings.max_refine_per_pass = 20
             setup1.adaptive_settings.min_passes = 2
@@ -1739,7 +1738,6 @@ if not config["skip_edb"]:
 
             assert self.edbapp.setups["setup1"].adaptive_settings.adapt_type == "kBroadband"
             assert not self.edbapp.setups["setup1"].adaptive_settings.basic
-            assert not self.edbapp.setups["setup1"].adaptive_settings.do_adaptive
             assert self.edbapp.setups["setup1"].adaptive_settings.max_refinement == 1000001
             assert self.edbapp.setups["setup1"].adaptive_settings.max_refine_per_pass == 20
             assert self.edbapp.setups["setup1"].adaptive_settings.min_passes == 2

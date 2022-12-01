@@ -778,6 +778,12 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_settings(self):
+        """Adaptive Edb settings.
+
+        Returns
+        -------
+        object
+        """
         return self._parent._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
 
     @property
@@ -792,6 +798,12 @@ class AdaptiveSettings(object):
 
     @property
     def adapt_type(self):
+        """Adaptive type.
+
+        Returns
+        -------
+        str
+        """
         return self.adaptive_settings.AdaptType.ToString()
 
     @adapt_type.setter
@@ -801,6 +813,12 @@ class AdaptiveSettings(object):
 
     @property
     def basic(self):
+        """Basic setting.
+
+        Returns
+        -------
+
+        """
         return self.adaptive_settings.Basic
 
     @basic.setter
@@ -810,15 +828,22 @@ class AdaptiveSettings(object):
 
     @property
     def do_adaptive(self):
-        return self.adaptive_settings.DoAdaptive
+        """Do adpative..
 
-    @do_adaptive.setter
-    def do_adaptive(self, value):
-        self.adaptive_settings.DoAdaptive = value
-        self._parent._update_setup()
+        Returns
+        -------
+        bool
+        """
+        return self.adaptive_settings.DoAdaptive
 
     @property
     def max_refinement(self):
+        """Maximum refinement.
+
+        Returns
+        -------
+        str
+        """
         return self.adaptive_settings.MaxRefinement
 
     @max_refinement.setter
@@ -828,6 +853,12 @@ class AdaptiveSettings(object):
 
     @property
     def max_refine_per_pass(self):
+        """Maximum refinement per pass.
+
+        Returns
+        -------
+        str
+        """
         return self.adaptive_settings.MaxRefinePerPass
 
     @max_refine_per_pass.setter
@@ -837,6 +868,12 @@ class AdaptiveSettings(object):
 
     @property
     def min_passes(self):
+        """Minimum passes.
+
+        Returns
+        -------
+        int
+        """
         return self.adaptive_settings.MinPasses
 
     @min_passes.setter
@@ -846,6 +883,12 @@ class AdaptiveSettings(object):
 
     @property
     def save_fields(self):
+        """Save Fields.
+
+        Returns
+        -------
+        bool
+        """
         return self.adaptive_settings.SaveFields
 
     @save_fields.setter
@@ -855,6 +898,12 @@ class AdaptiveSettings(object):
 
     @property
     def save_rad_field_only(self):
+        """Save radiated fields only.
+
+        Returns
+        -------
+        bool
+        """
         return self.adaptive_settings.SaveRadFieldsOnly
 
     @save_rad_field_only.setter
@@ -864,6 +913,12 @@ class AdaptiveSettings(object):
 
     @property
     def use_convergence_matrix(self):
+        """Use convergence matrix.
+
+        Returns
+        -------
+        bool
+        """
         return self.adaptive_settings.UseConvergenceMatrix
 
     @use_convergence_matrix.setter
@@ -873,6 +928,12 @@ class AdaptiveSettings(object):
 
     @property
     def use_max_refinement(self):
+        """Use Max refinement.
+
+        Returns
+        -------
+        bool
+        """
         return self.adaptive_settings.UseMaxRefinement
 
     @use_max_refinement.setter
@@ -882,7 +943,7 @@ class AdaptiveSettings(object):
 
     @pyaedt_function_handler()
     def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s=0.02):
-        """
+        """Add a Frequency Data setup.
 
         Parameters
         ----------
@@ -918,6 +979,12 @@ class DefeatureSettings(object):
 
     @property
     def defeature_abs_length(self):
+        """Defeature absolute length.
+
+        Returns
+        -------
+        str
+        """
         return self._defeature_settings.DefeatureAbsLength
 
     @defeature_abs_length.setter
@@ -927,6 +994,12 @@ class DefeatureSettings(object):
 
     @property
     def defeature_ratio(self):
+        """Defeature ratio.
+
+        Returns
+        -------
+        float
+        """
         return self._defeature_settings.DefeatureRatio
 
     @defeature_ratio.setter
@@ -936,6 +1009,12 @@ class DefeatureSettings(object):
 
     @property
     def healing_option(self):
+        """Healing option.
+
+        Returns
+        -------
+
+        """
         return self._defeature_settings.HealingOption
 
     @healing_option.setter
@@ -945,6 +1024,12 @@ class DefeatureSettings(object):
 
     @property
     def model_type(self):
+        """Model type.
+
+        Returns
+        -------
+        int
+        """
         return self._defeature_settings.ModelType
 
     @model_type.setter
@@ -955,6 +1040,12 @@ class DefeatureSettings(object):
 
     @property
     def remove_floating_geometry(self):
+        """Remove floating geometries.
+
+        Returns
+        -------
+        bool
+        """
         return self._defeature_settings.RemoveFloatingGeometry
 
     @remove_floating_geometry.setter
@@ -964,6 +1055,12 @@ class DefeatureSettings(object):
 
     @property
     def small_void_area(self):
+        """Small voids to remove area.
+
+        Returns
+        -------
+        str
+        """
         return self._defeature_settings.SmallVoidArea
 
     @small_void_area.setter
@@ -973,6 +1070,12 @@ class DefeatureSettings(object):
 
     @property
     def union_polygons(self):
+        """Union Polygons.
+
+        Returns
+        -------
+
+        """
         return self._defeature_settings.UnionPolygons
 
     @union_polygons.setter
@@ -982,6 +1085,12 @@ class DefeatureSettings(object):
 
     @property
     def use_defeature(self):
+        """Use Defeature.
+
+        Returns
+        -------
+        bool
+        """
         return self._defeature_settings.UseDefeature
 
     @use_defeature.setter
@@ -991,6 +1100,12 @@ class DefeatureSettings(object):
 
     @property
     def use_defeature_abs_length(self):
+        """Defeature absolute length.
+
+        Returns
+        -------
+        str
+        """
         return self._defeature_settings.UseDefeatureAbsLength
 
     @use_defeature_abs_length.setter
@@ -1021,6 +1136,12 @@ class ViaSettings(object):
 
     @property
     def via_density(self):
+        """Via density.
+
+        Returns
+        -------
+        float
+        """
         return self._via_settings.ViaDensity
 
     @via_density.setter
@@ -1030,6 +1151,12 @@ class ViaSettings(object):
 
     @property
     def via_material(self):
+        """Via material.
+
+        Returns
+        -------
+        str
+        """
         return self._via_settings.ViaMaterial
 
     @via_material.setter
@@ -1039,6 +1166,12 @@ class ViaSettings(object):
 
     @property
     def via_num_sides(self):
+        """Via number of sides.
+
+        Returns
+        -------
+        int
+        """
         return self._via_settings.ViaNumSides
 
     @via_num_sides.setter
@@ -1048,6 +1181,12 @@ class ViaSettings(object):
 
     @property
     def via_style(self):
+        """Via style.
+
+        Returns
+        -------
+        str
+        """
         return self._via_settings.ViaStyle.ToString()
 
     @via_style.setter
@@ -1068,6 +1207,12 @@ class AdvancedMeshSettings(object):
 
     @property
     def layer_snap_tol(self):
+        """Layer snap tool.
+
+        Returns
+        -------
+
+        """
         return self._advanced_mesh_settings.LayerSnapTol
 
     @layer_snap_tol.setter
@@ -1077,6 +1222,12 @@ class AdvancedMeshSettings(object):
 
     @property
     def mesh_display_attributes(self):
+        """Mesh display attributes.
+
+        Returns
+        -------
+
+        """
         return self._advanced_mesh_settings.MeshDisplayAttributes
 
     @mesh_display_attributes.setter
@@ -1086,6 +1237,12 @@ class AdvancedMeshSettings(object):
 
     @property
     def replace_3d_triangles(self):
+        """Replace 3d triangles.
+
+        Returns
+        -------
+        bool
+        """
         return self._advanced_mesh_settings.Replace3DTriangles
 
     @replace_3d_triangles.setter
