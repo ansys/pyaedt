@@ -729,7 +729,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def pi_slider_postion(self):
-        """PI solider position. Values from 1 to 3."""
+        """PI solider position. Values are from ``1`` to ``3``."""
         return self._edb_sim_setup_info.SimulationSettings.PISliderPos
 
     @property
