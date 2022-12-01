@@ -731,7 +731,7 @@ class AdaptiveFrequencyData(object):
 
     @property
     def adaptive_frequency(self):
-        """Adaptive frequency for this setup.
+        """Adaptive frequency for the setup.
 
         Returns
         -------
