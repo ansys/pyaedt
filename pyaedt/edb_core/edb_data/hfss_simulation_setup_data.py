@@ -764,6 +764,12 @@ class AdaptiveSettings(object):
     def __init__(self, parent, adaptive_settings):
         self._parent = parent
         self.adaptive_settings = adaptive_settings
+        self._adapt_type_mapping = {
+            "kSingle": self.adaptive_settings.AdaptType.kSingle,
+            "kMultiFrequencies": self.adaptive_settings.AdaptType.kMultiFrequencies,
+            "kBroadband": self.adaptive_settings.AdaptType.kBroadband,
+            "kNumAdaptTypes": self.adaptive_settings.AdaptType.kNumAdaptTypes,
+        }
 
     @property
     def adaptive_frequency_data_list(self):
@@ -774,6 +780,96 @@ class AdaptiveSettings(object):
         :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveFrequencyData`
         """
         return [AdaptiveFrequencyData(i) for i in list(self.adaptive_settings.AdaptiveFrequencyDataList)]
+
+    @property
+    def adapt_type(self):
+        return self.adaptive_settings.AdaptType.ToString()
+
+    @adapt_type.setter
+    def adapt_type(self, value):
+        self.adaptive_settings.AdaptType = self._adapt_type_mapping[value]
+        self._parent._update_setup()
+
+    @property
+    def basic(self):
+        return self.adaptive_settings.Basic
+
+    @basic.setter
+    def basic(self, value):
+        self.adaptive_settings.Basic = value
+        self._parent._update_setup()
+
+    @property
+    def do_adaptive(self):
+        return self.adaptive_settings.DoAdaptive
+
+    @do_adaptive.setter
+    def do_adaptive(self, value):
+        self.adaptive_settings.DoAdaptive = value
+        self._parent._update_setup()
+
+    @property
+    def max_refinement(self):
+        return self.adaptive_settings.MaxRefinement
+
+    @max_refinement.setter
+    def max_refinement(self, value):
+        self.adaptive_settings.MaxRefinement = value
+        self._parent._update_setup()
+
+    @property
+    def max_refine_per_pass(self):
+        return self.adaptive_settings.MaxRefinePerPass
+
+    @max_refine_per_pass.setter
+    def max_refine_per_pass(self, value):
+        self.adaptive_settings.MaxRefinePerPass = value
+        self._parent._update_setup()
+
+    @property
+    def min_passes(self):
+        return self.adaptive_settings.MinPasses
+
+    @min_passes.setter
+    def min_passes(self, value):
+        self.adaptive_settings.MinPasses = value
+        self._parent._update_setup()
+
+    @property
+    def save_fields(self):
+        return self.adaptive_settings.SaveFields
+
+    @save_fields.setter
+    def save_fields(self, value):
+        self.adaptive_settings.SaveFields = value
+        self._parent._update_setup()
+
+    @property
+    def save_rad_field_only(self):
+        return self.adaptive_settings.SaveRadFieldsOnly
+
+    @save_rad_field_only.setter
+    def save_rad_field_only(self, value):
+        self.adaptive_settings.SaveRadFieldsOnly = value
+        self._parent._update_setup()
+
+    @property
+    def use_convergence_matrix(self):
+        return self.adaptive_settings.UseConvergenceMatrix
+
+    @use_convergence_matrix.setter
+    def use_convergence_matrix(self, value):
+        self.adaptive_settings.UseConvergenceMatrix = value
+        self._parent._update_setup()
+
+    @property
+    def use_max_refinement(self):
+        return self.adaptive_settings.UseMaxRefinement
+
+    @use_max_refinement.setter
+    def use_max_refinement(self, value):
+        self.adaptive_settings.UseMaxRefinement = value
+        self._parent._update_setup()
 
     @pyaedt_function_handler()
     def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s=0.02):
@@ -799,6 +895,232 @@ class AdaptiveSettings(object):
         data.max_delta = str(max_delta_s)
         self.adaptive_settings.AdaptiveFrequencyDataList.Add(data._adaptive_frequency_data)
         return self._parent._update_setup()
+
+
+class DefeatureSettings(object):
+    """Manages EDB methods for defeature settings."""
+
+    def __init__(self, parent, defeature_settings):
+        self._parent = parent
+        self._defeature_settings = defeature_settings
+
+    @property
+    def defeature_abs_length(self):
+        return self._defeature_settings.DefeatureAbsLength
+
+    @defeature_abs_length.setter
+    def defeature_abs_length(self, value):
+        self._defeature_settings.DefeatureAbsLength = value
+        self._parent._update_setup()
+
+    @property
+    def defeature_ratio(self):
+        return self._defeature_settings.DefeatureRatio
+
+    @defeature_ratio.setter
+    def defeature_ratio(self, value):
+        self._defeature_settings.DefeatureRatio = value
+        self._parent._update_setup()
+
+    @property
+    def healing_option(self):
+        return self._defeature_settings.HealingOption
+
+    @healing_option.setter
+    def healing_option(self, value):
+        self._defeature_settings.HealingOption = value
+        self._parent._update_setup()
+
+    @property
+    def model_type(self):
+        return self._defeature_settings.ModelType
+
+    @model_type.setter
+    def model_type(self, value):
+        """Model type (General 0 or IC 1)."""
+        self._defeature_settings.ModelType = value
+        self._parent._update_setup()
+
+    @property
+    def remove_floating_geometry(self):
+        return self._defeature_settings.RemoveFloatingGeometry
+
+    @remove_floating_geometry.setter
+    def remove_floating_geometry(self, value):
+        self._defeature_settings.RemoveFloatingGeometry = value
+        self._parent._update_setup()
+
+    @property
+    def small_void_area(self):
+        return self._defeature_settings.SmallVoidArea
+
+    @small_void_area.setter
+    def small_void_area(self, value):
+        self._defeature_settings.SmallVoidArea = value
+        self._parent._update_setup()
+
+    @property
+    def union_polygons(self):
+        return self._defeature_settings.UnionPolygons
+
+    @union_polygons.setter
+    def union_polygons(self, value):
+        self._defeature_settings.UnionPolygons = value
+        self._parent._update_setup()
+
+    @property
+    def use_defeature(self):
+        return self._defeature_settings.UseDefeature
+
+    @use_defeature.setter
+    def use_defeature(self, value):
+        self._defeature_settings.UseDefeature = value
+        self._parent._update_setup()
+
+    @property
+    def use_defeature_abs_length(self):
+        return self._defeature_settings.UseDefeatureAbsLength
+
+    @use_defeature_abs_length.setter
+    def use_defeature_abs_length(self, value):
+        self._defeature_settings.UseDefeatureAbsLength = value
+        self._parent._update_setup()
+
+
+class ViaSettings(object):
+    """Manages EDB methods for via settings."""
+    def __init__(self, parent, via_settings):
+        self._parent = parent
+        self._via_settings = via_settings
+        self._via_style_mapping = {
+            "k25DViaWirebond": self._via_settings.T25DViaStyle.k25DViaWirebond,
+            "k25DViaRibbon": self._via_settings.T25DViaStyle.k25DViaRibbon,
+            "k25DViaMesh": self._via_settings.T25DViaStyle.k25DViaMesh,
+            "k25DViaField": self._via_settings.T25DViaStyle.k25DViaField,
+            "kNum25DViaStyle": self._via_settings.T25DViaStyle.kNum25DViaStyle,
+        }
+
+    @property
+    def via_density(self):
+        return self._via_settings.ViaDensity
+
+    @via_density.setter
+    def via_density(self, value):
+        self._via_settings.ViaDensity = value
+        self._parent._update_setup()
+
+    @property
+    def via_material(self):
+        return self._via_settings.ViaMaterial
+
+    @via_material.setter
+    def via_material(self, value):
+        self._via_settings.ViaMaterial = value
+        self._parent._update_setup()
+
+    @property
+    def via_num_sides(self):
+        return self._via_settings.ViaNumSides
+
+    @via_num_sides.setter
+    def via_num_sides(self, value):
+        self._via_settings.ViaNumSides = value
+        self._parent._update_setup()
+
+    @property
+    def via_style(self):
+        return self._via_settings.ViaStyle.ToString()
+
+    @via_style.setter
+    def via_style(self, value):
+        self._via_settings.ViaStyle = self._via_style_mapping[value]
+        self._parent._update_setup()
+
+
+class AdvancedMeshSettings(object):
+    """Manages EDB methods for advanced mesh settings."""
+    def __init__(self, parent, advanced_mesh_settings):
+        self._parent = parent
+        self._advanced_mesh_settings = advanced_mesh_settings
+
+    @property
+    def layer_snap_tol(self):
+        return self._advanced_mesh_settings.LayerSnapTol
+
+    @layer_snap_tol.setter
+    def layer_snap_tol(self, value):
+        self._advanced_mesh_settings.LayerSnapTol = value
+        self._parent._update_setup()
+
+    @property
+    def mesh_display_attributes(self):
+        return self._advanced_mesh_settings.MeshDisplayAttributes
+
+    @mesh_display_attributes.setter
+    def mesh_display_attributes(self, value):
+        self._advanced_mesh_settings.MeshDisplayAttributes = value
+        self._parent._update_setup()
+
+    @property
+    def replace_3d_triangles(self):
+        return self._advanced_mesh_settings.Replace3DTriangles
+
+    @replace_3d_triangles.setter
+    def replace_3d_triangles(self, value):
+        self._advanced_mesh_settings.Replace3DTriangles = value
+        self._parent._update_setup()
+
+
+class CurveApproxSettings(object):
+    """Manages EDB methods for curve approx settings."""
+    def __init__(self, parent, curve_approx_settings):
+        self._parent = parent
+        self._curve_approx_settings = curve_approx_settings
+
+    @property
+    def arc_angle(self):
+        return self._curve_approx_settings.ArcAngle
+
+    @arc_angle.setter
+    def arc_angle(self, value):
+        self._curve_approx_settings.ArcAngle = value
+        self._parent._update_setup()
+
+    @property
+    def arc_to_chord_error(self):
+        return self._curve_approx_settings.ArcToChordError
+
+    @arc_to_chord_error.setter
+    def arc_to_chord_error(self, value):
+        self._curve_approx_settings.ArcToChordError = value
+        self._parent._update_setup()
+
+    @property
+    def max_arc_points(self):
+        return self._curve_approx_settings.MaxArcPoints
+
+    @max_arc_points.setter
+    def max_arc_points(self, value):
+        self._curve_approx_settings.MaxArcPoints = value
+        self._parent._update_setup()
+
+    @property
+    def start_azimuth(self):
+        return self._curve_approx_settings.StartAzimuth
+
+    @start_azimuth.setter
+    def start_azimuth(self, value):
+        self._curve_approx_settings.StartAzimuth = value
+        self._parent._update_setup()
+
+    @property
+    def use_arc_to_chord_error(self):
+        return self._curve_approx_settings.UseArcToChordError
+
+    @use_arc_to_chord_error.setter
+    def use_arc_to_chord_error(self, value):
+        self._curve_approx_settings.UseArcToChordError = value
+        self._parent._update_setup()
 
 
 class HfssSimulationSetup(object):
@@ -907,80 +1229,20 @@ class HfssSimulationSetup(object):
     @property
     def defeature_settings(self):
         """Get defeature settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
-        return {
-            "defeature_abs_length": settings.DefeatureAbsLength,
-            "defeature_ratio": settings.DefeatureRatio,
-            "healing_option": settings.HealingOption,
-            "model_type": settings.ModelType,
-            "remove_floating_geometry": settings.RemoveFloatingGeometry,
-            "small_void_area": settings.SmallVoidArea,
-            "union_polygons": settings.UnionPolygons,
-            "use_defeature": settings.UseDefeature,
-            "use_defeature_abs_length": settings.UseDefeatureAbsLength,
-        }
-
-    @defeature_settings.setter
-    def defeature_settings(self, values):
-        """Set defeature settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
-        if "defeature_abs_length" in values:
-            settings.DefeatureAbsLength = values["defeature_abs_length"]
-        if "defeature_ratio" in values:
-            settings.DefeatureRatio = values["defeature_ratio"]
-        if "healing_option" in values:
-            settings.HealingOption = values["healing_option"]
-        if "model_type" in values:
-            settings.ModelType = values["model_type"]
-        if "remove_floating_geometry" in values:
-            settings.RemoveFloatingGeometry = values["remove_floating_geometry"]
-        if "small_void_area" in values:
-            settings.SmallVoidArea = values["small_void_area"]
-        if "union_polygons" in values:
-            settings.UnionPolygons = values["union_polygons"]
-        if "use_defeature" in values:
-            settings.UseDefeature = values["use_defeature"]
-        if "use_defeature_abs_length" in values:
-            settings.UseDefeatureAbsLength = values["use_defeature_abs_length"]
-        self._update_setup()
+        defeature_settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
+        return DefeatureSettings(self, defeature_settings)
 
     @property
     def via_settings(self):
         """Get via settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
-        return {
-            "t25_d_via_style": settings.T25DViaStyle,
-            "via_density": settings.ViaDensity,
-            "via_material": settings.ViaMaterial,
-            "via_num_sides": settings.ViaNumSides,
-            "via_style": settings.ViaStyle,
-        }
-
-    @via_settings.setter
-    def via_settings(self, values):
-        """Set via settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
-        if "t25_d_via_style" in values:
-            settings.T25DViaStyle = values["t25_d_via_style"]
-        if "via_density" in values:
-            settings.ViaDensity = values["via_density"]
-        if "via_material" in values:
-            settings.ViaMaterial = values["via_material"]
-        if "via_num_sides" in values:
-            settings.ViaNumSides = values["via_num_sides"]
-        if "via_style" in values:
-            settings.ViaStyle = values["via_style"]
-        self._update_setup()
+        via_settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
+        return ViaSettings(self, via_settings)
 
     @property
     def advanced_mesh_settings(self):
         """Get advanced mesh settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
-        return {
-            "layer_snap_tol": settings.LayerSnapTol,
-            "mesh_display_attributes": settings.MeshDisplayAttributes,
-            "replace3_d_triangles": settings.Replace3DTriangles,
-        }
+        advanced_mesh_settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
+        return AdvancedMeshSettings(self, advanced_mesh_settings)
 
     @advanced_mesh_settings.setter
     def advanced_mesh_settings(self, values):
@@ -997,14 +1259,8 @@ class HfssSimulationSetup(object):
     @property
     def curve_approx_settings(self):
         """Get curve approx settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
-        return {
-            "arc_angle": settings.ArcAngle,
-            "arc_to_chord_error": settings.ArcToChordError,
-            "max_arc_points": settings.MaxArcPoints,
-            "start_azimuth": settings.StartAzimuth,
-            "use_arc_to_chord_error": settings.UseArcToChordError,
-        }
+        curve_approx_settings = self._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
+        return CurveApproxSettings(self, curve_approx_settings)
 
     @curve_approx_settings.setter
     def curve_approx_settings(self, values):
@@ -1140,12 +1396,13 @@ class HfssSimulationSetup(object):
         """
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
-        self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
-        return True
+        adaptive_settings.adapt_type = "kSingle"
+        return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
     @pyaedt_function_handler()
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.adapt_type = "kMultiFrequencies"
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         for i in frequencies:
             if not self.adaptive_settings.add_adaptive_frequency_data(i, max_num_passes, max_delta_s):
@@ -1157,9 +1414,11 @@ class HfssSimulationSetup(object):
         self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"
     ):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
+        adaptive_settings.adapt_type = "kBroadband"
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         if not self.adaptive_settings.add_adaptive_frequency_data(low_frequency, max_num_passes, max_delta_s):
             return False
         if not self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s):
             return False
         return True
+
