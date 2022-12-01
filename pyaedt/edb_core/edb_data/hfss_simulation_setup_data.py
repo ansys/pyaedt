@@ -48,7 +48,7 @@ class EdbFrequencySweep(object):
 
     @property
     def frequencies(self):
-        """Get list of frequencies points."""
+        """List of frequencies points."""
         return list(self._edb_sweep_data.Frequencies)
 
     @property
