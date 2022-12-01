@@ -599,7 +599,7 @@ class HfssPortSettings(object):
 
     @property
     def max_triangles_wave_port(self):
-        """Max number of triangles allowed for wave ports.
+        """Maximum number of triangles allowed for wave ports.
 
         Returns
         -------
