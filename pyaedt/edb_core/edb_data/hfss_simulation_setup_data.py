@@ -1,10 +1,15 @@
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
 
 
-class MeshOperations(object):
+class MeshOperation(object):
     def __init__(self, parent, mesh_operation):
         self._parent = parent
         self.mesh_operation = mesh_operation
+        self._mesh_op_mapping = {"kMeshSetupBase": self.mesh_operation_type.kMeshSetupBase,
+                                 "kMeshSetupLength": self.mesh_operation_type.kMeshSetupLength,
+                                 "kMeshSetupSkinDepth": self.mesh_operation_type.kMeshSetupSkinDepth,
+                                 "kNumMeshOpTypes": self.mesh_operation_type.kNumMeshOpTypes}
 
     @property
     def enabled(self):
@@ -13,6 +18,10 @@ class MeshOperations(object):
     @property
     def mesh_operation_type(self):
         return self.mesh_operation.MeshOpType
+
+    @mesh_operation_type.setter
+    def mesh_operation_type(self, value):
+        self.mesh_operation.MeshOpType = self._mesh_op_mapping[value]
 
     @property
     def mesh_region(self):
@@ -25,6 +34,14 @@ class MeshOperations(object):
     @property
     def nets_layers_list(self):
         return self.mesh_operation.NetsLayersList
+
+    @nets_layers_list.setter
+    def nets_layers_list(self, values):
+        temp = []
+        for net, layers in values.items():
+            for l in layers:
+                temp.append((net, l, True))
+        self.mesh_operation.NetsLayersList = convert_py_list_to_net_list(temp)
 
     @property
     def refine_inside(self):
@@ -298,10 +315,11 @@ class HfssSimulationSetup(object):
         return self._edb_sim_setup_info
 
     def _update_setup(self):
-        settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings.AdaptiveFrequencyDataList
-        settings.Clear()
-        for mop in self.mesh_operations:
-            settings.Add(mop.mesh_operation)
+        mesh_operations = self._edb_sim_setup_info.SimulationSettings.MeshOperations
+        mesh_operations.Clear()
+        for mop in self.mesh_operations.values():
+            mesh_operations.Add(mop.mesh_operation)
+
         self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
 
         if self._name in self._edb.simulation_setups.setups:
@@ -617,10 +635,17 @@ class HfssSimulationSetup(object):
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
         self._mesh_operations = {}
         for i in list(settings):
-            self._mesh_operations[i.Name] = MeshOperations(self, i)
+            self._mesh_operations[i.Name] = MeshOperation(self, i)
         return self._mesh_operations
 
-    def add_mesh_operation(self, mesh_operation_type, mesh_region, net_layer_list, refine_inside, mesh_operation_name):
+    def add_mesh_operation(
+            self,
+            mesh_operation_name,
+            net_layer_list,
+            mesh_operation_type="kMeshSetupLength",
+            refine_inside=False,
+            mesh_region=None,
+    ):
         """Add a new mesh operation to the setup.
 
         Parameters
@@ -628,6 +653,7 @@ class HfssSimulationSetup(object):
         mesh_operation_type
         mesh_region
         net_layer_list
+            {"A0_N": ["TOP", "PWR"]}
         refine_inside
         mesh_operation_name
 
@@ -636,13 +662,13 @@ class HfssSimulationSetup(object):
 
         """
         mesh_operation = self._edb.simsetupdata.MeshOperation()
-        mesh_operation.Enabled = True
-        mesh_operation.MeshOpType = mesh_operation_type
-        mesh_operation.MeshRegion = mesh_region
-        mesh_operation.Name = refine_inside
-        mesh_operation.NetsLayersList = net_layer_list
-        mesh_operation.RefineInside = mesh_operation_name
-        self.mesh_operations[mesh_operation_name] = MeshOperations(self, mesh_operation)
+        mesh_operation.enabled = True
+        mesh_operation.mesh_operation_type = mesh_operation_type
+        mesh_operation.mesh_region = mesh_region
+        mesh_operation.name = mesh_operation_name
+        mesh_operation.nets_layers_list = net_layer_list
+        mesh_operation.refine_inside = refine_inside
+        self.mesh_operations[mesh_operation_name] = MeshOperation(self, mesh_operation)
         self._update_setup()
 
     def add_frequency_sweep(self, name=None, frequency_sweep=None):

@@ -1758,8 +1758,8 @@ if not config["skip_edb"]:
             hfss_port_settings.set_triangles_wave_port = True
             assert hfss_port_settings.set_triangles_wave_port
 
-            mesh_operations = setup1.mesh_operations
-            setup1.mesh_operations = mesh_operations
+            #mesh_operations = setup1.mesh_operations
+            #setup1.mesh_operations = mesh_operations
 
             setup1.add_frequency_sweep(
                 "sweep1",
