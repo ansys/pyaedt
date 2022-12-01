@@ -1152,6 +1152,7 @@ class CurveApproxSettings(object):
 
 class DcrSettings(object):
     """Manages EDB methods for dcr settings."""
+
     def __init__(self, parent):
         self._parent = parent
 
@@ -1161,6 +1162,12 @@ class DcrSettings(object):
 
     @property
     def conduction_max_passes(self):
+        """Conduction max passes.
+
+        Returns
+        -------
+        int
+        """
         return self._dcr_settings.ConductionMaxPasses
 
     @conduction_max_passes.setter
@@ -1170,6 +1177,12 @@ class DcrSettings(object):
 
     @property
     def conduction_min_converged_passes(self):
+        """Conduction min converged passes.
+
+        Returns
+        -------
+        int
+        """
         return self._dcr_settings.ConductionMinConvergedPasses
 
     @conduction_min_converged_passes.setter
@@ -1178,25 +1191,43 @@ class DcrSettings(object):
         self._parent._update_setup()
 
     @property
-    def Conduction_min_passes(self):
+    def conduction_min_passes(self):
+        """Conduction min passes.
+
+        Returns
+        -------
+        int
+        """
         return self._dcr_settings.ConductionMinPasses
 
-    @Conduction_min_passes.setter
-    def Conduction_min_passes(self, value):
+    @conduction_min_passes.setter
+    def conduction_min_passes(self, value):
         self._dcr_settings.ConductionMinPasses = value
         self._parent._update_setup()
 
     @property
     def conduction_per_error(self):
+        """Conduction error percentage.
+
+        Returns
+        -------
+        float
+        """
         return self._dcr_settings.ConductionPerError
 
     @conduction_per_error.setter
-    def conduction_per_error(self,value):
+    def conduction_per_error(self, value):
         self._dcr_settings.ConductionPerError = value
         self._parent._update_setup()
 
     @property
     def conduction_per_refine(self):
+        """Conduction refinement.
+
+        Returns
+        -------
+        float
+        """
         return self._dcr_settings.ConductionPerRefine
 
     @conduction_per_refine.setter

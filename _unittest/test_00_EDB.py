@@ -1807,14 +1807,14 @@ if not config["skip_edb"]:
             dcr_settings = setup1.dcr_settings
             dcr_settings.conduction_max_passes = 11
             dcr_settings.conduction_min_converged_passes = 2
-            dcr_settings.Conduction_min_passes = 2
+            dcr_settings.conduction_min_passes = 2
             dcr_settings.conduction_per_error = 2.0
             dcr_settings.conduction_per_refine = 33.0
 
             dcr_settings = self.edbapp.setups["setup1"].dcr_settings
             assert dcr_settings.conduction_max_passes == 11
             assert dcr_settings.conduction_min_converged_passes == 2
-            assert dcr_settings.Conduction_min_passes == 2
+            assert dcr_settings.conduction_min_passes == 2
             assert dcr_settings.conduction_per_error == 2.0
             assert dcr_settings.conduction_per_refine == 33.0
 
