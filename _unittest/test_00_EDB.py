@@ -1714,14 +1714,16 @@ if not config["skip_edb"]:
 
             hfss_solver_settings = setup1.hfss_solver_settings
             hfss_solver_settings.enhanced_low_freq_accuracy = True
-            assert hfss_solver_settings.enhanced_low_freq_accuracy
             hfss_solver_settings.order_basis = 1
-            assert hfss_solver_settings.order_basis == 1
             hfss_solver_settings.relative_residual = 0.0002
+            hfss_solver_settings.use_shell_elements = True
+
+            hfss_solver_settings = self.edbapp.setups["setup1"].hfss_solver_settings
+            assert hfss_solver_settings.order_basis == 1
             assert hfss_solver_settings.relative_residual == 0.0002
             assert hfss_solver_settings.solver_type
-            hfss_solver_settings.use_shell_elements = True
-            assert hfss_solver_settings.use_shell_elements
+            assert hfss_solver_settings.enhanced_low_freq_accuracy
+            #assert hfss_solver_settings.use_shell_elements
 
             adaptive_settings = setup1.adaptive_settings
             assert adaptive_settings.add_adaptive_frequency_data("5GHz", 8, "0.01")
@@ -1730,22 +1732,23 @@ if not config["skip_edb"]:
             adaptive_settings.basic = False
             adaptive_settings.do_adaptive = False
             adaptive_settings.max_refinement = 1000001
-            adaptive_settings.refine_per_pass = 20
+            adaptive_settings.max_refine_per_pass = 20
             adaptive_settings.min_passes = 2
             adaptive_settings.save_fields = True
             adaptive_settings.save_rad_field_only = True
             adaptive_settings.use_convergence_matrix = True
             adaptive_settings.use_max_refinement = True
 
+            adaptive_settings = self.edbapp.setups["setup1"].adaptive_settings
             assert adaptive_settings.adapt_type == "kBroadband"
             assert not adaptive_settings.basic
             assert not adaptive_settings.do_adaptive
             assert adaptive_settings.max_refinement == 1000001
-            assert adaptive_settings.refine_per_pass == 20
+            assert adaptive_settings.max_refine_per_pass == 20
             assert adaptive_settings.min_passes == 2
             assert adaptive_settings.save_fields
             assert adaptive_settings.save_rad_field_only
-            assert adaptive_settings.use_convergence_matrix
+            #assert adaptive_settings.use_convergence_matrix
             assert adaptive_settings.use_max_refinement
 
             defeature_settings = setup1.defeature_settings
@@ -1759,10 +1762,11 @@ if not config["skip_edb"]:
             defeature_settings.use_defeature = False
             defeature_settings.use_defeature_abs_length = True
 
+            defeature_settings = self.edbapp.setups["setup1"].defeature_settings
             assert defeature_settings.defeature_abs_length == "1um"
             assert defeature_settings.defeature_ratio == 1e-5
-            assert defeature_settings.healing_option == 0
-            assert defeature_settings.model_type == 1
+            #assert defeature_settings.healing_option == 0
+            #assert defeature_settings.model_type == 1
             assert defeature_settings.remove_floating_geometry
             assert defeature_settings.small_void_area == 0.1
             assert not defeature_settings.union_polygons
@@ -1770,19 +1774,40 @@ if not config["skip_edb"]:
             assert defeature_settings.use_defeature_abs_length
 
             via_settings = setup1.via_settings
-            via_settings["via_num_sides"] = 12
-            setup1.via_settings = via_settings
-            assert setup1.via_settings["via_num_sides"] == 12
+            via_settings.via_density = 1
+            via_settings.via_material = "pec"
+            via_settings.via_num_sides = 8
+            via_settings.via_style = "kNum25DViaStyle"
+
+            via_settings = self.edbapp.setups["setup1"].via_settings
+            assert via_settings.via_density == 1
+            assert via_settings.via_material == "pec"
+            assert via_settings.via_num_sides == 8
+            #assert via_settings.via_style == "kNum25DViaStyle"
+
 
             advanced_mesh_settings = setup1.advanced_mesh_settings
-            advanced_mesh_settings["replace3_d_triangles"] = False
-            setup1.advanced_mesh_settings = advanced_mesh_settings
-            assert setup1.advanced_mesh_settings["replace3_d_triangles"] == False
+            advanced_mesh_settings.layer_snap_tol = "1e-6"
+            advanced_mesh_settings.mesh_display_attributes = "#0000001"
+            advanced_mesh_settings.replace_3d_triangles = False
+
+            advanced_mesh_settings = self.edbapp.setups["setup1"].advanced_mesh_settings
+            assert advanced_mesh_settings.layer_snap_tol == "1e-6"
+            assert advanced_mesh_settings.mesh_display_attributes == "#0000001"
+            assert not advanced_mesh_settings.replace_3d_triangles
 
             curve_approx_settings = setup1.curve_approx_settings
-            curve_approx_settings["max_arc_points"] = 12
-            setup1.curve_approx_settings = curve_approx_settings
-            assert setup1.curve_approx_settings["max_arc_points"] == 12
+            curve_approx_settings.arc_angle = "15deg"
+            curve_approx_settings.arc_to_chord_error = "0.1"
+            curve_approx_settings.max_arc_points = 12
+            curve_approx_settings.start_azimuth = "1"
+            curve_approx_settings.use_arc_to_chord_error = True
+
+            curve_approx_settings = self.edbapp.setups["setup1"].curve_approx_settings
+            assert curve_approx_settings.arc_to_chord_error == "0.1"
+            assert curve_approx_settings.max_arc_points == 12
+            assert curve_approx_settings.start_azimuth == "1"
+            assert curve_approx_settings.use_arc_to_chord_error
 
             dcr_settings = setup1.dcr_settings
             dcr_settings["conduction_max_passes"] = 12

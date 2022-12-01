@@ -684,6 +684,142 @@ class DefeatureSettings(object):
         self._parent._update_setup()
 
 
+class ViaSettings(object):
+    """Manages EDB methods for via settings."""
+    def __init__(self, parent, via_settings):
+        self._parent = parent
+        self._via_settings = via_settings
+        self._via_style_mapping = {
+            "k25DViaWirebond": self._via_settings.T25DViaStyle.k25DViaWirebond,
+            "k25DViaRibbon": self._via_settings.T25DViaStyle.k25DViaRibbon,
+            "k25DViaMesh": self._via_settings.T25DViaStyle.k25DViaMesh,
+            "k25DViaField": self._via_settings.T25DViaStyle.k25DViaField,
+            "kNum25DViaStyle": self._via_settings.T25DViaStyle.kNum25DViaStyle,
+        }
+
+    @property
+    def via_density(self):
+        return self._via_settings.ViaDensity
+
+    @via_density.setter
+    def via_density(self, value):
+        self._via_settings.ViaDensity = value
+        self._parent._update_setup()
+
+    @property
+    def via_material(self):
+        return self._via_settings.ViaMaterial
+
+    @via_material.setter
+    def via_material(self, value):
+        self._via_settings.ViaMaterial = value
+        self._parent._update_setup()
+
+    @property
+    def via_num_sides(self):
+        return self._via_settings.ViaNumSides
+
+    @via_num_sides.setter
+    def via_num_sides(self, value):
+        self._via_settings.ViaNumSides = value
+        self._parent._update_setup()
+
+    @property
+    def via_style(self):
+        return self._via_settings.ViaStyle.ToString()
+
+    @via_style.setter
+    def via_style(self, value):
+        self._via_settings.ViaStyle = self._via_style_mapping[value]
+        self._parent._update_setup()
+
+
+class AdvancedMeshSettings(object):
+    """Manages EDB methods for advanced mesh settings."""
+    def __init__(self, parent, advanced_mesh_settings):
+        self._parent = parent
+        self._advanced_mesh_settings = advanced_mesh_settings
+
+    @property
+    def layer_snap_tol(self):
+        return self._advanced_mesh_settings.LayerSnapTol
+
+    @layer_snap_tol.setter
+    def layer_snap_tol(self, value):
+        self._advanced_mesh_settings.LayerSnapTol = value
+        self._parent._update_setup()
+
+    @property
+    def mesh_display_attributes(self):
+        return self._advanced_mesh_settings.MeshDisplayAttributes
+
+    @mesh_display_attributes.setter
+    def mesh_display_attributes(self, value):
+        self._advanced_mesh_settings.MeshDisplayAttributes = value
+        self._parent._update_setup()
+
+    @property
+    def replace_3d_triangles(self):
+        return self._advanced_mesh_settings.Replace3DTriangles
+
+    @replace_3d_triangles.setter
+    def replace_3d_triangles(self, value):
+        self._advanced_mesh_settings.Replace3DTriangles = value
+        self._parent._update_setup()
+
+
+class CurveApproxSettings(object):
+    """Manages EDB methods for curve approx settings."""
+    def __init__(self, parent, curve_approx_settings):
+        self._parent = parent
+        self._curve_approx_settings = curve_approx_settings
+
+    @property
+    def arc_angle(self):
+        return self._curve_approx_settings.ArcAngle
+
+    @arc_angle.setter
+    def arc_angle(self, value):
+        self._curve_approx_settings.ArcAngle = value
+        self._parent._update_setup()
+
+    @property
+    def arc_to_chord_error(self):
+        return self._curve_approx_settings.ArcToChordError
+
+    @arc_to_chord_error.setter
+    def arc_to_chord_error(self, value):
+        self._curve_approx_settings.ArcToChordError = value
+        self._parent._update_setup()
+
+    @property
+    def max_arc_points(self):
+        return self._curve_approx_settings.MaxArcPoints
+
+    @max_arc_points.setter
+    def max_arc_points(self, value):
+        self._curve_approx_settings.MaxArcPoints = value
+        self._parent._update_setup()
+
+    @property
+    def start_azimuth(self):
+        return self._curve_approx_settings.StartAzimuth
+
+    @start_azimuth.setter
+    def start_azimuth(self, value):
+        self._curve_approx_settings.StartAzimuth = value
+        self._parent._update_setup()
+
+    @property
+    def use_arc_to_chord_error(self):
+        return self._curve_approx_settings.UseArcToChordError
+
+    @use_arc_to_chord_error.setter
+    def use_arc_to_chord_error(self, value):
+        self._curve_approx_settings.UseArcToChordError = value
+        self._parent._update_setup()
+
+
 class HfssSimulationSetup(object):
     """Manages EDB methods for hfss simulation setup."""
 
@@ -796,40 +932,14 @@ class HfssSimulationSetup(object):
     @property
     def via_settings(self):
         """Get via settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
-        return {
-            "t25_d_via_style": settings.T25DViaStyle,
-            "via_density": settings.ViaDensity,
-            "via_material": settings.ViaMaterial,
-            "via_num_sides": settings.ViaNumSides,
-            "via_style": settings.ViaStyle,
-        }
-
-    @via_settings.setter
-    def via_settings(self, values):
-        """Set via settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
-        if "t25_d_via_style" in values:
-            settings.T25DViaStyle = values["t25_d_via_style"]
-        if "via_density" in values:
-            settings.ViaDensity = values["via_density"]
-        if "via_material" in values:
-            settings.ViaMaterial = values["via_material"]
-        if "via_num_sides" in values:
-            settings.ViaNumSides = values["via_num_sides"]
-        if "via_style" in values:
-            settings.ViaStyle = values["via_style"]
-        self._update_setup()
+        via_settings = self._edb_sim_setup_info.SimulationSettings.ViaSettings
+        return ViaSettings(self, via_settings)
 
     @property
     def advanced_mesh_settings(self):
         """Get advanced mesh settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
-        return {
-            "layer_snap_tol": settings.LayerSnapTol,
-            "mesh_display_attributes": settings.MeshDisplayAttributes,
-            "replace3_d_triangles": settings.Replace3DTriangles,
-        }
+        advanced_mesh_settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
+        return AdvancedMeshSettings(self, advanced_mesh_settings)
 
     @advanced_mesh_settings.setter
     def advanced_mesh_settings(self, values):
@@ -846,14 +956,8 @@ class HfssSimulationSetup(object):
     @property
     def curve_approx_settings(self):
         """Get curve approx settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
-        return {
-            "arc_angle": settings.ArcAngle,
-            "arc_to_chord_error": settings.ArcToChordError,
-            "max_arc_points": settings.MaxArcPoints,
-            "start_azimuth": settings.StartAzimuth,
-            "use_arc_to_chord_error": settings.UseArcToChordError,
-        }
+        curve_approx_settings = self._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
+        return CurveApproxSettings(self, curve_approx_settings)
 
     @curve_approx_settings.setter
     def curve_approx_settings(self, values):
@@ -999,3 +1103,4 @@ class HfssSimulationSetup(object):
         if not self.adaptive_settings.add_adaptive_frequency_data(high_frequency, max_num_passes, max_delta_s):
             return False
         return True
+
