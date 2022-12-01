@@ -747,7 +747,7 @@ class EdbSiwave(object):
 
     @pyaedt_function_handler()
     def add_siwave_dc_analysis(self, name=None):
-        """Create a Siwave DC Analysis in EDB.
+        """Add a Siwave DC analysis in EDB.
 
         If Setup is present it will be deleted and replaced by new
         actual settings.
