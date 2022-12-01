@@ -895,7 +895,7 @@ class AdaptiveSettings(object):
 
         Returns
         -------
-        boo
+        bool
         """
         adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
         data = AdaptiveFrequencyData(adaptive_frequency_data)
@@ -1264,6 +1264,7 @@ class HfssSimulationSetup(object):
 
     @property
     def edb_sim_setup_info(self):
+        """Edb Internal Simulation Setup Object."""
         return self._edb_sim_setup_info
 
     @pyaedt_function_handler()
@@ -1480,6 +1481,7 @@ class HfssSimulationSetup(object):
 
         Returns
         -------
+        bool
 
         """
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
@@ -1489,6 +1491,22 @@ class HfssSimulationSetup(object):
 
     @pyaedt_function_handler()
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
+        """Set Multi Frequency Solution.
+
+        Parameters
+        ----------
+        frequencies : list, tuple, optional
+            Adaptive Frequencies. Default is ``5GHz``.
+        max_num_passes : int, optional
+            Maximum number of passes. Default is ``10``.
+        max_delta_s : float, optional
+            Maximum Delta S. Default is ``0.02``.
+
+        Returns
+        -------
+        bool
+
+        """
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.adapt_type = "kMultiFrequencies"
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
@@ -1501,6 +1519,23 @@ class HfssSimulationSetup(object):
     def set_solution_broadband(
         self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"
     ):
+        """Set Broadband Solution.
+
+        Parameters
+        ----------
+        low_frequency : str, float, optional
+            Lower  Frequency. Default is ``5GHz``.
+        high_frequency : str, float, optional
+            Higher Frequencys. Default is ``10GHz``.
+        max_num_passes : int, optional
+            Maximum number of passes. Default is ``10``.
+        max_delta_s : float, optional
+            Maximum Delta S. Default is ``0.02``.
+
+        Returns
+        -------
+        bool
+        """
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.adapt_type = "kBroadband"
         adaptive_settings.AdaptiveFrequencyDataList.Clear()

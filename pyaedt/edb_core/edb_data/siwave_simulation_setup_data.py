@@ -692,6 +692,12 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def dc_settings(self):
+        """Siwave DC Settings.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCAdvancedSettings`
+        """
         return SiwaveDCAdvancedSettings(self)
 
     @property
@@ -784,9 +790,9 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
         Parameters
         ----------
-        name: str, optional
+        name : str, optional
             Name of the frequency sweep.
-        frequency_sweep: list, optional
+        frequency_sweep : list, optional
 
         Returns
         ----------
