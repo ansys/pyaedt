@@ -2277,7 +2277,7 @@ class Edb(object):
         return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
 
     def create_hfss_setup(self, name=None):
-        """Create a new setup from template.
+        """Create a setup from a template.
 
         Parameters
         ----------
