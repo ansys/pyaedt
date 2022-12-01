@@ -2225,7 +2225,7 @@ class Edb(object):
 
     @property
     def setups(self):
-        """Active setups in Edb.
+        """Active setups in EDB.
 
         Returns
         -------
