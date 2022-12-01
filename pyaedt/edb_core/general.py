@@ -63,7 +63,7 @@ def convert_pydict_to_netdict(input_dict):
     Returns
     -------
     dict
-        Dictionary converted to Net.
+        Dictionary converted to .NET.
     """
     net_dict = Dictionary[type(list(input_dict.keys())[0]), type(list(input_dict.values())[0])]()
     for k1, v1 in input_dict.items():  # pragma: no cover
