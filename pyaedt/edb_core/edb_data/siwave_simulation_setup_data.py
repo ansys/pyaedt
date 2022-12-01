@@ -848,7 +848,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
     @name.setter
     def name(self, value):
-        """Set name of this setup."""
+        """Set name of the setup."""
         self._edb_sim_setup_info.Name = value
         self._update_setup()
 
