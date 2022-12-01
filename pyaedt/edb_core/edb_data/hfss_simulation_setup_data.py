@@ -423,12 +423,13 @@ class EdbFrequencySweep(object):
 
         Parameters
         ----------
-        frequency_list : list
-            List of lists of 4 elements. Each list has to contain:
-              1- freq type ("linear count", "log scale" or "linear scale")
+        ```suggestion
+            List of lists with four elements. Each list must contain:
+            
+              1- frequency type (``"linear count"``, ``"log scale"`` or ``"linear scale"``)
               2- start frequency
               3- stop frequency
-              3- step frequency or count
+              4- step frequency or count
 
         Returns
         -------
