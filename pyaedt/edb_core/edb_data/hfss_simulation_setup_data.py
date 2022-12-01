@@ -43,7 +43,7 @@ class EdbFrequencySweep(object):
 
     @property
     def sweep_type(self):
-        """Get sweep type."""
+        """Sweep type."""
         return
 
     @property
