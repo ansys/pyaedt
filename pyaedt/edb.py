@@ -2225,7 +2225,7 @@ class Edb(object):
 
     @property
     def setups(self):
-        """Active setups in EDB.
+        """Get the dictionary of all EDB HFSS and SIwave setups.
 
         Returns
         -------
@@ -2234,7 +2234,6 @@ class Edb(object):
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
 
         """
-        """Get the dictionary of all EDB HFSS and SIWAVE setups"""
         _setups = {}
         for i in list(self.active_cell.SimulationSetups):
             if i.GetType() == self.edb.Utility.SimulationSetupType.kHFSS:

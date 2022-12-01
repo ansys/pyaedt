@@ -527,8 +527,8 @@ class MeshOperation(object):
     def nets_layers_list(self, values):
         temp = []
         for net, layers in values.items():
-            for l in layers:
-                temp.append((net, l, True))
+            for layer in layers:
+                temp.append((net, layer, True))
         self.mesh_operation.NetsLayersList = convert_py_list_to_net_list(temp)
 
     @property
