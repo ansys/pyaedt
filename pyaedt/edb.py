@@ -2298,7 +2298,7 @@ class Edb(object):
         return HfssSimulationSetup(self, name)
 
     def create_siwave_syz_setup(self, name=None):
-        """Create a new setup from template.
+        """Create a setup from a template.
 
         Parameters
         ----------
