@@ -573,7 +573,7 @@ class MeshOperation(object):
 
 
 class HfssPortSettings(object):
-    """Manages EDB methods for hfss port settings."""
+    """Manages EDB methods for HFSS port settings."""
 
     def __init__(self, parent):
         self._parent = parent
