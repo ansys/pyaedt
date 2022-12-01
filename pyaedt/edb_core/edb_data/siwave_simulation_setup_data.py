@@ -713,7 +713,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     @property
     def name(self):
-        """Get name of this setup."""
+        """Setup name."""
         return self._edb_sim_setup_info.Name
 
     @name.setter
