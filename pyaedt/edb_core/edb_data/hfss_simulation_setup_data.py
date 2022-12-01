@@ -837,7 +837,7 @@ class AdaptiveSettings(object):
 
     @property
     def do_adaptive(self):
-        """Do adpative..
+        """Check if adpative mesh is on.
 
         Returns
         -------
