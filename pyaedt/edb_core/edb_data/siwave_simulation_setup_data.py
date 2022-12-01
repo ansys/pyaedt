@@ -809,7 +809,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
 
 class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
-    """Manages EDB methods for hfss simulation setup."""
+    """Manages EDB methods for HFSS simulation setup."""
 
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
