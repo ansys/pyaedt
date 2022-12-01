@@ -2323,7 +2323,7 @@ class Edb(object):
         return SiwaveSYZSimulationSetup(self, name)
 
     def create_siwave_dc_setup(self, name=None):
-        """Create a new setup from template.
+        """Create a setup from a template.
 
         Parameters
         ----------
