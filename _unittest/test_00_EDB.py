@@ -1725,11 +1725,49 @@ if not config["skip_edb"]:
 
             adaptive_settings = setup1.adaptive_settings
             assert adaptive_settings.add_adaptive_frequency_data("5GHz", 8, "0.01")
+            assert adaptive_settings.adaptive_frequency_data_list
+            adaptive_settings.adapt_type = "kBroadband"
+            adaptive_settings.basic = False
+            adaptive_settings.do_adaptive = False
+            adaptive_settings.max_refinement = 1000001
+            adaptive_settings.refine_per_pass = 20
+            adaptive_settings.min_passes = 2
+            adaptive_settings.save_fields = True
+            adaptive_settings.save_rad_field_only = True
+            adaptive_settings.use_convergence_matrix = True
+            adaptive_settings.use_max_refinement = True
+
+            assert adaptive_settings.adapt_type == "kBroadband"
+            assert not adaptive_settings.basic
+            assert not adaptive_settings.do_adaptive
+            assert adaptive_settings.max_refinement == 1000001
+            assert adaptive_settings.refine_per_pass == 20
+            assert adaptive_settings.min_passes == 2
+            assert adaptive_settings.save_fields
+            assert adaptive_settings.save_rad_field_only
+            assert adaptive_settings.use_convergence_matrix
+            assert adaptive_settings.use_max_refinement
 
             defeature_settings = setup1.defeature_settings
-            defeature_settings["remove_floating_geometry"] = True
-            setup1.defeature_settings = defeature_settings
-            assert setup1.defeature_settings["remove_floating_geometry"] == True
+            defeature_settings.defeature_abs_length = "1um"
+            defeature_settings.defeature_ratio = 1e-5
+            defeature_settings.healing_option = 0
+            defeature_settings.model_type = 1
+            defeature_settings.remove_floating_geometry = True
+            defeature_settings.small_void_area = 0.1
+            defeature_settings.union_polygons = False
+            defeature_settings.use_defeature = False
+            defeature_settings.use_defeature_abs_length = True
+
+            assert defeature_settings.defeature_abs_length == "1um"
+            assert defeature_settings.defeature_ratio == 1e-5
+            assert defeature_settings.healing_option == 0
+            assert defeature_settings.model_type == 1
+            assert defeature_settings.remove_floating_geometry
+            assert defeature_settings.small_void_area == 0.1
+            assert not defeature_settings.union_polygons
+            assert not defeature_settings.use_defeature
+            assert defeature_settings.use_defeature_abs_length
 
             via_settings = setup1.via_settings
             via_settings["via_num_sides"] = 12

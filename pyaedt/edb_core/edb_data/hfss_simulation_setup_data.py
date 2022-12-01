@@ -594,6 +594,96 @@ class AdaptiveSettings(object):
         return self._parent._update_setup()
 
 
+class DefeatureSettings(object):
+    """Manages EDB methods for defeature settings."""
+
+    def __init__(self, parent, defeature_settings):
+        self._parent = parent
+        self._defeature_settings = defeature_settings
+
+    @property
+    def defeature_abs_length(self):
+        return self._defeature_settings.DefeatureAbsLength
+
+    @defeature_abs_length.setter
+    def defeature_abs_length(self, value):
+        self._defeature_settings.DefeatureAbsLength = value
+        self._parent._update_setup()
+
+    @property
+    def defeature_ratio(self):
+        return self._defeature_settings.DefeatureRatio
+
+    @defeature_ratio.setter
+    def defeature_ratio(self, value):
+        self._defeature_settings.DefeatureRatio = value
+        self._parent._update_setup()
+
+    @property
+    def healing_option(self):
+        return self._defeature_settings.HealingOption
+
+    @healing_option.setter
+    def healing_option(self, value):
+        self._defeature_settings.HealingOption = value
+        self._parent._update_setup()
+
+    @property
+    def model_type(self):
+        return self._defeature_settings.ModelType
+
+    @model_type.setter
+    def model_type(self, value):
+        """Model type (General 0 or IC 1)."""
+        self._defeature_settings.ModelType = value
+        self._parent._update_setup()
+
+    @property
+    def remove_floating_geometry(self):
+        return self._defeature_settings.RemoveFloatingGeometry
+
+    @remove_floating_geometry.setter
+    def remove_floating_geometry(self, value):
+        self._defeature_settings.RemoveFloatingGeometry = value
+        self._parent._update_setup()
+
+    @property
+    def small_void_area(self):
+        return self._defeature_settings.SmallVoidArea
+
+    @small_void_area.setter
+    def small_void_area(self, value):
+        self._defeature_settings.SmallVoidArea = value
+        self._parent._update_setup()
+
+    @property
+    def union_polygons(self):
+        return self._defeature_settings.UnionPolygons
+
+    @union_polygons.setter
+    def union_polygons(self, value):
+        self._defeature_settings.UnionPolygons = value
+        self._parent._update_setup()
+
+    @property
+    def use_defeature(self):
+        return self._defeature_settings.UseDefeature
+
+    @use_defeature.setter
+    def use_defeature(self, value):
+        self._defeature_settings.UseDefeature = value
+        self._parent._update_setup()
+
+    @property
+    def use_defeature_abs_length(self):
+        return self._defeature_settings.UseDefeatureAbsLength
+
+    @use_defeature_abs_length.setter
+    def use_defeature_abs_length(self, value):
+        self._defeature_settings.UseDefeatureAbsLength = value
+        self._parent._update_setup()
+
+
 class HfssSimulationSetup(object):
     """Manages EDB methods for hfss simulation setup."""
 
@@ -700,42 +790,8 @@ class HfssSimulationSetup(object):
     @property
     def defeature_settings(self):
         """Get defeature settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
-        return {
-            "defeature_abs_length": settings.DefeatureAbsLength,
-            "defeature_ratio": settings.DefeatureRatio,
-            "healing_option": settings.HealingOption,
-            "model_type": settings.ModelType,
-            "remove_floating_geometry": settings.RemoveFloatingGeometry,
-            "small_void_area": settings.SmallVoidArea,
-            "union_polygons": settings.UnionPolygons,
-            "use_defeature": settings.UseDefeature,
-            "use_defeature_abs_length": settings.UseDefeatureAbsLength,
-        }
-
-    @defeature_settings.setter
-    def defeature_settings(self, values):
-        """Set defeature settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
-        if "defeature_abs_length" in values:
-            settings.DefeatureAbsLength = values["defeature_abs_length"]
-        if "defeature_ratio" in values:
-            settings.DefeatureRatio = values["defeature_ratio"]
-        if "healing_option" in values:
-            settings.HealingOption = values["healing_option"]
-        if "model_type" in values:
-            settings.ModelType = values["model_type"]
-        if "remove_floating_geometry" in values:
-            settings.RemoveFloatingGeometry = values["remove_floating_geometry"]
-        if "small_void_area" in values:
-            settings.SmallVoidArea = values["small_void_area"]
-        if "union_polygons" in values:
-            settings.UnionPolygons = values["union_polygons"]
-        if "use_defeature" in values:
-            settings.UseDefeature = values["use_defeature"]
-        if "use_defeature_abs_length" in values:
-            settings.UseDefeatureAbsLength = values["use_defeature_abs_length"]
-        self._update_setup()
+        defeature_settings = self._edb_sim_setup_info.SimulationSettings.DefeatureSettings
+        return DefeatureSettings(self, defeature_settings)
 
     @property
     def via_settings(self):
