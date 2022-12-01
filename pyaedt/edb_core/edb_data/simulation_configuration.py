@@ -6,7 +6,6 @@ from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.generic.clr_module import Dictionary
-from pyaedt.generic.clr_module import String
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
@@ -2457,96 +2456,3 @@ class SimulationConfiguration(object):
             return True
         except:  # pragma: no cover
             return False
-
-
-class SiwaveDCSetupTemplate(object):
-    """Manages Siwave DC settings data.
-
-    This class contains all the settings for a Siwave DC analysis and
-    is used as input.
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
-    >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
-    >>> settings.accuracy_level = 0
-    >>> settings.use_dc_custom_settings  = True
-    >>> settings.name = "myDCIR_3"
-    >>> settings.pos_term_to_ground = "I1"
-    >>> settings.neg_term_to_ground = "V1"
-    >>> edb.core_siwave.add_siwave_dc_analysis(settings)
-    """
-
-    def __init__(self):
-        self.name = "DC IR 1"
-        self.dcreport_show_active_devices = True
-        self.export_dcthermal_data = False
-        self.full_dcreport_path = ""
-        self.use_loopres_forperpin = True
-        self.via_report_path = ""
-        self.compute_inductance = True
-        self.accuracy_level = 1
-        self.plotjv = True
-        self.min_passes = 1
-        self.max_passes = 5
-        self.percent_localrefinement = 20
-        self.energy_error = 2
-        self.refine_bondwires = False
-        self.refine_vias = False
-        self.num_bondwire_sides = 8
-        self.num_via_sides = 8
-        self.mesh_bondwires = False
-        self.mesh_vias = False
-        self.perform_adaptive_refinement = False
-        self.use_dc_custom_settings = False
-        self._source_terms_to_ground = None
-        self._pos_term_to_ground = []
-        self._neg_term_to_ground = []
-
-    @property
-    def pos_term_to_ground(self):
-        """Set positive terminals to ground.
-
-        Parameters
-        ----------
-        terms : list, str
-            List of terminals with positive nodes to ground.
-        """
-        return self._pos_term_to_ground
-
-    @pos_term_to_ground.setter
-    def pos_term_to_ground(self, terms):
-        if not isinstance(terms, list):
-            self._pos_term_to_ground = [terms]
-        else:
-            self._pos_term_to_ground = terms
-
-    @property
-    def neg_term_to_ground(self):
-        """Set negative terminals to ground.
-
-        Parameters
-        ----------
-        terms : list, str
-            List of terminals with negative nodes to ground.
-        """
-        return self._neg_term_to_ground
-
-    @neg_term_to_ground.setter
-    def neg_term_to_ground(self, terms):
-        if not isinstance(terms, list):
-            self._neg_term_to_ground = [terms]
-        else:
-            self._neg_term_to_ground = terms
-
-    @property
-    def source_terms_to_ground(self):
-        """Terminals with positive or negative grounded terminals."""
-        a = Dictionary[String, int]()
-        for el in self._neg_term_to_ground:
-            a[el] = 1
-        for el in self._pos_term_to_ground:
-            a[el] = 2
-        self._source_terms_to_ground = a
-        return self._source_terms_to_ground

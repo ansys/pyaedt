@@ -2,6 +2,7 @@ from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySwee
 from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class SiwaveAdvancedSettings(object):
@@ -662,7 +663,6 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
-        self._name = None
         self._sweep_data_list = {}
         if edb_siwave_sim_setup:
             self._edb_sim_setup_info = edb_siwave_sim_setup
@@ -674,8 +674,6 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
                 self._edb_sim_setup_info.Name = name
-            self._name = name
-            self._name = name
             self._update_setup()
         SiwaveAdvancedSettings.__init__(self, self)
 
@@ -684,12 +682,13 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         """Edb Internal Simulation Setup Object."""
         return self._edb_sim_setup_info
 
+    @pyaedt_function_handler()
     def _update_setup(self):
         self._edb_sim_setup = self._edb.edb.Utility.SIWaveSimulationSetup(self._edb_sim_setup_info)
-        if self._name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
+        if self.name in self._edb.setups:
+            self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
         self._edb._active_layout.GetCell().AddSimulationSetup(self._edb_sim_setup)
-        self._name = self.name
+        return True
 
     @property
     def dc_settings(self):
@@ -779,6 +778,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         self._edb_sim_setup_info.SimulationSettings.UseSISettings = value
         self._update_setup()
 
+    @pyaedt_function_handler()
     def add_frequency_sweep(self, name=None, frequency_sweep=None):
         """Add frequency sweep.
 
@@ -805,7 +805,6 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
-        self._name = None
         self._mesh_operations = {}
 
         if edb_siwave_sim_setup:
@@ -818,7 +817,6 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
                 self._edb_sim_setup_info.Name = name
-            self._name = name
             self._update_setup()
         SiwaveDCAdvancedSettings.__init__(self, self)
 
@@ -827,12 +825,13 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
         """Edb Internal Simulation Setup Object."""
         return self._edb_sim_setup_info
 
+    @pyaedt_function_handler()
     def _update_setup(self):
         edb_sim_setup = self._edb.edb.Utility.SIWaveDCIRSimulationSetup(self._edb_sim_setup_info)
-        if self._name in self._edb.setups:
-            self._edb._active_layout.GetCell().DeleteSimulationSetup(self._name)
+        if self.name in self._edb.setups:
+            self._edb._active_layout.GetCell().DeleteSimulationSetup(self.name)
         self._edb.active_cell.AddSimulationSetup(edb_sim_setup)
-        self._name = self.name
+        return True
 
     @property
     def name(self):
@@ -867,6 +866,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
         """
         return convert_netdict_to_pydict(self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround)
 
+    @pyaedt_function_handler()
     def add_source_terminal_to_ground(self, source_name, terminal=0):
         """Add a source terminal to ground.
 
@@ -887,4 +887,4 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
         self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
             terminals
         )
-        self._update_setup()
+        return self._update_setup()

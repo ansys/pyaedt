@@ -1,5 +1,6 @@
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class EdbFrequencySweep(object):
@@ -20,6 +21,7 @@ class EdbFrequencySweep(object):
             self._edb_sweep_data = self._sim_setup._edb.simsetupdata.SweepData(self._name)
             self.set_frequencies(frequency_sweep)
 
+    @pyaedt_function_handler()
     def _update_sweep(self):
         """Update sweep."""
         self._sim_setup._edb_sim_setup_info.SweepDataList.Clear()
@@ -228,22 +230,27 @@ class EdbFrequencySweep(object):
         self._edb_sweep_data.UseQ3DForDC = value
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def _set_frequencies(self, freq_sweep_string="Linear Step: 0GHz to 20GHz, step=0.05GHz"):
         self._edb_sweep_data.SetFrequencies(freq_sweep_string)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies_linear_scale(self, start="0.1GHz", stop="20GHz", step="50MHz"):
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, step)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies_linear_count(self, start="1kHz", stop="0.1GHz", count=10):
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, count)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies_log_scale(self, start="1kHz", stop="0.1GHz", samples=10):
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetLogFrequencies(start, stop, samples)
         self._update_sweep()
 
+    @pyaedt_function_handler()
     def set_frequencies(self, frequency_list=None):
         if not frequency_list:
             frequency_list = [
@@ -576,6 +583,7 @@ class AdaptiveSettings(object):
         self.adaptive_settings.UseMaxRefinement = value
         self._parent._update_setup()
 
+    @pyaedt_function_handler()
     def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s="0.02"):
         adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
         data = AdaptiveFrequencyData(adaptive_frequency_data)
@@ -616,6 +624,7 @@ class HfssSimulationSetup(object):
     def edb_sim_setup_info(self):
         return self._edb_sim_setup_info
 
+    @pyaedt_function_handler()
     def _update_setup(self):
         mesh_operations = self._edb_sim_setup_info.SimulationSettings.MeshOperations
         mesh_operations.Clear()
@@ -851,6 +860,7 @@ class HfssSimulationSetup(object):
             self._mesh_operations[i.Name] = MeshOperation(self, i)
         return self._mesh_operations
 
+    @pyaedt_function_handler()
     def add_mesh_operation(
         self,
         name,
@@ -884,6 +894,7 @@ class HfssSimulationSetup(object):
         self.mesh_operations[name] = MeshOperation(self, mesh_operation)
         self._update_setup()
 
+    @pyaedt_function_handler()
     def add_frequency_sweep(self, name=None, frequency_sweep=None):
         """Add frequency sweep.
 
@@ -903,12 +914,14 @@ class HfssSimulationSetup(object):
             name = generate_unique_name("sweep")
         return EdbFrequencySweep(self, frequency_sweep, name)
 
+    @pyaedt_function_handler()
     def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.AdaptiveFrequencyDataList.Clear()
         adaptive_settings.adapt_type = "kSingle"
         return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
+    @pyaedt_function_handler()
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
         adaptive_settings = self._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
         adaptive_settings.adapt_type = "kMultiFrequencies"
@@ -918,6 +931,7 @@ class HfssSimulationSetup(object):
                 return False
         return True
 
+    @pyaedt_function_handler()
     def set_solution_broadband(
         self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"
     ):

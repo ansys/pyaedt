@@ -6,7 +6,6 @@ import os
 import time
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.simulation_configuration import SiwaveDCSetupTemplate
 from pyaedt.edb_core.edb_data.simulation_configuration import SourceType
 
 # from pyaedt.edb_core.edb_data.sources import SourceType
@@ -42,11 +41,6 @@ class EdbSiwave(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-
-    @property
-    def _siwave_setup(self):
-        """SIwave setup."""
-        return self._pedb.edblib.SIwave.SiwaveSimulationSetupMethods
 
     @property
     def _builder(self):
@@ -748,16 +742,6 @@ class EdbSiwave(object):
         return setup
 
     @pyaedt_function_handler()
-    def get_siwave_dc_setup_template(self):
-        """Get the siwave dc template.
-
-        Returns
-        -------
-        pyaedt.edb_core.edb_data.simulation_configuration.SiwaveDCSetupTemplate
-        """
-        return SiwaveDCSetupTemplate()
-
-    @pyaedt_function_handler()
     def add_siwave_dc_analysis(self, name=None):
         """Create a Siwave DC Analysis in EDB.
 
@@ -782,13 +766,7 @@ class EdbSiwave(object):
         >>> from pyaedt import Edb
         >>> edb = Edb("pathtoaedb", edbversion="2021.2")
         >>> edb.core_siwave.add_siwave_ac_analysis()
-        >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
-        >>> settings.accuracy_level = 0
-        >>> settings.use_dc_custom_settings  = True
-        >>> settings.name = "myDCIR_3"
-        >>> settings.pos_term_to_ground = "I1"
-        >>> settings.neg_term_to_ground = "V1"
-        >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
+        >>> edb.core_siwave.add_siwave_dc_analysis2("my_setup")
 
         """
         setup = self._pedb.create_siwave_dc_setup(name)

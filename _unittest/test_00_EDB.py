@@ -409,12 +409,8 @@ if not config["skip_edb"]:
             assert self.edbapp.core_siwave.add_siwave_syz_analysis()
 
         def test_046_create_siwave_dc_analsyis(self):
-            settings_dc = self.edbapp.core_siwave.get_siwave_dc_setup_template()
-            settings_dc.accuracy_level = 0
-            settings_dc.use_dc_custom_settings = True
-            settings_dc.name = "myDCIR_3"
-            settings_dc.pos_term_to_ground = "I1"
-            assert self.edbapp.core_siwave.add_siwave_dc_analysis(settings_dc)
+            setup = self.edbapp.core_siwave.add_siwave_dc_analysis()
+            assert setup.add_source_terminal_to_ground(list(self.edbapp.sources.keys())[0], 2)
 
         def test_047_get_nets_from_pin_list(self):
             cmp_pinlist = self.edbapp.core_padstack.get_pinlist_from_component_and_net("U2A5", "GND")
@@ -1776,6 +1772,14 @@ if not config["skip_edb"]:
                     ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
                 ],
             )
+            assert "sweep1" in setup1.frequency_sweeps
+            sweep1 = setup1.frequency_sweeps["sweep1"]
+            sweep1.adaptive_sampling = True
+            assert sweep1.adaptive_sampling
+
+            self.edbapp.setups["setup1"].name = "setup1a"
+            assert "setup1" not in self.edbapp.setups
+            assert "setup1a" in self.edbapp.setups
 
         def test_130_siwave_dc_simulation_setup(self):
             setup1 = self.edbapp.create_siwave_dc_setup("DC1")
@@ -1840,7 +1844,8 @@ if not config["skip_edb"]:
             assert not setup1.plot_jv
             assert setup1.refine_bondwires
             assert setup1.refine_vias
-            self.edbapp.core_siwave.create_voltage_source_on_net("U2A5", "PCIE_RBIAS", "U2A5", "GND", 3.3, 0)
+            if not self.edbapp.sources:
+                self.edbapp.core_siwave.create_voltage_source_on_net("U2A5", "PCIE_RBIAS", "U2A5", "GND", 3.3, 0)
             first_source = list(self.edbapp.sources.keys())[0]
             setup1.add_source_terminal_to_ground(list(self.edbapp.sources.keys())[0], 1)
             assert first_source in setup1.source_terms_to_ground
