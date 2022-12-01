@@ -384,7 +384,7 @@ class EdbFrequencySweep(object):
         stop : str, float
             Stop frequency.
         count : int
-            Step frequency
+            Step frequency.
 
         Returns
         -------
