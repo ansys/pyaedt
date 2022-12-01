@@ -1779,3 +1779,217 @@ if not config["skip_edb"]:
             self.edbapp.setups["setup1"].name = "setup1a"
             assert "setup1" not in self.edbapp.setups
             assert "setup1a" in self.edbapp.setups
+
+        def test_130_siwave_dc_simulation_setup(self):
+            setup1 = self.edbapp.create_siwave_dc_setup("DC1")
+            assert setup1.name == "DC1"
+            assert not setup1.compute_inductance
+            assert setup1.contact_radius == "0.1mm"
+            assert setup1.dc_slider_position == 1
+            assert setup1.enabled
+            assert setup1.energy_error == 3.0
+            assert setup1.max_init_mesh_edge_length == "2.5mm"
+            assert setup1.max_num_pass == 5
+            assert setup1.min_num_pass == 1
+            assert setup1.mesh_bondwires
+            assert setup1.mesh_vias
+            assert setup1.min_plane_area == "0.25mm2"
+            assert setup1.min_void_area == "0.01mm2"
+            assert setup1.num_bondwire_sides == 8
+            assert setup1.num_via_sides == 8
+            assert setup1.percent_local_refinement == 20.0
+            assert setup1.perform_adaptive_refinement
+            assert setup1.plot_jv
+            assert not setup1.refine_bondwires
+            assert not setup1.refine_vias
+            setup1.name = "DC2"
+            setup1.compute_inductance = True
+            setup1.contact_radius = "0.2mm"
+            setup1.dc_slider_position = 2
+            setup1.energy_error = 2.0
+            setup1.max_init_mesh_edge_length = "5.5mm"
+            setup1.max_num_pass = 3
+            setup1.min_num_pass = 2
+            setup1.mesh_bondwires = False
+            setup1.mesh_vias = False
+            assert not setup1.mesh_bondwires
+            assert not setup1.mesh_vias
+            setup1.min_plane_area = "0.5mm2"
+            setup1.min_void_area = "0.021mm2"
+            setup1.num_bondwire_sides = 6
+            setup1.num_via_sides = 10
+            setup1.percent_local_refinement = 10.0
+            setup1.perform_adaptive_refinement = False
+            setup1.plot_jv = False
+            setup1.refine_bondwires = True
+            setup1.refine_vias = True
+
+            assert setup1.name == "DC2"
+            assert setup1.compute_inductance
+            assert setup1.contact_radius == "0.2mm"
+            assert setup1.dc_slider_position == 2
+            assert setup1.energy_error == 2.0
+            assert setup1.max_init_mesh_edge_length == "5.5mm"
+            assert setup1.max_num_pass == 3
+            assert setup1.min_num_pass == 2
+            assert setup1.mesh_bondwires
+            assert setup1.mesh_vias
+            assert setup1.min_plane_area == "0.5mm2"
+            assert setup1.min_void_area == "0.021mm2"
+            assert setup1.num_bondwire_sides == 6
+            assert setup1.num_via_sides == 10
+            assert setup1.percent_local_refinement == 10.0
+            assert not setup1.perform_adaptive_refinement
+            assert not setup1.plot_jv
+            assert setup1.refine_bondwires
+            assert setup1.refine_vias
+
+        def test_131_siwave_ac_simulation_setup(self):
+            setup1 = self.edbapp.create_siwave_syz_setup("AC1")
+            assert setup1.name == "AC1"
+            assert setup1.enabled
+            sweep = setup1.add_frequency_sweep(
+                "sweep1",
+                frequency_sweep=[
+                    ["linear count", "0", "1kHz", 1],
+                    ["log scale", "1kHz", "0.1GHz", 10],
+                    ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+                ],
+            )
+            assert "sweep1" in setup1.frequency_sweeps
+            assert "0" in sweep.frequencies
+            assert not sweep.adaptive_sampling
+            assert not sweep.adv_dc_extrapolation
+            assert sweep.auto_s_mat_only_solve
+            assert not sweep.enforce_causality
+            assert not sweep.enforce_dc_and_causality
+            assert sweep.enforce_passivity
+            assert sweep.freq_sweep_type == "kInterpolatingSweep"
+            assert sweep.interp_use_full_basis
+            assert sweep.interp_use_port_impedance
+            assert sweep.interp_use_prop_const
+            assert sweep.max_solutions == 250
+            assert sweep.min_freq_s_mat_only_solve == "1MHz"
+            assert not sweep.min_solved_freq
+            assert sweep.passivity_tolerance == 0.0001
+            assert sweep.relative_s_error == 0.005
+            assert not sweep.save_fields
+            assert not sweep.save_rad_fields_only
+            assert not sweep.use_q3d_for_dc
+
+            sweep.adaptive_sampling = True
+            sweep.adv_dc_extrapolation = True
+            sweep.auto_s_mat_only_solve = False
+            sweep.enforce_causality = True
+            sweep.enforce_dc_and_causality = True
+            sweep.enforce_passivity = False
+            sweep.freq_sweep_type = "kDiscreteSweep"
+            sweep.interp_use_full_basis = False
+            sweep.interp_use_port_impedance = False
+            sweep.interp_use_prop_const = False
+            sweep.max_solutions = 200
+            sweep.min_freq_s_mat_only_solve = "2MHz"
+            sweep.min_solved_freq = "1Hz"
+            sweep.passivity_tolerance = 0.0002
+            sweep.relative_s_error = 0.004
+            sweep.save_fields = True
+            sweep.save_rad_fields_only = True
+            sweep.use_q3d_for_dc = True
+
+            assert sweep.adaptive_sampling
+            assert sweep.adv_dc_extrapolation
+            assert not sweep.auto_s_mat_only_solve
+            assert sweep.enforce_causality
+            assert sweep.enforce_dc_and_causality
+            assert not sweep.enforce_passivity
+            assert sweep.freq_sweep_type == "kDiscreteSweep"
+            assert not sweep.interp_use_full_basis
+            assert not sweep.interp_use_port_impedance
+            assert not sweep.interp_use_prop_const
+            assert sweep.max_solutions == 200
+            assert sweep.min_freq_s_mat_only_solve == "2MHz"
+            assert sweep.min_solved_freq == "1Hz"
+            assert sweep.passivity_tolerance == 0.0002
+            assert sweep.relative_s_error == 0.004
+            assert sweep.save_fields
+            assert sweep.save_rad_fields_only
+            assert sweep.use_q3d_for_dc
+
+            assert setup1.automatic_mesh
+            assert setup1.enabled
+            assert setup1.dc_settings
+            assert setup1.ignore_non_functional_pads
+            assert setup1.include_coplane_coupling
+            assert setup1.include_fringe_coupling
+            assert not setup1.include_infinite_ground
+            assert not setup1.include_inter_plane_coupling
+            assert setup1.include_split_plane_coupling
+            assert setup1.include_trace_coupling
+            assert not setup1.include_vi_sources
+            assert setup1.infinite_ground_location == "0"
+            assert setup1.max_coupled_lines == 12
+            assert setup1.mesh_frequency == "4GHz"
+            assert setup1.min_pad_area_to_mesh == "1mm2"
+            assert setup1.min_plane_area_to_mesh == "6.25e-6mm2"
+            assert setup1.min_void_area == "2mm2"
+            assert setup1.name == "AC1"
+            assert setup1.perform_erc
+            assert setup1.pi_slider_postion == 1
+            assert setup1.si_slider_postion == 1
+            assert not setup1.return_current_distribution
+            assert setup1.snap_length_threshold == "2.5um"
+            assert setup1.use_si_settings
+            assert setup1.use_custom_settings
+            assert setup1.xtalk_threshold == "-34"
+
+            setup1.automatic_mesh = False
+            setup1.enabled = False
+            setup1.ignore_non_functional_pads = False
+            setup1.include_coplane_coupling = False
+            setup1.include_fringe_coupling = False
+            setup1.include_infinite_ground = True
+            setup1.include_inter_plane_coupling = True
+            setup1.include_split_plane_coupling = False
+            setup1.include_trace_coupling = False
+            assert setup1.use_custom_settings
+            setup1.include_vi_sources = True
+            setup1.infinite_ground_location = "0.1"
+            setup1.max_coupled_lines = 10
+            setup1.mesh_frequency = "3GHz"
+            setup1.min_pad_area_to_mesh = "2mm2"
+            setup1.min_plane_area_to_mesh = "5.25e-6mm2"
+            setup1.min_void_area = "1mm2"
+            setup1.name = "AC2"
+            setup1.perform_erc = False
+            setup1.pi_slider_postion = 0
+            setup1.si_slider_postion = 2
+            setup1.return_current_distribution = True
+            setup1.snap_length_threshold = "3.5um"
+            setup1.use_si_settings = False
+            assert not setup1.use_custom_settings
+            setup1.xtalk_threshold = "-44"
+
+            assert not setup1.automatic_mesh
+            assert not setup1.enabled
+            assert not setup1.ignore_non_functional_pads
+            assert not setup1.include_coplane_coupling
+            assert not setup1.include_fringe_coupling
+            assert setup1.include_infinite_ground
+            assert setup1.include_inter_plane_coupling
+            assert not setup1.include_split_plane_coupling
+            assert not setup1.include_trace_coupling
+            assert setup1.include_vi_sources
+            assert setup1.infinite_ground_location == "0.1"
+            assert setup1.max_coupled_lines == 10
+            assert setup1.mesh_frequency == "3GHz"
+            assert setup1.min_pad_area_to_mesh == "2mm2"
+            assert setup1.min_plane_area_to_mesh == "5.25e-6mm2"
+            assert setup1.min_void_area == "1mm2"
+            assert setup1.name == "AC2"
+            assert not setup1.perform_erc
+            assert setup1.pi_slider_postion == 0
+            assert setup1.si_slider_postion == 2
+            assert setup1.return_current_distribution
+            assert setup1.snap_length_threshold == "3.5um"
+            assert not setup1.use_si_settings
+            assert setup1.xtalk_threshold == "-44"

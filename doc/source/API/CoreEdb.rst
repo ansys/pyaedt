@@ -97,6 +97,13 @@ These classes are the containers of data read from the EDB file:
    sources.ExcitationProbes
    sources.ExcitationSources
    sources.ExcitationDifferential
+   hfss_simulation_data_setup.HfssSimulationSetup
+   hfss_simulation_data_setup.EdbFrequencySweep
+   hfss_simulation_data_setup.HfssPortSettings
+   hfss_simulation_data_setup.HfssMeshOperation
+   siwave_simulation_setup_data.SiwaveSYZSimulationSetup
+   siwave_simulation_setup_data.SiwaveDCSimulationSetup
+
 
 
 .. code:: python

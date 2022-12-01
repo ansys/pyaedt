@@ -2236,13 +2236,13 @@ class Edb(object):
         """
         """Get the dictionary of all EDB HFSS and SIWAVE setups"""
         _setups = {}
-        for i in list(self._edb._active_layout.GetCell().SimulationSetups):
-            if i.GetType() == self._edb.edb.Utility.SimulationSetupType.kHFSS:
-                _setups[i.GetName()] = HfssSimulationSetup(self._edb, i.GetName(), i)
-            elif i.GetType() == self._edb.edb.Utility.SimulationSetupType.kSIWave:
-                _setups[i.GetName()] = SiwaveSYZSimulationSetup(self._edb, i.GetName(), i)
-            elif i.GetType() == self._edb.edb.Utility.SimulationSetupType.kSIWaveDCIR:
-                _setups[i.GetName()] = SiwaveDCSimulationSetup(self._edb, i.GetName(), i)
+        for i in list(self.active_cell.SimulationSetups):
+            if i.GetType() == self.edb.Utility.SimulationSetupType.kHFSS:
+                _setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
+            elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWave:
+                _setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
+            elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWaveDCIR:
+                _setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
         return _setups
 
     @property
@@ -2295,7 +2295,7 @@ class Edb(object):
         """
         if name in self.setups:
             return False
-        return HfssSimulationSetup(self._edb, name)
+        return HfssSimulationSetup(self, name)
 
     def create_siwave_syz_setup(self, name=None):
         """Create a new setup from template.
@@ -2320,7 +2320,7 @@ class Edb(object):
         """
         if name in self.setups:
             return False
-        return SiwaveSYZSimulationSetup(self._edb, name)
+        return SiwaveSYZSimulationSetup(self, name)
 
     def create_siwave_dc_setup(self, name=None):
         """Create a new setup from template.
@@ -2342,4 +2342,4 @@ class Edb(object):
         """
         if name in self.setups:
             return False
-        return SiwaveDCSimulationSetup(self._edb, name)
+        return SiwaveDCSimulationSetup(self, name)

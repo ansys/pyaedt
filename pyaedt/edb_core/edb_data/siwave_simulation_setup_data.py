@@ -1,4 +1,4 @@
-from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import FreqSweep
+from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySweep
 from pyaedt.generic.general_methods import generate_unique_name
 
 
@@ -700,7 +700,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
             return self._sweep_data_list
         self._sweep_data_list = {}
         for i in list(self._edb_sim_setup_info.SweepDataList):
-            self._sweep_data_list[i.Name] = FreqSweep(self, None, i.Name, i)
+            self._sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
         return self._sweep_data_list
 
     @property
@@ -788,13 +788,13 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
 
         Returns
         ----------
-        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.FreqSweep`
+        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.EdbFrequencySweep`
         """
         if name in self.frequency_sweeps:
             return False
         if not name:
             name = generate_unique_name("sweep")
-        self._sweep_data_list[name] = FreqSweep(self, frequency_sweep, name)
+        self._sweep_data_list[name] = EdbFrequencySweep(self, frequency_sweep, name)
         return self._sweep_data_list[name]
 
 

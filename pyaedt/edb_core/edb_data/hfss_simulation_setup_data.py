@@ -160,7 +160,7 @@ class HfssPortSettings(object):
         self._parent._update_setup()
 
 
-class FreqSweep(object):
+class EdbFrequencySweep(object):
     """Manages EDB methods for frequency sweep."""
 
     def __init__(self, sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
@@ -316,13 +316,13 @@ class FreqSweep(object):
     @freq_sweep_type.setter
     def freq_sweep_type(self, value):
         edb_freq_sweep_type = self._edb_sweep_data.TFreqSweepType
-        if value == 0 or "kInterpolatingSweep":
+        if value in [0, "kInterpolatingSweep"]:
             self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kInterpolatingSweep
-        elif value == 1 or "kDiscreteSweep":
+        elif value in [1, "kDiscreteSweep"]:
             self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kDiscreteSweep
-        elif value == 2 or "kBroadbandFastSweep":
+        elif value in [2, "kBroadbandFastSweep"]:
             self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kBroadbandFastSweep
-        elif value == 3 or "kNumSweepTypes":
+        elif value in [3, "kNumSweepTypes"]:
             self._edb_sweep_data.FreqSweepType = edb_freq_sweep_type.kNumSweepTypes
         self._edb_sweep_data.FreqSweepType.ToString()
 
@@ -472,7 +472,7 @@ class HfssSimulationSetup(object):
         """Get frequency sweep list."""
         sweep_data_list = {}
         for i in list(self._edb_sim_setup_info.SweepDataList):
-            sweep_data_list[i.Name] = FreqSweep(self, None, i.Name, i)
+            sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
         return sweep_data_list
 
     @property
@@ -822,10 +822,10 @@ class HfssSimulationSetup(object):
 
         Returns
         ----------
-        pyaedt.edb_core.edb_data.hfss_simulation_setup_data.FreqSweep
+        pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep
         """
         if name in self.frequency_sweeps:
             return False
         if not name:
             name = generate_unique_name("sweep")
-        return FreqSweep(self, frequency_sweep, name)
+        return EdbFrequencySweep(self, frequency_sweep, name)
