@@ -44,96 +44,139 @@ class IPC2581(object):
                     padstackdef.hole_properties[0], self.units
                 )
             for layer, pad in padstackdef.pad_by_layer.items():
-                try:
-                    self.content.standard_geometries_dict.add_circle(
-                        self.from_meter_to_units(pad.parameters_values, self.units)
-                    )
-                except:
-                    pass
                 if pad.parameters_values:
                     if pad.geometry_type == 1:
                         primitive_ref = "CIRCLE_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units)
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict:
+                            self.content.standard_geometries_dict.standard_circ_dict[
+                                primitive_ref
+                            ] = self.from_meter_to_units(pad.parameters_values[0], self.units)
                     elif pad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
+                            self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            ]
                     elif pad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
+                            self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            ]
+
                     elif pad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1], self.units),
                             self.from_meter_to_units(pad.parameters_values[2], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
+                            self.content.standard_geometries_dict.standard_oval_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(pad.parameters_values[2], self.units),
+                            ]
                     else:
                         primitive_ref = "Default"
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="REGULAR", primitive_ref=primitive_ref)
             for layer, antipad in padstackdef.antipad_by_layer.items():
-                try:
-                    self.content.standard_geometries_dict.add_circle(
-                        self.from_meter_to_units(antipad.parameters_values, self.units)
-                    )
-                except:
-                    pass
                 if antipad.parameters_values:
                     if antipad.geometry_type == 1:
                         primitive_ref = "CIRCLE_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units)
                         )
+                        if not self.content.standard_geometries_dict.standard_circ_dict:
+                            self.content.standard_geometries_dict.standard_circ_dict[
+                                primitive_ref
+                            ] = self.from_meter_to_units(pad.parameters_values[0], self.units)
                     elif antipad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
                         )
+                        if not self.content.standard_geometries_dict.standard_rect_dict:
+                            self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            ]
                     elif antipad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1]),
                             self.units,
                         )
+                        if not self.content.standard_geometries_dict.standard_rect_dict:
+                            self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            ]
                     elif antipad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1], self.units),
                             self.from_meter_to_units(pad.parameters_values[2], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
+                            self.content.standard_geometries_dict.standard_oval_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(pad.parameters_values[2], self.units),
+                            ]
                     else:
                         primitive_ref = "Default"
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="ANTIPAD", primitive_ref=primitive_ref)
             for layer, thermalpad in padstackdef.thermalpad_by_layer.items():
-                try:
-                    self.content.standard_geometries_dict.add_circle(
-                        self.from_meter_to_units(thermalpad.parameters_values, self.units)
-                    )
-                except:
-                    pass
                 if thermalpad.parameters_values:
                     if thermalpad.geometry_type == 1:
                         primitive_ref = "CIRCLE_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units)
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict:
+                            self.content.standard_geometries_dict[primitive_ref] = self.from_meter_to_units(
+                                pad.parameters_values[0], self.units
+                            )
                     elif thermalpad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
+                            self.from_meter_to_units(pad.parameters_values[1], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
+                            self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            ]
                     elif thermalpad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
+                            self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            ]
                     elif thermalpad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1], self.units),
                             self.from_meter_to_units(pad.parameters_values[2], self.units),
                         )
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
+                            self.content.standard_geometries_dict.standard_oval_dict[primitive_ref] = [
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
+                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(pad.parameters_values[2], self.units),
+                            ]
                     else:
                         primitive_ref = "Default"
                     padstack_def.add_padstack_pad_def(layer=layer, pad_use="THERMAL", primitive_ref=primitive_ref)
@@ -177,7 +220,7 @@ class IPC2581(object):
         layers_name = list(self._pedb.stackup.signal_layers.keys())
         self.top_bottom_layers = [layers_name[0], layers_name[-1]]
 
-        for layer_name in list(self._pedb.stackup.layers.keys()):
+        for layer_name in list(self._pedb.stackup.stackup_layers.keys()):
             self.content.add_layer_ref(layer_name)
             layer_color = self._pedb.stackup.layers[layer_name].color
             self.content.dict_colors.add_color(
@@ -223,6 +266,7 @@ class IPC2581(object):
                 )
             except:
                 pass
+        self.content.add_layer_ref("Drill")
 
     @pyaedt_function_handler()
     def add_components(self):
@@ -266,15 +310,15 @@ class IPC2581(object):
                     returned_list.append(round(val * 100, 4))
             return returned_list
         else:
-            if units.lower() == "mm":
+            if units.lower() == "millimeter":
                 return round(value * 1000, 4)
-            if units.lower() == "um":
+            if units.lower() == "micrometer":
                 return round(value * 1e6, 4)
             if units.lower() == "mils":
                 return round(value * 39370.079, 4)
             if units.lower() == "inch":
                 return round(value * 39.370079, 4)
-            if units.lower() == "cm":
+            if units.lower() == "centimeter":
                 return round(value * 100, 4)
 
     def write_xml(self):

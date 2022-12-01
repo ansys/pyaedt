@@ -555,14 +555,14 @@ class Edb(object):
         self.open_edb()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581_beta(self, units="mm", output_file=""):
+    def export_to_ipc2581_beta(self, units="MILLIMETER", output_file=""):
         ipc = IPC2581(self, units)
         ipc.load_ipc_model()
         ipc.file_path = output_file
         ipc.write_xml()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
+    def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
         """Create an XML IPC2581 file from the active EDB.
 
         .. note::

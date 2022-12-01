@@ -50,14 +50,18 @@ class StandardGeometriesDictionary(object):
                 entry_standard = ET.SubElement(standard_dict, "EntryStandard")
                 entry_standard.set("id", standard_name)
                 circle = ET.SubElement(entry_standard, "Circle")
-                circle.set("diameter", circle_val)
+                circle.set("diameter", str(circle_val))
+                fill_descref = ET.SubElement(circle, "FillDescRef")
+                fill_descref.set("id", "SOLID_FILL")
         for standard_name, rect_val in self.standard_rect_dict.items():
             if rect_val:
                 entry_standard = ET.SubElement(standard_dict, "EntryStandard")
                 entry_standard.set("id", standard_name)
                 rec_center = ET.SubElement(entry_standard, "RectCenter")
-                rec_center.set("width", rect_val[0])
-                rec_center.set("height", rect_val[1])
+                rec_center.set("width", str(rect_val[0]))
+                rec_center.set("height", str(rect_val[1]))
+                fill_descref = ET.SubElement(rec_center, "FillDescRef")
+                fill_descref.set("id", "SOLID_FILL")
 
     def add_circle(self, diameter):
         circle = StandardCircle()

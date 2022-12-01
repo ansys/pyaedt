@@ -27,7 +27,7 @@ class Spec(object):
         layer_type_set.set("text", self.layer_type)
         conductivity = ET.SubElement(spec, "Conductor")
         conductivity.set("type", "CONDUCTIVITY")
-        conductivity_set = ET.SubElement(conductivity, "General")
+        conductivity_set = ET.SubElement(conductivity, "Property")
         conductivity_set.set("value", self.conductivity)
         conductivity_set.set("unit", "MHO/CM")
         dielectric = ET.SubElement(spec, "Dielectric")
