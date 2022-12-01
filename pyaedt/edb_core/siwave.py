@@ -701,7 +701,7 @@ class EdbSiwave(object):
         decade_count : int
             The default is ``10``. The value for this parameter is used for these sweep types:
             linear count and decade count.
-            It is alternative to step_freq which is used for Linear Scale sweep.
+            This parameter is alternative to ``step_freq``, which is used for a linear scale sweep.
         sweeptype : int, optional
             Type of the sweep. The default is ``1``. Options are ``0`` linear count, ``1`` linear scale and ``2``
             loc scale.
