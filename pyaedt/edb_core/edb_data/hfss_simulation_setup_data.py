@@ -655,7 +655,7 @@ class HfssSolverSettings(object):
 
     @property
     def enhanced_low_freq_accuracy(self):
-        """Enable legacy low frequency sampling.
+        """Enable legacy low-frequency sampling.
 
         Returns
         -------
