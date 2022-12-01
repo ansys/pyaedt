@@ -2247,7 +2247,7 @@ class Edb(object):
 
     @property
     def hfss_setups(self):
-        """Active Hfss Setup in Edb.
+        """Active HFSS setup in EDB.
 
         Returns
         -------
