@@ -684,7 +684,7 @@ class HfssSolverSettings(object):
 
     @property
     def relative_residual(self):
-        """Specify the residual used by the iterative solver.
+        """Residual for use by the iterative solver.
 
         Returns
         -------
