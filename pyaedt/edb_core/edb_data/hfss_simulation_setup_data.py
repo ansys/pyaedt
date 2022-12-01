@@ -214,7 +214,7 @@ class EdbFrequencySweep(object):
 
     @property
     def save_fields(self):
-        """Enable or disable extraction of surface current data .
+        """Turn on or off the extraction of surface current data.
 
         Returns
         -------
