@@ -11,7 +11,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def sim_setup_info(self):
-        """Edb Internal Simulation Setup Object."""
+        """EDB internal simulation setup object."""
         return self._parent._edb_sim_setup_info
 
     @property
@@ -27,8 +27,8 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def xtalk_threshold(self):
-        """Get/Set the XTalk Threshold.
-        The setter will enable custom settings.
+        """XTalk threshold.
+        The setter enables custom settings.
 
         Returns
         -------
@@ -38,7 +38,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def min_void_area(self):
-        """Get/Set the minimum void area to be included.
+        """Minimum void area to include.
 
         Returns
         -------
@@ -48,7 +48,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def min_pad_area_to_mesh(self):
-        """Get/Set the minimum void pad are to mesh to be included.
+        """Minimum void pad area to mesh to include.
 
         Returns
         -------
@@ -58,7 +58,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def min_plane_area_to_mesh(self):
-        """Get/Set the minimum plane area to mesh be included.
+        """Minimum plane area to mesh to include.
 
         Returns
         -------
@@ -68,7 +68,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def snap_length_threshold(self):
-        """Get/Set the snapping length threshold.
+        """Snapping length threshold.
 
         Returns
         -------

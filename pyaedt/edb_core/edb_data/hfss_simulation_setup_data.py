@@ -361,7 +361,7 @@ class EdbFrequencySweep(object):
         stop : str, float
             Stop frequency.
         step : str, float
-            Step frequency
+            Step frequency.
 
         Returns
         -------
@@ -505,7 +505,7 @@ class MeshOperation(object):
 
     @property
     def name(self):
-        """Mesh operation Name.
+        """Mesh operation name.
 
         Returns
         -------
@@ -745,7 +745,8 @@ class AdaptiveFrequencyData(object):
 
     @property
     def max_delta(self):
-        """The maximum change of S-parameters between two consecutive passes, which serves as a stopping criteria.
+        """Maximum change of S-parameters between two consecutive passes, which serves as
+        a stopping criterion.
 
         Returns
         -------
@@ -759,7 +760,7 @@ class AdaptiveFrequencyData(object):
 
     @property
     def max_passes(self):
-        """The maximum allowed number of mesh refinement cycles.
+        """Maximum allowed number of mesh refinement cycles.
 
         Returns
         -------
@@ -786,7 +787,7 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_settings(self):
-        """Adaptive Edb settings.
+        """Adaptive EDB settings.
 
         Returns
         -------
@@ -891,7 +892,7 @@ class AdaptiveSettings(object):
 
     @property
     def save_fields(self):
-        """Save Fields.
+        """Save fields.
 
         Returns
         -------
@@ -936,7 +937,7 @@ class AdaptiveSettings(object):
 
     @property
     def use_max_refinement(self):
-        """Use Max refinement.
+        """Use maximum refinement.
 
         Returns
         -------
@@ -951,16 +952,16 @@ class AdaptiveSettings(object):
 
     @pyaedt_function_handler()
     def add_adaptive_frequency_data(self, frequency, max_num_passes=10, max_delta_s=0.02):
-        """Add a Frequency Data setup.
+        """Add a setup for frequency data.
 
         Parameters
         ----------
         frequency : str, float
             Frequency with units or float frequency (in Hz).
         max_num_passes : int, optional
-            Maximum number of passes. Default is ``10``.
+            Maximum number of passes. The default is ``10``.
         max_delta_s : float, optional
-            Maximum Delta S. Default is ``0.02``.
+            Maximum delta S. The default is ``0.02``.
 
         Returns
         -------
@@ -1078,7 +1079,7 @@ class DefeatureSettings(object):
 
     @property
     def union_polygons(self):
-        """Union Polygons.
+        """Union polygons.
 
         Returns
         -------
@@ -1093,7 +1094,7 @@ class DefeatureSettings(object):
 
     @property
     def use_defeature(self):
-        """Use Defeature.
+        """Use defeature settings.
 
         Returns
         -------
@@ -1245,7 +1246,7 @@ class AdvancedMeshSettings(object):
 
     @property
     def replace_3d_triangles(self):
-        """Replace 3d triangles.
+        """Replace 3D triangles.
 
         Returns
         -------
@@ -1260,7 +1261,7 @@ class AdvancedMeshSettings(object):
 
 
 class CurveApproxSettings(object):
-    """Manages EDB methods for curve approx settings."""
+    """Manages EDB methods for curve approximate settings."""
 
     def __init__(self, parent):
         self._parent = parent
@@ -1316,7 +1317,7 @@ class CurveApproxSettings(object):
 
 
 class DcrSettings(object):
-    """Manages EDB methods for dcr settings."""
+    """Manages EDB methods for DCR settings."""
 
     def __init__(self, parent):
         self._parent = parent
@@ -1327,7 +1328,7 @@ class DcrSettings(object):
 
     @property
     def conduction_max_passes(self):
-        """Conduction max passes.
+        """Conduction maximum number of passes.
 
         Returns
         -------
@@ -1342,7 +1343,7 @@ class DcrSettings(object):
 
     @property
     def conduction_min_converged_passes(self):
-        """Conduction min converged passes.
+        """Conduction minimum number of converged passes.
 
         Returns
         -------
@@ -1357,7 +1358,7 @@ class DcrSettings(object):
 
     @property
     def conduction_min_passes(self):
-        """Conduction min passes.
+        """Conduction minimum number of passes.
 
         Returns
         -------
@@ -1402,7 +1403,7 @@ class DcrSettings(object):
 
 
 class HfssSimulationSetup(object):
-    """Manages EDB methods for hfss simulation setup."""
+    """Manages EDB methods for HFSS simulation setup."""
 
     def __init__(self, edb, name=None, edb_hfss_sim_setup=None):
         self._edb = edb
@@ -1429,7 +1430,7 @@ class HfssSimulationSetup(object):
 
     @property
     def edb_sim_setup_info(self):
-        """Edb Internal Simulation Setup Object."""
+        """EDB internal simulation setup object."""
         return self._edb_sim_setup_info
 
     @pyaedt_function_handler()
@@ -1453,7 +1454,7 @@ class HfssSimulationSetup(object):
 
     @property
     def frequency_sweeps(self):
-        """Get frequency sweep list."""
+        """Frequency sweep list."""
         sweep_data_list = {}
         for i in list(self._edb_sim_setup_info.SweepDataList):
             sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
@@ -1461,19 +1462,19 @@ class HfssSimulationSetup(object):
 
     @property
     def name(self):
-        """Get name of this setup."""
+        """Name of the setup."""
         return self._edb_sim_setup_info.Name
 
     @name.setter
     def name(self, value):
-        """Set name of this setup."""
+        """Set name of the setup."""
         self._edb_sim_setup_info.Name = value
         self._update_setup()
         self._name = value
 
     @property
     def solver_slider_type(self):
-        """Get solver slider type."""
+        """Solver slider type."""
         return self._edb_sim_setup_info.SimulationSettings.TSolveSliderType
 
     @solver_slider_type.setter
@@ -1495,32 +1496,32 @@ class HfssSimulationSetup(object):
 
     @property
     def setup_type(self):
-        """Get setup type."""
+        """Setup type."""
         return self._edb_sim_setup_info.SimulationSettings.SetupType
 
     @property
     def hfss_solver_settings(self):
-        """Manages EDB methods for hfss solver settings."""
+        """Manages EDB methods for HFSS solver settings."""
         return HfssSolverSettings(self)
 
     @property
     def adaptive_settings(self):
-        """Get adaptive settings."""
+        """Adaptive settings."""
         return AdaptiveSettings(self)
 
     @property
     def defeature_settings(self):
-        """Get defeature settings."""
+        """Defeature settings."""
         return DefeatureSettings(self)
 
     @property
     def via_settings(self):
-        """Get via settings."""
+        """Via settings."""
         return ViaSettings(self)
 
     @property
     def advanced_mesh_settings(self):
-        """Get advanced mesh settings."""
+        """Advanced mesh settings."""
         return AdvancedMeshSettings(self)
 
     @advanced_mesh_settings.setter
@@ -1537,7 +1538,7 @@ class HfssSimulationSetup(object):
 
     @property
     def curve_approx_settings(self):
-        """Get curve approx settings."""
+        """Curve approximate settings."""
         return CurveApproxSettings(self)
 
     @curve_approx_settings.setter
@@ -1558,17 +1559,17 @@ class HfssSimulationSetup(object):
 
     @property
     def dcr_settings(self):
-        """Get dcr settings."""
+        """DCR settings."""
         return DcrSettings(self)
 
     @property
     def hfss_port_settings(self):
-        """Hfss prot settings."""
+        """HFSS port settings."""
         return HfssPortSettings(self)
 
     @property
     def mesh_operations(self):
-        """Get mesh operations."""
+        """Mesh operations."""
         if self._mesh_operations:
             return self._mesh_operations
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
@@ -1586,7 +1587,7 @@ class HfssSimulationSetup(object):
         refine_inside=False,
         mesh_region=None,
     ):
-        """Add a new mesh operation to the setup.
+        """Add a mesh operation to the setup.
 
         Parameters
         ----------
@@ -1633,16 +1634,16 @@ class HfssSimulationSetup(object):
 
     @pyaedt_function_handler()
     def set_solution_single_frequency(self, frequency="5GHz", max_num_passes=10, max_delta_s=0.02):
-        """Set Single Frequency Solution.
+        """Set single-frequency solution.
 
         Parameters
         ----------
         frequency : str, float, optional
-            Adaptive Frequency. Default is ``5GHz``.
+            Adaptive frequency. The default is ``5GHz``.
         max_num_passes : int, optional
-            Maximum number of passes. Default is ``10``.
+            Maximum number of passes. The default is ``10``.
         max_delta_s : float, optional
-            Maximum Delta S. Default is ``0.02``.
+            Maximum delta S. The default is ``0.02``.
 
         Returns
         -------
@@ -1655,16 +1656,16 @@ class HfssSimulationSetup(object):
 
     @pyaedt_function_handler()
     def set_solution_multi_frequencies(self, frequencies=("5GHz", "10GHz"), max_num_passes=10, max_delta_s="0.02"):
-        """Set Multi Frequency Solution.
+        """Set multi-frequency solution.
 
         Parameters
         ----------
         frequencies : list, tuple, optional
-            Adaptive Frequencies. Default is ``5GHz``.
+            List or tuple of adaptive frequencies. The default is ``5GHz``.
         max_num_passes : int, optional
             Maximum number of passes. Default is ``10``.
         max_delta_s : float, optional
-            Maximum Delta S. Default is ``0.02``.
+            Maximum delta S. The default is ``0.02``.
 
         Returns
         -------
@@ -1682,16 +1683,16 @@ class HfssSimulationSetup(object):
     def set_solution_broadband(
         self, low_frequency="5GHz", high_frequency="10GHz", max_num_passes=10, max_delta_s="0.02"
     ):
-        """Set Broadband Solution.
+        """Set broadband solution.
 
         Parameters
         ----------
         low_frequency : str, float, optional
-            Lower  Frequency. Default is ``5GHz``.
+            Low frequency. The default is ``5GHz``.
         high_frequency : str, float, optional
-            Higher Frequencys. Default is ``10GHz``.
+            High frequency. The default is ``10GHz``.
         max_num_passes : int, optional
-            Maximum number of passes. Default is ``10``.
+            Maximum number of passes. The default is ``10``.
         max_delta_s : float, optional
             Maximum Delta S. Default is ``0.02``.
 
