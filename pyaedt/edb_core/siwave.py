@@ -688,7 +688,7 @@ class EdbSiwave(object):
         return True if os.path.exists(file_name) else False
 
     @pyaedt_function_handler()
-    def add_siwave_ac_analysis(
+    def add_siwave_syz_analysis(
         self,
         accuracy_level=1,
         decade_count=10,
@@ -703,11 +703,13 @@ class EdbSiwave(object):
         Parameters
         ----------
         accuracy_level : int, optional
-           Level of accuracy. The default is ``1``.
+           Level of accuracy of SI Slider. The default is ``1``.
         decade_count : int
-            The default is ``10``.
+            The default is ``10``. Value used for Linear Count and Decade Count Sweep types.
+            It is alternative to step_freq which is used for Linear Scale sweep.
         sweeptype : int, optional
-            Type of the sweep. The default is ``1``.
+            Type of the sweep. The default is ``1``. Options are ``0`` linear count, ``1`` linear scale and ``2``
+            loc scale.
         start_freq : float, optional
             Starting frequency. The default is ``1``.
         stop_freq : float, optional
@@ -719,68 +721,31 @@ class EdbSiwave(object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+            Setup object class.
         """
-        self._siwave_setup.AddACSimSetup(
-            self._cell,
-            accuracy_level,
-            str(decade_count),
-            sweeptype,
-            str(start_freq),
-            str(stop_freq),
-            str(step_freq),
-            discrete_sweep,
+        setup = self._pedb.create_siwave_syz_setup()
+        sweep = "linear count"
+        if sweeptype == 2:
+            sweep = "log scale"
+        elif sweeptype == 0:
+            sweep = "linear scale"
+        start_freq = self._pedb.arg_with_dim(start_freq, "Hz")
+        stop_freq = self._pedb.arg_with_dim(stop_freq, "Hz")
+        third_arg = int(decade_count)
+        if sweeptype == 0:
+            third_arg = self._pedb.arg_with_dim(step_freq, "Hz")
+        setup.si_slider_postion = int(accuracy_level)
+        sweep = setup.add_frequency_sweep(
+            frequency_sweep=[
+                [sweep, start_freq, stop_freq, third_arg],
+            ]
         )
-        return self.create_exec_file(add_ac=True)
+        if discrete_sweep:
+            sweep.freq_sweep_type = "kDiscreteSweep"
 
-    @pyaedt_function_handler()
-    def add_siwave_syz_analysis(
-        self,
-        accuracy_level=1,
-        decade_count=10,
-        sweeptype=1,
-        start_freq=1,
-        stop_freq=1e9,
-        step_freq=1e6,
-        discrete_sweep=False,
-    ):
-        """Add a SIwave SYZ analysis.
-
-        Parameters
-        ----------
-        accuracy_level : int, optional
-           Level of accuracy. The default is ``1``.
-        decade_count : int, optional
-            Number of points to calculate in each decade. The default is ``10``.
-        sweeptype : int, optional
-            Type of the sweep. The default is ``1``.
-        start_freq : float, optional
-            Starting frequency. The default is ``1``.
-        stop_freq : float, optional
-            Stopping frequency. The default is ``1e9``.
-        step_freq : float, optional
-            Frequency size of the step. The default is ``1e6``.
-        discrete_sweep : bool, optional
-            Whether the sweep is discrete. The default is ``False``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-        """
-
-        self._siwave_setup.AddSYZSimSetup(
-            self._cell,
-            accuracy_level,
-            str(decade_count),
-            sweeptype,
-            str(start_freq),
-            str(stop_freq),
-            str(step_freq),
-            discrete_sweep,
-        )
-        return self.create_exec_file(add_syz=True)
+        self.create_exec_file(add_ac=True)
+        return setup
 
     @pyaedt_function_handler()
     def get_siwave_dc_setup_template(self):
@@ -793,7 +758,7 @@ class EdbSiwave(object):
         return SiwaveDCSetupTemplate()
 
     @pyaedt_function_handler()
-    def add_siwave_dc_analysis(self, setup_settings=SiwaveDCSetupTemplate()):
+    def add_siwave_dc_analysis(self, name=None):
         """Create a Siwave DC Analysis in EDB.
 
         If Setup is present it will be deleted and replaced by new
@@ -804,12 +769,13 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        setup_settings : pyaedt.edb_core.edb_data.simulation_configuration.SiwaveDCSetupTemplate
+        name : str, optional
+            Setup name.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`
+            Setup object class.
 
         Examples
         --------
@@ -825,45 +791,9 @@ class EdbSiwave(object):
         >>> edb.core_siwave.add_siwave_dc_analysis2(settings)
 
         """
-        sim_setup_info = self._pedb.simsetupdata.SimSetupInfo[
-            self._pedb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-        ]()
-        sim_setup_info.Name = setup_settings.name
-        sim_setup_info.SimulationSettings.DCIRSettings.DCReportShowActiveDevices = (
-            setup_settings.dcreport_show_active_devices
-        )
-        sim_setup_info.SimulationSettings.DCIRSettings.ExportDCThermalData = setup_settings.export_dcthermal_data
-        sim_setup_info.SimulationSettings.DCIRSettings.FullDCReportPath = setup_settings.full_dcreport_path
-        sim_setup_info.SimulationSettings.DCIRSettings.UseLoopResForPerPin = setup_settings.use_loopres_forperpin
-        sim_setup_info.SimulationSettings.DCIRSettings.ViaReportPath = setup_settings.via_report_path
-        sim_setup_info.SimulationSettings.DCSettings.ComputeInductance = setup_settings.compute_inductance
-        sim_setup_info.SimulationSettings.DCSettings.DCSliderPos = setup_settings.accuracy_level
-        sim_setup_info.SimulationSettings.DCSettings.PlotJV = setup_settings.plotjv
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MinNumPasses = setup_settings.min_passes
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MaxNumPasses = setup_settings.max_passes
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.PercentLocalRefinement = (
-            setup_settings.percent_localrefinement
-        )
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.EnergyError = setup_settings.energy_error
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineBws = setup_settings.refine_bondwires
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineVias = setup_settings.refine_vias
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.NumViaSides = setup_settings.num_via_sides
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.NumBwSides = setup_settings.num_bondwire_sides
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshBws = setup_settings.mesh_bondwires
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.MeshVias = setup_settings.mesh_vias
-        sim_setup_info.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement = (
-            setup_settings.perform_adaptive_refinement
-        )
-        sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = setup_settings.use_dc_custom_settings
-        sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = setup_settings.source_terms_to_ground
-        simulationSetup = self._edb.Utility.SIWaveDCIRSimulationSetup(sim_setup_info)
-        if self._cell.AddSimulationSetup(simulationSetup):
-            return self.create_exec_file(add_dc=True)
-        else:
-            self._cell.DeleteSimulationSetup(setup_settings.name)
-            if self._cell.AddSimulationSetup(simulationSetup):
-                return self.create_exec_file(add_dc=True)
-        return False
+        setup = self._pedb.create_siwave_dc_setup(name)
+        self.create_exec_file(add_dc=True)
+        return setup
 
     @pyaedt_function_handler()
     def create_pin_group_terminal(self, source):

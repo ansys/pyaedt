@@ -1,4 +1,6 @@
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import EdbFrequencySweep
+from pyaedt.edb_core.general import convert_netdict_to_pydict
+from pyaedt.edb_core.general import convert_pydict_to_netdict
 from pyaedt.generic.general_methods import generate_unique_name
 
 
@@ -851,4 +853,38 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     @enabled.setter
     def enabled(self, value):
         self._edb_sim_setup_info.SimulationSettings.Enabled = value
+        self._update_setup()
+
+    @property
+    def dc_source_terms_to_ground(self):
+        """Retrieve the dictionary of grounded terminals.
+
+        Returns
+        -------
+            Dictionary
+            {str, int}, keys is source name, value int 0 unspecified, 1 negative node, 2 positive one.
+
+        """
+        return convert_netdict_to_pydict(self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround)
+
+    def add_source_terminal_to_ground(self, source_name, terminal=0):
+        """Add a source terminal to ground.
+
+        Parameters
+        ----------
+        source_name : str,
+            Source name.
+        terminal : int, optional
+            Terminal to assign.  Options are 0 unspecified, 1 negative node, 2 positive one.
+
+        Returns
+        -------
+        bool
+
+        """
+        terminals = self.dc_source_terms_to_ground
+        terminals[source_name] = terminal
+        self._edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(
+            terminals
+        )
         self._update_setup()

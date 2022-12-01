@@ -2286,7 +2286,7 @@ class Edb(object):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.HfssSimulationSetup`
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`
 
         Examples
         --------
@@ -2307,7 +2307,7 @@ class Edb(object):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.SiwaveSYZSimulationSetup`
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
 
         Examples
         --------
@@ -2332,7 +2332,7 @@ class Edb(object):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.edb_data.simulation_setup_data.SiwaveSYZSimulationSetup`
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
 
         Examples
         --------

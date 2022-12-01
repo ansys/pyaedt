@@ -406,7 +406,7 @@ if not config["skip_edb"]:
             assert "RST4000" == self.edbapp.core_siwave.create_resistor_on_pin(pins[302], pins[10], 40, "RST4000")
 
         def test_045_create_siwave_ac_analsyis(self):
-            assert self.edbapp.core_siwave.add_siwave_ac_analysis()
+            assert self.edbapp.core_siwave.add_siwave_syz_analysis()
 
         def test_046_create_siwave_dc_analsyis(self):
             settings_dc = self.edbapp.core_siwave.get_siwave_dc_setup_template()
