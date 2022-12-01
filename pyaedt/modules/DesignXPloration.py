@@ -1089,17 +1089,19 @@ class ParametricSetups(object):
                 csvreader.fieldnames.remove("*")  # remove index field if present
             except ValueError:
                 pass
-            setup.props["Sweeps"]["SweepDefinition"] = [
-                OrderedDict(
-                    {
-                        "Variable": var_name,
-                        "Data": firstDataLine[var_name],
-                        "OffsetF1": False,
-                        "Synchronize": 0,
-                    }
-                )
-                for var_name in csvreader.fieldnames
-            ]
+            setup.props["Sweeps"] = {
+                "SweepDefinition": [
+                    OrderedDict(
+                        {
+                            "Variable": var_name,
+                            "Data": firstDataLine[var_name],
+                            "OffsetF1": False,
+                            "Synchronize": 0,
+                        }
+                    )
+                    for var_name in csvreader.fieldnames
+                ]
+            }
             setup.props["Sweep Operations"] = OrderedDict(
                 {"add": [[line[var_name] for var_name in csvreader.fieldnames] for line in csvreader]}
             )
