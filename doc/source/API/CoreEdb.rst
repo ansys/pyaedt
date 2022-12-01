@@ -88,7 +88,6 @@ These classes are the containers of data read from the EDB file:
    components_data.EDBComponentDef
    nets_data.EDBNetsData
    primitives_data.EDBPrimitives
-   simulation_configuration.SiwaveDCSetupTemplate
    simulation_configuration.SimulationConfiguration
    simulation_configuration.SimulationConfigurationDc
    simulation_configuration.SimulationConfigurationAc
@@ -100,7 +99,7 @@ These classes are the containers of data read from the EDB file:
    hfss_simulation_setup_data.HfssSimulationSetup
    hfss_simulation_setup_data.EdbFrequencySweep
    hfss_simulation_setup_data.DcrSettings
-   hfss_simulation_setup_data.CurveApproximationSettings
+   hfss_simulation_setup_data.CurveApproxettings
    hfss_simulation_setup_data.AdvancedMeshSettings
    hfss_simulation_setup_data.ViaSettings
    hfss_simulation_setup_data.DefeatureSettings

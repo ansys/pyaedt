@@ -455,6 +455,8 @@ class EdbFrequencySweep(object):
 
 
 class MeshOperation(object):
+    """Mesh Operation Class."""
+
     def __init__(self, parent, mesh_operation):
         self._parent = parent
         self.mesh_operation = mesh_operation
