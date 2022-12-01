@@ -105,10 +105,11 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_coplane_coupling(self):
-        """Enable coupling between traces and adjacent plane edges.
+        """Whether to enable coupling between traces and adjacent plane edges.
         This option provides a model for crosstalk between signal lines and planes.
         Plane edges couple to traces when they are parallel.
-        Traces and coplanar edges which are oblique to each other do not overlap and cannot be considered for coupling.
+        Traces and coplanar edges that are oblique to each other do not overlap
+        and cannot be considered for coupling.
 
 
         Returns
