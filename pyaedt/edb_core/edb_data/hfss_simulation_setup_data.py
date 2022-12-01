@@ -644,7 +644,7 @@ class HfssPortSettings(object):
 
 
 class HfssSolverSettings(object):
-    """Manages EDB methods for hfss solver settings."""
+    """Manages EDB methods for HFSS solver settings."""
 
     def __init__(self, parent):
         self._parent = parent
