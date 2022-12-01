@@ -884,7 +884,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             Source name.
         terminal : int, optional
             Terminal to assign. Options are:
-            
+
              - 0=Unspecified
              - 1=Negative node
              - 2=Positive none

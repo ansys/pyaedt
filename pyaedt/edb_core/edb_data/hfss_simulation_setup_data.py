@@ -425,7 +425,7 @@ class EdbFrequencySweep(object):
         ----------
         ```suggestion
             List of lists with four elements. Each list must contain:
-            
+
               1- frequency type (``"linear count"``, ``"log scale"`` or ``"linear scale"``)
               2- start frequency
               3- stop frequency

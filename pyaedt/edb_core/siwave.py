@@ -704,7 +704,7 @@ class EdbSiwave(object):
             This parameter is alternative to ``step_freq``, which is used for a linear scale sweep.
         sweeptype : int, optional
             Type of the sweep. The default is ``1``. Options are:
-            
+
             - ``0``: linear count
             - ``1``: linear scale
             - ``2``: loc scale
