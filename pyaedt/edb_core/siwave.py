@@ -1245,8 +1245,12 @@ class EdbSiwave(object):
         pos_terminal = pos_pin_group.create_current_source_terminal(magnitude, phase)
         if name:
             pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("isource")
+            pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_current_source_terminal()
+        neg_terminal.SetName(name+"_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
 
@@ -1274,7 +1278,11 @@ class EdbSiwave(object):
         pos_terminal = pos_pin_group.create_voltage_source_terminal(magnitude, phase)
         if name:
             pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("vsource")
+            pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_voltage_source_terminal(magnitude, phase)
+        neg_terminal.SetName(name+"_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
