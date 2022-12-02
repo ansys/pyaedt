@@ -131,8 +131,8 @@ class Step(object):
                     geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
                         pin._edb_padstackinstance, component.placement_layer, 0
                     )
-                    vx = self._ipc.from_meter_to_units(pos_x - av_x, self.units)
-                    vy = self._ipc.from_meter_to_units(pos_y - av_y, self.units)
+                    vx = self._ipc.from_meter_to_units(pin.position[0] - av_x, self.units)
+                    vy = self._ipc.from_meter_to_units(pin.position[1] - av_y, self.units)
                     if component.placement_layer == list(self._pedb.stackup.signal_layers.keys())[-1]:
                         vx = -vx
                     primitive_ref = ""
