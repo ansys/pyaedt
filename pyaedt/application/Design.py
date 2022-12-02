@@ -3043,7 +3043,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
-        """Copy a design from a project into the active design.
+        """Copy a design from a project into the active project.
 
         Parameters
         ----------
