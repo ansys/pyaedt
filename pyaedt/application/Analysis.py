@@ -1634,6 +1634,7 @@ class Analysis(Design, object):
         acf_file=None,
         use_auto_settings=True,
         num_variations_to_distribute=None,
+        allowed_distribution_types=None,
     ):
         """Analyze a design setup.
 
@@ -1653,6 +1654,9 @@ class Analysis(Design, object):
             Either if use or not auto settings in task/cores. It is not supported by all Setup.
         num_variations_to_distribute : int, optional
             Number of variations to distribute. For this to take effect ``use_auto_settings`` must be set to ``True``.
+        allowed_distribution_types : list, optional
+            List of strings. Each string represents a distribution type. The default value ``None`` does nothing.
+            An empty list ``[]`` disables all types.
 
         Returns
         -------
@@ -1708,6 +1712,11 @@ class Analysis(Design, object):
             update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
             if num_variations_to_distribute:
                 update_hpc_option(target_name, "NumVariationsToDistribute", num_variations_to_distribute, False)
+            if isinstance(allowed_distribution_types, list):
+                num_adt = len(allowed_distribution_types)
+                adt_string = "', '".join(allowed_distribution_types)
+                adt_string = "[{}: '{}']".format(num_adt, adt_string)
+                update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, separator="")
 
             if settings.remote_rpc_session:
                 remote_name = (

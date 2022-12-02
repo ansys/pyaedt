@@ -21,8 +21,15 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
+    SiwaveDCSimulationSetup,
+)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
+    SiwaveSYZSimulationSetup,
+)
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
@@ -162,6 +169,11 @@ class Edb(object):
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
+            elif edbpath.endswith("edb.def"):
+                self.edbpath = os.path.dirname(edbpath)
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+                self.open_edb()
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 if settings.enable_local_log_file and self.log_name:
@@ -1258,7 +1270,7 @@ class Edb(object):
 
         for i in self.core_padstack.padstack_instances.values():
             if i.net_name not in all_list:
-                i.delete_padstack_instance()
+                i.delete()
         for i in self.core_primitives.primitives:
             if i.net_name not in all_list:
                 i.delete()
@@ -1350,7 +1362,7 @@ class Edb(object):
         #     pins_clean(item)
 
         for pin in pins_to_delete:
-            pin.delete_padstack_instance()
+            pin.delete()
 
         self.logger.info_timer("Padstack Instances removal completed")
         self.logger.reset_timer()
@@ -1544,16 +1556,16 @@ class Edb(object):
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
                 net = self.core_nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
-                sign_layers = list(self.core_stackup.signal_layers.keys())
+                sign_layers = list(self.stackup.signal_layers.keys())
                 if not p.start_layer:
-                    fromlayer = self.core_stackup.signal_layers[sign_layers[-1]]._layer
+                    fromlayer = self.stackup.signal_layers[sign_layers[-1]]._edb_layer
                 else:
-                    fromlayer = self.core_stackup.signal_layers[p.start_layer]._layer
+                    fromlayer = self.stackup.signal_layers[p.start_layer]._edb_layer
 
                 if not p.stop_layer:
-                    tolayer = self.core_stackup.signal_layers[sign_layers[0]]._layer
+                    tolayer = self.stackup.signal_layers[sign_layers[0]]._edb_layer
                 else:
-                    tolayer = self.core_stackup.signal_layers[p.stop_layer]._layer
+                    tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
                 for pad in list(self.core_padstack.padstacks.keys()):
                     if pad == p.padstack_definition:
@@ -1593,8 +1605,8 @@ class Edb(object):
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)
-        layers = self.core_stackup.stackup_layers.signal_layers
-        for layer in list(layers.keys()):
+        layers = [i for i in list(self.stackup.signal_layers.keys())]
+        for layer in layers:
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:
                 self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")
@@ -2034,7 +2046,7 @@ class Edb(object):
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
 
     @pyaedt_function_handler()
-    def build_simulation_project(self, simulation_setup=None):
+    def build_simulation_project(self, simulation_setup):
         """Build a ready-to-solve simulation project.
 
         Parameters
@@ -2062,10 +2074,18 @@ class Edb(object):
         >>> edb.close_edb()
         """
         self.logger.info("Building simulation project.")
+        legacy_name = self.edbpath
+        if simulation_setup.output_aedb:
+            self.save_edb_as(simulation_setup.output_aedb)
         try:
-            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
-                return False
-            self.core_nets.classify_nets(simulation_setup)
+            if simulation_setup.signal_layer_etching_instances:
+                for layer in simulation_setup.signal_layer_etching_instances:
+                    if layer in self.stackup.layers:
+                        idx = simulation_setup.signal_layer_etching_instances.index(layer)
+                        if len(simulation_setup.etching_factor_instances) > idx:
+                            self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
+
+            self.core_nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
@@ -2076,7 +2096,6 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        output_aedb_path=simulation_setup.output_aedb,
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
@@ -2094,10 +2113,8 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        output_aedb_path=simulation_setup.output_aedb,
                     )
                     self.logger.info("Cutout processed.")
-
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
@@ -2142,6 +2159,11 @@ class Edb(object):
                 self.core_components.create_source_on_component(simulation_setup.sources)
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
+            self.save_edb()
+            if not simulation_setup.open_edb_after_build and simulation_setup.output_aedb:
+                self.close_edb()
+                self.edbpath = legacy_name
+                self.open_edb(True)
             return True
         except:  # pragma: no cover
             return False
@@ -2196,3 +2218,127 @@ class Edb(object):
 
         # If the intersections are non-zero, the termimal references are connected.
         return True if len(iDintersection) > 0 else False
+
+    @pyaedt_function_handler()
+    def new_simulation_configuration(self, filename=None):
+        return SimulationConfiguration(filename, self)
+
+    @property
+    def setups(self):
+        """Get the dictionary of all EDB HFSS and SIwave setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`] or
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`] or
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
+
+        """
+        _setups = {}
+        for i in list(self.active_cell.SimulationSetups):
+            if i.GetType() == self.edb.Utility.SimulationSetupType.kHFSS:
+                _setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
+            elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWave:
+                _setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
+            elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWaveDCIR:
+                _setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
+        return _setups
+
+    @property
+    def hfss_setups(self):
+        """Active HFSS setup in EDB.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`]
+
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
+
+    @property
+    def siwave_dc_setups(self):
+        """Active Siwave DC IR Setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`]
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kSIWave"}
+
+    @property
+    def siwave_ac_setups(self):
+        """Active Siwave SYZ setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
+
+    def create_hfss_setup(self, name=None):
+        """Create a setup from a template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_hfss_setup("setup1")
+        >>> setup1.hfss_port_settings.max_delta_z0 = 0.5
+        """
+        if name in self.setups:
+            return False
+        return HfssSimulationSetup(self, name)
+
+    def create_siwave_syz_setup(self, name=None):
+        """Create a setup from a template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_syz_setup("setup1")
+        >>> setup1.add_frequency_sweep(frequency_sweep=[
+        ...                           ["linear count", "0", "1kHz", 1],
+        ...                           ["log scale", "1kHz", "0.1GHz", 10],
+        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ...                           ])
+        """
+        if name in self.setups:
+            return False
+        return SiwaveSYZSimulationSetup(self, name)
+
+    def create_siwave_dc_setup(self, name=None):
+        """Create a setup from a template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_dc_setup("setup1")
+        >>> setup1.mesh_bondwires = True
+
+        """
+        if name in self.setups:
+            return False
+        return SiwaveDCSimulationSetup(self, name)

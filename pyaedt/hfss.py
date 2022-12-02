@@ -5789,14 +5789,16 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         try:
-            if self.solution_type != "Modal":
-                raise ValueError("Symmetry is only available with 'Modal' solution type.")
+            if self.solution_type not in ["Modal", "Eigenmode"]:
+                self.logger.error("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
+                return False
 
             if symmetry_name is None:
                 symmetry_name = generate_unique_name("Symmetry")
 
             if not isinstance(entity_list, list):
-                raise ValueError("Entities have to be provided as a list.")
+                self.logger.error("Entities have to be provided as a list.")
+                return False
 
             entity_list = self.modeler.convert_to_selections(entity_list, True)
 

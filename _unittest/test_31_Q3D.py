@@ -115,6 +115,10 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.net_sinks("GND")) > 0
         assert len(self.aedtapp.net_sources("PGND")) == 0
         assert len(self.aedtapp.net_sinks("PGND")) == 0
+        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0])
+        assert len(obj_list[self.aedtapp.nets[0]]) > 0
+        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0], "steel")
+        assert len(obj_list[self.aedtapp.nets[0]]) == 0
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)

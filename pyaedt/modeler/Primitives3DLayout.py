@@ -77,6 +77,7 @@ class Primitives3DLayout(object):
         self._nets = {}
         self._power_nets = {}
         self._signal_nets = {}
+        self._no_nets = {}
         self._vias = {}
 
     @property
@@ -433,6 +434,8 @@ class Primitives3DLayout(object):
             n[k] = v
         for k, v in self.signal_nets.items():
             n[k] = v
+        for k, v in self.no_nets.items():
+            n[k] = v
         return n
 
     @property
@@ -470,6 +473,25 @@ class Primitives3DLayout(object):
         for obj in objs:
             self._signal_nets[obj] = Nets3DLayout(self, obj)
         return self._signal_nets
+
+    @property
+    def no_nets(self):
+        """Nets without class type.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+            No Nets Dictionary.
+
+        """
+        if self._no_nets:
+            return self._no_nets
+
+        objs = self.modeler.oeditor.GetNetClassNets("<All>")
+        for obj in objs:
+            if obj not in self.power_nets and obj not in self.signal_nets:
+                self._no_nets[obj] = Nets3DLayout(self, obj)
+        return self._no_nets
 
     @property
     def defaultmaterial(self):
