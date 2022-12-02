@@ -639,6 +639,15 @@ class MeshOperation(object):
 
 
 class MeshOperationLength(MeshOperation, object):
+    """Mesh operation Length class.
+    This class is accessible from Hfss Setup in EDB and add_length_mesh_operation method.
+
+    Examples
+    --------
+    >>> mop = edbapp.setups["setup1a"].add_length_mesh_operation({"GND": ["TOP", "BOTTOM"]})
+    >>> mop.max_elements = 3000
+    """
+
     def __init__(self, parent, mesh_operation):
         MeshOperation.__init__(self, parent, mesh_operation)
 
@@ -680,6 +689,15 @@ class MeshOperationLength(MeshOperation, object):
 
 
 class MeshOperationSkinDepth(MeshOperation, object):
+    """Mesh operation Skin Depth class.
+    This class is accessible from Hfss Setup in EDB and assign_skin_depth_mesh_operation method.
+
+    Examples
+    --------
+    >>> mop = edbapp.setups["setup1a"].add_skin_depth_mesh_operation({"GND": ["TOP", "BOTTOM"]})
+    >>> mop.max_elements = 3000
+    """
+
     def __init__(self, parent, mesh_operation):
         MeshOperation.__init__(self, parent, mesh_operation)
 
@@ -830,10 +848,10 @@ class HfssSolverSettings(object):
     @property
     def order_basis(self):
         """Order of the basic functions for HFSS.
-        - 0=Mixed
-        - 1=Zero
-        - 2=1st order
-        - 3=2nd order
+        - 0=Mixed.
+        - 1=Zero.
+        - 2=1st order.
+        - 3=2nd order.
 
         Returns
         -------
@@ -865,10 +883,10 @@ class HfssSolverSettings(object):
     def solver_type(self):
         """Get solver type to use (Direct/Iterative/Auto) for HFSS.
         Options:
-        1- ``kAutoSolver``
-        2- ``kDirectSolver``
-        3- ``kIterativeSolver``
-        4- ``kNumSolverTypes``
+        1- ``kAutoSolver``.
+        2- ``kDirectSolver``.
+        3- ``kIterativeSolver``.
+        4- ``kNumSolverTypes``.
 
         Returns
         -------
@@ -975,10 +993,10 @@ class AdaptiveSettings(object):
     def adapt_type(self):
         """Adaptive type.
         Options:
-         1- ``kSingle``
-         2- ``kMultiFrequencies``
-         3- ``kBroadband``
-         4- ``kNumAdaptTypes``
+         1- ``kSingle``.
+         2- ``kMultiFrequencies``.
+         3- ``kBroadband``.
+         4- ``kNumAdaptTypes``.
 
         Returns
         -------
@@ -1200,8 +1218,8 @@ class DefeatureSettings(object):
     def healing_option(self):
         """Whether to turn on healing of mis-aligned points and edges.
         Options:
-          0- Turn off
-          1- Turn on
+          0- Turn off.
+          1- Turn on.
 
         Returns
         -------
@@ -1384,11 +1402,11 @@ class ViaSettings(object):
     def via_style(self):
         """Via style.
         Options:
-        1- ``k25DViaWirebond``
-        2- ``k25DViaRibbon``
-        3- ``k25DViaMesh``
-        4- ``k25DViaField``
-        5- ``kNum25DViaStyle``
+        1- ``k25DViaWirebond``.
+        2- ``k25DViaRibbon``.
+        3- ``k25DViaMesh``.
+        4- ``k25DViaField``.
+        5- ``kNum25DViaStyle``.
 
         Returns
         -------
