@@ -1,5 +1,7 @@
+import math
 import xml.etree.cElementTree as ET
 
+from pyaedt.edb_core.IPC2581.content.entry_line import EntryLine
 from pyaedt.edb_core.IPC2581.ecad.cad_data.package.assembly_drawing import (
     AssemblyDrawing,
 )
@@ -33,10 +35,11 @@ class Package(object):
             if len([pin for pin in value if isinstance(pin, Pin)]) == len(value):
                 self._pins = value
 
-    def add_pin(self, number=0, x=0.0, y=0.0, primitive_ref=""):  # pragma no cover
+    def add_pin(self, number=0, x=0.0, y=0.0, rotation=0.0, primitive_ref=""):  # pragma no cover
         added_pin = Pin()
         added_pin.x = x
         added_pin.y = y
+        added_pin.rotation = rotation * 180 / math.pi
         added_pin.number = number
         added_pin.primitive_def = primitive_ref
         self.pins.append(added_pin)
@@ -44,30 +47,45 @@ class Package(object):
     def add_component_outline(self, component):
         if component:
             _bbox = component.bounding_box
-            component_bounding_box = [
-                self._ipc.from_meter_to_units(_bbox[0], self._ipc.units),
-                self._ipc.from_meter_to_units(_bbox[1], self._ipc.units),
-                self._ipc.from_meter_to_units(_bbox[2], self._ipc.units),
-                self._ipc.from_meter_to_units(_bbox[3], self._ipc.units),
-            ]
+            _rot = component.rotation
+            average_x = (_bbox[0] + _bbox[2]) / 2
+            average_y = (_bbox[1] + _bbox[3]) / 2
+            bb1x = _bbox[0] - average_x
+            bb1y = _bbox[1] - average_y
+            bb2x = _bbox[2] - average_x
+            bb2y = _bbox[3] - average_y
+
+            bb1x_rot = bb1x
+            bb2x_rot = bb2x
+            bb1y_rot = bb1y
+            bb2y_rot = bb2y
+            if _rot >= math.pi / 4 and _rot <= 0.75 * math.pi:
+                bb = bb1x_rot
+                bb1x_rot = bb1y_rot
+                bb1y_rot = bb
+                bb = bb2x_rot
+                bb2x_rot = bb2y_rot
+                bb2y_rot = bb
             poly_step1 = PolyStep()
             poly_step2 = PolyStep()
             poly_step3 = PolyStep()
             poly_step4 = PolyStep()
-            poly_step1.x = component_bounding_box[0]
-            poly_step1.y = component_bounding_box[1]
-            poly_step2.x = component_bounding_box[2]
-            poly_step2.y = component_bounding_box[1]
-            poly_step3.x = component_bounding_box[2]
-            poly_step3.y = component_bounding_box[3]
-            poly_step4.x = component_bounding_box[0]
-            poly_step4.y = component_bounding_box[3]
+            poly_step1.x = str(self._ipc.from_meter_to_units(bb1x_rot, self._ipc.units))
+            poly_step1.y = str(self._ipc.from_meter_to_units(bb1y_rot, self._ipc.units))
+            poly_step2.x = str(self._ipc.from_meter_to_units(bb2x_rot, self._ipc.units))
+            poly_step2.y = str(self._ipc.from_meter_to_units(bb1y_rot, self._ipc.units))
+            poly_step3.x = str(self._ipc.from_meter_to_units(bb2x_rot, self._ipc.units))
+            poly_step3.y = str(self._ipc.from_meter_to_units(bb2y_rot, self._ipc.units))
+            poly_step4.x = str(self._ipc.from_meter_to_units(bb1x_rot, self._ipc.units))
+            poly_step4.y = str(self._ipc.from_meter_to_units(bb2y_rot, self._ipc.units))
             self.outline.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4]
-            try:
-                self._ipc.content.dict_line["ROUND_0"] = 0.0
-            except:
-                pass
+            if not "ROUND_0" in self._ipc.content.dict_line.dict_lines:
+                entry_line = EntryLine()
+                entry_line.line_width = 0.0
+                self._ipc.content.dict_line.dict_lines["ROUND_0"] = entry_line
             self.outline.line_ref = "ROUND_0"
+            self.assembly_drawing.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4]
+            self.assembly_drawing.line_ref = "ROUND_0"
 
     def write_xml(self, step):  # pragma no cover
         package = ET.SubElement(step, "Package")
@@ -75,8 +93,8 @@ class Package(object):
         package.set("type", self.type)
         package.set("pinOne", self.pin_one)
         package.set("pinOneOrientation", self.pin_orientation)
-        package.set("height", self.height)
+        package.set("height", str(self.height))
         self.outline.write_xml(package)
-        self.assembly_drawing.write_xml(step)
+        self.assembly_drawing.write_xml(package)
         for pin in self.pins:
             pin.write_xml(package)

@@ -18,6 +18,13 @@ class Pin(object):
         pin.set("number", str(self.number))
         pin.set("type", "THRU")
         pin.set("electricalType", self.electrical_type)
+        xform = ET.SubElement(pin, "Xform")
+        xform.set("rotation", str(self.rotation))
+        location = ET.SubElement(pin, "Location")
+        location.set("x", str(self.x))
+        location.set("y", str(self.y))
+        primitive_ref = ET.SubElement(pin, "StandardPrimitiveRef")
+        primitive_ref.set("id", self.primitive_def)
 
 
 class Type(object):

@@ -93,44 +93,44 @@ class IPC2581(object):
                 if antipad.parameters_values:
                     if antipad.geometry_type == 1:
                         primitive_ref = "CIRCLE_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units)
+                            self.from_meter_to_units(antipad.parameters_values[0], self.units)
                         )
-                        if not self.content.standard_geometries_dict.standard_circ_dict:
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict:
                             self.content.standard_geometries_dict.standard_circ_dict[
                                 primitive_ref
-                            ] = self.from_meter_to_units(pad.parameters_values[0], self.units)
+                            ] = self.from_meter_to_units(antipad.parameters_values[0], self.units)
                     elif antipad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[0], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[1], self.units),
                         )
-                        if not self.content.standard_geometries_dict.standard_rect_dict:
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
-                                self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[0], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[1], self.units),
                             ]
                     elif antipad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1]),
+                            self.from_meter_to_units(antipad.parameters_values[0], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[1]),
                             self.units,
                         )
-                        if not self.content.standard_geometries_dict.standard_rect_dict:
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
-                                self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[0], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[1], self.units),
                             ]
                     elif antipad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1], self.units),
-                            self.from_meter_to_units(pad.parameters_values[2], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[0], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[1], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[2], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
                             self.content.standard_geometries_dict.standard_oval_dict[primitive_ref] = [
-                                self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
-                                self.from_meter_to_units(pad.parameters_values[2], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[0], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[1], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[2], self.units),
                             ]
                     else:
                         primitive_ref = "Default"
@@ -139,43 +139,43 @@ class IPC2581(object):
                 if thermalpad.parameters_values:
                     if thermalpad.geometry_type == 1:
                         primitive_ref = "CIRCLE_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units)
+                            self.from_meter_to_units(thermalpad.parameters_values[0], self.units)
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_circ_dict:
                             self.content.standard_geometries_dict[primitive_ref] = self.from_meter_to_units(
-                                pad.parameters_values[0], self.units
+                                thermalpad.parameters_values[0], self.units
                             )
                     elif thermalpad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
-                                self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
                             ]
                     elif thermalpad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
-                                self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
                             ]
                     elif thermalpad.geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(
-                            self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1], self.units),
-                            self.from_meter_to_units(pad.parameters_values[2], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[2], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
                             self.content.standard_geometries_dict.standard_oval_dict[primitive_ref] = [
-                                self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
-                                self.from_meter_to_units(pad.parameters_values[2], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[2], self.units),
                             ]
                     else:
                         primitive_ref = "Default"
@@ -235,7 +235,7 @@ class IPC2581(object):
                 material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
                 edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
                 if self._pedb.stackup.layers[layer_name].type == "dielectric":
-                    layer_type = "DIELECTRIC"
+                    layer_type = "DIELPREG"
                     permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[
                         1
                     ].ToDouble()
@@ -254,8 +254,13 @@ class IPC2581(object):
                     dielectric_constant=str(permitivity),
                     loss_tg=str(loss_tg),
                 )
+                layer_position = "INTERNAL"
+                if layer_name == self.top_bottom_layers[0]:
+                    layer_position = "TOP"
+                if layer_name == self.top_bottom_layers[1]:
+                    layer_position = "BOTTOM"
                 self.ecad.cad_data.add_layer(
-                    layer_name=layer_name, layer_function=layer_type, layer_side="internal", polarity="positive"
+                    layer_name=layer_name, layer_function=layer_type, layer_side=layer_position, polarity="POSITIVE"
                 )
                 layer_thickness_with_units = self.from_meter_to_units(
                     self._pedb.stackup.layers[layer_name].thickness, self.units
