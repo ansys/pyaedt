@@ -1878,6 +1878,34 @@ class Sources(SourceKeys, object):
         return True
 
 
+class PowerSinSource(Sources, object):
+    """Power Sinusoidal Class."""
+
+    def __init__(self, app, name, source_type=None):
+        Sources.__init__(self, app, name, source_type)
+
+    @property
+    def _child(self):
+        return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+
+    @property
+    def ac_magnitude(self):
+        """AC magnitude value.
+
+        Returns
+        -------
+        str
+        """
+        return self.props["ACMAG"]
+
+    @ac_magnitude.setter
+    def ac_magnitude(self, value):
+        self.props["ACMAG"] = value
+        self.update()
+        # an alternative approach
+        self._child.SetPropValue("ACMAG", value)
+
+
 class Excitations(object):
     """Manages Excitations in Circuit Projects.
 
