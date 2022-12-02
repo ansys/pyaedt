@@ -888,6 +888,9 @@ class Desktop:
     def copy_design(self, project_name=None, design_name=None, target_project=None):
         """Copy a design and paste it in an existing project or new project.
 
+        .. deprecated:: 0.6.31
+           Use :func:`copy_design_from` instead.
+
         Parameters
         ----------
         project_name : str, optional
@@ -903,11 +906,11 @@ class Desktop:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not project_name:
+        if not project_name:  # pragma: no cover
             oproject = self.odesktop.GetActiveProject()
-        else:
+        else:  # pragma: no cover
             oproject = self.odesktop.SetActiveProject(project_name)
-        if oproject:
+        if oproject:  # pragma: no cover
             if not design_name:
                 odesign = oproject.GetActiveDesign()
             else:
