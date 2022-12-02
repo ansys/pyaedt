@@ -670,7 +670,7 @@ class HfssSolverSettings(object):
 
     @property
     def order_basis(self):
-        """Order of the basic functions for HFSS:
+        """Order of the basic functions for HFSS.
         - 0=Mixed
         - 1=Zero
         - 2=1st order
