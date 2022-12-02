@@ -78,13 +78,13 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def return_current_distribution(self):
-        """Get/Set the Flag to enable return current distribution.
-        Accurately model the change of the characteristic impedance of transmission lines caused by
-        a discontinuous ground plane.
-        Instead of injecting the return current of a trace into a single point on the ground plane,
-        the return current for a high impedance trace is now spread out.
+        """Whether to enable the return current distribution.
+        This option is used to accurately model the change of the characteristic impedance
+        of transmission lines caused by a discontinuous ground plane. Instead of injecting
+        the return current of a trace into a single point on the ground plane,
+        the return current for a high impedance trace is spread out.
         The trace return current is not distributed when all traces attached to a node
-        have a characteristic impedance less than 75 ohms, or if the difference between
+        have a characteristic impedance less than 75 ohms or if the difference between
         two connected traces is less than 25 ohms.
 
         Returns
@@ -95,7 +95,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def ignore_non_functional_pads(self):
-        """Exclude non functional pads.
+        """Exclude non-functional pads.
 
         Returns
         -------
@@ -120,7 +120,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_fringe_coupling(self):
-        """Include the effect of fringe field coupling between stacked cavities.
+        """Whether to include the effect of fringe field coupling between stacked cavities.
 
 
         Returns
@@ -131,12 +131,16 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_split_plane_coupling(self):
-        """Account for coupling between adjacent parallel plane edges.
+        """Whether to account for coupling between adjacent parallel plane edges.
         Primarily, two different cases are being considered:
-        plane edges which form a split and plane edges which form a narrow trace-like plane.
-        The former leads to crosstalk between adjacent planes for which a specific coupling model is applied.
-        For the latter, fringing effects are considered to model accurately the propagation
-        characteristics of trace-like cavities. Further, the coupling between narrow planes is
+        
+        - Plane edges that form a split
+        - Plane edges that form a narrow trace-like plane
+
+        The former leads to crosstalk between adjacent planes for which
+        a specific coupling model is applied. For the latter, fringing effects
+        are considered to model accurately the propagation characteristics
+        of trace-like cavities. Further, the coupling between narrow planes is
         also modeled by enabling this feature.
 
 
@@ -148,7 +152,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_infinite_ground(self):
-        """Include a ground plane to serve as a voltage reference for traces and planes
+        """Whether to Include a ground plane to serve as a voltage reference for traces and planes
         if they are not defined in the layout.
 
 
@@ -160,7 +164,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_trace_coupling(self):
-        """Model coupling between adjacent traces.
+        """Whether to model coupling between adjacent traces.
         Coupling is considered for parallel and almost parallel trace segments.
 
 
@@ -172,7 +176,8 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_vi_sources(self):
-        """Include the effect of parasitic elements from voltage and current sources.
+        """Whether to Include the effect of parasitic elements from voltage and
+        current sources.
 
         Returns
         -------
@@ -182,7 +187,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def infinite_ground_location(self):
-        """Specify the elevation of the infinite unconnected ground plane to be placed under the design.
+        """Elevation of the infinite unconnected ground plane placed under the design.
 
 
         Returns
@@ -193,7 +198,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def max_coupled_lines(self):
-        """The user can enter the aximum number of coupled lines to build the new coupled transmission line model.
+        """Maximum number of coupled lines to build the new coupled transmission line model.
 
 
         Returns
@@ -204,8 +209,9 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def automatic_mesh(self):
-        """Automatically pick a suitable mesh refinement frequency, depending on drawing size,
-        number of modes, and/or maximum sweep frequency.
+        """Whether to automatically pick a suitable mesh refinement frequency,
+        depending on drawing size, number of modes, and/or maximum sweep
+        frequency.
 
         Returns
         -------
@@ -215,11 +221,11 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def perform_erc(self):
-        """Perform an electrical rule check while generating the solver input.
-        In some designs, the same net may be divided into multiple nets with separate names
-        these nets are connected at a "star point".
-        To simulate these nets, the error checking for DC shorts needs to be turned off,
-        and all overlapping nets are internally united during simulation.
+        """Whther to perform an electrical rule check while generating the solver input.
+        In some designs, the same net may be divided into multiple nets with separate names.
+        These nets are connected at a "star" point. To simulate these nets, the error checking
+        for DC shorts must be turned off. All overlapping nets are then internally united
+        during simulation.
 
         Returns
         -------
@@ -229,7 +235,7 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def mesh_frequency(self):
-        """Specify the mesh size based on the effective wavelenth at the specified frequency.
+        """Mesh size based on the effective wavelength at the specified frequency.
 
         Returns
         -------
@@ -352,13 +358,13 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def sim_setup_info(self):
-        """Edb Internal Simulation Setup Object."""
+        """EDB internal simulation setup object."""
 
         return self._parent._edb_sim_setup_info
 
     @property
     def min_void_area(self):
-        """The minimum area below which voids are ignored.
+        """Minimum area below which voids are ignored.
 
         Returns
         -------
@@ -368,7 +374,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def min_plane_area(self):
-        """The minimum area below which geometry is ignored.
+        """Minimum area below which geometry is ignored.
 
         Returns
         -------
@@ -438,7 +444,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def num_bondwire_sides(self):
-        """Number of Bondwire sides.
+        """Number of bondwire sides.
 
         Returns
         -------
@@ -468,7 +474,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def perform_adaptive_refinement(self):
-        """Perform adaptive mesh refinement.
+        """Whether to perform adaptive mesh refinement.
 
         Returns
         -------
@@ -478,7 +484,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def refine_bondwires(self):
-        """Refine mesh along bondwires.
+        """Whether to refine mesh along bondwires.
 
         Returns
         -------
@@ -488,7 +494,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def refine_vias(self):
-        """Refine mesh along vias.
+        """Whether to refine mesh along vias.
 
         Returns
         -------
@@ -528,7 +534,7 @@ class SiwaveDCAdvancedSettings(object):
 
     @property
     def use_dc_custom_settings(self):
-        """Use DC custom Settings.
+        """Whether to use DC custom settings.
 
         Returns
         -------
@@ -843,7 +849,7 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
 
     @property
     def name(self):
-        """Get name of this setup."""
+        """Setup name."""
         return self._edb_sim_setup_info.Name
 
     @name.setter
