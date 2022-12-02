@@ -1692,7 +1692,6 @@ class Sources(SourceKeys, object):
     def fds_filename(self, name):
         self._fds_filename = name
         self.update()
-        return True
 
     @property
     def _logger(self):
