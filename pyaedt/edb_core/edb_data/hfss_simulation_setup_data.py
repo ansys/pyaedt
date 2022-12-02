@@ -1606,7 +1606,6 @@ class HfssSimulationSetup(object):
         -------
         str
         """
-        """Solver slider type."""
         return self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.ToString()
 
     @solver_slider_type.setter
