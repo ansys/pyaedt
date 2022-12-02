@@ -1,4 +1,5 @@
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -491,10 +492,10 @@ class MeshOperation(object):
         self._parent = parent
         self.mesh_operation = mesh_operation
         self._mesh_op_mapping = {
-            "kMeshSetupBase": self.mesh_operation_type.kMeshSetupBase,
-            "kMeshSetupLength": self.mesh_operation_type.kMeshSetupLength,
-            "kMeshSetupSkinDepth": self.mesh_operation_type.kMeshSetupSkinDepth,
-            "kNumMeshOpTypes": self.mesh_operation_type.kNumMeshOpTypes,
+            "kMeshSetupBase": mesh_operation.TMeshOpType.kMeshSetupBase,
+            "kMeshSetupLength": mesh_operation.TMeshOpType.kMeshSetupLength,
+            "kMeshSetupSkinDepth": mesh_operation.TMeshOpType.kMeshSetupSkinDepth,
+            "kNumMeshOpTypes": mesh_operation.TMeshOpType.kNumMeshOpTypes,
         }
 
     @property
@@ -512,20 +513,16 @@ class MeshOperation(object):
     def mesh_operation_type(self):
         """Mesh operation type.
         Options:
-          0- ``kMeshSetupBase``
-          1- ``kMeshSetupLength``
-          2- ``kMeshSetupSkinDepth``
-          4- ``kNumMeshOpTypes``.
+        0- ``kMeshSetupBase``
+        1- ``kMeshSetupLength``
+        2- ``kMeshSetupSkinDepth``
+        3- ``kNumMeshOpTypes``.
 
         Returns
         -------
         int
         """
         return self.mesh_operation.MeshOpType.ToString()
-
-    @mesh_operation_type.setter
-    def mesh_operation_type(self, value):
-        self.mesh_operation.MeshOpType = self._mesh_op_mapping[value]
 
     @property
     def mesh_region(self):
@@ -556,9 +553,9 @@ class MeshOperation(object):
         -------
         list
            List of lists with three elements. Each list must contain:
-              1- net name
-              2- layer name
-              3- bool.
+           1- net name
+           2- layer name
+           3- bool.
            Third element is represents whether if the mesh operation is enabled or disabled.
 
         """
@@ -569,7 +566,7 @@ class MeshOperation(object):
         temp = []
         for net, layers in values.items():
             for layer in layers:
-                temp.append((net, layer, True))
+                temp.append(Tuple[str, str, bool](net, layer, True))
         self.mesh_operation.NetsLayersList = convert_py_list_to_net_list(temp)
 
     @property
@@ -589,11 +586,6 @@ class MeshOperation(object):
         self.mesh_operation.Enabled = value
         self._parent._update_setup()
 
-    @mesh_operation_type.setter
-    def mesh_operation_type(self, value):
-        self.mesh_operation.MeshOpType = value
-        self._parent._update_setup()
-
     @mesh_region.setter
     def mesh_region(self, value):
         self.mesh_operation.MeshRegion = value
@@ -604,14 +596,136 @@ class MeshOperation(object):
         self.mesh_operation.Name = value
         self._parent._update_setup()
 
-    @nets_layers_list.setter
-    def nets_layers_list(self, value):
-        self.mesh_operation.NetsLayersList = value
-        self._parent._update_setup()
-
     @refine_inside.setter
     def refine_inside(self, value):
         self.mesh_operation.RefineInside = value
+        self._parent._update_setup()
+
+    @property
+    def max_elements(self):
+        """Maximum number of elements.
+
+        Returns
+        -------
+        str
+        """
+        return self.mesh_operation.MaxElems
+
+    @property
+    def restrict_max_elements(self):
+        """Whether to restrict maximum number  of elements.
+
+        Returns
+        -------
+        bool
+        """
+        return self.mesh_operation.RestrictMaxElem
+
+    @max_elements.setter
+    def max_elements(self, value):
+        self.mesh_operation.MaxElems = str(value)
+        self._parent._update_setup()
+
+    @restrict_max_elements.setter
+    def restrict_max_elements(self, value):
+        """Whether to restrict maximum number  of elements.
+
+        Returns
+        -------
+        bool
+        """
+        self.mesh_operation.RestrictMaxElem = value
+        self._parent._update_setup()
+
+
+class MeshOperationLength(MeshOperation, object):
+    def __init__(self, parent, mesh_operation):
+        MeshOperation.__init__(self, parent, mesh_operation)
+
+    @property
+    def max_length(self):
+        """Maximum length of elements.
+
+        Returns
+        -------
+        str
+        """
+        return self.mesh_operation.MaxLength
+
+    @property
+    def restrict_length(self):
+        """Whether to restrict length of elements.
+
+        Returns
+        -------
+        bool
+        """
+        return self.mesh_operation.RestrictLength
+
+    @max_length.setter
+    def max_length(self, value):
+        self.mesh_operation.MaxLength = value
+        self._parent._update_setup()
+
+    @restrict_length.setter
+    def restrict_length(self, value):
+        """Whether to restrict length of elements.
+
+        Returns
+        -------
+        bool
+        """
+        self.mesh_operation.RestrictLength = value
+        self._parent._update_setup()
+
+
+class MeshOperationSkinDepth(MeshOperation, object):
+    def __init__(self, parent, mesh_operation):
+        MeshOperation.__init__(self, parent, mesh_operation)
+
+    @property
+    def skin_depth(self):
+        """Skin depth value.
+
+        Returns
+        -------
+        str
+        """
+        return self.mesh_operation.SkinDepth
+
+    @skin_depth.setter
+    def skin_depth(self, value):
+        self.mesh_operation.SkinDepth = value
+        self._parent._update_setup()
+
+    @property
+    def surface_triangle_length(self):
+        """Surface triangle length value.
+
+        Returns
+        -------
+        str
+        """
+        return self.mesh_operation.SurfTriLength
+
+    @surface_triangle_length.setter
+    def surface_triangle_length(self, value):
+        self.mesh_operation.SurfTriLength = value
+        self._parent._update_setup()
+
+    @property
+    def number_of_layer_elements(self):
+        """Number of layer elements.
+
+        Returns
+        -------
+        str
+        """
+        return self.mesh_operation.NumLayers
+
+    @number_of_layer_elements.setter
+    def number_of_layer_elements(self, value):
+        self.mesh_operation.NumLayers = str(value)
         self._parent._update_setup()
 
 
@@ -751,10 +865,10 @@ class HfssSolverSettings(object):
     def solver_type(self):
         """Get solver type to use (Direct/Iterative/Auto) for HFSS.
         Options:
-           1- ``kAutoSolver``
-           2- ``kDirectSolver``
-           3- ``kIterativeSolver``
-           4- ``kNumSolverTypes``
+        1- ``kAutoSolver``
+        2- ``kDirectSolver``
+        3- ``kIterativeSolver``
+        4- ``kNumSolverTypes``
 
         Returns
         -------
@@ -1105,8 +1219,8 @@ class DefeatureSettings(object):
     def model_type(self):
         """Model type.
         Options:
-          0- General
-          1- IC
+        0- General.
+        1- IC.
 
         Returns
         -------
@@ -1270,11 +1384,11 @@ class ViaSettings(object):
     def via_style(self):
         """Via style.
         Options:
-          1- ``k25DViaWirebond``
-          2- ``k25DViaRibbon``
-          3- ``k25DViaMesh``
-          4- ``k25DViaField``
-          5- ``kNum25DViaStyle``
+        1- ``k25DViaWirebond``
+        2- ``k25DViaRibbon``
+        3- ``k25DViaMesh``
+        4- ``k25DViaField``
+        5- ``kNum25DViaStyle``
 
         Returns
         -------
@@ -1530,7 +1644,7 @@ class HfssSimulationSetup(object):
         if edb_hfss_sim_setup:
             self._edb_sim_setup = edb_hfss_sim_setup
             self._edb_sim_setup_info = edb_hfss_sim_setup.GetSimSetupInfo()
-            self._name = self._edb_sim_setup_info.Name
+            self._name = edb_hfss_sim_setup.GetName()
         else:
             self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
                 self._edb.simsetupdata.HFSSSimulationSettings
@@ -1738,15 +1852,24 @@ class HfssSimulationSetup(object):
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
         self._mesh_operations = {}
         for i in list(settings):
-            self._mesh_operations[i.Name] = MeshOperation(self, i)
+            if i.MeshOpType == i.TMeshOpType.kMeshSetupLength:
+                self._mesh_operations[i.Name] = MeshOperationLength(self, i)
+            elif i.MeshOpType == i.TMeshOpType.kMeshSetupSkinDepth:
+                self._mesh_operations[i.Name] = MeshOperationSkinDepth(self, i)
+            elif i.MeshOpType == i.TMeshOpType.kMeshSetupBase:
+                self._mesh_operations[i.Name] = MeshOperationSkinDepth(self, i)
+
         return self._mesh_operations
 
     @pyaedt_function_handler()
-    def add_mesh_operation(
+    def add_length_mesh_operation(
         self,
-        name,
         net_layer_list,
-        mesh_operation_type="kMeshSetupLength",
+        name=None,
+        max_elements=1000,
+        max_length="1mm",
+        restrict_elements=True,
+        restrict_length=True,
         refine_inside=False,
         mesh_region=None,
     ):
@@ -1754,26 +1877,95 @@ class HfssSimulationSetup(object):
 
         Parameters
         ----------
-        mesh_operation_type
-        mesh_region
-        net_layer_list
-            {"A0_N": ["TOP", "PWR"]}
-        refine_inside
-        name
+        net_layer_list : dict
+            Dictionary containing nets and layers on which enable Mesh operation. Example ``{"A0_N": ["TOP", "PWR"]}``.
+        name : str, optional
+            Mesh operation name.
+        max_elements : int, optional
+            Maximum number of elements. Default is ``1000``.
+        max_length : str, optional
+            Maximum length of elements. Default is ``1mm``.
+        restrict_elements : bool, optional
+            Whether to restrict number of elements. Default is ``True``.
+        restrict_length : bool, optional
+            Whether to restrict length of elements. Default is ``True``.
+        mesh_region : str, optional
+            Mesh region name.
+        refine_inside : bool, optional
+            Whether to refine inside or not.  Default is ``False``.
 
         Returns
         -------
-        bool
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.LengthMeshOperation`
         """
-        mesh_operation = self._edb.simsetupdata.MeshOperation()
-        mesh_operation.enabled = True
-        mesh_operation.mesh_operation_type = mesh_operation_type
+        if not name:
+            name = generate_unique_name("skin")
+        mesh_operation = MeshOperationLength(self, self._edb.simsetupdata.LengthMeshOperation())
         mesh_operation.mesh_region = mesh_region
         mesh_operation.name = name
         mesh_operation.nets_layers_list = net_layer_list
         mesh_operation.refine_inside = refine_inside
-        self.mesh_operations[name] = MeshOperation(self, mesh_operation)
-        return self._update_setup()
+        mesh_operation.max_elements = str(max_elements)
+        mesh_operation.max_length = max_length
+        mesh_operation.restrict_length = restrict_length
+        mesh_operation.restrict_max_elements = restrict_elements
+        self.mesh_operations[name] = mesh_operation
+        return mesh_operation if self._update_setup() else False
+
+    @pyaedt_function_handler()
+    def add_skin_depth_mesh_operation(
+        self,
+        net_layer_list,
+        name=None,
+        max_elements=1000,
+        skin_depth="1um",
+        restrict_elements=True,
+        surface_triangle_length="1mm",
+        number_of_layers=2,
+        refine_inside=False,
+        mesh_region=None,
+    ):
+        """Add a mesh operation to the setup.
+
+        Parameters
+        ----------
+        net_layer_list : dict
+            Dictionary containing nets and layers on which enable Mesh operation. Example ``{"A0_N": ["TOP", "PWR"]}``.
+        name : str, optional
+            Mesh operation name.
+        max_elements : int, optional
+            Maximum number of elements. Default is ``1000``.
+        skin_depth : str, optional
+            Skin Depth. Default is ``1um``.
+        restrict_elements : bool, optional
+            Whether to restrict number of elements. Default is ``True``.
+        surface_triangle_length : bool, optional
+            Surface Triangle length. Default is ``1mm``.
+        number_of_layers : int, str, optional
+            Number of layers. Default is ``2``.
+        mesh_region : str, optional
+            Mesh region name.
+        refine_inside : bool, optional
+            Whether to refine inside or not.  Default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.LengthMeshOperation`
+        """
+        if not name:
+            name = generate_unique_name("length")
+        mesh_operation = MeshOperationSkinDepth(self, self._edb.simsetupdata.SkinDepthMeshOperation())
+        mesh_operation.mesh_region = mesh_region
+        mesh_operation.name = name
+        mesh_operation.nets_layers_list = net_layer_list
+        mesh_operation.refine_inside = refine_inside
+        mesh_operation.max_elements = max_elements
+        mesh_operation.skin_depth = skin_depth
+        mesh_operation.number_of_layer_elements = number_of_layers
+        mesh_operation.surface_triangle_length = surface_triangle_length
+        mesh_operation.restrict_max_elements = restrict_elements
+        self.mesh_operations[name] = mesh_operation
+        return mesh_operation if self._update_setup() else False
 
     @pyaedt_function_handler()
     def add_frequency_sweep(self, name=None, frequency_sweep=None):

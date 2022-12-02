@@ -1846,6 +1846,40 @@ if not config["skip_edb"]:
             assert "setup1" not in self.edbapp.setups
             assert "setup1a" in self.edbapp.setups
 
+            mop = self.edbapp.setups["setup1a"].add_length_mesh_operation({"GND": ["TOP", "BOTTOM"]}, "m1")
+            assert mop.name == "m1"
+            assert mop.max_elements == "1000"
+            assert mop.restrict_max_elements
+            assert mop.restrict_length
+            assert mop.max_length == "1mm"
+
+            mop.name = "m2"
+            mop.max_elements = 2000
+            mop.restrict_max_elements = False
+            mop.restrict_length = False
+            mop.max_length = "2mm"
+
+            assert mop.name == "m2"
+            assert mop.max_elements == "2000"
+            assert not mop.restrict_max_elements
+            assert not mop.restrict_length
+            assert mop.max_length == "2mm"
+
+            mop = self.edbapp.setups["setup1a"].add_skin_depth_mesh_operation({"GND": ["TOP", "BOTTOM"]})
+            assert mop.max_elements == "1000"
+            assert mop.restrict_max_elements
+            assert mop.skin_depth == "1um"
+            assert mop.surface_triangle_length == "1mm"
+            assert mop.number_of_layer_elements == "2"
+
+            mop.skin_depth = "5um"
+            mop.surface_triangle_length = "2mm"
+            mop.number_of_layer_elements = "3"
+
+            assert mop.skin_depth == "5um"
+            assert mop.surface_triangle_length == "2mm"
+            assert mop.number_of_layer_elements == "3"
+
         def test_130_siwave_dc_simulation_setup(self):
             setup1 = self.edbapp.create_siwave_dc_setup("DC1")
             assert setup1.name == "DC1"

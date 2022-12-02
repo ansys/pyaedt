@@ -138,10 +138,8 @@ class SiwaveAdvancedSettings(object):
     def include_split_plane_coupling(self):
         """Whether to account for coupling between adjacent parallel plane edges.
         Primarily, two different cases are being considered:
-
-        - Plane edges that form a split
-        - Plane edges that form a narrow trace-like plane
-
+        - Plane edges that form a split.
+        - Plane edges that form a narrow trace-like plane.
         The former leads to crosstalk between adjacent planes for which
         a specific coupling model is applied. For the latter, fringing effects
         are considered to model accurately the propagation characteristics
