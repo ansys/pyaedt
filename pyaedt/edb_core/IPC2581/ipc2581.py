@@ -234,8 +234,10 @@ class IPC2581(object):
             try:
                 material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
                 edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
+                material_type = "CONDUCTOR"
                 if self._pedb.stackup.layers[layer_name].type == "dielectric":
                     layer_type = "DIELPREG"
+                    material_type = "DIELECTRIC"
                     permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[
                         1
                     ].ToDouble()
@@ -249,7 +251,7 @@ class IPC2581(object):
                 self.ecad.cad_header.add_spec(
                     name=layer_name,
                     material=self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial(),
-                    layer_type=layer_type,
+                    layer_type=material_type,
                     conductivity=str(conductivity),
                     dielectric_constant=str(permitivity),
                     loss_tg=str(loss_tg),

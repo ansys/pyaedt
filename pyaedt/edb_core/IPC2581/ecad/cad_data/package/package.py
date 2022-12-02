@@ -70,6 +70,7 @@ class Package(object):
             poly_step2 = PolyStep()
             poly_step3 = PolyStep()
             poly_step4 = PolyStep()
+            poly_step5 = PolyStep()
             poly_step1.x = str(self._ipc.from_meter_to_units(bb1x_rot, self._ipc.units))
             poly_step1.y = str(self._ipc.from_meter_to_units(bb1y_rot, self._ipc.units))
             poly_step2.x = str(self._ipc.from_meter_to_units(bb2x_rot, self._ipc.units))
@@ -78,13 +79,15 @@ class Package(object):
             poly_step3.y = str(self._ipc.from_meter_to_units(bb2y_rot, self._ipc.units))
             poly_step4.x = str(self._ipc.from_meter_to_units(bb1x_rot, self._ipc.units))
             poly_step4.y = str(self._ipc.from_meter_to_units(bb2y_rot, self._ipc.units))
-            self.outline.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4]
+            poly_step5.x = str(self._ipc.from_meter_to_units(bb1x_rot, self._ipc.units))
+            poly_step5.y = str(self._ipc.from_meter_to_units(bb1y_rot, self._ipc.units))
+            self.outline.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4, poly_step5]
             if not "ROUND_0" in self._ipc.content.dict_line.dict_lines:
                 entry_line = EntryLine()
                 entry_line.line_width = 0.0
                 self._ipc.content.dict_line.dict_lines["ROUND_0"] = entry_line
             self.outline.line_ref = "ROUND_0"
-            self.assembly_drawing.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4]
+            self.assembly_drawing.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4, poly_step5]
             self.assembly_drawing.line_ref = "ROUND_0"
 
     def write_xml(self, step):  # pragma no cover
