@@ -1729,10 +1729,10 @@ class HfssSimulationSetup(object):
     def solver_slider_type(self):
         """Solver slider type.
         Options:
-         1- ``kFast``
-         2- ``kMedium``
-         3- ``kAccurate``
-         4- ``kNumSliderTypes``
+         1- ``kFast``.
+         2- ``kMedium``.
+         3- ``kAccurate``.
+         4- ``kNumSliderTypes``.
 
         Returns
         -------
