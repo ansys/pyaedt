@@ -64,57 +64,68 @@ class EdbFrequencySweep(object):
 
     @property
     def adv_dc_extrapolation(self):
-        """Turn on advanced DC Extrapolation.
+        """Whether to turn on advanced DC Extrapolation.
 
         Returns
         -------
         bool
+            ``True`` if advanced DC Extrapolation is used, ``False`` otherwise.
+
         """
         return self._edb_sweep_data.AdvDCExtrapolation
 
     @property
     def auto_s_mat_only_solve(self):
-        """Auto/Manual SMatrix only solve.
+        """Whether to turn on Auto/Manual SMatrix only solve.
 
         Returns
         -------
         bool
+            ``True`` if Auto/Manual SMatrix only solve is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.AutoSMatOnlySolve
 
     @property
     def enforce_causality(self):
-        """Enforce causality during interpolating sweep.
+        """Whether to enforce causality during interpolating sweep.
 
         Returns
         -------
         bool
+            ``True`` if enforce causality is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.EnforceCausality
 
     @property
     def enforce_dc_and_causality(self):
-        """Enforce DC point and causality.
+        """Whether to enforce DC point and causality.
 
         Returns
         -------
         bool
+            ``True`` if enforce dc point and causality is used, ``False`` otherwise.
+
         """
         return self._edb_sweep_data.EnforceDCAndCausality
 
     @property
     def enforce_passivity(self):
-        """Enforce passivity during interpolating sweep.
+        """Whether to enforce passivity during interpolating sweep.
 
         Returns
         -------
         bool
+            ``True`` if enforce passivity is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.EnforcePassivity
 
     @property
     def freq_sweep_type(self):
-        """Sweep type (interpolation, discrete or Broadband Fast).
+        """Sweep type.
+        Options are:
+           - ``kInterpolatingSweep``.
+           - ``kDiscreteSweep``.
+           - ``kBroadbandFastSweep``.
 
         Returns
         -------
@@ -124,47 +135,51 @@ class EdbFrequencySweep(object):
 
     @property
     def interp_use_full_basis(self):
-        """Use Full basis.
+        """Whether to use Full basis elements.
 
         Returns
         -------
         bool
+            ``True`` if full basis interpolation is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.InterpUseFullBasis
 
     @property
     def interp_use_port_impedance(self):
-        """Use Port impedance.
+        """Whether to turn on the port impedance interpolation.
 
         Returns
         -------
         bool
+            ``True`` if port impedance is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.InterpUsePortImpedance
 
     @property
     def interp_use_prop_const(self):
-        """Use propagation constants.
+        """Whether to use propagation constants.
 
         Returns
         -------
         bool
+            ``True`` if propagation constants are used, ``False`` otherwise.
         """
         return self._edb_sweep_data.InterpUsePropConst
 
     @property
     def interp_use_s_matrix(self):
-        """Use S matrix.
+        """Whether to use S matrix.
 
         Returns
         -------
         bool
+            ``True`` if S matrix are used, ``False`` otherwise.
         """
         return self._edb_sweep_data.InterpUseSMatrix
 
     @property
     def max_solutions(self):
-        """Maximum solutions.
+        """Number of aximum solutions.
 
         Returns
         -------
@@ -179,6 +194,7 @@ class EdbFrequencySweep(object):
         Returns
         -------
         str
+            Frequency with units.
         """
         return self._edb_sweep_data.MinFreqSMatOnlySolve
 
@@ -189,6 +205,7 @@ class EdbFrequencySweep(object):
         Returns
         -------
         str
+            Frequency with units.
         """
         return self._edb_sweep_data.MinSolvedFreq
 
@@ -214,31 +231,35 @@ class EdbFrequencySweep(object):
 
     @property
     def save_fields(self):
-        """Turn on or off the extraction of surface current data.
+        """Whether to turn on or off the extraction of surface current data.
 
         Returns
         -------
         bool
+            ``True`` if save fields is enabled, ``False`` otherwise.
         """
         return self._edb_sweep_data.SaveFields
 
     @property
     def save_rad_fields_only(self):
-        """Enable or disable save radiated fields only.
+        """Whether to turn on save radiated fields only.
 
         Returns
         -------
         bool
+            ``True`` if save radiated field only is used, ``False`` otherwise.
+
         """
         return self._edb_sweep_data.SaveRadFieldsOnly
 
     @property
     def use_q3d_for_dc(self):
-        """Enable Q3D solver for DC point extraction .
+        """Whether to enable Q3D solver for DC point extraction .
 
         Returns
         -------
-        float
+        bool
+            ``True`` if Q3d for DC point is used, ``False`` otherwise.
         """
         return self._edb_sweep_data.UseQ3DForDC
 
@@ -366,6 +387,8 @@ class EdbFrequencySweep(object):
         Returns
         -------
         bool
+            ``True`` if correctly executed, ``False`` otherwise.
+
         """
         start = self._sim_setup._edb.arg_to_dim(start, "Hz")
         stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
@@ -389,6 +412,8 @@ class EdbFrequencySweep(object):
         Returns
         -------
         bool
+            ``True`` if correctly executed, ``False`` otherwise.
+
         """
         start = self._sim_setup._edb.arg_to_dim(start, "Hz")
         stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
@@ -411,6 +436,7 @@ class EdbFrequencySweep(object):
         Returns
         -------
         bool
+            ``True`` if correctly executed, ``False`` otherwise.
         """
         start = self._sim_setup._edb.arg_to_dim(start, "Hz")
         stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
@@ -423,7 +449,7 @@ class EdbFrequencySweep(object):
 
         Parameters
         ----------
-        ```suggestion
+        frequency_list : list, optional
             List of lists with four elements. Each list must contain:
 
               1- frequency type (``"linear count"``, ``"log scale"`` or ``"linear scale"``)
@@ -434,6 +460,8 @@ class EdbFrequencySweep(object):
         Returns
         -------
         bool
+            ``True`` if correctly executed, ``False`` otherwise.
+
         """
         if not frequency_list:
             frequency_list = [
@@ -471,23 +499,29 @@ class MeshOperation(object):
 
     @property
     def enabled(self):
-        """Enabled.
+        """Whether if mesh operation is enabled.
 
         Returns
         -------
         bool
+            ``True`` if mesh operation is used, ``False`` otherwise.
         """
         return self.mesh_operation.Enabled
 
     @property
     def mesh_operation_type(self):
         """Mesh operation type.
+        Options:
+          0- ``kMeshSetupBase``
+          1- ``kMeshSetupLength``
+          2- ``kMeshSetupSkinDepth``
+          4- ``kNumMeshOpTypes``.
 
         Returns
         -------
         int
         """
-        return self.mesh_operation.MeshOpType
+        return self.mesh_operation.MeshOpType.ToString()
 
     @mesh_operation_type.setter
     def mesh_operation_type(self, value):
@@ -495,11 +529,12 @@ class MeshOperation(object):
 
     @property
     def mesh_region(self):
-        """Mesh region object.
+        """Mesh region name.
 
         Returns
         -------
-        object
+        str
+            Name of the mesh region.
         """
         return self.mesh_operation.MeshRegion
 
@@ -520,6 +555,12 @@ class MeshOperation(object):
         Returns
         -------
         list
+           List of lists with three elements. Each list must contain:
+              1- net name
+              2- layer name
+              3- bool.
+           Third element is represents whether if the mesh operation is enabled or disabled.
+
         """
         return self.mesh_operation.NetsLayersList
 
@@ -533,11 +574,13 @@ class MeshOperation(object):
 
     @property
     def refine_inside(self):
-        """Refine inside objects.
+        """Whether to turn on refine inside objects.
 
         Returns
         -------
         bool
+            ``True`` if refine inside objects is used, ``False`` otherwise.
+
         """
         return self.mesh_operation.RefineInside
 
@@ -629,11 +672,12 @@ class HfssPortSettings(object):
 
     @property
     def enable_set_triangles_wave_port(self):
-        """Enable setting of minimum and maximum mesh limits for wave ports.
+        """Whether to enable setting of minimum and maximum mesh limits for wave ports.
 
         Returns
         -------
         bool
+            ``True`` if triangles wave port  is used, ``False`` otherwise.
         """
         return self._hfss_port_settings.SetTrianglesWavePort
 
@@ -655,11 +699,12 @@ class HfssSolverSettings(object):
 
     @property
     def enhanced_low_freq_accuracy(self):
-        """Enable legacy low-frequency sampling.
+        """Whether to enable legacy low-frequency sampling.
 
         Returns
         -------
-        float
+        bool
+            ``True`` if low frequency accuracy is used, ``False`` otherwise.
         """
         return self._hfss_solver_settings.EnhancedLowFreqAccuracy
 
@@ -674,7 +719,12 @@ class HfssSolverSettings(object):
         - 0=Mixed
         - 1=Zero
         - 2=1st order
-        - 3=2nd order"""
+        - 3=2nd order
+
+        Returns
+        -------
+        int
+            Integer value according to the description."""
         return self._hfss_solver_settings.OrderBasis
 
     @order_basis.setter
@@ -700,20 +750,26 @@ class HfssSolverSettings(object):
     @property
     def solver_type(self):
         """Get solver type to use (Direct/Iterative/Auto) for HFSS.
+        Options:
+           1- ``kAutoSolver``
+           2- ``kDirectSolver``
+           3- ``kIterativeSolver``
+           4- ``kNumSolverTypes``
 
         Returns
         -------
-        int
+        str
         """
-        return self._hfss_solver_settings.SolverType
+        return self._hfss_solver_settings.SolverType.ToString()
 
     @property
     def use_shell_elements(self):
-        """Enable use of shell elements.
+        """Whether to enable use of shell elements.
 
         Returns
         -------
         bool
+            ``True`` if shall elements are used, ``False`` otherwise.
         """
         return self._hfss_solver_settings.UseShellElements
 
@@ -736,6 +792,7 @@ class AdaptiveFrequencyData(object):
         Returns
         -------
         str
+            Frequency with units.
         """
         return self._adaptive_frequency_data.AdaptiveFrequency
 
@@ -787,12 +844,7 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_settings(self):
-        """Adaptive EDB settings.
-
-        Returns
-        -------
-        object
-        """
+        """Adaptive EDB settings."""
         return self._parent._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
 
     @property
@@ -808,6 +860,11 @@ class AdaptiveSettings(object):
     @property
     def adapt_type(self):
         """Adaptive type.
+        Options:
+         1- ``kSingle``
+         2- ``kMultiFrequencies``
+         3- ``kBroadband``
+         4- ``kNumAdaptTypes``
 
         Returns
         -------
@@ -822,11 +879,11 @@ class AdaptiveSettings(object):
 
     @property
     def basic(self):
-        """Basic setting.
+        """Whether if turn on basic adaptive.
 
         Returns
         -------
-
+            ``True`` if bais adaptive is used, ``False`` otherwise.
         """
         return self.adaptive_settings.Basic
 
@@ -837,21 +894,23 @@ class AdaptiveSettings(object):
 
     @property
     def do_adaptive(self):
-        """Check if adpative mesh is on.
+        """Whether if adpative mesh is on.
 
         Returns
         -------
         bool
+            ``True`` if adaptive is used, ``False`` otherwise.
+
         """
         return self.adaptive_settings.DoAdaptive
 
     @property
     def max_refinement(self):
-        """Maximum refinement.
+        """Maximum number of mesh elements to be added per pass.
 
         Returns
         -------
-        str
+        int
         """
         return self.adaptive_settings.MaxRefinement
 
@@ -862,11 +921,11 @@ class AdaptiveSettings(object):
 
     @property
     def max_refine_per_pass(self):
-        """Maximum refinement per pass.
+        """Maximum number of mesh elementat that can be added during an adaptive pass.
 
         Returns
         -------
-        str
+        int
         """
         return self.adaptive_settings.MaxRefinePerPass
 
@@ -892,11 +951,12 @@ class AdaptiveSettings(object):
 
     @property
     def save_fields(self):
-        """Save fields.
+        """Whether to turn on save fields.
 
         Returns
         -------
         bool
+            ``True`` if save fields is used, ``False`` otherwise.
         """
         return self.adaptive_settings.SaveFields
 
@@ -907,11 +967,13 @@ class AdaptiveSettings(object):
 
     @property
     def save_rad_field_only(self):
-        """Save radiated fields only.
+        """Whether to turn on save radiated fields only.
 
         Returns
         -------
         bool
+            ``True`` if save radiated field only is used, ``False`` otherwise.
+
         """
         return self.adaptive_settings.SaveRadFieldsOnly
 
@@ -922,11 +984,13 @@ class AdaptiveSettings(object):
 
     @property
     def use_convergence_matrix(self):
-        """Use convergence matrix.
+        """Whether to turn on the convergence matrix.
 
         Returns
         -------
         bool
+            ``True`` if convergence matrix is used, ``False`` otherwise.
+
         """
         return self.adaptive_settings.UseConvergenceMatrix
 
@@ -937,11 +1001,12 @@ class AdaptiveSettings(object):
 
     @property
     def use_max_refinement(self):
-        """Use maximum refinement.
+        """Whether to turn on maximum refinement.
 
         Returns
         -------
         bool
+            ``True`` if maximum refinement is used, ``False`` otherwise.
         """
         return self.adaptive_settings.UseMaxRefinement
 
@@ -966,6 +1031,7 @@ class AdaptiveSettings(object):
         Returns
         -------
         bool
+            ``True`` if method is successful, ``False`` otherwise.
         """
         adaptive_frequency_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
         data = AdaptiveFrequencyData(adaptive_frequency_data)
@@ -988,7 +1054,7 @@ class DefeatureSettings(object):
 
     @property
     def defeature_abs_length(self):
-        """Defeature absolute length.
+        """Absolute length for polygon defeaturing.
 
         Returns
         -------
@@ -1018,10 +1084,14 @@ class DefeatureSettings(object):
 
     @property
     def healing_option(self):
-        """Healing option.
+        """Whether to turn on healing of mis-aligned points and edges.
+        Options:
+          0- Turn off
+          1- Turn on
 
         Returns
         -------
+        int
 
         """
         return self._defeature_settings.HealingOption
@@ -1034,6 +1104,9 @@ class DefeatureSettings(object):
     @property
     def model_type(self):
         """Model type.
+        Options:
+          0- General
+          1- IC
 
         Returns
         -------
@@ -1049,11 +1122,12 @@ class DefeatureSettings(object):
 
     @property
     def remove_floating_geometry(self):
-        """Remove floating geometries.
+        """Whether to remove floating geometries.
 
         Returns
         -------
         bool
+            ``True`` if floating geometry removal is used, ``False`` otherwise.
         """
         return self._defeature_settings.RemoveFloatingGeometry
 
@@ -1068,7 +1142,7 @@ class DefeatureSettings(object):
 
         Returns
         -------
-        str
+        float
         """
         return self._defeature_settings.SmallVoidArea
 
@@ -1079,11 +1153,12 @@ class DefeatureSettings(object):
 
     @property
     def union_polygons(self):
-        """Union polygons.
+        """Whether to turn on the union of polygons before meshing.
 
         Returns
         -------
-
+        bool
+            ``True`` if union polygons is used, ``False`` otherwise.
         """
         return self._defeature_settings.UnionPolygons
 
@@ -1094,11 +1169,12 @@ class DefeatureSettings(object):
 
     @property
     def use_defeature(self):
-        """Use defeature settings.
+        """Whether to turn on the defeature.
 
         Returns
         -------
         bool
+            ``True`` if defeature is used, ``False`` otherwise.
         """
         return self._defeature_settings.UseDefeature
 
@@ -1109,11 +1185,13 @@ class DefeatureSettings(object):
 
     @property
     def use_defeature_abs_length(self):
-        """Defeature absolute length.
+        """Whether to turn on the defeature absolute length.
 
         Returns
         -------
-        str
+        bool
+            ``True`` if defeature absolute length is used, ``False`` otherwise.
+
         """
         return self._defeature_settings.UseDefeatureAbsLength
 
@@ -1191,6 +1269,12 @@ class ViaSettings(object):
     @property
     def via_style(self):
         """Via style.
+        Options:
+          1- ``k25DViaWirebond``
+          2- ``k25DViaRibbon``
+          3- ``k25DViaMesh``
+          4- ``k25DViaField``
+          5- ``kNum25DViaStyle``
 
         Returns
         -------
@@ -1216,10 +1300,11 @@ class AdvancedMeshSettings(object):
 
     @property
     def layer_snap_tol(self):
-        """Layer snap tool.
+        """Layer snap tolerance. Attempt to align independent stackups in the mesher.
 
         Returns
         -------
+        str
 
         """
         return self._advanced_mesh_settings.LayerSnapTol
@@ -1231,11 +1316,11 @@ class AdvancedMeshSettings(object):
 
     @property
     def mesh_display_attributes(self):
-        """Mesh display attributes.
+        """Mesh display attributes. Set color for mesh display (i.e. ``"#000000"``).
 
         Returns
         -------
-
+        str
         """
         return self._advanced_mesh_settings.MeshDisplayAttributes
 
@@ -1246,11 +1331,13 @@ class AdvancedMeshSettings(object):
 
     @property
     def replace_3d_triangles(self):
-        """Replace 3D triangles.
+        """Whether to turn on replace 3D triangles.
 
         Returns
         -------
         bool
+            ``True`` if replace 3D triangles is used, ``False`` otherwise.
+
         """
         return self._advanced_mesh_settings.Replace3DTriangles
 
@@ -1272,6 +1359,12 @@ class CurveApproxSettings(object):
 
     @property
     def arc_angle(self):
+        """Step-size to be used for arc faceting.
+
+        Returns
+        -------
+        str
+        """
         return self._curve_approx_settings.ArcAngle
 
     @arc_angle.setter
@@ -1281,6 +1374,12 @@ class CurveApproxSettings(object):
 
     @property
     def arc_to_chord_error(self):
+        """Maximum tolerated error between straight edge (chord) and faceted arc.
+
+        Returns
+        -------
+        str
+        """
         return self._curve_approx_settings.ArcToChordError
 
     @arc_to_chord_error.setter
@@ -1290,6 +1389,12 @@ class CurveApproxSettings(object):
 
     @property
     def max_arc_points(self):
+        """Maximum number of mesh points for arc segments.
+
+        Returns
+        -------
+        int
+        """
         return self._curve_approx_settings.MaxArcPoints
 
     @max_arc_points.setter
@@ -1299,6 +1404,12 @@ class CurveApproxSettings(object):
 
     @property
     def start_azimuth(self):
+        """Azimuth angle for first mesh point of the arc.
+
+        Returns
+        -------
+        str
+        """
         return self._curve_approx_settings.StartAzimuth
 
     @start_azimuth.setter
@@ -1308,6 +1419,12 @@ class CurveApproxSettings(object):
 
     @property
     def use_arc_to_chord_error(self):
+        """Whether to turn on the arc-to-chord error setting for arc faceting.
+
+        Returns
+        -------
+            ``True`` if arc-to-chord error is used, ``False`` otherwise.
+        """
         return self._curve_approx_settings.UseArcToChordError
 
     @use_arc_to_chord_error.setter
@@ -1373,7 +1490,7 @@ class DcrSettings(object):
 
     @property
     def conduction_per_error(self):
-        """Conduction error percentage.
+        """WConduction error percentage.
 
         Returns
         -------
@@ -1454,7 +1571,12 @@ class HfssSimulationSetup(object):
 
     @property
     def frequency_sweeps(self):
-        """Frequency sweep list."""
+        """Frequency sweep list.
+
+        Returns
+        -------
+        List of :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep`
+        """
         sweep_data_list = {}
         for i in list(self._edb_sim_setup_info.SweepDataList):
             sweep_data_list[i.Name] = EdbFrequencySweep(self, None, i.Name, i)
@@ -1467,30 +1589,45 @@ class HfssSimulationSetup(object):
 
     @name.setter
     def name(self, value):
-        """Set name of the setup."""
         self._edb_sim_setup_info.Name = value
         self._update_setup()
         self._name = value
 
     @property
     def solver_slider_type(self):
+        """Solver slider type.
+        Options:
+         1- ``kFast``
+         2- ``kMedium``
+         3- ``kAccurate``
+         4- ``kNumSliderTypes``
+
+        Returns
+        -------
+        str
+        """
         """Solver slider type."""
-        return self._edb_sim_setup_info.SimulationSettings.TSolveSliderType
+        return self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.ToString()
 
     @solver_slider_type.setter
     def solver_slider_type(self, value):
         """Set solver slider type."""
-        self._edb_sim_setup_info.SimulationSettings.TSolveSliderType = value
+        solver_types = {
+            "kFast": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaWirebond,
+            "kMedium": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaRibbon,
+            "kAccurate": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaMesh,
+            "kNumSliderTypes": self._edb_sim_setup_info.SimulationSettings.TSolveSliderType.k25DViaField,
+        }
+        self._edb_sim_setup_info.SimulationSettings.TSolveSliderType = solver_types[value]
         self._update_setup()
 
     @property
     def is_auto_setup(self):
-        """Check if auto setup is enabled."""
+        """Whether if auto setup is enabled."""
         return self._edb_sim_setup_info.SimulationSettings.IsAutoSetup
 
     @is_auto_setup.setter
     def is_auto_setup(self, value):
-        """Set auto setup."""
         self._edb_sim_setup_info.SimulationSettings.IsAutoSetup = value
         self._update_setup()
 
@@ -1501,75 +1638,101 @@ class HfssSimulationSetup(object):
 
     @property
     def hfss_solver_settings(self):
-        """Manages EDB methods for HFSS solver settings."""
+        """Manages EDB methods for HFSS solver settings.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSolverSettings`
+
+        """
         return HfssSolverSettings(self)
 
     @property
     def adaptive_settings(self):
-        """Adaptive settings."""
+        """Adaptive Settings Class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveSettings`
+
+        """
         return AdaptiveSettings(self)
 
     @property
     def defeature_settings(self):
-        """Defeature settings."""
+        """Defeature settings Class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.DefeatureSettings`
+
+        """
         return DefeatureSettings(self)
 
     @property
     def via_settings(self):
-        """Via settings."""
+        """Via settings Class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.ViaSettings`
+
+        """
         return ViaSettings(self)
 
     @property
     def advanced_mesh_settings(self):
-        """Advanced mesh settings."""
-        return AdvancedMeshSettings(self)
+        """Advanced mesh settings Class.
 
-    @advanced_mesh_settings.setter
-    def advanced_mesh_settings(self, values):
-        """Set advanced mesh settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.AdvancedMeshSettings
-        if "layer_snap_tol" in values:
-            settings.LayerSnapTol = values["layer_snap_tol"]
-        if "mesh_display_attributes" in values:
-            settings.MeshDisplayAttributes = values["mesh_display_attributes"]
-        if "replace3_d_triangles" in values:
-            settings.Replace3DTriangles = values["replace3_d_triangles"]
-        self._update_setup()
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdvancedMeshSettings`
+
+        """
+        return AdvancedMeshSettings(self)
 
     @property
     def curve_approx_settings(self):
-        """Curve approximate settings."""
-        return CurveApproxSettings(self)
+        """Curve approximation settings Class.
 
-    @curve_approx_settings.setter
-    def curve_approx_settings(self, values):
-        """Set curve approx settings."""
-        settings = self._edb_sim_setup_info.SimulationSettings.CurveApproxSettings
-        if "arc_angle" in values:
-            settings.ArcAngle = values["arc_angle"]
-        if "arc_to_chord_error" in values:
-            settings.ArcToChordError = values["arc_to_chord_error"]
-        if "max_arc_points" in values:
-            settings.MaxArcPoints = values["max_arc_points"]
-        if "start_azimuth" in values:
-            settings.StartAzimuth = values["start_azimuth"]
-        if "use_arc_to_chord_error" in values:
-            settings.UseArcToChordError = values["use_arc_to_chord_error"]
-        self._update_setup()
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.CurveApproxSettings`
+
+        """
+        return CurveApproxSettings(self)
 
     @property
     def dcr_settings(self):
-        """DCR settings."""
+        """Dcr settings Class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.DcrSettings`
+
+        """
         return DcrSettings(self)
 
     @property
     def hfss_port_settings(self):
-        """HFSS port settings."""
+        """HFSS port settings Class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssPortSettings`
+
+        """
         return HfssPortSettings(self)
 
     @property
     def mesh_operations(self):
-        """Mesh operations."""
+        """Mesh operations settings Class.
+
+        Returns
+        -------
+        List of :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.MeshOperation`
+
+        """
         if self._mesh_operations:
             return self._mesh_operations
         settings = self._edb_sim_setup_info.SimulationSettings.MeshOperations
@@ -1600,7 +1763,7 @@ class HfssSimulationSetup(object):
 
         Returns
         -------
-
+        bool
         """
         mesh_operation = self._edb.simsetupdata.MeshOperation()
         mesh_operation.enabled = True
@@ -1610,7 +1773,7 @@ class HfssSimulationSetup(object):
         mesh_operation.nets_layers_list = net_layer_list
         mesh_operation.refine_inside = refine_inside
         self.mesh_operations[name] = MeshOperation(self, mesh_operation)
-        self._update_setup()
+        return self._update_setup()
 
     @pyaedt_function_handler()
     def add_frequency_sweep(self, name=None, frequency_sweep=None):

@@ -16,12 +16,13 @@ class SiwaveAdvancedSettings(object):
 
     @property
     def include_inter_plane_coupling(self):
-        """Get/Set the InterPlane Coupling.
-        The setter will enable custom settings.
+        """Whether to turn on InterPlane Coupling.
+        The setter will also enable custom settings.
 
         Returns
         -------
         bool
+            ``True`` if interplane coupling is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeInterPlaneCoupling
 
@@ -42,7 +43,7 @@ class SiwaveAdvancedSettings(object):
 
         Returns
         -------
-        str
+        bool
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.MinVoidArea
 
@@ -52,7 +53,7 @@ class SiwaveAdvancedSettings(object):
 
         Returns
         -------
-        str
+        bool
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.MinPadAreaToMesh
 
@@ -62,7 +63,7 @@ class SiwaveAdvancedSettings(object):
 
         Returns
         -------
-        str
+        bool
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.MinPlaneAreaToMesh
 
@@ -90,6 +91,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if return current distribution is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.ReturnCurrentDistribution
 
@@ -100,6 +102,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            `True`` if functional pads have to be ignored, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IgnoreNonFunctionalPads
 
@@ -115,6 +118,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if coplane coupling is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeCoPlaneCoupling
 
@@ -126,6 +130,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if fringe coupling is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeFringeCoupling
 
@@ -133,7 +138,7 @@ class SiwaveAdvancedSettings(object):
     def include_split_plane_coupling(self):
         """Whether to account for coupling between adjacent parallel plane edges.
         Primarily, two different cases are being considered:
-        
+
         - Plane edges that form a split
         - Plane edges that form a narrow trace-like plane
 
@@ -147,6 +152,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if split plane coupling is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeSplitPlaneCoupling
 
@@ -159,6 +165,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if infinite ground is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeInfGnd
 
@@ -171,17 +178,19 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if trace coupling is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeTraceCoupling
 
     @property
     def include_vi_sources(self):
-        """Whether to Include the effect of parasitic elements from voltage and
+        """Whether to include the effect of parasitic elements from voltage and
         current sources.
 
         Returns
         -------
         bool
+            ``True`` if vi sources is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.IncludeVISources
 
@@ -216,12 +225,13 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if automatic mesh is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.MeshAutoMatic
 
     @property
     def perform_erc(self):
-        """Whther to perform an electrical rule check while generating the solver input.
+        """Whether to perform an electrical rule check while generating the solver input.
         In some designs, the same net may be divided into multiple nets with separate names.
         These nets are connected at a "star" point. To simulate these nets, the error checking
         for DC shorts must be turned off. All overlapping nets are then internally united
@@ -230,6 +240,7 @@ class SiwaveAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if perform erc is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.AdvancedSettings.PerformERC
 
@@ -368,7 +379,7 @@ class SiwaveDCAdvancedSettings(object):
 
         Returns
         -------
-        str
+        float
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.DcMinVoidAreaToMesh
 
@@ -378,7 +389,7 @@ class SiwaveDCAdvancedSettings(object):
 
         Returns
         -------
-        str
+        float
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.DcMinPlaneAreaToMesh
 
@@ -388,7 +399,7 @@ class SiwaveDCAdvancedSettings(object):
 
         Returns
         -------
-        str
+        float
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.EnergyError
 
@@ -398,7 +409,7 @@ class SiwaveDCAdvancedSettings(object):
 
         Returns
         -------
-        str
+        float
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.MaxInitMeshEdgeLength
 
@@ -479,6 +490,7 @@ class SiwaveDCAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if adaptive refinement is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.PerformAdaptiveRefinement
 
@@ -489,6 +501,7 @@ class SiwaveDCAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if refine bondwires is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineBws
 
@@ -499,6 +512,8 @@ class SiwaveDCAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if via refinement is used, ``False`` otherwise.
+
         """
         return self.sim_setup_info.SimulationSettings.DCAdvancedSettings.RefineVias
 
@@ -509,6 +524,7 @@ class SiwaveDCAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if inductances will be computed, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.DCSettings.ComputeInductance
 
@@ -535,10 +551,12 @@ class SiwaveDCAdvancedSettings(object):
     @property
     def use_dc_custom_settings(self):
         """Whether to use DC custom settings.
+        This setting is automatically enabled by other properties when needed.
 
         Returns
         -------
         bool
+            ``True`` if custom dc settings are used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings
 
@@ -549,6 +567,7 @@ class SiwaveDCAdvancedSettings(object):
         Returns
         -------
         bool
+            ``True`` if plot JV is used, ``False`` otherwise.
         """
         return self.sim_setup_info.SimulationSettings.DCSettings.PlotJV
 
