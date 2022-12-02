@@ -88,7 +88,6 @@ These classes are the containers of data read from the EDB file:
    components_data.EDBComponentDef
    nets_data.EDBNetsData
    primitives_data.EDBPrimitives
-   simulation_configuration.SiwaveDCSetupTemplate
    simulation_configuration.SimulationConfiguration
    simulation_configuration.SimulationConfigurationDc
    simulation_configuration.SimulationConfigurationAc
@@ -97,6 +96,22 @@ These classes are the containers of data read from the EDB file:
    sources.ExcitationProbes
    sources.ExcitationSources
    sources.ExcitationDifferential
+   hfss_simulation_setup_data.HfssSimulationSetup
+   hfss_simulation_setup_data.EdbFrequencySweep
+   hfss_simulation_setup_data.DcrSettings
+   hfss_simulation_setup_data.CurveApproxSettings
+   hfss_simulation_setup_data.AdvancedMeshSettings
+   hfss_simulation_setup_data.ViaSettings
+   hfss_simulation_setup_data.DefeatureSettings
+   hfss_simulation_setup_data.AdaptiveSettings
+   hfss_simulation_setup_data.AdaptiveFrequencyData
+   hfss_simulation_setup_data.HfssSolverSettings
+   hfss_simulation_setup_data.HfssPortSettings
+   hfss_simulation_setup_data.MeshOperationLength
+   hfss_simulation_setup_data.MeshOperationSkinDepth
+   siwave_simulation_setup_data.SiwaveSYZSimulationSetup
+   siwave_simulation_setup_data.SiwaveDCSimulationSetup
+
 
 
 .. code:: python
