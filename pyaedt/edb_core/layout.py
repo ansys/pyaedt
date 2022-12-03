@@ -4,7 +4,6 @@ This module contains these classes: `EdbLayout` and `Shape`.
 import math
 
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.clr_module import Tuple
@@ -1150,38 +1149,6 @@ class EdbLayout(object):
             pt_ind += 1
 
         return pts_list, nb_pts_removed
-
-    @pyaedt_function_handler()
-    def setup_net_classes(self, simulation_setup=None):
-        """
-        Define nets listed as power ground nets in the ``simulation_setup`` object.
-
-        Parameters
-        ----------
-        simulation_setup : simulation_setup edb_data.simulation_configuration.SimulationConfiguration object
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-
-        """
-        if not isinstance(simulation_setup, SimulationConfiguration):
-            return False
-
-        net_list = list(self._active_layout.Nets)
-        power_net_list = [net for net in self._active_layout.Nets if net.GetName() in simulation_setup.power_nets]
-        map(lambda obj: obj.SetIsPowerGround(False), net_list)
-        for net in power_net_list:
-            self._set_power_net(net)
-        return True
-
-    @pyaedt_function_handler()
-    def _set_power_net(self, net):
-        if isinstance(net, self._edb.Cell.Net):
-            net.SetIsPowerGround(True)
-            self._logger.info("NET: {} set to power/ground class".format(net.GetName()))
 
     @pyaedt_function_handler()
     def get_layout_statistics(self, evaluate_area=False, net_list=None):
