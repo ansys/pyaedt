@@ -1385,6 +1385,16 @@ class GeometryModeler(Modeler, object):
                 self.logger.info("Lists were not retrieved from AEDT file")
         return design_lists
 
+    def _get_planes_data(self):
+        """Retrieve planes data.
+
+        Returns
+        -------
+        [Dict with List information]
+        """
+        return {plane_name: self.GetChildObject(plane_name) for plane_name in self.GetChildNames("Planes")}
+        # return self.oeditor.GetChildNames("Planes")
+
     def __get__(self, instance, owner):
         self._app = instance
         return self

@@ -20,6 +20,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import Plane
 from pyaedt.modeler.Object3d import Point
 from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modeler.Object3d import _dim_arg
@@ -1310,7 +1311,10 @@ class Primitives(object):
 
         _retry_ntimes(10, self.oeditor.CreateCutplane, parameters, attributes)
         # self._refresh_planes()
-        return self._create_object(name)
+        self.planes[name] = None
+        plane = self._create_object(name)
+        self.planes[name] = plane
+        return plane
 
     @pyaedt_function_handler()
     def _change_component_property(self, vPropChange, names_list):
@@ -3585,10 +3589,12 @@ class Primitives(object):
             self._points = list(test)
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
-    # @pyaedt_function_handler()
-    # def _refresh_planes(self):
-    #     test = list(self.oeditor.GetPlanes())
-    #     if test is None or test is False:
+    @pyaedt_function_handler()
+    def _refresh_planes(self):
+        self._planes = {
+            plane_name: self.oeditor.GetChildObject(plane_name) for plane_name in self.oeditor.GetChildNames("Planes")
+        }
+
     #         assert False, "Get Planes is failing"
     #     elif test is True:
     #         self._planes = []  # In IronPython True is returned when no planes are present
@@ -3613,6 +3619,7 @@ class Primitives(object):
         self._refresh_sheets()
         self._refresh_lines()
         self._refresh_points()
+        self._refresh_planes()
         self._refresh_unclassified()
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
@@ -3621,6 +3628,9 @@ class Primitives(object):
         if name in self._points:
             o = Point(self, name)
             self.points[name] = o
+        if name in self.planes.keys():
+            o = Plane(self, name)
+            self.planes[name] = o
         else:
             o = Object3d(self, name)
             if pid:
