@@ -191,14 +191,14 @@ jobs:
       #     path: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
       #     retention-days: 7
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4.4.0
-        with:
-          repository-name: pyansys/devportal-doc-archive
-          branch: drupal
-          folder: pyaedt-doc-flatten-json
-          token: ${{ steps.get_workflow_token.outputs.token }}
-          clean: false
+      # - name: Deploy
+      #   uses: JamesIves/github-pages-deploy-action@v4.4.0
+      #   with:
+      #     repository-name: pyansys/devportal-doc-archive
+      #     branch: drupal
+      #     folder: pyaedt-doc-flatten-json
+      #     token: ${{ steps.get_workflow_token.outputs.token }}
+      #     clean: false
 
       # Verify that sphinx generates no warnings
       - name: Check for warnings
