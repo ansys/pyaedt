@@ -39,17 +39,23 @@ class LayerFeature(object):
         else:
             return False
 
-    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None):  # pragma no cover
+    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None, layer_name=None):  # pragma no cover
         if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
             feature.padstack_instance.net = padstack_inst.net_name
             feature.padstack_instance.isvia = True
+            feature.padstack_instance.padstack_def = padstack_inst.padstack_definition
             feature.feature_type = FeatureType.PadstackInstance
             feature.padstack_instance.x = self._ipc.from_meter_to_units(padstack_inst.position[0], self._ipc.units)
             feature.padstack_instance.y = self._ipc.from_meter_to_units(padstack_inst.position[1], self._ipc.units)
             feature.padstack_instance.diameter = padstackdef.hole_finished_size
             feature.padstack_instance.hole_name = padstack_inst.padstack_definition
             feature.padstack_instance.name = padstack_inst.name
+            feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
+                self._ipc.from_meter_to_units(
+                    padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
+                )
+            )
             self.features.append(feature)
 
     def add_drill_feature(self, via, diameter=0.0):  # pragma no cover

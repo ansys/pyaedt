@@ -194,7 +194,7 @@ class Step(object):
                 )
             else:
                 padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
-                layer_feature.add_via_instance_feature(padstack_instance, padstack_def)
+                layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer.name)
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
