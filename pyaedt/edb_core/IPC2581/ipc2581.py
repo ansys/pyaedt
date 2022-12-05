@@ -231,6 +231,7 @@ class IPC2581(object):
             conductivity = 5e6
             permitivity = 1.0
             loss_tg = 0.0
+            embedded = "NOT_EMBEDDED"
             try:
                 material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
                 edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
@@ -255,6 +256,7 @@ class IPC2581(object):
                     conductivity=str(conductivity),
                     dielectric_constant=str(permitivity),
                     loss_tg=str(loss_tg),
+                    embedded=embedded,
                 )
                 layer_position = "INTERNAL"
                 if layer_name == self.top_bottom_layers[0]:

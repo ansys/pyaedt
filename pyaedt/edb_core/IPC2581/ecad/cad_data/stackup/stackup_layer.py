@@ -18,4 +18,4 @@ class StackupLayer(object):
         stackup_layer.set("tolMinus", str(self.tol_minus))
         stackup_layer.set("tolMinus", self.sequence)
         spec_ref = ET.SubElement(stackup_layer, "SpecRef")
-        spec_ref.set("id", self.spec_ref)
+        spec_ref.set("id", self.layer_name)
