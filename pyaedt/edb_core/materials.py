@@ -1,16 +1,13 @@
 from __future__ import absolute_import  # noreorder
 
+import difflib
 import logging
 import warnings
 
 from pyaedt import is_ironpython
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    import clr
-except ImportError:
-    warnings.warn("This module requires the PythonNET package.")
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +55,7 @@ class Material(object):
     @pyaedt_function_handler()
     def _get_property(self, property_name):
         if is_ironpython:  # pragma: no cover
-            property_box = clr.StrongBox[float]()
+            property_box = _clr.StrongBox[float]()
             self._edb_material_def.GetProperty(property_name, property_box)
             return float(property_box)
         else:
@@ -342,6 +339,11 @@ class Materials(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
+        if not self.materials:
+            self.add_material("air")
+            self.add_material("copper", 1, 0.999991, 5.8e7, 0, 0)
+            self.add_material("fr4_epoxy", 4.4, 1, 0, 0.02, 0)
+            self.add_material("solder_mask", 3.1, 1, 0, 0.035, 0)
 
     @pyaedt_function_handler()
     def _edb_value(self, value):
@@ -360,6 +362,29 @@ class Materials(object):
         """Retrieve dictionary of material from material library."""
         return {obj.GetName(): Material(self, obj) for obj in list(self._db.MaterialDefs)}
 
+    @pyaedt_function_handler
+    def add_material(
+        self,
+        name="air",
+        permittivity=1.0006,
+        permeability=1.0000004,
+        conductivity=0,
+        dielectric_loss_tangent=0,
+        magnetic_loss_tangent=0,
+    ):
+        if not name in self.materials:
+            self._edb.Definition.MaterialDef.Create(self._db, name)
+            new_material = self.materials[name]
+            new_material.permittivity = permittivity
+            new_material.permeability = permeability
+            new_material.conductivity = conductivity
+            new_material.loss_tangent = dielectric_loss_tangent
+            new_material.magnetic_loss_tangent = magnetic_loss_tangent
+            return new_material
+        else:  # pragma: no cover
+            warnings.warn("Material {} already exists in material library.".format(name))
+            return False
+
     @pyaedt_function_handler()
     def add_conductor_material(self, name, conductivity):
         """Add a new conductor material in library.
@@ -377,13 +402,15 @@ class Materials(object):
             self._edb.Definition.MaterialDef.Create(self._db, name)
             new_material = self.materials[name]
             new_material.conductivity = conductivity
+            new_material.permittivity = 1
+            new_material.permeability = 1
             return new_material
         else:  # pragma: no cover
             warnings.warn("Material {} already exists in material library.".format(name))
             return False
 
     @pyaedt_function_handler()
-    def add_dielectric_material(self, name, permittivity, loss_tangent):
+    def add_dielectric_material(self, name, permittivity, loss_tangent, permeability=1):
         """Add a new dielectric material in library.
 
         Parameters
@@ -394,6 +421,8 @@ class Materials(object):
             Permittivity of the new material.
         loss_tangent : float
             Loss tangent of the new material.
+        permeability: float
+            Permeability of the new material.
         Returns
         -------
 
@@ -403,6 +432,7 @@ class Materials(object):
             new_material = self.materials[name]
             new_material.permittivity = permittivity
             new_material.loss_tangent = loss_tangent
+            new_material.permeability = permeability
             return new_material
         else:
             warnings.warn("Material {} already exists in material library.".format(name))
@@ -541,7 +571,7 @@ class Materials(object):
         >>> freq = [0, 2, 3, 4, 5, 6]
         >>> rel_perm = [1e9, 1.1e9, 1.2e9, 1.3e9, 1.5e9, 1.6e9]
         >>> loss_tan = [0.025, 0.026, 0.027, 0.028, 0.029, 0.030]
-        >>> diel = edb.core_stackup.create_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
+        >>> diel = edb.materials.add_multipole_debye_material("My_MP_Debye", freq, rel_perm, loss_tan)
         """
         frequencies = [float(i) for i in frequencies]
         permittivities = [float(i) for i in permittivities]
@@ -586,10 +616,12 @@ class Materials(object):
 
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
-        >>> my_material = edb_app.core_stackup.duplicate_material("copper", "my_new_copper")
+        >>> my_material = edb_app.materials.duplicate("copper", "my_new_copper")
 
         """
-        if material_name in self.materials and new_material_name not in self.materials:
+        material_list = {i.lower(): i for i in list(self.materials.keys())}
+        if material_name.lower() in material_list and new_material_name not in self.materials:
+            material_name = material_list[material_name.lower()]
             permittivity = self._edb_value(self.materials[material_name].permittivity)
             permeability = self._edb_value(self.materials[material_name].permeability)
             conductivity = self._edb_value(self.materials[material_name].conductivity)
@@ -630,3 +662,84 @@ class Materials(object):
                 else:
                     self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
             self.materials[material["name"]]._load(material)
+
+    @pyaedt_function_handler
+    def material_name_to_id(self, property_name):
+        """Convert a material property name to a material property ID.
+
+        Parameters
+        ----------
+        property_name : str
+            Name of the material property.
+
+        Returns
+        -------
+        ID of the material property.
+        """
+        props = {
+            "Permittivity": self._edb.Definition.MaterialPropertyId.Permittivity,
+            "Permeability": self._edb.Definition.MaterialPropertyId.Permeability,
+            "Conductivity": self._edb.Definition.MaterialPropertyId.Conductivity,
+            "DielectricLossTangent": self._edb.Definition.MaterialPropertyId.DielectricLossTangent,
+            "MagneticLossTangent": self._edb.Definition.MaterialPropertyId.MagneticLossTangent,
+            "ThermalConductivity": self._edb.Definition.MaterialPropertyId.ThermalConductivity,
+            "MassDensity": self._edb.Definition.MaterialPropertyId.MassDensity,
+            "SpecificHeat": self._edb.Definition.MaterialPropertyId.SpecificHeat,
+            "YoungsModulus": self._edb.Definition.MaterialPropertyId.YoungsModulus,
+            "PoissonsRatio": self._edb.Definition.MaterialPropertyId.PoissonsRatio,
+            "ThermalExpansionCoefficient": self._edb.Definition.MaterialPropertyId.ThermalExpansionCoefficient,
+            "InvalidProperty": self._edb.Definition.MaterialPropertyId.InvalidProperty,
+        }
+
+        found_el = difflib.get_close_matches(property_name, list(props.keys()), 1, 0.7)
+        if found_el:
+            return props[found_el[0]]
+        else:
+            return self._edb.Definition.MaterialPropertyId.InvalidProperty
+
+    @pyaedt_function_handler()
+    def get_property_by_material_name(self, property_name, material_name):
+        """Get the property of a material. If it is executed in IronPython,
+         you must only use the first element of the returned tuple, which is a float.
+
+        Parameters
+        ----------
+        material_name : str
+            Name of the existing material.
+        property_name : str
+            Name of the material property.
+            ``permittivity``
+            ``permeability``
+            ``conductivity``
+            ``dielectric_loss_tangent``
+            ``magnetic_loss_tangent``
+
+        Returns
+        -------
+        float
+            the float value of the property.
+
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb_app = Edb()
+        >>> returned_tuple = edb_app.core_stackup.get_property_by_material_name("conductivity", "copper")
+        >>> edb_value = returned_tuple[0]
+        >>> float_value = returned_tuple[1]
+
+        """
+        if self._edb.Definition.MaterialDef.FindByName(self._pedb._db, material_name).IsNull():
+            self._pedb.logger.error("This material doesn't exists.")
+        else:
+            original_material = self._edb.Definition.MaterialDef.FindByName(self._pedb._db, material_name)
+            if is_ironpython:  # pragma: no cover
+                property_box = _clr.StrongBox[float]()
+                original_material.GetProperty(self.material_name_to_id(property_name), property_box)
+                return float(property_box)
+            else:
+                _, property_box = original_material.GetProperty(
+                    self.material_name_to_id(property_name), self._edb_value(0.0)
+                )
+                return property_box.ToDouble()
+        return False

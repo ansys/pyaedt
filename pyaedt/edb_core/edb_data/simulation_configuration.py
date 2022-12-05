@@ -1,11 +1,11 @@
 import json
 import os
-import warnings
 from collections import OrderedDict
 
 from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.edb_data.sources import SourceType
+from pyaedt.generic.clr_module import Dictionary
 from pyaedt.generic.constants import BasisOrder
 from pyaedt.generic.constants import CutoutSubdesignType
 from pyaedt.generic.constants import RadiationBoxType
@@ -14,156 +14,26 @@ from pyaedt.generic.constants import SweepType
 from pyaedt.generic.constants import validate_enum_class_value
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
-try:
-    from System import String
-    from System.Collections.Generic import Dictionary
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires pythonnet.")
 
+class SimulationConfigurationBatch(object):
+    """Class containing all Cuotut and Batch analysis settings.
+    The class is part of `SimulationConfiguration` class as a property.
 
-class SimulationConfiguration(object):
-    """Provides an ASCII simulation configuration file parser.
-
-    This parser supports all types of inputs for setting up and automating any kind
-    of SI or PI simulation with HFSS 3D Layout or Siwave. If fields are omitted, default
-    values are applied. This class can be instantiated directly from
-    Configuration file. example:
-    SolverType = 'Hfss3DLayout'
-    GenerateSolerdBalls = 'True'
-    SignalNets = ['net1', 'net2']
-    PowerNets = ['gnd']
-    Components = []
-    SolderBallsDiams = ['0.077mm', '0.077mm']
-    UseDefaultCoaxPortRadialExtentFactor='True'
-    TrimRefSize='False'
-    CutoutSubdesignType='Conformal'
-    CutoutSubdesignExpansion='0.1'
-    CutoutSubdesignRoundCorners='True'
-    SweepInterpolating='True'
-    UseQ3DForDC='True'
-    RelatirelativeveErrorS='0.5'
-    UseErrorZ0='False'
-    PercentErrorZ0='1'
-    EnforceCausality='True'
-    EnforcePassivity='True'
-    PassivityTolerance='0.0001'
-    SweepName='Sweep1'
-    RadiationBox='ConvexHull'
-    StartFreq = '0.0GHz'
-    StopFreq = '10.001GHz'
-    SweepType='LinearStep'
-    StepFreq = '0.040004GHz'
-    Mesh_Freq = '3GHz'
-    MaxNumPasses='30'
-    MaxMagDeltaS='0.03'
-    MinNumPasses='1'
-    BasisOrder='Mixed'
-    DoLambdaRefinement='True'
-    ArcAngle='30deg'
-    StartAzimuth='0'
-    MaxArcPoints='8'
-    UseArcToChordError='True'
-    ArcToChordError='1um'
-    DefeatureAbsLength='1um'
-    DefeatureLayout='True'
-    MinimumVoidSuface = '0'
-    MaxSufDev = '0.001'
-    ProcessPadstackDefinitions = 'False'
-    ReturnCurrentDistribution = 'True'
-    IgnoreNonFunctionalPads =  'True'
-    IncludeInterPlaneCoupling = 'True'
-    XtalkThreshold = '-50'
-    MinVoidArea = '0.01mm2'
-    MinPadAreaToMesh = '0.01mm2'
-    SnapLengthThreshold = '2.5um'
-    DcMinPlaneAreaToMesh = '8mil2'
-    MaxInitMeshEdgeLength = '14.5mil'
-    SignalLayersProperties = []
     """
 
-    def __init__(self, filename=None):
-        self._filename = filename
-        self._setup_name = "Pyaedt_setup"
-        self._generate_solder_balls = True
+    def __init__(self):
         self._signal_nets = []
         self._power_nets = []
         self._components = []
-        self._coax_solder_ball_diameter = []
-        self._use_default_coax_port_radial_extension = True
-        self._trim_reference_size = False
         self._cutout_subdesign_type = CutoutSubdesignType.Conformal  # Conformal
         self._cutout_subdesign_expansion = 0.1
         self._cutout_subdesign_round_corner = True
-        self._sweep_interpolating = True
-        self._use_q3d_for_dc = False
-        self._relative_error = 0.5
-        self._use_error_z0 = False
-        self._percentage_error_z0 = 1
-        self._enforce_causality = True
-        self._enforce_passivity = False
-        self._passivity_tolerance = 0.0001
-        self._sweep_name = "Sweep1"
-        self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
-        self._start_freq = "0.0GHz"  # 0.0
-        self._stop_freq = "10.0GHz"  # 10e9
-        self._sweep_type = SweepType.Linear  # 'Linear'
-        self._step_freq = "0.025GHz"  # 10e6
-        self._decade_count = 100  # Newly Added
-        self._mesh_freq = "3GHz"  # 5e9
-        self._max_num_passes = 30
-        self._max_mag_delta_s = 0.03
-        self._min_num_passes = 1
-        self._basis_order = BasisOrder.Mixed  # 'Mixed'
-        self._do_lambda_refinement = True
-        self._arc_angle = "30deg"  # 30
-        self._start_azimuth = 0
-        self._max_arc_points = 8
-        self._use_arc_to_chord_error = True
-        self._arc_to_chord_error = "1um"  # 1e-6
-        self._defeature_abs_length = "1um"  # 1e-6
-        self._defeature_layout = True
-        self._minimum_void_surface = 0
-        self._max_suf_dev = 1e-3
-        self._process_padstack_definitions = False
-        self._return_current_distribution = True
-        self._ignore_non_functional_pads = True
-        self._include_inter_plane_coupling = True
-        self._xtalk_threshold = -50
-        self._min_void_area = "0.01mm2"
-        self._min_pad_area_to_mesh = "0.01mm2"
-        self._snap_length_threshold = "2.5um"
-        self._min_plane_area_to_mesh = "4mil2"  # Newly Added
-        self._dc_compute_inductance = False
-        self._dc_contact_radius = "100um"
-        self._dc_slide_position = 1
-        self._dc_use_dc_custom_settings = False
-        self._dc_plot_jv = True
-        self._dc_min_plane_area_to_mesh = "8mil2"
-        self._dc_min_void_area_to_mesh = "0.734mil2"
-        self._dc_error_energy = 0.02
-        self._dc_max_init_mesh_edge_length = "5.0mm"
-        self._dc_max_num_pass = 5
-        self._dc_min_num_pass = 1
-        self._dc_mesh_bondwires = True
-        self._dc_num_bondwire_sides = 8
-        self._dc_mesh_vias = True
-        self._dc_num_via_sides = 8
-        self._dc_percent_local_refinement = 0.2
-        self._dc_perform_adaptive_refinement = True
-        self._dc_refine_bondwires = True
-        self._dc_refine_vias = True
-        self._dc_report_config_file = ""
-        self._dc_report_show_Active_devices = True
-        self._dc_export_thermal_data = True
-        self._dc_full_report_path = ""
-        self._dc_icepak_temp_file = ""
-        self._dc_import_thermal_data = False
-        self._dc_per_pin_res_path = ""
-        self._dc_per_pin_use_pin_format = True
-        self._dc_use_loop_res_for_per_pin = True
-        self._dc_via_report_path = ""
-        self._dc_source_terms_to_ground = Dictionary[str, int]()
+        self._use_default_cutout = True
+        self._generate_solder_balls = True
+        self._coax_solder_ball_diameter = []
+        self._use_default_coax_port_radial_extension = True
+        self._trim_reference_size = False
+        self._output_aedb = None
         self._signal_layers_properties = {}
         self._coplanar_instances = []
         self._signal_layer_etching_instances = []
@@ -176,28 +46,119 @@ class SimulationConfiguration(object):
         self._truncate_airbox_at_ground = False
         self._use_radiation_boundary = True
         self._do_cutout_subdesign = True
-        self._solver_type = SolverType.Hfss3dLayout
-        self._output_aedb = None
         self._sources = []
-        self._mesh_sizefactor = 0.0
-        self._read_cfg()
-        self._use_default_cutout = True
 
     @property
-    def filename(self):  # pragma: no cover
-        """Retrieve the file name loaded for mapping properties value.
+    def coplanar_instances(self):  # pragma: no cover
+        """Retrieve the list of component to be replaced by circuit ports (obsolete).
 
         Returns
         -------
-        str
-            the absolute path for the filename.
+            list[str]
+            List of component name.
         """
-        return self._filename
+        return self._coplanar_instances
 
-    @filename.setter
-    def filename(self, value):
-        if isinstance(value, str):  # pragma: no cover
-            self._filename = value
+    @coplanar_instances.setter
+    def coplanar_instances(self, value):  # pragma: no cover
+        if isinstance(value, list):
+            self._coplanar_instances = value
+
+    @property
+    def signal_layer_etching_instances(self):  # pragma: no cover
+        """Retrieve the list of layers which has layer etching activated.
+
+        Returns
+        -------
+            list[str]
+            List of layer name.
+        """
+        return self._signal_layer_etching_instances
+
+    @signal_layer_etching_instances.setter
+    def signal_layer_etching_instances(self, value):  # pragma: no cover
+        if isinstance(value, list):
+            self._signal_layer_etching_instances = value
+
+    @property
+    def etching_factor_instances(self):  # pragma: no cover
+        """Retrieve the list of etching factor with associated layers.
+
+        Returns
+        -------
+            list[str]
+            list etching parameters with layer name.
+        """
+        return self._etching_factor_instances
+
+    @etching_factor_instances.setter
+    def etching_factor_instances(self, value):  # pragma: no cover
+        if isinstance(value, list):
+            self._etching_factor_instances = value
+
+    @property
+    def dielectric_extent(self):  # pragma: no cover
+        """Retrieve the value of dielectric extent.
+
+        Returns
+        -------
+            float
+            Value of the dielectric extent.
+        """
+        return self._dielectric_extent
+
+    @dielectric_extent.setter
+    def dielectric_extent(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._dielectric_extent = value
+
+    @property
+    def airbox_horizontal_extent(self):  # pragma: no cover
+        """Retrieve the air box horizontal extent size for HFSS.
+
+        Returns
+        -------
+            float
+            Value of the air box horizontal extent.
+        """
+        return self._airbox_horizontal_extent
+
+    @airbox_horizontal_extent.setter
+    def airbox_horizontal_extent(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._airbox_horizontal_extent = value
+
+    @property
+    def airbox_negative_vertical_extent(self):  # pragma: no cover
+        """Retrieve the air box negative vertical extent size for HFSS.
+
+        Returns
+        -------
+            float
+            Value of the air box negative vertical extent.
+        """
+        return self._airbox_negative_vertical_extent
+
+    @airbox_negative_vertical_extent.setter
+    def airbox_negative_vertical_extent(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._airbox_negative_vertical_extent = value
+
+    @property
+    def airbox_positive_vertical_extent(self):  # pragma: no cover
+        """Retrieve the air box positive vertical extent size for HFSS.
+
+        Returns
+        -------
+            float
+            Value of the air box positive vertical extent.
+        """
+        return self._airbox_positive_vertical_extent
+
+    @airbox_positive_vertical_extent.setter
+    def airbox_positive_vertical_extent(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._airbox_positive_vertical_extent = value
 
     @property
     def use_default_cutout(self):  # pragma: no cover
@@ -235,7 +196,7 @@ class SimulationConfiguration(object):
 
         Returns
         -------
-        list[str]
+        List[str]
             List of signal net names.
         """
 
@@ -245,22 +206,6 @@ class SimulationConfiguration(object):
     def signal_nets(self, value):
         if isinstance(value, list):  # pragma: no cover
             self._signal_nets = value
-
-    @property
-    def setup_name(self):
-        """Retrieve setup name for the simulation.
-
-        Returns
-        -------
-        str
-            Setup name.
-        """
-        return self._setup_name
-
-    @setup_name.setter
-    def setup_name(self, value):
-        if isinstance(value, str):  # pragma: no cover
-            self._setup_name = value
 
     @property
     def power_nets(self):
@@ -387,7 +332,7 @@ class SimulationConfiguration(object):
 
     @cutout_subdesign_expansion.setter
     def cutout_subdesign_expansion(self, value):  # pragma: no cover
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._cutout_subdesign_expansion = value
 
     @property
@@ -408,639 +353,159 @@ class SimulationConfiguration(object):
             self._cutout_subdesign_round_corner = value
 
     @property
-    def sweep_interpolating(self):  # pragma: no cover
-        """Retrieve boolean to add a sweep interpolating sweep.
-
-        Returns
-        -------
-            bool
-            'True' when a sweep interpolating is defined, 'False' when a discrete one is defined instead.
-        """
-
-        return self._sweep_interpolating
-
-    @sweep_interpolating.setter
-    def sweep_interpolating(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._sweep_interpolating = value
-
-    @property
-    def use_q3d_for_dc(self):  # pragma: no cover
-        """Retrieve boolean to Q3D solver for DC point value computation.
-
-        Returns
-        -------
-            bool
-            'True' when Q3D solver is used 'False' when interpolating value is used instead.
-        """
-
-        return self._use_q3d_for_dc
-
-    @use_q3d_for_dc.setter
-    def use_q3d_for_dc(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._use_q3d_for_dc = value
-
-    @property
-    def relative_error(self):  # pragma: no cover
-        """Retrieve relative error used for the interpolating sweep convergence.
-
-        Returns
-        -------
-            float
-            The value of the error interpolating sweep to reach the convergence criteria.
-        """
-
-        return self._relative_error
-
-    @relative_error.setter
-    def relative_error(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._relative_error = value
-
-    @property
-    def use_error_z0(self):  # pragma: no cover
-        """Retrieve value for the error on Z0 for the port.
-
-        Returns
-        -------
-            float
-            The Z0 value.
-        """
-
-        return self._use_error_z0
-
-    @use_error_z0.setter
-    def use_error_z0(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._use_error_z0 = value
-
-    @property
-    def percentage_error_z0(self):  # pragma: no cover
-        """Retrieve boolean to perform the cutout during the project build.
-
-        Returns
-        -------
-            bool
-            'True' when clipping the design is applied 'False' if not.
-        """
-
-        return self._percentage_error_z0
-
-    @percentage_error_z0.setter
-    def percentage_error_z0(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._percentage_error_z0 = value
-
-    @property
-    def enforce_causality(self):  # pragma: no cover
-        """Retrieve boolean to enforce causality for the frequency sweep.
-
-        Returns
-        -------
-            bool
-            'True' when causality is enforced 'False' if not.
-        """
-
-        return self._enforce_causality
-
-    @enforce_causality.setter
-    def enforce_causality(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._enforce_causality = value
-
-    @property
-    def enforce_passivity(self):  # pragma: no cover
-        """Retrieve boolean to enforce passivity for the frequency sweep.
-
-        Returns
-        -------
-            bool
-            'True' when passivity is enforced 'False' if not.
-        """
-        return self._enforce_passivity
-
-    @enforce_passivity.setter
-    def enforce_passivity(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._enforce_passivity = value
-
-    @property
-    def passivity_tolerance(self):  # pragma: no cover
-        """Retrieve the value for the passivity tolerance when used.
-
-        Returns
-        -------
-            float
-            The passivity tolerance criteria for the frequency sweep.
-        """
-        return self._passivity_tolerance
-
-    @passivity_tolerance.setter
-    def passivity_tolerance(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._passivity_tolerance = value
-
-    @property
-    def sweep_name(self):  # pragma: no cover
-        """Retrieve frequency sweep name.
+    def output_aedb(self):  # pragma: no cover
+        """Retrieve the path for the output aedb folder. When provided will copy the initial aedb to the specified
+        path. This is used especially to preserve the initial project when several files have to be build based on
+        the last one. When the path is None, the initial project will be overwritten. So when cutout is applied mand
+        you want to preserve the project make sure you provide the full path for the new aedb folder.
 
         Returns
         -------
             str
-            The name of the frequency sweep defined in the project.
+            Absolute path for the created aedb folder.
         """
-        return self._sweep_name
+        return self._output_aedb
 
-    @sweep_name.setter
-    def sweep_name(self, value):  # pragma: no cover
+    @output_aedb.setter
+    def output_aedb(self, value):  # pragma: no cover
         if isinstance(value, str):
-            self._sweep_name = value
+            self._output_aedb = value
 
     @property
-    def radiation_box(self):  # pragma: no cover
-        """Retrieve RadiationBoxType object selection defined for the radiation box type.
+    def sources(self):  # pragma: no cover
+        """Retrieve the source list.
 
         Returns
         -------
-            RadiationBoxType object
-            3 values can be chosen, Conformal, BoundingBox or ConvexHull.
+        :class:`pyaedt.edb_core.edb_data.sources.Source`
         """
-        return self._radiation_box
+        return self._sources
 
-    @radiation_box.setter
-    def radiation_box(self, value):
-        if validate_enum_class_value(RadiationBoxType, value):
-            self._radiation_box = value
+    @sources.setter
+    def sources(self, value):  # pragma: no cover
+        if isinstance(value, Source):
+            value = [value]
+        if isinstance(value, list):
+            if len([src for src in value if isinstance(src, Source)]) == len(value):
+                self._sources = value
 
-    @property
-    def start_freq(self):  # pragma: no cover
-        """Starting frequency for the frequency sweep.
+    @pyaedt_function_handler()
+    def add_source(self, source=None):  # pragma: no cover
+        """Add a new source to configuration.
+
+        Parameters
+        ----------
+        source :  :class:`pyaedt.edb_core.edb_data.sources.Source`
 
         Returns
         -------
-        float
-            Value of the frequency point.
-        """
-        return self._start_freq
 
-    @start_freq.setter
-    def start_freq(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._start_freq = value
+        """
+        if isinstance(source, Source):
+            self._sources.append(source)
 
     @property
-    def stop_freq(self):  # pragma: no cover
-        """Retrieve stop frequency for the frequency sweep.
-
-        Returns
-        -------
-            float
-            The value of the frequency point.
-        """
-        return self._stop_freq
-
-    @stop_freq.setter
-    def stop_freq(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._stop_freq = value
-
-    @property
-    def sweep_type(self):  # pragma: no cover
-        """Retrieve SweepType object for the frequency sweep.
-
-        Returns
-        -------
-            SweepType
-            The SweepType object,2 selections are supported Linear and LogCount.
-        """
-        return self._sweep_type
-
-    @sweep_type.setter
-    def sweep_type(self, value):  # pragma: no cover
-        if validate_enum_class_value(SweepType, value):
-            self._sweep_type = value
-
-    @property
-    def step_freq(self):  # pragma: no cover
-        """Retrieve step frequency for the frequency sweep.
-
-        Returns
-        -------
-            float
-            The value of the frequency point.
-        """
-        return self._step_freq
-
-    @step_freq.setter
-    def step_freq(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._step_freq = value
-
-    @property
-    def decade_count(self):  # pragma: no cover
-        """Retrieve decade count number for the frequency sweep in case of a log sweep selected.
-
-        Returns
-        -------
-            int
-            The value of the decade count number.
-        """
-        return self._decade_count
-
-    @decade_count.setter
-    def decade_count(self, value):  # pragma: no cover
-        if isinstance(value, int):
-            self._decade_count = value
-
-    @property
-    def mesh_freq(self):
-        """Retrieve the meshing frequency for the HFSS adaptive convergence.
-
-        Returns
-        -------
-            float
-            The value of the frequency point.
-        """
-        return self._mesh_freq
-
-    @mesh_freq.setter
-    def mesh_freq(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._mesh_freq = value
-
-    @property
-    def max_num_passes(self):  # pragma: no cover
-        """Retrieve maximum of points for the HFSS adaptive meshing.
-
-        Returns
-        -------
-            int
-            The maximum number of adaptive passes value.
-        """
-        return self._max_num_passes
-
-    @max_num_passes.setter
-    def max_num_passes(self, value):  # pragma: no cover
-        if isinstance(value, int):
-            self._max_num_passes = value
-
-    @property
-    def max_mag_delta_s(self):  # pragma: no cover
-        """Retrieve the magnitude of the delta S convergence criteria for the interpolating sweep.
-
-        Returns
-        -------
-            float
-            The value of convergence criteria.
-        """
-        return self._max_mag_delta_s
-
-    @max_mag_delta_s.setter
-    def max_mag_delta_s(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._max_mag_delta_s = value
-
-    @property
-    def min_num_passes(self):  # pragma: no cover
-        """Retrieve the minimum number of adaptive passes for HFSS convergence.
-
-        Returns
-        -------
-            int
-            The value of minimum number of adaptive passes.
-        """
-        return self._min_num_passes
-
-    @min_num_passes.setter
-    def min_num_passes(self, value):  # pragma: no cover
-        if isinstance(value, int):
-            self._min_num_passes = value
-
-    @property
-    def basis_order(self):  # pragma: no cover
-        """Retrieve the BasisOrder object.
-
-        Returns
-        -------
-            BasisOrder class
-            This class supports 4 selections Mixed, Zero, single and Double for the HFSS order matrix.
-        """
-        return self._basis_order
-
-    @basis_order.setter
-    def basis_order(self, value):  # pragma: no cover
-        if validate_enum_class_value(BasisOrder, value):
-            self._basis_order = value
-
-    @property
-    def do_lambda_refinement(self):  # pragma: no cover
-        """Retrieve boolean to activate the lambda refinement.
+    def honor_user_dielectric(self):  # pragma: no cover
+        """Retrieve the boolean to activate the feature "'Honor user dielectric'".
 
         Returns
         -------
             bool
-            'True' Enable the lambda meshing refinement with HFSS, 'False' deactivate.
+            "'True'" activated, "'False'" deactivated.
         """
-        return self._do_lambda_refinement
+        return self._honor_user_dielectric
 
-    @do_lambda_refinement.setter
-    def do_lambda_refinement(self, value):  # pragma: no cover
+    @honor_user_dielectric.setter
+    def honor_user_dielectric(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._do_lambda_refinement = value
+            self._honor_user_dielectric = value
 
     @property
-    def arc_angle(self):  # pragma: no cover
-        """Retrieve the value for the HFSS meshing arc angle.
-
-        Returns
-        -------
-            float
-            Value of the arc angle.
-        """
-        return self._arc_angle
-
-    @arc_angle.setter
-    def arc_angle(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._arc_angle = value
-
-    @property
-    def start_azimuth(self):  # pragma: no cover
-        """Retrieve the value of the starting azimuth for the HFSS meshing.
-
-        Returns
-        -------
-            float
-            Value of the starting azimuth.
-        """
-        return self._start_azimuth
-
-    @start_azimuth.setter
-    def start_azimuth(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._start_azimuth = value
-
-    @property
-    def max_arc_points(self):  # pragma: no cover
-        """Retrieve the value of the maximum arc points number for the HFSS meshing.
-
-        Returns
-        -------
-            int
-            Value of the maximum arc point number.
-        """
-        return self._max_arc_points
-
-    @max_arc_points.setter
-    def max_arc_points(self, value):  # pragma: no cover
-        if isinstance(value, int):
-            self._max_arc_points = value
-
-    @property
-    def use_arc_to_chord_error(self):  # pragma: no cover
-        """Retrieve the boolean for activating the arc to chord for HFSS meshing.
+    def truncate_airbox_at_ground(self):  # pragma: no cover
+        """Retrieve the boolean to truncate hfss air box at ground.
 
         Returns
         -------
             bool
-            Activate when 'True', deactivated when 'False'.
+            "'True'" activated, "'False'" deactivated.
         """
-        return self._use_arc_to_chord_error
+        return self._truncate_airbox_at_ground
 
-    @use_arc_to_chord_error.setter
-    def use_arc_to_chord_error(self, value):  # pragma: no cover
+    @truncate_airbox_at_ground.setter
+    def truncate_airbox_at_ground(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._use_arc_to_chord_error = value
+            self._truncate_airbox_at_ground = value
 
     @property
-    def arc_to_chord_error(self):  # pragma: no cover
-        """Retrieve the value of arc to chord error for HFSS meshing.
-
-        Returns
-        -------
-            flot
-            Value of the arc to chord error.
-        """
-        return self._arc_to_chord_error
-
-    @arc_to_chord_error.setter
-    def arc_to_chord_error(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._arc_to_chord_error = value
-
-    @property
-    def defeature_abs_length(self):  # pragma: no cover
-        """Retrieve the value of arc to chord for HFSS meshing.
-
-        Returns
-        -------
-            flot
-            Value of the arc to chord error.
-        """
-        return self._defeature_abs_length
-
-    @defeature_abs_length.setter
-    def defeature_abs_length(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._defeature_abs_length = value
-
-    @property
-    def defeature_layout(self):  # pragma: no cover
-        """Retrieve the boolean to activate the layout defeaturing.This method has been developed to simplify polygons
-        with reducing the number of points to simplify the meshing with controlling its surface deviation. This method
-        should be used at last resort when other methods failed.
+    def use_radiation_boundary(self):  # pragma: no cover
+        """Retrieve the boolean to use radiation boundary with HFSS.
 
         Returns
         -------
             bool
-            'True' when activated 'False when deactivated.
+            "'True'" activated, "'False'" deactivated.
         """
-        return self._defeature_layout
+        return self._use_radiation_boundary
 
-    @defeature_layout.setter
-    def defeature_layout(self, value):  # pragma: no cover
+    @use_radiation_boundary.setter
+    def use_radiation_boundary(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._defeature_layout = value
+            self._use_radiation_boundary = value
 
     @property
-    def minimum_void_surface(self):  # pragma: no cover
-        """Retrieve the minimum void surface to be considered for the layout defeaturing.
-        Voids below this value will be ignored.
+    def signal_layers_properties(self):  # pragma: no cover
+        """Retrieve the list of layers to have properties changes.
 
         Returns
         -------
-            flot
-            Value of the minimum surface.
+            list[str]
+            List of layer name.
         """
-        return self._minimum_void_surface
+        return self._signal_layers_properties
 
-    @minimum_void_surface.setter
-    def minimum_void_surface(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._minimum_void_surface = value
+    @signal_layers_properties.setter
+    def signal_layers_properties(self, value):  # pragma: no cover
+        if isinstance(value, dict):
+            self._signal_layers_properties = value
 
-    @property
-    def max_suf_dev(self):  # pragma: no cover
-        """Retrieve the value for the maximum surface deviation for the layout defeaturing.
 
-        Returns
-        -------
-            flot
-            Value of maximum surface deviation.
-        """
-        return self._max_suf_dev
+class SimulationConfigurationDc(object):
+    """Class containing all DC analysis settings.
+    The class is part of `SimulationConfiguration` class as a property.
 
-    @max_suf_dev.setter
-    def max_suf_dev(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._max_suf_dev = value
+    """
 
-    @property
-    def process_padstack_definitions(self):  # pragma: no cover
-        """Retrieve the boolean for activating the padstack definition processing.
-
-        Returns
-        -------
-            flot
-            Value of the arc to chord error.
-        """
-        return self._process_padstack_definitions
-
-    @process_padstack_definitions.setter
-    def process_padstack_definitions(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._process_padstack_definitions = value
-
-    @property
-    def return_current_distribution(self):  # pragma: no cover
-        """Boolean to activate the current distribution return with Siwave.
-
-        Returns
-        -------
-            flot
-            Value of the arc to chord error.
-        """
-        return self._return_current_distribution
-
-    @return_current_distribution.setter
-    def return_current_distribution(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._return_current_distribution = value
-
-    @property
-    def ignore_non_functional_pads(self):  # pragma: no cover
-        """Boolean to ignore nonfunctional pads with Siwave.
-
-        Returns
-         -------
-            flot
-            Value of the arc to chord error.
-        """
-        return self._ignore_non_functional_pads
-
-    @ignore_non_functional_pads.setter
-    def ignore_non_functional_pads(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._ignore_non_functional_pads = value
-
-    @property
-    def include_inter_plane_coupling(self):  # pragma: no cover
-        """Boolean to activate the inter-plane coupling with Siwave.
-
-        Returns
-        -------
-            bool
-            'True' activated 'False' deactivated.
-        """
-        return self._include_inter_plane_coupling
-
-    @include_inter_plane_coupling.setter
-    def include_inter_plane_coupling(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._include_inter_plane_coupling = value
-
-    @property
-    def xtalk_threshold(self):  # pragma: no cover
-        """Return the value for Siwave cross talk threshold. THis value specifies the distance for the solver to
-        consider lines coupled during the cross-section computation. Decreasing the value below -60dB can
-        potentially cause solver failure.
-
-        Returns
-        -------
-            flot
-            Value of cross-talk threshold.
-        """
-        return self._xtalk_threshold
-
-    @xtalk_threshold.setter
-    def xtalk_threshold(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._xtalk_threshold = value
-
-    @property
-    def min_void_area(self):  # pragma: no cover
-        """Retrieve the value of minimum void area to be considered by Siwave.
-
-        Returns
-        -------
-            flot
-            Value of the arc to chord error.
-        """
-        return self._min_void_area
-
-    @min_void_area.setter
-    def min_void_area(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._min_void_area = value
-
-    @property
-    def min_pad_area_to_mesh(self):  # pragma: no cover
-        """Retrieve the value of minimum pad area to be meshed by Siwave.
-
-        Returns
-        -------
-            flot
-            Value of minimum pad surface.
-        """
-        return self._min_pad_area_to_mesh
-
-    @min_pad_area_to_mesh.setter
-    def min_pad_area_to_mesh(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._min_pad_area_to_mesh = value
-
-    @property
-    def snap_length_threshold(self):  # pragma: no cover
-        """Retrieve the boolean to activate the snapping threshold feature.
-
-        Returns
-        -------
-            bool
-            'True' activate 'False' deactivated.
-        """
-        return self._snap_length_threshold
-
-    @snap_length_threshold.setter
-    def snap_length_threshold(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._snap_length_threshold = value
-
-    @property
-    def min_plane_area_to_mesh(self):  # pragma: no cover
-        """Retrieve the minimum plane area to be meshed by Siwave.
-
-        Returns
-        -------
-            flot
-            Value of the minimum plane area.
-        """
-        return self._min_plane_area_to_mesh
-
-    @min_plane_area_to_mesh.setter
-    def min_plane_area_to_mesh(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._min_plane_area_to_mesh = value
+    def __init__(self):
+        self._dc_compute_inductance = False
+        self._dc_contact_radius = "100um"
+        self._dc_slide_position = 1
+        self._dc_use_dc_custom_settings = False
+        self._dc_plot_jv = True
+        self._dc_min_plane_area_to_mesh = "8mil2"
+        self._dc_min_void_area_to_mesh = "0.734mil2"
+        self._dc_error_energy = 0.02
+        self._dc_max_init_mesh_edge_length = "5.0mm"
+        self._dc_max_num_pass = 5
+        self._dc_min_num_pass = 1
+        self._dc_mesh_bondwires = True
+        self._dc_num_bondwire_sides = 8
+        self._dc_mesh_vias = True
+        self._dc_num_via_sides = 8
+        self._dc_percent_local_refinement = 0.2
+        self._dc_perform_adaptive_refinement = True
+        self._dc_refine_bondwires = True
+        self._dc_refine_vias = True
+        self._dc_report_config_file = ""
+        self._dc_report_show_Active_devices = True
+        self._dc_export_thermal_data = True
+        self._dc_full_report_path = ""
+        self._dc_icepak_temp_file = ""
+        self._dc_import_thermal_data = False
+        self._dc_per_pin_res_path = ""
+        self._dc_per_pin_use_pin_format = True
+        self._dc_use_loop_res_for_per_pin = True
+        self._dc_via_report_path = ""
+        self._dc_source_terms_to_ground = Dictionary[str, int]()
 
     @property
     def dc_min_plane_area_to_mesh(self):  # pragma: no cover
@@ -1177,7 +642,7 @@ class SimulationConfiguration(object):
 
     @dc_error_energy.setter
     def dc_error_energy(self, value):
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._dc_error_energy = value
 
     @property
@@ -1311,7 +776,7 @@ class SimulationConfiguration(object):
 
     @dc_percent_local_refinement.setter
     def dc_percent_local_refinement(self, value):
-        if isinstance(value, float):
+        if isinstance(value, (int, float)):
             self._dc_percent_local_refinement = value
 
     @property
@@ -1364,17 +829,6 @@ class SimulationConfiguration(object):
     def dc_refine_vias(self, value):
         if isinstance(value, bool):
             self._dc_refine_vias = value
-
-    @property
-    def signal_layers_properties(self):  # pragma: no cover
-        """Retrieve the list of layers to have properties changes.
-
-        Returns
-        -------
-            list[str]
-            List of layer name.
-        """
-        return self._signal_layers_properties
 
     @property
     def dc_report_config_file(self):
@@ -1564,154 +1018,819 @@ class SimulationConfiguration(object):
                 if len([v for v in value.values() if isinstance(v, int)]) == len(value.values()):
                     self._dc_source_terms_to_ground = value
 
-    @signal_layers_properties.setter
-    def signal_layers_properties(self, value):  # pragma: no cover
-        if isinstance(value, dict):
-            self._signal_layers_properties = value
+
+class SimulationConfigurationAc(object):
+    """Class containing all AC analysis settings.
+    The class is part of `SimulationConfiguration` class as a property.
+
+    """
+
+    def __init__(self):
+        self._sweep_interpolating = True
+        self._use_q3d_for_dc = False
+        self._relative_error = 0.5
+        self._use_error_z0 = False
+        self._percentage_error_z0 = 1
+        self._enforce_causality = True
+        self._enforce_passivity = False
+        self._passivity_tolerance = 0.0001
+        self._sweep_name = "Sweep1"
+        self._radiation_box = RadiationBoxType.ConvexHull  # 'ConvexHull'
+        self._start_freq = "0.0GHz"  # 0.0
+        self._stop_freq = "10.0GHz"  # 10e9
+        self._sweep_type = SweepType.Linear  # 'Linear'
+        self._step_freq = "0.025GHz"  # 10e6
+        self._decade_count = 100  # Newly Added
+        self._mesh_freq = "3GHz"  # 5e9
+        self._max_num_passes = 30
+        self._max_mag_delta_s = 0.03
+        self._min_num_passes = 1
+        self._basis_order = BasisOrder.Mixed  # 'Mixed'
+        self._do_lambda_refinement = True
+        self._arc_angle = "30deg"  # 30
+        self._start_azimuth = 0
+        self._max_arc_points = 8
+        self._use_arc_to_chord_error = True
+        self._arc_to_chord_error = "1um"  # 1e-6
+        self._defeature_abs_length = "1um"  # 1e-6
+        self._defeature_layout = True
+        self._minimum_void_surface = 0
+        self._max_suf_dev = 1e-3
+        self._process_padstack_definitions = False
+        self._return_current_distribution = True
+        self._ignore_non_functional_pads = True
+        self._include_inter_plane_coupling = True
+        self._xtalk_threshold = -50
+        self._min_void_area = "0.01mm2"
+        self._min_pad_area_to_mesh = "0.01mm2"
+        self._snap_length_threshold = "2.5um"
+        self._min_plane_area_to_mesh = "4mil2"  # Newly Added
+        self._mesh_sizefactor = 0.0
 
     @property
-    def coplanar_instances(self):  # pragma: no cover
-        """Retrieve the list of component to be replaced by circuit ports (obsolete).
-
-        Returns
-        -------
-            list[str]
-            List of component name.
-        """
-        return self._coplanar_instances
-
-    @coplanar_instances.setter
-    def coplanar_instances(self, value):  # pragma: no cover
-        if isinstance(value, list):
-            self._coplanar_instances = value
-
-    @property
-    def signal_layer_etching_instances(self):  # pragma: no cover
-        """Retrieve the list of layers which has layer etching activated.
-
-        Returns
-        -------
-            list[str]
-            List of layer name.
-        """
-        return self._signal_layer_etching_instances
-
-    @signal_layer_etching_instances.setter
-    def signal_layer_etching_instances(self, value):  # pragma: no cover
-        if isinstance(value, list):
-            self._signal_layer_etching_instances = value
-
-    @property
-    def etching_factor_instances(self):  # pragma: no cover
-        """Retrieve the list of etching factor with associated layers.
-
-        Returns
-        -------
-            list[str]
-            list etching parameters with layer name.
-        """
-        return self._etching_factor_instances
-
-    @etching_factor_instances.setter
-    def etching_factor_instances(self, value):  # pragma: no cover
-        if isinstance(value, list):
-            self._etching_factor_instances = value
-
-    @property
-    def dielectric_extent(self):  # pragma: no cover
-        """Retrieve the value of dielectric extent.
-
-        Returns
-        -------
-            float
-            Value of the dielectric extent.
-        """
-        return self._dielectric_extent
-
-    @dielectric_extent.setter
-    def dielectric_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._dielectric_extent = value
-
-    @property
-    def airbox_horizontal_extent(self):  # pragma: no cover
-        """Retrieve the air box horizontal extent size for HFSS.
-
-        Returns
-        -------
-            float
-            Value of the air box horizontal extent.
-        """
-        return self._airbox_horizontal_extent
-
-    @airbox_horizontal_extent.setter
-    def airbox_horizontal_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._airbox_horizontal_extent = value
-
-    @property
-    def airbox_negative_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box negative vertical extent size for HFSS.
-
-        Returns
-        -------
-            float
-            Value of the air box negative vertical extent.
-        """
-        return self._airbox_negative_vertical_extent
-
-    @airbox_negative_vertical_extent.setter
-    def airbox_negative_vertical_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._airbox_negative_vertical_extent = value
-
-    @property
-    def airbox_positive_vertical_extent(self):  # pragma: no cover
-        """Retrieve the air box positive vertical extent size for HFSS.
-
-        Returns
-        -------
-            float
-            Value of the air box positive vertical extent.
-        """
-        return self._airbox_positive_vertical_extent
-
-    @airbox_positive_vertical_extent.setter
-    def airbox_positive_vertical_extent(self, value):  # pragma: no cover
-        if isinstance(value, float):
-            self._airbox_positive_vertical_extent = value
-
-    @property
-    def honor_user_dielectric(self):  # pragma: no cover
-        """Retrieve the boolean to activate the feature "'Honor user dielectric'".
+    def sweep_interpolating(self):  # pragma: no cover
+        """Retrieve boolean to add a sweep interpolating sweep.
 
         Returns
         -------
             bool
-            "'True'" activated, "'False'" deactivated.
+            'True' when a sweep interpolating is defined, 'False' when a discrete one is defined instead.
         """
-        return self._honor_user_dielectric
 
-    @honor_user_dielectric.setter
-    def honor_user_dielectric(self, value):  # pragma: no cover
+        return self._sweep_interpolating
+
+    @sweep_interpolating.setter
+    def sweep_interpolating(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._honor_user_dielectric = value
+            self._sweep_interpolating = value
 
     @property
-    def truncate_airbox_at_ground(self):  # pragma: no cover
-        """Retrieve the boolean to truncate hfss air box at ground.
+    def use_q3d_for_dc(self):  # pragma: no cover
+        """Retrieve boolean to Q3D solver for DC point value computation.
 
         Returns
         -------
             bool
-            "'True'" activated, "'False'" deactivated.
+            'True' when Q3D solver is used 'False' when interpolating value is used instead.
         """
-        return self._truncate_airbox_at_ground
 
-    @truncate_airbox_at_ground.setter
-    def truncate_airbox_at_ground(self, value):  # pragma: no cover
+        return self._use_q3d_for_dc
+
+    @use_q3d_for_dc.setter
+    def use_q3d_for_dc(self, value):  # pragma: no cover
         if isinstance(value, bool):
-            self._truncate_airbox_at_ground = value
+            self._use_q3d_for_dc = value
+
+    @property
+    def relative_error(self):  # pragma: no cover
+        """Retrieve relative error used for the interpolating sweep convergence.
+
+        Returns
+        -------
+            float
+            The value of the error interpolating sweep to reach the convergence criteria.
+        """
+
+        return self._relative_error
+
+    @relative_error.setter
+    def relative_error(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._relative_error = value
+
+    @property
+    def use_error_z0(self):  # pragma: no cover
+        """Retrieve value for the error on Z0 for the port.
+
+        Returns
+        -------
+            float
+            The Z0 value.
+        """
+
+        return self._use_error_z0
+
+    @use_error_z0.setter
+    def use_error_z0(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._use_error_z0 = value
+
+    @property
+    def percentage_error_z0(self):  # pragma: no cover
+        """Retrieve boolean to perform the cutout during the project build.
+
+        Returns
+        -------
+            bool
+            'True' when clipping the design is applied 'False' if not.
+        """
+
+        return self._percentage_error_z0
+
+    @percentage_error_z0.setter
+    def percentage_error_z0(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._percentage_error_z0 = value
+
+    @property
+    def enforce_causality(self):  # pragma: no cover
+        """Retrieve boolean to enforce causality for the frequency sweep.
+
+        Returns
+        -------
+            bool
+            'True' when causality is enforced 'False' if not.
+        """
+
+        return self._enforce_causality
+
+    @enforce_causality.setter
+    def enforce_causality(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._enforce_causality = value
+
+    @property
+    def enforce_passivity(self):  # pragma: no cover
+        """Retrieve boolean to enforce passivity for the frequency sweep.
+
+        Returns
+        -------
+            bool
+            'True' when passivity is enforced 'False' if not.
+        """
+        return self._enforce_passivity
+
+    @enforce_passivity.setter
+    def enforce_passivity(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._enforce_passivity = value
+
+    @property
+    def passivity_tolerance(self):  # pragma: no cover
+        """Retrieve the value for the passivity tolerance when used.
+
+        Returns
+        -------
+            float
+            The passivity tolerance criteria for the frequency sweep.
+        """
+        return self._passivity_tolerance
+
+    @passivity_tolerance.setter
+    def passivity_tolerance(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._passivity_tolerance = value
+
+    @property
+    def sweep_name(self):  # pragma: no cover
+        """Retrieve frequency sweep name.
+
+        Returns
+        -------
+            str
+            The name of the frequency sweep defined in the project.
+        """
+        return self._sweep_name
+
+    @sweep_name.setter
+    def sweep_name(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._sweep_name = value
+
+    @property
+    def radiation_box(self):  # pragma: no cover
+        """Retrieve RadiationBoxType object selection defined for the radiation box type.
+
+        Returns
+        -------
+            RadiationBoxType object
+            3 values can be chosen, Conformal, BoundingBox or ConvexHull.
+        """
+        return self._radiation_box
+
+    @radiation_box.setter
+    def radiation_box(self, value):
+        if validate_enum_class_value(RadiationBoxType, value):
+            self._radiation_box = value
+
+    @property
+    def start_freq(self):  # pragma: no cover
+        """Starting frequency for the frequency sweep.
+
+        Returns
+        -------
+        float
+            Value of the frequency point.
+        """
+        return self._start_freq
+
+    @start_freq.setter
+    def start_freq(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._start_freq = value
+
+    @property
+    def stop_freq(self):  # pragma: no cover
+        """Retrieve stop frequency for the frequency sweep.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
+        return self._stop_freq
+
+    @stop_freq.setter
+    def stop_freq(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._stop_freq = value
+
+    @property
+    def sweep_type(self):  # pragma: no cover
+        """Retrieve SweepType object for the frequency sweep.
+
+        Returns
+        -------
+            SweepType
+            The SweepType object,2 selections are supported Linear and LogCount.
+        """
+        return self._sweep_type
+
+    @sweep_type.setter
+    def sweep_type(self, value):  # pragma: no cover
+        if validate_enum_class_value(SweepType, value):
+            self._sweep_type = value
+
+    @property
+    def step_freq(self):  # pragma: no cover
+        """Retrieve step frequency for the frequency sweep.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
+        return self._step_freq
+
+    @step_freq.setter
+    def step_freq(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._step_freq = value
+
+    @property
+    def decade_count(self):  # pragma: no cover
+        """Retrieve decade count number for the frequency sweep in case of a log sweep selected.
+
+        Returns
+        -------
+            int
+            The value of the decade count number.
+        """
+        return self._decade_count
+
+    @decade_count.setter
+    def decade_count(self, value):  # pragma: no cover
+        if isinstance(value, int):
+            self._decade_count = value
+
+    @property
+    def mesh_freq(self):
+        """Retrieve the meshing frequency for the HFSS adaptive convergence.
+
+        Returns
+        -------
+            float
+            The value of the frequency point.
+        """
+        return self._mesh_freq
+
+    @mesh_freq.setter
+    def mesh_freq(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._mesh_freq = value
+
+    @property
+    def max_num_passes(self):  # pragma: no cover
+        """Retrieve maximum of points for the HFSS adaptive meshing.
+
+        Returns
+        -------
+            int
+            The maximum number of adaptive passes value.
+        """
+        return self._max_num_passes
+
+    @max_num_passes.setter
+    def max_num_passes(self, value):  # pragma: no cover
+        if isinstance(value, int):
+            self._max_num_passes = value
+
+    @property
+    def max_mag_delta_s(self):  # pragma: no cover
+        """Retrieve the magnitude of the delta S convergence criteria for the interpolating sweep.
+
+        Returns
+        -------
+            float
+            The value of convergence criteria.
+        """
+        return self._max_mag_delta_s
+
+    @max_mag_delta_s.setter
+    def max_mag_delta_s(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._max_mag_delta_s = value
+
+    @property
+    def min_num_passes(self):  # pragma: no cover
+        """Retrieve the minimum number of adaptive passes for HFSS convergence.
+
+        Returns
+        -------
+            int
+            The value of minimum number of adaptive passes.
+        """
+        return self._min_num_passes
+
+    @min_num_passes.setter
+    def min_num_passes(self, value):  # pragma: no cover
+        if isinstance(value, int):
+            self._min_num_passes = value
+
+    @property
+    def basis_order(self):  # pragma: no cover
+        """Retrieve the BasisOrder object.
+
+        Returns
+        -------
+            BasisOrder class
+            This class supports 4 selections Mixed, Zero, single and Double for the HFSS order matrix.
+        """
+        return self._basis_order
+
+    @basis_order.setter
+    def basis_order(self, value):  # pragma: no cover
+        if validate_enum_class_value(BasisOrder, value):
+            self._basis_order = value
+
+    @property
+    def do_lambda_refinement(self):  # pragma: no cover
+        """Retrieve boolean to activate the lambda refinement.
+
+        Returns
+        -------
+            bool
+            'True' Enable the lambda meshing refinement with HFSS, 'False' deactivate.
+        """
+        return self._do_lambda_refinement
+
+    @do_lambda_refinement.setter
+    def do_lambda_refinement(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._do_lambda_refinement = value
+
+    @property
+    def arc_angle(self):  # pragma: no cover
+        """Retrieve the value for the HFSS meshing arc angle.
+
+        Returns
+        -------
+            float
+            Value of the arc angle.
+        """
+        return self._arc_angle
+
+    @arc_angle.setter
+    def arc_angle(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._arc_angle = value
+
+    @property
+    def start_azimuth(self):  # pragma: no cover
+        """Retrieve the value of the starting azimuth for the HFSS meshing.
+
+        Returns
+        -------
+            float
+            Value of the starting azimuth.
+        """
+        return self._start_azimuth
+
+    @start_azimuth.setter
+    def start_azimuth(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._start_azimuth = value
+
+    @property
+    def max_arc_points(self):  # pragma: no cover
+        """Retrieve the value of the maximum arc points number for the HFSS meshing.
+
+        Returns
+        -------
+            int
+            Value of the maximum arc point number.
+        """
+        return self._max_arc_points
+
+    @max_arc_points.setter
+    def max_arc_points(self, value):  # pragma: no cover
+        if isinstance(value, int):
+            self._max_arc_points = value
+
+    @property
+    def use_arc_to_chord_error(self):  # pragma: no cover
+        """Retrieve the boolean for activating the arc to chord for HFSS meshing.
+
+        Returns
+        -------
+            bool
+            Activate when 'True', deactivated when 'False'.
+        """
+        return self._use_arc_to_chord_error
+
+    @use_arc_to_chord_error.setter
+    def use_arc_to_chord_error(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._use_arc_to_chord_error = value
+
+    @property
+    def arc_to_chord_error(self):  # pragma: no cover
+        """Retrieve the value of arc to chord error for HFSS meshing.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
+        return self._arc_to_chord_error
+
+    @arc_to_chord_error.setter
+    def arc_to_chord_error(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._arc_to_chord_error = value
+
+    @property
+    def defeature_abs_length(self):  # pragma: no cover
+        """Retrieve the value of arc to chord for HFSS meshing.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
+        return self._defeature_abs_length
+
+    @defeature_abs_length.setter
+    def defeature_abs_length(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._defeature_abs_length = value
+
+    @property
+    def defeature_layout(self):  # pragma: no cover
+        """Retrieve the boolean to activate the layout defeaturing.This method has been developed to simplify polygons
+        with reducing the number of points to simplify the meshing with controlling its surface deviation. This method
+        should be used at last resort when other methods failed.
+
+        Returns
+        -------
+            bool
+            'True' when activated 'False when deactivated.
+        """
+        return self._defeature_layout
+
+    @defeature_layout.setter
+    def defeature_layout(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._defeature_layout = value
+
+    @property
+    def minimum_void_surface(self):  # pragma: no cover
+        """Retrieve the minimum void surface to be considered for the layout defeaturing.
+        Voids below this value will be ignored.
+
+        Returns
+        -------
+            flot
+            Value of the minimum surface.
+        """
+        return self._minimum_void_surface
+
+    @minimum_void_surface.setter
+    def minimum_void_surface(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._minimum_void_surface = value
+
+    @property
+    def max_suf_dev(self):  # pragma: no cover
+        """Retrieve the value for the maximum surface deviation for the layout defeaturing.
+
+        Returns
+        -------
+            flot
+            Value of maximum surface deviation.
+        """
+        return self._max_suf_dev
+
+    @max_suf_dev.setter
+    def max_suf_dev(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._max_suf_dev = value
+
+    @property
+    def process_padstack_definitions(self):  # pragma: no cover
+        """Retrieve the boolean for activating the padstack definition processing.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
+        return self._process_padstack_definitions
+
+    @process_padstack_definitions.setter
+    def process_padstack_definitions(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._process_padstack_definitions = value
+
+    @property
+    def return_current_distribution(self):  # pragma: no cover
+        """Boolean to activate the current distribution return with Siwave.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
+        return self._return_current_distribution
+
+    @return_current_distribution.setter
+    def return_current_distribution(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._return_current_distribution = value
+
+    @property
+    def ignore_non_functional_pads(self):  # pragma: no cover
+        """Boolean to ignore nonfunctional pads with Siwave.
+
+        Returns
+         -------
+            flot
+            Value of the arc to chord error.
+        """
+        return self._ignore_non_functional_pads
+
+    @ignore_non_functional_pads.setter
+    def ignore_non_functional_pads(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._ignore_non_functional_pads = value
+
+    @property
+    def include_inter_plane_coupling(self):  # pragma: no cover
+        """Boolean to activate the inter-plane coupling with Siwave.
+
+        Returns
+        -------
+            bool
+            'True' activated 'False' deactivated.
+        """
+        return self._include_inter_plane_coupling
+
+    @include_inter_plane_coupling.setter
+    def include_inter_plane_coupling(self, value):  # pragma: no cover
+        if isinstance(value, bool):
+            self._include_inter_plane_coupling = value
+
+    @property
+    def xtalk_threshold(self):  # pragma: no cover
+        """Return the value for Siwave cross talk threshold. THis value specifies the distance for the solver to
+        consider lines coupled during the cross-section computation. Decreasing the value below -60dB can
+        potentially cause solver failure.
+
+        Returns
+        -------
+            flot
+            Value of cross-talk threshold.
+        """
+        return self._xtalk_threshold
+
+    @xtalk_threshold.setter
+    def xtalk_threshold(self, value):  # pragma: no cover
+        if isinstance(value, (int, float)):
+            self._xtalk_threshold = value
+
+    @property
+    def min_void_area(self):  # pragma: no cover
+        """Retrieve the value of minimum void area to be considered by Siwave.
+
+        Returns
+        -------
+            flot
+            Value of the arc to chord error.
+        """
+        return self._min_void_area
+
+    @min_void_area.setter
+    def min_void_area(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._min_void_area = value
+
+    @property
+    def min_pad_area_to_mesh(self):  # pragma: no cover
+        """Retrieve the value of minimum pad area to be meshed by Siwave.
+
+        Returns
+        -------
+            flot
+            Value of minimum pad surface.
+        """
+        return self._min_pad_area_to_mesh
+
+    @min_pad_area_to_mesh.setter
+    def min_pad_area_to_mesh(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._min_pad_area_to_mesh = value
+
+    @property
+    def snap_length_threshold(self):  # pragma: no cover
+        """Retrieve the boolean to activate the snapping threshold feature.
+
+        Returns
+        -------
+            bool
+            'True' activate 'False' deactivated.
+        """
+        return self._snap_length_threshold
+
+    @snap_length_threshold.setter
+    def snap_length_threshold(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._snap_length_threshold = value
+
+    @property
+    def min_plane_area_to_mesh(self):  # pragma: no cover
+        """Retrieve the minimum plane area to be meshed by Siwave.
+
+        Returns
+        -------
+            flot
+            Value of the minimum plane area.
+        """
+        return self._min_plane_area_to_mesh
+
+    @min_plane_area_to_mesh.setter
+    def min_plane_area_to_mesh(self, value):  # pragma: no cover
+        if isinstance(value, str):
+            self._min_plane_area_to_mesh = value
+
+    @property
+    def mesh_sizefactor(self):
+        """Retrieve the Mesh Size factor value.
+
+        Returns
+        -------
+        float
+        """
+        return self._mesh_sizefactor
+
+    @mesh_sizefactor.setter
+    def mesh_sizefactor(self, value):
+        if isinstance(value, (int, float)):
+            self._mesh_sizefactor = value
+            if value > 0.0:
+                self._do_lambda_refinement = False
+
+
+class SimulationConfiguration(object):
+    """Provides an ASCII simulation configuration file parser.
+
+    This parser supports all types of inputs for setting up and automating any kind
+    of SI or PI simulation with HFSS 3D Layout or Siwave. If fields are omitted, default
+    values are applied. This class can be instantiated directly from
+    Configuration file.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb()
+    >>> sim_setup = edb.new_simulation_configuration()
+    >>> sim_setup.solver_type = SolverType.SiwaveSYZ
+    >>> sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
+    >>> sim_setup.batch_solve_settings.do_cutout_subdesign = True
+    >>> sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C"]
+    >>> sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
+    >>> sim_setup.batch_solve_settings.power_nets = ["GND"]
+    >>> sim_setup.ac_settings.start_freq = "100Hz"
+    >>> sim_setup.ac_settings.stop_freq = "6GHz"
+    >>> sim_setup.ac_settings.step_freq = "10MHz"
+    >>> sim_setup.export_json(os.path.join(project_path, "configuration.json"))
+    >>> sim_setup.build_simulation_project(sim_setup)
+
+    """
+
+    def __getattr__(self, item):
+        if item in dir(self):
+            return self.__getattribute__(item)
+        elif item in dir(self.dc_settings):
+            return self.dc_settings.__getattribute__(item)
+        elif item in dir(self.ac_settings):
+            return self.ac_settings.__getattribute__(item)
+        elif item in dir(self.batch_solve_settings):
+            return self.batch_solve_settings.__getattribute__(item)
+        else:
+            raise AttributeError("Attribute {} not present.".format(item))
+
+    def __setattr__(self, key, value):
+        if "_dc_settings" in dir(self) and key in dir(self._dc_settings):
+            return self.dc_settings.__setattr__(key, value)
+        elif "_ac_settings" in dir(self) and key in dir(self._ac_settings):
+            return self.ac_settings.__setattr__(key, value)
+        elif "_batch_solve_settings" in dir(self) and key in dir(self._batch_solve_settings):
+            return self.batch_solve_settings.__setattr__(key, value)
+        else:
+            return super(SimulationConfiguration, self).__setattr__(key, value)
+
+    def __init__(self, filename=None, edb=None):
+        self._filename = filename
+        self._open_edb_after_build = True
+        self._dc_settings = SimulationConfigurationDc()
+        self._ac_settings = SimulationConfigurationAc()
+        self._batch_solve_settings = SimulationConfigurationBatch()
+        self._setup_name = "Pyaedt_setup"
+        self._solver_type = SolverType.Hfss3dLayout
+        if self._filename and os.path.splitext(self._filename)[1] == ".json":
+            self.import_json(filename)
+        self._read_cfg()
+        self._pedb = edb
+
+    @property
+    def open_edb_after_build(self):
+        """Either if open the Edb after the build or not.
+
+        Returns
+        -------
+        bool
+        """
+        return self._open_edb_after_build
+
+    @open_edb_after_build.setter
+    def open_edb_after_build(self, value):
+        if isinstance(value, bool):
+            self._open_edb_after_build = value
+
+    @property
+    def dc_settings(self):
+        """DC Settings class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationDc`
+        """
+        return self._dc_settings
+
+    @property
+    def ac_settings(self):
+        """AC Settings class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationAc`
+        """
+        return self._ac_settings
+
+    @property
+    def batch_solve_settings(self):
+        """Cutout and Batch Settings class.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core_edb_data.simulationconfiguration.SimulationConfigurationBatch`
+        """
+        return self._batch_solve_settings
+
+    def build_simulation_project(self):
+        """Build active simulation project. This method requires to be run inside Edb Class."""
+        if self._pedb:
+            return self._pedb.build_simulation_project(self)
 
     @property
     def solver_type(self):  # pragma: no cover
@@ -1730,89 +1849,36 @@ class SimulationConfiguration(object):
             self._solver_type = value
 
     @property
-    def use_radiation_boundary(self):  # pragma: no cover
-        """Retrieve the boolean to use radiation boundary with HFSS.
+    def filename(self):  # pragma: no cover
+        """Retrieve the file name loaded for mapping properties value.
 
         Returns
         -------
-            bool
-            "'True'" activated, "'False'" deactivated.
+        str
+            the absolute path for the filename.
         """
-        return self._use_radiation_boundary
+        return self._filename
 
-    @use_radiation_boundary.setter
-    def use_radiation_boundary(self, value):  # pragma: no cover
-        if isinstance(value, bool):
-            self._use_radiation_boundary = value
+    @filename.setter
+    def filename(self, value):
+        if isinstance(value, str):  # pragma: no cover
+            self._filename = value
 
     @property
-    def output_aedb(self):  # pragma: no cover
-        """Retrieve the path for the output aedb folder. When provided will copy the initial aedb to the specified
-        path. This is used especially to preserve the initial project when several files have to be build based on
-        the last one. When the path is None, the initial project will be overwritten. So when cutout is applied mand
-        you want to preserve the project make sure you provide the full path for the new aedb folder.
+    def setup_name(self):
+        """Retrieve setup name for the simulation.
 
         Returns
         -------
-            str
-            Absolute path for the created aedb folder.
+        str
+            Setup name.
         """
-        return self._output_aedb
+        return self._setup_name
 
-    @output_aedb.setter
-    def output_aedb(self, value):  # pragma: no cover
-        if isinstance(value, str):
-            self._output_aedb = value
-
-    @property
-    def mesh_sizefactor(self):
-        """Retrieve the Mesh Size factor value.
-
-        Returns
-        -------
-        float
-        """
-        return self._mesh_sizefactor
-
-    @mesh_sizefactor.setter
-    def mesh_sizefactor(self, value):
-        if isinstance(value, float):
-            self._mesh_sizefactor = value
-            if value > 0.0:
-                self._do_lambda_refinement = False
-
-    @property
-    def sources(self):  # pragma: no cover
-        """Retrieve the source list.
-
-        Returns
-        -------
-        :class:`pyaedt.edb_core.edb_data.sources.Source`
-        """
-        return self._sources
-
-    @sources.setter
-    def sources(self, value):  # pragma: no cover
-        if isinstance(value, Source):
-            value = [value]
-        if isinstance(value, list):
-            if len([src for src in value if isinstance(src, Source)]) == len(value):
-                self._sources = value
-
-    @pyaedt_function_handler()
-    def add_source(self, source=None):  # pragma: no cover
-        """Add a new source to configuration.
-
-        Parameters
-        ----------
-        source :  :class:`pyaedt.edb_core.edb_data.sources.Source`
-
-        Returns
-        -------
-
-        """
-        if isinstance(source, Source):
-            self._sources.append(source)
+    @setup_name.setter
+    def setup_name(self, value):
+        if isinstance(value, str):  # pragma: no cover
+            self._setup_name = value
 
     def _get_bool_value(self, value):  # pragma: no cover
         val = value.lower()
@@ -2072,6 +2138,46 @@ class SimulationConfiguration(object):
             print("Error reading cfg file: {}".format(e.message))
             raise
 
+    def _dict_to_json(self, dict_out, dict_in=None):
+        exclude = ["_pedb"]
+        for k, v in dict_in.items():
+            if k in exclude:
+                continue
+            if k[0] == "_":
+                if k[1:] in ["dc_settings", "ac_settings", "batch_solve_settings"]:
+                    dict_out[k[1:]] = {}
+                    dict_out[k[1:]] = self._dict_to_json(dict_out[k[1:]], self.__getattr__(k).__dict__)
+                elif k == "_sources":
+                    sources_out = [src._json_format() for src in v]
+                    dict_out[k[1:]] = sources_out
+                elif k == "_dc_source_terms_to_ground":
+                    dc_term_gnd = {}
+                    for k2 in list(v.Keys):  # pragma: no cover
+                        dc_term_gnd[k2] = v[k2]
+                    dict_out[k[1:]] = dc_term_gnd
+                else:
+                    dict_out[k[1:]] = v
+            else:
+                dict_out[k] = v
+        return dict_out
+
+    def _json_to_dict(self, json_dict):
+        for k, v in json_dict.items():
+            if k == "sources":
+                for src in json_dict[k]:  # pragma: no cover
+                    source = Source()
+                    source._read_json(src)
+                    self.batch_solve_settings.sources.append(source)
+            elif k == "dc_source_terms_to_ground":
+                dc_term_gnd = Dictionary[str, int]()
+                for k1, v1 in json_dict[k]:  # pragma: no cover
+                    dc_term_gnd[k1] = v1
+                self.dc_source_terms_to_ground = dc_term_gnd
+            elif k in ["dc_settings", "ac_settings", "batch_solve_settings"]:
+                self._json_to_dict(v)
+            else:
+                self.__setattr__(k, v)
+
     @pyaedt_function_handler()
     def export_json(self, output_file):
         """Export Json file from SimulationConfiguration object.
@@ -2094,20 +2200,7 @@ class SimulationConfiguration(object):
         >>> config.export_json(r"C:\Temp\test_json\test.json")
         """
         dict_out = {}
-        for k, v in self.__dict__.items():
-            if k[0] == "_":
-                if k == "_sources":
-                    sources_out = [src._json_format() for src in v]
-                    dict_out[k[1:]] = sources_out
-                if k == "_dc_source_terms_to_ground":
-                    dc_term_gnd = {}
-                    for k2 in list(v.Keys):  # pragma: no cover
-                        dc_term_gnd[k2] = v[k2]
-                    dict_out[k[1:]] = dc_term_gnd
-                else:
-                    dict_out[k[1:]] = v
-            else:
-                dict_out[k] = v
+        dict_out = self._dict_to_json(dict_out, self.__dict__)
         if output_file:
             with open(output_file, "w") as write_file:
                 json.dump(dict_out, write_file, indent=4)
@@ -2138,18 +2231,7 @@ class SimulationConfiguration(object):
         if input_file:
             f = open(input_file)
             json_dict = json.load(f)  # pragma: no cover
-            for k, v in json_dict.items():
-                if k == "sources":
-                    for src in json_dict[k]:  # pragma: no cover
-                        source = Source()
-                        source._read_json(src)
-                        self.sources.append(source)
-                if k == "dc_source_terms_to_ground":
-                    dc_term_gnd = Dictionary[str, int]()
-                    for k1, v1 in json_dict[k]:  # pragma: no cover
-                        dc_term_gnd[k1] = v1
-                    self.dc_source_terms_to_ground = dc_term_gnd
-                self.__setattr__(k, v)
+            self._json_to_dict(json_dict)
             self.filename = input_file
             return True
         else:
@@ -2374,96 +2456,3 @@ class SimulationConfiguration(object):
             return True
         except:  # pragma: no cover
             return False
-
-
-class SiwaveDCSetupTemplate(object):
-    """Manages Siwave DC settings data.
-
-    This class contains all the settings for a Siwave DC analysis and
-    is used as input.
-
-    Examples
-    --------
-    >>> from pyaedt import Edb
-    >>> edb  = Edb("pathtoaedb", edbversion="2021.2")
-    >>> settings = edb.core_siwave.get_siwave_dc_setup_template()
-    >>> settings.accuracy_level = 0
-    >>> settings.use_dc_custom_settings  = True
-    >>> settings.name = "myDCIR_3"
-    >>> settings.pos_term_to_ground = "I1"
-    >>> settings.neg_term_to_ground = "V1"
-    >>> edb.core_siwave.add_siwave_dc_analysis(settings)
-    """
-
-    def __init__(self):
-        self.name = "DC IR 1"
-        self.dcreport_show_active_devices = True
-        self.export_dcthermal_data = False
-        self.full_dcreport_path = ""
-        self.use_loopres_forperpin = True
-        self.via_report_path = ""
-        self.compute_inductance = True
-        self.accuracy_level = 1
-        self.plotjv = True
-        self.min_passes = 1
-        self.max_passes = 5
-        self.percent_localrefinement = 20
-        self.energy_error = 2
-        self.refine_bondwires = False
-        self.refine_vias = False
-        self.num_bondwire_sides = 8
-        self.num_via_sides = 8
-        self.mesh_bondwires = False
-        self.mesh_vias = False
-        self.perform_adaptive_refinement = False
-        self.use_dc_custom_settings = False
-        self._source_terms_to_ground = None
-        self._pos_term_to_ground = []
-        self._neg_term_to_ground = []
-
-    @property
-    def pos_term_to_ground(self):
-        """Set positive terminals to ground.
-
-        Parameters
-        ----------
-        terms : list, str
-            List of terminals with positive nodes to ground.
-        """
-        return self._pos_term_to_ground
-
-    @pos_term_to_ground.setter
-    def pos_term_to_ground(self, terms):
-        if not isinstance(terms, list):
-            self._pos_term_to_ground = [terms]
-        else:
-            self._pos_term_to_ground = terms
-
-    @property
-    def neg_term_to_ground(self):
-        """Set negative terminals to ground.
-
-        Parameters
-        ----------
-        terms : list, str
-            List of terminals with negative nodes to ground.
-        """
-        return self._neg_term_to_ground
-
-    @neg_term_to_ground.setter
-    def neg_term_to_ground(self, terms):
-        if not isinstance(terms, list):
-            self._neg_term_to_ground = [terms]
-        else:
-            self._neg_term_to_ground = terms
-
-    @property
-    def source_terms_to_ground(self):
-        """Terminals with positive or negative grounded terminals."""
-        a = Dictionary[String, int]()
-        for el in self._neg_term_to_ground:
-            a[el] = 1
-        for el in self._pos_term_to_ground:
-            a[el] = 2
-        self._source_terms_to_ground = a
-        return self._source_terms_to_ground

@@ -29,6 +29,7 @@ jobs:
   # This workflow contains a single job called "build"
   full_documentation:
     # The type of runner that the job will run on
+    name: full_documentation
     runs-on: [Windows, pyaedt]
     strategy:
       matrix:
@@ -118,6 +119,8 @@ jobs:
 
   full_documentation_json:
     # The type of runner that the job will run on
+    name: full_documentation_json
+    needs: [full_documentation]
     runs-on: [Windows, pyaedt]
     strategy:
       matrix:
@@ -147,6 +150,7 @@ jobs:
           python -c "import sys; print(sys.executable)"
           pip install -r requirements.txt
           pip install -r requirements_docs.txt
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "jsondoc\Lib\site-packages\vtkmodules" -Force
 
       - name: Build json documentation
         run: |
