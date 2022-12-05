@@ -23,6 +23,11 @@ class Polygon(object):
                         new_segment_tep.y = arc.End.Y.ToDouble()
                         self.poly_steps.append(new_segment_tep)
                     else:
+                        new_segment_tep = PolyStep()
+                        new_segment_tep.poly_type = PolyType.Segment
+                        new_segment_tep.x = arc.Start.X.ToDouble()
+                        new_segment_tep.y = arc.Start.Y.ToDouble()
+                        self.poly_steps.append(new_segment_tep)
                         arc_center = arc.GetCenter()
                         new_poly_step = PolyStep()
                         new_poly_step.poly_type = PolyType.Curve
