@@ -24,7 +24,6 @@ from functools import update_wrapper
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-main_module = sys.modules["__main__"]
 try:
     import ScriptEnv
 
@@ -96,7 +95,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     message_to_print = ""
     try:
-        messages = list(main_module.oDesktop.GetMessages("", "", 2))
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
     except AttributeError:
         messages = []
     except TypeError:

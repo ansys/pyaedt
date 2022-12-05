@@ -202,6 +202,13 @@ class TestClass(BasisTest, object):
         assert len(nets) > 0
         assert len(nets["GND"].components) > 0
 
+    def test_07a_nets_count(self):
+        nets = self.aedtapp.modeler.nets
+        power_nets = self.aedtapp.modeler.power_nets
+        signal_nets = self.aedtapp.modeler.signal_nets
+        no_nets = self.aedtapp.modeler.no_nets
+        assert len(nets) == len(power_nets) + len(signal_nets) + len(no_nets)
+
     def test_08_merge(self):
         tol = 1e-12
         hfss3d = Hfss3dLayout(self.package_file, "FlipChip_TopBot", specified_version=desktop_version)
