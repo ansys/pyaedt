@@ -273,7 +273,9 @@ class IPC2581(object):
                 )
             except:
                 pass
+        self.ecad.cad_data.add_layer(layer_name="Drill", layer_function="DRILL", layer_side="ALL", polarity="POSITIVE")
         self.content.add_layer_ref("Drill")
+        self.content.dict_colors.add_color("COLOR_{}".format("Drill"), "255", "255", "255")
 
     @pyaedt_function_handler()
     def add_components(self):

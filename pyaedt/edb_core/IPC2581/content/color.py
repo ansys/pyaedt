@@ -13,8 +13,7 @@ class Color(object):
 
     @r.setter
     def r(self, value):
-        if isinstance(value, int):
-            self._r = value
+        self._r = value
 
     @property
     def g(self):
@@ -22,8 +21,7 @@ class Color(object):
 
     @g.setter
     def g(self, value):
-        if isinstance(value, int):
-            self._g = value
+        self._g = value
 
     @property
     def b(self):
@@ -31,8 +29,7 @@ class Color(object):
 
     @b.setter
     def b(self, value):
-        if isinstance(value, int):
-            self._b = value
+        self._b = value
 
     def write_xml(self, entry_color=None):
         color = ET.SubElement(entry_color, "Color")
