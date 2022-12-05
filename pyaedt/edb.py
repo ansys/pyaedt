@@ -215,6 +215,7 @@ class Edb(object):
         self.edbutils = None
         self.simSetup = None
         self.simsetupdata = None
+        self._setups = {}
         # time.sleep(2)
         # gc.collect()
 
@@ -2234,15 +2235,15 @@ class Edb(object):
         Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
 
         """
-        _setups = {}
         for i in list(self.active_cell.SimulationSetups):
-            if i.GetType() == self.edb.Utility.SimulationSetupType.kHFSS:
-                _setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
-            elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWave:
-                _setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
-            elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWaveDCIR:
-                _setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
-        return _setups
+            if i.GetName() not in self._setups:
+                if i.GetType() == self.edb.Utility.SimulationSetupType.kHFSS:
+                    self._setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
+                elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWave:
+                    self._setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
+                elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWaveDCIR:
+                    self._setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
+        return self._setups
 
     @property
     def hfss_setups(self):
@@ -2294,7 +2295,9 @@ class Edb(object):
         """
         if name in self.setups:
             return False
-        return HfssSimulationSetup(self, name)
+        setup = HfssSimulationSetup(self, name)
+        self._setups[name] = setup
+        return setup
 
     def create_siwave_syz_setup(self, name=None):
         """Create a setup from a template.
@@ -2319,7 +2322,9 @@ class Edb(object):
         """
         if name in self.setups:
             return False
-        return SiwaveSYZSimulationSetup(self, name)
+        setup = SiwaveSYZSimulationSetup(self, name)
+        self._setups[name] = setup
+        return setup
 
     def create_siwave_dc_setup(self, name=None):
         """Create a setup from a template.
@@ -2341,4 +2346,6 @@ class Edb(object):
         """
         if name in self.setups:
             return False
-        return SiwaveDCSimulationSetup(self, name)
+        setup = SiwaveDCSimulationSetup(self, name)
+        self._setups[name] = setup
+        return setup
