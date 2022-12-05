@@ -30,6 +30,7 @@ class IPC2581(object):
         self.add_bom()
         self.add_pdstack_definition()
         self.add_components()
+        self.add_logical_nets()
         self.add_layer_features()
         self.add_drills()
 
@@ -283,6 +284,11 @@ class IPC2581(object):
     def add_components(self):
         for refdes, component in self._pedb.core_components.components.items():
             self.ecad.cad_data.cad_data_step.add_component(component=component)
+
+    @pyaedt_function_handler()
+    def add_logical_nets(self):
+        for net_name, net in self._pedb.core_nets.nets.items():
+            self.ecad.cad_data.cad_data_step.add_logical_net(net_name=net_name, components=net.components)
 
     @pyaedt_function_handler()
     def add_layer_features(self):

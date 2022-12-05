@@ -61,10 +61,17 @@ class Step(object):
     def logical_nets(self):
         return self._logical_nets
 
-    @logical_nets.setter
-    def add_logical_net(self, value):
-        if isinstance(value, LogicalNet):
-            self._logical_nets.append(value)
+    def add_logical_net(self, net_name="", components=""):
+        logical_net = LogicalNet()
+        logical_net.name = net_name
+        for component_name, component in components.items():
+            for pin_name, pin in component.pins.items():
+                if pin.net_name == net_name:
+                    new_pin_ref = logical_net.get_pin_ref_def()
+                    new_pin_ref.pin = pin_name
+                    new_pin_ref.component_ref = component_name
+                    logical_net.pin_ref.append(new_pin_ref)
+        self.logical_nets.append(logical_net)
 
     @property
     def layer_features(self):

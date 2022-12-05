@@ -15,6 +15,9 @@ class LogicalNet(object):
             for pin in self.pin_ref:
                 pin.write_xml(logical_net)
 
+    def get_pin_ref_def(self):
+        return PinRef()
+
 
 class PinRef(object):
     """Class describing IPC2581 pin."""
@@ -24,7 +27,6 @@ class PinRef(object):
         self.component_ref = ""
 
     def write_xml(self, logical_net):  # pragma no cover
-        if logical_net:
-            pin_ref = ET.SubElement(logical_net, "PinRef")
-            pin_ref.set("pin", self.pin)
-            pin_ref.set("componentRef", self.component_ref)
+        pin_ref = ET.SubElement(logical_net, "PinRef")
+        pin_ref.set("pin", self.pin)
+        pin_ref.set("componentRef", self.component_ref)

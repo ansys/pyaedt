@@ -111,6 +111,6 @@ class LayerFeature(object):
         layer_feature.set("layerRef", self.layer_name)
         color_set = ET.SubElement(layer_feature, "Set")
         color_ref = ET.SubElement(color_set, "ColorRef")
-        color_ref.set("id", self.color)
+        color_ref.set("id", self.layer_name)
         for feature in self.features:
             feature.write_xml(layer_feature)
