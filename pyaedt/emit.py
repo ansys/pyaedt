@@ -577,7 +577,7 @@ class Emit(FieldAnalysisEmit, object):
         return self
 
     @pyaedt_function_handler()
-    def analyze(self, revision_num = -1):
+    def analyze(self, revision_num=-1):
         """
         Analyze the active design.
 

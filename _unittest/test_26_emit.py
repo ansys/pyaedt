@@ -382,21 +382,20 @@ class TestClass(BasisTest, object):
         valid_availability = interaction.has_valid_availability(domain._obj)
         assert valid_availability
 
-        #define a new domain and test in AEDT
-        
         self.aedtapp.analyze(-1)
 
         radiosTX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().tx)
         radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
         assert len(radiosTX) == 3
-        assert len(radiosRX) == 4 
-        
+        assert len(radiosRX) == 4
+
         self.aedtapp.analyze(-2)
 
         radiosTX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().tx)
         radiosRX = self.aedtapp.results.get_radio_names(Emit.tx_rx_mode().rx)
         assert len(radiosTX) == 2
         assert len(radiosRX) == 2
+
     """
     .. note::
     The following test should be maintained as the last test within this file to ensure
