@@ -179,7 +179,11 @@ jobs:
 
       - name: zip the flattened JSON directory
         run: |
-          zip -r pyaedt-doc-flatten-json.zip doc-flatten-json;
+          # zip -r pyaedt-doc-flatten-json.zip doc-flatten-json;
+          Compress-Archive -Path doc-flatten-json -DestinationPath pyaedt-doc-flatten-json.zip
+
+      - name: move the generated documentation.
+        run: |
           mkdir pyaedt-doc-flatten-json;
           mv pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip pyaedt-doc-flatten-json;
           echo Clean up build directories after the process is completed.
