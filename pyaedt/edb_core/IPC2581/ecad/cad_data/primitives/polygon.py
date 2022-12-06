@@ -38,6 +38,36 @@ class Polygon(object):
                         new_poly_step.y = arc.End.Y.ToDouble()
                         new_poly_step.clock_wise = not arc.IsCCW()
                         self.poly_steps.append(new_poly_step)
+                for void in polygon.voids:
+                    void_polygon_data = void.GetPolygonData()
+                    if void_polygon_data.IsClosed():
+                        void_polygon = Cutout(self._ipc)
+                        self.cutout.append(void_polygon)
+                        # void_polygon.is_void = True
+                        void_arcs = void_polygon_data.GetArcData()
+                        # begin
+                        new_segment_tep = PolyStep()
+                        new_segment_tep.poly_type = PolyType.Segment
+                        new_segment_tep.x = void_arcs[0].Start.X.ToDouble()
+                        new_segment_tep.y = void_arcs[0].Start.Y.ToDouble()
+                        void_polygon.poly_steps.append(new_segment_tep)
+                        for void_arc in void_arcs:
+                            if void_arc.Height == 0:
+                                new_segment_tep = PolyStep()
+                                new_segment_tep.poly_type = PolyType.Segment
+                                new_segment_tep.x = void_arc.End.X.ToDouble()
+                                new_segment_tep.y = void_arc.End.Y.ToDouble()
+                                void_polygon.poly_steps.append(new_segment_tep)
+                            else:
+                                arc_center = void_arc.GetCenter()
+                                new_poly_step = PolyStep()
+                                new_poly_step.poly_type = PolyType.Curve
+                                new_poly_step.center_X = arc_center.X.ToDouble()
+                                new_poly_step.center_y = arc_center.Y.ToDouble()
+                                new_poly_step.x = void_arc.End.X.ToDouble()
+                                new_poly_step.y = void_arc.End.Y.ToDouble()
+                                new_poly_step.clock_wise = not void_arc.IsCCW()
+                                void_polygon.poly_steps.append(new_poly_step)
 
     def add_cutout(self, cutout):
         if not isinstance(cutout, Cutout):
@@ -60,21 +90,22 @@ class Polygon(object):
             cutout.write_xml(contour, self._ipc)
 
 
-class Cutout(Polygon):
-    def __init__(self):
-        Polygon.__init__(self)
+class Cutout(object):
+    def __init__(self, ipc):
+        self._ipc = ipc
+        self.poly_steps = []
 
     def write_xml(self, contour, ipc):
         cutout = ET.SubElement(contour, "Cutout")
         cutout_begin = ET.SubElement(cutout, "PolyBegin")
         cutout_begin.set("x", str(ipc.from_meter_to_units(self.poly_steps[0].x, ipc.units)))
         cutout_begin.set("y", str(ipc.from_meter_to_units(self.poly_steps[0].y, ipc.units)))
-        for poly_step in self.poly_steps:
-            if poly_step.poly_type == 1:
+        for poly_step in self.poly_steps[1:]:
+            if poly_step.poly_type == 0:
                 poly = ET.SubElement(cutout, "PolyStepSegment")
                 poly.set("x", str(ipc.from_meter_to_units(poly_step.x, ipc.units)))
                 poly.set("y", str(ipc.from_meter_to_units(poly_step.y, ipc.units)))
-            elif poly_step.poly_type == 2:
+            elif poly_step.poly_type == 1:
                 poly = ET.SubElement(cutout, "PolyStepCurve")
                 poly.set("x", str(ipc.from_meter_to_units(poly_step.x, ipc.units)))
                 poly.set("y", str(ipc.from_meter_to_units(poly_step.y, ipc.units)))
