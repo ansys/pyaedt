@@ -212,7 +212,7 @@ class Step(object):
 
     def write_xml(self, cad_data):
         step = ET.SubElement(cad_data, "Step")
-        step.set("name", self.design_name)
+        step.set("name", self._ipc.design_name)
         for padsatck_def in list(self.padstack_defs.values()):
             padsatck_def.write_xml(step)
         for package in list(self.packages.values()):

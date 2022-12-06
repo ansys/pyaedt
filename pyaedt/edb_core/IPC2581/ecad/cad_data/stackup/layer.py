@@ -7,6 +7,7 @@ class Layer(object):
         self._layer_function = ""
         self._layer_side = ""
         self._layer_polarity = ""
+        self.sequence = 0
 
     @property
     def layer_function(self):

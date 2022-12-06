@@ -26,6 +26,8 @@ class IPC2581(object):
 
     @pyaedt_function_handler()
     def load_ipc_model(self):
+        self.design_name = self._pedb.cell_names[0]
+        self.content.step_ref = self.design_name
         self.add_layers_info()
         self.add_bom()
         self.add_pdstack_definition()
@@ -213,25 +215,25 @@ class IPC2581(object):
         self.design_name = self._pedb._active_layout.GetCell().GetName()
         self.ecad.design_name = self.design_name
         self.ecad.cad_header.units = self.units
-        self.ecad.cad_data.stackup.name = self.design_name
         self.ecad.cad_data.stackup.total_thickness = self.from_meter_to_units(
             self._pedb.get_statistics().stackup_thickness, self.units
         )
         self.ecad.cad_data.stackup.stackup_group.thickness = self.ecad.cad_data.stackup.total_thickness
         layers_name = list(self._pedb.stackup.signal_layers.keys())
         self.top_bottom_layers = [layers_name[0], layers_name[-1]]
-
+        sequence = 0
         for layer_name in list(self._pedb.stackup.stackup_layers.keys()):
+            sequence += 1
             self.content.add_layer_ref(layer_name)
             layer_color = self._pedb.stackup.layers[layer_name].color
             self.content.dict_colors.add_color(
-                "COLOR_{}".format(layer_name), str(layer_color[0]), str(layer_color[1]), str(layer_color[2])
+                "{}".format(layer_name), str(layer_color[0]), str(layer_color[1]), str(layer_color[2])
             )
             # Ecad layers
             layer_type = "CONDUCTOR"
             conductivity = 5e6
-            permitivity = 1.0
-            loss_tg = 0.0
+            permitivity = 1
+            loss_tg = 0
             embedded = "NOT_EMBEDDED"
             try:
                 material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
@@ -246,6 +248,7 @@ class IPC2581(object):
                     loss_tg = edb_material.GetProperty(
                         self._pedb.edb.Definition.MaterialPropertyId.DielectricLossTangent
                     )[1].ToDouble()
+                    conductivity = 0
                 if layer_type == "CONDUCTOR":
                     conductivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Conductivity)[
                         1
@@ -271,14 +274,13 @@ class IPC2581(object):
                     self._pedb.stackup.layers[layer_name].thickness, self.units
                 )
                 self.ecad.cad_data.stackup.stackup_group.add_stackup_layer(
-                    layer_name=layer_name,
-                    thickness=layer_thickness_with_units,
+                    layer_name=layer_name, thickness=layer_thickness_with_units, sequence=str(sequence)
                 )
             except:
                 pass
         self.ecad.cad_data.add_layer(layer_name="Drill", layer_function="DRILL", layer_side="ALL", polarity="POSITIVE")
         self.content.add_layer_ref("Drill")
-        self.content.dict_colors.add_color("COLOR_{}".format("Drill"), "255", "255", "255")
+        self.content.dict_colors.add_color("{}".format("Drill"), "255", "255", "255")
 
     @pyaedt_function_handler()
     def add_components(self):

@@ -7,9 +7,9 @@ from pyaedt.edb_core.IPC2581.ecad.cad_data.stackup.stackup_layer import StackupL
 class StackupGroup(object):
     def __init__(self):
         self.name = "GROUP_PRIMARY"
-        self.thickness = 0.0
-        self.tol_plus = 0.0
-        self.tol_minus = 0.0
+        self.thickness = 0
+        self.tol_plus = 0
+        self.tol_minus = 0
         self._stackup_layers = []
 
     @property
