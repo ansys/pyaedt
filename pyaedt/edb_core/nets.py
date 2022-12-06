@@ -347,7 +347,10 @@ class EdbNets(object):
             layer_name = path.layer_name
             if net_name not in nets or layer_name not in layers:
                 continue
-            x, y = path.points()
+            try:
+                x, y = path.points()
+            except ValueError:
+                x = None
             if not x:
                 continue
             create_label = False

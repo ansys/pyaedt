@@ -992,6 +992,7 @@ class Edb(object):
         else:
             return False
 
+    @pyaedt_function_handler()
     def _create_extent(
         self,
         net_signals,
@@ -1023,6 +1024,7 @@ class Edb(object):
                 _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
         return _poly
 
+    @pyaedt_function_handler()
     def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
         names = []
         _polys = []
@@ -1030,16 +1032,15 @@ class Edb(object):
             names.append(net.GetName())
         for prim in self.core_primitives.primitives:
             if prim.net_name in names:
-                _polys.extend(
-                    list(
-                        prim.primitive_object.GetPolygonData().Expand(
-                            expansion_size, tolerance, round_corner, round_extension
-                        )
-                    )
+                obj_data = prim.primitive_object.GetPolygonData().Expand(
+                    expansion_size, tolerance, round_corner, round_extension
                 )
+                if obj_data:
+                    _polys.extend(list(obj_data))
         _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
         return _poly
 
+    @pyaedt_function_handler()
     def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
         names = []
         _polys = []
