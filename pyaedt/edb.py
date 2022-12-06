@@ -2320,6 +2320,8 @@ class Edb(object):
         ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
         ...                           ])
         """
+        if not name:
+            name = generate_unique_name("Siwave_SYZ")
         if name in self.setups:
             return False
         setup = SiwaveSYZSimulationSetup(self, name)
@@ -2344,6 +2346,8 @@ class Edb(object):
         >>> setup1.mesh_bondwires = True
 
         """
+        if not name:
+            name = generate_unique_name("Siwave_DC")
         if name in self.setups:
             return False
         setup = SiwaveDCSimulationSetup(self, name)

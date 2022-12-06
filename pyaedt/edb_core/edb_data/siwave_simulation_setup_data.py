@@ -688,15 +688,12 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
         self._sweep_data_list = {}
+        self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+            self._edb.simsetupdata.SIwave.SIWSimulationSettings
+        ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-            ]()
             self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
-
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.SIwave.SIWSimulationSettings
-            ]()
+        else:
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
@@ -745,8 +742,11 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
     @name.setter
     def name(self, value):
         """Set name of the setup."""
+        legacy_name = self._edb_sim_setup_info.Name
         self._edb_sim_setup_info.Name = value
         self._update_setup()
+        if legacy_name in self._edb.setups:
+            del self._edb._setups[legacy_name]
 
     @property
     def enabled(self):
@@ -891,7 +891,9 @@ def _get_edb_setup_info(edb_siwave_sim_setup, edb_sim_setup_info):
 
         elif k in dir(edb_sim_setup_info.SimulationSettings.DCAdvancedSettings):
             setter = edb_sim_setup_info.SimulationSettings.DCAdvancedSettings
-        elif k in dir(edb_sim_setup_info.SimulationSettings.DCIRSettings):
+        elif "DCIRSettings" in dir(edb_sim_setup_info.SimulationSettings) and k in dir(
+            edb_sim_setup_info.SimulationSettings.DCIRSettings
+        ):
             setter = edb_sim_setup_info.SimulationSettings.DCIRSettings
         elif k in dir(edb_sim_setup_info.SimulationSettings.DCSettings):
             setter = edb_sim_setup_info.SimulationSettings.DCSettings
@@ -913,17 +915,15 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
         self._mesh_operations = {}
-
+        self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+            self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
+        ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-            ]()
+
             self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
 
         else:
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-            ]()
+
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
@@ -952,8 +952,11 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     @name.setter
     def name(self, value):
         """Set name of the setup."""
+        legacy_name = self._edb_sim_setup_info.Name
         self._edb_sim_setup_info.Name = value
         self._update_setup()
+        if legacy_name in self._edb.setups:
+            del self._edb._setups[legacy_name]
 
     @property
     def enabled(self):
