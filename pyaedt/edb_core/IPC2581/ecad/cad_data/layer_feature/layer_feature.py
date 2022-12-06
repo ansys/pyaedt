@@ -93,13 +93,14 @@ class LayerFeature(object):
                 feature.feature_type = FeatureType.PadstackInstance
                 feature.net = pin.net_name
                 feature.padstack_instance.net = pin.net_name
-                feature.padstack_instance.pin = pin.name
+                feature.padstack_instance.pin = pin.pin.GetName()
                 feature.padstack_instance.x = pad_x
                 feature.padstack_instance.y = pad_y
                 feature.padstack_instance.rotation = rotation
                 feature.padstack_instance.mirror = mirror
                 feature.padstack_instance.isvia = is_via
                 feature.padstack_instance.refdes = component.refdes
+                feature.padstack_instance.padstack_def = pin.padstack_definition
                 feature.padstack_instance.standard_primimtive_ref = self._get_primitive_ref(
                     pin.padstack_definition, component.placement_layer
                 )

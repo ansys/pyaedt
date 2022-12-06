@@ -42,7 +42,8 @@ class PadstackInstance(object):
         else:
             net_root.set("testPoint", "false")
             net_root.set("plate", "true")
-            non_standard_attribute = ET.SubElement(net_root, "PADSTACK_USAGE")
+            non_standard_attribute = ET.SubElement(net_root, "NonstandardAttribute")
+            non_standard_attribute.set("name", "PADSTACK_USAGE")
             non_standard_attribute.set("value", "Through")
             non_standard_attribute.set("type", "STRING")
             pad = ET.SubElement(net_root, "Pad")
