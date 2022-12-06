@@ -688,12 +688,12 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
         self._sweep_data_list = {}
+        self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+            self._edb.simsetupdata.SIwave.SIWSimulationSettings
+        ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = edb_siwave_sim_setup
+            self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
         else:
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.SIwave.SIWSimulationSettings
-            ]()
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
@@ -742,8 +742,11 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
     @name.setter
     def name(self, value):
         """Set name of the setup."""
+        legacy_name = self._edb_sim_setup_info.Name
         self._edb_sim_setup_info.Name = value
         self._update_setup()
+        if legacy_name in self._edb.setups:
+            del self._edb._setups[legacy_name]
 
     @property
     def enabled(self):
@@ -831,19 +834,96 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         return sweep
 
 
+def _parse_value(v):
+    """
+
+    Parameters
+    ----------
+    v :
+
+
+    Returns
+    -------
+
+    """
+    #  duck typing parse of the value 'v'
+    if v is None:
+        pv = v
+    elif v == "true":
+        pv = True
+    elif v == "false":
+        pv = False
+    else:
+        try:
+            pv = int(v)
+        except ValueError:
+            try:
+                pv = float(v)
+            except ValueError:
+                pv = v
+    return pv
+
+
+@pyaedt_function_handler()
+def _get_edb_setup_info(edb_siwave_sim_setup, edb_sim_setup_info):
+    string = edb_siwave_sim_setup.ToString().replace("\t", "").split("\r\n")
+
+    keys = [i.split("=")[0] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
+    values = [i.split("=")[1] for i in string if len(i.split("=")) == 2 and "SourceTermsToGround" not in i]
+    for val in string:
+        if "SourceTermsToGround()" in val:
+            break
+        elif "SourceTermsToGround" in val:
+            sources = {}
+            val = val.replace("SourceTermsToGround(", "").replace(")", "").split(",")
+            for v in val:
+                source = v.split("=")
+                sources[source[0]] = source[1]
+            edb_sim_setup_info.SimulationSettings.DCIRSettings.SourceTermsToGround = convert_pydict_to_netdict(sources)
+            break
+    for k in keys:
+        value = _parse_value(values[keys.index(k)])
+        setter = None
+        if k in dir(edb_sim_setup_info.SimulationSettings):
+            setter = edb_sim_setup_info.SimulationSettings
+        elif k in dir(edb_sim_setup_info.SimulationSettings.AdvancedSettings):
+            setter = edb_sim_setup_info.SimulationSettings.AdvancedSettings
+
+        elif k in dir(edb_sim_setup_info.SimulationSettings.DCAdvancedSettings):
+            setter = edb_sim_setup_info.SimulationSettings.DCAdvancedSettings
+        elif "DCIRSettings" in dir(edb_sim_setup_info.SimulationSettings) and k in dir(
+            edb_sim_setup_info.SimulationSettings.DCIRSettings
+        ):
+            setter = edb_sim_setup_info.SimulationSettings.DCIRSettings
+        elif k in dir(edb_sim_setup_info.SimulationSettings.DCSettings):
+            setter = edb_sim_setup_info.SimulationSettings.DCSettings
+        elif k in dir(edb_sim_setup_info.SimulationSettings.AdvancedSettings):
+            setter = edb_sim_setup_info.SimulationSettings.AdvancedSettings
+        if setter:
+            try:
+                setter.__setattr__(k, value)
+            except TypeError:
+                try:
+                    setter.__setattr__(k, str(value))
+                except:
+                    pass
+
+
 class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     """Manages EDB methods for HFSS simulation setup."""
 
     def __init__(self, edb, name=None, edb_siwave_sim_setup=None):
         self._edb = edb
         self._mesh_operations = {}
-
+        self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
+            self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
+        ]()
         if edb_siwave_sim_setup:
-            self._edb_sim_setup_info = edb_siwave_sim_setup
+
+            self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
+
         else:
-            self._edb_sim_setup_info = self._edb.simsetupdata.SimSetupInfo[
-                self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
-            ]()
+
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
@@ -872,8 +952,11 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
     @name.setter
     def name(self, value):
         """Set name of the setup."""
+        legacy_name = self._edb_sim_setup_info.Name
         self._edb_sim_setup_info.Name = value
         self._update_setup()
+        if legacy_name in self._edb.setups:
+            del self._edb._setups[legacy_name]
 
     @property
     def enabled(self):
