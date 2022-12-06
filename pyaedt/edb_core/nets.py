@@ -968,19 +968,28 @@ class EdbNets(object):
                 for disjoints in sorted_list[1:]:
                     if keep_only_main_net:
                         for geo in disjoints:
-                            obj_dict[geo].delete()
+                            try:
+                                obj_dict[geo].delete()
+                            except KeyError:
+                                pass
                     elif len(disjoints) == 1 and (
                         isinstance(obj_dict[disjoints[0]], EDBPadstackInstance)
                         or clean_disjoints_less_than
                         and obj_dict[disjoints[0]].area() < clean_disjoints_less_than
                     ):
-                        obj_dict[disjoints[0]].delete()
+                        try:
+                            obj_dict[disjoints[0]].delete()
+                        except KeyError:
+                            pass
                     else:
                         new_net_name = generate_unique_name(net, n=3)
                         if self.find_or_create_net(new_net_name):
                             new_nets.append(new_net_name)
                             for geo in disjoints:
-                                obj_dict[geo].net_name = new_net_name
+                                try:
+                                    obj_dict[geo].net_name = new_net_name
+                                except KeyError:
+                                    pass
                             disjoints_objects.extend(disjoints)
         self._logger.info_timer("Disjoint Cleanup Completed.")
         self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
