@@ -26,7 +26,7 @@ class PadstackDef(object):
             if len([pad for pad in value if isinstance(pad, PadstackPadDef)]) == len(value):
                 self._padstack_pad_def = value
 
-    def add_padstack_pad_def(self, layer="", pad_use="REGULAR", x="0.0", y="0.0", primitive_ref=""):  # pragma no cover
+    def add_padstack_pad_def(self, layer="", pad_use="REGULAR", x="0", y="0", primitive_ref=""):  # pragma no cover
         pad = PadstackPadDef()
         pad.layer_ref = layer
         pad.pad_use = pad_use
