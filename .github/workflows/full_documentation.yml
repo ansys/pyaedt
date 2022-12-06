@@ -156,7 +156,6 @@ jobs:
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
-          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           sphinx-build -M json doc/source doc-json -j auto -D release=${{ steps.version.outputs.PYAEDT_VERSION }} -D version=${{ steps.version.outputs.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
@@ -185,6 +184,7 @@ jobs:
       - name: move the generated documentation.
         run: |
           mkdir pyaedt-doc-flatten-json;
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           mv pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip pyaedt-doc-flatten-json;
           echo Clean up build directories after the process is completed.
           rm -rf doc-json doc-flatten-json;
