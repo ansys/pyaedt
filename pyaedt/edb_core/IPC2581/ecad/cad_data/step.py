@@ -187,7 +187,10 @@ class Step(object):
             layer_feature.add_feature(path)
         for _, padstack_instance in layer._pclass._pedb.core_padstack.padstack_instances.items():
             padstack_instance_cmp = padstack_instance._edb_padstackinstance.GetComponent().GetName()
-            if not padstack_instance_cmp == "":
+            if (
+                not padstack_instance_cmp == ""
+                and layer.name == padstack_instance._edb_padstackinstance.GetComponent().GetPlacementLayer().GetName()
+            ):
                 component_inst = self._pedb.core_components.components[padstack_instance_cmp]
                 layer_feature.add_component_padstack_instance_feature(
                     component_inst, padstack_instance, top_bottom_layers
