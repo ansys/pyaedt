@@ -77,7 +77,7 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements_docs.txt
           sudo apt install graphviz
 
       # run doc build, without creating the examples directory
