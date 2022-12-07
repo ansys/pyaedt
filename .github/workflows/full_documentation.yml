@@ -193,8 +193,8 @@ jobs:
       - name: Upload json Documentation
         uses: actions/upload-artifact@v3
         with:
-          name: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
-          path: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
+          name: pyaedt-doc-flatten-json.zip
+          path: pyaedt-doc-flatten-json.zip
           retention-days: 7
 
       # - name: Deploy
