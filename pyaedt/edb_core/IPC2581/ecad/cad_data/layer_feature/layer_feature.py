@@ -74,8 +74,8 @@ class LayerFeature(object):
         if component:
             cmp_x = self._ipc.from_meter_to_units(component.center[0], self._ipc.units)
             cmp_y = self._ipc.from_meter_to_units(component.center[1], self._ipc.units)
-            _cos = math.cos(component.rotation)
-            _sin = math.sin(component.rotation)
+            _cos = round(math.cos(component.rotation), 4)
+            _sin = round(math.sin(component.rotation), 4)
             if pin:
                 is_via = False
                 if not pin.start_layer == pin.stop_layer:
