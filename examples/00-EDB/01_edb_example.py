@@ -171,7 +171,7 @@ siw_file = edb.solve_siwave()
 # Export Siwave Reports
 # ~~~~~~~~~~~~~~~~~~~~~
 # Export all DC Reports quantities.
-outputs = edb.export_siwave_dc_results(siw_file, settings.name, )
+outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
 
 ###############################################################################
 # Close EDB
