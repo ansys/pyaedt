@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
-import warnings
-from distutils.sysconfig import get_python_lib
 
+if os.name == "nt":
+    os.environ["PYTHONMALLOC"] = "malloc"
 os.environ["ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3"] = "1"
 os.environ["ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE"] = "1"
 os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
