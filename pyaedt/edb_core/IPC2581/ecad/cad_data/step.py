@@ -185,16 +185,19 @@ class Step(object):
         ]
         for path in path_list:
             layer_feature.add_feature(path)
-        for _, padstack_instance in layer._pclass._pedb.core_padstack.padstack_instances.items():
-            padstack_instance_cmp = padstack_instance._edb_padstackinstance.GetComponent().GetName()
-            if (
-                not padstack_instance_cmp == ""
-                and layer.name == padstack_instance._edb_padstackinstance.GetComponent().GetPlacementLayer().GetName()
-            ):
-                component_inst = self._pedb.core_components.components[padstack_instance_cmp]
-                layer_feature.add_component_padstack_instance_feature(
-                    component_inst, padstack_instance, top_bottom_layers
-                )
+        padstack_instances = list(layer._pclass._pedb.core_padstack.padstack_instances.values())
+        for padstack_instance in padstack_instances:
+            if padstack_instance.is_pin:
+                padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
+                component_inst = self._pedb.core_components.components[padstack_instance.GetComponent().GetName()]
+                if (
+                    layer.name in padstack_def.pad_by_layer
+                    or layer.name in padstack_def.antipad_by_layer
+                    or layer.name in padstack_def.thermalpad_by_layer
+                ):
+                    layer_feature.add_component_padstack_instance_feature(
+                        component_inst, padstack_instance, top_bottom_layers
+                    )
             else:
                 padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
                 layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer.name)
