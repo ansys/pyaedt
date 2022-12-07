@@ -1,7 +1,7 @@
 import xml.etree.cElementTree as ET
 
-from pyaedt.edb_core.IPC2581.BOM.characteristics import Characteristics
-from pyaedt.edb_core.IPC2581.BOM.refdes import RefDes
+from pyaedt.edb_core.IPC2581.bom.characteristics import Characteristics
+from pyaedt.edb_core.IPC2581.bom.refdes import RefDes
 
 
 class BomItem(object):

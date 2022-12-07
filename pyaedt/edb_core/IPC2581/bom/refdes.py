@@ -15,5 +15,3 @@ class RefDes(object):
             refdes.set("packageRef", self.packaged_def)
             refdes.set("populate", self.populate)
             refdes.set("layerRef", self.placement_layer)
-
-

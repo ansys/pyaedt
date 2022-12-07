@@ -1,7 +1,7 @@
 import xml.etree.cElementTree as ET
 
-from pyaedt.edb_core.IPC2581.BOM.bom import Bom
-from pyaedt.edb_core.IPC2581.BOM.bom_item import BomItem
+from pyaedt.edb_core.IPC2581.bom.bom import Bom
+from pyaedt.edb_core.IPC2581.bom.bom_item import BomItem
 from pyaedt.edb_core.IPC2581.content.content import Content
 from pyaedt.edb_core.IPC2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
 from pyaedt.edb_core.IPC2581.ecad.ecad import Ecad

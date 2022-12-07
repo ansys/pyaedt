@@ -3,7 +3,7 @@ import xml.etree.cElementTree as ET
 
 class Bom(object):
     def __init__(self):
-        self.name = "BOM"
+        self.name = "bom"
         self.revision = "1.0"
         self.step_ref = "1.0"
         self.bom_items = []
