@@ -72,8 +72,8 @@ class LayerFeature(object):
         self, component=None, pin=None, top_bottom_layers=[]
     ):  # pragma no cover
         if component:
-            cmp_x = self._ipc.from_meter_to_units(component.center[0], self._ipc.units)
-            cmp_y = self._ipc.from_meter_to_units(component.center[1], self._ipc.units)
+            cmp_x = self._ipc.from_meter_to_units(component.edbcomponent.GetLocation()[1], self._ipc.units)
+            cmp_y = self._ipc.from_meter_to_units(component.edbcomponent.GetLocation()[2], self._ipc.units)
             _cos = round(math.cos(component.rotation), 4)
             _sin = round(math.sin(component.rotation), 4)
             if pin:
