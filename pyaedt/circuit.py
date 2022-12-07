@@ -16,7 +16,11 @@ from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import PowerIQSource
+from pyaedt.modules.Boundary import PowerSinSource
 from pyaedt.modules.Boundary import Sources
+from pyaedt.modules.Boundary import VoltageFrequencyDependent
+from pyaedt.modules.CircuitTemplates import SourceKeys
 
 
 class Circuit(FieldAnalysisCircuit, object):
@@ -1085,10 +1089,17 @@ class Circuit(FieldAnalysisCircuit, object):
         if name in self.source_names:
             self.logger.warning("Source name is defined in the design.")
             return False
-        if source_type not in Sources.SourceNames:
+        if source_type not in SourceKeys.SourceNames:
             self.logger.warning("Source type is not correct.")
             return False
-        new_source = Sources(self, name, source_type)
+        if source_type == "PowerSin":
+            new_source = PowerSinSource(self, name, source_type)
+        elif source_type == "PowerIQ":
+            new_source = PowerIQSource(self, name, source_type)
+        elif source_type == "VoltageFrequencyDependent":
+            new_source = VoltageFrequencyDependent(self, name, source_type)
+        else:
+            new_source = Sources(self, name, source_type)
         new_source.create()
         if not self._internal_sources:
             self._internal_sources = {name: new_source}

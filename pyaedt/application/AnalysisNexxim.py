@@ -5,7 +5,10 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
 from pyaedt.modeler.Object3d import CircuitComponent
 from pyaedt.modules.Boundary import Excitations
+from pyaedt.modules.Boundary import PowerIQSource
+from pyaedt.modules.Boundary import PowerSinSource
 from pyaedt.modules.Boundary import Sources
+from pyaedt.modules.Boundary import VoltageFrequencyDependent
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -207,6 +210,12 @@ class FieldAnalysisCircuit(Analysis):
         if not self._internal_sources:
             for source in self.source_names:
                 props[source] = Sources(self, source)
+                if props[source].source_type == "PowerSin":
+                    props[source] = PowerSinSource(self, source)
+                elif props[source].source_type == "PowerIQ":
+                    props[source] = PowerIQSource(self, source)
+                elif props[source].source_type == "VoltageFrequencyDependent":
+                    props[source] = VoltageFrequencyDependent(self, source)
             self._internal_sources = props
         else:
             props = self._internal_sources

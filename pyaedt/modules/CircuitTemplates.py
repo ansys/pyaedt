@@ -298,7 +298,20 @@ VoltageFrequency = [
     ],
 ]
 
-VoltageFrequencyProps = ["FreqDependentSourceData", "CosimDefinition", "CoSimulator", "CoSimulator/Choices", "Netlist"]
+VoltageFrequencyProps = [
+    "frequencies",
+    "vmag",
+    "vang",
+    "vreal",
+    "vimag",
+    "fds_filename",
+    "magnitude_angle",
+    "FreqDependentSourceData",
+    "CosimDefinition",
+    "CoSimulator",
+    "CoSimulator/Choices",
+    "Netlist",
+]
 
 
 class SourceKeys(object):
