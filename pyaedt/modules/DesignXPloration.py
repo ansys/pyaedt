@@ -1081,7 +1081,7 @@ class ParametricSetups(object):
             parametricname = generate_unique_name("Parametric")
         setup = SetupParam(self._app, parametricname, optim_type="OptiParametric")
         setup.auto_update = False
-        setup.props["Sim. Setups"] = [setup.name for setup in self._app.setups]
+        setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             firstDataLine = next(csvreader)
@@ -1100,6 +1100,10 @@ class ParametricSetups(object):
                         )
                     )
             setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
+
+            args = ["NAME:" + parametricname]
+            _dict2arg(setup.props, args)
+
             setup.props["Sweep Operations"] = OrderedDict({"add": []})
             table = []
             for var_name in csvreader.fieldnames:
@@ -1116,12 +1120,18 @@ class ParametricSetups(object):
             for point in table:
                 setup.props["Sweep Operations"]["add"].append(point)
 
-        args = ["NAME:" + parametricname]
-        _dict2arg(setup.props, args)
-        args[8] = ["NAME:Sweep Operations"]
+        cont = 0
+        for data in args:
+            if isinstance(data, list) and "NAME:Sweep Operations" in data:
+                del args[cont]
+                args.append(["NAME:Sweep Operations"])
+                break
+            cont += 1
+
         for variation in setup.props["Sweep Operations"].get("add", []):
-            args[8].append("add:=")
-            args[8].append(variation)
+            args[-1].append("add:=")
+            args[-1].append(variation)
+
         self.optimodule.InsertSetup("OptiParametric", args)
         self.setups.append(setup)
         return True
