@@ -36,7 +36,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.edb_core.IPC2581.ipc2581 import IPC2581
+from pyaedt.edb_core.ipc2581.ipc2581 import IPC2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
@@ -71,7 +71,7 @@ class Edb(object):
     edbpath : str, optional
         Full path to the ``aedb`` folder. The variable can also contain
         the path to a layout to import. Allowed formats are BRD,
-        XML (IPC2581), GDS, and DXF. The default is ``None``.
+        XML (ipc2581), GDS, and DXF. The default is ``None``.
         For GDS import, the Ansys control file (also XML) should have the same
         name as the GDS file. Only the file extension differs.
     cellname : str, optional
@@ -489,7 +489,7 @@ class Edb(object):
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
 
-        This function supports all AEDT formats (DXF, GDS, SML (IPC2581), BRD, TGZ ...).
+        This function supports all AEDT formats (DXF, GDS, SML (ipc2581), BRD, TGZ ...).
 
         Parameters
         ----------
@@ -564,7 +564,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
-        """Create an XML IPC2581 file from the active EDB.
+        """Create an XML ipc2581 file from the active EDB.
 
         .. note::
            This method is still being tested and may need further debugging.
@@ -573,12 +573,12 @@ class Edb(object):
         Parameters
         ----------
         ipc_path : str, optional
-            Path to the XML IPC2581 file. The default is ``None``, in which case
-            an attempt is made to find the XML IPC2581 file in the same directory
-            as the active EDB. To succeed, the XML IPC2581 file and the active
+            Path to the XML ipc2581 file. The default is ``None``, in which case
+            an attempt is made to find the XML ipc2581 file in the same directory
+            as the active EDB. To succeed, the XML ipc2581 file and the active
             EDT must have the same name. Only the extension differs.
         units : str, optional
-            Units of the XML IPC2581 file. Options are ``"millimeter"``,
+            Units of the XML ipc2581 file. Options are ``"millimeter"``,
             ``"inch"``, and ``"micron"``. The default is ``"millimeter"``.
 
         Returns
