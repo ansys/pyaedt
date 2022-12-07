@@ -1085,26 +1085,37 @@ class ParametricSetups(object):
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             firstDataLine = next(csvreader)
-            try:
-                csvreader.fieldnames.remove("*")  # remove index field if present
-            except ValueError:
-                pass
-            setup.props["Sweeps"] = {
-                "SweepDefinition": [
-                    OrderedDict(
-                        {
-                            "Variable": var_name,
-                            "Data": firstDataLine[var_name],
-                            "OffsetF1": False,
-                            "Synchronize": 0,
-                        }
+            setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}
+            sweep_definition = []
+            for var_name in csvreader.fieldnames:
+                if var_name != "*":
+                    sweep_definition.append(
+                        OrderedDict(
+                            {
+                                "Variable": var_name,
+                                "Data": firstDataLine[var_name],
+                                "OffsetF1": False,
+                                "Synchronize": 0,
+                            }
+                        )
                     )
-                    for var_name in csvreader.fieldnames
-                ]
-            }
-            setup.props["Sweep Operations"] = OrderedDict(
-                {"add": [[line[var_name] for var_name in csvreader.fieldnames] for line in csvreader]}
-            )
+            setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
+            setup.props["Sweep Operations"] = OrderedDict({"add": []})
+            table = []
+            for var_name in csvreader.fieldnames:
+                if var_name != "*":
+                    table.append(firstDataLine[var_name])
+            table = [table]
+            for line in csvreader:
+                table_line = []
+                for var_name in csvreader.fieldnames:
+                    if var_name != "*":
+                        table_line.append(line[var_name])
+                table.append(table_line)
+
+            for point in table:
+                setup.props["Sweep Operations"]["add"].append(point)
+
         args = ["NAME:" + parametricname]
         _dict2arg(setup.props, args)
         args[8] = ["NAME:Sweep Operations"]
