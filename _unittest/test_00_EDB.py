@@ -2563,3 +2563,11 @@ if not config["skip_edb"]:
 
         def test_130_eligible_power_nets(self):
             assert "GND" in [i.name for i in self.edbapp.core_nets.eligible_power_nets]
+
+        def test_131_export_ipc_beta(self):
+            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
+            self.local_scratch.copyfolder(target_path, out_edb)
+            edbapp = Edb(out_edb, edbversion=desktop_version)
+            edbapp.export_to_ipc2581_beta(os.path.join(target_path, "test_ipc.xml"))
+            assert os.path.isfile(os.path.join(target_path, "test_ipc.xml"))

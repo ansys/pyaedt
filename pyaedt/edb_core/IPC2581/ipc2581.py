@@ -59,12 +59,12 @@ class IPC2581(object):
                     elif pad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
-                            self.from_meter_to_units(pad.parameters_values[1], self.units),
+                            self.from_meter_to_units(pad.parameters_values[0], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
                                 self.from_meter_to_units(pad.parameters_values[0], self.units),
-                                self.from_meter_to_units(pad.parameters_values[1], self.units),
+                                self.from_meter_to_units(pad.parameters_values[0], self.units),
                             ]
                     elif pad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
@@ -105,12 +105,12 @@ class IPC2581(object):
                     elif antipad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(antipad.parameters_values[0], self.units),
-                            self.from_meter_to_units(antipad.parameters_values[1], self.units),
+                            self.from_meter_to_units(antipad.parameters_values[0], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
                                 self.from_meter_to_units(antipad.parameters_values[0], self.units),
-                                self.from_meter_to_units(antipad.parameters_values[1], self.units),
+                                self.from_meter_to_units(antipad.parameters_values[0], self.units),
                             ]
                     elif antipad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
@@ -151,12 +151,12 @@ class IPC2581(object):
                     elif thermalpad.geometry_type == 2:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
-                            self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
+                            self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
                                 self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
-                                self.from_meter_to_units(thermalpad.parameters_values[1], self.units),
+                                self.from_meter_to_units(thermalpad.parameters_values[0], self.units),
                             ]
                     elif thermalpad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
