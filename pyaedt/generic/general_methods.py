@@ -24,7 +24,6 @@ from functools import update_wrapper
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-main_module = sys.modules["__main__"]
 try:
     import ScriptEnv
 
@@ -32,7 +31,6 @@ try:
 except:
     inside_desktop = False
 
-is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
 if not is_ironpython:
     import psutil
@@ -97,7 +95,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     message_to_print = ""
     try:
-        messages = list(main_module.oDesktop.GetMessages("", "", 2))
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
     except AttributeError:
         messages = []
     except TypeError:
@@ -204,71 +202,14 @@ def open_file(file_path, file_options="r"):
     object
         Opened file.
     """
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
     dir_name = os.path.dirname(file_path)
     if os.path.exists(dir_name):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:
         return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
-        return False
-
-
-def convert_remote_object(arg):
-    """Convert a remote list or dictionary to a native list or dictionary.
-
-    .. note::
-        This method is needed only on a Cpython-to-Ironpython connection.
-
-    Parameters
-    ----------
-    arg : dict or list
-        Dictionary or list to convert.
-
-    Returns
-    -------
-    dict or list
-        Converted dictionary or list
-    """
-    if _check_types(arg) == "list":
-        if arg.__len__() > 0:
-            if (
-                isinstance(arg[0], (int, float, str))
-                or _check_types(arg[0]) == "list"
-                or _check_types(arg[0]) == "dict"
-            ):
-                a = list(ast.literal_eval(str(arg)))
-                for i, el in enumerate(a):
-                    a[i] = convert_remote_object(el)
-                return a
-            else:
-                return [arg[i] for i in range(arg.__len__())]
-        else:
-            return []
-    elif _check_types(arg) == "dict":
-        a = dict(ast.literal_eval(str(arg)))
-        for k, v in a.items():
-            a[k] = convert_remote_object(v)
-        return a
-    return arg
-
-
-def _remote_list_conversion(args):
-    new_args = []
-    if args:
-        for arg in args:
-            new_args.append(convert_remote_object(arg))
-    return new_args
-
-
-def _remote_dict_conversion(args):
-    if args:
-        new_kwargs = {}
-        for arg in args:
-            new_kwargs[arg] = convert_remote_object(args[arg])
-    else:
-        new_kwargs = args
-    return new_kwargs
+        settings.logger.error("The file: %s does not exist", dir_name)
 
 
 def _log_method(func, new_args, new_kwargs):
@@ -351,11 +292,6 @@ def _function_handler_wrapper(user_function):
             result = user_function(*args, **kwargs)
             return result
         else:
-            if is_remote_server:
-                converted_args = _remote_list_conversion(args)
-                converted_kwargs = _remote_dict_conversion(kwargs)
-                args = converted_args
-                kwargs = converted_kwargs
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
@@ -363,8 +299,7 @@ def _function_handler_wrapper(user_function):
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
+                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
                 return False
             except ValueError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
@@ -376,9 +311,8 @@ def _function_handler_wrapper(user_function):
                 _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
                 return False
             except IndexError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
-                    return False
+                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
+                return False
             except AssertionError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
                 return False
@@ -958,6 +892,45 @@ def _create_json_file(json_dict, full_json_path):
             file.write(filedata)
         os.remove(temp_path)
     return True
+
+
+@pyaedt_function_handler()
+def com_active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active COM AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+        Whether to check for student version sessions. The default is ``False``.
+    non_graphical : bool, optional
+        Whether to check only for active non-graphical sessions. The default is ``False``.
+
+    Returns
+    -------
+    list
+        List of AEDT PIDs.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        sessions.append(p.pid)
+        except:
+            pass
+    return sessions
 
 
 @pyaedt_function_handler()

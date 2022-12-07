@@ -29,6 +29,7 @@ jobs:
   # This workflow contains a single job called "build"
   full_documentation:
     # The type of runner that the job will run on
+    name: full_documentation
     runs-on: [Windows, pyaedt]
     strategy:
       matrix:
@@ -61,8 +62,8 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install -r requirements.txt
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements.txt
+          pip install -r requirements/requirements_docs.txt
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
       - name: Retrieve PyAEDT version
@@ -118,6 +119,8 @@ jobs:
 
   full_documentation_json:
     # The type of runner that the job will run on
+    name: full_documentation_json
+    needs: [full_documentation]
     runs-on: [Windows, pyaedt]
     strategy:
       matrix:
@@ -145,14 +148,15 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          pip install -r requirements.txt
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements.txt
+          pip install -r requirements/requirements_docs.txt
+          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "jsondoc\Lib\site-packages\vtkmodules" -Force
 
       - name: Build json documentation
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
-          sphinx-build -M json doc/source doc-json -j auto -D release=${{ steps.version.outputs.PYAEDT_VERSION }} -D version=${{ steps.version.outputs.PYAEDT_VERSION }}; -w build_errors.txt -N;
+          sphinx-build -M json doc/source doc-json -j auto -D release=${{ steps.version.outputs.PYAEDT_VERSION }} -D version=${{ steps.version.outputs.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
         run: |
@@ -185,13 +189,6 @@ jobs:
       #     name: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
       #     path: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
       #     retention-days: 7
-
-      - name: Get Bot Application Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@v2
-        with:
-          application_id: ${{ secrets.BOT_APPLICATION_ID }}
-          application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.4.0

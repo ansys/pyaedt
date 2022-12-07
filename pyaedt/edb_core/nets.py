@@ -5,7 +5,7 @@ import os
 import time
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -282,7 +282,7 @@ class EdbNets(object):
         if isinstance(nets, str):
             nets = [nets]
         if not layers:
-            layers = list(self._pedb.core_stackup.signal_layers.keys())
+            layers = list(self._pedb.stackup.signal_layers.keys())
         if isinstance(layers, str):
             layers = [layers]
         color_index = 0
@@ -302,7 +302,8 @@ class EdbNets(object):
             codes.append(79)
             objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
             n_label += 1
-
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[0]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
             for comp in self._pedb.core_components.components.values():
@@ -314,8 +315,6 @@ class EdbNets(object):
                 layer_name = comp.placement_layer
                 if layer_name not in layers:
                     continue
-                top_layer = list(self._pedb.core_stackup.signal_layers.keys())[-1]
-                bottom_layer = list(self._pedb.core_stackup.signal_layers.keys())[0]
                 if plot_components_on_top and layer_name == top_layer:
                     component_color = (184 / 255, 115 / 255, 51 / 255)  # this is the color used in AEDT
                     label = "Component on top layer"
@@ -348,7 +347,10 @@ class EdbNets(object):
             layer_name = path.layer_name
             if net_name not in nets or layer_name not in layers:
                 continue
-            x, y = path.points()
+            try:
+                x, y = path.points()
+            except ValueError:
+                x = None
             if not x:
                 continue
             create_label = False
@@ -540,30 +542,35 @@ class EdbNets(object):
             return objects_lists
 
     @pyaedt_function_handler()
-    def classify_nets(self, simulation_configuration_object=None):
-        """Sort nets based on SimulationConfiguration object.
-        If nets specified as ``power/ground`` or ``signal`` in the simulation
-        configuration object are not initially sorted.
-        in EDB, they are sorted accordingly.
+    def classify_nets(self, power_nets=None, signal_nets=None):
+        """Reassign power/ground or signal nets based on list of nets.
 
         Parameters
         ----------
-        simulation_configuration_object :
-                         :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration`.
+        power_nets : str, list, optional
+            List of power nets to assign. Default is `None`.
+        signal_nets : str, list, optional
+            List of signal nets to assign. Default is `None`.
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if not isinstance(simulation_configuration_object, SimulationConfiguration):  # pragma: no cover
-            return False
-        for net in simulation_configuration_object.power_nets:
-            if net in self.signal_nets:  # pragma: no cover
-                self.signal_nets[net].net_object.SetIsPowerGround(True)
-        for net in simulation_configuration_object.signal_nets:
-            if net in self.power_nets:  # pragma: no cover
-                self.power_nets[net].net_object.SetIsPowerGround(False)
+        if isinstance(power_nets, str):
+            power_nets = []
+        elif not power_nets:
+            power_nets = []
+        if isinstance(signal_nets, str):
+            signal_nets = []
+        elif not signal_nets:
+            signal_nets = []
+        for net in power_nets:
+            if net in self.nets:
+                self.nets[net].net_object.SetIsPowerGround(True)
+        for net in signal_nets:
+            if net in self.nets:
+                self.nets[net].net_object.SetIsPowerGround(False)
         return True
 
     @pyaedt_function_handler()
@@ -894,3 +901,96 @@ class EdbNets(object):
             if net_name == net:
                 return True
         return False
+
+    @pyaedt_function_handler()
+    def find_and_fix_disjoint_nets(self, net_list=None, keep_only_main_net=False, clean_disjoints_less_than=0.0):
+        """Find and fix disjoint nets from a given netlist.
+
+        Parameters
+        ----------
+        net_list : str, list, optional
+            List of nets on which check disjoints. If `None` is provided then the algorithm will loop on all nets.
+        keep_only_main_net : bool, optional
+            Remove all secondary nets other than principal one (the one with more objects in it). Default is `False`.
+        clean_disjoints_less_than : bool, optional
+            Clean all disjoint nets with area less than specified area in square meters. Default is `0.0` to disable it.
+
+        Returns
+        -------
+        List
+            New nets created.
+
+        Examples
+        --------
+
+        >>> renamed_nets = edb_core.core_nets.find_and_fix_disjoint_nets(["GND","Net2"])
+        """
+
+        self._logger.reset_timer()
+        if not net_list:
+            net_list = list(self.nets.keys())
+        elif isinstance(net_list, str):
+            net_list = [net_list]
+        _objects_list = {}
+        _padstacks_list = {}
+        for prim in self._pedb.core_primitives.primitives:
+            n_name = prim.net_name
+            if n_name in _objects_list:
+                _objects_list[n_name].append(prim)
+            else:
+                _objects_list[n_name] = [prim]
+        for pad in list(self._pedb.core_padstack.padstack_instances.values()):
+            n_name = pad.net_name
+            if n_name in _padstacks_list:
+                _padstacks_list[n_name].append(pad)
+            else:
+                _padstacks_list[n_name] = [pad]
+        new_nets = []
+        disjoints_objects = []
+
+        for net in net_list:
+            net_groups = []
+            obj_dict = {}
+            for i in _objects_list.get(net, []):
+                obj_dict[i.id] = i
+            for i in _padstacks_list.get(net, []):
+                obj_dict[i.id] = i
+            objs = list(obj_dict.values())
+            l = len(objs)
+            while l > 0:
+                l1 = objs[0].get_connected_object_id_set()
+                l1.append(objs[0].id)
+                net_groups.append(l1)
+                objs = [i for i in objs if i.id not in l1]
+                l = len(objs)
+            if len(net_groups) > 1:
+                sorted_list = sorted(net_groups, key=len, reverse=True)
+                for disjoints in sorted_list[1:]:
+                    if keep_only_main_net:
+                        for geo in disjoints:
+                            try:
+                                obj_dict[geo].delete()
+                            except KeyError:
+                                pass
+                    elif len(disjoints) == 1 and (
+                        isinstance(obj_dict[disjoints[0]], EDBPadstackInstance)
+                        or clean_disjoints_less_than
+                        and obj_dict[disjoints[0]].area() < clean_disjoints_less_than
+                    ):
+                        try:
+                            obj_dict[disjoints[0]].delete()
+                        except KeyError:
+                            pass
+                    else:
+                        new_net_name = generate_unique_name(net, n=3)
+                        if self.find_or_create_net(new_net_name):
+                            new_nets.append(new_net_name)
+                            for geo in disjoints:
+                                try:
+                                    obj_dict[geo].net_name = new_net_name
+                                except KeyError:
+                                    pass
+                            disjoints_objects.extend(disjoints)
+        self._logger.info_timer("Disjoint Cleanup Completed.")
+        self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
+        return new_nets

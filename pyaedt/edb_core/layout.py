@@ -2,23 +2,12 @@
 This module contains these classes: `EdbLayout` and `Shape`.
 """
 import math
-import os
-import warnings
 
 from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.utilities import EDBStatistics
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    from System import Tuple
-
-    # from System.Collections.Generic import List
-
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires the PythonNET package.")
 
 
 class EdbLayout(object):
@@ -76,7 +65,7 @@ class EdbLayout(object):
         dict
             Dictionary of layers.
         """
-        return self._pedb.core_stackup.stackup_layers.layers
+        return self._pedb.stackup.layers
 
     @property
     def primitives(self):
@@ -134,9 +123,10 @@ class EdbLayout(object):
         """
         _primitives_by_layer = {}
         for lay in self.layers:
-            _primitives_by_layer[lay] = [
-                EDBPrimitives(i, self._pedb) for i in self._active_layout.Primitives if i.GetLayer().GetName() == lay
-            ]
+            _primitives_by_layer[lay] = []
+        for i in self._active_layout.Primitives:
+            lay = i.GetLayer().GetName()
+            _primitives_by_layer[lay].append(EDBPrimitives(i, self._pedb))
         return _primitives_by_layer
 
     @property
@@ -1012,7 +1002,7 @@ class EdbLayout(object):
         if isinstance(layer_name, str):
             layer_name = [layer_name]
         if not layer_name:
-            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+            layer_name = list(self._pedb.stackup.signal_layers.keys())
 
         for lay in layer_name:
             self._logger.info("Uniting Objects on layer %s.", lay)
@@ -1161,38 +1151,6 @@ class EdbLayout(object):
         return pts_list, nb_pts_removed
 
     @pyaedt_function_handler()
-    def setup_net_classes(self, simulation_setup=None):
-        """
-        Define nets listed as power ground nets in the ``simulation_setup`` object.
-
-        Parameters
-        ----------
-        simulation_setup : simulation_setup edb_data.simulation_configuration.SimulationConfiguration object
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-
-        """
-        if not isinstance(simulation_setup, SimulationConfiguration):
-            return False
-
-        net_list = list(self._active_layout.Nets)
-        power_net_list = [net for net in self._active_layout.Nets if net.GetName() in simulation_setup.power_nets]
-        map(lambda obj: obj.SetIsPowerGround(False), net_list)
-        for net in power_net_list:
-            self._set_power_net(net)
-        return True
-
-    @pyaedt_function_handler()
-    def _set_power_net(self, net):
-        if isinstance(net, self._edb.Cell.Net):
-            net.SetIsPowerGround(True)
-            self._logger.info("NET: {} set to power/ground class".format(net.GetName()))
-
-    @pyaedt_function_handler()
     def get_layout_statistics(self, evaluate_area=False, net_list=None):
         """Return EDBStatistics object from a layout.
 
@@ -1210,7 +1168,7 @@ class EdbLayout(object):
 
         """
         stat_model = EDBStatistics()
-        stat_model.num_layers = len(list(self._pedb.core_stackup.stackup_layers.layers.values()))
+        stat_model.num_layers = len(list(self._pedb.stackup.stackup_layers.values()))
         stat_model.num_capacitors = len(self._pedb.core_components.capacitors)
         stat_model.num_resistors = len(self._pedb.core_components.resistors)
         stat_model.num_inductors = len(self._pedb.core_components.inductors)
@@ -1227,7 +1185,7 @@ class EdbLayout(object):
         stat_model.num_traces = len(self._pedb.core_primitives.paths)
         stat_model.num_polygons = len(self._pedb.core_primitives.polygons)
         stat_model.num_vias = len(self._pedb.core_padstack.padstack_instances)
-        stat_model.stackup_thickness = self._pedb.core_stackup.get_layout_thickness()
+        stat_model.stackup_thickness = self._pedb.stackup.get_layout_thickness()
         if evaluate_area:
             if net_list:
                 netlist = list(self._pedb.core_nets.nets.keys())

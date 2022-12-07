@@ -2,20 +2,13 @@
 This module contains the `EdbPadstacks` class.
 """
 import math
-import os
-import warnings
 
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstack
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.generic.clr_module import Array
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    from System import Array
-except ImportError:
-    if os.name != "posix":
-        warnings.warn('This module requires the "pythonnet" package.')
 
 
 class EdbPadstacks(object):
@@ -30,8 +23,6 @@ class EdbPadstacks(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-        self._padstacks = {}
-        self._padstack_instances = {}
 
     @property
     def _builder(self):
@@ -64,7 +55,7 @@ class EdbPadstacks(object):
     @property
     def _layers(self):
         """ """
-        return self._pedb.core_stackup.stackup_layers
+        return self._pedb.stackup.stackup_layers
 
     @pyaedt_function_handler()
     def int_to_pad_type(self, val=0):
@@ -162,11 +153,11 @@ class EdbPadstacks(object):
             List of padstack instances.
 
         """
-        layout_lobj_collection = list(self._active_layout.PadstackInstances)
-        _padstack_instances = {}
-        for lobj in layout_lobj_collection:
-            _padstack_instances[lobj.GetId()] = EDBPadstackInstance(lobj, self._pedb)
-        return _padstack_instances
+        padstack_instances = {}
+        edb_padstack_inst_list = list(self._active_layout.PadstackInstances)
+        for edb_padstack_instance in edb_padstack_inst_list:
+            padstack_instances[edb_padstack_instance.GetId()] = EDBPadstackInstance(edb_padstack_instance, self._pedb)
+        return padstack_instances
 
     @property
     def pingroups(self):
@@ -246,7 +237,7 @@ class EdbPadstacks(object):
             value0,
         )
         new_PadStackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
-        layers = list(self._pedb.core_stackup.signal_layers.keys())
+        layers = list(self._pedb.stackup.signal_layers.keys())
         if not startlayer:
             startlayer = layers[0]
         if not endlayer:
@@ -300,7 +291,7 @@ class EdbPadstacks(object):
         PadStack.SetData(new_PadStackData)
 
     @pyaedt_function_handler
-    def delete_padstack_instances(self, net_names):
+    def delete_padstack_instances(self, net_names):  # pragma: no cover
         """Delete padstack instances by net names.
 
         Parameters
@@ -323,9 +314,8 @@ class EdbPadstacks(object):
 
         for p_id, p in self.padstack_instances.items():
             if p.name in net_names:
-                if not p.delete_padstack_instance():  # pragma: no cover
+                if not p.delete():  # pragma: no cover
                     return False
-                self._padstacks.pop(p_id)
         return True
 
     @pyaedt_function_handler()
@@ -364,7 +354,7 @@ class EdbPadstacks(object):
         )
         newdefdata.SetSolderBallPlacement(sball_placement)
         psdef.SetData(newdefdata)
-        sball_layer = [lay for lay in self._layers.edb_layers if lay.GetName() == sballLayer_name][0]
+        sball_layer = [lay._edb_layer for lay in list(self._layers.values()) if lay.name == sballLayer_name][0]
         if sball_layer is not None:
             padstackInst.SetSolderBallLayer(sball_layer)
             return True
@@ -389,6 +379,8 @@ class EdbPadstacks(object):
         """
         if isinstance(padstackinstance, int):
             padstackinstance = self.padstack_instances[padstackinstance]._edb_padstackinstance
+        elif isinstance(padstackinstance, EDBPadstackInstance):
+            padstackinstance = padstackinstance._edb_padstackinstance
         cmp_name = padstackinstance.GetComponent().GetName()
         if cmp_name == "":
             cmp_name = "no_comp"
@@ -585,6 +577,9 @@ class EdbPadstacks(object):
         offset_y="0.0",
         rotation="0.0",
         has_hole=True,
+        pad_offset_x="0.0",
+        pad_offset_y="0.0",
+        pad_rotation="0.0",
     ):
         """Create a padstack.
 
@@ -646,12 +641,16 @@ class EdbPadstacks(object):
         offset_y = self._get_edb_value(offset_y)
         rotation = self._get_edb_value(rotation)
 
+        pad_offset_x = self._get_edb_value(pad_offset_x)
+        pad_offset_y = self._get_edb_value(pad_offset_y)
+        pad_rotation = self._get_edb_value(pad_rotation)
+
         padstackData.SetHoleParameters(ptype, holparam, value0, value0, value0)
 
         padstackData.SetHolePlatingPercentage(self._get_edb_value(20.0))
         padstackData.SetHoleRange(self._edb.Definition.PadstackHoleRange.UpperPadToLowerPad)
         padstackData.SetMaterial("copper")
-        layers = list(self._pedb.core_stackup.signal_layers.keys())
+        layers = list(self._pedb.stackup.signal_layers.keys())
         if not startlayer:
             startlayer = layers[0]
         if not endlayer:
@@ -671,9 +670,9 @@ class EdbPadstacks(object):
                 self._edb.Definition.PadType.RegularPad,
                 self._edb.Definition.PadGeometryType.Circle,
                 padparam_array,
-                value0,
-                value0,
-                value0,
+                pad_offset_x,
+                pad_offset_y,
+                pad_rotation,
             )
 
             padstackData.SetPadParameters(
@@ -779,18 +778,18 @@ class EdbPadstacks(object):
         position = self._edb.Geometry.PointData(self._get_edb_value(position[0]), self._get_edb_value(position[1]))
         net = self._pedb.core_nets.find_or_create_net(net_name)
         rotation = self._get_edb_value(rotation * math.pi / 180)
-        sign_layers = list(self._pedb.core_stackup.signal_layers.keys())
+        sign_layers = list(self._pedb.stackup.signal_layers.keys())
         if not fromlayer:
-            fromlayer = self._pedb.core_stackup.signal_layers[sign_layers[-1]]._layer
+            fromlayer = self._pedb.stackup.signal_layers[sign_layers[-1]]._edb_layer
         else:
-            fromlayer = self._pedb.core_stackup.signal_layers[fromlayer]._layer
+            fromlayer = self._pedb.stackup.signal_layers[fromlayer]._edb_layer
 
         if not tolayer:
-            tolayer = self._pedb.core_stackup.signal_layers[sign_layers[0]]._layer
+            tolayer = self._pedb.stackup.signal_layers[sign_layers[0]]._edb_layer
         else:
-            tolayer = self._pedb.core_stackup.signal_layers[tolayer]._layer
+            tolayer = self._pedb.stackup.signal_layers[tolayer]._edb_layer
         if solderlayer:
-            solderlayer = self._pedb.core_stackup.signal_layers[solderlayer]._layer
+            solderlayer = self._pedb.stackup.signal_layers[solderlayer]._edb_layer
         if padstack:
             padstack_instance = self._edb.Cell.Primitive.PadstackInstance.Create(
                 self._active_layout,
@@ -805,7 +804,9 @@ class EdbPadstacks(object):
                 None,
             )
             padstack_instance.SetIsLayoutPin(is_pin)
-            return padstack_instance.GetId()
+            py_padstack_instance = EDBPadstackInstance(padstack_instance, self._pedb)
+
+            return py_padstack_instance
         else:
             return False
 
@@ -833,7 +834,7 @@ class EdbPadstacks(object):
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(p1)
 
         if not layer_name:
-            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+            layer_name = list(self._pedb.stackup.signal_layers.keys())
         elif isinstance(layer_name, str):
             layer_name = [layer_name]
         for lay in layer_name:
@@ -919,7 +920,7 @@ class EdbPadstacks(object):
         p1 = self.padstacks[padstack_name].edb_padstack.GetData()
         new_padstack_def = self._edb.Definition.PadstackDefData(p1)
         if not layer_name:
-            layer_name = list(self._pedb.core_stackup.signal_layers.keys())
+            layer_name = list(self._pedb.stackup.signal_layers.keys())
         elif isinstance(layer_name, str):
             layer_name = [layer_name]
         for layer in layer_name:
