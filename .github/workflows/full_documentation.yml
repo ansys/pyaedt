@@ -194,7 +194,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pyaedt-doc-flatten-json.zip
-          path: pyaedt-doc-flatten-json.zip
+          path: pyaedt-doc-flatten-json/pyaedt-doc-flatten-json.zip
           retention-days: 7
 
       # - name: Deploy
