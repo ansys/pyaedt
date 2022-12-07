@@ -1721,8 +1721,11 @@ class HfssSimulationSetup(object):
 
     @name.setter
     def name(self, value):
+        legacy_name = self._name
         self._edb_sim_setup_info.Name = value
         self._update_setup()
+        if legacy_name in self._edb.setups:
+            del self._edb._setups[legacy_name]
         self._name = value
 
     @property

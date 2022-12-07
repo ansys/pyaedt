@@ -7,9 +7,7 @@ maintenance:
 - setup.py
 - setup-distutils.py
 dependencies:
-- requirements.txt
-- requirements_docs.txt
-- requirements_test.txt
+- requirements/**/*
 testing:
 - _unittest/conftest.py
 - _unittest/launch_desktop_tests.py

@@ -35,7 +35,7 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements_docs.txt
 
       - name: Full Documentation Build
         run: |
@@ -88,7 +88,7 @@ jobs:
   #     - name: Install testing requirements
   #       run: |
   #         testenv\Scripts\Activate.ps1
-  #         pip install -r requirements_test.txt
+  #         pip install -r requirements/requirements_test.txt
   #         pip install pytest-azurepipelines
 
   #     - name: Docstring testing
