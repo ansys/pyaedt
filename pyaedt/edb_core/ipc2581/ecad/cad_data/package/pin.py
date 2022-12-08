@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class Pin(object):
-    """Class describing ipc2581 component pin."""
+    """Class describing an ICP2581 component pin."""
 
     def __init__(self):
         self.number = ""
