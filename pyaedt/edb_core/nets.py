@@ -994,3 +994,32 @@ class EdbNets(object):
         self._logger.info_timer("Disjoint Cleanup Completed.")
         self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
         return new_nets
+
+    @pyaedt_function_handler()
+    def convert_path_to_polygon(self, net_list=None):
+        """Search path in net list and convert them to polygon.
+
+        Parameters
+        ----------
+        net_list : str, list[str]
+            net name of list of net names.
+
+        Returns
+            list of polygon.
+        -------
+
+        """
+        if isinstance(net_list, str):
+            net_list = [net_list]
+        for net in net_list:
+            polygon_list = []
+            if net in self.nets:
+                paths = [prim for prim in self.nets[net].primitives if prim.type == "Path"]
+                for path in paths:
+                    polygon_data = path.primitive_object.GetPolygonData()
+                    polygon = self._pedb.core_primitives.create_polygon(
+                        polygon_data, path.layer_name, [], path.net_name
+                    )
+                    path.primitive_object.Delete()
+                    polygon_list.append(polygon)
+            return polygon_list

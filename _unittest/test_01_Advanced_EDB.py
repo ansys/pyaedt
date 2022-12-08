@@ -941,3 +941,7 @@ if not config["skip_edb"]:
                 plot_components_on_bottom=True,
             )
             assert os.path.exists(local_png3)
+
+        def test_24_convert_net_to_polygon(self):
+            edb = Edb(self.target_path3, edbversion=desktop_version)
+            assert edb.core_nets.convert_path_to_polygon(["USBH0_DP", "USBH0_DN"])
