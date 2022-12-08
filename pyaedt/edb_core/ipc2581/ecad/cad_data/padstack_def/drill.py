@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class Drill(object):
-    """Class describing ipc2581 drill feature."""
+    """Class describing an ICP2581 drill feature."""
 
     def __init__(self):
         self.net = ""
