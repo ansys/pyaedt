@@ -4,7 +4,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import Polygon
 
 
 class Outline:
-    """Class describing ipc2581 outline."""
+    """Class describing an IPC2581 outline."""
 
     def __init__(self, ipc):
         self._ipc = ipc
