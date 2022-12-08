@@ -1559,13 +1559,13 @@ class Edb(object):
                 net = self.core_nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
                 sign_layers = list(self.stackup.signal_layers.keys())
-                if not p.start_layer:
-                    fromlayer = self.stackup.signal_layers[sign_layers[-1]]._edb_layer
+                if not p.start_layer:  # pragma: no cover
+                    fromlayer = self.stackup.signal_layers[sign_layers[0]]._edb_layer
                 else:
                     fromlayer = self.stackup.signal_layers[p.start_layer]._edb_layer
 
-                if not p.stop_layer:
-                    tolayer = self.stackup.signal_layers[sign_layers[0]]._edb_layer
+                if not p.stop_layer:  # pragma: no cover
+                    tolayer = self.stackup.signal_layers[sign_layers[-1]]._edb_layer
                 else:
                     tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
