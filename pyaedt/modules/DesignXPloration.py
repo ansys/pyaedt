@@ -1084,7 +1084,7 @@ class ParametricSetups(object):
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
         with open(filename, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
-            firstDataLine = next(csvreader)
+            first_data_line = next(csvreader)
             setup.props["Sweeps"] = {"SweepDefinition": OrderedDict()}
             sweep_definition = []
             for var_name in csvreader.fieldnames:
@@ -1093,7 +1093,7 @@ class ParametricSetups(object):
                         OrderedDict(
                             {
                                 "Variable": var_name,
-                                "Data": firstDataLine[var_name],
+                                "Data": first_data_line[var_name],
                                 "OffsetF1": False,
                                 "Synchronize": 0,
                             }
@@ -1108,7 +1108,7 @@ class ParametricSetups(object):
             table = []
             for var_name in csvreader.fieldnames:
                 if var_name != "*":
-                    table.append(firstDataLine[var_name])
+                    table.append(first_data_line[var_name])
             table = [table]
             for line in csvreader:
                 table_line = []
