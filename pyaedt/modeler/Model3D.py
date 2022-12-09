@@ -6,7 +6,6 @@ import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Modeler import GeometryModeler
@@ -556,9 +555,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         -------
         List of :class:`pyaedt.modeler.Object3d.Object3d`
         """
-        if is_ironpython:
-            self._app.logger.error("Method not supported in ironpython. Try import_3d_cad method.")
-            return False
         nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}}
         with open(file_path, "r") as f:
             lines = f.read().splitlines()
