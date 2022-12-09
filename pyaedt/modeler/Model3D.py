@@ -62,6 +62,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         boundaries_list=None,
         excitation_list=None,
         included_cs=None,
+        is_encrypted=False,
+        security_message="",
+        password="",
+        edit_password="",
+        password_type="UserSuppliedPassword",
+        hide_contents=False,
+        replace_names=False,
+        component_outline="BoundingBox",
     ):
         """Create a 3D component file.
 
@@ -83,6 +91,29 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of Excitation names to export. The default is all excitations
         included_cs : list, optional
             List of Coordinate Systems to export. The default is all coordinate systems
+        is_encrypted : bool, optional
+            Whether the component has encrypted protection. The default is ``False``.
+        security_message : str, optional
+            Security message to display when component is inserted.
+            The default value is an empty string.
+        password : str, optional
+            Security password needed when adding the component.
+            The default value is an empty string.
+        edit_password : str, optional
+            Edit password.
+            The default value is an empty string.
+        password_type : str, optional
+            Password type. Value can either be ``UserSuppliedPassword`` or ``InternalPassword``.
+            The default value is ``UserSuppliedPassword``.
+        hide_contents : bool, optionale
+            Whether to hide contents.
+            The default is ``False``.
+        replace_names : bool, optional
+            Whether to replace objects and materials names.
+            The default is ``False``.
+        component_outline : str, optional
+            Component outline. Value can either be ``BoundingBox`` or ``None``.
+            The default is ``BoundingBox``.
 
         Returns
         -------
@@ -99,6 +130,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
+        if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
+            return False
+        if component_outline not in ["BoundingBox", "None"]:
+            return False
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -126,23 +161,23 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "HasLabel:=",
             False,
             "IsEncrypted:=",
-            False,
+            is_encrypted,
             "AllowEdit:=",
             False,
             "SecurityMessage:=",
-            "",
+            security_message,
             "Password:=",
-            "",
+            password,
             "EditPassword:=",
-            "",
+            edit_password,
             "PasswordType:=",
-            "UnknownPassword",
+            password_type,
             "HideContents:=",
-            True,
+            hide_contents,
             "ReplaceNames:=",
-            True,
+            replace_names,
             "ComponentOutline:=",
-            "None",
+            component_outline,
         ]
         if object_list:
             objs = object_list

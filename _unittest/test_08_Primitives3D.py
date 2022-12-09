@@ -839,6 +839,31 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(self.component3d_file)
 
+    def test_64_create_3d_component_encrypted(self):
+        assert self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            exclude_region=True,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+        )
+        assert not self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            exclude_region=True,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+            password_type="Invalid",
+        )
+        assert not self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            exclude_region=True,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+            component_outline="Invalid",
+        )
+
     def test_65_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
         eq_line = self.aedtapp.modeler.create_equationbased_curve(x_t="_t", y_t="_t*2", num_points=0)
@@ -1312,4 +1337,3 @@ class TestClass(BasisTest, object):
 
     def test_82_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
-        pass
