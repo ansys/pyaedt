@@ -269,6 +269,7 @@ class IcepakMesh(object):
             ----------
 
             >>> oModule.AssignMeshRegion
+            >>> oModule.AssignVirtualMeshRegion
             """
             assert self.name != "Settings", "Cannot create a new mesh region with this Name"
             args = ["NAME:" + self.name, "Enable:=", self.Enable]
@@ -276,7 +277,10 @@ class IcepakMesh(object):
                 args += self.manualsettings
             else:
                 args += self.autosettings
-            self.meshmodule.AssignMeshRegion(args)
+            if settings.aedt_version >= "2022.2":
+                self.meshmodule.AssignVirtualMeshRegion(args)
+            else:
+                self.meshmodule.AssignMeshRegion(args)
             return True
 
     @property
