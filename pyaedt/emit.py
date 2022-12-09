@@ -577,7 +577,7 @@ class Emit(FieldAnalysisEmit, object):
         return self
 
     @pyaedt_function_handler()
-    def analyze(self):
+    def analyze(self, revision_num=-1):
         """
         Analyze the active design.
 
@@ -598,10 +598,10 @@ class Emit(FieldAnalysisEmit, object):
                 self.results.revisions_list.append(Revision(self))
                 self.results.current_design = design.getRevision()
                 print("checkpoint - revision generated successfully")
-                domain = Interaction_Domain()
-                self.results.revisions_list[-1].run(domain)
-                rev = self.results.revisions_list[-1]
-                return rev
+            domain = Interaction_Domain()
+            self.results.revisions_list[revision_num].run(domain)
+            rev = self.results.revisions_list[revision_num]
+            return rev
 
     @pyaedt_function_handler()
     def _load_revision(self, path):

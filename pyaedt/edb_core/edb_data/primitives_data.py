@@ -272,14 +272,14 @@ class EDBPrimitives(object):
 
     @net_name.setter
     def net_name(self, val):
-        if val in self._core_net.nets:
-            net = self._core_net.nets[val].net_object
-            self.primitive_object.SetNet(net)
-        elif not isinstance(val, str):
+        if not isinstance(val, str):
             try:
                 self.primitive_object.SetNet(val)
             except:
                 raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+        elif val in self._core_net.nets:
+            net = self._core_net.nets[val].net_object
+            self.primitive_object.SetNet(net)
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
 
