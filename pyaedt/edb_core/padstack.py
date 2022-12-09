@@ -780,12 +780,12 @@ class EdbPadstacks(object):
         rotation = self._get_edb_value(rotation * math.pi / 180)
         sign_layers = list(self._pedb.stackup.signal_layers.keys())
         if not fromlayer:
-            fromlayer = self._pedb.stackup.signal_layers[sign_layers[-1]]._edb_layer
+            fromlayer = self._pedb.stackup.signal_layers[sign_layers[0]]._edb_layer
         else:
             fromlayer = self._pedb.stackup.signal_layers[fromlayer]._edb_layer
 
         if not tolayer:
-            tolayer = self._pedb.stackup.signal_layers[sign_layers[0]]._edb_layer
+            tolayer = self._pedb.stackup.signal_layers[sign_layers[-1]]._edb_layer
         else:
             tolayer = self._pedb.stackup.signal_layers[tolayer]._edb_layer
         if solderlayer:
