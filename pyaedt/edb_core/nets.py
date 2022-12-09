@@ -1043,6 +1043,7 @@ class EdbNets(object):
             net_rtree = self._edb.Geometry.RTree()
             polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
             for polygon in polygons:
-                polygon_data = polygon.GetPolygonData()
-                rtree = self._edb.Geometry.RTree(polygon_data, polygon.primitive_object)
+                polygon_data = polygon.primitive_object.GetPolygonData()
+                rtree = self._edb.Geometry.RTreeObj(polygon_data, polygon.primitive_object)
                 net_rtree.Insert(rtree)
+            connected_polygons = net_rtree.GetConnectedGeometrySets()
