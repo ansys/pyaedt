@@ -1270,12 +1270,21 @@ class Edb(object):
         else:
             all_list = signal_list + reference_list
 
+        reference_pinsts = []
+        reference_prims = []
         for i in self.core_padstack.padstack_instances.values():
-            if i.net_name not in all_list:
+            net_name = i.net_name
+            if net_name not in all_list:
                 i.delete()
+            elif net_name in reference_list:
+                reference_pinsts.append(i)
         for i in self.core_primitives.primitives:
-            if i.net_name not in all_list:
+            net_name = i.net_name
+            if net_name not in all_list:
                 i.delete()
+            elif net_name in reference_list and not i.is_void:
+                reference_prims.append(i)
+
         for i in self.core_nets.nets.values():
             if i.name not in all_list:
                 i.net_object.Delete()
@@ -1300,8 +1309,6 @@ class Edb(object):
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
         _poly_list = convert_py_list_to_net_list([_poly])
-        polys = [i for i in self.core_primitives.primitives if not i.is_void]
-        pinsts = [i for i in list(self.core_padstack.padstack_instances.values())]
         prims_to_delete = []
         poly_to_create = []
         pins_to_delete = []
@@ -1316,52 +1323,49 @@ class Edb(object):
             return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
 
         def clean_prim(prim_1):  # pragma: no cover
-            net = prim_1.net_name
-            if net in reference_list:
-                pdata = get_polygon_data(prim_1)
-                int_data = _poly.GetIntersectionType(pdata)
-                if int_data == 0:
-                    prims_to_delete.append(prim_1)
-                elif int_data != 2:
-                    list_poly = intersect(_poly, pdata)
-                    if list_poly:
-                        voids = prim_1.voids
-                        for p in list_poly:
-                            if p.IsNull():
-                                continue
-                            list_void = []
-                            void_to_subtract = []
-                            if voids:
-                                for void in voids:
-                                    void_pdata = get_polygon_data(void)
-                                    int_data2 = p.GetIntersectionType(void_pdata)
-                                    if int_data2 > 2:
-                                        void_to_subtract.append(void_pdata)
-                                    elif int_data2 == 2:
-                                        list_void.append(void_pdata)
-                                if void_to_subtract:
-                                    polys_cleans = subtract(p, void_to_subtract)
-                                    for polys_clean in polys_cleans:
-                                        if not polys_clean.IsNull():
-                                            void_to_append = [
-                                                v for v in list_void if polys_clean.GetIntersectionType(v) == 2
-                                            ]
-                                            poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
-                                else:
-                                    poly_to_create.append([p, prim_1.layer_name, net, list_void])
+            pdata = get_polygon_data(prim_1)
+            int_data = _poly.GetIntersectionType(pdata)
+            if int_data == 0:
+                prims_to_delete.append(prim_1)
+            elif int_data != 2:
+                list_poly = intersect(_poly, pdata)
+                if list_poly:
+                    net = prim_1.net_name
+                    voids = prim_1.voids
+                    for p in list_poly:
+                        if p.IsNull():
+                            continue
+                        list_void = []
+                        void_to_subtract = []
+                        if voids:
+                            for void in voids:
+                                void_pdata = get_polygon_data(void)
+                                int_data2 = p.GetIntersectionType(void_pdata)
+                                if int_data2 > 2 or int_data == 1:
+                                    void_to_subtract.append(void_pdata)
+                                elif int_data2 == 2:
+                                    list_void.append(void_pdata)
+                            if void_to_subtract:
+                                polys_cleans = subtract(p, void_to_subtract)
+                                for polys_clean in polys_cleans:
+                                    if not polys_clean.IsNull():
+                                        void_to_append = [
+                                            v for v in list_void if polys_clean.GetIntersectionType(v) == 2
+                                        ]
+                                        poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
                             else:
                                 poly_to_create.append([p, prim_1.layer_name, net, list_void])
+                        else:
+                            poly_to_create.append([p, prim_1.layer_name, net, list_void])
 
-                    prims_to_delete.append(prim_1)
+                prims_to_delete.append(prim_1)
 
         def pins_clean(pinst):
-            if pinst.net_name in reference_list and not pinst.in_polygon(_poly, simple_check=True):
+            if not pinst.in_polygon(_poly, simple_check=True):
                 pins_to_delete.append(pinst)
 
         with ThreadPoolExecutor(number_of_threads) as pool:
-            pool.map(lambda item: pins_clean(item), pinsts)
-        # for item in pinsts:
-        #     pins_clean(item)
+            pool.map(lambda item: pins_clean(item), reference_pinsts)
 
         for pin in pins_to_delete:
             pin.delete()
@@ -1370,7 +1374,7 @@ class Edb(object):
         self.logger.reset_timer()
 
         with ThreadPoolExecutor(number_of_threads) as pool:
-            pool.map(lambda item: clean_prim(item), polys)
+            pool.map(lambda item: clean_prim(item), reference_prims)
 
         for el in poly_to_create:
             self.core_primitives.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
