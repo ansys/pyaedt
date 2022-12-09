@@ -1023,3 +1023,26 @@ class EdbNets(object):
                     path.primitive_object.Delete()
                     polygon_list.append(polygon)
             return polygon_list
+
+    @pyaedt_function_handler()
+    def merge_nets_polygons(self, net_list):
+        """
+
+        Parameters
+        ----------
+        net_list
+
+        Returns
+        -------
+
+        """
+        if isinstance(net_list, str):
+            net_list = [net_list]
+        self.convert_path_to_polygon(net_list=net_list)
+        for net in net_list:
+            net_rtree = self._edb.Geometry.RTree()
+            polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
+            for polygon in polygons:
+                polygon_data = polygon.GetPolygonData()
+                rtree = self._edb.Geometry.RTree(polygon_data, polygon.primitive_object)
+                net_rtree.Insert(rtree)

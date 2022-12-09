@@ -945,3 +945,4 @@ if not config["skip_edb"]:
         def test_24_convert_net_to_polygon(self):
             edb = Edb(self.target_path3, edbversion=desktop_version)
             assert edb.core_nets.convert_path_to_polygon(["USBH0_DP", "USBH0_DN"])
+            edb.core_nets.merge_nets_polygons(["USBH0_DP", "USBH0_DN"])

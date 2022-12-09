@@ -2115,6 +2115,8 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
+                        use_pyaedt_extent_computing=True,
+                        remove_single_pin_components=True,
                     )
                     self.logger.info("Cutout processed.")
             self.logger.info("Deleting existing ports.")
