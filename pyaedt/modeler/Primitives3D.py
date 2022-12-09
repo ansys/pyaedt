@@ -1097,6 +1097,7 @@ class Primitives3D(Primitives, object):
         szDesignParams="",
         targetCS="Global",
         name=None,
+        password="",
     ):
         """Insert a new 3D component.
 
@@ -1114,6 +1115,8 @@ class Primitives3D(Primitives, object):
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
             3D component name. The default is ``None``.
+        password : str, optional
+            Password for encrypted components. The default is an empty string.
 
         Returns
         -------
@@ -1150,6 +1153,8 @@ class Primitives3D(Primitives, object):
         varg2.append("DesignParameters:=")
         varg2.append(szDesignParams)
         vArg1.append(varg2)
+        vArg1.append("Password:=")
+        vArg1.append(password)
         new_object_name = self.oeditor.Insert3DComponent(vArg1)
         if new_object_name:
             obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
