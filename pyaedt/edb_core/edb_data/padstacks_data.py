@@ -1171,6 +1171,9 @@ class EDBPadstackInstance(object):
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
         out = self._edb_padstackinstance.GetPositionAndRotationValue()
+        if self._edb_padstackinstance.IsLayoutPin():
+            out2 = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(out[1])
+            return [out2.X.ToDouble(), out2.Y.ToDouble()]
         if out[0]:
             return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
         return []
