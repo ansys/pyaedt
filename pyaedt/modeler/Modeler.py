@@ -3218,7 +3218,7 @@ class GeometryModeler(Modeler, object):
             vArg1 = ["NAME:Selections", "Selections:=", szSelections]
             vArg2 = ["NAME:UniteParameters", "KeepOriginals:=", False]
             self.oeditor.Unite(vArg1, vArg2)
-            if objs[0] in self.unclassified_names:
+            if szSelections.split(",")[0] in self.unclassified_names:
                 self.logger.error("Error in uniting objects.")
                 self._odesign.Undo()
                 self.cleanup_objects()
