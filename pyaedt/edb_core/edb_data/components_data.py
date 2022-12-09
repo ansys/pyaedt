@@ -586,17 +586,6 @@ class EDBComponent(object):
         ]
         return pins
 
-    @pyaedt_function_handler()
-    def set_is_pin(self):
-        [
-            p.SetIsLayoutPin(True)
-            for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
-            and not p.IsLayoutPin()
-            and p.GetComponent().GetName() == self.refdes
-        ]
-        return True
-
     @property
     def nets(self):
         """Nets of Component.
