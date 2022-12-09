@@ -947,7 +947,8 @@ class EdbNets(object):
                 _padstacks_list[n_name] = [pad]
         new_nets = []
         disjoints_objects = []
-
+        self._logger.info_timer("Found objects")
+        self._logger.reset_timer()
         for net in net_list:
             net_groups = []
             obj_dict = {}
@@ -963,6 +964,8 @@ class EdbNets(object):
                 net_groups.append(l1)
                 objs = [i for i in objs if i.id not in l1]
                 l = len(objs)
+            self._logger.info_timer("Got connected objects")
+            self._logger.reset_timer()
             if len(net_groups) > 1:
                 sorted_list = sorted(net_groups, key=len, reverse=True)
                 for disjoints in sorted_list[1:]:
@@ -982,12 +985,13 @@ class EdbNets(object):
                         except KeyError:
                             pass
                     else:
-                        new_net_name = generate_unique_name(net, n=3)
-                        if self.find_or_create_net(new_net_name):
-                            new_nets.append(new_net_name)
+                        new_net_name = generate_unique_name(net, n=6)
+                        net_obj = self.find_or_create_net(new_net_name)
+                        if net_obj:
+                            new_nets.append(net_obj.GetName())
                             for geo in disjoints:
                                 try:
-                                    obj_dict[geo].net_name = new_net_name
+                                    obj_dict[geo].net_name = net_obj
                                 except KeyError:
                                     pass
                             disjoints_objects.extend(disjoints)

@@ -62,7 +62,7 @@ _value_parse2 = re.compile(r"^'([^']*\s[^']*)(?=')")
 _begin_search = re.compile(r"\$begin '(.+)'")
 
 # set recognized keywords
-_recognized_keywords = ["CurvesInfo"]
+_recognized_keywords = ["CurvesInfo", "Sweep Operations"]
 _recognized_subkeys = ["simple("]
 
 # global variables
@@ -221,6 +221,14 @@ def _decode_recognized_key(keyword, line, d):
             v2 = v.replace("\\'", '"')
             v3 = _separate_list_elements(v2)
             d[k] = v3
+    elif keyword == _recognized_keywords[1]:  # 'Sweep Operations'
+        d["add"] = []
+        global _count
+        line = _all_lines[_count + 1]
+        while line.startswith("add("):
+            d["add"].append(line.replace("add", "").translate({ord(i): None for i in " ()'"}).split(","))
+            _count += 1
+            line = _all_lines[_count + 1]
     else:  # pragma: no cover
         raise AttributeError("Keyword {} is supposed to be in the recognized_keywords list".format(keyword))
 
