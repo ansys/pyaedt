@@ -1,11 +1,13 @@
 from __future__ import absolute_import  # noreorder
 
 import datetime
+import os.path
 import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
 
@@ -569,3 +571,147 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     objects.append(obj)
 
         return objects
+
+    @pyaedt_function_handler()
+    def import_nastran(self, file_path, import_lines=True, lines_thickness=0):
+        """Import Nastran file into 3D Modeler by converting it to stl and reading it.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to .nas file.
+        import_lines : bool, optional
+            Whether to import the lines or only triangles. Default is ``True``.
+        lines_thickness : float, optional
+            Whether to thicken lines after creation and it's default value.
+            Every line will be parametrized with a design variable called ``xsection_linename``.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.Object3d`
+        """
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}}
+        with open(file_path, "r") as f:
+            lines = f.read().splitlines()
+            id = 0
+            for line in lines:
+                line_split = [line[i : i + 8] for i in range(0, len(line), 8)]
+                if len(line_split) < 5:
+                    continue
+                if line_split[0].startswith("GRID"):
+                    try:
+                        n_1_3 = line[24:48]
+                        import re
+
+                        out = re.findall("^.{24}(.{8})(.{8})(.{8})", line)[0]
+                        n1 = out[0].replace(".-", ".e-").strip()
+                        n2 = out[1].replace(".-", ".e-").strip()
+                        n3 = out[2].replace(".-", ".e-").strip()
+
+                        if "-" in n1[1:]:
+                            n1 = n1[0] + n1[1:].replace("-", "e-")
+                        n1 = float(n1)
+                        if "-" in n2[1:]:
+                            n2 = n2[0] + n2[1:].replace("-", "e-")
+                        n2 = float(n2)
+                        if "-" in n3[1:]:
+                            n3 = n3[0] + n3[1:].replace("-", "e-")
+                        n3 = float(n3)
+
+                        nas_to_dict["Points"][int(line_split[1])] = [n1, n2, n3]
+                        nas_to_dict["PointsId"][int(line_split[1])] = id
+                        id += 1
+                    except:
+                        pass
+                elif line_split[0].startswith("CTRIA3"):
+                    if int(line_split[2]) in nas_to_dict["Triangles"]:
+                        nas_to_dict["Triangles"][int(line_split[2])].append(
+                            [
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                            ]
+                        )
+                    else:
+                        nas_to_dict["Triangles"][int(line_split[2])] = [
+                            [
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                            ]
+                        ]
+                elif line_split[0].startswith("CROD") or line_split[0].startswith("CBEAM"):
+                    if int(line_split[2]) in nas_to_dict["Lines"]:
+                        nas_to_dict["Lines"][int(line_split[2])].append([int(line_split[3]), int(line_split[4])])
+                    else:
+                        nas_to_dict["Lines"][int(line_split[2])] = [[int(line_split[3]), int(line_split[4])]]
+        objs_before = [i for i in self.object_names]
+        f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
+        f.write("solid PyaedtStl\n")
+        for triangles in nas_to_dict["Triangles"].values():
+            for triangle in triangles:
+                try:
+                    points = [nas_to_dict["Points"][id] for id in triangle]
+                except KeyError:
+                    continue
+                fc = GeometryOperators.get_polygon_centroid(points)
+                v1 = points[0]
+                v2 = points[1]
+                cv1 = GeometryOperators.v_points(fc, v1)
+                cv2 = GeometryOperators.v_points(fc, v2)
+                if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+                    n = [0, 0, 1]
+                elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                    n = [0, 1, 0]
+                elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                    n = [1, 0, 0]
+                else:
+                    n = GeometryOperators.v_cross(cv1, cv2)
+                normal = GeometryOperators.normalize_vector(n)
+                if normal:
+                    f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+                    f.write("  outer loop\n")
+                    f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+                    f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+                    f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+                    f.write("  endloop\n")
+                    f.write(" endfacet\n")
+
+        f.write("endsolid\n")
+        f.close()
+        self.import_3d_cad(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"))
+        if not import_lines:
+            return True
+
+        for line_name, lines in nas_to_dict["Lines"].items():
+            if lines_thickness:
+                self._app["x_section_{}".format(line_name)] = lines_thickness
+            polys = []
+            id = 0
+            for line in lines:
+                try:
+                    points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
+                except KeyError:
+                    continue
+                if lines_thickness:
+                    polys.append(
+                        self.create_polyline(
+                            points,
+                            name="Poly_{}_{}".format(line_name, id),
+                            xsection_type="Circle",
+                            xsection_width="x_section_{}".format(line_name),
+                            xsection_num_seg=6,
+                        )
+                    )
+                else:
+                    polys.append(self.create_polyline(points, name="Poly_{}_{}".format(line_name, id)))
+                id += 1
+
+            if len(polys) > 1:
+                out_poly = self.unite(polys, purge=not lines_thickness)
+                if not lines_thickness and out_poly:
+                    self.generate_object_history(out_poly)
+
+        objs_after = [i for i in self.object_names]
+        new_objects = [self[i] for i in objs_after if i not in objs_before]
+        return new_objects
