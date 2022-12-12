@@ -25,7 +25,9 @@ class IcepakMesh(object):
         self.id = 0
         self._oeditor = self.modeler.oeditor
         self._model_units = self.modeler.model_units
-        self.global_mesh_region = self.MeshRegion(self.omeshmodule, self.boundingdimension, self._model_units)
+        self.global_mesh_region = self.MeshRegion(
+            self.omeshmodule, self.boundingdimension, self._model_units, self._app
+        )
         self.meshoperations = self._get_design_mesh_operations()
         self.meshregions = self._get_design_mesh_regions()
         self._priorities_args = []
@@ -44,7 +46,7 @@ class IcepakMesh(object):
     class MeshRegion(object):
         """Manages Icepak mesh region settings."""
 
-        def __init__(self, meshmodule, dimension, units):
+        def __init__(self, meshmodule, dimension, units, app):
             self.name = "Settings"
             self.meshmodule = meshmodule
             self.model_units = units
@@ -85,6 +87,8 @@ class IcepakMesh(object):
             self.SlackMaxY = "0mm"
             self.SlackMaxZ = "0mm"
             self.CoordCS = "Global"
+            self.virtual_region = False
+            self._app = app
 
         @pyaedt_function_handler()
         def _dim_arg(self, value):
@@ -118,25 +122,32 @@ class IcepakMesh(object):
                     "Enforce2dot5DCutCell:=",
                     self.Enforce2dot5DCutCell,
                 ]
-            if settings.aedt_version >= "2022.2":
-                arg.extend(
-                    [
-                        "SlackMinX:=",
-                        self.SlackMinX,
-                        "SlackMinY:=",
-                        self.SlackMinY,
-                        "SlackMinZ:=",
-                        self.SlackMinZ,
-                        "SlackMaxX:=",
-                        self.SlackMaxX,
-                        "SlackMaxY:=",
-                        self.SlackMaxY,
-                        "SlackMaxZ:=",
-                        self.SlackMaxZ,
-                        "CoordCS:=",
-                        self.CoordCS,
-                    ]
-                )
+            if self.virtual_region:
+                if self._app.check_beta_option_enabled("S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"):
+                    arg.extend(
+                        [
+                            "SlackMinX:=",
+                            self.SlackMinX,
+                            "SlackMinY:=",
+                            self.SlackMinY,
+                            "SlackMinZ:=",
+                            self.SlackMinZ,
+                            "SlackMaxX:=",
+                            self.SlackMaxX,
+                            "SlackMaxY:=",
+                            self.SlackMaxY,
+                            "SlackMaxZ:=",
+                            self.SlackMaxZ,
+                            "CoordCS:=",
+                            self.CoordCS,
+                        ]
+                    )
+                else:
+                    if settings.aedt_version < "2022.2":
+                        self.logger.warning("Virtual Mesh Region feature is not available in this version.")
+                    else:
+                        self.logger.warning("Virtual Mesh Region beta feature is enabled.")
+
             return arg
 
         @property
@@ -277,7 +288,7 @@ class IcepakMesh(object):
                 args += self.manualsettings
             else:
                 args += self.autosettings
-            if settings.aedt_version >= "2022.2":
+            if self.virtual_region and self._app.check_beta_option_enabled("S544753_ICEPAK_VIRTUALMESHREGION_PARADIGM"):
                 self.meshmodule.AssignVirtualMeshRegion(args)
             else:
                 self.meshmodule.AssignMeshRegion(args)
@@ -318,7 +329,9 @@ class IcepakMesh(object):
                 if isinstance(
                     self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds], (OrderedDict, dict)
                 ):
-                    meshop = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
+                    meshop = self.MeshRegion(
+                        self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app
+                    )
                     dict_prop = self._app.design_properties["MeshRegion"]["MeshSetup"]["MeshRegions"][ds]
                     self.name = ds
                     for el in dict_prop:
@@ -550,7 +563,7 @@ class IcepakMesh(object):
         return True
 
     @pyaedt_function_handler()
-    def assign_mesh_region(self, objectlist=[], level=5, is_submodel=False, name=None):
+    def assign_mesh_region(self, objectlist=[], level=5, is_submodel=False, name=None, virtual_region=False):
         """Assign a predefined surface mesh level to an object.
 
         Parameters
@@ -565,6 +578,8 @@ class IcepakMesh(object):
             Define if the object list is made by component models
         name : str, optional
             Name of the mesh region. The default is ``"MeshRegion1"``.
+        virtual_region : bool, optional
+            Whether to use the virtual mesh region beta feature (available from version 22.2). The default is ``False``.
 
         Returns
         -------
@@ -577,10 +592,11 @@ class IcepakMesh(object):
         """
         if not name:
             name = generate_unique_name("MeshRegion")
-        meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units)
+        meshregion = self.MeshRegion(self.omeshmodule, self.boundingdimension, self.modeler.model_units, self._app)
         meshregion.UserSpecifiedSettings = False
         meshregion.Level = level
         meshregion.name = name
+        meshregion.virtual_region = virtual_region
         if not objectlist:
             objectlist = [i for i in self.modeler.object_names]
         if is_submodel:
