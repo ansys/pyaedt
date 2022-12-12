@@ -997,35 +997,6 @@ class EdbNets(object):
         return new_nets
 
     @pyaedt_function_handler()
-    def convert_path_to_polygon(self, net_list=None):
-        """Search path in net list and convert them to polygon.
-
-        Parameters
-        ----------
-        net_list : str, list[str]
-            net name of list of net names.
-
-        Returns
-            list of polygon.
-        -------
-
-        """
-        if isinstance(net_list, str):
-            net_list = [net_list]
-        for net in net_list:
-            polygon_list = []
-            if net in self.nets:
-                paths = [prim for prim in self.nets[net].primitives if prim.type == "Path"]
-                for path in paths:
-                    polygon_data = path.primitive_object.GetPolygonData()
-                    polygon = self._pedb.core_primitives.create_polygon(
-                        polygon_data, path.layer_name, [], path.net_name
-                    )
-                    path.primitive_object.Delete()
-                    polygon_list.append(polygon)
-            return polygon_list
-
-    @pyaedt_function_handler()
     def merge_nets_polygons(self, net_list):
         """Convert paths from net into polygons, evaluate all connected polygons and perform the merge.
 
@@ -1042,32 +1013,35 @@ class EdbNets(object):
         """
         if isinstance(net_list, str):
             net_list = [net_list]
-        self.convert_path_to_polygon(net_list=net_list)
         returned_poly = []
         for net in net_list:
-            net_rtree = self._edb.Geometry.RTree()
-            polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
-            for polygon in polygons:
-                polygon_data = polygon.primitive_object.GetPolygonData()
-                rtree = self._edb.Geometry.RTreeObj(polygon_data, polygon.primitive_object)
-                net_rtree.Insert(rtree)
-            connected_polygons = net_rtree.GetConnectedGeometrySets()
-            void_list = []
-            for pp in list(connected_polygons):
-                for _pp in list(pp):
-                    _voids = list(_pp.Obj.Voids)
-                    void_list.extend(_pp.Obj.Voids)
-            for poly_list in list(connected_polygons):
-                layer = list(poly_list)[0].Obj.GetLayer().GetName()
-                net = list(poly_list)[0].Obj.GetNet()
-                _poly_list = convert_py_list_to_net_list([obj.Poly for obj in list(poly_list)])
-                merged_polygon = list(self._edb.Geometry.PolygonData.Unite(_poly_list))
-                for poly in merged_polygon:
-                    for void in void_list:
-                        poly.AddHole(void.GetPolygonData())
-                    _new_poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer, net, poly)
-                    returned_poly.append(_new_poly)
-            for init_poly in list(list(connected_polygons)):
-                for _pp in list(init_poly):
-                    _pp.Obj.Delete()
+            if net in self.nets:
+                net_rtree = self._edb.Geometry.RTree()
+                paths = [prim for prim in self.nets[net].primitives if prim.type == "Path"]
+                for path in paths:
+                    path.convert_polygon()
+                polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
+                for polygon in polygons:
+                    polygon_data = polygon.primitive_object.GetPolygonData()
+                    rtree = self._edb.Geometry.RTreeObj(polygon_data, polygon.primitive_object)
+                    net_rtree.Insert(rtree)
+                connected_polygons = net_rtree.GetConnectedGeometrySets()
+                void_list = []
+                for pp in list(connected_polygons):
+                    for _pp in list(pp):
+                        _voids = list(_pp.Obj.Voids)
+                        void_list.extend(_pp.Obj.Voids)
+                for poly_list in list(connected_polygons):
+                    layer = list(poly_list)[0].Obj.GetLayer().GetName()
+                    net = list(poly_list)[0].Obj.GetNet()
+                    _poly_list = convert_py_list_to_net_list([obj.Poly for obj in list(poly_list)])
+                    merged_polygon = list(self._edb.Geometry.PolygonData.Unite(_poly_list))
+                    for poly in merged_polygon:
+                        for void in void_list:
+                            poly.AddHole(void.GetPolygonData())
+                        _new_poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer, net, poly)
+                        returned_poly.append(_new_poly)
+                for init_poly in list(list(connected_polygons)):
+                    for _pp in list(init_poly):
+                        _pp.Obj.Delete()
         return returned_poly
