@@ -11,7 +11,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import PolyStep
 
 
 class Package(object):
-    """Class describing ipc2581 package definition."""
+    """Class describing an IPC2581 package definition."""
 
     def __init__(self, ipc):
         self._ipc = ipc
