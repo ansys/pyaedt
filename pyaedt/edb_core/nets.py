@@ -1019,7 +1019,7 @@ class EdbNets(object):
                 net_rtree = self._edb.Geometry.RTree()
                 paths = [prim for prim in self.nets[net].primitives if prim.type == "Path"]
                 for path in paths:
-                    path.convert_polygon()
+                    path.convert_to_polygon()
                 polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
                 for polygon in polygons:
                     polygon_data = polygon.primitive_object.GetPolygonData()
