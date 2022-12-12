@@ -1,7 +1,7 @@
 """
 EDB: fully configurable project
 -------------------------------
-This example shows how you can use create a project using bom file and configuration files,
+This example shows how you can create a project using a BOM file and configuration files.
 run anlasyis and get results.
 
 """
