@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class PhyNet(object):
-    """Class describing ipc2581 physical net."""
+    """Class describing an IPC2581 physical net."""
 
     def __init__(self):
         self._name = ""
