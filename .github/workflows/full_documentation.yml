@@ -195,6 +195,17 @@ jobs:
           path: pyaedt-doc-flatten-json/pyaedt-doc-flatten-json.zip
           retention-days: 7
 
+      # Verify that sphinx generates no warnings
+      - name: Check for warnings
+        run: |
+          python doc/print_errors.py
+
+  # The "deploy" action is primarily developed using Ubuntu.
+  # As a workaround, we are using the artifacts generated from a Windows build agent.
+  deploy_json-documentation:
+    name: deploy_documentation_json
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
@@ -203,8 +214,3 @@ jobs:
           folder: pyaedt-doc-flatten-json
           token: ${{ steps.get_workflow_token.outputs.token }}
           clean: false
-
-      # Verify that sphinx generates no warnings
-      - name: Check for warnings
-        run: |
-          python doc/print_errors.py
