@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class PadstackHoleDef(object):
-    """Class describing ipc2581 pad-stack hole definition."""
+    """Class describing an ICP2581 padstack hole definition."""
 
     def __init__(self):
         self.name = ""
