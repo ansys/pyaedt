@@ -1,5 +1,9 @@
 import re
 
+from pyaedt import pyaedt_function_handler
+from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.generic.constants import NodeType
 from pyaedt.generic.constants import SourceType
 
@@ -445,7 +449,67 @@ class ResistorSource(Source):
         return self._source_type
 
 
-class Excitation:
+class CommonExcitation(object):
+    def __init__(self, pedb, edb_terminal):
+        self._pedb = pedb
+        self._edb_terminal = edb_terminal
+
+    @property
+    def _edb(self):
+        return self._pedb.edb
+
+    @property
+    def name(self):
+        """Port Name.
+
+        Returns
+        -------
+        str
+        """
+        return self._edb_terminal.GetName()
+
+    @property
+    def net_name(self):
+        """Net Name.
+
+        Returns
+        -------
+        str
+        """
+        return self._edb_terminal.GetNet().GetName()
+
+    @property
+    def net(self):
+        """Net Object.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.nets_data.EDBNetsData`
+        """
+        return EDBNetsData(self._edb_terminal.GetNet(), self._pedb)
+
+    @property
+    def terminal_type(self):
+        """Terminal Type.
+
+        Returns
+        -------
+        int
+        """
+        return self._edb_terminal.GetTerminalType()
+
+    @property
+    def boundary_type(self):
+        """Boundary Type.
+
+        Returns
+        -------
+        int
+        """
+        return self._edb_terminal.GetBoundaryType()
+
+
+class ExcitationPorts(CommonExcitation):
     """Manages excitation properties.
 
     Parameters
@@ -454,22 +518,20 @@ class Excitation:
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
         Edge terminal instance from edblib.
-    name : str
-        Name of this excitation.
+
 
     Examples
     --------
-
+    This example shows how to access this class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> exc = edb.excitations
+    >>> print(exc["Port1"].name)
     """
 
-    def __init__(self, pedb, edb_terminal, name):
-        self._pedb = pedb
-        self._edb_terminal = edb_terminal
-        self._name = name
-
-    @property
-    def _edb(self):
-        return self._pedb.edb
+    def __init__(self, pedb, edb_terminal):
+        CommonExcitation.__init__(self, pedb, edb_terminal)
+        self._reference_object = None
 
     @property
     def _edb_properties(self):
@@ -505,3 +567,342 @@ class Excitation:
         """Get pec launch width."""
         txt = re.search(r"'PEC Launch Width'='.*?'", self._edb_properties).group()
         return txt.split("=")[1].replace("'", "")
+
+    @property
+    def impedance(self):
+        """Impedance of the port."""
+        return self._edb_terminal.GetImpedance().ToDouble()
+
+    @property
+    def is_circuit(self):
+        """Return ``True`` if is a circuit port."""
+        return self._edb_terminal.GetIsCircuitPort()
+
+    @property
+    def magnitude(self):
+        """Magnitude."""
+        return self._edb_terminal.GetSourceAmplitude().ToDouble()
+
+    @property
+    def phase(self):
+        """Phase."""
+        return self._edb_terminal.GetSourcePhase().ToDouble()
+
+    @property
+    def renormalize(self):
+        """Either if renormalize is active or not."""
+        return self._edb_terminal.GetPortPostProcessingProp().DoRenormalize
+
+    @property
+    def deembed(self):
+        """Either if deembed is active or not."""
+        return self._edb_terminal.GetPortPostProcessingProp().DoDeembed
+
+    @property
+    def deembed_gapport_inductance(self):
+        """Deembed Gap Port Inductance value."""
+        return self._edb_terminal.GetPortPostProcessingProp().DoDeembedGapL
+
+    @property
+    def deembed_length(self):
+        """Deembed Length."""
+        return self._edb_terminal.GetPortPostProcessingProp().DeembedLength.ToDouble()
+
+    @property
+    def renormalize_z0(self):
+        """Renormalize Z0 value (real, imag)."""
+        return (
+            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item1,
+            self._edb_terminal.GetPortPostProcessingProp().RenormalizionZ0.ToComplex().Item2,
+        )
+
+    @property
+    def reference_object(self):
+        """This returns the object assigned as reference. It can be a primitive or a padstack instance.
+
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` or
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
+        """
+        if not self._reference_object:
+            term = self._edb_terminal
+            if self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.EdgeTerminal:
+                edges = self._edb_terminal.GetEdges()
+                edgeType = edges[0].GetEdgeType()
+                if edgeType == self._pedb.edb.Cell.Terminal.EdgeType.PadEdge:
+                    self._reference_object = self.get_pad_edge_terminal_reference_pin()
+                else:
+                    self._reference_object = self.get_edge_terminal_reference_primitive()
+            elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+                self._reference_object = self.get_pin_group_terminal_reference_pin()
+            elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PointTerminal:
+                self._reference_object = self.get_point_terminal_reference_primitive()
+            elif self.terminal_type == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
+                self._reference_object = self.get_padstack_terminal_reference_pin()
+            else:
+                self._pedb.logger.warning("Invalid Terminal Type={}".format(term.GetTerminalType()))  # pragma: no cover
+        return self._reference_object
+
+    @property
+    def reference_net_name(self):
+        """Net name to which reference_object belongs."""
+        ref_obj = self._reference_object if self._reference_object else self.reference_object
+        if ref_obj:
+            return ref_obj.net_name
+        return  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def get_padstack_terminal_reference_pin(self, gnd_net_name_preference=None):
+        """Get a list of pad stacks instances and serves Coax wave ports,
+        pingroup terminals, PadEdge terminals.
+
+        Parameters
+        ----------
+        gnd_net_name_preference : str, optional
+            Preferred reference net name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.padstack_data.EDBPadstackInstance`
+        """
+
+        if self._edb_terminal.GetIsCircuitPort():
+            return self.get_pin_group_terminal_reference_pin()
+        _, padStackInstance, layer = self._edb_terminal.GetParameters()
+
+        # Get the pastack instance of the terminal
+        compInst = self._edb_terminal.GetComponent()
+        pins = self._pedb.core_components.get_pin_from_component(compInst.GetName())
+        return self._get_closest_pin(padStackInstance, pins, gnd_net_name_preference)
+
+    @pyaedt_function_handler()
+    def get_pin_group_terminal_reference_pin(self, gnd_net_name_preference=None):
+        """Return a list of pins and serves terminals connected to pingroups.
+
+        Parameters
+        ----------
+        gnd_net_name_preference : str, optional
+            Preferred reference net name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.padstack_data.EDBPadstackInstance`
+        """
+
+        refTerm = self._edb_terminal.GetReferenceTerminal()
+        if self._edb_terminal.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+            padStackInstance = self._edb_terminal.GetPinGroup().GetPins()[0]
+            pingroup = refTerm.GetPinGroup()
+            refPinList = pingroup.GetPins()
+            return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
+        elif self._edb_terminal.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PadstackInstanceTerminal:
+            _, padStackInstance, layer = self._edb_terminal.GetParameters()
+            if refTerm.GetTerminalType() == self._pedb.edb.Cell.Terminal.TerminalType.PinGroupTerminal:
+                pingroup = refTerm.GetPinGroup()
+                refPinList = pingroup.GetPins()
+                return self._get_closest_pin(padStackInstance, refPinList, gnd_net_name_preference)
+            else:
+                try:
+                    returnOK, refTermPSI, layer = refTerm.GetParameters()
+                    return EDBPadstackInstance(refTermPSI, self._pedb)
+                except AttributeError:
+                    return None
+        return None  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def get_edge_terminal_reference_primitive(self):
+        """Check and  return a primitive instance that serves Edge ports,
+        wave ports and coupled edge ports that are directly connedted to primitives.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
+        """
+
+        ref_layer = self._edb_terminal.GetReferenceLayer()
+        edges = self._edb_terminal.GetEdges()
+        _, prim_value, point_data = edges[0].GetParameters()
+        X = point_data.X
+        Y = point_data.Y
+        shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
+        layer_name = ref_layer.GetName()
+        for primitive in self._pedb.active_layout.Primitives:
+            if primitive.GetLayer().GetName() == layer_name or not layer_name:
+                prim_shape_data = primitive.GetPolygonData()
+                if prim_shape_data.PointInPolygon(shape_pd):
+                    return EDBPrimitives(primitive, self._pedb)
+        return None  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def get_point_terminal_reference_primitive(self):
+        """Find and return the primitive reference for the point terminal or the padstack instance.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance` or
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
+        """
+
+        ref_term = self._edb_terminal.GetReferenceTerminal()  # return value is type terminal
+        _, point_data, layer = ref_term.GetParameters()
+        X = point_data.X
+        Y = point_data.Y
+        shape_pd = self._pedb.edb.Geometry.PointData(X, Y)
+        layer_name = layer.GetName()
+        for primitive in self._pedb.active_layout.Primitives:
+            if primitive.GetLayer().GetName() == layer_name:
+                prim_shape_data = primitive.GetPolygonData()
+                if prim_shape_data.PointInPolygon(shape_pd):
+                    return EDBPrimitives(primitive, self._pedb)
+        for vias in self._pedb.core_padstack.padstack_instances.values():
+            if layer_name in vias.layer_range_names:
+                plane = self._pedb.core_primitives.Shape(
+                    "rectangle", pointA=vias.position, pointB=vias.padstack_definition.bounding_box[1]
+                )
+                rectangle_data = vias._pedb.core_primitives.shape_to_polygon_data(plane)
+                if rectangle_data.PointInPolygon(shape_pd):
+                    return vias
+        return None
+
+    @pyaedt_function_handler()
+    def get_pad_edge_terminal_reference_pin(self, gnd_net_name_preference=None):
+        """Get the closest pin padstack instances and serves any edge terminal connected to a pad.
+
+        Parameters
+        ----------
+        gnd_net_name_preference : str, optional
+            Preferred reference net name. Optianal, default is `None` which will auto compute the gnd name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.padstacks_data.EDBPadstackInstance`
+        """
+        comp_inst = self._edb_terminal.GetComponent()
+        pins = self._pedb.core_components.get_pin_from_component(comp_inst.GetName())
+        try:
+            edges = self._edb_terminal.GetEdges()
+        except AttributeError:
+            return None
+        _, pad_edge_pstack_inst, pad_edge_layer, pad_edge_polygon_data = edges[0].GetParameters()
+        return self._get_closest_pin(pad_edge_pstack_inst, pins, gnd_net_name_preference)
+
+    @pyaedt_function_handler()
+    def _get_closest_pin(self, ref_pin, pin_list, gnd_net=None):
+        _, pad_stack_inst_point, rotation = ref_pin.GetPositionAndRotation()  # get the xy of the padstack
+        if gnd_net is not None:
+            power_ground_net_names = [gnd_net]
+        else:
+            power_ground_net_names = [net for net in self._pedb.core_nets.power_nets.keys()]
+        comp_ref_pins = [i for i in pin_list if i.GetNet().GetName() in power_ground_net_names]
+        if len(comp_ref_pins) == 0:
+            self._pedb.logger.error(
+                "Terminal with PadStack Instance Name {} component has no reference pins.".format(ref_pin.GetName())
+            )  # pragma: no cover
+            return None  # pragma: no cover
+        closest_pin_distance = None
+        pin_obj = None
+        for pin in comp_ref_pins:  # find the distance to all the pins to the terminal pin
+            if pin.GetName() == ref_pin.GetName():  # skip the reference psi
+                continue  # pragma: no cover
+            _, pin_point, rotation = pin.GetPositionAndRotation()
+            distance = pad_stack_inst_point.Distance(pin_point)
+            if closest_pin_distance is None:
+                closest_pin_distance = distance
+                pin_obj = pin
+            elif closest_pin_distance < distance:
+                continue
+            else:
+                closest_pin_distance = distance
+                pin_obj = pin
+        if pin_obj:
+            return EDBPadstackInstance(pin_obj, self._pedb)
+
+
+class ExcitationSources(CommonExcitation):
+    """Manage sources properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        Edb object from Edblib.
+    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from edblib.
+
+
+
+    Examples
+    --------
+    This example shows how to access this class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> all_sources = edb.sources
+    >>> print(all_sources["VSource1"].name)
+
+    """
+
+    def __init__(self, pedb, edb_terminal):
+        CommonExcitation.__init__(self, pedb, edb_terminal)
+
+    @property
+    def magnitude(self):
+        """Get the magnitude of the source."""
+        return self._edb_terminal.GetSourceAmplitude().ToDouble()
+
+    @property
+    def phase(self):
+        """Get the phase of the source."""
+        return self._edb_terminal.GetSourcePhase().ToDouble()
+
+
+class ExcitationProbes(CommonExcitation):
+    """Manage probes properties.
+
+    Parameters
+    ----------
+    pedb : pyaedt.edb.Edb
+        Edb object from Edblib.
+    edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
+        Edge terminal instance from edblib.
+
+
+    Examples
+    --------
+    This example shows how to access this class.
+    >>> from pyaedt import Edb
+    >>> edb = Edb("myaedb.aedb")
+    >>> probes = edb.probes
+    >>> print(probes["Probe1"].name)
+    """
+
+    def __init__(self, pedb, edb_terminal):
+        CommonExcitation.__init__(self, pedb, edb_terminal)
+
+
+class ExcitationDifferential:
+    """Manage differential excitation properties."""
+
+    def __init__(self, pedb, edb_boundle_terminal):
+        self._pedb = pedb
+        self._edb_boundle_terminal = edb_boundle_terminal
+
+    @property
+    def name(self):
+        """Port Name."""
+        return self._edb_boundle_terminal.GetName()
+
+    @property
+    def edb(self):  # pragma: no cover
+        """Get edb."""
+        return self._pedb.edb
+
+    @property
+    def terminals(self):
+        """Get terminals belonging to this excitation."""
+        return {i.GetName(): ExcitationPorts(self._pedb, i) for i in list(self.edb_boundle_terminal.GetTerminals())}
+
+    @property
+    def reference_net_name(self):
+        """Reference Name. Not applicable to Differential pairs."""
+        return

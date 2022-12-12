@@ -88,6 +88,17 @@ class TestClass(BasisTest, object):
         sink = self.aedtapp.assign_sink_to_sheet("Sink1", sinkname="Sink3")
         assert source.name == "Source3"
         assert sink.name == "Sink3"
+        assert source.props["TerminalType"] == "ConstantVoltage"
+        assert sink.props["TerminalType"] == "ConstantVoltage"
+
+        self.aedtapp.modeler.delete("Source1")
+        self.aedtapp.modeler.delete("Sink1")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
+        self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
+        source = self.aedtapp.assign_source_to_sheet("Source1", sourcename="Source3", terminal_type="current")
+        sink = self.aedtapp.assign_sink_to_sheet("Sink1", sinkname="Sink3", terminal_type="current")
+        assert source.props["TerminalType"] == "UniformCurrent"
+        assert sink.props["TerminalType"] == "UniformCurrent"
 
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
         self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, [10, 10, 10], 4, name="Sink1")
@@ -104,6 +115,10 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.net_sinks("GND")) > 0
         assert len(self.aedtapp.net_sources("PGND")) == 0
         assert len(self.aedtapp.net_sinks("PGND")) == 0
+        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0])
+        assert len(obj_list[self.aedtapp.nets[0]]) > 0
+        obj_list = self.aedtapp.objects_from_nets(self.aedtapp.nets[0], "steel")
+        assert len(obj_list[self.aedtapp.nets[0]]) == 0
 
     def test_08_create_faceted_bondwire(self):
         self.aedtapp.load_project(self.test_project, close_active_proj=True, save_active_project=False)

@@ -25,7 +25,7 @@ def get_hpc_info(filename):
     return config_name, design_type
 
 
-def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True):
+def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True, separator="="):
     """Update an HPC option in the configuration file.
 
     Parameters
@@ -38,25 +38,28 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
         Value for the property.
     isvaluestring : bool, optional
         Whether the value  is a string. The default is ``True``.
+    separator : str, optional
+        Separates the property name from its value. The default is ``=``.
 
     Returns
     -------
     type
 
     """
+    old_prop = ""
+    new_line = ""
     with open(filnename) as fid:
         for line in fid:
-            if propertyname + "=" in line:
+            if propertyname + separator in line:
                 old_prop = line.strip()
-                new_line = line
-    with open(filnename) as fid:
-        if isvaluestring:
-            new_line = fid.read().replace(old_prop, propertyname + "=" + "'" + str(propertyvalue) + "'")
-        else:
-            new_line = fid.read().replace(old_prop, propertyname + "=" + str(propertyvalue))
-
-    with open(filnename, "w") as f:
-        f.write(new_line)
+        if old_prop != "":
+            if isvaluestring:
+                new_line = fid.read().replace(old_prop, propertyname + separator + "'" + str(propertyvalue) + "'")
+            else:
+                new_line = fid.read().replace(old_prop, propertyname + separator + str(propertyvalue))
+    if new_line != "":
+        with open(filnename, "w") as f:
+            f.write(new_line)
 
 
 def update_simulation_cores(name, nc):

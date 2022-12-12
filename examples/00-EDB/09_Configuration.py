@@ -100,16 +100,17 @@ edbapp.save_edb()
 #  - Components on which to create the ports
 #  - Simulation settings
 
-sim_setup = SimulationConfiguration()
+sim_setup = edbapp.new_simulation_configuration()
 sim_setup.solver_type = SolverType.SiwaveSYZ
-sim_setup.cutout_subdesign_expansion = 0.01
-sim_setup.do_cutout_subdesign = True
-sim_setup.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C", "PCIE0_TX0_P", "PCIE0_TX0_N"]
-sim_setup.components = ["U2A5", "J2L1"]
-sim_setup.power_nets = ["GND"]
-sim_setup.start_frequency = "100Hz"
-sim_setup.stop_freq = "6GHz"
-sim_setup.step_freq = "10MHz"
+sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
+sim_setup.batch_solve_settings.do_cutout_subdesign = True
+sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C",
+                                              "PCIE0_TX0_P", "PCIE0_TX0_N"]
+sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]
+sim_setup.batch_solve_settings.power_nets = ["GND"]
+sim_setup.ac_settings.start_freq = "100Hz"
+sim_setup.ac_settings.stop_freq = "6GHz"
+sim_setup.ac_settings.step_freq = "10MHz"
 
 ###############################################################################
 # Run Setup

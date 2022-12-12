@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from _unittest.conftest import BasisTest  # Setup paths for module imports
 from _unittest.conftest import config  # Setup paths for module imports
@@ -49,11 +50,10 @@ class TestClass(BasisTest, object):
         hfss = Hfss(specified_version=desktop_version)
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        id1 = hfss.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        hfss.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         setup = hfss.create_setup()
         freq = "1GHz"
         setup.props["Frequency"] = freq
-        ids_faces = [i.id for i in hfss.modeler["MyCylinder"].faces]
         assert self.aedtapp.assign_em_losses(
             hfss.design_name,
             hfss.setups[0].name,
@@ -73,24 +73,56 @@ class TestClass(BasisTest, object):
         )
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        id1 = ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
-        setup = ipk.create_setup()
-        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Structural, specified_version=desktop_version)
-        mech.modeler.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
-        assert mech.assign_thermal_map("MyCylinder", ipk.design_name)
+        ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        ipk.create_setup()
+        self.aedtapp.oproject.InsertDesign("Mechanical", "MechanicalDesign1", "Structural", "")
+        self.aedtapp.set_active_design("MechanicalDesign1")
+        self.aedtapp.create_setup()
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        assert self.aedtapp.assign_thermal_map("MyCylinder", ipk.design_name)
 
     def test_07_assign_mechanical_boundaries(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Modal, specified_version=desktop_version)
-        mech.modeler.create_cylinder(mech.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
-        assert mech.assign_fixed_support(mech.modeler["MyCylinder"].faces[0].id)
-        assert mech.assign_frictionless_support(mech.modeler["MyCylinder"].faces[1].id)
-
-        mech = Mechanical(solution_type=self.aedtapp.SOLUTIONS.Mechanical.Thermal)
-        assert not mech.assign_fixed_support(mech.modeler["MyCylinder"].faces[0].id)
-        assert not mech.assign_frictionless_support(mech.modeler["MyCylinder"].faces[0].id)
+        self.aedtapp.oproject.InsertDesign("Mechanical", "MechanicalDesign2", "Modal", "")
+        self.aedtapp.set_active_design("MechanicalDesign2")
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        self.aedtapp.create_setup()
+        assert self.aedtapp.assign_fixed_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
+        assert self.aedtapp.assign_frictionless_support(self.aedtapp.modeler["MyCylinder"].faces[1].id)
+        self.aedtapp.oproject.InsertDesign("Mechanical", "MechanicalDesign3", "Thermal", "")
+        self.aedtapp.set_active_design("MechanicalDesign3")
+        self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
+        assert not self.aedtapp.assign_fixed_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
+        assert not self.aedtapp.assign_frictionless_support(self.aedtapp.modeler["MyCylinder"].faces[0].id)
 
     def test_08_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
         assert self.aedtapp.mesh.initial_mesh_settings.props
+
+    def test_09_add_mesh_link(self):
+        self.aedtapp.save_project(self.aedtapp.project_file)
+        self.aedtapp.set_active_design("MechanicalDesign1")
+        assert self.aedtapp.setups[0].add_mesh_link(design_name="MechanicalDesign2")
+        meshlink_props = self.aedtapp.setups[0].props["MeshLink"]
+        assert meshlink_props["Project"] == "This Project*"
+        assert meshlink_props["PathRelativeTo"] == "TargetProject"
+        assert meshlink_props["Design"] == "MechanicalDesign2"
+        assert meshlink_props["Soln"] == "MySetupAuto : LastAdaptive"
+        assert meshlink_props["Params"] == self.aedtapp.available_variations.nominal_w_values_dict
+        assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
+        assert not self.aedtapp.setups[0].add_mesh_link(
+            design_name="MechanicalDesign2", solution_name="Setup_Test : LastAdaptive"
+        )
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name="MechanicalDesign2",
+            parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
+        )
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name="MechanicalDesign2", solution_name="MySetupAuto : LastAdaptive"
+        )
+        example_project = os.path.join(self.local_scratch.path, test_project_name + ".aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, test_project_name + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
+        assert self.aedtapp.setups[0].add_mesh_link(design_name="MechanicalDesign2", project_name=example_project_copy)
+        os.remove(example_project_copy)

@@ -10,7 +10,6 @@ from datetime import datetime
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import CSS4_COLORS
-from pyaedt.generic.general_methods import convert_remote_object
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 
@@ -320,11 +319,6 @@ def plot_polar_chart(
 
     ax = plt.subplot(111, projection="polar")
 
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
-
     label_id = 1
     legend = []
     for object in plot_data:
@@ -383,10 +377,6 @@ def plot_3d_chart(plot_data, size=(2000, 1000), xlabel="", ylabel="", title="", 
 
     ax = plt.subplot(111, projection="3d")
 
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
     if isinstance(plot_data[0], np.ndarray):
         x = plot_data[0]
         y = plot_data[1]
@@ -441,10 +431,6 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
     dpi = 100.0
     figsize = (size[0] / dpi, size[1] / dpi)
     fig, ax = plt.subplots(figsize=figsize)
-    try:
-        len(plot_data)
-    except:
-        plot_data = convert_remote_object(plot_data)
     label_id = 1
     for plo_obj in plot_data:
         if len(plo_obj) == 3:
@@ -479,7 +465,9 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
     ----------
     plot_data : list of list
         List of plot data. Every item has to be in the following format
-        `[x points, y points, color, alpha, label, type]`. type can be `fill` or `path`.
+        For type ``fill``: `[x points, y points, color, label, alpha, type=="fill"]`.
+        For type ``path``: `[vertices, codes, color, label, alpha, type=="path"]`.
+        For type ``contour``: `[vertices, codes, color, label, alpha, line_width, type=="contour"]`.
     size : tuple, optional
         Image size in pixel (width, height).
     show_legend : bool
@@ -509,6 +497,10 @@ def plot_matplotlib(plot_data, size=(2000, 1000), show_legend=True, xlabel="", y
         elif points[-1] == "path":
             path = Path(points[0], points[1])
             patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3])
+            ax.add_patch(patch)
+        elif points[-1] == "contour":
+            path = Path(points[0], points[1])
+            patch = PathPatch(path, color=points[2], alpha=points[4], label=points[3], fill=False, linewidth=points[5])
             ax.add_patch(patch)
 
     ax.set(xlabel=xlabel, ylabel=ylabel, title=title)
@@ -1361,7 +1353,6 @@ class ModelPlotter(object):
         -------
         bool
         """
-        start = time.time()
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.meshes = None
         self.pv.background_color = [i / 255 for i in self.background_color]
@@ -1507,7 +1498,7 @@ class ModelPlotter(object):
         -------
         bool
         """
-        start = time.time()
+
         assert len(self.frames) > 0, "Number of Fields have to be greater than 1 to do an animation."
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
