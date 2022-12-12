@@ -39,7 +39,7 @@ class PhyNet(object):
 
 
 class PhyNetPoint(object):
-    """Class describing ipc2581 physical net point."""
+    """Class describing an IPC2581 physical net point."""
 
     def __init__(self):
         self.x = 0.0
