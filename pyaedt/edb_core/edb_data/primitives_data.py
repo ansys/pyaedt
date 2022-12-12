@@ -330,7 +330,7 @@ class EDBPrimitives(object):
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
 
     @pyaedt_function_handler()
-    def convert_polygon(self):
+    def convert_to_polygon(self):
         """Convert path to polygon.
 
         Returns
