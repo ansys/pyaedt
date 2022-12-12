@@ -144,9 +144,9 @@ class IcepakMesh(object):
                     )
                 else:
                     if settings.aedt_version < "2022.2":
-                        self.logger.warning("Virtual Mesh Region feature is not available in this version.")
+                        self._app.logger.warning("Virtual Mesh Region feature is not available in this version.")
                     else:
-                        self.logger.warning("Virtual Mesh Region beta feature is enabled.")
+                        self._app.logger.warning("Virtual Mesh Region beta feature is enabled.")
 
             return arg
 
