@@ -4,7 +4,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_header.spec import Spec
 
 
 class CadHeader(object):
-    """Class describing layer stackup."""
+    """Class describing a layer stackup."""
 
     def __init__(self):
         self._specs = []
