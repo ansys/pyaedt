@@ -20,7 +20,7 @@ class LogicalNet(object):
 
 
 class PinRef(object):
-    """Class describing ipc2581 pin."""
+    """Class describing an IPC2581 logical net."""
 
     def __init__(self):
         self.pin = ""
