@@ -1473,7 +1473,7 @@ class Variable(object):
                     return scale[0](self._value, True)
                 else:
                     return self._value / scale
-            else:
+            else:  # pragma: no cover
                 return self._value
 
     @property
@@ -1486,7 +1486,7 @@ class Variable(object):
         """Units."""
         try:
             var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-            val, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            _, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
             return self._units
         except (TypeError, AttributeError):
             pass
