@@ -178,7 +178,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.assign_mesh_level({"USB_Shiels": 2})
         pass
 
-    def test_12_AssignMeshOperation(self):
+    def test_12a_AssignMeshOperation(self):
         self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
@@ -191,6 +191,23 @@ class TestClass(BasisTest, object):
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
+        assert test
+
+    def test_12b_AssignVirtualMeshOperation(self):
+        self.aedtapp.oproject = test_project_name
+        self.aedtapp.odesign = "IcepakDesign1"
+        group_name = "Group1"
+        mesh_level_Filter = "2"
+        component_name = ["RadioBoard1_1"]
+        mesh_level_RadioPCB = "1"
+        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        assert test
+        # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
+        test = self.aedtapp.mesh.assign_mesh_region(
+            component_name, mesh_level_RadioPCB, is_submodel=True, virtual_region=True
+        )
+        assert test
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB, virtual_region=True)
         assert test
 
     def test_13a_assign_openings(self):
