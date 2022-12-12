@@ -1095,7 +1095,7 @@ class Primitives3D(Primitives, object):
         geo_params=None,
         sz_mat_params="",
         sz_design_params="",
-        target_cs="Global",
+        targetCS="Global",
         name=None,
         password="",
     ):
@@ -1111,7 +1111,7 @@ class Primitives3D(Primitives, object):
             Material parameters. The default is ``""``.
         sz_design_params : str, optional
             Design parameters. The default is ``""``.
-        target_cs : str, optional
+        targetCS : str, optional
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
             3D component name. The default is ``None``.
@@ -1154,7 +1154,7 @@ class Primitives3D(Primitives, object):
         if geo_params:
             sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geo_params.items()])
         vArg1.append("TargetCS:=")
-        vArg1.append(target_cs)
+        vArg1.append(targetCS)
         vArg1.append("ComponentFile:=")
         vArg1.append(comp_file)
         vArg1.append("IsLocal:=")
