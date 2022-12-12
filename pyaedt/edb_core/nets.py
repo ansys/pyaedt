@@ -1027,7 +1027,7 @@ class EdbNets(object):
 
     @pyaedt_function_handler()
     def merge_nets_polygons(self, net_list):
-        """
+        """Convert paths from net into polygons, evaluate all connected polygons and perform the merge.
 
         Parameters
         ----------
