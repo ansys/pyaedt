@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class PadstackPadDef(object):
-    """Class describing ipc2581 pad-stack definition."""
+    """Class describing an IPC2581 padstack definition."""
 
     def __init__(self):
         self.layer_ref = ""
