@@ -946,5 +946,5 @@ if not config["skip_edb"]:
             target_path = os.path.join(local_path, "example_models", "convert_and_merge_path.aedb")
             edb = Edb(target_path, edbversion=desktop_version)
             for path in edb.core_primitives.paths:
-                assert path.convert_polygon()
+                assert path.convert_to_polygon()
             assert edb.core_nets.merge_nets_polygons("test")
