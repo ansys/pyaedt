@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class LogicalNet(object):
-    """Class describing an IPC2581logical net."""
+    """Class describing an IPC2581 logical net."""
 
     def __init__(self):
         self.name = ""
