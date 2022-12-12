@@ -1457,26 +1457,24 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
-        try:
-            if re.search(r"^[\w+]+\[\w+].*", str(self._value)):
-                var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
-                return val
-        except TypeError:
-            pass
         if is_array(self._value):
             return list(eval(self._value))
-        if is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except KeyError:
-                scale = 1
-            if isinstance(scale, tuple):
-                return scale[0](self._value, True)
+        try:
+            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+            val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            return val
+        except (TypeError, AttributeError):
+            if is_number(self._value):
+                try:
+                    scale = AEDT_UNITS[self.unit_system][self._units]
+                except KeyError:
+                    scale = 1
+                if isinstance(scale, tuple):
+                    return scale[0](self._value, True)
+                else:
+                    return self._value / scale
             else:
-                return self._value / scale
-        else:
-            return self._value
+                return self._value
 
     @property
     def unit_system(self):
@@ -1486,6 +1484,12 @@ class Variable(object):
     @property
     def units(self):
         """Units."""
+        try:
+            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+            val, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            return self._units
+        except (TypeError, AttributeError):
+            pass
         return self._units
 
     @property
