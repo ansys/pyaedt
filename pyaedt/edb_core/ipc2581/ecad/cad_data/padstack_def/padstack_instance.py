@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class PadstackInstance(object):
-    """Class describing ipc2581 pad-stack instance."""
+    """Class describing an IPC2581 padstack instance."""
 
     def __init__(self):
         self.isvia = False
