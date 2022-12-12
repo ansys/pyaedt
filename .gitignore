@@ -248,7 +248,7 @@ ServiceFabricBackup/
 
 # SQL Server files
 *.mdf
-*.ldf
+# *.ldf
 *.ndf
 
 # Business Intelligence projects

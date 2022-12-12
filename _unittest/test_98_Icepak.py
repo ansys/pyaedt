@@ -527,3 +527,30 @@ class TestClass(BasisTest, object):
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
         assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=source_project_path)
+
+    def test_42_import_idf(self):
+        self.aedtapp.insert_design("IDF")
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf")
+        )
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            filter_cap=True,
+            filter_ind=True,
+            filter_res=True,
+            filter_height_under=2,
+            filter_height_exclude_2d=False,
+            internal_layer_coverage=20,
+            internal_layer_number=5,
+            internal_thick=0.05,
+            high_surface_thick="0.1in",
+        )
+
+    def test_43_create_two_resistor_network_block(self):
+        self.aedtapp.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
+        self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
+        self.aedtapp.modeler.create_box([20, 60, 2], [10, 10, 3], "network_box2", "copper")
+        result1 = self.aedtapp.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
+        result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
+        assert result1.props["Nodes"]["Internal"][0] == "5W"
+        assert result2.props["Nodes"]["Internal"][0] == "10W"

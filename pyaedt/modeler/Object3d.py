@@ -3629,18 +3629,21 @@ class CircuitComponent(object):
             return self._pins
         self._pins = []
 
-        if "Port" in self.composed_name:
-            self._pins.append(CircuitPins(self, self.composed_name))
-        else:
+        try:
             pins = _retry_ntimes(10, self.m_Editor.GetComponentPins, self.composed_name)
 
-            if not pins or pins is True:
+            if not pins:
                 return []
+            elif pins is True:
+                self._pins.append(CircuitPins(self, self.composed_name))
+                return self._pins
             for pin in pins:
                 if self._circuit_components._app.design_type != "Twin Builder":
                     self._pins.append(CircuitPins(self, pin))
                 elif pin not in list(self.parameters.keys()):
                     self._pins.append(CircuitPins(self, pin))
+        except AttributeError:
+            self._pins.append(CircuitPins(self, self.composed_name))
         return self._pins
 
     @property

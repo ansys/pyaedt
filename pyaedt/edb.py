@@ -12,14 +12,6 @@ import time
 import traceback
 import warnings
 
-try:
-    import clr
-    from System.Collections.Generic import List
-except ImportError:  # pragma: no cover
-    if os.name != "posix":
-        warnings.warn("PythonNET is needed to run PyAEDT.")
-    elif sys.version[0] == 3 and sys.version[1] < 7:
-        warnings.warn("EDB requires Linux Python 3.7 or later.")
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -29,12 +21,28 @@ from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
+from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
+    SiwaveDCSimulationSetup,
+)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
+    SiwaveSYZSimulationSetup,
+)
+from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
+from pyaedt.edb_core.edb_data.sources import ExcitationPorts
+from pyaedt.edb_core.edb_data.sources import ExcitationProbes
+from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
+from pyaedt.generic.clr_module import Convert
+from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import _clr
+from pyaedt.generic.clr_module import edb_initialized
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.general_methods import env_path
 from pyaedt.generic.general_methods import env_path_student
@@ -50,17 +58,6 @@ if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
-try:
-    import clr
-    from System import Convert
-
-    edb_initialized = True
-except ImportError:
-    if os.name != "posix":
-        warnings.warn(
-            "The clr is missing. Install PythonNET or use an IronPython version if you want to use the EDB module."
-        )
-        edb_initialized = False
 
 
 class Edb(object):
@@ -172,6 +169,11 @@ class Edb(object):
                 if settings.enable_local_log_file and self.log_name:
                     self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
                 self.logger.info("EDB %s was created correctly from %s file.", self.edbpath, edbpath[-2:])
+            elif edbpath.endswith("edb.def"):
+                self.edbpath = os.path.dirname(edbpath)
+                if settings.enable_local_log_file and self.log_name:
+                    self._logger = self._global_logger.add_file_logger(self.log_name, "Edb")
+                self.open_edb()
             elif not os.path.exists(os.path.join(self.edbpath, "edb.def")):
                 self.create_edb()
                 if settings.enable_local_log_file and self.log_name:
@@ -213,6 +215,7 @@ class Edb(object):
         self.edbutils = None
         self.simSetup = None
         self.simsetupdata = None
+        self._setups = {}
         # time.sleep(2)
         # gc.collect()
 
@@ -274,22 +277,22 @@ class Edb(object):
                         sys.path.append(edb_path)
                         os.environ[env_value(self.edbversion)] = self.base_path
             if is_ironpython:
-                clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
-                clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
-                clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
+                _clr.AddReferenceToFile("Ansys.Ansoft.Edb.dll")
+                _clr.AddReferenceToFile("Ansys.Ansoft.EdbBuilderUtils.dll")
+                _clr.AddReferenceToFileAndPath(os.path.join(self.base_path, "Ansys.Ansoft.SimSetupData.dll"))
             else:
-                clr.AddReference("Ansys.Ansoft.Edb")
-                clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-                clr.AddReference("Ansys.Ansoft.SimSetupData")
+                _clr.AddReference("Ansys.Ansoft.Edb")
+                _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+                _clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
             if self.student_version:
                 self.base_path = env_path_student(self.edbversion)
             else:
                 self.base_path = env_path(self.edbversion)
             sys.path.append(self.base_path)
-            clr.AddReference("Ansys.Ansoft.Edb")
-            clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
-            clr.AddReference("Ansys.Ansoft.SimSetupData")
+            _clr.AddReference("Ansys.Ansoft.Edb")
+            _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
+            _clr.AddReference("Ansys.Ansoft.SimSetupData")
         os.environ["ECAD_TRANSLATORS_INSTALL_DIR"] = self.base_path
         oaDirectory = os.path.join(self.base_path, "common", "oa")
         os.environ["ANSYS_OADIR"] = oaDirectory
@@ -307,11 +310,11 @@ class Edb(object):
         """EDB library object containing advanced EDB methods not accessible directly from Python."""
         if not self._edblib:
             if os.name == "posix" and is_ironpython:
-                clr.AddReferenceToFile("EdbLib.dll")
-                clr.AddReferenceToFile("DataModel.dll")
+                _clr.AddReferenceToFile("EdbLib.dll")
+                _clr.AddReferenceToFile("DataModel.dll")
             else:
-                clr.AddReference("EdbLib")
-                clr.AddReference("DataModel")
+                _clr.AddReference("EdbLib")
+                _clr.AddReference("DataModel")
             self._edblib = __import__("EdbLib")
             dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
             try:
@@ -319,6 +322,31 @@ class Edb(object):
             except:
                 pass
         return self._edblib
+
+    @property
+    def excitations(self):
+        """Get all layout excitations."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) == 0]
+        terms = [i for i in terms if not i.IsReferenceTerminal()]
+        temp = {}
+        for ter in terms:
+            if "BundleTerminal" in ter.GetType().ToString():
+                temp[ter.GetName()] = ExcitationDifferential(self, ter)
+            else:
+                temp[ter.GetName()] = ExcitationPorts(self, ter)
+        return temp
+
+    @property
+    def sources(self):
+        """Get all layout sources."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [3, 4, 7]]
+        return {ter.GetName(): ExcitationSources(self, ter) for ter in terms}
+
+    @property
+    def probes(self):
+        """Get all layout sources."""
+        terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [8]]
+        return {ter.GetName(): ExcitationProbes(self, ter) for ter in terms}
 
     @pyaedt_function_handler()
     def open_edb(self, init_dlls=False):
@@ -822,7 +850,7 @@ class Edb(object):
 
         """
         self._db.Close()
-        if self.log_name:
+        if self.log_name and settings.enable_local_log_file:
             self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
         time.sleep(2)
@@ -869,7 +897,7 @@ class Edb(object):
         self._db.SaveAs(fname)
         self.edbpath = self._db.GetDirectory()
         if self.log_name:
-            self._global_logger.remove_file_logger(os.path.split(self.log_name)[-1])
+            self._global_logger.remove_file_logger(os.path.splitext(os.path.split(self.log_name)[-1])[0])
             self._logger = self._global_logger
 
         self.log_name = os.path.join(
@@ -965,27 +993,65 @@ class Edb(object):
         else:
             return False
 
+    @pyaedt_function_handler()
     def _create_extent(
         self,
         net_signals,
         extent_type,
         expansion_size,
         use_round_corner,
+        use_pyaedt_extent=False,
     ):
-        if extent_type == "Conforming" or self.edb.Geometry.ExtentType.Conforming or 0:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-        elif extent_type == "Bounding" or self.edb.Geometry.ExtentType.BoundingBox or 1:
+        if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
+
+            if use_pyaedt_extent:
+                _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+            else:
+                _poly = self.active_layout.GetExpandedExtentFromNets(
+                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                )
+        elif extent_type in ["Bounding", self.edb.Geometry.ExtentType.BoundingBox, 0]:
             _poly = self.active_layout.GetExpandedExtentFromNets(
                 net_signals, self.edb.Geometry.ExtentType.BoundingBox, expansion_size, False, use_round_corner, 1
             )
         else:
-            _poly = self.active_layout.GetExpandedExtentFromNets(
-                net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
-            )
-            _poly_list = convert_py_list_to_net_list([_poly])
-            _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+            if use_pyaedt_extent:
+                _poly = self._create_convex_hull(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
+            else:
+                _poly = self.active_layout.GetExpandedExtentFromNets(
+                    net_signals, self.edb.Geometry.ExtentType.Conforming, expansion_size, False, use_round_corner, 1
+                )
+                _poly_list = convert_py_list_to_net_list([_poly])
+                _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(_poly_list)
+        return _poly
+
+    @pyaedt_function_handler()
+    def _create_conformal(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+        names = []
+        _polys = []
+        for net in net_signals:
+            names.append(net.GetName())
+        for prim in self.core_primitives.primitives:
+            if prim.net_name in names:
+                obj_data = prim.primitive_object.GetPolygonData().Expand(
+                    expansion_size, tolerance, round_corner, round_extension
+                )
+                if obj_data:
+                    _polys.extend(list(obj_data))
+        _poly = self.edb.Geometry.PolygonData.Unite(convert_py_list_to_net_list(_polys))[0]
+        return _poly
+
+    @pyaedt_function_handler()
+    def _create_convex_hull(self, net_signals, expansion_size, tolerance, round_corner, round_extension):
+        names = []
+        _polys = []
+        for net in net_signals:
+            names.append(net.GetName())
+        for prim in self.core_primitives.primitives:
+            if prim.net_name in names:
+                _polys.append(prim.primitive_object.GetPolygonData())
+        _poly = self.edb.Geometry.PolygonData.GetConvexHullOfPolygons(convert_py_list_to_net_list(_polys))
+        _poly = _poly.Expand(expansion_size, tolerance, round_corner, round_extension)[0]
         return _poly
 
     def create_cutout(
@@ -997,6 +1063,7 @@ class Edb(object):
         use_round_corner=False,
         output_aedb_path=None,
         open_cutout_at_end=True,
+        use_pyaedt_extent_computing=False,
     ):
         """Create a cutout and save it to a new AEDB file.
 
@@ -1018,6 +1085,8 @@ class Edb(object):
         open_cutout_at_end : bool, optional
             Whether to open the cutout at the end. The default
             is ``True``.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
 
         Returns
         -------
@@ -1025,7 +1094,6 @@ class Edb(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
         # validate nets in layout
@@ -1042,14 +1110,15 @@ class Edb(object):
             extent_type,
             expansion_size,
             use_round_corner,
+            use_pyaedt_extent_computing,
         )
 
         # Create new cutout cell/design
+        included_nets_list = signal_list + reference_list
         included_nets = convert_py_list_to_net_list(
-            [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list + reference_list]
+            [net for net in list(self.active_layout.Nets) if net.GetName() in included_nets_list]
         )
         _cutout = self.active_cell.CutOut(included_nets, _netsClip, _poly, True)
-
         # Analysis setups do not come over with the clipped design copy,
         # so add the analysis setups from the original here.
         id = 1
@@ -1074,7 +1143,11 @@ class Edb(object):
             _success = db2.Save()
             _dbCells = convert_py_list_to_net_list(_dbCells)
             db2.CopyCells(_dbCells)  # Copies cutout cell/design to db2 project
-            _success = db2.Save()
+            if len(list(db2.CircuitCells)) > 0:
+                for net in list(list(db2.CircuitCells)[0].GetLayout().Nets):
+                    if not net.GetName() in included_nets_list:
+                        net.Delete()
+                _success = db2.Save()
             for c in list(self.db.TopCircuitCells):
                 if c.GetName() == _cutout.GetName():
                     c.Delete()
@@ -1114,6 +1187,9 @@ class Edb(object):
         number_of_threads=4,
         custom_extent=None,
         output_aedb_path=None,
+        remove_single_pin_components=False,
+        use_pyaedt_extent_computing=False,
+        extent_defeature=0,
     ):
         """Create a cutout using an approach entirely based on pyaedt.
         It does in sequence:
@@ -1144,6 +1220,13 @@ class Edb(object):
             Edb PolygonData object. In this case, both signal_list and reference_list will be cut.
         output_aedb_path : str, optional
             Full path and name for the new AEDB file. If None, then current aedb will be cutout.
+        remove_single_pin_components : bool, optional
+            Remove all Single Pin RLC after the cutout is completed. Default is `False`.
+        use_pyaedt_extent_computing : bool, optional
+            Whether to use pyaedt extent computing (experimental).
+        extent_defeature : float, optional
+            Defeature the cutout before applying it to produce simpler geometry for mesh (Experimental).
+            It applies only to Conforming bounding box. Default value is ``0`` which disable it.
 
         Returns
         -------
@@ -1170,7 +1253,7 @@ class Edb(object):
         >>> edb.close_edb()
 
         """
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             self.logger.error("Method working only in Cpython")
             return False
         from concurrent.futures import ThreadPoolExecutor
@@ -1187,12 +1270,21 @@ class Edb(object):
         else:
             all_list = signal_list + reference_list
 
+        reference_pinsts = []
+        reference_prims = []
         for i in self.core_padstack.padstack_instances.values():
-            if i.net_name not in all_list:
-                i.delete_padstack_instance()
-        for i in self.core_primitives.primitives:
-            if i.net_name not in all_list:
+            net_name = i.net_name
+            if net_name not in all_list:
                 i.delete()
+            elif net_name in reference_list:
+                reference_pinsts.append(i)
+        for i in self.core_primitives.primitives:
+            net_name = i.net_name
+            if net_name not in all_list:
+                i.delete()
+            elif net_name in reference_list and not i.is_void:
+                reference_prims.append(i)
+
         for i in self.core_nets.nets.values():
             if i.name not in all_list:
                 i.net_object.Delete()
@@ -1209,17 +1301,14 @@ class Edb(object):
                 [net for net in list(self.active_layout.Nets) if net.GetName() in signal_list]
             )
             _poly = self._create_extent(
-                net_signals,
-                extent_type,
-                expansion_size,
-                use_round_corner,
+                net_signals, extent_type, expansion_size, use_round_corner, use_pyaedt_extent_computing
             )
+            if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
+                _poly = _poly.Defeature(extent_defeature)
 
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
         _poly_list = convert_py_list_to_net_list([_poly])
-        polys = [i for i in self.core_primitives.primitives if not i.is_void]
-        pinsts = [i for i in list(self.core_padstack.padstack_instances.values())]
         prims_to_delete = []
         poly_to_create = []
         pins_to_delete = []
@@ -1230,62 +1319,79 @@ class Edb(object):
         def intersect(poly1, poly2):
             return list(poly1.Intersect(poly2))
 
-        def clean_prim(prim_1):
-            net = prim_1.net_name
-            if net in reference_list:
-                pdata = get_polygon_data(prim_1)
-                int_data = _poly.GetIntersectionType(pdata)
-                if int_data == 0:
-                    prims_to_delete.append(prim_1)
-                elif int_data != 2:
-                    list_poly = intersect(_poly, get_polygon_data(prim_1))
-                    if list_poly:
+        def subtract(poly, voids):
+            return poly.Subtract(convert_py_list_to_net_list(poly), convert_py_list_to_net_list(voids))
+
+        def clean_prim(prim_1):  # pragma: no cover
+            pdata = get_polygon_data(prim_1)
+            int_data = _poly.GetIntersectionType(pdata)
+            if int_data == 0:
+                prims_to_delete.append(prim_1)
+            elif int_data != 2:
+                list_poly = intersect(_poly, pdata)
+                if list_poly:
+                    net = prim_1.net_name
+                    voids = prim_1.voids
+                    for p in list_poly:
+                        if p.IsNull():
+                            continue
                         list_void = []
-                        voids = prim_1.voids
+                        void_to_subtract = []
                         if voids:
                             for void in voids:
                                 void_pdata = get_polygon_data(void)
-                                int_data = _poly.GetIntersectionType(void_pdata)
-                                if int_data != 2 and int_data != 0:
-                                    list_void.extend(intersect(_poly, void_pdata))
-                                elif int_data == 2:
+                                int_data2 = p.GetIntersectionType(void_pdata)
+                                if int_data2 > 2 or int_data == 1:
+                                    void_to_subtract.append(void_pdata)
+                                elif int_data2 == 2:
                                     list_void.append(void_pdata)
-                        poly_to_create.append([list_poly, prim_1.layer_name, net, list_void])
-                    prims_to_delete.append(prim_1)
+                            if void_to_subtract:
+                                polys_cleans = subtract(p, void_to_subtract)
+                                for polys_clean in polys_cleans:
+                                    if not polys_clean.IsNull():
+                                        void_to_append = [
+                                            v for v in list_void if polys_clean.GetIntersectionType(v) == 2
+                                        ]
+                                        poly_to_create.append([polys_clean, prim_1.layer_name, net, void_to_append])
+                            else:
+                                poly_to_create.append([p, prim_1.layer_name, net, list_void])
+                        else:
+                            poly_to_create.append([p, prim_1.layer_name, net, list_void])
+
+                prims_to_delete.append(prim_1)
 
         def pins_clean(pinst):
-            if pinst.net_name in reference_list and not pinst.in_polygon(_poly, simple_check=True):
+            if not pinst.in_polygon(_poly, simple_check=True):
                 pins_to_delete.append(pinst)
 
         with ThreadPoolExecutor(number_of_threads) as pool:
-            pool.map(lambda item: pins_clean(item), pinsts)
-        # for item in pinsts:
-        #     pins_clean(item)
+            pool.map(lambda item: pins_clean(item), reference_pinsts)
 
         for pin in pins_to_delete:
-            pin.delete_padstack_instance()
+            pin.delete()
 
         self.logger.info_timer("Padstack Instances removal completed")
         self.logger.reset_timer()
 
         with ThreadPoolExecutor(number_of_threads) as pool:
-            pool.map(lambda item: clean_prim(item), polys)
+            pool.map(lambda item: clean_prim(item), reference_prims)
 
         for el in poly_to_create:
-            for poly in el[0]:
-                self.core_primitives.create_polygon(poly, el[1], net_name=el[2], voids=el[3])
+            self.core_primitives.create_polygon(el[0], el[1], net_name=el[2], voids=el[3])
 
         for prim in prims_to_delete:
             prim.delete()
         self.logger.info_timer("Primitives cleanup completed")
         self.logger.reset_timer()
 
-        self.core_components.delete_single_pin_rlc()
         i = 0
         for comp, val in self.core_components.components.items():
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
+        if remove_single_pin_components:
+            self.core_components.delete_single_pin_rlc()
+
         self.core_components.refresh_components()
         self.logger.info("Deleted {} additional components".format(i))
 
@@ -1456,16 +1562,16 @@ class Edb(object):
                 position = self.edb.Geometry.PointData(self.edb_value(p.position[0]), self.edb_value(p.position[1]))
                 net = self.core_nets.find_or_create_net(p.net_name)
                 rotation = self.edb_value(p.rotation)
-                sign_layers = list(self.core_stackup.signal_layers.keys())
-                if not p.start_layer:
-                    fromlayer = self.core_stackup.signal_layers[sign_layers[-1]]._layer
+                sign_layers = list(self.stackup.signal_layers.keys())
+                if not p.start_layer:  # pragma: no cover
+                    fromlayer = self.stackup.signal_layers[sign_layers[0]]._edb_layer
                 else:
-                    fromlayer = self.core_stackup.signal_layers[p.start_layer]._layer
+                    fromlayer = self.stackup.signal_layers[p.start_layer]._edb_layer
 
-                if not p.stop_layer:
-                    tolayer = self.core_stackup.signal_layers[sign_layers[0]]._layer
+                if not p.stop_layer:  # pragma: no cover
+                    tolayer = self.stackup.signal_layers[sign_layers[-1]]._edb_layer
                 else:
-                    tolayer = self.core_stackup.signal_layers[p.stop_layer]._layer
+                    tolayer = self.stackup.signal_layers[p.stop_layer]._edb_layer
                 padstack = None
                 for pad in list(self.core_padstack.padstacks.keys()):
                     if pad == p.padstack_definition:
@@ -1505,8 +1611,8 @@ class Edb(object):
                     layout, void_circle.layer_name, void_circle.net, void_circle.primitive_object.GetPolygonData()
                 )
                 cloned_polygon.SetIsNegative(True)
-        layers = self.core_stackup.stackup_layers.signal_layers
-        for layer in list(layers.keys()):
+        layers = [i for i in list(self.stackup.signal_layers.keys())]
+        for layer in layers:
             layer_primitves = self.core_primitives.get_primitives(layer_name=layer)
             if len(layer_primitves) == 0:
                 self.core_primitives.create_polygon(plane, layer, net_name="DUMMY")
@@ -1946,7 +2052,7 @@ class Edb(object):
         return [[bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble()], [bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]]
 
     @pyaedt_function_handler()
-    def build_simulation_project(self, simulation_setup=None):
+    def build_simulation_project(self, simulation_setup):
         """Build a ready-to-solve simulation project.
 
         Parameters
@@ -1974,10 +2080,18 @@ class Edb(object):
         >>> edb.close_edb()
         """
         self.logger.info("Building simulation project.")
+        legacy_name = self.edbpath
+        if simulation_setup.output_aedb:
+            self.save_edb_as(simulation_setup.output_aedb)
         try:
-            if not simulation_setup or not isinstance(simulation_setup, SimulationConfiguration):  # pragma: no cover
-                return False
-            self.core_nets.classify_nets(simulation_setup)
+            if simulation_setup.signal_layer_etching_instances:
+                for layer in simulation_setup.signal_layer_etching_instances:
+                    if layer in self.stackup.layers:
+                        idx = simulation_setup.signal_layer_etching_instances.index(layer)
+                        if len(simulation_setup.etching_factor_instances) > idx:
+                            self.stackup[layer].etch_factor = float(simulation_setup.etching_factor_instances[idx])
+
+            self.core_nets.classify_nets(simulation_setup.power_nets, simulation_setup.signal_nets)
             if simulation_setup.do_cutout_subdesign:
                 self.logger.info("Cutting out using method: {0}".format(simulation_setup.cutout_subdesign_type))
                 if simulation_setup.use_default_cutout:
@@ -1988,7 +2102,6 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        output_aedb_path=simulation_setup.output_aedb,
                     ):
                         self.logger.info("Cutout processed.")
                         old_cell = self.active_cell.FindByName(
@@ -2006,10 +2119,8 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
-                        output_aedb_path=simulation_setup.output_aedb,
                     )
                     self.logger.info("Cutout processed.")
-
             self.logger.info("Deleting existing ports.")
             map(lambda port: port.Delete(), list(self.active_layout.Terminals))
             map(lambda pg: pg.Delete(), list(self.active_layout.PinGroups))
@@ -2054,6 +2165,11 @@ class Edb(object):
                 self.core_components.create_source_on_component(simulation_setup.sources)
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
+            self.save_edb()
+            if not simulation_setup.open_edb_after_build and simulation_setup.output_aedb:
+                self.close_edb()
+                self.edbpath = legacy_name
+                self.open_edb(True)
             return True
         except:  # pragma: no cover
             return False
@@ -2067,3 +2183,178 @@ class Edb(object):
         EDBStatistics object from the loaded layout.
         """
         return self.core_primitives.get_layout_statistics(evaluate_area=compute_area, net_list=None)
+
+    @pyaedt_function_handler()
+    def are_port_reference_terminals_connected(self, common_reference=None):
+        """Check if all terminal references in design are connected.
+        If the reference nets are different, there is no hope for the terminal references to be connected.
+        After we have identified a common reference net we need to loop the terminals again to get
+        the correct reference terminals that uses that net.
+
+        Parameters
+        ----------
+        common_reference : str, optional
+            Common Reference name. If ``None`` it will be searched in ports terminal.
+            If a string is passed then all excitations must have such reference assigned.
+
+        Returns
+        -------
+        bool
+            Either if the ports are connected to reference_name or not.
+        """
+        self.logger.reset_timer()
+        if not common_reference:
+            common_reference = list(
+                set([i.reference_net_name for i in self.excitations.values() if i.reference_net_name])
+            )
+            if len(common_reference) > 1:
+                self.logger.error("More than 1 reference found.")
+            common_reference = common_reference[0]
+        setList = [
+            set(i.reference_object.get_connected_object_id_set())
+            for i in self.excitations.values()
+            if i.reference_net_name == common_reference
+        ]
+
+        # Get the set intersections for all the ID sets.
+        iDintersection = set.intersection(*setList)
+        self.logger.info_timer(
+            "Terminal reference primitive IDs total intersections = {}\n\n".format(len(iDintersection))
+        )
+
+        # If the intersections are non-zero, the termimal references are connected.
+        return True if len(iDintersection) > 0 else False
+
+    @pyaedt_function_handler()
+    def new_simulation_configuration(self, filename=None):
+        return SimulationConfiguration(filename, self)
+
+    @property
+    def setups(self):
+        """Get the dictionary of all EDB HFSS and SIwave setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`] or
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`] or
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
+
+        """
+        for i in list(self.active_cell.SimulationSetups):
+            if i.GetName() not in self._setups:
+                if i.GetType() == self.edb.Utility.SimulationSetupType.kHFSS:
+                    self._setups[i.GetName()] = HfssSimulationSetup(self, i.GetName(), i)
+                elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWave:
+                    self._setups[i.GetName()] = SiwaveSYZSimulationSetup(self, i.GetName(), i)
+                elif i.GetType() == self.edb.Utility.SimulationSetupType.kSIWaveDCIR:
+                    self._setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
+        return self._setups
+
+    @property
+    def hfss_setups(self):
+        """Active HFSS setup in EDB.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`]
+
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
+
+    @property
+    def siwave_dc_setups(self):
+        """Active Siwave DC IR Setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveDCSimulationSetup`]
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kSIWave"}
+
+    @property
+    def siwave_ac_setups(self):
+        """Active Siwave SYZ setups.
+
+        Returns
+        -------
+        Dict[str, :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`]
+        """
+        return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
+
+    def create_hfss_setup(self, name=None):
+        """Create a setup from a template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.HfssSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_hfss_setup("setup1")
+        >>> setup1.hfss_port_settings.max_delta_z0 = 0.5
+        """
+        if name in self.setups:
+            return False
+        setup = HfssSimulationSetup(self, name)
+        self._setups[name] = setup
+        return setup
+
+    def create_siwave_syz_setup(self, name=None):
+        """Create a setup from a template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_syz_setup("setup1")
+        >>> setup1.add_frequency_sweep(frequency_sweep=[
+        ...                           ["linear count", "0", "1kHz", 1],
+        ...                           ["log scale", "1kHz", "0.1GHz", 10],
+        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ...                           ])
+        """
+        if not name:
+            name = generate_unique_name("Siwave_SYZ")
+        if name in self.setups:
+            return False
+        setup = SiwaveSYZSimulationSetup(self, name)
+        self._setups[name] = setup
+        return setup
+
+    def create_siwave_dc_setup(self, name=None):
+        """Create a setup from a template.
+
+        Parameters
+        ----------
+        name : str, optional
+            Setup name.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.siwave_simulation_setup_data.SiwaveSYZSimulationSetup`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_siwave_dc_setup("setup1")
+        >>> setup1.mesh_bondwires = True
+
+        """
+        if not name:
+            name = generate_unique_name("Siwave_DC")
+        if name in self.setups:
+            return False
+        setup = SiwaveDCSimulationSetup(self, name)
+        self._setups[name] = setup
+        return setup

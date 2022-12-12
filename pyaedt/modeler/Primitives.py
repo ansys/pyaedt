@@ -850,7 +850,7 @@ class Polyline(Object3d):
         else:
             s_types = [self._segment_types]
         for el in s_types:
-            if isinstance(s_types, PolylineSegment):
+            if isinstance(el, PolylineSegment):
                 id_v += el.num_seg - 1
                 if id_v > segment_index:
                     id_v -= el.num_seg - 1
@@ -2058,8 +2058,8 @@ class Primitives(object):
 
         """
         if objname in self.object_id_dict:
-            id = self.get_obj_id(objname)
-            return self.objects[id]
+            object_id = self.get_obj_id(objname)
+            return self.objects[object_id]
 
     @pyaedt_function_handler()
     def get_objects_w_string(self, stringname, case_sensitive=True):

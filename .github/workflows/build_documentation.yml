@@ -2,6 +2,17 @@ name: Documentation Build
 
 on: [pull_request, workflow_dispatch]
 
+env:
+  # Following env vars when changed will "reset" the mentioned cache,
+  # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
+  # You should go up in number, if you go down (or repeat a previous value)
+  # you might end up reusing a previous cache if it haven't been deleted already.
+  # It applies 7 days retention policy by default.
+  RESET_EXAMPLES_CACHE: 3
+  RESET_DOC_BUILD_CACHE: 3
+  RESET_AUTOSUMMARY_CACHE: 3
+
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -43,9 +54,30 @@ jobs:
       - name: Verify pyaedt can be imported
         run: python -c "import pyaedt"
 
+      - name: Retrieve PyAEDT version
+        id: version
+        run: |
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+
+      - name: Cache docs build directory
+        uses: actions/cache@v3
+        with:
+          path: doc/build
+          key: doc-build-v${{ env.RESET_DOC_BUILD_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}-${{ github.sha }}
+          restore-keys: |
+            doc-build-v${{ env.RESET_DOC_BUILD_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}
+      # - name: Cache autosummary
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: doc/source/**/_autosummary/*.rst
+      #     key: autosummary-v${{ env.RESET_AUTOSUMMARY_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}-${{ github.sha }}
+      #     restore-keys: |
+      #       autosummary-v${{ env.RESET_AUTOSUMMARY_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}
+
       - name: Install doc build requirements
         run: |
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements_docs.txt
           sudo apt install graphviz
 
       # run doc build, without creating the examples directory

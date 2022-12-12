@@ -4,7 +4,7 @@ You can launch PyAEDT on a remote machine if these conditions are met:
 
 - PyAEDT is installed on client and server machines. (There is no need to have AEDT
   installed on the client machine.)
-- The same Python version is used on the client and server machines. (CPython 3.6+ or
+- The same Python version is used on the client and server machines. (CPython 3.7+ or
   IronPython is embedded in the AEDT installation.)
 
 gRPC connection in AEDT 2022 R2 and later
@@ -33,80 +33,54 @@ If the connection is local, the ``machine`` argument can remain empty. PyAEDT th
 starts the AEDT session automatically. Machine and port arguments are available to
 all applications except EDB.
 
-Legacy approach
-~~~~~~~~~~~~~~~
-Usage examples follow for launching AEDT 2022 R1 or earlier.
 
-Windows server
-==============
-Launch on a Windows server:
+Remote application call
+~~~~~~~~~~~~~~~~~~~~~~~
+You can make a remote application call on a CPython server
+or any Windows client machine starting from AEDT 2022.2.
+
+On a CPython Server run the service pyaedt_service_manager that will listen on port 17878
+for incoming requests of connection from clients. Port is configurable.
+Requirements:
+
+- Python 3.7+ Virtual Environment. You could use the CPython in AEDT installation folder but you need to add the
+  Python lib folder to the LD_LIBRARY_PATH.
+- pyaedt > 0.6.0
+- export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64 #Win64 in case of Windows Server
+- export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
+
 
 .. code:: python
 
-    # Launch the latest installed version of AEDT in graphical mode.
-
-    from pyaedt.common_rpc import launch_server
-    launch_server()
-
+    # Launch PyAEDT remote server on CPython
+    from pyaedt.common_rpc import pyaedt_service_manager
+    pyaedt_service_manager()
 
 
-Linux and Windows clients
-=========================
-Launch on a Linux or Windows client:
+On any Windows client machine user needs to establish the connection as shown in example below.
+AEDT can be launched directly while creating the session or after the connection is established.
 
 .. code:: python
 
-    # Launch the latest installed version of AEDT in graphical mode.
-
-    from pyaedt.common_rpc import client
-    my_client = client("full_name_of_server", port=18000)
-    circuit = my_client.root.circuit(specified_version="2022.1", non_graphical=True)
-    ...
-    # code like locally
-    ...
+    from pyaedt.common_rpc import create_session
+    # User can establish the connection and start a new AEDT session.
+    cl1 = create_session("server_name", launch_aedt_on_server=True, aedt_port=17880, non_graphical=True)
+    # Optionally AEDT can be launched after the connection is established
+    cl2 = create_session("server_name", launch_aedt_on_server=False)
+    cl2.aedt(port=17880, non_graphical=True)
 
 
-Linux server
-============
-To bypass current IronPython limits, you can launch PyAEDT on a Linux machine:
+Once AEDT is started then user can connect an application to it.
 
-#. Using ``pip``, install PyAEDT 0.4.23 or later on a Linux machine.
-#. Launch CPython and run PyAEDT on the same machine:
+.. code:: python
 
-   .. code:: python
+    hfss = Hfss(machine=cl1.server_name, port=cl1.aedt_port)
+    # your code here
 
-      # Launch the latest installed version of PyAEDT in non-graphical mode.
+The client can be used also to upload or download files from the server.
 
-      from pyaedt.common_rpc import launch_ironpython_server
-      client = launch_ironpython_server(aedt_path="/path/to/ansys/executable/folder", non_graphical=True, port=18000)
-      hfss = client.root.hfss()
-      # put your code here
+.. code:: python
 
-#. Launch CPython Server on a machine and connect to the server from another machine:
+    cl1.filemanager.upload(local_path, remote_path)
+    file_content = cl1.open_file(remote_file)
 
-   .. code:: python
-
-      # Launch the latest installed version of PyAEDT in non-graphical mode.
-
-      from pyaedt.common_rpc import launch_ironpython_server
-      launch_ironpython_server(aedt_path="/path/to/ansys/executable/folder",
-                               launch_client=False,
-                               non_graphical=True,
-                               port=18000)
-      # connect to the port 18000 from the client machine
-
-#. If the method returns a list or dictionary, use this method to work around an
-   issue with CPython handling:
-
-   .. code:: python
-
-      box1 = hfss.modeler.create_box([0,0,0],[1,1,1])
-      # convert_remote_object method convert remote ironpython list to local cpython.
-      faces = client.convert_remote_object(box1.faces)
-
-
-
-.. image:: ../Resources/IronPython2Cpython.png
-  :width: 800
-  :alt: Electronics Desktop Launched
-  

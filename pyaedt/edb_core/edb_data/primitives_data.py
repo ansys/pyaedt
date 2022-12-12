@@ -28,7 +28,7 @@ class EDBPrimitives(object):
 
     def __init__(self, raw_primitive, core_app):
         self._app = core_app
-        self._core_stackup = core_app.core_stackup
+        self._core_stackup = core_app.stackup
         self._core_net = core_app.core_nets
         self.primitive_object = raw_primitive
 
@@ -272,14 +272,14 @@ class EDBPrimitives(object):
 
     @net_name.setter
     def net_name(self, val):
-        if val in self._core_net.nets:
-            net = self._core_net.nets[val].net_object
-            self.primitive_object.SetNet(net)
-        elif not isinstance(val, str):
+        if not isinstance(val, str):
             try:
                 self.primitive_object.SetNet(val)
             except:
                 raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+        elif val in self._core_net.nets:
+            net = self._core_net.nets[val].net_object
+            self.primitive_object.SetNet(net)
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
 
@@ -301,7 +301,7 @@ class EDBPrimitives(object):
     @layer_name.setter
     def layer_name(self, val):
         if val in self._core_stackup.stackup_layers.layers:
-            lay = self._core_stackup.stackup_layers.layers[val]._layer
+            lay = self._core_stackup.stackup_layers.layers[val]._edb_layer
             self.primitive_object.SetLayer(lay)
         elif not isinstance(val, str):
             try:
@@ -315,3 +315,16 @@ class EDBPrimitives(object):
     def delete(self):
         """Delete this primtive."""
         return self.primitive_object.Delete()
+
+    @pyaedt_function_handler()
+    def get_connected_object_id_set(self):
+        """Produce a list of all geometries physically connected to a given layout object.
+
+        Returns
+        -------
+        list
+            Found connected objects IDs with Layout object.
+        """
+        layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
+        layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)  # 2nd arg was []
+        return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
