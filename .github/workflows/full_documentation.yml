@@ -120,7 +120,7 @@ jobs:
   full_documentation_json:
     # The type of runner that the job will run on
     name: full_documentation_json
-    needs: [full_documentation]
+    # needs: [full_documentation]
     runs-on: [Windows, pyaedt]
     strategy:
       matrix:
@@ -174,21 +174,26 @@ jobs:
           # for file in doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
           # Move all static image files to the JSON flatten folder.
           mv -n doc-json/json/_images doc-flatten-json/_images;
+        shell: bash
 
       - name: zip the flattened JSON directory
         run: |
-          zip -r pyaedt-doc-flatten-json.zip doc-flatten-json;
+          Compress-Archive -Path doc-flatten-json -DestinationPath pyaedt-doc-flatten-json.zip
+
+      - name: move the generated documentation.
+        run: |
           mkdir pyaedt-doc-flatten-json;
-          mv pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip pyaedt-doc-flatten-json;
+          mv pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
           echo Clean up build directories after the process is completed.
           rm -rf doc-json doc-flatten-json;
+        shell: bash
 
-      # - name: Upload json Documentation
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
-      #     path: pyaedt-doc-flatten-json-v${{ steps.version.outputs.PYAEDT_VERSION }}.zip
-      #     retention-days: 7
+      - name: Upload json Documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: pyaedt-doc-flatten-json.zip
+          path: pyaedt-doc-flatten-json/pyaedt-doc-flatten-json.zip
+          retention-days: 7
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.4.0
