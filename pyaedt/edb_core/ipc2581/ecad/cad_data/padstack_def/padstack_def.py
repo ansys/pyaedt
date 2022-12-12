@@ -9,7 +9,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def.padstack_pad_def import 
 
 
 class PadstackDef(object):
-    """Class describing ipc2581 pad-stack definition."""
+    """Class describing an IPC2581 padstack definition."""
 
     def __init__(self):
         self.name = ""
