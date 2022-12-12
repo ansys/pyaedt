@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class Spec(object):
-    """Class describing layer."""
+    """Class describing a layer."""
 
     def __init__(self):
         self.name = ""
