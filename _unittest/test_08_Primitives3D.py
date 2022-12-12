@@ -25,6 +25,7 @@ test = sys.modules.keys()
 scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
+encrypted_cylinder = "encrypted_cylinder.a3dcomp"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -44,6 +45,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfile(scdoc_file)
         self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
         self.component3d_file = os.path.join(self.local_scratch.path, component3d)
+        self.encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cylinder)
         test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
         test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
@@ -882,6 +884,11 @@ class TestClass(BasisTest, object):
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
         assert self.aedtapp.change_property(self.aedtapp.oeditor, "General", obj_3dcomp.name, "Name", "new_name1")
+
+    def test_66a_insert_encrypted_3dcomp(self):
+        assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder)
+        assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="dfgdg")
+        assert self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="test")
 
     def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"

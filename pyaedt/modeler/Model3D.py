@@ -65,6 +65,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         excitation_list=None,
         included_cs=None,
         is_encrypted=False,
+        allow_edit=False,
         security_message="",
         password="",
         edit_password="",
@@ -95,6 +96,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of Coordinate Systems to export. The default is all coordinate systems
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
+        allow_edit : bool, optional
+            Whether the component is editable with encrypted protection.
+            The default is ``False``.
         security_message : str, optional
             Security message to display when component is inserted.
             The default value is an empty string.
@@ -165,7 +169,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "IsEncrypted:=",
             is_encrypted,
             "AllowEdit:=",
-            False,
+            allow_edit,
             "SecurityMessage:=",
             security_message,
             "Password:=",
