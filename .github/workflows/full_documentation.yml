@@ -161,6 +161,7 @@ jobs:
 
       - name: Build json files
         run: |
+          jsondoc\Scripts\Activate.ps1
           sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
