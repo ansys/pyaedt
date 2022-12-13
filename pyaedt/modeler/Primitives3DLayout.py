@@ -255,7 +255,7 @@ class Primitives3DLayout(object):
 
     @property
     def polygon_voids_names(self):
-        """Get the list of all polygons in layout.
+        """Get the list of all void polygons in layout.
 
         Returns
         -------
