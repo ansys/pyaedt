@@ -437,12 +437,14 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         line_4
 
         """
+        object_to_expand = self.convert_to_selections(object_to_expand)
+        self.cleanup_objects()
         layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
         self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
-        self._init_prims()
+        self.cleanup_objects()
         if not replace_original:
             new_geom_names = [
                 i
@@ -564,16 +566,52 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.Subtract
         """
+        blank = self.convert_to_selections(blank)
+        tool = self.convert_to_selections(tool, True)
         vArg1 = ["NAME:primitives", blank]
-        if isinstance(tool, list):
-            for el in tool:
-                vArg1.append(el)
-        else:
-            vArg1.append(tool)
+        self.cleanup_objects()
+        for el in tool:
+            vArg1.append(el)
+
         if self.oeditor is not None:
             self.oeditor.Subtract(vArg1)
-        self._init_prims()
-        return True
+        return self.cleanup_objects()
+
+    @pyaedt_function_handler()
+    def convert_to_selections(self, objtosplit, return_list=False):
+        """Convert one or more object to selections.
+
+        Parameters
+        ----------
+        objtosplit : str, int, list
+            One or more objects to convert to selections. A list can contain
+            both strings (object names) and integers (object IDs).
+        return_list : bool, option
+            Whether to return a list of the selections. The default is
+            ``False``, in which case a string of the selections is returned.
+            If ``True``, a list of the selections is returned.
+
+        Returns
+        -------
+        str or list
+           String or list of the selections.
+
+        """
+
+        if not isinstance(objtosplit, list):
+            objtosplit = [objtosplit]
+        objnames = []
+        for el in objtosplit:
+            if isinstance(el, str):
+                objnames.append(el)
+            elif "name" in dir(el):
+                objnames.append(el.name)
+            else:
+                pass
+        if return_list:
+            return objnames
+        else:
+            return ",".join(objnames)
 
     @pyaedt_function_handler()
     def unite(self, objectlists):
@@ -594,13 +632,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.Unite
         """
+
         vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
+            objectlists = self.convert_to_selections(objectlists, True)
+            self.cleanup_objects()
+
             for el in objectlists:
                 vArg1.append(el)
             self.oeditor.Unite(vArg1)
-            self._init_prims()
-            return True
+            return self.cleanup_objects()
         else:
             self.logger.error("Input list must contain at least two elements.")
             return False
@@ -626,11 +667,13 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         """
         vArg1 = ["NAME:primitives"]
         if len(objectlists) >= 2:
+            objectlists = self.convert_to_selections(objectlists, True)
+            self.cleanup_objects()
+
             for el in objectlists:
                 vArg1.append(el)
             self.oeditor.Intersect(vArg1)
-            self._init_prims()
-            return True
+            return self.cleanup_objects()
         else:
             self.logger.error("Input list must contain at least two elements.")
             return False
@@ -658,13 +701,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.Duplicate
         """
+        objectlists = self.convert_to_selections(objectlists, True)
+
+        self.cleanup_objects()
         if isinstance(objectlists, str):
             objectlists = [objectlists]
         self.oeditor.Duplicate(
             ["NAME:options", "count:=", count], ["NAME:elements", ",".join(objectlists)], direction_vector
         )
-        self._init_prims()
-        return True
+        return self.cleanup_objects()
 
     @pyaedt_function_handler()
     def duplicate_across_layers(self, objects, layers):
@@ -687,16 +732,16 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> oEditor.DuplicateAcrossLyrs
         """
-        if isinstance(objects, str):
-            objects = [objects]
+        objects = self.convert_to_selections(objects, True)
+        self.cleanup_objects()
+
         if isinstance(layers, str):
             layers = [layers]
         varg1 = ["NAME:elements"] + objects
         varg2 = ["NAME:layers"] + layers
 
         self.oeditor.DuplicateAcrossLyrs(varg1, varg2)
-        self._init_prims()
-        return True
+        return self.cleanup_objects()
 
     @pyaedt_function_handler()
     def set_temperature_dependence(
