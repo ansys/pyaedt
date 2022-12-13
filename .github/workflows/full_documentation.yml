@@ -210,6 +210,7 @@ jobs:
   # As a workaround, we are using the artifacts generated from a Windows build agent.
   deploy_json-documentation:
     name: deploy_documentation_json
+    needs: [full_documentation_json]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
