@@ -94,7 +94,7 @@ class TestClass(BasisTest, object):
         )
         assert patch.width.numeric_value == 22
         patch.set_optimal_width()
-        assert patch.width.numeric_value == 0.0912239398980667
+        assert patch.width.numeric_value == 91.2239398980667
         assert self.st.resize_around_element(patch)
         assert patch.create_lumped_port(gnd)
 
