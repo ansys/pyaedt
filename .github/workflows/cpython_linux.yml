@@ -30,7 +30,7 @@ jobs:
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
           pip install .
-          pip install -r requirements_test.txt
+          pip install -r requirements/requirements_test.txt
           pip install pytest-azurepipelines
           cp "C:\actions-runner\opengl32.dll" "testenv\Lib\site-packages\vtkmodules"
           mkdir tmp

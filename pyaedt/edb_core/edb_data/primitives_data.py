@@ -272,14 +272,14 @@ class EDBPrimitives(object):
 
     @net_name.setter
     def net_name(self, val):
-        if val in self._core_net.nets:
-            net = self._core_net.nets[val].net_object
-            self.primitive_object.SetNet(net)
-        elif not isinstance(val, str):
+        if not isinstance(val, str):
             try:
                 self.primitive_object.SetNet(val)
             except:
                 raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
+        elif val in self._core_net.nets:
+            net = self._core_net.nets[val].net_object
+            self.primitive_object.SetNet(net)
         else:
             raise AttributeError("Value inserted not found. Input has to be layer name or net object.")
 
@@ -328,3 +328,18 @@ class EDBPrimitives(object):
         layoutInst = self.primitive_object.GetLayout().GetLayoutInstance()
         layoutObjInst = layoutInst.GetLayoutObjInstance(self.primitive_object, None)  # 2nd arg was []
         return [loi.GetLayoutObj().GetId() for loi in layoutInst.GetConnectedObjects(layoutObjInst).Items]
+
+    @pyaedt_function_handler()
+    def convert_to_polygon(self):
+        """Convert path to polygon.
+
+        Returns
+        -------
+        Converted polygon.
+
+        """
+        if self.type == "Path":
+            polygon_data = self.primitive_object.GetPolygonData()
+            polygon = self._app.core_primitives.create_polygon(polygon_data, self.layer_name, [], self.net_name)
+            self.primitive_object.Delete()
+            return polygon

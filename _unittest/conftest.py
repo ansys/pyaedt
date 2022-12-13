@@ -65,6 +65,7 @@ if os.path.exists(local_config_file):
         config = json.load(f)
 else:
     default_version = "2022.2"
+    os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
     if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
         default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
     config = {
