@@ -156,6 +156,7 @@ jobs:
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
+          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           sphinx-build -M json doc/source doc-json -j auto -D release=${{ steps.version.outputs.PYAEDT_VERSION }} -D version=${{ steps.version.outputs.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
@@ -191,7 +192,7 @@ jobs:
       - name: Upload json Documentation
         uses: actions/upload-artifact@v3
         with:
-          name: pyaedt-doc-flatten-json.zip
+          name: pyaedt-doc-flatten-json
           path: pyaedt-doc-flatten-json/pyaedt-doc-flatten-json.zip
           retention-days: 7
 
