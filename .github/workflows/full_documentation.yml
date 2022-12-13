@@ -156,18 +156,12 @@ jobs:
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
-          echo ("PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")") >> $env:GITHUB_ENV
-          echo "TEST_AEDT=33" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")" >> $env:GITHUB_ENV
           echo PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")
-          echo ***************
 
-      - name: Bprint values
+      - name: Build json files
         run: |
-          echo ${env:PATH}
-          echo ${env:TEST_AEDT}
-          gci env:* | sort-object name
-          echo $Env:PYAEDT_VERSION
-          echo pyaedt version is: ${{ env.PYAEDT_VERSION }}
+          echo ${{ env.PYAEDT_VERSION }}
           # sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
