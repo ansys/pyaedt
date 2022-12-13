@@ -161,8 +161,7 @@ jobs:
 
       - name: Build json files
         run: |
-          echo ${{ env.PYAEDT_VERSION }}
-          # sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
+          sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
         run: |
@@ -208,15 +207,15 @@ jobs:
 
   # The "deploy" action is primarily developed using Ubuntu.
   # As a workaround, we are using the artifacts generated from a Windows build agent.
-  # deploy_json-documentation:
-  #   name: deploy_documentation_json
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Deploy
-  #       uses: JamesIves/github-pages-deploy-action@v4.4.0
-  #       with:
-  #         repository-name: pyansys/devportal-doc-archive
-  #         branch: drupal
-  #         folder: pyaedt-doc-flatten-json
-  #         token: ${{ steps.get_workflow_token.outputs.token }}
-  #         clean: false
+  deploy_json-documentation:
+    name: deploy_documentation_json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4.4.0
+        with:
+          repository-name: pyansys/devportal-doc-archive
+          branch: drupal
+          folder: pyaedt-doc-flatten-json
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          clean: false
