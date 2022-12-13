@@ -239,8 +239,8 @@ class Primitives3DLayout(object):
     @pyaedt_function_handler()
     def _get_names(self, categories):
         names = []
-        for object in categories:
-            names.extend(self.modeler.oeditor.FindObjects("Type", object))
+        for category in categories:
+            names.extend(self.modeler.oeditor.FindObjects("Type", category))
         return names
 
     @property
