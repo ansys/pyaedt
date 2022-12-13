@@ -1257,9 +1257,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
-            Path to the XML or tech file with the stackup information. The default is ``None``, in
+            Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
-            If `tech` file is provided and layer name starts with `"v"` then is mapped as via layer.
+            If a TECH file is provided and the layer name starts with ``"v"``, the layer
+            is mapped as a via layer.
         set_as_active : bool, optional
             Whether to set the GDS file as active. The default is ``True``.
         close_active_project : bool, optional
@@ -1288,9 +1289,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
-            Path to the XML or thech file with the stackup information. The default is ``None``, in
+            Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
-            If `tech` file is provided and layer name starts with `"v"` then is mapped as via layer.
+            If a TECH file is provided and the layer name starts with ``"v"``, the layer
+            is mapped as a via layer.
         set_as_active : bool, optional
             Whether to set the DXF file as active. The default is ``True``.
         close_active_project : bool, optional
