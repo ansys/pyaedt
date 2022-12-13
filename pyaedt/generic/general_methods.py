@@ -21,6 +21,8 @@ import warnings
 from collections import OrderedDict
 from functools import update_wrapper
 
+from pyaedt.generic.constants import CSS4_COLORS
+
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
@@ -1068,6 +1070,66 @@ def parse_excitation_file(
         mag = list(mag)
         phase = list(df[df.keys()[2]].values)
     return freq, mag, phase
+
+
+def tech_to_control_file(tech_path, unit=None, control_path=None):
+    """Convert a ``.tech`` file to a xml file to be used in gds/dxf import.
+
+    Parameters
+    ----------
+    tech_path : str
+        Full path to the .tech file.
+    unit : str, optional
+        Tech units. If specified in tech file this parameter will not be used. Default is `nm`.
+    control_path : str, optional
+        Output xml file.
+
+    Returns
+    -------
+    str
+        Out xml file.
+    """
+    result = []
+    with open(tech_path) as f:
+        vals = list(CSS4_COLORS.values())
+        id = 0
+        for line in f:
+            line_split = line.split()
+            if len(line_split) == 5:
+                layerID, layer_name, color, elevation, layer_height = line.split()
+                x = '      <Layer Color="{}" GDSIIVia="{}" Name="{}" TargetLayer="{}" Thickness="{}"'.format(
+                    vals[id],
+                    "true" if layer_name.lower().startswith("v") else "false",
+                    layerID,
+                    layer_name,
+                    layer_height,
+                )
+                x += ' Type="conductor"/>'
+                result.append(x)
+                id += 1
+            elif len(line_split) > 1 and "UNIT" in line_split[0]:
+                unit = line_split[1]
+    if not unit:
+        unit = "nm"
+    if not control_path:
+        control_path = os.path.splitext(tech_path)[0] + ".xml"
+    with open(control_path, "w") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
+        f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
+        f.write("\n")
+        f.write('      <Stackup schemaVersion="1.0">\n')
+        f.write('        <Layers LengthUnit="{}">\n'.format(unit))
+        for res in result:
+            f.write(res + "\n")
+
+        f.write("    </Layers>\n")
+        f.write("  </Stackup>\n")
+        f.write("\n")
+        f.write('  <ImportOptions Flatten="true" GDSIIConvertPolygonToCircles="false" ImportDummyNet="true"/>\n')
+        f.write("\n")
+        f.write("</c:Control>\n")
+
+    return control_path
 
 
 class PropsManager(object):
