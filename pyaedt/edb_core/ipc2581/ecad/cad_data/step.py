@@ -115,19 +115,19 @@ class Step(object):
         # adding component add package in Step
         if component:
             if not component.part_name in self._packages:
-                component_bounding_box = component.bounding_box
-                middle_point_x = (component_bounding_box[0] + component_bounding_box[2]) / 2
-                middle_point_y = (component_bounding_box[1] + component_bounding_box[3]) / 2
-                component_transform = component.edbcomponent.GetTransform()
-                component_rotation = component_transform.Rotation.ToDouble()
-                if component_rotation > math.pi:
-                    component_rotation -= math.pi
-                middle_point_x = middle_point_x - component_transform.XOffset.ToDouble()
-                middle_point_y = middle_point_y - component_transform.YOffset.ToDouble()
-                av_x = middle_point_x * math.cos(component_rotation) + middle_point_y * math.sin(component_rotation)
-                av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
-                if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
-                    av_x = -av_x
+                # component_bounding_box = component.bounding_box
+                # middle_point_x = (component_bounding_box[0] + component_bounding_box[2]) / 2
+                # middle_point_y = (component_bounding_box[1] + component_bounding_box[3]) / 2
+                # component_transform = component.edbcomponent.GetTransform()
+                # component_rotation = component_transform.Rotation.ToDouble()
+                # if component_rotation > math.pi:
+                #     component_rotation -= math.pi
+                # middle_point_x = middle_point_x - component_transform.XOffset.ToDouble()
+                # middle_point_y = middle_point_y - component_transform.YOffset.ToDouble()
+                # av_x = middle_point_x * math.cos(component_rotation) + middle_point_y * math.sin(component_rotation)
+                # av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
+                # if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
+                #     av_x = -av_x
                 package = Package(self._ipc)
                 package.add_component_outline(component)
                 package.name = component.part_name
@@ -138,10 +138,12 @@ class Step(object):
                     geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
                         pin._edb_padstackinstance, component.placement_layer, 0
                     )
-                    vx = self._ipc.from_meter_to_units(pin.position[0] - av_x, self.units)
-                    vy = self._ipc.from_meter_to_units(pin.position[1] - av_y, self.units)
-                    if component.placement_layer == list(self._pedb.stackup.signal_layers.keys())[-1]:
-                        vx = -vx
+                    # vx = self._ipc.from_meter_to_units(pin.position[0] - av_x, self.units)
+                    # vy = self._ipc.from_meter_to_units(pin.position[1] - av_y, self.units)
+                    # if component.placement_layer == list(self._pedb.stackup.signal_layers.keys())[-1]:
+                    #     vx = -vx
+                    pin_pos_x = self._ipc.from_meter_to_units(pin.position[0], self.units)
+                    pin_pos_y = self._ipc.from_meter_to_units(pin.position[1], self.units)
                     primitive_ref = ""
                     if geometry_type == 1:
                         primitive_ref = "CIRC_{}".format(pad_parameters[0])
@@ -152,7 +154,9 @@ class Step(object):
                     elif geometry_type == 4:
                         primitive_ref = "OVAL_{}_{}_{}".format(pad_parameters[0], pad_parameters[1], pad_parameters[2])
                     if primitive_ref:
-                        package.add_pin(number=pin_number, x=vx, y=vy, rotation=rot, primitive_ref=primitive_ref)
+                        package.add_pin(
+                            number=pin_number, x=pin_pos_x, y=pin_pos_y, rotation=rot, primitive_ref=primitive_ref
+                        )
                     pin_number += 1
                 self.packages[package.name] = package
             ipc_component = Component()

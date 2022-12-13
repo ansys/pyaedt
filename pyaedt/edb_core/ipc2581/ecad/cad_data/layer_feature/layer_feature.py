@@ -72,31 +72,25 @@ class LayerFeature(object):
         self, component=None, pin=None, top_bottom_layers=[]
     ):  # pragma no cover
         if component:
-            cmp_x = self._ipc.from_meter_to_units(component.edbcomponent.GetLocation()[1], self._ipc.units)
-            cmp_y = self._ipc.from_meter_to_units(component.edbcomponent.GetLocation()[2], self._ipc.units)
-            _cos = round(math.cos(component.rotation), 4)
-            _sin = round(math.sin(component.rotation), 4)
             if pin:
                 is_via = False
                 if not pin.start_layer == pin.stop_layer:
                     is_via = True
                 pin_x = self._ipc.from_meter_to_units(pin.position[0], self._ipc.units)
                 pin_y = self._ipc.from_meter_to_units(pin.position[1], self._ipc.units)
-                pad_x = cmp_x + (pin_x * _cos - pin_y * _sin)
-                pad_y = cmp_y + (pin_x * _sin + pin_y * _cos)
                 cmp_rot_deg = component.rotation * 180 / math.pi
                 mirror = False
                 rotation = cmp_rot_deg + pin.rotation * 180 / math.pi
                 if component.placement_layer == top_bottom_layers[-1]:
                     mirror = True
-                    rotation = -cmp_rot_deg - pin.rotation * 180 / math.pi
+                    rotation = cmp_rot_deg - pin.rotation * 180 / math.pi
                 feature = Feature(self._ipc)
                 feature.feature_type = FeatureType.PadstackInstance
                 feature.net = pin.net_name
                 feature.padstack_instance.net = pin.net_name
                 feature.padstack_instance.pin = pin.pin.GetName()
-                feature.padstack_instance.x = pad_x
-                feature.padstack_instance.y = pad_y
+                feature.padstack_instance.x = pin_x
+                feature.padstack_instance.y = pin_y
                 feature.padstack_instance.rotation = rotation
                 feature.padstack_instance.mirror = mirror
                 feature.padstack_instance.isvia = is_via
