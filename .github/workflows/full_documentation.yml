@@ -156,8 +156,8 @@ jobs:
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
-          "PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")" >> $env:GITHUB_ENV
-          "TEST_AEDT=33" >> $env:GITHUB_ENV
+          echo "PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")" >> $env:GITHUB_ENV
+          echo "TEST_AEDT=33" >> $env:GITHUB_ENV
           echo PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")
           echo ***************
           echo $env:TEST_AEDT
