@@ -184,7 +184,7 @@ jobs:
       - name: move the generated documentation.
         run: |
           mkdir pyaedt-doc-flatten-json;
-          mv pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
+          # mv pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
           echo Clean up build directories after the process is completed.
           rm -rf doc-json doc-flatten-json;
         shell: bash
@@ -193,7 +193,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pyaedt-doc-flatten-json
-          path: pyaedt-doc-flatten-json/pyaedt-doc-flatten-json.zip
+          path: pyaedt-doc-flatten-json.zip
           retention-days: 7
 
       # Verify that sphinx generates no warnings
