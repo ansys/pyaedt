@@ -1145,7 +1145,7 @@ class Primitives3DLayout(object):
         return primitive
 
     @pyaedt_function_handler()
-    def create_polygon_void(self, layername, point_list, object_owner, units=None, name=None, net_name=None):
+    def create_polygon_void(self, layername, point_list, object_owner, units=None, name=None):
         """Create a polygon void on a specified layer.
 
         Parameters
@@ -1160,9 +1160,6 @@ class Primitives3DLayout(object):
             Polygon units. Default is modeler units.
         name : str, optional
             Name of the rectangle. The default is ``None``, in which case the
-            default name is assigned.
-        net_name : str, optional
-            Name of the net. The default is ``None``, in which case the
             default name is assigned.
 
         Returns
@@ -1199,9 +1196,6 @@ class Primitives3DLayout(object):
         self.oeditor.CreatePolygonVoid(vArg1)
         primitive = Polygons3DLayout(self, name, is_void=True)
         self._polygons[name] = primitive
-
-        if net_name:
-            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
 
         return primitive
 

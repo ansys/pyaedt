@@ -643,12 +643,10 @@ class TestClass(BasisTest, object):
         assert p1.name == "poly_41"
         points2 = [[120, 120], [120, 170], [170, 140]]
 
-        p2 = self.aedtapp.modeler.create_polygon_void("Top", points2, p1.name, name="poly_test_41_void", net_name="GND")
+        p2 = self.aedtapp.modeler.create_polygon_void("Top", points2, p1.name, name="poly_test_41_void")
 
         assert p2.name == "poly_test_41_void"
-        assert not self.aedtapp.modeler.create_polygon_void(
-            "Top", points2, "another_object", name="poly_43_void", net_name="GND"
-        )
+        assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_90_set_differential_pairs(self):
