@@ -156,9 +156,10 @@ jobs:
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
-          echo "PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")" >> $env:GITHUB_ENV
+          "PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")" >> $env:GITHUB_ENV
+          echo PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")
           echo ***************
-          echo $env:PYAEDT_VERSION
+          echo ${{env.PYAEDT_VERSION}}
           echo pyaedt version is: ${{ env.PYAEDT_VERSION }}
           # sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
 
