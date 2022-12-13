@@ -640,7 +640,7 @@ class TestClass(BasisTest, object):
     def test_41_test_create_polygon(self):
         points = [[100, 100], [100, 200], [200, 200]]
         p1 = self.aedtapp.modeler.create_polygon("Top", points, name="poly_41")
-        assert p1.name == "poly_test_41"
+        assert p1.name == "poly_41"
         points2 = [[120, 120], [120, 170], [170, 140]]
 
         p2 = self.aedtapp.modeler.create_polygon_void("Top", points2, p1.name, name="poly_test_41_void", net_name="GND")
