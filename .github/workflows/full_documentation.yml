@@ -160,6 +160,9 @@ jobs:
           echo "TEST_AEDT=33" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")
           echo ***************
+
+      - name: Bprint values
+        run: |
           echo ${env:PATH}
           echo ${env:TEST_AEDT}
           gci env:* | sort-object name
