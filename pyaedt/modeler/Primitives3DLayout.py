@@ -544,9 +544,9 @@ class Primitives3DLayout(object):
                 obj_to_add.append(self._vias[name])
 
         for name in names_to_remove:
-            if pins:
+            if name in self._pins:
                 del self._pins[name]
-            else:
+            elif name in self._vias:
                 del self._vias[name]
         return obj_to_add, names_to_remove
 
