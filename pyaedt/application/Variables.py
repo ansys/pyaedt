@@ -1846,9 +1846,9 @@ class DataSet(object):
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
-
+        ver = self._app._aedt_version
         for i in range(len(x)):
-            if self._app._aedt_version >= "2022.1":
+            if ver >= "2022.1":
                 arg3 = ["NAME:Point"]
                 arg3.append(float(x[i]))
                 arg3.append(float(y[i]))
