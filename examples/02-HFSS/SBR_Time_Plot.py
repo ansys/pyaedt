@@ -66,7 +66,7 @@ frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0],
 # Plot the scene to create the time plot animation.
 
 hfss.post.plot_scene(frames_list_file, os.path.join(hfss.working_directory, "animation.gif"), norm_index=15, dy_rng=35,
-                     show=False)
+                     show=False, view="xy", zoom=1)
 
 
 hfss.release_desktop()

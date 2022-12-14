@@ -149,7 +149,7 @@ hfss.analyze_nominal()
 
 ###############################################################################
 # Plot Results
-# ~~~~~~~~~~~
+# ~~~~~~~~~~~~
 
 traces = hfss.get_traces_for_plot(category="S")
 solutions = hfss.post.get_solution_data(traces)
@@ -224,7 +224,7 @@ h3d.analyze_nominal()
 
 ###############################################################################
 # Plot Results
-# ~~~~~~~~~~~
+# ~~~~~~~~~~~~
 
 traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)

@@ -569,7 +569,7 @@ class PostProcessor(Post):
         return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
 
     @pyaedt_function_handler()
-    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
+    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True, view="yz", zoom=2):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
 
@@ -590,6 +590,11 @@ class PostProcessor(Post):
             Frames per Second.
         show : bool, optional
             Either if show or only export gif.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+           The default is ``"isometric"``.
+        zoom : float, optional
+            Default zoom.
 
         Returns
         -------
@@ -615,17 +620,17 @@ class PostProcessor(Post):
 
         # Specifying the attributes of the scene through the ModelPlotter object
         scene.off_screen = not show
-        scene.isometric_view = False
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            scene.camera_position = view
         scene.range_min = v_min
         scene.range_max = v_max
         scene.show_grid = False
         scene.windows_size = [1920, 1080]
         scene.show_legend = False
-        scene.show_bounding_box = False
+        scene.show_boundingbox = False
         scene.legend = False
         scene.frame_per_seconds = fps
-        scene.camera_position = "yz"
-        scene.zoom = 2
+        scene.zoom = zoom
         scene.bounding_box = False
         scene.color_bar = False
         scene.gif_file = output_gif_path  # This gif may be a bit slower so we can speed it up a bit

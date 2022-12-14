@@ -106,7 +106,7 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
 
 ###############################################################################
 # Plot waveform and samples
-# ~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 
 tstop = 55e-9
@@ -152,7 +152,7 @@ plt.show()
 
 ###############################################################################
 # Plot Slicer Scatter
-# ~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 
 fig, ax2 = plt.subplots()
@@ -176,7 +176,7 @@ plt.show()
 
 ###############################################################################
 # Get Transient report
-# ~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # Get Transient report data.
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
@@ -187,7 +187,7 @@ original_data = cir.post.get_solution_data(expressions=plot_name,
 
 ###############################################################################
 # Sample waveform using a user-defined clock
-# ~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Extract waveform at specific clock time plus half unit interval.
 
 original_data.enable_pandas_output = False
@@ -209,7 +209,7 @@ sample_waveform = cir.post.sample_waveform(
 
 ###############################################################################
 # Plot waveform and samples
-# ~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 
 tstop = 40.0e-9
@@ -260,7 +260,7 @@ plt.show()
 
 ###############################################################################
 # Plot Slicer Scatter
-# ~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 
 sample_waveform_array = np.array(sample_waveform)
