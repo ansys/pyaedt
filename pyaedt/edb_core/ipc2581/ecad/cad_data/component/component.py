@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 
 
 class Component(object):
-    """Class containing ipc2581 component information."""
+    """Class containing IPC2581 component information."""
 
     def __init__(self):
         self.refdes = ""

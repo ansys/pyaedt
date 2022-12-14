@@ -1583,13 +1583,13 @@ class Components(object):
         comptype="Prod name",
         refdes="Pos / Place",
     ):
-        """Update the EDC core component values (RLCs) with values coming from a bom file.
+        """Update the EDC core component values (RLCs) with values coming from a BOM file.
 
         Parameters
         ----------
         bom_file : str
-            Full path to the bom file, which is a delimited text file.
-            Header values needed inside the bom reader must
+            Full path to the BOM file, which is a delimited text file.
+            Header values needed inside the BOM reader must
             be explicitly set if different from the defaults.
         delimiter : str, optional
             Value to use for the delimiter. The default is ``";"``.
@@ -1654,12 +1654,12 @@ class Components(object):
         comp_type_col=2,
         value_col=3,
     ):
-        """Load external bom file.
+        """Load external BOM file.
 
         Parameters
         ----------
         bom_file : str
-            Full path to the bom file, which is a delimited text file.
+            Full path to the BOM file, which is a delimited text file.
         delimiter : str, optional
             Value to use for the delimiter. The default is ``","``.
         refdes_col : int, optional
@@ -1741,7 +1741,7 @@ class Components(object):
         Parameters
         ----------
         bom_file : str
-            Full path to the bom file, which is a delimited text file.
+            Full path to the BOM file, which is a delimited text file.
         delimiter : str, optional
             Value to use for the delimiter. The default is ``","``.
         """

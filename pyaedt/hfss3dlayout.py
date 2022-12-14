@@ -1400,21 +1400,21 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
     def import_ipc2581(
         self, input_file, aedb_path=None, control_file=None, set_as_active=True, close_active_project=False
     ):
-        """Import an ipc2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
+        """Import an IPC2581 file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
         Parameters
         ----------
         input_file : str
-            Full path to the ipc2581 file.
+            Full path to the IPC2581 file.
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
             Path to the XML file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
         set_as_active : bool, optional
-            Whether to set the ipc2581 file as active. The default is ``True``.
+            Whether to set the IPC2581 file as active. The default is ``True``.
         close_active_project : bool, optional
-            Whether to close the active project after loading the ipc2581 file.
+            Whether to close the active project after loading the IPC2581 file.
             The default is ''False``.
         Returns
         -------

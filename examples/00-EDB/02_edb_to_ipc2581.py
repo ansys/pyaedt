@@ -1,7 +1,7 @@
 """
 EDB: ipc2581 export
 -------------------
-This example shows how you can use PyAEDT to export an ipc2581 file.
+This example shows how you can use PyAEDT to export an IPC2581 file.
 """
 
 ###############################################################################
@@ -48,10 +48,10 @@ edb.core_primitives.parametrize_trace_width(
 ###############################################################################
 # Create ipc2581 file
 # ~~~~~~~~~~~~~~~~~~~
-# Create the ipc2581 file.
+# Create the IPC2581 file.
 
 edb.export_to_ipc2581(ipc2581_file, "inch")
-print("ipc2581 File has been saved to {}".format(ipc2581_file))
+print("IPC2581 file has been saved to {}".format(ipc2581_file))
 
 ###############################################################################
 # Close EDB

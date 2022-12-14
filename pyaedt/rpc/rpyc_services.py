@@ -299,7 +299,7 @@ class PyaedtServiceWindows(rpyc.Service):
         edbpath : str, optional
             Full path to the ``aedb`` folder. The variable can also contain
             the path to a layout to import. Allowed formarts are BRD,
-            XML (ipc2581), GDS, and DXF. The default is ``None``.
+            XML (IPC2581), GDS, and DXF. The default is ``None``.
         cellname : str, optional
             Name of the cell to select. The default is ``None``.
         isreadonly : bool, optional
@@ -932,7 +932,7 @@ class GlobalService(rpyc.Service):
         edbpath : str, optional
             Full path to the ``aedb`` folder. The variable can also contain
             the path to a layout to import. Allowed formats are BRD,
-            XML (ipc2581), GDS, and DXF. The default is ``None``.
+            XML (IPC2581), GDS, and DXF. The default is ``None``.
             For GDS import, the Ansys control file, which is also XML, should have the same
             name as the GDS file. Only the extensions of the two files should differ.
         cellname : str, optional

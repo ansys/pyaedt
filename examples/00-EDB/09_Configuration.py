@@ -52,11 +52,11 @@ edbapp = Edb(target_aedb, edbversion="2022.2")
 edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_definition.json"))
 
 ###############################################################################
-# Import bom
+# Import BOM
 # ~~~~~~~~~~
-# This steps import a bom csv file containg, reference designator,
-# part name, component type and default value.
-# Components not in bom will be deactivated.
+# This step imports a BOM file in CSV format. The BOM contains the
+# reference designator, part name, component type, and default value.
+# Components not in the BOM are deactivated.
 # Csv file is store for convenience in aedb folder.
 
 edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),

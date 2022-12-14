@@ -9,7 +9,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import Polygon
 
 
 class Feature(object):
-    """Class describing IPC 2581 features."""
+    """Class describing IPC2581 features."""
 
     def __init__(self, ipc):
         self._ipc = ipc

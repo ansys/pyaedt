@@ -6,7 +6,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature.feature import FeatureT
 
 
 class LayerFeature(object):
-    """Class describing ipc2581 layer feature."""
+    """Class describing IPC2581 layer feature."""
 
     def __init__(self, ipc):
         self._ipc = ipc
