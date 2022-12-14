@@ -578,12 +578,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         return self.cleanup_objects()
 
     @pyaedt_function_handler()
-    def convert_to_selections(self, objtosplit, return_list=False):
+    def convert_to_selections(self, objects_to_split, return_list=False):
         """Convert one or more object to selections.
 
         Parameters
         ----------
-        objtosplit : str, int, list
+        objects_to_split : str, int, list
             One or more objects to convert to selections. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
@@ -598,10 +598,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         """
 
-        if not isinstance(objtosplit, list):
-            objtosplit = [objtosplit]
+        if not isinstance(objects_to_split, list):
+            objects_to_split = [objects_to_split]
         objnames = []
-        for el in objtosplit:
+        for el in objects_to_split:
             if isinstance(el, str):
                 objnames.append(el)
             elif "name" in dir(el):
