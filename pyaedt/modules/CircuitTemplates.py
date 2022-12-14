@@ -263,7 +263,6 @@ PowerIQProps = [
 ]
 
 # Voltage Frequency dependent
-# Power Sinusoidal
 VoltageFrequency = [
     "NAME:Name",
     "DataId:=",
@@ -313,6 +312,70 @@ VoltageFrequencyProps = [
     "Netlist",
 ]
 
+# Voltage DC
+VoltageDC = [
+    "NAME:Name",
+    "DataId:=",
+    "",
+    "Type:=",
+    1,
+    "Output:=",
+    2,
+    "NumPins:=",
+    2,
+    "Netlist:=",
+    "",
+    "CompName:=",
+    "Nexxim Circuit Elements\\Independent Sources:V_DC",
+    "FDSFileName:=",
+    "",
+    "BtnPropFileName:=",
+    "",
+    [
+        "NAME:Properties",
+        "TextProp:=",
+        ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
+        "ValueProp:=",
+        ["ACMAG", "D", "AC magnitude for small-signal analysis (Volts)", "nan V", 0],
+        "ValuePropNU:=",
+        ["ACPHASE", "D", "AC phase for small-signal analysis", "0deg", 0, "deg"],
+        "ValueProp:=",
+        ["DC", "D", "DC voltage (Volts)", "0V", 0],
+        "TextProp:=",
+        ["ModelName", "SHD", "", "V_DC"],
+        "MenuProp:=",
+        ["CoSimulator", "D", "", "DefaultNetlist", 0],
+        "ButtonProp:=",
+        ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
+        "ButtonProp:=",
+        ["Noise", "OD", "", "Noise", "Noise", 0, "ButtonPropClientData:=", []],
+        "TextProp:=",
+        ["ModelName", "SHD", "", "V_DC"],
+        "ButtonProp:=",
+        ["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
+        "MenuProp:=",
+        ["CoSimulator", "D", "", "DefaultNetlist", 0],
+        [
+            "Netlist",
+            0,
+            0,
+            "V@ID %0 %1 *DC(DC=@DC) *ACMAG(AC @ACMAG @ACPHASE)",
+        ],
+    ],
+]
+
+DCProps = [
+    "ACMAG",
+    "ACPHASE",
+    "DC",
+    "POWER",
+    "CosimDefinition",
+    "CoSimulator",
+    "CoSimulator/Choices",
+    "Noise",
+    "Netlist",
+]
+
 
 class SourceKeys(object):
     """Provides source keys."""
@@ -321,16 +384,19 @@ class SourceKeys(object):
         "PowerSin": PowerSinusoidal,
         "PowerIQ": PowerIQ,
         "VoltageFrequencyDependent": VoltageFrequency,
+        "VoltageDC": VoltageDC,
     }
 
     SourceProps = {
         "PowerSin": SinProps,
         "PowerIQ": PowerIQProps,
         "VoltageFrequencyDependent": VoltageFrequencyProps,
+        "VoltageDC": DCProps,
     }
 
     SourceNames = [
         "PowerSin",
         "PowerIQ",
         "VoltageFrequencyDependent",
+        "VoltageDC",
     ]

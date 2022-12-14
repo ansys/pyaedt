@@ -19,7 +19,8 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import PowerIQSource
 from pyaedt.modules.Boundary import PowerSinSource
 from pyaedt.modules.Boundary import Sources
-from pyaedt.modules.Boundary import VoltageFrequencyDependent
+from pyaedt.modules.Boundary import VoltageDCSource
+from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
 from pyaedt.modules.CircuitTemplates import SourceKeys
 
 
@@ -1070,6 +1071,7 @@ class Circuit(FieldAnalysisCircuit, object):
             * PowerSin.
             * PowerIQ.
             * VoltageFrequencyDependent.
+            * VoltageDC.
 
         name : str, optional
             Source name.
@@ -1097,7 +1099,9 @@ class Circuit(FieldAnalysisCircuit, object):
         elif source_type == "PowerIQ":
             new_source = PowerIQSource(self, name, source_type)
         elif source_type == "VoltageFrequencyDependent":
-            new_source = VoltageFrequencyDependent(self, name, source_type)
+            new_source = VoltageFrequencyDependentSource(self, name, source_type)
+        elif source_type == "VoltageDC":
+            new_source = VoltageDCSource(self, name, source_type)
         else:
             new_source = Sources(self, name, source_type)
         new_source.create()

@@ -8,7 +8,8 @@ from pyaedt.modules.Boundary import Excitations
 from pyaedt.modules.Boundary import PowerIQSource
 from pyaedt.modules.Boundary import PowerSinSource
 from pyaedt.modules.Boundary import Sources
-from pyaedt.modules.Boundary import VoltageFrequencyDependent
+from pyaedt.modules.Boundary import VoltageDCSource
+from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -215,7 +216,9 @@ class FieldAnalysisCircuit(Analysis):
                 elif props[source].source_type == "PowerIQ":
                     props[source] = PowerIQSource(self, source)
                 elif props[source].source_type == "VoltageFrequencyDependent":
-                    props[source] = VoltageFrequencyDependent(self, source)
+                    props[source] = VoltageFrequencyDependentSource(self, source)
+                elif props[source].source_type == "VoltageDC":
+                    props[source] = VoltageDCSource(self, source)
             self._internal_sources = props
         else:
             props = self._internal_sources

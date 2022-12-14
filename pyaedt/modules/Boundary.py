@@ -2335,7 +2335,7 @@ class PowerIQSource(Sources, object):
         self.update()
 
 
-class VoltageFrequencyDependent(Sources, object):
+class VoltageFrequencyDependentSource(Sources, object):
     """Voltage Frequency Dependent Class."""
 
     def __init__(self, app, name, source_type=None):
@@ -2496,6 +2496,62 @@ class VoltageFrequencyDependent(Sources, object):
             self._props["FreqDependentSourceData"] = ""
             self.update()
         return True
+
+
+class VoltageDCSource(Sources, object):
+    """Power Sinusoidal Class."""
+
+    def __init__(self, app, name, source_type=None):
+        Sources.__init__(self, app, name, source_type)
+
+    @property
+    def _child(self):
+        return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+
+    @property
+    def ac_magnitude(self):
+        """AC magnitude value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ACMAG"]
+
+    @ac_magnitude.setter
+    def ac_magnitude(self, value):
+        self._props["ACMAG"] = value
+        self._child.SetPropValue("ACMAG", value)
+
+    @property
+    def ac_phase(self):
+        """AC phase value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ACPHASE"]
+
+    @ac_phase.setter
+    def ac_phase(self, value):
+        self._props["ACPHASE"] = value
+        self._child.SetPropValue("ACPHASE", value)
+
+    @property
+    def dc_magnitude(self):
+        """DC voltage value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["DC"]
+
+    @dc_magnitude.setter
+    def dc_magnitude(self, value):
+        self._props["DC"] = value
+        self._child.SetPropValue("DC", value)
 
 
 class Excitations(object):
