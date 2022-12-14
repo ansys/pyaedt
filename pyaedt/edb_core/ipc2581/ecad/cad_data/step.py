@@ -61,16 +61,16 @@ class Step(object):
     def logical_nets(self):
         return self._logical_nets
 
-    def add_logical_net(self, net_name="", components=""):
+    def add_logical_net(self, net=None):
+        net_name = net.name
         logical_net = LogicalNet()
         logical_net.name = net_name
-        for component_name, component in components.items():
-            for pin_name, pin in component.pins.items():
-                if pin.net_name == net_name:
-                    new_pin_ref = logical_net.get_pin_ref_def()
-                    new_pin_ref.pin = pin_name
-                    new_pin_ref.component_ref = component_name
-                    logical_net.pin_ref.append(new_pin_ref)
+        net_pins = list(net.PadstackInstances)
+        for pin in net_pins:
+            new_pin_ref = logical_net.get_pin_ref_def()
+            new_pin_ref.pin = pin.GetName()
+            new_pin_ref.component_ref = pin.GetComponent().GetName()
+            logical_net.pin_ref.append(new_pin_ref)
         self.logical_nets.append(logical_net)
 
     @property
@@ -172,35 +172,33 @@ class Step(object):
             ipc_component.layer_ref = component.placement_layer
             self.components.append(ipc_component)
 
-    def add_layer_feature(self, layer=None, top_bottom_layers=[]):
+    def add_layer_feature(self, layer, padstack_instances, padstack_defs):
+        layers_name = list(self._pedb.stackup.signal_layers.keys())
+        top_bottom_layers = [layers_name[0], layers_name[-1]]
+        layer_name = layer.name
         layer_feature = LayerFeature(self._ipc)
-        layer_feature.layer_name = layer.name
+        layer_feature.layer_name = layer_name
         layer_feature.color = layer.color
-        for poly in layer._pclass._pedb.core_primitives.polygons_by_layer[layer.name]:
+        for poly in layer._pclass._pedb.core_primitives.primitives_by_layer[layer_name]:
             layer_feature.add_feature(poly)
-        path_list = [
-            layout_obj
-            for layout_obj in layer._pclass._pedb.core_primitives.primitives_by_layer[layer.name]
-            if layout_obj.type == "Path"
-        ]
-        for path in path_list:
-            layer_feature.add_feature(path)
-        padstack_instances = list(layer._pclass._pedb.core_padstack.padstack_instances.values())
+
         for padstack_instance in padstack_instances:
-            if padstack_instance.is_pin and not padstack_instance.GetComponent().GetName() == "":
-                padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
-                component_inst = self._pedb.core_components.components[padstack_instance.GetComponent().GetName()]
+            comp_name = padstack_instance.GetComponent().GetName()
+            if padstack_instance.is_pin and comp_name:
+                padstack_def = padstack_defs[padstack_instance.padstack_definition]
+
+                component_inst = self._pedb.core_components.components[comp_name]
                 if (
-                    layer.name in padstack_def.pad_by_layer
-                    or layer.name in padstack_def.antipad_by_layer
-                    or layer.name in padstack_def.thermalpad_by_layer
+                    layer_name in padstack_def.pad_by_layer
+                    or layer_name in padstack_def.antipad_by_layer
+                    or layer_name in padstack_def.thermalpad_by_layer
                 ):
                     layer_feature.add_component_padstack_instance_feature(
                         component_inst, padstack_instance, top_bottom_layers
                     )
             else:
-                padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
-                layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer.name)
+                padstack_def = padstack_defs[padstack_instance.padstack_definition]
+                layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer_name)
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
@@ -210,7 +208,7 @@ class Step(object):
             drill_layer_feature.layer_name = layer_feature_name
             for via in via_list:
                 try:
-                    via_diameter = self._pedb.core_padstack.padstacks[via.padstack_definition].hole_properties[0]
+                    via_diameter = via._edb_padstackinstance.GetPadstackDef().hole_properties[0]
                     drill_layer_feature.add_drill_feature(via, via_diameter)
                 except:
                     pass

@@ -556,7 +556,11 @@ class Edb(object):
         self.open_edb()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581_beta(self, units="MILLIMETER", output_file=""):
+    def export_to_ipc2581_beta(
+        self,
+        output_file="",
+        units="MILLIMETER",
+    ):
         ipc = IPC2581(self, units)
         ipc.load_ipc_model()
         ipc.file_path = output_file

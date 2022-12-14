@@ -36,6 +36,7 @@ class EDBPadProperties(object):
         self._pedbpadstack = p_edb_padstack
         self.layer_name = layer_name
         self.pad_type = pad_type
+        self._parameters_values = None
         pass
 
     @property
@@ -103,11 +104,12 @@ class EDBPadProperties(object):
         list
             List of parameters.
         """
-
+        self._parameters_values = []
         pad_values = self._edb_padstack.GetData().GetPadParametersValue(
             self.layer_name, self.int_to_pad_type(self.pad_type)
         )
-        return [i.ToDouble() for i in pad_values[2]]
+        self._parameters_values = [i.ToDouble() for i in pad_values[2]]
+        return self._parameters_values
 
     @property
     def polygon_data(self):
@@ -329,6 +331,7 @@ class EDBPadstack(object):
         self.antipad_by_layer = {}
         self.thermalpad_by_layer = {}
         self._bounding_box = []
+        self._hole_params = None
         for layer in self.via_layers:
             self.pad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 0, self)
             self.antipad_by_layer[layer] = EDBPadProperties(edb_padstack, layer, 1, self)
@@ -393,10 +396,11 @@ class EDBPadstack(object):
         return list(self.via_layers)[-1]
 
     @property
-    def _hole_params(self):
+    def hole_params(self):
+
         viaData = self.edb_padstack.GetData()
-        out = viaData.GetHoleParametersValue()
-        return out
+        self._hole_params = viaData.GetHoleParametersValue()
+        return self._hole_params
 
     @property
     def hole_parameters(self):
@@ -407,7 +411,7 @@ class EDBPadstack(object):
         list
             List of the hole parameters.
         """
-        self._hole_parameters = self._hole_params[2]
+        self._hole_parameters = self.hole_params[2]
         return self._hole_parameters
 
     @pyaedt_function_handler()
@@ -464,7 +468,7 @@ class EDBPadstack(object):
         list
             List of float values for hole properties.
         """
-        self._hole_properties = [i.ToDouble() for i in self._hole_params[2]]
+        self._hole_properties = [i.ToDouble() for i in self.hole_params[2]]
         return self._hole_properties
 
     @hole_properties.setter
@@ -485,7 +489,7 @@ class EDBPadstack(object):
         int
             Type of the hole.
         """
-        self._hole_type = self._hole_params[1]
+        self._hole_type = self.hole_params[1]
         return self._hole_type
 
     @property
@@ -497,7 +501,7 @@ class EDBPadstack(object):
         str
             Hole offset value for the X axis.
         """
-        self._hole_offset_x = self._hole_params[3].ToString()
+        self._hole_offset_x = self.hole_params[3].ToString()
         return self._hole_offset_x
 
     @hole_offset_x.setter
@@ -515,7 +519,7 @@ class EDBPadstack(object):
         str
             Hole offset value for the Y axis.
         """
-        self._hole_offset_y = self._hole_params[4].ToString()
+        self._hole_offset_y = self.hole_params[4].ToString()
         return self._hole_offset_y
 
     @hole_offset_y.setter
@@ -533,7 +537,7 @@ class EDBPadstack(object):
         str
             Value for the hole rotation.
         """
-        self._hole_rotation = self._hole_params[5].ToString()
+        self._hole_rotation = self.hole_params[5].ToString()
         return self._hole_rotation
 
     @hole_rotation.setter

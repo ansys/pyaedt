@@ -29,12 +29,19 @@ class IPC2581(object):
         self.design_name = self._pedb.cell_names[0]
         self.content.step_ref = self.design_name
         self.add_layers_info()
+        print("layers added")
         self.add_bom()
+        print("Bom Added")
         self.add_pdstack_definition()
+        print("Pastack Defs")
         self.add_components()
+        print("Components")
         self.add_logical_nets()
+        print("Logical Nets")
         self.add_layer_features()
+        print("Layer Features")
         self.add_drills()
+        print("drills")
 
     @pyaedt_function_handler()
     def add_pdstack_definition(self):
@@ -216,7 +223,7 @@ class IPC2581(object):
         self.ecad.design_name = self.design_name
         self.ecad.cad_header.units = self.units
         self.ecad.cad_data.stackup.total_thickness = self.from_meter_to_units(
-            self._pedb.get_statistics().stackup_thickness, self.units
+            self._pedb.stackup.get_layout_thickness(), self.units
         )
         self.ecad.cad_data.stackup.stackup_group.thickness = self.ecad.cad_data.stackup.total_thickness
         layers_name = list(self._pedb.stackup.signal_layers.keys())
@@ -284,18 +291,22 @@ class IPC2581(object):
 
     @pyaedt_function_handler()
     def add_components(self):
-        for refdes, component in self._pedb.core_components.components.items():
-            self.ecad.cad_data.cad_data_step.add_component(component=component)
+        for item in self._pedb.core_components.components.values():
+            self.ecad.cad_data.cad_data_step.add_component(item)
 
     @pyaedt_function_handler()
     def add_logical_nets(self):
-        for net_name, net in self._pedb.core_nets.nets.items():
-            self.ecad.cad_data.cad_data_step.add_logical_net(net_name=net_name, components=net.components)
+        nets = [i for i in self._pedb.core_nets.nets.values()]
+        for net in nets:
+            self.ecad.cad_data.cad_data_step.add_logical_net(net)
 
     @pyaedt_function_handler()
     def add_layer_features(self):
-        for _, layer in self._pedb.stackup.signal_layers.items():
-            self.ecad.cad_data.cad_data_step.add_layer_feature(layer, self.top_bottom_layers)
+        layers = [i for i in self._pedb.stackup.signal_layers.values()]
+        padstack_instances = list(self._pedb.core_padstack.padstack_instances.values())
+        padstack_defs = {i: k for i, k in self._pedb.core_padstack.padstacks.items()}
+        for layer in layers:
+            self.ecad.cad_data.cad_data_step.add_layer_feature(layer, padstack_instances, padstack_defs)
 
     @pyaedt_function_handler()
     def add_drills(self):
@@ -304,9 +315,9 @@ class IPC2581(object):
             for obj in list(self._pedb.core_padstack.padstack_instances.values())
             if not obj.start_layer == obj.stop_layer
         ]
-        self.ecad.cad_data.cad_data_step.add_drill_layer_feature(
-            via_list, "DRILL_1-{}".format(len(list(self._pedb.stackup.signal_layers.keys())))
-        )
+        l1 = len(list(self._pedb.stackup.signal_layers.keys()))
+
+        self.ecad.cad_data.cad_data_step.add_drill_layer_feature(via_list, "DRILL_1-{}".format(l1))
 
     @pyaedt_function_handler()
     def from_meter_to_units(self, value, units):
