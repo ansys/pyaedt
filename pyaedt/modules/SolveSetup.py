@@ -388,32 +388,6 @@ class Setup(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def add_derivatives(self, derivative_list):
-        """Add derivatives to the setup.
-
-        Parameters
-        ----------
-        derivative_list : list
-            List of derivatives.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.EditSetup
-        """
-        arg = ["NAME:" + self.name]
-        _dict2arg(self.props, arg)
-        arg.append("VariablesForDerivatives:=")
-        arg.append(derivative_list)
-        self.omodule.EditSetup(self.name, arg)
-        return True
-
-    @pyaedt_function_handler()
     def enable(self, setup_name=None):
         """Enable a setup.
 
@@ -1058,32 +1032,6 @@ class SetupCircuit(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def add_derivatives(self, derivative_list):
-        """Add derivatives to the setup.
-
-        Parameters
-        ----------
-        derivative_list : list
-            List of derivatives.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.EditSetup
-        """
-        arg = ["Name:SimSetup"]
-        _dict2arg(self.props, arg)
-        arg.append("VariablesForDerivatives:=")
-        arg.append(derivative_list)
-        self.omodule.EditSetup(self.name, arg)
-        return True
-
-    @pyaedt_function_handler()
     def enable(self, setup_name=None):
         """Enable a setup.
 
@@ -1453,6 +1401,45 @@ class SetupHFSS(Setup, object):
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @pyaedt_function_handler()
+    def get_derivative_varibles(self):
+        """Return Derivative Enabled variables.
+
+        Returns
+        -------
+        List
+        """
+        try:
+            return list(self._app.oanalysis.GetDerivativeVariables(self.name))
+        except AttributeError:
+            return []
+
+    @pyaedt_function_handler()
+    def add_derivatives(self, derivative_list):
+        """Add derivatives to the setup.
+
+        Parameters
+        ----------
+        derivative_list : str or List
+            Derivative variable names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+        """
+        if not isinstance(derivative_list, list):
+            derivative_list = [derivative_list]
+        self.auto_update = False
+        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_varibles()
+        self.auto_update = True
+        return self.update()
 
     @pyaedt_function_handler()
     def create_linear_count_sweep(
@@ -1928,6 +1915,45 @@ class SetupHFSSAuto(Setup, object):
 
     def __init__(self, app, solutiontype, setupname="MySetupAuto", isnewsetup=True):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
+
+    @pyaedt_function_handler()
+    def get_derivative_varibles(self):
+        """Return Derivative Enabled variables.
+
+        Returns
+        -------
+        List
+        """
+        try:
+            return list(self._app.oanalysis.GetDerivativeVariables(self.name))
+        except AttributeError:
+            return []
+
+    @pyaedt_function_handler()
+    def add_derivatives(self, derivative_list):
+        """Add derivatives to the setup.
+
+        Parameters
+        ----------
+        derivative_list : str or List
+            Derivative variable names.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.EditSetup
+        """
+        if not isinstance(derivative_list, list):
+            derivative_list = [derivative_list]
+        self.auto_update = False
+        self.props["VariablesForDerivatives"] = derivative_list + self.get_derivative_varibles()
+        self.auto_update = True
+        return self.update()
 
     @pyaedt_function_handler()
     def add_subrange(self, rangetype, start, end=None, count=None, unit="GHz", clear=False):

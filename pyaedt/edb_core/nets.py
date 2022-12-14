@@ -926,8 +926,8 @@ class EdbNets(object):
 
         >>> renamed_nets = edb_core.core_nets.find_and_fix_disjoint_nets(["GND","Net2"])
         """
+        timer_start = self._logger.reset_timer()
 
-        self._logger.reset_timer()
         if not net_list:
             net_list = list(self.nets.keys())
         elif isinstance(net_list, str):
@@ -948,7 +948,6 @@ class EdbNets(object):
                 _padstacks_list[n_name] = [pad]
         new_nets = []
         disjoints_objects = []
-        self._logger.info_timer("Found objects")
         self._logger.reset_timer()
         for net in net_list:
             net_groups = []
@@ -965,8 +964,6 @@ class EdbNets(object):
                 net_groups.append(l1)
                 objs = [i for i in objs if i.id not in l1]
                 l = len(objs)
-            self._logger.info_timer("Got connected objects")
-            self._logger.reset_timer()
             if len(net_groups) > 1:
                 sorted_list = sorted(net_groups, key=len, reverse=True)
                 for disjoints in sorted_list[1:]:
@@ -996,8 +993,9 @@ class EdbNets(object):
                                 except KeyError:
                                     pass
                             disjoints_objects.extend(disjoints)
-        self._logger.info_timer("Disjoint Cleanup Completed.")
         self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
+        self._logger.info_timer("Disjoint Cleanup Completed.", timer_start)
+
         return new_nets
 
     @pyaedt_function_handler()

@@ -11,7 +11,9 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+
+from pyaedt import __version__
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -24,6 +26,7 @@ sys.path.append(os.path.join(root_path))
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
+cname = os.getenv("DOCUMENTATION_CNAME", "nocname.com")
 
 # Check for the local config file, otherwise use default desktop configuration
 local_config_file = os.path.join(local_path, "local_config.json")
@@ -33,9 +36,7 @@ if os.path.exists(local_config_file):
 else:
     config = {"run_examples": True}
 
-# read in version from file
-with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
-    release = version = f.readline()
+release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
@@ -214,6 +215,7 @@ html_short_title = html_title = "PyAEDT"
 html_show_sourcelink = True
 html_theme = "ansys_sphinx_theme"
 html_logo = pyansys_logo_black
+html_facivon = ansys_favicon
 
 # specify the location of your github repo
 html_context = {
@@ -239,6 +241,11 @@ html_theme_options = {
             "icon": "fa fa-comment fa-fw",
         },
     ],
+    "switcher": {
+        "json_url": f"https://{cname}/release/versions.json",
+        "version_match": get_version_match(__version__),
+    },
+    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
 }
 
 html_static_path = ["_static"]

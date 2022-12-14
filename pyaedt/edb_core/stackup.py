@@ -146,12 +146,7 @@ class LayerEdbClass(object):
     @property
     def type(self):
         """Retrieve type of the layer."""
-        if self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.SignalLayer:
-            return "signal"
-        elif self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer:
-            return "dielectric"
-        else:
-            return
+        return str(self._edb_layer.GetLayerType())[:-5].lower()
 
     @type.setter
     def type(self, new_type):
@@ -806,7 +801,7 @@ class Stackup(object):
         return self._pedb.edb_value(value)
 
     @pyaedt_function_handler()
-    def _set_layout_stackup(self, layer_clone, operation, base_layer=None):
+    def _set_layout_stackup(self, layer_clone, operation, base_layer=None, method=1):
         """Internal method. Apply stackup change into EDB.
 
         Parameters
@@ -829,7 +824,7 @@ class Stackup(object):
             new_layer_collection = self._pedb.edb.Cell.LayerCollection()
             for layer in edb_layers:
                 to_layer = layer.Clone()
-                if to_layer.IsStackupLayer():
+                if to_layer.IsStackupLayer() or (to_layer.GetName().lower() == "outline" and method == 1):
                     new_layer_collection.AddLayerBottom(to_layer)
                 else:
                     non_stackup.append(to_layer)
@@ -961,6 +956,9 @@ class Stackup(object):
         -------
 
         """
+        if layer_name in self.layers:
+            logger.error("layer {} exists.".format(layer_name))
+            return False
         materials_lower = {m.lower(): m for m in list(self._pedb.materials.materials.keys())}
         if material.lower() not in materials_lower:
             logger.error(material + " does not exist in material library")
@@ -979,8 +977,10 @@ class Stackup(object):
             if layer_type != "dielectric":
                 new_layer.SetFillMaterial(fillMaterial)
             new_layer.SetNegative(is_negative)
+            l1 = len(self.layers)
             self._set_layout_stackup(new_layer, method, base_layer)
-
+            if len(self.layers) == l1:
+                self._set_layout_stackup(new_layer, method, base_layer, method=2)
             if etch_factor:
                 new_layer = self.layers[layer_name]
                 new_layer.etch_factor = etch_factor
