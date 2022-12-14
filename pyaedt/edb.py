@@ -1341,7 +1341,7 @@ class Edb(object):
                             for void in voids:
                                 void_pdata = get_polygon_data(void)
                                 int_data2 = p.GetIntersectionType(void_pdata)
-                                if int_data2 > 2 or int_data == 1:
+                                if int_data2 > 2 or int_data2 == 1:
                                     void_to_subtract.append(void_pdata)
                                 elif int_data2 == 2:
                                     list_void.append(void_pdata)
