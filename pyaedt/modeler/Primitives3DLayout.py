@@ -54,9 +54,14 @@ class Primitives3DLayout(object):
           Part object details.
 
         """
-        for el in self.geometries:
-            if el == partname:
-                return self.geometries[el]
+        if partname in self.geometries:
+            return self.geometries[partname]
+        if partname in self.vias:
+            return self.nets[partname]
+        if partname in self.nets:
+            return self.nets[partname]
+        if not isinstance(partname, (str, int, float, list, tuple)):
+            return partname
         return None
 
     def __init__(self, app):

@@ -13,7 +13,6 @@ import json
 from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
 
-from pyaedt import __version__
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -22,7 +21,7 @@ root_path = module_path.parent.parent
 sys.path.append(os.path.abspath(os.path.join(local_path)))
 sys.path.append(os.path.join(root_path))
 
-sys.path.append(os.path.join(root_path))
+from pyaedt import __version__
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
