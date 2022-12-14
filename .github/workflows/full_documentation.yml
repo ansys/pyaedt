@@ -119,74 +119,74 @@ jobs:
   #         git remote add origin https://${{ secrets.PYAEDT_DOCS }}@github.com/pyansys/PyAEDT-docs
   #         git push -u origin master --force
 
-  full_documentation:
-    # The type of runner that the job will run on
-    name: full_documentation
-    runs-on: [Windows, pyaedt]
-    strategy:
-      matrix:
-        python-version: [3.8]
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      - uses: actions/checkout@v3
+  # full_documentation:
+  #   # The type of runner that the job will run on
+  #   name: full_documentation
+  #   runs-on: [Windows, pyaedt]
+  #   strategy:
+  #     matrix:
+  #       python-version: [3.8]
+  #   # Steps represent a sequence of tasks that will be executed as part of the job
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      # used for documentation deployment
-      - name: Get Bot Application Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@v2
-        with:
-          application_id: ${{ secrets.BOT_APPLICATION_ID }}
-          application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
+  #     # used for documentation deployment
+  #     - name: Get Bot Application Token
+  #       id: get_workflow_token
+  #       uses: peter-murray/workflow-application-token-action@v2
+  #       with:
+  #         application_id: ${{ secrets.BOT_APPLICATION_ID }}
+  #         application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
 
-      - name: 'Create virtual env'
-        run: |
-          python -m venv testenv
-          testenv\Scripts\Activate.ps1
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
-          python -c "import sys; print(sys.executable)"
+  #     - name: 'Create virtual env'
+  #       run: |
+  #         python -m venv testenv
+  #         testenv\Scripts\Activate.ps1
+  #         python -m pip install pip -U
+  #         python -m pip install wheel setuptools -U
+  #         python -c "import sys; print(sys.executable)"
 
-      - name: 'Install pyaedt'
-        run: |
-          testenv\Scripts\Activate.ps1
-          pip install -r requirements/requirements.txt
-          pip install -r requirements/requirements_docs.txt
-          Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
+  #     - name: 'Install pyaedt'
+  #       run: |
+  #         testenv\Scripts\Activate.ps1
+  #         pip install -r requirements/requirements.txt
+  #         pip install -r requirements/requirements_docs.txt
+  #         Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
-      - name: Retrieve PyAEDT version
-        id: version
-        run: |
-          testenv\Scripts\Activate.ps1
-          echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
-          echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
+  #     - name: Retrieve PyAEDT version
+  #       id: version
+  #       run: |
+  #         testenv\Scripts\Activate.ps1
+  #         echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
+  #         echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
 
-        #if: startsWith(github.event.ref, 'refs/heads/main') != true
+  #       #if: startsWith(github.event.ref, 'refs/heads/main') != true
 
-      - name: 'Create Documentations'
-        run: |
-          testenv\Scripts\Activate.ps1
-          sphinx-build -j auto -b html -a doc/source doc/_build/html 
+  #     - name: 'Create Documentations'
+  #       run: |
+  #         testenv\Scripts\Activate.ps1
+  #         sphinx-build -j auto -b html -a doc/source doc/_build/html 
 
-      - name: "Upload HTML documentation artifact"
-        uses: actions/upload-artifact@v3
-        with:
-          name: documentation-html
-          path: doc/_build/html
-          retention-days: 7
+  #     - name: "Upload HTML documentation artifact"
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: documentation-html
+  #         path: doc/_build/html
+  #         retention-days: 7
 
-      - name: "Deploy the stable documentation"
-        uses: pyansys/actions/doc-deploy-stable@v2
-        if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-        with:
-          cname: ${{ env.DOCUMENTATION_CNAME }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          python-version: ${{ matrix.python-version }}
+  #     - name: "Deploy the stable documentation"
+  #       uses: pyansys/actions/doc-deploy-stable@v2
+  #       if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+  #       with:
+  #         cname: ${{ env.DOCUMENTATION_CNAME }}
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         python-version: ${{ matrix.python-version }}
 
 
   full_documentation_json:
