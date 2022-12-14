@@ -36,7 +36,7 @@ if os.path.exists(local_config_file):
 else:
     config = {"run_examples": True}
 
-release = version = pyaedt.__version__
+release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
