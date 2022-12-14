@@ -51,13 +51,16 @@ class LayerFeature(object):
             feature.padstack_instance.diameter = padstackdef.hole_finished_size
             feature.padstack_instance.hole_name = padstack_inst.padstack_definition
             feature.padstack_instance.name = padstack_inst.name
-            if layer_name in padstackdef.pad_by_layer:
-                feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
-                    self._ipc.from_meter_to_units(
-                        padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
+            try:
+                if layer_name in padstackdef.pad_by_layer:
+                    feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
+                        self._ipc.from_meter_to_units(
+                            padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
+                        )
                     )
-                )
-                self.features.append(feature)
+                    self.features.append(feature)
+            except:
+                pass
 
     def add_drill_feature(self, via, diameter=0.0):  # pragma no cover
         feature = Feature(self._ipc)

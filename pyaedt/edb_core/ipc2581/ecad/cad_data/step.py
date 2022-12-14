@@ -138,10 +138,6 @@ class Step(object):
                     geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
                         pin._edb_padstackinstance, component.placement_layer, 0
                     )
-                    # vx = self._ipc.from_meter_to_units(pin.position[0] - av_x, self.units)
-                    # vy = self._ipc.from_meter_to_units(pin.position[1] - av_y, self.units)
-                    # if component.placement_layer == list(self._pedb.stackup.signal_layers.keys())[-1]:
-                    #     vx = -vx
                     pin_pos_x = self._ipc.from_meter_to_units(pin.position[0], self.units)
                     pin_pos_y = self._ipc.from_meter_to_units(pin.position[1], self.units)
                     primitive_ref = ""
@@ -191,7 +187,7 @@ class Step(object):
             layer_feature.add_feature(path)
         padstack_instances = list(layer._pclass._pedb.core_padstack.padstack_instances.values())
         for padstack_instance in padstack_instances:
-            if padstack_instance.is_pin:
+            if padstack_instance.is_pin and not padstack_instance.GetComponent().GetName() == "":
                 padstack_def = self._pedb.core_padstack.padstacks[padstack_instance.padstack_definition]
                 component_inst = self._pedb.core_components.components[padstack_instance.GetComponent().GetName()]
                 if (

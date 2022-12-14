@@ -235,49 +235,49 @@ class IPC2581(object):
             permitivity = 1
             loss_tg = 0
             embedded = "NOT_EMBEDDED"
-            try:
-                material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
-                edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
-                material_type = "CONDUCTOR"
-                if self._pedb.stackup.layers[layer_name].type == "dielectric":
-                    layer_type = "DIELPREG"
-                    material_type = "DIELECTRIC"
-                    permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[
-                        1
-                    ].ToDouble()
-                    loss_tg = edb_material.GetProperty(
-                        self._pedb.edb.Definition.MaterialPropertyId.DielectricLossTangent
-                    )[1].ToDouble()
-                    conductivity = 0
-                if layer_type == "CONDUCTOR":
-                    conductivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Conductivity)[
-                        1
-                    ].ToDouble()
-                self.ecad.cad_header.add_spec(
-                    name=layer_name,
-                    material=self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial(),
-                    layer_type=material_type,
-                    conductivity=str(conductivity),
-                    dielectric_constant=str(permitivity),
-                    loss_tg=str(loss_tg),
-                    embedded=embedded,
-                )
-                layer_position = "INTERNAL"
-                if layer_name == self.top_bottom_layers[0]:
-                    layer_position = "TOP"
-                if layer_name == self.top_bottom_layers[1]:
-                    layer_position = "BOTTOM"
-                self.ecad.cad_data.add_layer(
-                    layer_name=layer_name, layer_function=layer_type, layer_side=layer_position, polarity="POSITIVE"
-                )
-                layer_thickness_with_units = self.from_meter_to_units(
-                    self._pedb.stackup.layers[layer_name].thickness, self.units
-                )
-                self.ecad.cad_data.stackup.stackup_group.add_stackup_layer(
-                    layer_name=layer_name, thickness=layer_thickness_with_units, sequence=str(sequence)
-                )
-            except:
-                pass
+            # try:
+            material_name = self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial()
+            edb_material = self._pedb.edb.Definition.MaterialDef.FindByName(self._pedb.db, material_name)
+            material_type = "CONDUCTOR"
+            if self._pedb.stackup.layers[layer_name].type == "dielectric":
+                layer_type = "DIELPREG"
+                material_type = "DIELECTRIC"
+                permitivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Permittivity)[
+                    1
+                ].ToDouble()
+                loss_tg = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.DielectricLossTangent)[
+                    1
+                ].ToDouble()
+                conductivity = 0
+            if layer_type == "CONDUCTOR":
+                conductivity = edb_material.GetProperty(self._pedb.edb.Definition.MaterialPropertyId.Conductivity)[
+                    1
+                ].ToDouble()
+            self.ecad.cad_header.add_spec(
+                name=layer_name,
+                material=self._pedb.stackup.layers[layer_name]._edb_layer.GetMaterial(),
+                layer_type=material_type,
+                conductivity=str(conductivity),
+                dielectric_constant=str(permitivity),
+                loss_tg=str(loss_tg),
+                embedded=embedded,
+            )
+            layer_position = "INTERNAL"
+            if layer_name == self.top_bottom_layers[0]:
+                layer_position = "TOP"
+            if layer_name == self.top_bottom_layers[1]:
+                layer_position = "BOTTOM"
+            self.ecad.cad_data.add_layer(
+                layer_name=layer_name, layer_function=layer_type, layer_side=layer_position, polarity="POSITIVE"
+            )
+            layer_thickness_with_units = self.from_meter_to_units(
+                self._pedb.stackup.layers[layer_name].thickness, self.units
+            )
+            self.ecad.cad_data.stackup.stackup_group.add_stackup_layer(
+                layer_name=layer_name, thickness=layer_thickness_with_units, sequence=str(sequence)
+            )
+            # except:
+            #    pass
         self.ecad.cad_data.add_layer(layer_name="Drill", layer_function="DRILL", layer_side="ALL", polarity="POSITIVE")
         self.content.add_layer_ref("Drill")
         self.content.dict_colors.add_color("{}".format("Drill"), "255", "255", "255")
