@@ -182,6 +182,13 @@ class TestClass(BasisTest, object):
         assert sweep.props["RangeStart"] == str(freq_start) + units
         assert sweep.props["RangeEnd"] == str(freq_stop) + units
         assert sweep.props["Type"] == "Discrete"
+        self.aedtapp["der_var"] = "1mm"
+        self.aedtapp["der_var2"] = "2mm"
+        assert setup.add_derivatives("der_var")
+        assert "der_var" in setup.get_derivative_varibles()
+        assert setup.add_derivatives("der_var2")
+        assert "der_var2" in setup.get_derivative_varibles()
+        assert "der_var" in setup.get_derivative_varibles()
 
         # Create a linear count sweep with the incorrect sweep type.
         try:
