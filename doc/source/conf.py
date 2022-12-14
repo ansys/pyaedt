@@ -36,9 +36,7 @@ if os.path.exists(local_config_file):
 else:
     config = {"run_examples": True}
 
-# read in version from file
-with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
-    release = version = f.readline()
+release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
