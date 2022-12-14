@@ -2180,9 +2180,8 @@ class Components(object):
 
             trace_points.append(positions_to_short[i + 1])
 
-            path = self._pedb.core_primitives.Shape("polygon", points=trace_points)
-            self._pedb.core_primitives.create_path(
-                path,
+            self._pedb.core_primitives.create_trace(
+                trace_points,
                 layer_name=placement_layer,
                 net_name="short",
                 width=w,
