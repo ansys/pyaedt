@@ -265,7 +265,7 @@ class Objec3DLayout(object):
                 [self._primitives.arg_with_dim(start_points[0]), self._primitives.arg_with_dim(start_points[1])],
                 [self._primitives.arg_with_dim(dims[0]), self._primitives.arg_with_dim(dims[1])],
             )
-            self._primitives.rectangles[rect].negative = True
+            self._primitives.rectangles[rect.name].negative = True
         return True
 
     @property

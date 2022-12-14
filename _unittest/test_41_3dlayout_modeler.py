@@ -200,11 +200,11 @@ class TestClass(BasisTest, object):
 
     def test_03_create_circle(self):
         n1 = self.aedtapp.modeler.create_circle("Top", 0, 5, 40, "mycircle")
-        assert n1 == "mycircle"
+        assert n1.name == "mycircle"
 
     def test_04_create_create_rectangle(self):
         n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
-        assert n2 == "myrectangle"
+        assert n2.name == "myrectangle"
 
     def test_05_subtract(self):
         assert self.aedtapp.modeler.subtract("mycircle", "myrectangle")
@@ -243,7 +243,8 @@ class TestClass(BasisTest, object):
 
     def test_11_create_via(self):
         time.sleep(1)
-        via = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
+        cvia = self.aedtapp.modeler.create_via("My_padstack2", x=0, y=0, name="port_via")
+        via = cvia.name
         assert isinstance(via, str)
         assert self.aedtapp.modeler.vias[via].name == via == "port_via"
         assert self.aedtapp.modeler.vias[via].prim_type == "via"
@@ -251,7 +252,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via].location[1] == float(0)
         assert self.aedtapp.modeler.vias[via].angle == "0deg"
 
-        via_1 = self.aedtapp.modeler.create_via(x=1, y=1)
+        via = self.aedtapp.modeler.create_via(x=1, y=1)
+        via_1 = via.name
         assert isinstance(via_1, str)
         assert self.aedtapp.modeler.vias[via_1].name == via_1
         assert self.aedtapp.modeler.vias[via_1].prim_type == "via"
@@ -259,7 +261,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.vias[via_1].location[1] == float(1)
         assert self.aedtapp.modeler.vias[via_1].angle == "0deg"
         assert self.aedtapp.modeler.vias[via_1].holediam == "1mm"
-        via_2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via2 = self.aedtapp.modeler.create_via("My_padstack2", x=10, y=10, name="Via123", netname="VCC")
+        via_2 = via2.name
         assert isinstance(via_2, str)
         assert self.aedtapp.modeler.vias[via_2].name == via_2
         assert self.aedtapp.modeler.vias[via_2].prim_type == "via"
@@ -270,17 +273,17 @@ class TestClass(BasisTest, object):
         via_3 = self.aedtapp.modeler.create_via(
             "My_padstack2", x=5, y=5, name="Via1234", netname="VCC", hole_diam="22mm"
         )
-        assert self.aedtapp.modeler.vias[via_3].location[0] == float(5)
-        assert self.aedtapp.modeler.vias[via_3].location[1] == float(5)
-        assert self.aedtapp.modeler.vias[via_3].angle == "0deg"
-        assert self.aedtapp.modeler.vias[via_3].holediam == "22mm"
+        assert via_3.location[0] == float(5)
+        assert via_3.location[1] == float(5)
+        assert via_3.angle == "0deg"
+        assert via_3.holediam == "22mm"
         assert "VCC" in self.aedtapp.oeditor.GetNets()
 
     def test_12_create_line(self):
         line = self.aedtapp.modeler.create_line(
             "Bottom", [[0, 0], [10, 30], [20, 30]], lw=1, name="line1", net_name="VCC"
         )
-        assert line == "line1"
+        assert line.name == "line1"
 
     def test_13a_create_edge_port(self):
         port_wave = self.aedtapp.create_edge_port("line1", 3, False, True, 6, 4, "2mm")
@@ -614,7 +617,7 @@ class TestClass(BasisTest, object):
 
     def test_37_import_gds(self):
         gds_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.gds")
-        control_file = ""
+        control_file = os.path.join(local_path, "example_models", "cad", "GDS", "gds1.tech")
         aedb_file = os.path.join(self.local_scratch.path, "gds_out.aedb")
         assert self.aedtapp.import_gds(gds_file, aedb_path=aedb_file, control_file=control_file)
 
@@ -633,6 +636,17 @@ class TestClass(BasisTest, object):
     def test_40_test_flex(self):
         assert self.flex.enable_rigid_flex()
         pass
+
+    def test_41_test_create_polygon(self):
+        points = [[100, 100], [100, 200], [200, 200]]
+        p1 = self.aedtapp.modeler.create_polygon("Top", points, name="poly_41")
+        assert p1.name == "poly_41"
+        points2 = [[120, 120], [120, 170], [170, 140]]
+
+        p2 = self.aedtapp.modeler.create_polygon_void("Top", points2, p1.name, name="poly_test_41_void")
+
+        assert p2.name == "poly_test_41_void"
+        assert not self.aedtapp.modeler.create_polygon_void("Top", points2, "another_object", name="poly_43_void")
 
     @pytest.mark.skipif(os.name == "posix", reason="Bug on linux")
     def test_90_set_differential_pairs(self):
