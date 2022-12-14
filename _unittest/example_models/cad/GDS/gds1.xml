@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">
+
+      <Stackup schemaVersion="1.0">
+        <Layers LengthUnit="um">
+      <Layer Color="#D2691E" GDSIIVia="false" Name="9" TargetLayer="m2" Thickness="5.0" Type="conductor"/>
+      <Layer Color="#006400" GDSIIVia="false" Name="7" TargetLayer="m1" Thickness="10.0" Type="conductor"/>
+    </Layers>
+  </Stackup>
+
+  <ImportOptions Flatten="true" GDSIIConvertPolygonToCircles="false" ImportDummyNet="true"/>
+
+</c:Control>
