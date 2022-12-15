@@ -115,19 +115,6 @@ class Step(object):
         # adding component add package in Step
         if component:
             if not component.part_name in self._packages:
-                # component_bounding_box = component.bounding_box
-                # middle_point_x = (component_bounding_box[0] + component_bounding_box[2]) / 2
-                # middle_point_y = (component_bounding_box[1] + component_bounding_box[3]) / 2
-                # component_transform = component.edbcomponent.GetTransform()
-                # component_rotation = component_transform.Rotation.ToDouble()
-                # if component_rotation > math.pi:
-                #     component_rotation -= math.pi
-                # middle_point_x = middle_point_x - component_transform.XOffset.ToDouble()
-                # middle_point_y = middle_point_y - component_transform.YOffset.ToDouble()
-                # av_x = middle_point_x * math.cos(component_rotation) + middle_point_y * math.sin(component_rotation)
-                # av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
-                # if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
-                #     av_x = -av_x
                 package = Package(self._ipc)
                 package.add_component_outline(component)
                 package.name = component.part_name

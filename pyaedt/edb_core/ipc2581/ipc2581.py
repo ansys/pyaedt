@@ -1,3 +1,4 @@
+import time
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.ipc2581.bom.bom import Bom
@@ -28,20 +29,32 @@ class IPC2581(object):
     def load_ipc_model(self):
         self.design_name = self._pedb.cell_names[0]
         self.content.step_ref = self.design_name
+        start = time.time()
         self.add_layers_info()
-        print("layers added")
+        stop = time.time()
+        print("layers added in {} seconds".format(stop - start))
         self.add_bom()
-        print("Bom Added")
+        # print("Bom Added")
+        start = time.time()
         self.add_pdstack_definition()
-        print("Pastack Defs")
+        stop = time.time()
+        print("Pastack Defs in {} seconds".format(stop - start))
+        start = time.time()
         self.add_components()
-        print("Components")
+        stop = time.time()
+        print("Components in {} seconds".format(stop - start))
+        start = time.time()
         self.add_logical_nets()
-        print("Logical Nets")
+        stop = time.time()
+        print("Logical Nets in {} seconds".format(stop - start))
+        start = time.time()
         self.add_layer_features()
-        print("Layer Features")
+        stop = time.time()
+        print("Layer Features in {} seconds".format(stop - start))
+        start = time.time()
         self.add_drills()
-        print("drills")
+        stop = time.time()
+        print("drills in {} seconds".format(stop - start))
 
     @pyaedt_function_handler()
     def add_pdstack_definition(self):
