@@ -586,6 +586,12 @@ class SiwaveDCAdvancedSettings(object):
 
     @dc_slider_position.setter
     def dc_slider_position(self, value):
+        """DC simulation accuracy level slider position.
+        Options:
+        0- ``optimal speed``
+        1- ``balanced``
+        2- ``optimal accuracy``.
+        """
         self.sim_setup_info.SimulationSettings.DCSettings.UseDCCustomSettings = False
         self.sim_setup_info.SimulationSettings.DCSettings.DCSliderPos = value
         self._parent._update_setup()

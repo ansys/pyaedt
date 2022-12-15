@@ -6,6 +6,7 @@ import time
 
 from pyaedt.edb_core.edb_data.nets_data import EDBNetsData
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
+from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.constants import CSS4_COLORS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
@@ -925,8 +926,8 @@ class EdbNets(object):
 
         >>> renamed_nets = edb_core.core_nets.find_and_fix_disjoint_nets(["GND","Net2"])
         """
+        timer_start = self._logger.reset_timer()
 
-        self._logger.reset_timer()
         if not net_list:
             net_list = list(self.nets.keys())
         elif isinstance(net_list, str):
@@ -947,7 +948,7 @@ class EdbNets(object):
                 _padstacks_list[n_name] = [pad]
         new_nets = []
         disjoints_objects = []
-
+        self._logger.reset_timer()
         for net in net_list:
             net_groups = []
             obj_dict = {}
@@ -982,15 +983,67 @@ class EdbNets(object):
                         except KeyError:
                             pass
                     else:
-                        new_net_name = generate_unique_name(net, n=3)
-                        if self.find_or_create_net(new_net_name):
-                            new_nets.append(new_net_name)
+                        new_net_name = generate_unique_name(net, n=6)
+                        net_obj = self.find_or_create_net(new_net_name)
+                        if net_obj:
+                            new_nets.append(net_obj.GetName())
                             for geo in disjoints:
                                 try:
-                                    obj_dict[geo].net_name = new_net_name
+                                    obj_dict[geo].net_name = net_obj
                                 except KeyError:
                                     pass
                             disjoints_objects.extend(disjoints)
-        self._logger.info_timer("Disjoint Cleanup Completed.")
         self._logger.info("Found {} objects in {} new nets.".format(len(disjoints_objects), len(new_nets)))
+        self._logger.info_timer("Disjoint Cleanup Completed.", timer_start)
+
         return new_nets
+
+    @pyaedt_function_handler()
+    def merge_nets_polygons(self, net_list):
+        """Convert paths from net into polygons, evaluate all connected polygons and perform the merge.
+
+        Parameters
+        ----------
+        net_list : str or list[str]
+            net name of list of net name.
+
+        Returns
+            list of merged polygons.
+
+        -------
+
+        """
+        if isinstance(net_list, str):
+            net_list = [net_list]
+        returned_poly = []
+        for net in net_list:
+            if net in self.nets:
+                net_rtree = self._edb.Geometry.RTree()
+                paths = [prim for prim in self.nets[net].primitives if prim.type == "Path"]
+                for path in paths:
+                    path.convert_to_polygon()
+                polygons = [prim for prim in self.nets[net].primitives if prim.type == "Polygon"]
+                for polygon in polygons:
+                    polygon_data = polygon.primitive_object.GetPolygonData()
+                    rtree = self._edb.Geometry.RTreeObj(polygon_data, polygon.primitive_object)
+                    net_rtree.Insert(rtree)
+                connected_polygons = net_rtree.GetConnectedGeometrySets()
+                void_list = []
+                for pp in list(connected_polygons):
+                    for _pp in list(pp):
+                        _voids = list(_pp.Obj.Voids)
+                        void_list.extend(_pp.Obj.Voids)
+                for poly_list in list(connected_polygons):
+                    layer = list(poly_list)[0].Obj.GetLayer().GetName()
+                    net = list(poly_list)[0].Obj.GetNet()
+                    _poly_list = convert_py_list_to_net_list([obj.Poly for obj in list(poly_list)])
+                    merged_polygon = list(self._edb.Geometry.PolygonData.Unite(_poly_list))
+                    for poly in merged_polygon:
+                        for void in void_list:
+                            poly.AddHole(void.GetPolygonData())
+                        _new_poly = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer, net, poly)
+                        returned_poly.append(_new_poly)
+                for init_poly in list(list(connected_polygons)):
+                    for _pp in list(init_poly):
+                        _pp.Obj.Delete()
+        return returned_poly

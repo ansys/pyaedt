@@ -1457,26 +1457,24 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
-        try:
-            if re.search(r"^[\w+]+\[\w+].*", str(self._value)):
-                var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
-                return val
-        except TypeError:
-            pass
         if is_array(self._value):
             return list(eval(self._value))
-        if is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except KeyError:
-                scale = 1
-            if isinstance(scale, tuple):
-                return scale[0](self._value, True)
-            else:
-                return self._value / scale
-        else:
-            return self._value
+        try:
+            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+            val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            return val
+        except (TypeError, AttributeError):
+            if is_number(self._value):
+                try:
+                    scale = AEDT_UNITS[self.unit_system][self._units]
+                except KeyError:
+                    scale = 1
+                if isinstance(scale, tuple):
+                    return scale[0](self._value, True)
+                else:
+                    return self._value / scale
+            else:  # pragma: no cover
+                return self._value
 
     @property
     def unit_system(self):
@@ -1486,6 +1484,12 @@ class Variable(object):
     @property
     def units(self):
         """Units."""
+        try:
+            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+            _, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            return self._units
+        except (TypeError, AttributeError):
+            pass
         return self._units
 
     @property
@@ -1842,9 +1846,9 @@ class DataSet(object):
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
-
+        ver = self._app._aedt_version
         for i in range(len(x)):
-            if self._app._aedt_version >= "2022.1":
+            if ver >= "2022.1":
                 arg3 = ["NAME:Point"]
                 arg3.append(float(x[i]))
                 arg3.append(float(y[i]))

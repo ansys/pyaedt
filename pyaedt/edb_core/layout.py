@@ -371,7 +371,7 @@ class EdbLayout(object):
         return True
 
     @pyaedt_function_handler()
-    def create_path(
+    def _create_path(
         self,
         path_list,
         layer_name,
@@ -386,7 +386,7 @@ class EdbLayout(object):
 
         Parameters
         ----------
-        path_list : list
+        path_list : :class:`pyaedt.edb_core.layout.Shape`
             List of points.
         layer_name : str
             Name of the layer on which to create the path.
@@ -408,7 +408,7 @@ class EdbLayout(object):
 
         Returns
         -------
-        bool
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             ``True`` when successful, ``False`` when failed.
         """
         net = self._pedb.core_nets.find_or_create_net(net_name)
@@ -448,7 +448,7 @@ class EdbLayout(object):
         if polygon.IsNull():
             self._logger.error("Null path created")
             return False
-        return polygon
+        return EDBPrimitives(polygon, self._pedb)
 
     @pyaedt_function_handler()
     def create_trace(
@@ -491,7 +491,7 @@ class EdbLayout(object):
         pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives
         """
         path = self.Shape("Polygon", points=path_list)
-        primitive = self.create_path(
+        primitive = self._create_path(
             path,
             layer_name=layer_name,
             net_name=net_name,
@@ -501,7 +501,7 @@ class EdbLayout(object):
             corner_style=corner_style,
         )
 
-        return EDBPrimitives(primitive, self._pedb)
+        return primitive
 
     @pyaedt_function_handler()
     def create_polygon(self, main_shape, layer_name, voids=[], net_name=""):
@@ -548,6 +548,36 @@ class EdbLayout(object):
             return polygon
 
     @pyaedt_function_handler()
+    def create_polygon_from_points(self, point_list, layer_name, net_name=""):
+        """Create a new polygon from a point list.
+
+        Parameters
+        ----------
+        point_list : list
+            Point list in the format of `[[x1,y1], [x2,y2],..,[xn,yn]]`.
+        layer_name : str
+            Name of layer on which create the polygon.
+        net_name : str, optional
+            Name of the net on which create the polygon.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
+        """
+        net = self._pedb.core_nets.find_or_create_net(net_name)
+        plane = self.Shape("polygon", points=point_list)
+        _poly = self.shape_to_polygon_data(plane)
+        if _poly is None or _poly.IsNull() or _poly is False:
+            self._logger.error("Failed to create main shape polygon data")
+            return False
+        polygon = self._edb.Cell.Primitive.Polygon.Create(self._active_layout, layer_name, net, _poly)
+        if polygon.IsNull():
+            self._logger.error("Null polygon created")
+            return False
+        else:
+            return EDBPrimitives(polygon, self._pedb)
+
+    @pyaedt_function_handler()
     def create_rectangle(
         self,
         layer_name,
@@ -589,13 +619,13 @@ class EdbLayout(object):
 
         Returns
         -------
-        bool
+         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
             Rectangle when successful, ``False`` when failed.
         """
         edb_net = self._pedb.core_nets.find_or_create_net(net_name)
         if representation_type == "LowerLeftUpperRight":
             rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.LowerLeftUpperRight
-            return self._edb.Cell.Primitive.Rectangle.Create(
+            rect = self._edb.Cell.Primitive.Rectangle.Create(
                 self._active_layout,
                 layer_name,
                 edb_net,
@@ -609,7 +639,7 @@ class EdbLayout(object):
             )
         else:
             rep_type = self._edb.Cell.Primitive.RectangleRepresentationType.CenterWidthHeight
-            return self._edb.Cell.Primitive.Rectangle.Create(
+            rect = self._edb.Cell.Primitive.Rectangle.Create(
                 self._active_layout,
                 layer_name,
                 edb_net,
@@ -621,6 +651,46 @@ class EdbLayout(object):
                 self._get_edb_value(corner_radius),
                 self._get_edb_value(rotation),
             )
+        if rect:
+            return EDBPrimitives(rect, self._pedb)
+        return False  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def create_circle(self, layer_name, x, y, radius, net_name=""):
+        """Create a circle on a specified layer.
+
+        Parameters
+        ----------
+        layer_name : str
+            Name of the layer.
+        x : float
+            Position on the X axis.
+        y : float
+            Position on the Y axis.
+        radius : float
+            Radius of the circle.
+        net_name : str, optional
+            Name of the net. The default is ``None``, in which case the
+            default name is assigned.
+
+        Returns
+        -------
+         :class:`pyaedt.edb_core.edb_data.primitives_data.EDBPrimitives`
+            Objects of the circle created when successful.
+        """
+        edb_net = self._pedb.core_nets.find_or_create_net(net_name)
+
+        circle = self._edb.Cell.Primitive.Circle.Create(
+            self._active_layout,
+            layer_name,
+            edb_net,
+            self._get_edb_value(x),
+            self._get_edb_value(y),
+            self._get_edb_value(radius),
+        )
+        if circle:
+            return EDBPrimitives(circle, self._pedb)
+        return False  # pragma: no cover
 
     @pyaedt_function_handler
     def delete_primitives(self, net_names):
@@ -730,13 +800,18 @@ class EdbLayout(object):
             Shape of the voids.
         """
         flag = False
-        if isinstance(void_shape, list):
-            for void in void_shape:
+        if isinstance(shape, EDBPrimitives):
+            shape = shape.primitive_object
+        if not isinstance(void_shape, list):
+            void_shape = [void_shape]
+        for void in void_shape:
+            if isinstance(void, EDBPrimitives):
+                flag = shape.AddVoid(void.primitive_object)
+            else:
                 flag = shape.AddVoid(void)
-                if not flag:
-                    return flag
-        else:
-            return shape.AddVoid(void_shape)
+            if not flag:
+                return flag
+        return True
 
     @pyaedt_function_handler()
     def shape_to_polygon_data(self, shape):

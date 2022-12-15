@@ -364,7 +364,8 @@ class TestClass(BasisTest, object):
     def test_14_intrinsics(self):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1e9
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1.0
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == "GHz"
 
     def test_15_arrays(self):
         self.aedtapp["arr_index"] = 0
