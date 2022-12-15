@@ -48,7 +48,7 @@ edb.core_primitives.parametrize_trace_width(
 ###############################################################################
 # Cutout
 # ~~~~~~
-# Create a cutout using new Pyaedt methodt.
+# Create a cutout using new Pyaedt method.
 signal_list = []
 for net in edb.core_nets.nets.keys():
     if "PCIE" in net:

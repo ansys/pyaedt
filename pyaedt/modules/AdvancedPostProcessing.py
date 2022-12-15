@@ -186,9 +186,9 @@ class PostProcessor(Post):
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
         generate_mesh : bool, optional
-            Whether if generate mesh after importing objects or not. Default is ``True``.
+            Whether to generate mesh after importing objects or not. Default is ``True``.
         get_objects_from_aedt : bool, optional
-            Whether if export obj from AEDT and initialize them or not. Default is ``True``.
+            Whether to export obj from AEDT and initialize them or not. Default is ``True``.
 
         Returns
         -------
@@ -334,7 +334,7 @@ class PostProcessor(Post):
         scale_max : float, optional
             Fix the Scale Maximum value.
         plot_cad_objs : bool, optional
-            Whether if include or not objects in the plot. Default is `True`.
+            Whether to include or not objects in the plot. Default is ``True``.
         log_scale : bool, optional
             Whether if fields are plotted in log scale or not. Default is `True`.
 
