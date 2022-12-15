@@ -5,7 +5,6 @@ import math
 
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
-from pyaedt.edb_core.general import convert_netdict_to_pydict
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
 from pyaedt.generic.constants import RadiationBoxType
@@ -28,16 +27,6 @@ class EdbHfss(object):
 
     def __init__(self, p_edb):
         self._pedb = p_edb
-
-    @property
-    def _hfss_terminals(self):
-        edblib = self._pedb.edblib
-        return edblib.HFSS3DLayout.HFSSTerminalMethods
-
-    @property
-    def _hfss_mesh_setup(self):
-        edblib = self._pedb.edblib
-        return edblib.HFSS3DLayout.Meshing
 
     @property
     def _logger(self):
@@ -104,11 +93,14 @@ class EdbHfss(object):
         """
         if not terminal_name:
             terminal_name = generate_unique_name("Terminal_")
-
-        point_on_edge = self._edb.Geometry.PointData(
-            self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
-        )
-        prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
+        if not isinstance(point_on_edge, self._edb.Geometry.PointData):
+            point_on_edge = self._edb.Geometry.PointData(
+                self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
+            )
+        if isinstance(prim_id, int):
+            prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
+        else:
+            prim = prim_id
         pos_edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(prim, point_on_edge)
         pos_edge = convert_py_list_to_net_list(pos_edge, self._edb.Cell.Terminal.Edge)
         return self._edb.Cell.Terminal.EdgeTerminal.Create(
@@ -120,15 +112,16 @@ class EdbHfss(object):
         """Retrieve the trace width for traces with ports.
 
         Returns
-        -------
+        -------<
         dict
             Dictionary of trace width data.
         """
-        mesh = self._hfss_mesh_setup.GetMeshOperation(self._active_layout)
-        if mesh.Item1:
-            return convert_netdict_to_pydict(mesh.Item2)
-        else:
-            return {}
+        nets = {}
+        for net in self._pedb.excitations_nets:
+            smallest = self._pedb.core_nets.nets[net].get_smallest_trace_width()
+            if smallest < 1e10:
+                nets[net] = self._pedb.core_nets.nets[net].get_smallest_trace_width()
+        return nets
 
     @pyaedt_function_handler()
     def create_circuit_port_on_pin(self, pos_pin, neg_pin, impedance=50, port_name=None):
@@ -930,26 +923,14 @@ class EdbHfss(object):
                                 if return_points_only:
                                     edges_pts.append(_pt)
                                 else:
-                                    try:
-                                        self._hfss_terminals.CreateEdgePort(
-                                            path, pt, reference_layer, port_name
-                                        )  # pragma: no cover
-                                    except:  # pragma: no cover
-                                        self._logger.warning(
-                                            "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
-                                        )
+                                    term = self._create_edge_terminal(path, pt, port_name)
+                                    term.SetReferenceLayer(reference_layer)
                         else:
                             if return_points_only:  # pragma: no cover
                                 edges_pts.append(_pt)
                             else:
-                                try:
-                                    self._hfss_terminals.CreateEdgePort(
-                                        path, pt, reference_layer, port_name
-                                    )  # pragma: no cover
-                                except:  # pragma: no cover
-                                    self._logger.warning(
-                                        "edge port creation failed on point {}, {}".format(str(pt[0]), str(pt[1]))
-                                    )
+                                term = self._create_edge_terminal(path, pt, port_name)
+                                term.SetReferenceLayer(reference_layer)
 
             if return_points_only:
                 return edges_pts

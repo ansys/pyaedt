@@ -339,6 +339,11 @@ class Edb(object):
         return temp
 
     @property
+    def excitations_nets(self):
+        """Get all excitations net names."""
+        return list(set([i.GetNet().GetName() for i in list(self._active_layout.Terminals)]))
+
+    @property
     def sources(self):
         """Get all layout sources."""
         terms = [term for term in list(self._active_layout.Terminals) if int(term.GetBoundaryType()) in [3, 4, 7]]
