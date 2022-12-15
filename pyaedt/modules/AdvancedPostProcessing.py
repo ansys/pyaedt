@@ -6,7 +6,6 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 from __future__ import absolute_import  # noreorder
 
 import os
-import time
 import warnings
 
 from pyaedt.generic.general_methods import is_ironpython
@@ -168,6 +167,7 @@ class PostProcessor(Post):
         force_opacity_value=None,
         array_coordinates=None,
         generate_mesh=True,
+        get_objects_from_aedt=True,
     ):
         """Initialize the Model Plotter object with actual modeler objects and return it.
 
@@ -185,7 +185,10 @@ class PostProcessor(Post):
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
-
+        generate_mesh : bool, optional
+            Whether if generate mesh after importing objects or not. Default is `True`.
+        get_objects_from_aedt : bool, optional
+            Whether if export obj from AEDT and initialize them or not. Default is `True`.
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
@@ -193,14 +196,14 @@ class PostProcessor(Post):
         """
 
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(
-            obj_list=objects,
-            export_as_single_objects=plot_as_separate_objects,
-            air_objects=plot_air_objects,
-        )
-        if not files:
-            self.logger.warning("No Objects exported. Try other options or include Air objects.")
-            return False
+
+        files = []
+        if get_objects_from_aedt:
+            files = self.export_model_obj(
+                obj_list=objects,
+                export_as_single_objects=plot_as_separate_objects,
+                air_objects=plot_air_objects,
+            )
 
         model = ModelPlotter()
         model.off_screen = True
@@ -294,6 +297,8 @@ class PostProcessor(Post):
         show=True,
         scale_min=None,
         scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -327,7 +332,10 @@ class PostProcessor(Post):
             Fix the Scale Minimum value.
         scale_max : float, optional
             Fix the Scale Maximum value.
-
+        plot_cad_objs : bool, optional
+            Whether if include or not objects in the plot. Default is `True`.
+        log_scale : bool, optional
+            Whether if fields are plotted in log scale or not. Default is `True`.
         Returns
         -------
         :class:`pyaedt.generic.plot.ModelPlotter`
@@ -338,14 +346,15 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        start = time.time()
         file_to_add = self.export_field_plot(plotname, self._app.working_directory)
 
-        model = self.get_model_plotter_geometries(generate_mesh=False)
+        model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
 
         model.off_screen = not show
         if file_to_add:
-            model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot)
+            model.add_field_from_file(
+                file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
+            )
             if plot_label:
                 model.fields[0].label = plot_label
 
@@ -457,6 +466,7 @@ class PostProcessor(Post):
         export_gif=False,
         show=True,
         zoom=None,
+        log_scale=False,
     ):
         """Generate a field plot to an animated gif file using PyVista.
 
@@ -498,6 +508,8 @@ class PostProcessor(Post):
             Generate the animation without showing an interactive plot.  The default is ``True``.
         zoom : float, optional
             Zoom factor.
+        log_scale : bool, optional
+            Whether if fields are plotted in log scale or not. Default is `True`.
 
         Returns
         -------
@@ -527,7 +539,7 @@ class PostProcessor(Post):
         model.off_screen = not show
 
         if fields_to_add:
-            model.add_frames_from_file(fields_to_add)
+            model.add_frames_from_file(fields_to_add, log_scale=log_scale)
         if export_gif:
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
         if zoom:

@@ -105,7 +105,7 @@ h3d.create_linear_count_sweep(
 
 h3d.analyze_nominal()
 traces = h3d.get_traces_for_plot(first_element_filter="Port1")
-h3d.post.create_report(traces, families_dict=h3d.available_variations.nominal_w_values_dict)
+h3d.post.create_report(traces, variations=h3d.available_variations.nominal_w_values_dict)
 
 ###############################################################################
 # Create report outside AEDT

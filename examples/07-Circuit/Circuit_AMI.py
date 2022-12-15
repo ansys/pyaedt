@@ -52,7 +52,7 @@ NewThread = True
 
 ###############################################################################
 # Launch AEDT with Circuit and enable pandas as the output format
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # All outputs obtained with the method `get_solution_data` will have pandas format.
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
@@ -63,14 +63,14 @@ cir = Circuit(projectname=os.path.join(project_path), non_graphical=non_graphica
 
 ###############################################################################
 # Solve AMI setup
-# ~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~
 # Solve the transient setup.
 
 cir.analyze_all()
 
 ###############################################################################
 # Get AMI report
-# ~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~
 # Get AMI report data.
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
@@ -90,7 +90,7 @@ fig = original_data.plot()
 
 ###############################################################################
 # Sample WaveAfterProbe waveform using receiver clock
-# ~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Extract waveform at specific clock time plus half unit interval.
 
 probe_name = "b_input_43"
@@ -164,7 +164,7 @@ plt.show()
 
 ###############################################################################
 # Plot Scatter Histogram
-# ~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 
 fig, ax4 = plt.subplots()

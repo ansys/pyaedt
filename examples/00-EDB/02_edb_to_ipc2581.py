@@ -46,6 +46,31 @@ edb.core_primitives.parametrize_trace_width(
 )
 
 ###############################################################################
+# Cutout
+# ~~~~~~
+# Create a cutout using new Pyaedt methodt.
+signal_list = []
+for net in edb.core_nets.nets.keys():
+    if "PCIE" in net:
+        signal_list.append(net)
+power_list = ["GND"]
+edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",
+                              expansion_size=0.002,
+                              use_round_corner=False,
+                              number_of_threads=4,
+                              remove_single_pin_components=True,
+                              use_pyaedt_extent_computing=True,
+                              extent_defeature=0,
+                              )
+
+###############################################################################
+# Plot Cutout
+# ~~~~~~~~~~~
+# Plot cutout before exporting to IPC2581 file.
+
+edb.core_nets.plot(None, None, color_by_net=True)
+
+###############################################################################
 # Create IPC2581 file
 # ~~~~~~~~~~~~~~~~~~~
 # Create the IPC2581 file.

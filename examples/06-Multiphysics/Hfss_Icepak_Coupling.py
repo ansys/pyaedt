@@ -247,6 +247,8 @@ aedtapp.post.plot_field_from_fieldplot(
     imageformat="jpg",
     view="isometric",
     show=False,
+    plot_cad_objs=False,
+    log_scale = False,
 )
 
 ################################################################################
@@ -271,10 +273,11 @@ animated = aedtapp.post.animate_fields_from_aedtplt_2(
     variation_list=phases,
     show=False,
     export_gif=False,
+    log_scale=True,
 )
 animated.gif_file = os.path.join(aedtapp.working_directory, "animate.gif")
-animated.camera_position = [0, 50, 200]
-animated.focal_point = [0, 50, 0]
+animated.camera_position = [0, 0, 300]
+animated.focal_point = [0, 0, 0]
 # Set off_screen to False to visualize the animation.
 # animated.off_screen = False
 animated.animate()
@@ -291,7 +294,7 @@ print("Total Time", endtime)
 quantity_name = "Temperature"
 setup_name = ipkapp.existing_analysis_sweeps[0]
 intrinsic = ""
-surflist = ipkapp.modeler.get_object_faces("inner")
+surflist = ipkapp.modeler.get_object_faces("inner") + ipkapp.modeler.get_object_faces("outer")
 plot5 = ipkapp.post.create_fieldplot_surface(surflist, "SurfTemperature")
 
 ipkapp.post.plot_field_from_fieldplot(
