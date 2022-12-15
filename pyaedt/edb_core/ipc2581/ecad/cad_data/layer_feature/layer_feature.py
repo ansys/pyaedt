@@ -3,6 +3,7 @@ import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature.feature import Feature
 from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature.feature import FeatureType
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class LayerFeature(object):
@@ -25,6 +26,7 @@ class LayerFeature(object):
             if len([feat for feat in value if isinstance(feat, Feature)]) == len(value):
                 self._features = value
 
+    @pyaedt_function_handler()
     def add_feature(self, obj_instance=None):  # pragma no cover
         if obj_instance:
             feature = Feature(self._ipc)
@@ -34,16 +36,17 @@ class LayerFeature(object):
                 feature.polygon.add_poly_step(obj_instance)
             elif obj_instance.type == "Path":
                 feature.feature_type = FeatureType.Path
-                feature.path.add_path_step(feature, obj_instance)
+                feature.path.add_path_step(obj_instance)
             self.features.append(feature)
         else:
             return False
 
+    @pyaedt_function_handler()
     def add_via_instance_feature(self, padstack_inst=None, padstackdef=None, layer_name=None):  # pragma no cover
         if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
-            def_name = padstack_inst.padstack_definition
-            position = padstack_inst.position
+            def_name = padstackdef.name
+            position = padstack_inst._position if padstack_inst._position else padstack_inst.position
             feature.padstack_instance.net = padstack_inst.net_name
             feature.padstack_instance.isvia = True
             feature.padstack_instance.padstack_def = def_name
@@ -58,34 +61,36 @@ class LayerFeature(object):
             feature.padstack_instance.hole_name = def_name
             feature.padstack_instance.name = padstack_inst.name
             try:
-                if layer_name in padstackdef.pad_by_layer:
-                    if padstackdef.pad_by_layer[layer_name]._parameters_values is None:
-                        feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
-                            self._ipc.from_meter_to_units(
-                                padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
-                            )
+                if padstackdef.pad_by_layer[layer_name]._parameters_values is None:
+                    feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
+                        self._ipc.from_meter_to_units(
+                            padstackdef.pad_by_layer[layer_name].parameters_values[0], self._ipc.units
                         )
-                    else:
-                        feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
-                            self._ipc.from_meter_to_units(
-                                padstackdef.pad_by_layer[layer_name]._parameters_values[0], self._ipc.units
-                            )
+                    )
+                else:
+                    feature.padstack_instance.standard_primimtive_ref = "CIRCLE_{}".format(
+                        self._ipc.from_meter_to_units(
+                            padstackdef.pad_by_layer[layer_name]._parameters_values[0], self._ipc.units
                         )
-                    self.features.append(feature)
+                    )
+                self.features.append(feature)
             except:
                 pass
 
+    @pyaedt_function_handler()
     def add_drill_feature(self, via, diameter=0.0):  # pragma no cover
         feature = Feature(self._ipc)
         feature.feature_type = FeatureType.Drill
         feature.drill.net = via.net_name
-        feature.drill.x = self._ipc.from_meter_to_units(via.position[0], self._ipc.units)
+        position = via._position if via._position else via.position
+        feature.drill.x = self._ipc.from_meter_to_units(position[0], self._ipc.units)
         feature.drill.y = self._ipc.from_meter_to_units(via.position[1], self._ipc.units)
         feature.drill.diameter = self._ipc.from_meter_to_units(diameter, self._ipc.units)
         self.features.append(feature)
 
+    @pyaedt_function_handler()
     def add_component_padstack_instance_feature(
-        self, component=None, pin=None, top_bottom_layers=[]
+        self, component=None, pin=None, top_bottom_layers=[], padstack_def=None
     ):  # pragma no cover
         if component:
             if pin:
@@ -105,7 +110,8 @@ class LayerFeature(object):
                 cmp_rot_deg = component.rotation * 180 / math.pi
                 mirror = False
                 rotation = cmp_rot_deg + pin_rotation * 180 / math.pi
-                if component.placement_layer == top_bottom_layers[-1]:
+                comp_placement_layer = component.placement_layer
+                if comp_placement_layer == top_bottom_layers[-1]:
                     mirror = True
                     rotation = cmp_rot_deg - pin_rotation * 180 / math.pi
                 feature = Feature(self._ipc)
@@ -119,12 +125,13 @@ class LayerFeature(object):
                 feature.padstack_instance.mirror = mirror
                 feature.padstack_instance.isvia = is_via
                 feature.padstack_instance.refdes = component.refdes
-                feature.padstack_instance.padstack_def = pin.padstack_definition
+                feature.padstack_instance.padstack_def = padstack_def.name
                 feature.padstack_instance.standard_primimtive_ref = self._get_primitive_ref(
-                    pin.padstack_definition, component.placement_layer
+                    padstack_def.name, comp_placement_layer
                 )
                 self.features.append(feature)
 
+    @pyaedt_function_handler()
     def _get_primitive_ref(self, padstack_def=None, layer=None):
         if padstack_def and layer:
             for pad_def in self._ipc.ecad.cad_data.cad_data_step.padstack_defs[padstack_def].padstack_pad_def:
@@ -132,6 +139,7 @@ class LayerFeature(object):
                     return pad_def.primitive_ref
             return "default_value"
 
+    @pyaedt_function_handler()
     def write_xml(self, step):  # pragma no cover
         layer_feature = ET.SubElement(step, "LayerFeature")
         layer_feature.set("layerRef", self.layer_name)

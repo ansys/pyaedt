@@ -1,3 +1,4 @@
+import os.path
 import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.ipc2581.bom.bom import Bom
@@ -28,20 +29,22 @@ class IPC2581(object):
     def load_ipc_model(self):
         self.design_name = self._pedb.cell_names[0]
         self.content.step_ref = self.design_name
+        self._pedb.logger.info("Parsing Layers...")
+
         self.add_layers_info()
-        print("layers added")
+        self._pedb.logger.info("Parsing BOM...")
         self.add_bom()
-        print("Bom Added")
+        self._pedb.logger.info("Parsing Padstack Definitions...")
         self.add_pdstack_definition()
-        print("Pastack Defs")
+        self._pedb.logger.info("Parsing Components...")
         self.add_components()
-        print("Components")
+        self._pedb.logger.info("Parsing Logical Nets...")
         self.add_logical_nets()
-        print("Logical Nets")
+        self._pedb.logger.info("Parsing Layout Primitives...")
         self.add_layer_features()
-        print("Layer Features")
+        self._pedb.logger.info("Parsing Drills...")
         self.add_drills()
-        print("drills")
+        self._pedb.logger.info("Parsing EDB Completed!")
 
     @pyaedt_function_handler()
     def add_pdstack_definition(self):
@@ -302,11 +305,14 @@ class IPC2581(object):
 
     @pyaedt_function_handler()
     def add_layer_features(self):
-        layers = [i for i in self._pedb.stackup.signal_layers.values()]
+        layers = {i: j for i, j in self._pedb.stackup.signal_layers.items()}
         padstack_instances = list(self._pedb.core_padstack.padstack_instances.values())
         padstack_defs = {i: k for i, k in self._pedb.core_padstack.padstacks.items()}
-        for layer in layers:
-            self.ecad.cad_data.cad_data_step.add_layer_feature(layer, padstack_instances, padstack_defs)
+        polys = {i: j for i, j in self._pedb.core_primitives.primitives_by_layer.items()}
+        for layer_name, layer in layers.items():
+            self.ecad.cad_data.cad_data_step.add_layer_feature(
+                layer, padstack_instances, padstack_defs, polys[layer_name]
+            )
 
     @pyaedt_function_handler()
     def add_drills(self):
@@ -351,6 +357,7 @@ class IPC2581(object):
             if units.lower() == "centimeter":
                 return round(value * 100, 4)
 
+    @pyaedt_function_handler()
     def write_xml(self):
         if self.file_path:
             ipc = ET.Element("IPC-2581")
@@ -366,3 +373,4 @@ class IPC2581(object):
             ET.indent(ipc)
             tree = ET.ElementTree(ipc)
             tree.write(self.file_path)
+            return True if os.path.exists(self.file_path) else False

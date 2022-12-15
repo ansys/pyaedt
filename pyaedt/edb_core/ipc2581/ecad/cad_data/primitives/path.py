@@ -3,6 +3,7 @@ import xml.etree.cElementTree as ET
 from pyaedt.edb_core.ipc2581.content.entry_line import EntryLine
 from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import PolyStep
 from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import PolyType
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Path(object):
@@ -16,14 +17,17 @@ class Path(object):
         self.entry_line = EntryLine()
         self.width_ref_id = ""
 
-    def add_path_step(self, feature=None, path_step=None):  # pragma no cover
+    @pyaedt_function_handler()
+    def add_path_step(self, path_step=None):  # pragma no cover
+        arcs = path_step.primitive_object.GetCenterLine().GetArcData()
+        if not arcs:
+            return
         self.line_width = self._ipc.from_meter_to_units(path_step.primitive_object.GetWidth(), self._ipc.units)
         self.width_ref_id = "ROUND_{}".format(self.line_width)
         if not self.width_ref_id in self._ipc.content.dict_line.dict_lines:
             entry_line = EntryLine()
             entry_line.line_width = self.line_width
             self._ipc.content.dict_line.dict_lines[self.width_ref_id] = entry_line
-        arcs = path_step.primitive_object.GetCenterLine().GetArcData()
         # first point
         arc = arcs[0]
         new_segment_tep = PolyStep()
@@ -64,7 +68,10 @@ class Path(object):
                 new_poly_step.clock_wise = not arc.IsCCW()
                 self.poly_steps.append(new_poly_step)
 
+    @pyaedt_function_handler()
     def write_xml(self, net_root):  # pragma no cover
+        if not self.poly_steps:
+            return
         feature = ET.SubElement(net_root, "Features")
         location = ET.SubElement(feature, "Location")
         location.set("x", "0")

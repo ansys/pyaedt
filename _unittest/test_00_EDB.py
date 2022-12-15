@@ -2112,5 +2112,5 @@ if not config["skip_edb"]:
             out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
             self.local_scratch.copyfolder(target_path, out_edb)
             edbapp = Edb(out_edb, edbversion=desktop_version)
-            edbapp.export_to_ipc2581_beta(os.path.join(target_path, "test_ipc.xml"))
+            edbapp.export_to_ipc2581(os.path.join(target_path, "test_ipc.xml"), use_beta=True)
             assert os.path.isfile(os.path.join(target_path, "test_ipc.xml"))

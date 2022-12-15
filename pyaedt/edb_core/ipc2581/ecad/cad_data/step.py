@@ -10,6 +10,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.package.package import Package
 from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
 from pyaedt.edb_core.ipc2581.ecad.cad_data.phy_net.phy_net import PhyNet
 from pyaedt.edb_core.ipc2581.ecad.cad_data.profile import Profile
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Step(object):
@@ -61,6 +62,7 @@ class Step(object):
     def logical_nets(self):
         return self._logical_nets
 
+    @pyaedt_function_handler()
     def add_logical_net(self, net=None):
         net_name = net.name
         logical_net = LogicalNet()
@@ -101,33 +103,23 @@ class Step(object):
             if len([phy_net for phy_net in value if isinstance(phy_net, PhyNet)]) == len(value):
                 self._physical_nets = value
 
+    @pyaedt_function_handler()
     def add_physical_net(self, phy_net=None):
         if isinstance(phy_net, PhyNet):
             self._physical_nets.append(phy_net)
             return True
         return False
 
+    @pyaedt_function_handler()
     def add_padstack_def(self, padstackdef=None):
         if isinstance(padstackdef, PadstackDef):
             self._padstack_defs.append(padstackdef)
 
+    @pyaedt_function_handler()
     def add_component(self, component=None):
         # adding component add package in Step
         if component:
             if not component.part_name in self._packages:
-                # component_bounding_box = component.bounding_box
-                # middle_point_x = (component_bounding_box[0] + component_bounding_box[2]) / 2
-                # middle_point_y = (component_bounding_box[1] + component_bounding_box[3]) / 2
-                # component_transform = component.edbcomponent.GetTransform()
-                # component_rotation = component_transform.Rotation.ToDouble()
-                # if component_rotation > math.pi:
-                #     component_rotation -= math.pi
-                # middle_point_x = middle_point_x - component_transform.XOffset.ToDouble()
-                # middle_point_y = middle_point_y - component_transform.YOffset.ToDouble()
-                # av_x = middle_point_x * math.cos(component_rotation) + middle_point_y * math.sin(component_rotation)
-                # av_y = middle_point_y * math.cos(component_rotation) - middle_point_y * math.sin(component_rotation)
-                # if component.placement_layer == list(component._pedb.stackup.signal_layers.values())[-1].name:
-                #     av_x = -av_x
                 package = Package(self._ipc)
                 package.add_component_outline(component)
                 package.name = component.part_name
@@ -138,8 +130,10 @@ class Step(object):
                     geometry_type, pad_parameters, pos_x, pos_y, rot = self._pedb.core_padstack.get_pad_parameters(
                         pin._edb_padstackinstance, component.placement_layer, 0
                     )
-                    pin_pos_x = self._ipc.from_meter_to_units(pin.position[0], self.units)
-                    pin_pos_y = self._ipc.from_meter_to_units(pin.position[1], self.units)
+                    position = pin._position if pin._position else pin.position
+
+                    pin_pos_x = self._ipc.from_meter_to_units(position[0], self.units)
+                    pin_pos_y = self._ipc.from_meter_to_units(position[1], self.units)
                     primitive_ref = ""
                     if geometry_type == 1:
                         primitive_ref = "CIRC_{}".format(pad_parameters[0])
@@ -162,45 +156,49 @@ class Step(object):
             except:
                 pass
             ipc_component.refdes = component.refdes
+            center = component.center
             ipc_component.location = [
-                self._ipc.from_meter_to_units(component.center[0], self.units),
-                self._ipc.from_meter_to_units(component.center[1], self.units),
+                self._ipc.from_meter_to_units(center[0], self.units),
+                self._ipc.from_meter_to_units(center[1], self.units),
             ]
             ipc_component.rotation = component.rotation * 180 / math.pi
-            ipc_component.package_ref = component.part_name
-            ipc_component.part = component.part_name
+            ipc_component.part = ipc_component.package_ref = component.part_name
             ipc_component.layer_ref = component.placement_layer
             self.components.append(ipc_component)
 
-    def add_layer_feature(self, layer, padstack_instances, padstack_defs):
-        layers_name = list(self._pedb.stackup.signal_layers.keys())
-        top_bottom_layers = [layers_name[0], layers_name[-1]]
+    @pyaedt_function_handler()
+    def add_layer_feature(self, layer, padstack_instances, padstack_defs, polys):
+        top_bottom_layers = self._ipc.top_bottom_layers
         layer_name = layer.name
         layer_feature = LayerFeature(self._ipc)
         layer_feature.layer_name = layer_name
         layer_feature.color = layer.color
-        for poly in layer._pclass._pedb.core_primitives.primitives_by_layer[layer_name]:
-            layer_feature.add_feature(poly)
+
+        for poly in polys:
+            if not poly.is_void:
+                layer_feature.add_feature(poly)
 
         for padstack_instance in padstack_instances:
-            comp_name = padstack_instance.GetComponent().GetName()
-            if padstack_instance.is_pin and comp_name:
-                padstack_def = padstack_defs[padstack_instance.padstack_definition]
+            pdef_name = padstack_instance._pdef if padstack_instance._pdef else padstack_instance.padstack_definition
+            padstack_def = padstack_defs[pdef_name]
+            layers = [i for i in padstack_def.pad_by_layer.keys()]
+            layers2 = [i for i in padstack_def.antipad_by_layer.keys()]
+            layers3 = [i for i in padstack_def.thermalpad_by_layer.keys()]
+            lays = set.union(set(layers), set(layers2), set(layers3))
+            if layer_name in lays:
+                comp_name = padstack_instance.GetComponent().GetName()
+                if padstack_instance.is_pin and comp_name:
 
-                component_inst = self._pedb.core_components.components[comp_name]
-                if (
-                    layer_name in padstack_def.pad_by_layer
-                    or layer_name in padstack_def.antipad_by_layer
-                    or layer_name in padstack_def.thermalpad_by_layer
-                ):
+                    component_inst = self._pedb.core_components.components[comp_name]
                     layer_feature.add_component_padstack_instance_feature(
-                        component_inst, padstack_instance, top_bottom_layers
+                        component_inst, padstack_instance, top_bottom_layers, padstack_def
                     )
-            else:
-                padstack_def = padstack_defs[padstack_instance.padstack_definition]
-                layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer_name)
+                else:
+                    layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer_name)
+
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
+    @pyaedt_function_handler()
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
         if via_list:
             drill_layer_feature = LayerFeature(self._ipc)
@@ -214,6 +212,7 @@ class Step(object):
                     pass
             self.layer_features.append(drill_layer_feature)
 
+    @pyaedt_function_handler()
     def write_xml(self, cad_data):
         step = ET.SubElement(cad_data, "Step")
         step.set("name", self._ipc.design_name)

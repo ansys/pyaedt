@@ -217,6 +217,7 @@ class Edb(object):
         self.simSetup = None
         self.simsetupdata = None
         self._setups = {}
+        self._layout_instance = None
         # time.sleep(2)
         # gc.collect()
 
@@ -556,18 +557,7 @@ class Edb(object):
         self.open_edb()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581_beta(
-        self,
-        output_file="",
-        units="MILLIMETER",
-    ):
-        ipc = IPC2581(self, units)
-        ipc.load_ipc_model()
-        ipc.file_path = output_file
-        ipc.write_xml()
-
-    @pyaedt_function_handler()
-    def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
+    def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER", use_beta=False):
         """Create an XML IPC2581 file from the active EDB.
 
         .. note::
@@ -598,19 +588,22 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self.logger.info("Export IPC 2581 is starting. This operation can take a while.")
         start = time.time()
-        try:
+        if use_beta:
+            ipc = IPC2581(self, units)
+            ipc.load_ipc_model()
+            ipc.file_path = ipc_path
+            result = ipc.write_xml()
+        else:
             result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
                 self.active_layout, self.edbversion, ipc_path, units.lower()
             )
-            end = time.time() - start
-            if result:
-                self.logger.info("Export IPC 2581 completed in %s sec.", end)
-                self.logger.info("File saved as %s", ipc_path)
-                return ipc_path
-        except Exception as e:
-            self.logger.info("Error exporting IPC 2581.")
-            self.logger.info(str(e))
-            return False
+
+        if result:
+            self.logger.info_timer("Export IPC 2581 completed.", start)
+            self.logger.info("File saved as %s", ipc_path)
+            return ipc_path
+        self.logger.info("Error exporting IPC 2581.")
+        return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
@@ -720,6 +713,12 @@ class Edb(object):
         if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
         return self._active_layout
+
+    @property
+    def layout_instance(self):
+        if not self._layout_instance:
+            self._layout_instance = self.active_layout.GetLayoutInstance()
+        return self._layout_instance
 
     @property
     def pins(self):

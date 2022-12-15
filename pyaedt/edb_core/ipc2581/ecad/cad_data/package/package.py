@@ -8,6 +8,7 @@ from pyaedt.edb_core.ipc2581.ecad.cad_data.package.assembly_drawing import (
 from pyaedt.edb_core.ipc2581.ecad.cad_data.package.outline import Outline
 from pyaedt.edb_core.ipc2581.ecad.cad_data.package.pin import Pin
 from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import PolyStep
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Package(object):
@@ -35,6 +36,7 @@ class Package(object):
             if len([pin for pin in value if isinstance(pin, Pin)]) == len(value):
                 self._pins = value
 
+    @pyaedt_function_handler()
     def add_pin(self, number=0, x=0.0, y=0.0, rotation=0.0, primitive_ref=""):  # pragma no cover
         added_pin = Pin()
         added_pin.x = x
@@ -44,6 +46,7 @@ class Package(object):
         added_pin.primitive_def = primitive_ref
         self.pins.append(added_pin)
 
+    @pyaedt_function_handler()
     def add_component_outline(self, component):
         if component:
             _bbox = component.bounding_box
@@ -90,6 +93,7 @@ class Package(object):
             self.assembly_drawing.polygon.poly_steps = [poly_step1, poly_step2, poly_step3, poly_step4, poly_step5]
             self.assembly_drawing.line_ref = "ROUND_0"
 
+    @pyaedt_function_handler()
     def write_xml(self, step):  # pragma no cover
         package = ET.SubElement(step, "Package")
         package.set("name", self.name)

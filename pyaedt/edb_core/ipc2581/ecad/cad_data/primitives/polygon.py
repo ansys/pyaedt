@@ -1,6 +1,8 @@
 import math
 import xml.etree.cElementTree as ET
 
+from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 class Polygon(object):
     def __init__(self, ipc):
@@ -10,11 +12,14 @@ class Polygon(object):
         self.solid_fill_id = ""
         self.cutout = []
 
+    @pyaedt_function_handler()
     def add_poly_step(self, polygon=None):
         if polygon:
             polygon_data = polygon.GetPolygonData()
             if polygon_data.IsClosed():
                 arcs = polygon_data.GetArcData()
+                if not arcs:
+                    return
                 # begin
                 new_segment_tep = PolyStep()
                 new_segment_tep.poly_type = PolyType.Segment
@@ -41,10 +46,11 @@ class Polygon(object):
                 for void in polygon.voids:
                     void_polygon_data = void.GetPolygonData()
                     if void_polygon_data.IsClosed():
+                        void_arcs = void_polygon_data.GetArcData()
+                        if not void_arcs:
+                            return
                         void_polygon = Cutout(self._ipc)
                         self.cutout.append(void_polygon)
-                        # void_polygon.is_void = True
-                        void_arcs = void_polygon_data.GetArcData()
                         # begin
                         new_segment_tep = PolyStep()
                         new_segment_tep.poly_type = PolyType.Segment
@@ -69,12 +75,16 @@ class Polygon(object):
                                 new_poly_step.clock_wise = not void_arc.IsCCW()
                                 void_polygon.poly_steps.append(new_poly_step)
 
+    @pyaedt_function_handler()
     def add_cutout(self, cutout):
         if not isinstance(cutout, Cutout):
             return False
         self.cutout.append(cutout)
 
+    @pyaedt_function_handler()
     def write_xml(self, root_net):
+        if not self.poly_steps:
+            return
         feature = ET.SubElement(root_net, "Features")
         location = ET.SubElement(feature, "Location")
         location.set("x", str(0))
@@ -95,6 +105,7 @@ class Cutout(object):
         self._ipc = ipc
         self.poly_steps = []
 
+    @pyaedt_function_handler()
     def write_xml(self, contour, ipc):
         cutout = ET.SubElement(contour, "Cutout")
         cutout_begin = ET.SubElement(cutout, "PolyBegin")
@@ -123,6 +134,7 @@ class PolyStep(object):
         self.center_y = 0.0
         self.clock_wise = False
 
+    @pyaedt_function_handler()
     def write_xml(self, polygon, ipc):
         if self.poly_type == 0:
             poly = ET.SubElement(polygon, "PolyStepSegment")

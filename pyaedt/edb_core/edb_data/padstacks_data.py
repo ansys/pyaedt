@@ -915,6 +915,8 @@ class EDBPadstackInstance(object):
         self._pedb = _pedb
         self._bounding_box = []
         self._object_instance = None
+        self._position = []
+        self._pdef = None
 
     @property
     def object_instance(self):
@@ -1012,7 +1014,8 @@ class EDBPadstackInstance(object):
         str
             Name of the padstack definition.
         """
-        return self._edb_padstackinstance.GetPadstackDef().GetName()
+        self._pdef = self._edb_padstackinstance.GetPadstackDef().GetName()
+        return self._pdef
 
     @property
     def backdrill_top(self):
@@ -1174,13 +1177,14 @@ class EDBPadstackInstance(object):
         list
             List of ``[x, y]``` coordinates for the padstack instance position.
         """
+        self._position = []
         out = self._edb_padstackinstance.GetPositionAndRotationValue()
         if self._edb_padstackinstance.IsLayoutPin():
             out2 = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(out[1])
-            return [out2.X.ToDouble(), out2.Y.ToDouble()]
+            self._position = [out2.X.ToDouble(), out2.Y.ToDouble()]
         if out[0]:
-            return [out[1].X.ToDouble(), out[1].Y.ToDouble()]
-        return []
+            self._position = [out[1].X.ToDouble(), out[1].Y.ToDouble()]
+        return self._position
 
     @position.setter
     def position(self, value):
