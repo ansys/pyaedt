@@ -24,7 +24,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 ###############################################################################
 # Launch AEDT with Circuit
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode with Circuit.
 
 circuit = Circuit(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)

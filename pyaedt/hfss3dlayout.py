@@ -152,7 +152,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        primivitivename : str
+        primivitivename : str or :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edgenumber :
             Edge number to create the edge port on.
@@ -183,6 +183,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreateEdgePort
         """
+        primivitivename = self.modeler.convert_to_selections(primivitivename, False)
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
             [

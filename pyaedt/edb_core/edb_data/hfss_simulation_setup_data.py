@@ -993,10 +993,10 @@ class AdaptiveSettings(object):
     def adapt_type(self):
         """Adaptive type.
         Options:
-         1- ``kSingle``.
-         2- ``kMultiFrequencies``.
-         3- ``kBroadband``.
-         4- ``kNumAdaptTypes``.
+        1- ``kSingle``.
+        2- ``kMultiFrequencies``.
+        3- ``kBroadband``.
+        4- ``kNumAdaptTypes``.
 
         Returns
         -------

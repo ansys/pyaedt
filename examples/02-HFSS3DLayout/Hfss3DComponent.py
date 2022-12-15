@@ -148,8 +148,8 @@ hfss.save_project()
 hfss.analyze_nominal()
 
 ###############################################################################
-# Plot Results
-# ~~~~~~~~~~~
+# Plot results
+# ~~~~~~~~~~~~
 
 traces = hfss.get_traces_for_plot(category="S")
 solutions = hfss.post.get_solution_data(traces)
@@ -223,8 +223,8 @@ setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyDa
 h3d.analyze_nominal()
 
 ###############################################################################
-# Plot Results
-# ~~~~~~~~~~~
+# Plot results
+# ~~~~~~~~~~~~
 
 traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)
