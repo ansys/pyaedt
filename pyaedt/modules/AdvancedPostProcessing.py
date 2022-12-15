@@ -336,7 +336,7 @@ class PostProcessor(Post):
         plot_cad_objs : bool, optional
             Whether to include or not objects in the plot. Default is ``True``.
         log_scale : bool, optional
-            Whether if fields are plotted in log scale or not. Default is `True`.
+            Whether to plot fields in log scale. The default is ``True``.
 
         Returns
         -------
