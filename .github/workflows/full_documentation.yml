@@ -291,6 +291,6 @@ jobs:
         with:
           repository-name: pyansys/devportal-doc-archive
           branch: drupal
-          folder: pyaedt-doc-flatten-json
+          folder: doc-flatten-json
           token: ${{ steps.get_workflow_token.outputs.token }}
           clean: false
