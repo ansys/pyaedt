@@ -608,7 +608,7 @@ class PostProcessor(Post):
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, and ``"yz"``.
            The default is ``"isometric"``.
         zoom : float, optional
-            Default zoom.
+            Default zoom. Default Value is `2`.
 
         Returns
         -------
