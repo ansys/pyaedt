@@ -271,7 +271,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pyaedt-doc-flatten-json
-          path: pyaedt-doc-flatten-json
+          path: pyaedt-doc-flatten-json/
           retention-days: 7
 
       # Verify that sphinx generates no warnings
