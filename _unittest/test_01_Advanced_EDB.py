@@ -941,3 +941,10 @@ if not config["skip_edb"]:
                 plot_components_on_bottom=True,
             )
             assert os.path.exists(local_png3)
+
+        def test_24_convert_net_to_polygon(self):
+            target_path = os.path.join(local_path, "example_models", "convert_and_merge_path.aedb")
+            edb = Edb(target_path, edbversion=desktop_version)
+            for path in edb.core_primitives.paths:
+                assert path.convert_to_polygon()
+            assert edb.core_nets.merge_nets_polygons("test")

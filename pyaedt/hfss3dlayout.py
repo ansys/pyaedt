@@ -152,7 +152,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        primivitivename : str
+        primivitivename : str or :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
             Name of the primitive to create the edge port on.
         edgenumber :
             Edge number to create the edge port on.
@@ -183,6 +183,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oEditor.CreateEdgePort
         """
+        primivitivename = self.modeler.convert_to_selections(primivitivename, False)
         listp = self.port_list
         self.modeler.oeditor.CreateEdgePort(
             [
@@ -1257,9 +1258,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
-            Path to the XML or tech file with the stackup information. The default is ``None``, in
+            Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
-            If `tech` file is provided and layer name starts with `"v"` then is mapped as via layer.
+            If a TECH file is provided and the layer name starts with ``"v"``, the layer
+            is mapped as a via layer.
         set_as_active : bool, optional
             Whether to set the GDS file as active. The default is ``True``.
         close_active_project : bool, optional
@@ -1288,9 +1290,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         aedb_path : str, optional
             Full path to the AEDB file.
         control_file : str, optional
-            Path to the XML or thech file with the stackup information. The default is ``None``, in
+            Path to the XML or TECH file with the stackup information. The default is ``None``, in
             which case the stackup is not edited.
-            If `tech` file is provided and layer name starts with `"v"` then is mapped as via layer.
+            If a TECH file is provided and the layer name starts with ``"v"``, the layer
+            is mapped as a via layer.
         set_as_active : bool, optional
             Whether to set the DXF file as active. The default is ``True``.
         close_active_project : bool, optional

@@ -720,8 +720,7 @@ if not config["skip_edb"]:
             points = [
                 [0, 0, 1],
             ]
-            plane = self.edbapp.core_primitives.Shape("polygon", points=points)
-            assert not self.edbapp.core_primitives.create_polygon(plane, "TOP")
+            assert not self.edbapp.core_primitives.create_polygon_from_points(points, "TOP")
             points = [
                 [0.1, "s"],
             ]
@@ -738,8 +737,6 @@ if not config["skip_edb"]:
                 [0.025, -0.02],
                 [0.025, 0.02],
             ]
-            path = self.edbapp.core_primitives.Shape("polygon", points=points)
-            assert self.edbapp.core_primitives.create_path(path, "TOP")
             assert self.edbapp.core_primitives.create_trace(points, "TOP")
 
         def test_070_create_outline(self):
@@ -804,9 +801,7 @@ if not config["skip_edb"]:
         def test_077_add_void(self):
             plane_shape = self.edbapp.core_primitives.Shape("rectangle", pointA=["-5mm", "-5mm"], pointB=["5mm", "5mm"])
             plane = self.edbapp.core_primitives.create_polygon(plane_shape, "TOP", net_name="GND")
-
-            path = self.edbapp.core_primitives.Shape("polygon", points=[["0", "0"], ["0", "1mm"]])
-            void = self.edbapp.core_primitives.create_path(path, layer_name="TOP", width="0.1mm")
+            void = self.edbapp.core_primitives.create_trace([["0", "0"], ["0", "1mm"]], layer_name="TOP", width="0.1mm")
             assert self.edbapp.core_primitives.add_void(plane, void)
 
         def test_078_create_solder_balls_on_component(self):
@@ -903,6 +898,24 @@ if not config["skip_edb"]:
                 height="5mm",
                 representation_type="CenterWidthHeight",
             )
+
+        def test_089B_circle_boolean(self):
+            poly = self.edbapp.core_primitives.create_polygon_from_points(
+                [[0, 0], [100, 0], [100, 100], [0, 100]], "TOP"
+            )
+            assert poly
+            poly.add_void([[20, 20], [20, 30], [100, 30], [100, 20]])
+            poly2 = self.edbapp.core_primitives.create_polygon_from_points(
+                [[60, 60], [60, 150], [150, 150], [150, 60]], "TOP"
+            )
+            new_polys = poly.subtract(poly2)
+            assert len(new_polys) == 1
+            circle = self.edbapp.core_primitives.create_circle("TOP", 40, 40, 15)
+            assert circle
+            intersection = new_polys[0].intersect(circle)
+            assert len(intersection) == 1
+            circle2 = self.edbapp.core_primitives.create_circle("TOP", 20, 20, 15)
+            assert circle2.unite(intersection)
 
         def test_090_negative_properties(self):
             layer = self.edbapp.core_stackup.stackup_layers.layers["TOP"]

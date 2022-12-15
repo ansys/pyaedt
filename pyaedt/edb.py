@@ -1260,10 +1260,10 @@ class Edb(object):
 
         if output_aedb_path:
             self.save_edb_as(output_aedb_path)
-
+        self.logger.info("Cutout Multithread started.")
         expansion_size = self.edb_value(expansion_size).ToDouble()
 
-        self.logger.reset_timer()
+        timer_start = self.logger.reset_timer()
         if custom_extent:
             reference_list = reference_list + signal_list
             all_list = reference_list
@@ -1306,6 +1306,9 @@ class Edb(object):
             if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1] and extent_defeature > 0:
                 _poly = _poly.Defeature(extent_defeature)
 
+        if not _poly or _poly.IsNull():
+            self._logger.error("Failed to create Extent.")
+            return False
         self.logger.info_timer("Expanded Net Polygon Creation")
         self.logger.reset_timer()
         _poly_list = convert_py_list_to_net_list([_poly])
@@ -1341,7 +1344,7 @@ class Edb(object):
                             for void in voids:
                                 void_pdata = get_polygon_data(void)
                                 int_data2 = p.GetIntersectionType(void_pdata)
-                                if int_data2 > 2 or int_data == 1:
+                                if int_data2 > 2 or int_data2 == 1:
                                     void_to_subtract.append(void_pdata)
                                 elif int_data2 == 2:
                                     list_void.append(void_pdata)
@@ -1389,13 +1392,14 @@ class Edb(object):
             if val.numpins == 0:
                 val.edbcomponent.Delete()
                 i += 1
+        self.logger.info("Deleted {} additional components".format(i))
         if remove_single_pin_components:
             self.core_components.delete_single_pin_rlc()
+            self.logger.info_timer("Single Pins components deleted")
 
         self.core_components.refresh_components()
-        self.logger.info("Deleted {} additional components".format(i))
 
-        self.logger.info_timer("Single Pins components deleted")
+        self.logger.info_timer("Cutout completed.", timer_start)
         self.logger.reset_timer()
         return True
 
@@ -2119,6 +2123,8 @@ class Edb(object):
                         expansion_size=simulation_setup.cutout_subdesign_expansion,
                         use_round_corner=simulation_setup.cutout_subdesign_round_corner,
                         extent_type=simulation_setup.cutout_subdesign_type,
+                        use_pyaedt_extent_computing=True,
+                        remove_single_pin_components=True,
                     )
                     self.logger.info("Cutout processed.")
             self.logger.info("Deleting existing ports.")

@@ -168,7 +168,7 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 
 ################################################################################
 # Adjust eddy effects for plate and coil
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Adjust the eddy effects for the plate and coil by turning off displacement currents
 # for all parts. The setting for eddy effect is ignored for the stranded conductor type
 # used in the coil.

@@ -46,9 +46,9 @@ edb.core_nets.plot(["VREF", "V3P3_S0"], color_by_net=True)
 ###############################################################################
 # Plot all nets on a layer colored by nets
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot all nets on a layer colored by nets.
+# Plot all nets on a layer colored by nets
 
-edb.core_nets.plot(None, ["TOP"], color_by_net=True)
+edb.core_nets.plot(None, ["TOP"], color_by_net=True, plot_components_on_top=True)
 
 ###############################################################################
 # Close EDB

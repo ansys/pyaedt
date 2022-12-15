@@ -200,6 +200,22 @@ class TestClass(BasisTest, object):
                 e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
         assert exception_raised
+        self.aedtapp["der_var"] = "1mm"
+        self.aedtapp["der_var2"] = "2mm"
+        setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
+        assert setup2.add_derivatives("der_var")
+        assert "der_var" in setup2.get_derivative_varibles()
+        assert setup2.add_derivatives("der_var2")
+        assert "der_var2" in setup2.get_derivative_varibles()
+        assert "der_var" in setup2.get_derivative_varibles()
+        setup2.delete()
+        setup3 = self.aedtapp.create_setup("MySetup_3", setuptype=0)
+        assert setup3.add_derivatives("der_var")
+        assert "der_var" in setup3.get_derivative_varibles()
+        assert setup3.add_derivatives("der_var2")
+        assert "der_var2" in setup3.get_derivative_varibles()
+        assert "der_var" in setup3.get_derivative_varibles()
+        setup3.delete()
 
     def test_06b_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None

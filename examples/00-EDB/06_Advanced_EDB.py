@@ -139,14 +139,12 @@ else:
 # ~~~~~~~~~~~~~~~
 # Generate and place parametric traces.
 
-path = edb.core_primitives.Shape("polygon", points=[[0, 0], [0, "-3mm"]])
-edb.core_primitives.create_path(
-    path, layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
+edb.core_primitives.create_trace(
+    [[0, 0], [0, "-3mm"]], layer_name=trace_in_layer, net_name="RF", width="trace_in_width", start_cap_style="Flat", end_cap_style="Flat"
 )
 
-path = edb.core_primitives.Shape("polygon", points=[[0, 0], [0, "3mm"]])
-edb.core_primitives.create_path(
-    path,
+edb.core_primitives.create_trace(
+    [[0, 0], [0, "3mm"]],
     layer_name=trace_out_layer,
     net_name="RF",
     width="trace_out_width",

@@ -1072,17 +1072,17 @@ def parse_excitation_file(
     return freq, mag, phase
 
 
-def tech_to_control_file(tech_path, unit=None, control_path=None):
-    """Convert a ``.tech`` file to a xml file to be used in gds/dxf import.
+def tech_to_control_file(tech_path, unit="nm", control_path=None):
+    """Convert a TECH file to an XML file for use in a GDS or DXF import.
 
     Parameters
     ----------
     tech_path : str
-        Full path to the .tech file.
+        Full path to the TECH file.
     unit : str, optional
-        Tech units. If specified in tech file this parameter will not be used. Default is `nm`.
+        Tech units. If specified in tech file this parameter will not be used. Default is ``"nm"``.
     control_path : str, optional
-        Output xml file.
+        Path for outputting the XML file.
 
     Returns
     -------
@@ -1092,13 +1092,13 @@ def tech_to_control_file(tech_path, unit=None, control_path=None):
     result = []
     with open(tech_path) as f:
         vals = list(CSS4_COLORS.values())
-        id = 0
+        id_layer = 0
         for line in f:
             line_split = line.split()
             if len(line_split) == 5:
-                layerID, layer_name, color, elevation, layer_height = line.split()
+                layerID, layer_name, _, elevation, layer_height = line.split()
                 x = '      <Layer Color="{}" GDSIIVia="{}" Name="{}" TargetLayer="{}" Thickness="{}"'.format(
-                    vals[id],
+                    vals[id_layer],
                     "true" if layer_name.lower().startswith("v") else "false",
                     layerID,
                     layer_name,
@@ -1106,11 +1106,9 @@ def tech_to_control_file(tech_path, unit=None, control_path=None):
                 )
                 x += ' Type="conductor"/>'
                 result.append(x)
-                id += 1
+                id_layer += 1
             elif len(line_split) > 1 and "UNIT" in line_split[0]:
                 unit = line_split[1]
-    if not unit:
-        unit = "nm"
     if not control_path:
         control_path = os.path.splitext(tech_path)[0] + ".xml"
     with open(control_path, "w") as f:
