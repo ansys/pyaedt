@@ -511,7 +511,7 @@ class PostProcessor(Post):
         zoom : float, optional
             Zoom factor.
         log_scale : bool, optional
-            Whether if fields are plotted in log scale or not. Default is `True`.
+            Whether to plot fields in log scale. The default is ``True``.
 
         Returns
         -------
