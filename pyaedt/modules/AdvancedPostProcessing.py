@@ -334,7 +334,7 @@ class PostProcessor(Post):
         scale_max : float, optional
             Fix the Scale Maximum value.
         plot_cad_objs : bool, optional
-            Whether to include or not objects in the plot. Default is ``True``.
+            Whether to include objects in the plot. The default is ``True``.
         log_scale : bool, optional
             Whether to plot fields in log scale. The default is ``True``.
 
