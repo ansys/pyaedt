@@ -53,13 +53,13 @@ jobs:
   #       with:
   #         python-version: ${{ matrix.python-version }}
 
-  #     - name: 'Create virtual env'
-  #       run: |
-  #         python -m venv testenv
-  #         testenv\Scripts\Activate.ps1
-  #         python -m pip install pip -U
-  #         python -m pip install wheel setuptools -U
-  #         python -c "import sys; print(sys.executable)"
+  # - name: 'Install pyaedt'
+  #   run: |
+  #     testenv\Scripts\Activate.ps1
+  #     pip install .
+  #     pip install -r requirements/requirements.txt
+  #     pip install -r requirements/requirements_docs.txt
+  #     Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
 
   #     - name: 'Install pyaedt'
   #       run: |
@@ -220,6 +220,7 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
+          pip install .
           pip install -r requirements/requirements.txt
           pip install -r requirements/requirements_docs.txt
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "jsondoc\Lib\site-packages\vtkmodules" -Force

@@ -11,7 +11,7 @@ import pyvista
 import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import ansys_favicon, pyansys_logo_black
+from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +20,7 @@ root_path = module_path.parent.parent
 sys.path.append(os.path.abspath(os.path.join(local_path)))
 sys.path.append(os.path.join(root_path))
 
-sys.path.append(os.path.join(root_path))
+from pyaedt import __version__
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
@@ -33,9 +33,7 @@ if os.path.exists(local_config_file):
 else:
     config = {"run_examples": True}
 
-# read in version from file
-with open(os.path.join(root_path, "pyaedt", "version.txt"), "r") as f:
-    release = version = f.readline()
+release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 # -- General configuration ---------------------------------------------------
