@@ -292,10 +292,15 @@ class FieldAnalysisCircuit(Analysis):
                     props[unmatched_new_name] = props[unmatched_old_name]
                     del props[unmatched_old_name]
                 else:
-                    for old_port in props.keys():
-                        if old_port not in self.excitation_names:
-                            del props[old_port]
-                            return props
+                    if len(a) > len(b):
+                        for old_port in props.keys():
+                            if old_port not in self.excitation_names:
+                                del props[old_port]
+                                return props
+                    else:
+                        for new_port in self.excitation_names:
+                            if new_port not in props.keys():
+                                props[new_port] = Excitations(self, new_port)
         return props
 
     @property

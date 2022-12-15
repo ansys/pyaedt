@@ -2883,6 +2883,9 @@ class Excitations(object):
                 excitation_prop_dict["term"] = None
                 excitation_prop_dict["TerminationData"] = None
                 excitation_prop_dict["RefNode"] = "Z"
+                excitation_prop_dict["EnableNoise"] = False
+                excitation_prop_dict["noisetemp"] = "16.85cel"
+
                 if "RefNode" in self._app.modeler.schematic.components[comp].parameters:
                     excitation_prop_dict["RefNode"] = self._app.modeler.schematic.components[comp].parameters["RefNode"]
                 if "term" in self._app.modeler.schematic.components[comp].parameters:
@@ -2891,15 +2894,19 @@ class Excitations(object):
                         "TerminationData"
                     ]
                 else:
-                    excitation_prop_dict["rz"] = self._app.modeler.schematic.components[comp].parameters["rz"]
-                    excitation_prop_dict["iz"] = self._app.modeler.schematic.components[comp].parameters["iz"]
+                    if "rz" in self._app.modeler.schematic.components[comp].parameters:
+                        excitation_prop_dict["rz"] = self._app.modeler.schematic.components[comp].parameters["rz"]
+                        excitation_prop_dict["iz"] = self._app.modeler.schematic.components[comp].parameters["iz"]
 
-                if self._app.modeler.schematic.components[comp].parameters["EnableNoise"] == "true":
-                    excitation_prop_dict["EnableNoise"] = True
-                else:
-                    excitation_prop_dict["EnableNoise"] = False
+                if "EnableNoise" in self._app.modeler.schematic.components[comp].parameters:
+                    if self._app.modeler.schematic.components[comp].parameters["EnableNoise"] == "true":
+                        excitation_prop_dict["EnableNoise"] = True
+                    else:
+                        excitation_prop_dict["EnableNoise"] = False
 
-                excitation_prop_dict["noisetemp"] = self._app.modeler.schematic.components[comp].parameters["noisetemp"]
+                    excitation_prop_dict["noisetemp"] = self._app.modeler.schematic.components[comp].parameters[
+                        "noisetemp"
+                    ]
 
                 if not self._app.design_properties or not self._app.design_properties["NexximPorts"]["Data"]:
                     excitation_prop_dict["SymbolType"] = 0
@@ -2908,7 +2915,10 @@ class Excitations(object):
                         "SymbolType"
                     ]
 
-                excitation_prop_dict["pnum"] = self._app.modeler.schematic.components[comp].parameters["pnum"]
+                if "pnum" in self._app.modeler.schematic.components[comp].parameters:
+                    excitation_prop_dict["pnum"] = self._app.modeler.schematic.components[comp].parameters["pnum"]
+                else:
+                    excitation_prop_dict["pnum"] = None
                 source_port = []
                 if not self._app.design_properties:
                     enabled_ports = None

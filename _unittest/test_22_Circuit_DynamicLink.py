@@ -160,21 +160,29 @@ class TestClass(BasisTest, object):
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Excitation_1", [hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]]
         )
-        assert "Excitation_1" in portname.composed_name
+        assert "Excitation_1" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Excitation_2", [hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]]
         )
-        assert "Excitation_2" in portname.composed_name
+        assert "Excitation_2" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_1",
             [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]],
         )
-        assert "Port_1" in portname.composed_name
+        assert "Port_1" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_2",
             [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
-        assert "Port_2" in portname.composed_name
+        assert "Port_2" in portname.name
+
+        portname = self.aedtapp.modeler.schematic.create_interface_port(
+            "Port_remove",
+            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
+        )
+        self.aedtapp.excitations[portname.name].delete()
+
+        assert "Port_remove" not in self.aedtapp.excitation_names
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_08_assign_excitations(self):
@@ -256,6 +264,6 @@ class TestClass(BasisTest, object):
         )
         assert not self.aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
         assert page_port.composed_name != second_page_port.composed_name
-        assert page_port.composed_name != interface_port.composed_name
-        assert page_port.composed_name != second_interface_port.composed_name
-        assert interface_port.composed_name != second_interface_port.composed_name
+        assert page_port.composed_name != interface_port.name
+        assert page_port.composed_name != second_interface_port.name
+        assert interface_port.name != second_interface_port.name
