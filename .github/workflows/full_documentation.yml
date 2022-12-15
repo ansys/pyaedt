@@ -274,6 +274,13 @@ jobs:
           path: pyaedt-doc-flatten-json/
           retention-days: 7
 
+      - name: Upload json Documentation2
+        uses: actions/upload-artifact@v3
+        with:
+          name: pyaedt-doc-flatten-json
+          path: pyaedt-doc-flatten-json2.zip
+          retention-days: 7
+
       # Verify that sphinx generates no warnings
       - name: Check for warnings
         run: |
