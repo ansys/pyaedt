@@ -51,9 +51,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 NewThread = True
 
 ###############################################################################
-# Launch AEDT with Circuit and enable pandas as the output format
+# Launch AEDT with Circuit and enable Pandas as the output format
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# All outputs obtained with the method `get_solution_data` will have pandas format.
+# All outputs obtained with the `get_solution_data` method will have the Pandas format.
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
@@ -71,7 +71,7 @@ cir.analyze_all()
 ###############################################################################
 # Get AMI report
 # ~~~~~~~~~~~~~~
-# Get AMI report data.
+# Get AMI report data
 
 plot_name = "WaveAfterProbe<b_input_43.int_ami_rx>"
 cir.solution_type = "NexximAMI"
@@ -91,7 +91,7 @@ fig = original_data.plot()
 ###############################################################################
 # Sample WaveAfterProbe waveform using receiver clock
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Extract waveform at specific clock time plus half unit interval.
+# Extract waveform at specific clock time plus half unit interval
 
 probe_name = "b_input_43"
 source_name = "b_output4_42"
@@ -107,7 +107,7 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
 ###############################################################################
 # Plot waveform and samples
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create the plot from a start time to stop time in seconds.
+# Create the plot from a start time to stop time in seconds
 
 tstop = 55e-9
 tstart = 50e-9
@@ -153,7 +153,7 @@ plt.show()
 ###############################################################################
 # Plot Slicer Scatter
 # ~~~~~~~~~~~~~~~~~~~
-# Create the plot from a start time to stop time in seconds.
+# Create the plot from a start time to stop time in seconds
 
 fig, ax2 = plt.subplots()
 ax2.plot(sample_waveform[0].index, sample_waveform[0].values, "r*")
@@ -163,7 +163,7 @@ ax2.set_ylabel("V")
 plt.show()
 
 ###############################################################################
-# Plot Scatter Histogram
+# Plot scatter histogram
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 
@@ -177,7 +177,7 @@ plt.show()
 ###############################################################################
 # Get Transient report
 # ~~~~~~~~~~~~~~~~~~~~
-# Get Transient report data.
+# Get Transient report data
 
 plot_name = "V(b_input_43.int_ami_rx.eye_probe.out)"
 cir.solution_type = "NexximTransient"
@@ -259,7 +259,7 @@ ax.set_ylabel(waveform_unit)
 plt.show()
 
 ###############################################################################
-# Plot Slicer Scatter
+# Plot slicer scatter
 # ~~~~~~~~~~~~~~~~~~~
 # Create the plot from a start time to stop time in seconds.
 

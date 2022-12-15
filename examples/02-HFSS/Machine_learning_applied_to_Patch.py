@@ -178,7 +178,7 @@ hfss.assign_radiation_boundary_to_objects(region)
 ###############################################################################
 # Plot
 # ~~~~
-# Plot Patch.
+# Plot patch
 
 hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 

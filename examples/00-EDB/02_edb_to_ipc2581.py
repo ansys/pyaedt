@@ -48,7 +48,7 @@ edb.core_primitives.parametrize_trace_width(
 ###############################################################################
 # Cutout
 # ~~~~~~
-# Create a cutout using new Pyaedt method.
+# Create a cutout.
 signal_list = []
 for net in edb.core_nets.nets.keys():
     if "PCIE" in net:
@@ -64,7 +64,7 @@ edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list
                               )
 
 ###############################################################################
-# Plot Cutout
+# Plot cutout
 # ~~~~~~~~~~~
 # Plot cutout before exporting to IPC2581 file.
 

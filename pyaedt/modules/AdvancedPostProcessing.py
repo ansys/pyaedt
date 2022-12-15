@@ -186,9 +186,9 @@ class PostProcessor(Post):
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
         generate_mesh : bool, optional
-            Whether to generate mesh after importing objects or not. Default is ``True``.
+            Whether to generate the mesh after importing objects. The default is ``True``.
         get_objects_from_aedt : bool, optional
-            Whether to export obj from AEDT and initialize them or not. Default is ``True``.
+            Whether to export objects from AEDT and initialize them. The default is ``True``.
 
         Returns
         -------

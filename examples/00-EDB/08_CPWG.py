@@ -164,9 +164,9 @@ h3d.create_linear_count_sweep(
 )
 
 ###############################################################################
-# Plot Layout
+# Plot layout
 # ~~~~~~~~~~~
-# Plot layout.
+# Plot layout
 
 h3d.modeler.edb.core_nets.plot(None, None, color_by_net=True)
 
