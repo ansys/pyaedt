@@ -6,7 +6,6 @@ It contains all advanced postprocessing functionalities that require Python 3.x 
 from __future__ import absolute_import  # noreorder
 
 import os
-import time
 import warnings
 
 from pyaedt.generic.general_methods import is_ironpython
@@ -168,6 +167,7 @@ class PostProcessor(Post):
         force_opacity_value=None,
         array_coordinates=None,
         generate_mesh=True,
+        get_objects_from_aedt=True,
     ):
         """Initialize the Model Plotter object with actual modeler objects and return it.
 
@@ -185,6 +185,10 @@ class PostProcessor(Post):
         array_coordinates : list of list
             List of array element centers. The modeler objects will be duplicated and translated.
             List of [[x1,y1,z1], [x2,y2,z2]...].
+        generate_mesh : bool, optional
+            Whether to generate the mesh after importing objects. The default is ``True``.
+        get_objects_from_aedt : bool, optional
+            Whether to export objects from AEDT and initialize them. The default is ``True``.
 
         Returns
         -------
@@ -193,14 +197,14 @@ class PostProcessor(Post):
         """
 
         assert self._app._aedt_version >= "2021.2", self.logger.error("Object is supported from AEDT 2021 R2.")
-        files = self.export_model_obj(
-            obj_list=objects,
-            export_as_single_objects=plot_as_separate_objects,
-            air_objects=plot_air_objects,
-        )
-        if not files:
-            self.logger.warning("No Objects exported. Try other options or include Air objects.")
-            return False
+
+        files = []
+        if get_objects_from_aedt:
+            files = self.export_model_obj(
+                obj_list=objects,
+                export_as_single_objects=plot_as_separate_objects,
+                air_objects=plot_air_objects,
+            )
 
         model = ModelPlotter()
         model.off_screen = True
@@ -294,6 +298,8 @@ class PostProcessor(Post):
         show=True,
         scale_min=None,
         scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
     ):
         """Export a field plot to an image file (JPG or PNG) using Python PyVista.
 
@@ -327,6 +333,10 @@ class PostProcessor(Post):
             Fix the Scale Minimum value.
         scale_max : float, optional
             Fix the Scale Maximum value.
+        plot_cad_objs : bool, optional
+            Whether to include objects in the plot. The default is ``True``.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
 
         Returns
         -------
@@ -338,14 +348,15 @@ class PostProcessor(Post):
         else:
             self.ofieldsreporter.UpdateQuantityFieldsPlots(plot_folder)
 
-        start = time.time()
         file_to_add = self.export_field_plot(plotname, self._app.working_directory)
 
-        model = self.get_model_plotter_geometries(generate_mesh=False)
+        model = self.get_model_plotter_geometries(generate_mesh=False, get_objects_from_aedt=plot_cad_objs)
 
         model.off_screen = not show
         if file_to_add:
-            model.add_field_from_file(file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot)
+            model.add_field_from_file(
+                file_to_add, coordinate_units=self.modeler.model_units, show_edges=meshplot, log_scale=log_scale
+            )
             if plot_label:
                 model.fields[0].label = plot_label
 
@@ -457,6 +468,7 @@ class PostProcessor(Post):
         export_gif=False,
         show=True,
         zoom=None,
+        log_scale=False,
     ):
         """Generate a field plot to an animated gif file using PyVista.
 
@@ -498,6 +510,8 @@ class PostProcessor(Post):
             Generate the animation without showing an interactive plot.  The default is ``True``.
         zoom : float, optional
             Zoom factor.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
 
         Returns
         -------
@@ -527,7 +541,7 @@ class PostProcessor(Post):
         model.off_screen = not show
 
         if fields_to_add:
-            model.add_frames_from_file(fields_to_add)
+            model.add_frames_from_file(fields_to_add, log_scale=log_scale)
         if export_gif:
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
         if zoom:
@@ -569,7 +583,7 @@ class PostProcessor(Post):
         return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
 
     @pyaedt_function_handler()
-    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True):
+    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True, view="yz", zoom=2):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
 
@@ -590,6 +604,11 @@ class PostProcessor(Post):
             Frames per Second.
         show : bool, optional
             Either if show or only export gif.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, and ``"yz"``.
+           The default is ``"isometric"``.
+        zoom : float, optional
+            Default zoom. Default Value is `2`.
 
         Returns
         -------
@@ -615,17 +634,17 @@ class PostProcessor(Post):
 
         # Specifying the attributes of the scene through the ModelPlotter object
         scene.off_screen = not show
-        scene.isometric_view = False
+        if view != "isometric" and view in ["xy", "xz", "yz"]:
+            scene.camera_position = view
         scene.range_min = v_min
         scene.range_max = v_max
         scene.show_grid = False
         scene.windows_size = [1920, 1080]
         scene.show_legend = False
-        scene.show_bounding_box = False
+        scene.show_boundingbox = False
         scene.legend = False
         scene.frame_per_seconds = fps
-        scene.camera_position = "yz"
-        scene.zoom = 2
+        scene.zoom = zoom
         scene.bounding_box = False
         scene.color_bar = False
         scene.gif_file = output_gif_path  # This gif may be a bit slower so we can speed it up a bit

@@ -63,7 +63,7 @@ if edb:
     edb.core_padstack.place_padstack([35e-3, -5e-3], "MyVia")
     edb.core_padstack.place_padstack([45e-3, -5e-3], "MyVia")
 
-edb.core_nets.plot(None)
+edb.core_nets.plot(None, color_by_net=True)
 
 ####################
 # Save and close EDB

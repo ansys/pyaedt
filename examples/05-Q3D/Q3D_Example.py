@@ -1,6 +1,6 @@
 """
 Q3D Extractor: busbar analysis
---------------------
+------------------------------
 This example shows how you can use PyAEDT to create a busbar design in
 Q3D Extractor and run a simulation.
 """
