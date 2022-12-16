@@ -286,6 +286,12 @@ jobs:
     needs: [full_documentation_json]
     runs-on: ubuntu-latest
     steps:
+
+      - name: Download Artifacts 
+        uses: actions/download-artifact@v1
+        with:
+          name: pyaedt-doc-flatten-json
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
