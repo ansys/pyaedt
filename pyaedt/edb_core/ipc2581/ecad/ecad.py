@@ -1,7 +1,6 @@
-import xml.etree.cElementTree as ET
-
 from pyaedt.edb_core.ipc2581.ecad.cad_data.cad_data import CadData
-from pyaedt.edb_core.ipc2581.ecad.cad_header.cad_header import CadHeader
+from pyaedt.edb_core.ipc2581.ecad.cad_header import CadHeader
+from pyaedt.generic.general_methods import ET
 
 
 class Ecad(object):

@@ -1,11 +1,8 @@
-import xml.etree.cElementTree as ET
-
-from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def.drill import Drill
-from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def.padstack_instance import (
-    PadstackInstance,
-)
-from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.path import Path
-from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import Polygon
+from pyaedt.edb_core.ipc2581.ecad.cad_data.drill import Drill
+from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_instance import PadstackInstance
+from pyaedt.edb_core.ipc2581.ecad.cad_data.path import Path
+from pyaedt.edb_core.ipc2581.ecad.cad_data.polygon import Polygon
+from pyaedt.generic.general_methods import ET
 
 
 class Feature(object):

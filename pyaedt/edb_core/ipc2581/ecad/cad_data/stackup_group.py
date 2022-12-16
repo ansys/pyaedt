@@ -1,7 +1,6 @@
-import xml.etree.cElementTree as ET
-
-from pyaedt.edb_core.ipc2581.ecad.cad_data.stackup.layer import Layer
-from pyaedt.edb_core.ipc2581.ecad.cad_data.stackup.stackup_layer import StackupLayer
+from pyaedt.edb_core.ipc2581.ecad.cad_data.layer import Layer
+from pyaedt.edb_core.ipc2581.ecad.cad_data.stackup_layer import StackupLayer
+from pyaedt.generic.general_methods import ET
 
 
 class StackupGroup(object):

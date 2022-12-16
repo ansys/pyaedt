@@ -1,5 +1,6 @@
-import xml.etree.cElementTree as ET
 from datetime import date
+
+from pyaedt.generic.general_methods import ET
 
 
 class HistoryRecord(object):

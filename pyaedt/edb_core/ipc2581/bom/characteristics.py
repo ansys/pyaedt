@@ -1,4 +1,4 @@
-import xml.etree.cElementTree as ET
+from pyaedt.generic.general_methods import ET
 
 
 class Characteristics(object):

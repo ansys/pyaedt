@@ -1,6 +1,5 @@
-import xml.etree.cElementTree as ET
-
-from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import Polygon
+from pyaedt.edb_core.ipc2581.ecad.cad_data.polygon import Polygon
+from pyaedt.generic.general_methods import ET
 
 
 class Outline:

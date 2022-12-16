@@ -1,8 +1,7 @@
-import xml.etree.cElementTree as ET
-
-from pyaedt.edb_core.ipc2581.ecad.cad_data.stackup.layer import Layer
-from pyaedt.edb_core.ipc2581.ecad.cad_data.stackup.stackup import Stackup
+from pyaedt.edb_core.ipc2581.ecad.cad_data.layer import Layer
+from pyaedt.edb_core.ipc2581.ecad.cad_data.stackup import Stackup
 from pyaedt.edb_core.ipc2581.ecad.cad_data.step import Step
+from pyaedt.generic.general_methods import ET
 
 
 class CadData(object):

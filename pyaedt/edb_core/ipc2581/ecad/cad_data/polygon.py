@@ -1,6 +1,6 @@
 import math
-import xml.etree.cElementTree as ET
 
+from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

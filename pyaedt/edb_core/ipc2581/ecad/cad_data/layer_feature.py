@@ -1,8 +1,8 @@
 import math
-import xml.etree.cElementTree as ET
 
-from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature.feature import Feature
-from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature.feature import FeatureType
+from pyaedt.edb_core.ipc2581.ecad.cad_data.feature import Feature
+from pyaedt.edb_core.ipc2581.ecad.cad_data.feature import FeatureType
+from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

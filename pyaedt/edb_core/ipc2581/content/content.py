@@ -1,11 +1,10 @@
-import xml.etree.cElementTree as ET
-
 from pyaedt.edb_core.ipc2581.content.dictionary_color import DictionaryColor
 from pyaedt.edb_core.ipc2581.content.dictionary_line import DictionaryLine
 from pyaedt.edb_core.ipc2581.content.layer_ref import LayerRef
 from pyaedt.edb_core.ipc2581.content.standard_geometries_dictionary import (
     StandardGeometriesDictionary,
 )
+from pyaedt.generic.general_methods import ET
 
 
 class Content(object):

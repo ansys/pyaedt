@@ -1,6 +1,5 @@
-import xml.etree.cElementTree as ET
-
 from pyaedt.edb_core.ipc2581.content.entry_line import EntryLine
+from pyaedt.generic.general_methods import ET
 
 
 class DictionaryLine(object):

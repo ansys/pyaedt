@@ -56,6 +56,11 @@ packages = [
     "pyaedt.emit_core",
     "pyaedt.examples",
     "pyaedt.rpc",
+    "pyaedt.edb_core.ipc2581",
+    "pyaedt.edb_core.ipc2581.bom",
+    "pyaedt.edb_core.ipc2581.content",
+    "pyaedt.edb_core.ipc2581.ecad.cad_data",
+
 ]
 
 data_files = [

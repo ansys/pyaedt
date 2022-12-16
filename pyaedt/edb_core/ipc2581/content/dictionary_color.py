@@ -1,6 +1,5 @@
-import xml.etree.cElementTree as ET
-
 from pyaedt.edb_core.ipc2581.content.entry_color import EntryColor
+from pyaedt.generic.general_methods import ET
 
 
 class DictionaryColor(object):

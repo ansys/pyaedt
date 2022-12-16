@@ -1,7 +1,6 @@
-import xml.etree.cElementTree as ET
-
 from pyaedt.edb_core.ipc2581.content.content import Content
 from pyaedt.edb_core.ipc2581.content.fill import FillDesc
+from pyaedt.generic.general_methods import ET
 
 
 class DictionaryFill(Content):

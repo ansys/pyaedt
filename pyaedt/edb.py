@@ -36,7 +36,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
-from pyaedt.edb_core.ipc2581.ipc2581 import IPC2581
+from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
@@ -212,7 +212,6 @@ class Edb(object):
         self._db = None
         self._edb = None
         self.builder = None
-        self._edblib = None
         self.edbutils = None
         self.simSetup = None
         self.simsetupdata = None
@@ -261,7 +260,6 @@ class Edb(object):
     @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
-        sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
         if os.name == "posix":
             if env_value(self.edbversion) in os.environ:
                 self.base_path = env_path(self.edbversion)
@@ -302,28 +300,9 @@ class Edb(object):
         edb = __import__("Ansys.Ansoft.Edb")
         self.edb = edb.Ansoft.Edb
         edbbuilder = __import__("Ansys.Ansoft.EdbBuilderUtils")
-        self._edblib = None
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
-
-    @property
-    def edblib(self):
-        """EDB library object containing advanced EDB methods not accessible directly from Python."""
-        if not self._edblib:
-            if os.name == "posix" and is_ironpython:
-                _clr.AddReferenceToFile("EdbLib.dll")
-                _clr.AddReferenceToFile("DataModel.dll")
-            else:
-                _clr.AddReference("EdbLib")
-                _clr.AddReference("DataModel")
-            self._edblib = __import__("EdbLib")
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
-            try:
-                self._edblib.Layout.LayoutMethods.LoadDataModel(dllpath, self.edbversion)
-            except:
-                pass
-        return self._edblib
 
     @property
     def excitations(self):
@@ -398,8 +377,6 @@ class Edb(object):
             self._active_cell = list(self._db.TopCircuitCells)[0]
         self.logger.info("Cell %s Opened", self._active_cell.GetName())
         if self._db and self._active_cell:
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
-            self.logger.info(dllpath)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self.logger.info("Builder was initialized.")
@@ -481,7 +458,6 @@ class Edb(object):
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
@@ -562,10 +538,12 @@ class Edb(object):
         self.open_edb()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER", use_beta=False):
+    def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
         """Create an XML IPC2581 file from the active EDB.
 
         .. note::
+            The method works only in CPython because of some limitations on Ironpython in XML parsing and
+           because it's time consuming.
            This method is still being tested and may need further debugging.
            Any feedback is welcome. Backdrills and custom pads are not supported yet.
 
@@ -585,6 +563,9 @@ class Edb(object):
         bool
             ``True`` if successful, ``False`` if failed.
         """
+        if is_ironpython:
+            self.logger.error("This method is not supported in Ironpython")
+            return False
         if units.lower() not in ["millimeter", "inch", "micron"]:
             self.logger.warning("The wrong unit is entered. Setting to the default, millimeter.")
             units = "millimeter"
@@ -593,15 +574,10 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self.logger.info("Export IPC 2581 is starting. This operation can take a while.")
         start = time.time()
-        if use_beta:
-            ipc = IPC2581(self, units)
-            ipc.load_ipc_model()
-            ipc.file_path = ipc_path
-            result = ipc.write_xml()
-        else:
-            result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
-                self.active_layout, self.edbversion, ipc_path, units.lower()
-            )
+        ipc = Ipc2581(self, units)
+        ipc.load_ipc_model()
+        ipc.file_path = ipc_path
+        result = ipc.write_xml()
 
         if result:
             self.logger.info_timer("Export IPC 2581 completed.", start)
@@ -1171,7 +1147,6 @@ class Edb(object):
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-                dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self.edbpath = self._db.GetDirectory()
                 self._init_objects()

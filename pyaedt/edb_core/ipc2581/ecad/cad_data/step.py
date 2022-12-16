@@ -1,15 +1,13 @@
 import math
-import xml.etree.cElementTree as ET
 
-from pyaedt.edb_core.ipc2581.ecad.cad_data.component.component import Component
-from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature.layer_feature import (
-    LayerFeature,
-)
-from pyaedt.edb_core.ipc2581.ecad.cad_data.logical_net.logical_net import LogicalNet
-from pyaedt.edb_core.ipc2581.ecad.cad_data.package.package import Package
-from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
-from pyaedt.edb_core.ipc2581.ecad.cad_data.phy_net.phy_net import PhyNet
+from pyaedt.edb_core.ipc2581.ecad.cad_data.component import Component
+from pyaedt.edb_core.ipc2581.ecad.cad_data.layer_feature import LayerFeature
+from pyaedt.edb_core.ipc2581.ecad.cad_data.logical_net import LogicalNet
+from pyaedt.edb_core.ipc2581.ecad.cad_data.package import Package
+from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def import PadstackDef
+from pyaedt.edb_core.ipc2581.ecad.cad_data.phy_net import PhyNet
 from pyaedt.edb_core.ipc2581.ecad.cad_data.profile import Profile
+from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

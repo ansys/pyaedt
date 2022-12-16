@@ -52,9 +52,18 @@ if not config["skip_edb"]:
             self.local_scratch.remove()
             del self.edbapp
 
+        @pytest.mark.skipif(is_ironpython, reason="Method not supported anymore in Ironpython")
         def test_000_export_ipc2581(self):
             ipc_path = os.path.join(self.local_scratch.path, "test.xml")
             self.edbapp.export_to_ipc2581(ipc_path)
+            assert os.path.exists(ipc_path)
+
+            # Export should be made with units set to default -millimeter-.
+            self.edbapp.export_to_ipc2581(ipc_path, "mm")
+            assert os.path.exists(ipc_path)
+            ipc_path = os.path.join(self.local_scratch.path, "test2.xml")
+
+            self.edbapp.export_to_ipc2581(ipc_path, use_beta=True)
             assert os.path.exists(ipc_path)
 
             # Export should be made with units set to default -millimeter-.
@@ -2106,11 +2115,3 @@ if not config["skip_edb"]:
             assert setup1.snap_length_threshold == "3.5um"
             assert not setup1.use_si_settings
             assert setup1.xtalk_threshold == "-44"
-
-        def test_131_export_ipc_beta(self):
-            target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
-            out_edb = os.path.join(self.local_scratch.path, "Galileo_get_comp_bbox.aedb")
-            self.local_scratch.copyfolder(target_path, out_edb)
-            edbapp = Edb(out_edb, edbversion=desktop_version)
-            edbapp.export_to_ipc2581(os.path.join(target_path, "test_ipc.xml"), use_beta=True)
-            assert os.path.isfile(os.path.join(target_path, "test_ipc.xml"))

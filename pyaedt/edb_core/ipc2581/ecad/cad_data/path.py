@@ -1,8 +1,7 @@
-import xml.etree.cElementTree as ET
-
 from pyaedt.edb_core.ipc2581.content.entry_line import EntryLine
-from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import PolyStep
-from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import PolyType
+from pyaedt.edb_core.ipc2581.ecad.cad_data.polygon import PolyStep
+from pyaedt.edb_core.ipc2581.ecad.cad_data.polygon import PolyType
+from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 

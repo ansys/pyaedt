@@ -1,4 +1,4 @@
-from pyaedt.edb_core.ipc2581.ecad.cad_data.primitives.polygon import Polygon
+from pyaedt.edb_core.ipc2581.ecad.cad_data.polygon import Polygon
 
 
 class Profile(object):

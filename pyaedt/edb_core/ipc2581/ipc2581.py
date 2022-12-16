@@ -1,17 +1,19 @@
 import os.path
-import xml.etree.cElementTree as ET
 
 from pyaedt.edb_core.ipc2581.bom.bom import Bom
 from pyaedt.edb_core.ipc2581.bom.bom_item import BomItem
 from pyaedt.edb_core.ipc2581.content.content import Content
-from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def.padstack_def import PadstackDef
+from pyaedt.edb_core.ipc2581.ecad.cad_data.padstack_def import PadstackDef
 from pyaedt.edb_core.ipc2581.ecad.ecad import Ecad
 from pyaedt.edb_core.ipc2581.history_record import HistoryRecord
 from pyaedt.edb_core.ipc2581.logistic_header import LogisticHeader
+from pyaedt.generic.general_methods import ET
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
-class IPC2581(object):
+class Ipc2581(object):
+    """Class that manages the Ipc2581 exporter."""
+
     def __init__(self, pedb, units):
         self.revision = "C"
         self._pedb = pedb
@@ -30,7 +32,6 @@ class IPC2581(object):
         self.design_name = self._pedb.cell_names[0]
         self.content.step_ref = self.design_name
         self._pedb.logger.info("Parsing Layers...")
-
         self.add_layers_info()
         self._pedb.logger.info("Parsing BOM...")
         self.add_bom()
