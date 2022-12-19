@@ -2554,6 +2554,343 @@ class VoltageDCSource(Sources, object):
         self._child.SetPropValue("DC", value)
 
 
+class VoltageSinSource(Sources, object):
+    """Power Sinusoidal Class."""
+
+    def __init__(self, app, name, source_type=None):
+        Sources.__init__(self, app, name, source_type)
+
+    @property
+    def _child(self):
+        return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+
+    @property
+    def ac_magnitude(self):
+        """AC magnitude value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ACMAG"]
+
+    @ac_magnitude.setter
+    def ac_magnitude(self, value):
+        self._props["ACMAG"] = value
+        self._child.SetPropValue("ACMAG", value)
+
+    @property
+    def ac_phase(self):
+        """AC phase value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ACPHASE"]
+
+    @ac_phase.setter
+    def ac_phase(self, value):
+        self._props["ACPHASE"] = value
+        self._child.SetPropValue("ACPHASE", value)
+
+    @property
+    def dc_magnitude(self):
+        """DC voltage value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["DC"]
+
+    @dc_magnitude.setter
+    def dc_magnitude(self, value):
+        self._props["DC"] = value
+        self._child.SetPropValue("DC", value)
+
+    @property
+    def voltage_amplitude(self):
+        """Voltage amplitude.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["VA"]
+
+    @voltage_amplitude.setter
+    def voltage_amplitude(self, value):
+        self._props["VA"] = value
+        self._child.SetPropValue("VA", value)
+
+    @property
+    def voltage_offset(self):
+        """Voltage offset from zero watts.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["VO"]
+
+    @voltage_offset.setter
+    def voltage_offset(self, value):
+        self._props["VO"] = value
+        self._child.SetPropValue("VO", value)
+
+    @property
+    def frequency(self):
+        """Frequency.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["FREQ"]
+
+    @frequency.setter
+    def frequency(self, value):
+        self._props["FREQ"] = value
+        self._child.SetPropValue("FREQ", value)
+
+    @property
+    def delay(self):
+        """Delay to start of sine wave.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["TD"]
+
+    @delay.setter
+    def delay(self, value):
+        self._props["TD"] = value
+        self._child.SetPropValue("TD", value)
+
+    @property
+    def damping_factor(self):
+        """Damping factor.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ALPHA"]
+
+    @damping_factor.setter
+    def damping_factor(self, value):
+        self._props["ALPHA"] = value
+        self._child.SetPropValue("ALPHA", value)
+
+    @property
+    def phase_delay(self):
+        """Phase delay.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["THETA"]
+
+    @phase_delay.setter
+    def phase_delay(self, value):
+        self._props["THETA"] = value
+        self._child.SetPropValue("THETA", value)
+
+    @property
+    def tone(self):
+        """Frequency to use for harmonic balance.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["TONE"]
+
+    @tone.setter
+    def tone(self, value):
+        self._props["TONE"] = value
+        self._child.SetPropValue("TONE", value)
+
+
+class CurrentSinSource(Sources, object):
+    """Current Sinusoidal Class."""
+
+    def __init__(self, app, name, source_type=None):
+        Sources.__init__(self, app, name, source_type)
+
+    @property
+    def _child(self):
+        return self._app.odesign.GetChildObject("Excitations").GetChildObject(self.name)
+
+    @property
+    def ac_magnitude(self):
+        """AC magnitude value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ACMAG"]
+
+    @ac_magnitude.setter
+    def ac_magnitude(self, value):
+        self._props["ACMAG"] = value
+        self._child.SetPropValue("ACMAG", value)
+
+    @property
+    def ac_phase(self):
+        """AC phase value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ACPHASE"]
+
+    @ac_phase.setter
+    def ac_phase(self, value):
+        self._props["ACPHASE"] = value
+        self._child.SetPropValue("ACPHASE", value)
+
+    @property
+    def dc_magnitude(self):
+        """DC current value.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["DC"]
+
+    @dc_magnitude.setter
+    def dc_magnitude(self, value):
+        self._props["DC"] = value
+        self._child.SetPropValue("DC", value)
+
+    @property
+    def current_amplitude(self):
+        """Current amplitude.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["VA"]
+
+    @current_amplitude.setter
+    def current_amplitude(self, value):
+        self._props["VA"] = value
+        self._child.SetPropValue("VA", value)
+
+    @property
+    def current_offset(self):
+        """Current offset.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["VO"]
+
+    @current_offset.setter
+    def current_offset(self, value):
+        self._props["VO"] = value
+        self._child.SetPropValue("VO", value)
+
+    @property
+    def frequency(self):
+        """Frequency.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["FREQ"]
+
+    @frequency.setter
+    def frequency(self, value):
+        self._props["FREQ"] = value
+        self._child.SetPropValue("FREQ", value)
+
+    @property
+    def delay(self):
+        """Delay to start of sine wave.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["TD"]
+
+    @delay.setter
+    def delay(self, value):
+        self._props["TD"] = value
+        self._child.SetPropValue("TD", value)
+
+    @property
+    def damping_factor(self):
+        """Damping factor.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["ALPHA"]
+
+    @damping_factor.setter
+    def damping_factor(self, value):
+        self._props["ALPHA"] = value
+        self._child.SetPropValue("ALPHA", value)
+
+    @property
+    def phase_delay(self):
+        """Phase delay.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["THETA"]
+
+    @phase_delay.setter
+    def phase_delay(self, value):
+        self._props["THETA"] = value
+        self._child.SetPropValue("THETA", value)
+
+    @property
+    def multiplier(self):
+        """Multiplier for simulating multiple parallel current sources.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["M"]
+
+    @multiplier.setter
+    def multiplier(self, value):
+        self._props["M"] = value
+        self._child.SetPropValue("M", value)
+
+    @property
+    def tone(self):
+        """Frequency to use for harmonic balance.
+
+        Returns
+        -------
+        str
+        """
+        return self._props["TONE"]
+
+    @tone.setter
+    def tone(self, value):
+        self._props["TONE"] = value
+        self._child.SetPropValue("TONE", value)
+
+
 class Excitations(object):
     """Manages Excitations in Circuit Projects.
 

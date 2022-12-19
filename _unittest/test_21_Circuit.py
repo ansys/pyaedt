@@ -297,19 +297,16 @@ class TestClass(BasisTest, object):
         )
 
     def test_21_assign_voltage_sinusoidal_excitation_to_ports(self):
-        settings = ["123 V", "10deg", "", "", "0V", "15GHz", "0s", "0", "0deg", ""]
-        ports_list = ["P1_1", "P2_2"]
-        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, settings)
+        ports_list = ["Port1", "Port2"]
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
     def test_22_assign_current_sinusoidal_excitation_to_ports(self):
-        settings = ["", "", "20A", "50A", "4A", "", "0s", "0", "0deg", "1", "20Hz"]
-        ports_list = ["P1_1"]
-        assert self.aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list, settings)
+        ports_list = ["Port1"]
+        assert self.aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list)
 
     def test_23_assign_power_sinusoidal_excitation_to_ports(self):
-        settings = ["", "", "", "", "20W", "14GHz", "0s", "0", "0deg", "0Hz"]
-        ports_list = ["P2_2"]
-        assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list, settings)
+        ports_list = ["Port2"]
+        assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
     def test_24_new_connect_components(self):
         self.aedtapp.insert_design("Components")

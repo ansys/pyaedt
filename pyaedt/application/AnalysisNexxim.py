@@ -4,12 +4,14 @@ from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.Circuit import ModelerNexxim
 from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
 from pyaedt.modules.Boundary import PowerIQSource
 from pyaedt.modules.Boundary import PowerSinSource
 from pyaedt.modules.Boundary import Sources
 from pyaedt.modules.Boundary import VoltageDCSource
 from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
+from pyaedt.modules.Boundary import VoltageSinSource
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -219,6 +221,10 @@ class FieldAnalysisCircuit(Analysis):
                     props[source] = VoltageFrequencyDependentSource(self, source)
                 elif props[source].source_type == "VoltageDC":
                     props[source] = VoltageDCSource(self, source)
+                elif props[source].source_type == "VoltageSin":
+                    props[source] = VoltageSinSource(self, source)
+                elif props[source].source_type == "CurrentSin":
+                    props[source] = CurrentSinSource(self, source)
             self._internal_sources = props
         else:
             props = self._internal_sources

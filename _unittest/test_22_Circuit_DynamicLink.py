@@ -198,13 +198,8 @@ class TestClass(BasisTest, object):
         ports_list = ["Excitation_1", "Excitation_3"]
         assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
-        excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1"]
-        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
-
-        excitation_settings = ["10 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
-        ports_list = ["Port_1"]
-        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_09_setup(self):
