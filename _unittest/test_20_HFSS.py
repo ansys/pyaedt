@@ -1239,3 +1239,9 @@ class TestClass(BasisTest, object):
 
         cads = self.aedtapp.modeler.import_nastran(example_project)
         assert len(cads) > 0
+
+    def test_60_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

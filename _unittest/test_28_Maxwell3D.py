@@ -741,3 +741,9 @@ class TestClass(BasisTest, object):
         assert self.m3dtransient.setups[0].add_mesh_link(
             design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
         )
+
+    def test_46_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

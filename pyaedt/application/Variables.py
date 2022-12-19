@@ -681,15 +681,16 @@ class VariableManager(object):
         for obj in object_list:
             listvar = self._get_var_list_from_aedt(obj)
             for variable_name in listvar:
-                variable_expression = self.get_expression(variable_name)
-                all_names[variable_name] = variable_expression
-                si_value = self._app.get_evaluated_value(variable_name)
-                value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
-                is_number_flag = is_number(value._calculated_value)
-                if independent and is_number_flag:
-                    var_dict[variable_name] = value
-                elif dependent and not is_number_flag:
-                    var_dict[variable_name] = value
+                if self.get_expression(variable_name):
+                    variable_expression = self.get_expression(variable_name)
+                    all_names[variable_name] = variable_expression
+                    si_value = self._app.get_evaluated_value(variable_name)
+                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                    is_number_flag = is_number(value._calculated_value)
+                    if independent and is_number_flag:
+                        var_dict[variable_name] = value
+                    elif dependent and not is_number_flag:
+                        var_dict[variable_name] = value
         return var_dict
 
     @pyaedt_function_handler()
@@ -702,7 +703,10 @@ class VariableManager(object):
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
-        return self.aedt_object(variable_name).GetVariableValue(variable_name)
+        if variable_name not in ["CosimDefinition", "CoSimulator", "CoSimulator/Choices", "InstanceName"]:
+            return self.aedt_object(variable_name).GetVariableValue(variable_name)
+        else:
+            return False
 
     @pyaedt_function_handler()
     def aedt_object(self, variable):
@@ -1021,9 +1025,17 @@ class VariableManager(object):
     def _get_var_list_from_aedt(self, desktop_object):
         var_list = []
         if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
-            var_list += list(desktop_object.GetChildObject("Variables").GetChildNames())
-        tmp = [i for i in list(desktop_object.GetVariables()) if i not in var_list]
-        var_list += tmp
+            # To retrieve local variables
+            var_list += list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+        if self._app._is_object_oriented_enabled() and self._app.design_type in [
+            "Circuit Design",
+            "Twin Builder",
+            "HFSS 3D Layout Design",
+        ]:
+            # To retrieve Parameter Default Variables
+            var_list += list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
+
+        var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
         return var_list
 
 

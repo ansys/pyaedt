@@ -484,3 +484,9 @@ class TestClass(BasisTest, object):
     def test_39_export_results_circuit(self):
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) > 0
+
+    def test_40_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
