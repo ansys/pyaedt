@@ -1658,11 +1658,16 @@ class Sources(object):
         self.source_type = source_type
         if not source_type:
             self.source_type = self._source_type_by_key()
-        # self._fds_filename = None
         self._auto_update = True
 
     @property
     def name(self):
+        """Source name.
+
+        Returns
+        -------
+        str
+        """
         return self._name
 
     @name.setter
@@ -2921,6 +2926,12 @@ class Excitations(object):
 
     @property
     def name(self):
+        """Excitation name.
+
+        Returns
+        -------
+        str
+        """
         return self._name
 
     @name.setter

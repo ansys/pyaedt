@@ -481,3 +481,119 @@ class TestClass(BasisTest, object):
     def test_39_export_results_circuit(self):
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) > 0
+
+    def test_40_assign_sources(self):
+        self.aedtapp.insert_design("sources")
+        c = self.aedtapp
+        filepath = os.path.join(local_path, "example_models", test_subfolder, "frequency_dependent_source.fds")
+        assert c.create_source(source_type="PowerSin", name="PowerSinusoidal3")
+        c.sources["PowerSinusoidal3"].ac_magnitude = "2V"
+        c.sources["PowerSinusoidal3"].ac_phase = "2deg"
+        c.sources["PowerSinusoidal3"].dc_magnitude = "2V"
+        c.sources["PowerSinusoidal3"].power_offset = "2W"
+        c.sources["PowerSinusoidal3"].power_magnitude = "20W"
+        c.sources["PowerSinusoidal3"].frequency = "20GHz"
+        c.sources["PowerSinusoidal3"].delay = "20ns"
+        c.sources["PowerSinusoidal3"].damping_factor = "200"
+        c.sources["PowerSinusoidal3"].phase_delay = "100deg"
+        c.sources["PowerSinusoidal3"].tone = "100Hz"
+
+        assert c.create_source(source_type="PowerIQ", name="PowerIQ")
+        c.sources["PowerIQ"].carrier_frequency = "2GHz"
+        c.sources["PowerIQ"].sampling_time = "2s"
+        c.sources["PowerIQ"].dc_magnitude = "2V"
+        c.sources["PowerIQ"].repeat_from = "22s"
+        c.sources["PowerIQ"].delay = "20ns"
+        c.sources["PowerIQ"].carrier_amplitude_voltage = "20V"
+        c.sources["PowerIQ"].carrier_amplitude_power = "20W"
+        c.sources["PowerIQ"].carrier_offset = "100V"
+        c.sources["PowerIQ"].real_impedance = "100ohm"
+        c.sources["PowerIQ"].imaginary_impedance = "1000ohm"
+        c.sources["PowerIQ"].damping_factor = "200"
+        c.sources["PowerIQ"].phase_delay = "100deg"
+        c.sources["PowerIQ"].tone = "100Hz"
+        c.sources["PowerIQ"].i_q_values = [["0s", "1V", "2V"], ["1s", "3V", "2V"]]
+        c.sources["PowerIQ"].file = filepath
+
+        source_freq = c.create_source(source_type="VoltageFrequencyDependent", name="freq_pyaedt")
+        source_freq.magnitude_angle = True
+        source_freq.frequencies = [2000000000, 3000000000]
+        source_freq.vmag = [0.001, 0.02]
+        source_freq.vang = [0.0349065850398866, 0.0872664625997165]
+        source_freq.vreal = [2, 1]
+        source_freq.vimag = ["0.2", "0.1"]
+        source_freq.magnitude_angle = False
+        source_freq.fds_filename = filepath
+        source_freq.fds_filename = None
+        assert source_freq.vreal
+
+        assert c.create_source(source_type="VoltageDC", name="dc_pyaedt")
+        c.sources["dc_pyaedt"].ac_magnitude = "2V"
+        c.sources["dc_pyaedt"].ac_phase = "2deg"
+        c.sources["dc_pyaedt"].dc_magnitude = "2V"
+        c.sources["dc_pyaedt"].name = "dc_pyaedt2"
+
+        assert c.create_source(source_type="VoltageSin", name="VoltageSinusoidal1")
+        c.sources["VoltageSinusoidal1"].ac_magnitude = "2V"
+        c.sources["VoltageSinusoidal1"].ac_phase = "2deg"
+        c.sources["VoltageSinusoidal1"].dc_magnitude = "2V"
+        c.sources["VoltageSinusoidal1"].voltage_offset = "2V"
+        c.sources["VoltageSinusoidal1"].voltage_amplitude = "5V"
+        c.sources["VoltageSinusoidal1"].frequency = "20GHz"
+        c.sources["VoltageSinusoidal1"].delay = "20ns"
+        c.sources["VoltageSinusoidal1"].damping_factor = "200"
+        c.sources["VoltageSinusoidal1"].phase_delay = "100deg"
+        c.sources["VoltageSinusoidal1"].tone = "100Hz"
+
+        source_isin = c.create_source(source_type="CurrentSin", name="CurrentSinusoidal1")
+        c.sources["CurrentSinusoidal1"].ac_magnitude = "2A"
+        c.sources["CurrentSinusoidal1"].ac_phase = "2deg"
+        c.sources["CurrentSinusoidal1"].dc_magnitude = "2A"
+        c.sources["CurrentSinusoidal1"].current_offset = "2A"
+        c.sources["CurrentSinusoidal1"].current_amplitude = "5A"
+        c.sources["CurrentSinusoidal1"].multiplier = "5V"
+        c.sources["CurrentSinusoidal1"].frequency = "20GHz"
+        c.sources["CurrentSinusoidal1"].delay = "20ns"
+        c.sources["CurrentSinusoidal1"].damping_factor = "200"
+        c.sources["CurrentSinusoidal1"].phase_delay = "100deg"
+        c.sources["CurrentSinusoidal1"].tone = "100Hz"
+
+        assert "PowerSinusoidal3" in c.sources
+
+        c.sources["PowerSinusoidal3"].name = "PowerTest"
+        assert "PowerTest" in c.source_names
+        c.sources["freq_pyaedt"].delete()
+        assert len(c.source_objects) == 5
+
+    def test_41_assign_excitations(self):
+        c = self.aedtapp
+        port = c.modeler.schematic.create_interface_port(name="Port1")
+        port.angle = 90.0
+        port.location = ["100mil", "200mil"]
+        port.mirror = True
+        port.name = "Port3"
+        port.use_symbol_color = False
+        port.impedance = [50, 50]
+        port.enable_noise = True
+        port.noise_temperature = "18 cel"
+        port.microwave_symbol = True
+
+        port.reference_node = "Port3"
+        port.reference_node = "Ground"
+        port.reference_node = "NoNet"
+        port.reference_node = "Z"
+
+        assert c.excitation_objets
+
+        setup = c.create_setup()
+
+        c.excitations["Port3"].enabled_sources = ["PowerTest"]
+        setup1 = c.create_setup()
+        setup2 = c.create_setup()
+        c.excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+
+        c.excitations["Port3"].name = "PortTest"
+        assert "PortTest" in c.excitations
+        assert "PortTest" in c.excitation_names
+        c.excitations["PortTest"].delete()
+        assert len(c.excitation_objets) == 0
