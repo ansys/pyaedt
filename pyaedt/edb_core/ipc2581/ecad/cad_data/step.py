@@ -191,8 +191,7 @@ class Step(object):
         return layer_list
 
     @pyaedt_function_handler()
-    def add_layer_feature(self, layer, padstack_instances, padstack_defs, polys):
-        top_bottom_layers = self._ipc.top_bottom_layers
+    def add_layer_feature(self, layer, polys):
         layer_name = layer.name
         layer_feature = LayerFeature(self._ipc)
         layer_feature.layer_name = layer_name
@@ -201,15 +200,23 @@ class Step(object):
         for poly in polys:
             if not poly.is_void:
                 layer_feature.add_feature(poly)
+        self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
+
+    @pyaedt_function_handler()
+    def add_padstack_instances(self, padstack_instances, padstack_defs):
+        top_bottom_layers = self._ipc.top_bottom_layers
+        layers = {j.layer_name: j for j in self._ipc.ecad.cad_data.cad_data_step.layer_features}
 
         for padstack_instance in padstack_instances:
-            # layers = [i for i in padstack_def.pad_by_layer.keys()]
-            # layers2 = [i for i in padstack_def.antipad_by_layer.keys()]
-            # layers3 = [i for i in padstack_def.thermalpad_by_layer.keys()]
-            # lays = set.union(set(layers), set(layers2), set(layers3))
             _, start_layer, stop_layer = padstack_instance._edb_padstackinstance.GetLayerRange()
 
-            if layer_name in self.layer_ranges(start_layer, stop_layer):
+            for layer_name in self.layer_ranges(start_layer, stop_layer):
+                if layer_name not in layers:
+                    layer_feature = LayerFeature(self._ipc)
+                    layer_feature.layer_name = layer_name
+                    layer_feature.color = self._ipc._pedb.stackup[layer_name].color
+                    self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
+                    layers[layer_name] = self._ipc.ecad.cad_data.cad_data_step.layer_features[-1]
                 pdef_name = (
                     padstack_instance._pdef if padstack_instance._pdef else padstack_instance.padstack_definition
                 )
@@ -219,13 +226,11 @@ class Step(object):
                 if padstack_instance.is_pin and comp_name:
 
                     component_inst = self._pedb.core_components.components[comp_name]
-                    layer_feature.add_component_padstack_instance_feature(
+                    layers[layer_name].add_component_padstack_instance_feature(
                         component_inst, padstack_instance, top_bottom_layers, padstack_def
                     )
                 else:
-                    layer_feature.add_via_instance_feature(padstack_instance, padstack_def, layer_name)
-
-        self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
+                    layers[layer_name].add_via_instance_feature(padstack_instance, padstack_def, layer_name)
 
     @pyaedt_function_handler()
     def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):

@@ -311,9 +311,8 @@ class Ipc2581(object):
         padstack_defs = {i: k for i, k in self._pedb.core_padstack.padstacks.items()}
         polys = {i: j for i, j in self._pedb.core_primitives.primitives_by_layer.items()}
         for layer_name, layer in layers.items():
-            self.ecad.cad_data.cad_data_step.add_layer_feature(
-                layer, padstack_instances, padstack_defs, polys[layer_name]
-            )
+            self.ecad.cad_data.cad_data_step.add_layer_feature(layer, polys[layer_name])
+        self.ecad.cad_data.cad_data_step.add_padstack_instances(padstack_instances, padstack_defs)
 
     @pyaedt_function_handler()
     def add_drills(self):
