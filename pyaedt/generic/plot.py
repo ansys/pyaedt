@@ -1614,8 +1614,10 @@ class ModelPlotter(object):
             opacity=self.frames[0].opacity,
         )
         start = time.time()
-
-        self.pv.update(1, force_redraw=True)
+        try:
+            self.pv.update(1, force_redraw=True)
+        except:
+            pass
         if self.gif_file:
             first_loop = True
             self.pv.write_frame()

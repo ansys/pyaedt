@@ -31,7 +31,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 ###############################################################################
 # Define variables
-# ~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Define input variables. The following code creates all input variables that are needed
 # to run this example.
 

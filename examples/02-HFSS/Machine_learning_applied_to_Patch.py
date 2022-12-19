@@ -174,7 +174,13 @@ pad_percent = [50, 50, 300, 50, 50, 10]
 region = hfss.modeler.primitives.create_region(pad_percent)
 hfss.assign_radiation_boundary_to_objects(region)
 
-hfss.plot(show=False)
+
+###############################################################################
+# Plot
+# ~~~~
+# Plot patch
+
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Create setup and sweep
