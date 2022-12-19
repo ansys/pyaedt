@@ -230,8 +230,8 @@ class Ipc2581(object):
             self._pedb.stackup.get_layout_thickness(), self.units
         )
         self.ecad.cad_data.stackup.stackup_group.thickness = self.ecad.cad_data.stackup.total_thickness
-        layers_name = list(self._pedb.stackup.signal_layers.keys())
-        self.top_bottom_layers = [layers_name[0], layers_name[-1]]
+        self.layers_name = list(self._pedb.stackup.signal_layers.keys())
+        self.top_bottom_layers = [self.layers_name[0], self.layers_name[-1]]
         sequence = 0
         for layer_name in list(self._pedb.stackup.stackup_layers.keys()):
             sequence += 1

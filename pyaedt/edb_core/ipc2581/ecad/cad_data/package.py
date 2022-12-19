@@ -25,7 +25,7 @@ class Package(object):
         self.pickup_point = [0.0, 0.0]
 
     @property
-    def pins(self):  # pragma no cover
+    def pins(self):
         return self._pins
 
     @pins.setter
@@ -35,7 +35,7 @@ class Package(object):
                 self._pins = value
 
     @pyaedt_function_handler()
-    def add_pin(self, number=0, x=0.0, y=0.0, rotation=0.0, primitive_ref=""):  # pragma no cover
+    def add_pin(self, number=0, x=0.0, y=0.0, rotation=0.0, primitive_ref=""):
         added_pin = Pin()
         added_pin.x = x
         added_pin.y = y
@@ -92,7 +92,7 @@ class Package(object):
             self.assembly_drawing.line_ref = "ROUND_0"
 
     @pyaedt_function_handler()
-    def write_xml(self, step):  # pragma no cover
+    def write_xml(self, step):
         package = ET.SubElement(step, "Package")
         package.set("name", self.name)
         package.set("type", self.type)

@@ -13,7 +13,7 @@ class PadstackHoleDef(object):
         self.x = 0
         self.y = 0
 
-    def write_xml(self, padstackdef):  # pragma no cover
+    def write_xml(self, padstackdef):
         padstack_hole = ET.SubElement(padstackdef, "PadstackHoleDef")
         padstack_hole.set("name", self.name)
         padstack_hole.set("diameter", str(self.diameter))

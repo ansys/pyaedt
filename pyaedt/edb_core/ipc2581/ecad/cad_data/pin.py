@@ -13,7 +13,7 @@ class Pin(object):
         self.primitive_def = ""
         self.is_via = False
 
-    def write_xml(self, package):  # pragma no cover
+    def write_xml(self, package):
         pin = ET.SubElement(package, "Pin")
         pin.set("number", str(self.number))
         pin.set("type", "THRU")

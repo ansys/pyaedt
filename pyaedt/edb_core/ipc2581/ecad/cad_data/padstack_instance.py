@@ -16,7 +16,7 @@ class PadstackInstance(object):
         self.net = ""
         self.mirror = False
 
-    def write_xml(self, net_root):  # pragma no cover
+    def write_xml(self, net_root):
         if self.isvia:
             net_root.set("testPoint", "false")
             net_root.set("plate", "true")

@@ -9,7 +9,7 @@ class PhyNet(object):
         self._phy_net_points = []
 
     @property
-    def name(self):  # pragma no cover
+    def name(self):
         return self._name
 
     @name.setter
@@ -18,7 +18,7 @@ class PhyNet(object):
             self._name = value
 
     @property
-    def phy_net_points(self):  # pragma no cover
+    def phy_net_points(self):
         return self._phy_net_points
 
     @phy_net_points.setter
@@ -27,11 +27,11 @@ class PhyNet(object):
             if len([net for net in value if isinstance(net, PhyNetPoint)]) == len(value):
                 self._phy_net_points = value
 
-    def add_phy_net_point(self, point=None):  # pragma no cover
+    def add_phy_net_point(self, point=None):
         if isinstance(point, PhyNetPoint):
             self._phy_net_points.append(point)
 
-    def write_xml(self, step):  # pragma no cover
+    def write_xml(self, step):
         if step:
             phy_net = ET.SubElement(step, "PhyNet")
             for phy_net_point in self.phy_net_points:
@@ -51,7 +51,7 @@ class PhyNetPoint(object):
         self.standard_primitive_id = ""
 
     @property
-    def exposure(self):  # pragma no cover
+    def exposure(self):
         if self._exposure == ExposureType.Exposed:
             return "EXPOSED"
         elif self._exposure == ExposureType.CoveredPrimary:
@@ -59,7 +59,7 @@ class PhyNetPoint(object):
         elif self._exposure == ExposureType.CoveredSecondary:
             return "COVERED_SECONDARY"
 
-    def write_xml(self, phynet):  # pragma no cover
+    def write_xml(self, phynet):
         if phynet:
             phynet_point = ET.SubElement(phynet, "PhyNetPoint")
             phynet_point.set("x", self.x)

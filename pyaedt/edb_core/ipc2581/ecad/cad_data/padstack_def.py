@@ -12,7 +12,7 @@ class PadstackDef(object):
         self._padstack_pad_def = []
 
     @property
-    def padstack_pad_def(self):  # pragma no cover
+    def padstack_pad_def(self):
         return self._padstack_pad_def
 
     @padstack_pad_def.setter
@@ -21,7 +21,7 @@ class PadstackDef(object):
             if len([pad for pad in value if isinstance(pad, PadstackPadDef)]) == len(value):
                 self._padstack_pad_def = value
 
-    def add_padstack_pad_def(self, layer="", pad_use="REGULAR", x="0", y="0", primitive_ref=""):  # pragma no cover
+    def add_padstack_pad_def(self, layer="", pad_use="REGULAR", x="0", y="0", primitive_ref=""):
         pad = PadstackPadDef()
         pad.layer_ref = layer
         pad.pad_use = pad_use
@@ -30,7 +30,7 @@ class PadstackDef(object):
         pad.primitive_ref = primitive_ref
         self.padstack_pad_def.append(pad)
 
-    def write_xml(self, step):  # pragma no cover
+    def write_xml(self, step):
         padstack_def = ET.SubElement(step, "PadStackDef")
         padstack_def.set("name", self.name)
         self.padstack_hole_def.write_xml(padstack_def)

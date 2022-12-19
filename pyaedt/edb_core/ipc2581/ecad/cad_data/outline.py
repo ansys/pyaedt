@@ -10,7 +10,7 @@ class Outline:
         self.polygon = Polygon(self._ipc)
         self.line_ref = ""
 
-    def write_xml(self, package):  # pragma no cover
+    def write_xml(self, package):
         outline = ET.SubElement(package, "Outline")
         polygon = ET.SubElement(outline, "Polygon")
         polygon_begin = ET.SubElement(polygon, "PolyBegin")

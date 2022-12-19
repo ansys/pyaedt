@@ -164,6 +164,32 @@ class Step(object):
             ipc_component.layer_ref = component.placement_layer
             self.components.append(ipc_component)
 
+    def layer_ranges(
+        self,
+        start_layer,
+        stop_layer,
+    ):
+        started = False
+        start_layer_name = start_layer.GetName()
+        stop_layer_name = stop_layer.GetName()
+        layer_list = []
+        for layer_name in self._ipc.layers_name:
+            if started:
+                layer_list.append(layer_name)
+                if layer_name == stop_layer_name or layer_name == start_layer_name:
+                    break
+            elif layer_name == start_layer_name:
+                started = True
+                layer_list.append(layer_name)
+                if layer_name == stop_layer_name:
+                    break
+            elif layer_name == stop_layer_name:
+                started = True
+                layer_list.append(layer_name)
+                if layer_name == start_layer_name:
+                    break
+        return layer_list
+
     @pyaedt_function_handler()
     def add_layer_feature(self, layer, padstack_instances, padstack_defs, polys):
         top_bottom_layers = self._ipc.top_bottom_layers
@@ -177,13 +203,18 @@ class Step(object):
                 layer_feature.add_feature(poly)
 
         for padstack_instance in padstack_instances:
-            pdef_name = padstack_instance._pdef if padstack_instance._pdef else padstack_instance.padstack_definition
-            padstack_def = padstack_defs[pdef_name]
-            layers = [i for i in padstack_def.pad_by_layer.keys()]
-            layers2 = [i for i in padstack_def.antipad_by_layer.keys()]
-            layers3 = [i for i in padstack_def.thermalpad_by_layer.keys()]
-            lays = set.union(set(layers), set(layers2), set(layers3))
-            if layer_name in lays:
+            # layers = [i for i in padstack_def.pad_by_layer.keys()]
+            # layers2 = [i for i in padstack_def.antipad_by_layer.keys()]
+            # layers3 = [i for i in padstack_def.thermalpad_by_layer.keys()]
+            # lays = set.union(set(layers), set(layers2), set(layers3))
+            _, start_layer, stop_layer = padstack_instance._edb_padstackinstance.GetLayerRange()
+
+            if layer_name in self.layer_ranges(start_layer, stop_layer):
+                pdef_name = (
+                    padstack_instance._pdef if padstack_instance._pdef else padstack_instance.padstack_definition
+                )
+                padstack_def = padstack_defs[pdef_name]
+
                 comp_name = padstack_instance.GetComponent().GetName()
                 if padstack_instance.is_pin and comp_name:
 

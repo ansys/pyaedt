@@ -36,7 +36,7 @@ class Feature(object):
         if isinstance(cutout, Polygon):
             self._cutouts.append(cutout)
 
-    def write_xml(self, layer_feature):  # pragma no cover
+    def write_xml(self, layer_feature):
         net = ET.SubElement(layer_feature, "Set")
         net.set("net", self.net)
         if self.feature_type == FeatureType.Polygon:

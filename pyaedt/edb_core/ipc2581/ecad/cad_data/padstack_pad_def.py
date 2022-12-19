@@ -11,7 +11,7 @@ class PadstackPadDef(object):
         self.y = 0.0
         self.primitive_ref = "CIRCLE_DEFAULT"
 
-    def write_xml(self, padstack_def):  # pragma no cover
+    def write_xml(self, padstack_def):
         pad_def = ET.SubElement(padstack_def, "PadstackPadDef")
         pad_def.set("layerRef", self.layer_ref)
         pad_def.set("padUse", self.pad_use)

@@ -8,7 +8,7 @@ class LogicalNet(object):
         self.name = ""
         self.pin_ref = []
 
-    def write_xml(self, step):  # pragma no cover
+    def write_xml(self, step):
         if step:
             logical_net = ET.SubElement(step, "LogicalNet")
             logical_net.set("name", self.name)
@@ -26,7 +26,7 @@ class PinRef(object):
         self.pin = ""
         self.component_ref = ""
 
-    def write_xml(self, logical_net):  # pragma no cover
+    def write_xml(self, logical_net):
         pin_ref = ET.SubElement(logical_net, "PinRef")
         pin_ref.set("pin", self.pin)
         pin_ref.set("componentRef", self.component_ref)
