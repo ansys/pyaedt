@@ -61,14 +61,6 @@ if not config["skip_edb"]:
             # Export should be made with units set to default -millimeter-.
             self.edbapp.export_to_ipc2581(ipc_path, "mm")
             assert os.path.exists(ipc_path)
-            ipc_path = os.path.join(self.local_scratch.path, "test2.xml")
-
-            self.edbapp.export_to_ipc2581(ipc_path, use_beta=True)
-            assert os.path.exists(ipc_path)
-
-            # Export should be made with units set to default -millimeter-.
-            self.edbapp.export_to_ipc2581(ipc_path, "mm")
-            assert os.path.exists(ipc_path)
 
         def test_001_find_by_name(self):
             comp = self.edbapp.core_components.get_component_by_name("J1")

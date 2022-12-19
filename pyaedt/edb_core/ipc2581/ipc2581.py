@@ -371,7 +371,10 @@ class Ipc2581(object):
             # self.history_record.write_xml(ipc)
             # self.bom.write_xml(ipc)
             self.ecad.write_xml(ipc)
-            ET.indent(ipc)
+            try:
+                ET.indent(ipc)
+            except AttributeError:
+                pass
             tree = ET.ElementTree(ipc)
             tree.write(self.file_path)
             return True if os.path.exists(self.file_path) else False
