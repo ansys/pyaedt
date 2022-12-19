@@ -59,7 +59,7 @@ try:
 
     ET.VERSION
 except ImportError:
-    pass
+    ET = None
 
 
 class MethodNotSupportedError(Exception):
