@@ -1,5 +1,5 @@
 """
-EDB: ipc2581 export
+EDB: IPC2581 export
 -------------------
 This example shows how you can use PyAEDT to export an IPC2581 file.
 """
@@ -46,12 +46,37 @@ edb.core_primitives.parametrize_trace_width(
 )
 
 ###############################################################################
-# Create ipc2581 file
+# Cutout
+# ~~~~~~
+# Create a cutout.
+signal_list = []
+for net in edb.core_nets.nets.keys():
+    if "PCIE" in net:
+        signal_list.append(net)
+power_list = ["GND"]
+edb.create_cutout_multithread(signal_list=signal_list, reference_list=power_list, extent_type="ConvexHull",
+                              expansion_size=0.002,
+                              use_round_corner=False,
+                              number_of_threads=4,
+                              remove_single_pin_components=True,
+                              use_pyaedt_extent_computing=True,
+                              extent_defeature=0,
+                              )
+
+###############################################################################
+# Plot cutout
+# ~~~~~~~~~~~
+# Plot cutout before exporting to IPC2581 file.
+
+edb.core_nets.plot(None, None, color_by_net=True)
+
+###############################################################################
+# Create IPC2581 file
 # ~~~~~~~~~~~~~~~~~~~
 # Create the IPC2581 file.
 
 edb.export_to_ipc2581(ipc2581_file, "inch")
-print("IPC2581 file has been saved to {}".format(ipc2581_file))
+print("IPC2581 File has been saved to {}".format(ipc2581_file))
 
 ###############################################################################
 # Close EDB

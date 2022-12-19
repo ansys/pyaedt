@@ -163,7 +163,7 @@ setup.add_source_terminal_to_ground("V1", 1)
 # Save modifications.
 
 edb.save_edb()
-edb.core_nets.plot(None, "TOP")
+edb.core_nets.plot(None, "TOP",plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 

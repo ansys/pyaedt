@@ -104,6 +104,7 @@ sim_setup = edbapp.new_simulation_configuration()
 sim_setup.solver_type = SolverType.SiwaveSYZ
 sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
 sim_setup.batch_solve_settings.do_cutout_subdesign = True
+sim_setup.use_default_cutout = False
 sim_setup.batch_solve_settings.signal_nets = ["PCIE0_RX0_P", "PCIE0_RX0_N", "PCIE0_TX0_P_C", "PCIE0_TX0_N_C",
                                               "PCIE0_TX0_P", "PCIE0_TX0_N"]
 sim_setup.batch_solve_settings.components = ["U2A5", "J2L1"]

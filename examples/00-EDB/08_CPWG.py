@@ -164,6 +164,14 @@ h3d.create_linear_count_sweep(
 )
 
 ###############################################################################
+# Plot layout
+# ~~~~~~~~~~~
+# Plot layout
+
+h3d.modeler.edb.core_nets.plot(None, None, color_by_net=True)
+
+
+###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
 # Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
