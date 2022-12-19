@@ -1737,7 +1737,7 @@ class Sources(object):
                         elif freqs and vreal and vimag:
                             source_prop_dict["magnitude_angle"] = False
 
-                elif el != "Name":
+                elif el != "Name" and el != "Noise":
                     source_prop_dict[el] = source_aedt_props.GetPropValue(el)
                     if not source_prop_dict[el]:
                         source_prop_dict[el] = ""

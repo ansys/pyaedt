@@ -485,7 +485,6 @@ class TestClass(BasisTest, object):
     def test_40_assign_sources(self):
         self.aedtapp.insert_design("sources")
         c = self.aedtapp
-        assert c.sources
         filepath = os.path.join(local_path, "example_models", test_subfolder, "frequency_dependent_source.fds")
         assert c.create_source(source_type="PowerSin", name="PowerSinusoidal3")
         c.sources["PowerSinusoidal3"].ac_magnitude = "2V"
@@ -598,3 +597,6 @@ class TestClass(BasisTest, object):
         assert "PortTest" in c.excitation_names
         c.excitations["PortTest"].delete()
         assert len(c.excitation_objets) == 0
+        self.aedtapp.save_project()
+        c = Circuit(designname="sources")
+        assert c.sources
