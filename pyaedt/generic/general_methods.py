@@ -55,7 +55,7 @@ if not is_ironpython:
         )
 
 try:
-    import xml.etree.ElementTree as ET
+    import xml.etree.cElementTree as ET
 
     ET.VERSION
 except ImportError:
