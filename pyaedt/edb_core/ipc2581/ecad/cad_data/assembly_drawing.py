@@ -10,7 +10,7 @@ class AssemblyDrawing(object):
         self.polygon = Polygon(self._ipc)
         self.line_ref = ""
 
-    def write_xml(self, package):
+    def write_xml(self, package):  # pragma no cover
         assembly_drawing = ET.SubElement(package, "AssemblyDrawing")
         outline = ET.SubElement(assembly_drawing, "Outline")
         polygon = ET.SubElement(outline, "Polygon")

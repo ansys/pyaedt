@@ -12,15 +12,15 @@ class DictionaryFill(Content):
         return self._dict_fill
 
     @dict_fill.setter
-    def dict_fill(self, value):
+    def dict_fill(self, value):  # pragma no cover
         if isinstance(value, list):
             self._dict_fill = value
 
-    def add_fill(self, value):
+    def add_fill(self, value):  # pragma no cover
         if isinstance(value, FillDesc):
             self._dict_fill.append(value)
 
-    def write_xml(self, content=None):
+    def write_xml(self, content=None):  # pragma no cover
         if content:
             dict_fill = ET.SubElement(content, "DictionaryFillDesc")
             dict_fill.set("units", self.units)

@@ -13,7 +13,7 @@ class Polygon(object):
         self.cutout = []
 
     @pyaedt_function_handler()
-    def add_poly_step(self, polygon=None):
+    def add_poly_step(self, polygon=None):  # pragma no cover
         if polygon:
             polygon_data = polygon.GetPolygonData()
             if polygon_data.IsClosed():
@@ -76,13 +76,13 @@ class Polygon(object):
                                 void_polygon.poly_steps.append(new_poly_step)
 
     @pyaedt_function_handler()
-    def add_cutout(self, cutout):
+    def add_cutout(self, cutout):  # pragma no cover
         if not isinstance(cutout, Cutout):
             return False
         self.cutout.append(cutout)
 
     @pyaedt_function_handler()
-    def write_xml(self, root_net):
+    def write_xml(self, root_net):  # pragma no cover
         if not self.poly_steps:
             return
         feature = ET.SubElement(root_net, "Features")
@@ -106,7 +106,7 @@ class Cutout(object):
         self.poly_steps = []
 
     @pyaedt_function_handler()
-    def write_xml(self, contour, ipc):
+    def write_xml(self, contour, ipc):  # pragma no cover
         cutout = ET.SubElement(contour, "Cutout")
         cutout_begin = ET.SubElement(cutout, "PolyBegin")
         cutout_begin.set("x", str(ipc.from_meter_to_units(self.poly_steps[0].x, ipc.units)))
@@ -135,7 +135,7 @@ class PolyStep(object):
         self.clock_wise = False
 
     @pyaedt_function_handler()
-    def write_xml(self, polygon, ipc):
+    def write_xml(self, polygon, ipc):  # pragma no cover
         if self.poly_type == 0:
             poly = ET.SubElement(polygon, "PolyStepSegment")
             poly.set("x", str(ipc.from_meter_to_units(self.x, ipc.units)))
@@ -162,7 +162,7 @@ class Curve(object):
 
 class Arc(object):
     @staticmethod
-    def get_arc_radius_angle(h, c):
+    def get_arc_radius_angle(h, c):  # pragma no cover
         if not isinstance(h, float) and isinstance(c, float):
             return False
         r = h / 2 + math.pow(c, 2) / (8 * h)

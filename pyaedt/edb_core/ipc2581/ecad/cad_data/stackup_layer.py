@@ -10,7 +10,7 @@ class StackupLayer(object):
         self.sequence = ""
         self.spec_ref = "SPEC_{}".format(self.layer_name)
 
-    def write_xml(self, stackup_group):
+    def write_xml(self, stackup_group):  # pragma no cover
         stackup_layer = ET.SubElement(stackup_group, "StackupLayer")
         stackup_layer.set("layerOrGroupRef", self.layer_name)
         stackup_layer.set("thickness", str(self.thickness))

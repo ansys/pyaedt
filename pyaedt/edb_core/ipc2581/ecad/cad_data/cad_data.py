@@ -18,7 +18,9 @@ class CadData(object):
     def layers(self):
         return self._layers
 
-    def add_layer(self, layer_name="", layer_function="", layer_side="internal", polarity="positive"):
+    def add_layer(
+        self, layer_name="", layer_function="", layer_side="internal", polarity="positive"
+    ):  # pragma no cover
         layer = Layer()
         layer.name = layer_name
         layer.layer_function = layer_function
@@ -26,7 +28,7 @@ class CadData(object):
         layer.layer_polarity = polarity
         self.layers.append(layer)
 
-    def write_xml(self, ecad):
+    def write_xml(self, ecad):  # pragma no cover
         self.design_name = self._pedb.cell_names[0]
         cad_data = ET.SubElement(ecad, "CadData")
         for layer in self.layers:

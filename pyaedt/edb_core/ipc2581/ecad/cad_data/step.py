@@ -31,7 +31,7 @@ class Step(object):
         return self._padstack_defs
 
     @padstack_defs.setter
-    def padstack_defs(self, value):
+    def padstack_defs(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([pad for pad in value if isinstance(pad, PadstackDef)]) == len(value):
                 self._padstack_defs = value
@@ -41,7 +41,7 @@ class Step(object):
         return self._packages
 
     @packages.setter
-    def packages(self, value):
+    def packages(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([pkg for pkg in value if isinstance(pkg, Package)]) == len(value):
                 self._packages = value
@@ -51,7 +51,7 @@ class Step(object):
         return self._components
 
     @components.setter
-    def components(self, value):
+    def components(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([cmp for cmp in value if isinstance(cmp, Component)]) == len(value):
                 self._components = value
@@ -61,7 +61,7 @@ class Step(object):
         return self._logical_nets
 
     @pyaedt_function_handler()
-    def add_logical_net(self, net=None):
+    def add_logical_net(self, net=None):  # pragma no cover
         net_name = net.name
         logical_net = LogicalNet()
         logical_net.name = net_name
@@ -78,7 +78,7 @@ class Step(object):
         return self._layer_features
 
     @layer_features.setter
-    def layer_features(self, value):
+    def layer_features(self, value):  # pragma no cover
         if isinstance(value, list):
             if len(
                 [
@@ -96,25 +96,25 @@ class Step(object):
         return self._physical_nets
 
     @physical_nets.setter
-    def physical_nets(self, value):
+    def physical_nets(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([phy_net for phy_net in value if isinstance(phy_net, PhyNet)]) == len(value):
                 self._physical_nets = value
 
     @pyaedt_function_handler()
-    def add_physical_net(self, phy_net=None):
+    def add_physical_net(self, phy_net=None):  # pragma no cover
         if isinstance(phy_net, PhyNet):
             self._physical_nets.append(phy_net)
             return True
         return False
 
     @pyaedt_function_handler()
-    def add_padstack_def(self, padstackdef=None):
+    def add_padstack_def(self, padstackdef=None):  # pragma no cover
         if isinstance(padstackdef, PadstackDef):
             self._padstack_defs.append(padstackdef)
 
     @pyaedt_function_handler()
-    def add_component(self, component=None):
+    def add_component(self, component=None):  # pragma no cover
         # adding component add package in Step
         if component:
             if not component.part_name in self._packages:
@@ -168,7 +168,7 @@ class Step(object):
         self,
         start_layer,
         stop_layer,
-    ):
+    ):  # pragma no cover
         started = False
         start_layer_name = start_layer.GetName()
         stop_layer_name = stop_layer.GetName()
@@ -191,7 +191,7 @@ class Step(object):
         return layer_list
 
     @pyaedt_function_handler()
-    def add_layer_feature(self, layer, polys):
+    def add_layer_feature(self, layer, polys):  # pragma no cover
         layer_name = layer.name
         layer_feature = LayerFeature(self._ipc)
         layer_feature.layer_name = layer_name
@@ -203,7 +203,7 @@ class Step(object):
         self._ipc.ecad.cad_data.cad_data_step.layer_features.append(layer_feature)
 
     @pyaedt_function_handler()
-    def add_padstack_instances(self, padstack_instances, padstack_defs):
+    def add_padstack_instances(self, padstack_instances, padstack_defs):  # pragma no cover
         top_bottom_layers = self._ipc.top_bottom_layers
         layers = {j.layer_name: j for j in self._ipc.ecad.cad_data.cad_data_step.layer_features}
 
@@ -231,7 +231,7 @@ class Step(object):
                     layers[layer_name].add_via_instance_feature(padstack_instance, padstack_def, layer_name)
 
     @pyaedt_function_handler()
-    def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):
+    def add_drill_layer_feature(self, via_list=None, layer_feature_name=""):  # pragma no cover
         if via_list:
             drill_layer_feature = LayerFeature(self._ipc)
             drill_layer_feature.is_drill_feature = True
@@ -245,7 +245,7 @@ class Step(object):
             self.layer_features.append(drill_layer_feature)
 
     @pyaedt_function_handler()
-    def write_xml(self, cad_data):
+    def write_xml(self, cad_data):  # pragma no cover
         step = ET.SubElement(cad_data, "Step")
         step.set("name", self._ipc.design_name)
         for padsatck_def in list(self.padstack_defs.values()):

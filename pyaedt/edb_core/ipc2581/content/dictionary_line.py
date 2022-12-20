@@ -12,18 +12,18 @@ class DictionaryLine(object):
         return self._dict_lines
 
     @dict_lines.setter
-    def dict_lines(self, value):
+    def dict_lines(self, value):  # pragma no cover
         if isinstance(value, EntryLine):
             self._dict_lines = value
 
-    def add_line(self, width=None):
+    def add_line(self, width=None):  # pragma no cover
         if width:
             line = EntryLine()
             line._line_width = width
             if not "ROUND_{}".format(width) in self._dict_lines:
                 self._dict_lines["ROUND_{}".format(width)] = line
 
-    def write_xml(self, content=None):
+    def write_xml(self, content=None):  # pragma no cover
         dict_line = ET.SubElement(content, "DictionaryLineDesc")
         dict_line.set("units", self.units)
         for line in list(self._dict_lines.values()):

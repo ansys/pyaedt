@@ -16,12 +16,12 @@ class Stackup(object):
         return self._stackup_group
 
     @stackup_group.setter
-    def stackup_group(self, value):
+    def stackup_group(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([stack_grp for stack_grp in value if isinstance(stack_grp, StackupGroup)]):
                 self._stackup_group = value
 
-    def write_xml(self, cad_data):
+    def write_xml(self, cad_data):  # pragma no cover
         stackup = ET.SubElement(cad_data, "Stackup")
         stackup.set("name", self.name)
         stackup.set("overallThickness", str(self.total_thickness))

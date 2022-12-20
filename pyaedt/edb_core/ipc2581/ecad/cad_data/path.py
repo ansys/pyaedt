@@ -17,7 +17,7 @@ class Path(object):
         self.width_ref_id = ""
 
     @pyaedt_function_handler()
-    def add_path_step(self, path_step=None):
+    def add_path_step(self, path_step=None):  # pragma no cover
         arcs = path_step.primitive_object.GetCenterLine().GetArcData()
         if not arcs:
             return
@@ -68,7 +68,7 @@ class Path(object):
                 self.poly_steps.append(new_poly_step)
 
     @pyaedt_function_handler()
-    def write_xml(self, net_root):
+    def write_xml(self, net_root):  # pragma no cover
         if not self.poly_steps:
             return
         feature = ET.SubElement(net_root, "Features")

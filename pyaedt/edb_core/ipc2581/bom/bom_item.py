@@ -12,7 +12,7 @@ class BomItem(object):
         self.refdes_list = []
         self.charactistics = Characteristics()
 
-    def write_xml(self, bom):
+    def write_xml(self, bom):  # pragma no cover
         bom_item = ET.SubElement(bom, "BomItem")
         bom_item.set("OEMDesignNumberRef", self.part_name)
         bom_item.set("quantity", str(self.quantity))
@@ -23,7 +23,7 @@ class BomItem(object):
             refdes.write_xml(bom)
         self.charactistics.write_xml(bom)
 
-    def add_refdes(self, component_name=None, package_def=None, populate=True, placement_layer=""):
+    def add_refdes(self, component_name=None, package_def=None, populate=True, placement_layer=""):  # pragma no cover
         refdes = RefDes()
         refdes.name = component_name
         refdes.populate = str(populate)

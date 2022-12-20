@@ -16,12 +16,14 @@ class StackupGroup(object):
         return self._stackup_layers
 
     @stackup_layers.setter
-    def stackup_layers(self, value):
+    def stackup_layers(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([lay for lay in value if isinstance(lay, Layer)]):
                 self._stackup_layers = value
 
-    def add_stackup_layer(self, layer_name="", thickness="", tol_minus="0.0", tol_plus="0.0", sequence=""):
+    def add_stackup_layer(
+        self, layer_name="", thickness="", tol_minus="0.0", tol_plus="0.0", sequence=""
+    ):  # pragma no cover
         stackup_layer = StackupLayer()
         stackup_layer.layer_name = layer_name
         stackup_layer.thickness = thickness
@@ -30,7 +32,7 @@ class StackupGroup(object):
         stackup_layer.sequence = sequence
         self._stackup_layers.append(stackup_layer)
 
-    def write_xml(self, stackup):
+    def write_xml(self, stackup):  # pragma no cover
         stackup_group = ET.SubElement(stackup, "StackupGroup")
         stackup_group.set("name", "GROUP_PRIMARY")
         stackup_group.set("thickness", str(self.thickness))

@@ -8,7 +8,7 @@ class Bom(object):
         self.step_ref = "1.0"
         self.bom_items = []
 
-    def write_xml(self, root):
+    def write_xml(self, root):  # pragma no cover
         bom = ET.SubElement(root, "Bom")
         bom.set("name", self.name)
         bom_header = ET.SubElement(bom, "BomHeader")

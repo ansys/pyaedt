@@ -12,7 +12,7 @@ class Ecad(object):
         self.cad_data = CadData(self, edb, units, self._ipc)
         self._pedb = edb
 
-    def write_xml(self, root):
+    def write_xml(self, root):  # pragma no cover
         ecad = ET.SubElement(root, "Ecad")
         ecad.set("name", self.design_name)
         self.cad_header.write_xml(ecad)

@@ -13,7 +13,7 @@ class Spec(object):
         self.loss_tangent = ""
         self.embedded = ""
 
-    def write_xml(self, ecad_header):
+    def write_xml(self, ecad_header):  # pragma no cover
         spec = ET.SubElement(ecad_header, "Spec")
         spec.set("name", self.name)
         material = ET.SubElement(spec, "General")

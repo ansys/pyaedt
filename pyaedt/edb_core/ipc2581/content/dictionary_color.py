@@ -11,11 +11,11 @@ class DictionaryColor(object):
         return self._dict_colors
 
     @dict_colors.setter
-    def dict_colors(self, value):
+    def dict_colors(self, value):  # pragma no cover
         if isinstance(value, list):
             self._dict_colors = value
 
-    def add_color(self, name="", r=1, g=1, b=1):
+    def add_color(self, name="", r=1, g=1, b=1):  # pragma no cover
         entry_color = EntryColor()
         entry_color.name = name
         entry_color.color.r = r
@@ -23,7 +23,7 @@ class DictionaryColor(object):
         entry_color.color.b = b
         self._dict_colors.append(entry_color)
 
-    def write_xml(self, content=None):
+    def write_xml(self, content=None):  # pragma no cover
         dict_color = ET.SubElement(content, "DictionaryColor")
         for _color in self.dict_colors:
             _color.write_xml(dict_color)

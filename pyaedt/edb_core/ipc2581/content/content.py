@@ -24,18 +24,18 @@ class Content(object):
         return self._layer_ref
 
     @layer_ref.setter
-    def layer_ref(self, value):
+    def layer_ref(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([lay for lay in value if isinstance(lay, LayerRef)]) == len(value):
                 self._layer_ref = value
 
-    def add_layer_ref(self, layer_ref_name=None):
+    def add_layer_ref(self, layer_ref_name=None):  # pragma no cover
         if isinstance(layer_ref_name, str):
             layer_ref = LayerRef()
             layer_ref.name = layer_ref_name
             self._layer_ref.append(layer_ref)
 
-    def write_wml(self, root=None):
+    def write_wml(self, root=None):  # pragma no cover
         content = ET.SubElement(root, "Content")
         content.set("roleRef", "Owner")
         if self.mode == self.Mode.Stackup:

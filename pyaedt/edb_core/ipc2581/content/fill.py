@@ -7,7 +7,7 @@ class FillDesc(Content):
         self.id = ""
         self.fill_property = ""
 
-    def write_xml(self, dict_fill=None):
+    def write_xml(self, dict_fill=None):  # pragma no cover
         if dict_fill:
             fill = ET.SubElement(dict_fill, "EntryFillDesc")
             fill.set("id", self.id)

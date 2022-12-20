@@ -13,7 +13,7 @@ class PhyNet(object):
         return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value):  # pragma no cover
         if isinstance(value, str):
             self._name = value
 
@@ -22,16 +22,16 @@ class PhyNet(object):
         return self._phy_net_points
 
     @phy_net_points.setter
-    def phy_net_points(self, value):
+    def phy_net_points(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([net for net in value if isinstance(net, PhyNetPoint)]) == len(value):
                 self._phy_net_points = value
 
-    def add_phy_net_point(self, point=None):
+    def add_phy_net_point(self, point=None):  # pragma no cover
         if isinstance(point, PhyNetPoint):
             self._phy_net_points.append(point)
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         if step:
             phy_net = ET.SubElement(step, "PhyNet")
             for phy_net_point in self.phy_net_points:
@@ -59,7 +59,7 @@ class PhyNetPoint(object):
         elif self._exposure == ExposureType.CoveredSecondary:
             return "COVERED_SECONDARY"
 
-    def write_xml(self, phynet):
+    def write_xml(self, phynet):  # pragma no cover
         if phynet:
             phynet_point = ET.SubElement(phynet, "PhyNetPoint")
             phynet_point.set("x", self.x)

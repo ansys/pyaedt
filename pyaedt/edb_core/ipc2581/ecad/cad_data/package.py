@@ -29,13 +29,13 @@ class Package(object):
         return self._pins
 
     @pins.setter
-    def pins(self, value):
+    def pins(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([pin for pin in value if isinstance(pin, Pin)]) == len(value):
                 self._pins = value
 
     @pyaedt_function_handler()
-    def add_pin(self, number=0, x=0.0, y=0.0, rotation=0.0, primitive_ref=""):
+    def add_pin(self, number=0, x=0.0, y=0.0, rotation=0.0, primitive_ref=""):  # pragma no cover
         added_pin = Pin()
         added_pin.x = x
         added_pin.y = y
@@ -45,7 +45,7 @@ class Package(object):
         self.pins.append(added_pin)
 
     @pyaedt_function_handler()
-    def add_component_outline(self, component):
+    def add_component_outline(self, component):  # pragma no cover
         if component:
             _bbox = component.bounding_box
             _rot = component.rotation
@@ -92,7 +92,7 @@ class Package(object):
             self.assembly_drawing.line_ref = "ROUND_0"
 
     @pyaedt_function_handler()
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         package = ET.SubElement(step, "Package")
         package.set("name", self.name)
         package.set("type", self.type)

@@ -17,7 +17,7 @@ class Component(object):
         self.type = Type().Rlc
         self.value = ""
 
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         component = ET.SubElement(step, "Component")
         component.set("refDes", self.refdes)
         component.set("packageRef", self.package_ref)

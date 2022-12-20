@@ -6,7 +6,7 @@ class EntryLine(object):
         self._line_end = "ROUND"
         self.line_width = ""
 
-    def write_xml(self, dictionnary_line):
+    def write_xml(self, dictionnary_line):  # pragma no cover
         entry_line = ET.SubElement(dictionnary_line, "EntryLineDesc")
         entry_line.set("id", "{}_{}".format(self._line_end, self.line_width))
         line_desc = ET.SubElement(entry_line, "LineDesc")

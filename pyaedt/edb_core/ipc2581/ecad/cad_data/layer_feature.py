@@ -21,13 +21,13 @@ class LayerFeature(object):
         return self._features
 
     @features.setter
-    def features(self, value):
+    def features(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([feat for feat in value if isinstance(feat, Feature)]) == len(value):
                 self._features = value
 
     @pyaedt_function_handler()
-    def add_feature(self, obj_instance=None):
+    def add_feature(self, obj_instance=None):  # pragma no cover
         if obj_instance:
             feature = Feature(self._ipc)
             feature.net = obj_instance.net_name
@@ -42,7 +42,7 @@ class LayerFeature(object):
             return False
 
     @pyaedt_function_handler()
-    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None, layer_name=None):
+    def add_via_instance_feature(self, padstack_inst=None, padstackdef=None, layer_name=None):  # pragma no cover
         if padstack_inst and padstackdef:
             feature = Feature(self._ipc)
             def_name = padstackdef.name
@@ -78,7 +78,7 @@ class LayerFeature(object):
                 pass
 
     @pyaedt_function_handler()
-    def add_drill_feature(self, via, diameter=0.0):
+    def add_drill_feature(self, via, diameter=0.0):  # pragma no cover
         feature = Feature(self._ipc)
         feature.feature_type = FeatureType.Drill
         feature.drill.net = via.net_name
@@ -91,7 +91,7 @@ class LayerFeature(object):
     @pyaedt_function_handler()
     def add_component_padstack_instance_feature(
         self, component=None, pin=None, top_bottom_layers=[], padstack_def=None
-    ):
+    ):  # pragma no cover
         if component:
             if pin:
                 is_via = False
@@ -143,7 +143,7 @@ class LayerFeature(object):
             return "default_value"
 
     @pyaedt_function_handler()
-    def write_xml(self, step):
+    def write_xml(self, step):  # pragma no cover
         layer_feature = ET.SubElement(step, "LayerFeature")
         layer_feature.set("layerRef", self.layer_name)
         color_set = ET.SubElement(layer_feature, "Set")

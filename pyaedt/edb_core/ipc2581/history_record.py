@@ -16,7 +16,7 @@ class HistoryRecord(object):
         self.vendor = "Ansys"
         self.certification_status = "CERTIFIED"
 
-    def write_xml(self, root):
+    def write_xml(self, root):  # pragma no cover
         history_record = ET.SubElement(root, "HistoryRecord")
         history_record.set("number", self.number)
         history_record.set(

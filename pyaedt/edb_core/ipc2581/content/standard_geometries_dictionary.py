@@ -6,7 +6,7 @@ class StandardCircle(object):
         self.diameter = ""
         self.fill_id = ""
 
-    def write_xml(self, entry_standard):
+    def write_xml(self, entry_standard):  # pragma no cover
         standard_circle = ET.SubElement(entry_standard, "Circle")
         standard_circle.set("diameter", self.diameter)
         fill = ET.SubElement(standard_circle, "FillDescRef")
@@ -19,7 +19,7 @@ class Rectangle(object):
         self.height = ""
         self.fill_id = ""
 
-    def write_xml(self, entry_standard):
+    def write_xml(self, entry_standard):  # pragma no cover
         standard_rectanlgle = ET.SubElement(entry_standard, "RectCenter")
         standard_rectanlgle.set("width", self.width)
         standard_rectanlgle.set("height", self.height)
@@ -42,7 +42,7 @@ class StandardGeometriesDictionary(object):
         self.standard_rect_dict = {}
         self.standard_oval_dict = {}
 
-    def write_xml(self, content_section=None):
+    def write_xml(self, content_section=None):  # pragma no cover
         standard_dict = ET.SubElement(content_section, "DictionaryStandard")
         standard_dict.set("units", self.units)
         for standard_name, circle_val in self.standard_circ_dict.items():
@@ -63,7 +63,7 @@ class StandardGeometriesDictionary(object):
                 fill_descref = ET.SubElement(rec_center, "FillDescRef")
                 fill_descref.set("id", "SOLID_FILL")
 
-    def add_circle(self, diameter):
+    def add_circle(self, diameter):  # pragma no cover
         circle = StandardCircle()
         circle.diameter = diameter
         circle.fill_id = "SOLID_FILL"

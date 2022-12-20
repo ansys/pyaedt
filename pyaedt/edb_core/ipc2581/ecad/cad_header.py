@@ -15,7 +15,7 @@ class CadHeader(object):
 
     def add_spec(
         self, name="", material="", layer_type="", conductivity="", dielectric_constant="", loss_tg="", embedded=""
-    ):
+    ):  # pragma no cover
         spec = Spec()
         spec.name = name
         spec.material = material
@@ -26,7 +26,7 @@ class CadHeader(object):
         spec.embedded = embedded
         self.specs.append(spec)
 
-    def write_xml(self, ecad):
+    def write_xml(self, ecad):  # pragma no cover
         cad_header = ET.SubElement(ecad, "CadHeader")
         cad_header.set("units", self.units)
         for spec in self.specs:

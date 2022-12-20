@@ -11,7 +11,7 @@ class LogisticHeader(object):
         self.enterprise_ref = "UNKNOWN"
         self.role_ref = "Pyaedt"
 
-    def write_xml(self, root):
+    def write_xml(self, root):  # pragma no cover
         logistic_header = ET.SubElement(root, "LogisticHeader")
         role = ET.SubElement(logistic_header, "Role")
         role.set("id", self.owner)

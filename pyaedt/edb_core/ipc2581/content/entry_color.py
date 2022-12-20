@@ -7,7 +7,7 @@ class EntryColor(object):
         self.name = ""
         self.color = Color()
 
-    def write_xml(self, color=None):
+    def write_xml(self, color=None):  # pragma no cover
         entry_color = ET.SubElement(color, "EntryColor")
         entry_color.set("id", self.name)
         self.color.write_xml(entry_color)

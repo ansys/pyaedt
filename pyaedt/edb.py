@@ -563,10 +563,10 @@ class Edb(object):
         bool
             ``True`` if successful, ``False`` if failed.
         """
-        if is_ironpython:
+        if is_ironpython:  # pragma no cover
             self.logger.error("This method is not supported in Ironpython")
             return False
-        if units.lower() not in ["millimeter", "inch", "micron"]:
+        if units.lower() not in ["millimeter", "inch", "micron"]:  # pragma no cover
             self.logger.warning("The wrong unit is entered. Setting to the default, millimeter.")
             units = "millimeter"
 
@@ -579,7 +579,7 @@ class Edb(object):
         ipc.file_path = ipc_path
         result = ipc.write_xml()
 
-        if result:
+        if result:  # pragma no cover
             self.logger.info_timer("Export IPC 2581 completed.", start)
             self.logger.info("File saved as %s", ipc_path)
             return ipc_path

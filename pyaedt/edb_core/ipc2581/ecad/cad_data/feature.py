@@ -27,16 +27,16 @@ class Feature(object):
         return self._cutouts
 
     @cutouts.setter
-    def cutouts(self, value):
+    def cutouts(self, value):  # pragma no cover
         if isinstance(value, list):
             if len([poly for poly in value if isinstance(poly, Polygon)]) == len(value):
                 self._cutouts = value
 
-    def add_cutout(self, cutout=None):
+    def add_cutout(self, cutout=None):  # pragma no cover
         if isinstance(cutout, Polygon):
             self._cutouts.append(cutout)
 
-    def write_xml(self, layer_feature):
+    def write_xml(self, layer_feature):  # pragma no cover
         net = ET.SubElement(layer_feature, "Set")
         net.set("net", self.net)
         if self.feature_type == FeatureType.Polygon:

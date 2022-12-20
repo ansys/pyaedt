@@ -31,7 +31,7 @@ class Color(object):
     def b(self, value):
         self._b = value
 
-    def write_xml(self, entry_color=None):
+    def write_xml(self, entry_color=None):  # pragma no cover
         color = ET.SubElement(entry_color, "Color")
         color.set("r", str(self.r))
         color.set("g", str(self.g))
