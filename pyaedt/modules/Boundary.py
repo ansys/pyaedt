@@ -1644,9 +1644,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
 
 class Sources(object):
-    """Manages sources in Circuit projects.
-
-    """
+    """Manages sources in Circuit projects."""
 
     def __init__(self, app, name, source_type=None):
         self._app = app
@@ -2962,7 +2960,6 @@ class Excitations(object):
 
     @angle.setter
     def angle(self, angle=None):
-        """Set the port angle."""
         self._logger.warning("Angle can not be modified. Bug in AEDT API.")
         # self._app.modeler.schematic.components[self.comp].angle = angle
 
@@ -2978,17 +2975,6 @@ class Excitations(object):
 
     @mirror.setter
     def mirror(self, mirror_value=True):
-        """Mirror part.
-
-        Parameters
-        ----------
-        mirror_value : bool
-            Either to mirror the part. The default is ``True``.
-
-        Returns
-        -------
-
-        """
         self._app.modeler.schematic.components[self.schematic_id].mirror = mirror_value
         self._mirror = mirror_value
 
@@ -3004,13 +2990,6 @@ class Excitations(object):
 
     @location.setter
     def location(self, location_xy):
-        """Set the part location.
-
-        Parameters
-        ----------
-        location_xy : list
-            List of x and y coordinates. If float is provided, ``mils`` will be used.
-        """
         # Bug in AEDT API. The command must be called two times.
         self._app.modeler.schematic.components[self.schematic_id].location = location_xy
         self._app.modeler.schematic.components[self.schematic_id].location = location_xy
@@ -3028,13 +3007,6 @@ class Excitations(object):
 
     @use_symbol_color.setter
     def use_symbol_color(self, use_color=True):
-        """Set use symbol color.
-
-        Parameters
-        ----------
-        use_color : bool
-            Enable use symbol color. The default is ``True``.
-        """
         self._app.modeler.schematic.components[self.schematic_id].usesymbolcolor = use_color
         self._app.modeler.schematic.components[self.schematic_id].set_use_symbol_color(use_color)
         self._use_symbol_color = use_color
@@ -3047,18 +3019,10 @@ class Excitations(object):
         -------
         list
         """
-
         return [self._props["rz"], self._props["iz"]]
 
     @impedance.setter
     def impedance(self, termination=None):
-        """Set termination impedance.
-
-        Parameters
-        ----------
-        termination : list
-            Set termination impedance. The default is ``None``.
-        """
         if termination and len(termination) == 2:
             self._app.modeler.schematic.components[self.schematic_id].change_property(
                 ["NAME:rz", "Value:=", termination[0]]
@@ -3082,13 +3046,6 @@ class Excitations(object):
 
     @enable_noise.setter
     def enable_noise(self, enable=False):
-        """Enable noise in port.
-
-        Parameters
-        ----------
-        enable : bool
-            Enable noise. The default is ``False``.
-        """
         self._app.modeler.schematic.components[self.schematic_id].change_property(
             ["NAME:EnableNoise", "Value:=", enable]
         )
@@ -3107,13 +3064,6 @@ class Excitations(object):
 
     @noise_temperature.setter
     def noise_temperature(self, noise=None):
-        """Noise temperature value.
-
-        Parameters
-        ----------
-        noise : str
-            Noise temperature value with units. The default is ``None``.
-        """
         if noise:
             self._app.modeler.schematic.components[self.schematic_id].change_property(
                 ["NAME:noisetemp", "Value:=", noise]
@@ -3135,13 +3085,6 @@ class Excitations(object):
 
     @microwave_symbol.setter
     def microwave_symbol(self, enable=False):
-        """Enable microwave symbol.
-
-        Parameters
-        ----------
-        enable : bool
-            Show microwave symbol. The default is ``False``.
-        """
         if enable:
             self._props["SymbolType"] = 1
         else:
@@ -3162,13 +3105,6 @@ class Excitations(object):
 
     @reference_node.setter
     def reference_node(self, ref_node=None):
-        """Set reference node.
-
-        Parameters
-        ----------
-        ref_node : bool
-            Reference node definition. The default is ``None``.
-        """
         if ref_node:
             self._logger.warning("Set reference node only working with GRPC")
             if ref_node == "Ground":
@@ -3188,13 +3124,6 @@ class Excitations(object):
 
     @enabled_sources.setter
     def enabled_sources(self, sources=None):
-        """Set enabled sources.
-
-        Parameters
-        ----------
-        sources : list
-            List of enabled sources. The default is ``None``.
-        """
         if sources:
             self._props["EnabledPorts"] = sources
             self.update()
@@ -3211,13 +3140,6 @@ class Excitations(object):
 
     @enabled_analyses.setter
     def enabled_analyses(self, analyses=None):
-        """Set enabled analyses.
-
-        Parameters
-        ----------
-        analyses : dict
-            The key is the source name. The value is a list with the enabled analyses. The default is ``None``.
-        """
         if analyses:
             self._props["EnabledAnalyses"] = analyses
             self.update()
