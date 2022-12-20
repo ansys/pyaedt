@@ -209,7 +209,6 @@ class Step(object):
 
         for padstack_instance in padstack_instances:
             _, start_layer, stop_layer = padstack_instance._edb_padstackinstance.GetLayerRange()
-
             for layer_name in self.layer_ranges(start_layer, stop_layer):
                 if layer_name not in layers:
                     layer_feature = LayerFeature(self._ipc)
@@ -224,7 +223,6 @@ class Step(object):
 
                 comp_name = padstack_instance.GetComponent().GetName()
                 if padstack_instance.is_pin and comp_name:
-
                     component_inst = self._pedb.core_components.components[comp_name]
                     layers[layer_name].add_component_padstack_instance_feature(
                         component_inst, padstack_instance, top_bottom_layers, padstack_def

@@ -82,7 +82,7 @@ class Ipc2581(object):
                             self.from_meter_to_units(pad.parameters_values[0], self.units),
                             self.from_meter_to_units(pad.parameters_values[1], self.units),
                         )
-                        if not primitive_ref in self.content.standard_geometries_dict.standard_oval_dict:
+                        if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
                                 self.from_meter_to_units(pad.parameters_values[0], self.units),
                                 self.from_meter_to_units(pad.parameters_values[1], self.units),

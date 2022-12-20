@@ -110,10 +110,11 @@ class LayerFeature(object):
                 cmp_rot_deg = component.rotation * 180 / math.pi
                 mirror = False
                 rotation = cmp_rot_deg + pin_rotation * 180 / math.pi
+                if rotation < 0:
+                    rotation += 360
                 comp_placement_layer = component.placement_layer
                 if comp_placement_layer == top_bottom_layers[-1]:
                     mirror = True
-                    rotation = cmp_rot_deg - pin_rotation * 180 / math.pi
                 feature = Feature(self._ipc)
                 feature.feature_type = FeatureType.PadstackInstance
                 feature.net = pin_net
@@ -126,9 +127,11 @@ class LayerFeature(object):
                 feature.padstack_instance.isvia = is_via
                 feature.padstack_instance.refdes = component.refdes
                 feature.padstack_instance.padstack_def = padstack_def.name
-                feature.padstack_instance.standard_primimtive_ref = self._get_primitive_ref(
-                    padstack_def.name, comp_placement_layer
-                )
+                primitive_ref = self._get_primitive_ref(padstack_def.name, comp_placement_layer)
+                if primitive_ref == "default_value":
+                    other_layer = [lay for lay in top_bottom_layers if lay != comp_placement_layer][0]
+                    primitive_ref = self._get_primitive_ref(padstack_def.name, other_layer)
+                feature.padstack_instance.standard_primimtive_ref = primitive_ref
                 self.features.append(feature)
 
     @pyaedt_function_handler()
