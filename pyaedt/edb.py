@@ -36,6 +36,7 @@ from pyaedt.edb_core.edb_data.sources import ExcitationProbes
 from pyaedt.edb_core.edb_data.sources import ExcitationSources
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
+from pyaedt.edb_core.ipc2581.ipc2581 import Ipc2581
 from pyaedt.edb_core.materials import Materials
 from pyaedt.edb_core.padstack import EdbPadstacks
 from pyaedt.edb_core.stackup import Stackup
@@ -211,11 +212,11 @@ class Edb(object):
         self._db = None
         self._edb = None
         self.builder = None
-        self._edblib = None
         self.edbutils = None
         self.simSetup = None
         self.simsetupdata = None
         self._setups = {}
+        self._layout_instance = None
         # time.sleep(2)
         # gc.collect()
 
@@ -259,7 +260,6 @@ class Edb(object):
     @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
-        sys.path.append(os.path.join(os.path.dirname(__file__), "dlls", "EDBLib"))
         if os.name == "posix":
             if env_value(self.edbversion) in os.environ:
                 self.base_path = env_path(self.edbversion)
@@ -300,28 +300,9 @@ class Edb(object):
         edb = __import__("Ansys.Ansoft.Edb")
         self.edb = edb.Ansoft.Edb
         edbbuilder = __import__("Ansys.Ansoft.EdbBuilderUtils")
-        self._edblib = None
         self.edbutils = edbbuilder.Ansoft.EdbBuilderUtils
         self.simSetup = __import__("Ansys.Ansoft.SimSetupData")
         self.simsetupdata = self.simSetup.Ansoft.SimSetupData.Data
-
-    @property
-    def edblib(self):
-        """EDB library object containing advanced EDB methods not accessible directly from Python."""
-        if not self._edblib:
-            if os.name == "posix" and is_ironpython:
-                _clr.AddReferenceToFile("EdbLib.dll")
-                _clr.AddReferenceToFile("DataModel.dll")
-            else:
-                _clr.AddReference("EdbLib")
-                _clr.AddReference("DataModel")
-            self._edblib = __import__("EdbLib")
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
-            try:
-                self._edblib.Layout.LayoutMethods.LoadDataModel(dllpath, self.edbversion)
-            except:
-                pass
-        return self._edblib
 
     @property
     def excitations(self):
@@ -335,6 +316,11 @@ class Edb(object):
             else:
                 temp[ter.GetName()] = ExcitationPorts(self, ter)
         return temp
+
+    @property
+    def excitations_nets(self):
+        """Get all excitations net names."""
+        return list(set([i.GetNet().GetName() for i in list(self._active_layout.Terminals)]))
 
     @property
     def sources(self):
@@ -391,8 +377,6 @@ class Edb(object):
             self._active_cell = list(self._db.TopCircuitCells)[0]
         self.logger.info("Cell %s Opened", self._active_cell.GetName())
         if self._db and self._active_cell:
-            dllpath = os.path.join(os.path.abspath(os.path.dirname(__file__)), "dlls", "EDBLib")
-            self.logger.info(dllpath)
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
             self.logger.info("Builder was initialized.")
@@ -474,7 +458,6 @@ class Edb(object):
         if not self.cellname:
             self.cellname = generate_unique_name("Cell")
         self._active_cell = self.edb.Cell.Cell.Create(self._db, self.edb.Cell.CellType.CircuitCell, self.cellname)
-        dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
         if self._db and self._active_cell:
             self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
             self._init_objects()
@@ -488,7 +471,7 @@ class Edb(object):
     ):
         """Import a board file and generate an ``edb.def`` file in the working directory.
 
-        This function supports all AEDT formats (DXF, GDS, SML (IPC2581), BRD, TGZ ...).
+        This function supports all AEDT formats, including DXF, GDS, SML (IPC2581), BRD, and TGZ.
 
         Parameters
         ----------
@@ -555,10 +538,12 @@ class Edb(object):
         self.open_edb()
 
     @pyaedt_function_handler()
-    def export_to_ipc2581(self, ipc_path=None, units="millimeter"):
+    def export_to_ipc2581(self, ipc_path=None, units="MILLIMETER"):
         """Create an XML IPC2581 file from the active EDB.
 
         .. note::
+            The method works only in CPython because of some limitations on Ironpython in XML parsing and
+           because it's time-consuming.
            This method is still being tested and may need further debugging.
            Any feedback is welcome. Backdrills and custom pads are not supported yet.
 
@@ -578,7 +563,10 @@ class Edb(object):
         bool
             ``True`` if successful, ``False`` if failed.
         """
-        if units.lower() not in ["millimeter", "inch", "micron"]:
+        if is_ironpython:  # pragma no cover
+            self.logger.error("This method is not supported in Ironpython")
+            return False
+        if units.lower() not in ["millimeter", "inch", "micron"]:  # pragma no cover
             self.logger.warning("The wrong unit is entered. Setting to the default, millimeter.")
             units = "millimeter"
 
@@ -586,19 +574,17 @@ class Edb(object):
             ipc_path = self.edbpath[:-4] + "xml"
         self.logger.info("Export IPC 2581 is starting. This operation can take a while.")
         start = time.time()
-        try:
-            result = self.edblib.IPC8521.IPCExporter.ExportIPC2581FromLayout(
-                self.active_layout, self.edbversion, ipc_path, units.lower()
-            )
-            end = time.time() - start
-            if result:
-                self.logger.info("Export IPC 2581 completed in %s sec.", end)
-                self.logger.info("File saved as %s", ipc_path)
-                return ipc_path
-        except Exception as e:
-            self.logger.info("Error exporting IPC 2581.")
-            self.logger.info(str(e))
-            return False
+        ipc = Ipc2581(self, units)
+        ipc.load_ipc_model()
+        ipc.file_path = ipc_path
+        result = ipc.write_xml()
+
+        if result:  # pragma no cover
+            self.logger.info_timer("Export IPC 2581 completed.", start)
+            self.logger.info("File saved as %s", ipc_path)
+            return ipc_path
+        self.logger.info("Error exporting IPC 2581.")
+        return False
 
     def edb_exception(self, ex_value, tb_data):
         """Write the trace stack to AEDT when a Python error occurs.
@@ -708,6 +694,12 @@ class Edb(object):
         if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
         return self._active_layout
+
+    @property
+    def layout_instance(self):
+        if not self._layout_instance:
+            self._layout_instance = self.active_layout.GetLayoutInstance()
+        return self._layout_instance
 
     @property
     def pins(self):
@@ -1155,7 +1147,6 @@ class Edb(object):
                 self._db = db2
                 self.edbpath = output_aedb_path
                 self._active_cell = list(self._db.TopCircuitCells)[0]
-                dllpath = os.path.join(os.path.dirname(__file__), "dlls", "EDBLib")
                 self.builder = EdbBuilder(self.edbutils, self._db, self._active_cell)
                 self.edbpath = self._db.GetDirectory()
                 self._init_objects()
