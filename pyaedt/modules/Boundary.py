@@ -1646,9 +1646,6 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 class Sources(object):
     """Manages sources in Circuit projects.
 
-    Examples
-    --------
-
     """
 
     def __init__(self, app, name, source_type=None):
