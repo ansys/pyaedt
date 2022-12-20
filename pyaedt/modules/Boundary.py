@@ -1644,7 +1644,7 @@ class BoundaryObject3dLayout(BoundaryCommon, object):
 
 
 class Sources(object):
-    """Manages Sources in Circuit Projects.
+    """Manages sources in Circuit projects.
 
     Examples
     --------
