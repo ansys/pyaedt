@@ -486,77 +486,147 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("sources")
         c = self.aedtapp
         filepath = os.path.join(local_path, "example_models", test_subfolder, "frequency_dependent_source.fds")
-        assert c.create_source(source_type="PowerSin", name="PowerSinusoidal3")
-        c.sources["PowerSinusoidal3"].ac_magnitude = "2V"
-        c.sources["PowerSinusoidal3"].ac_phase = "2deg"
-        c.sources["PowerSinusoidal3"].dc_magnitude = "2V"
-        c.sources["PowerSinusoidal3"].power_offset = "2W"
-        c.sources["PowerSinusoidal3"].power_magnitude = "20W"
-        c.sources["PowerSinusoidal3"].frequency = "20GHz"
-        c.sources["PowerSinusoidal3"].delay = "20ns"
-        c.sources["PowerSinusoidal3"].damping_factor = "200"
-        c.sources["PowerSinusoidal3"].phase_delay = "100deg"
-        c.sources["PowerSinusoidal3"].tone = "100Hz"
+        name = "PowerSinusoidal3"
+        assert c.create_source(source_type="PowerSin", name=name)
+        c.sources[name].ac_magnitude = "2V"
+        c.sources[name].ac_phase = "2deg"
+        c.sources[name].dc_magnitude = "2V"
+        c.sources[name].power_offset = "2W"
+        c.sources[name].power_magnitude = "20W"
+        c.sources[name].frequency = "20GHz"
+        c.sources[name].delay = "20ns"
+        c.sources[name].damping_factor = "200"
+        c.sources[name].phase_delay = "100deg"
+        c.sources[name].tone = "100Hz"
 
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACMAG") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "2W"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("POWER") == "20W"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FREQ") == "20GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+
+        name = "PowerIQ"
         assert c.create_source(source_type="PowerIQ", name="PowerIQ")
-        c.sources["PowerIQ"].carrier_frequency = "2GHz"
-        c.sources["PowerIQ"].sampling_time = "2s"
-        c.sources["PowerIQ"].dc_magnitude = "2V"
-        c.sources["PowerIQ"].repeat_from = "22s"
-        c.sources["PowerIQ"].delay = "20ns"
-        c.sources["PowerIQ"].carrier_amplitude_voltage = "20V"
-        c.sources["PowerIQ"].carrier_amplitude_power = "20W"
-        c.sources["PowerIQ"].carrier_offset = "100V"
-        c.sources["PowerIQ"].real_impedance = "100ohm"
-        c.sources["PowerIQ"].imaginary_impedance = "1000ohm"
-        c.sources["PowerIQ"].damping_factor = "200"
-        c.sources["PowerIQ"].phase_delay = "100deg"
-        c.sources["PowerIQ"].tone = "100Hz"
-        c.sources["PowerIQ"].i_q_values = [["0s", "1V", "2V"], ["1s", "3V", "2V"]]
-        c.sources["PowerIQ"].file = filepath
+        c.sources[name].carrier_frequency = "2GHz"
+        c.sources[name].sampling_time = "2s"
+        c.sources[name].dc_magnitude = "2V"
+        c.sources[name].repeat_from = "22s"
+        c.sources[name].delay = "20ns"
+        c.sources[name].carrier_amplitude_voltage = "20V"
+        c.sources[name].carrier_amplitude_power = "20W"
+        c.sources[name].carrier_offset = "100V"
+        c.sources[name].real_impedance = "100ohm"
+        c.sources[name].imaginary_impedance = "1000ohm"
+        c.sources[name].damping_factor = "200"
+        c.sources[name].phase_delay = "100deg"
+        c.sources[name].tone = "100Hz"
+        c.sources[name].i_q_values = [["0s", "1V", "2V"], ["1s", "3V", "2V"]]
+        c.sources[name].file = filepath
+
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FC") == "2GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TS") == "2s"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("R") == "22s"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("V") == "20V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VA") == "20W"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "100V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("RZ") == "100ohm"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("IZ") == "1000ohm"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("time1") == "0s"
 
         source_freq = c.create_source(source_type="VoltageFrequencyDependent", name="freq_pyaedt")
+        # Data can not be obtained from GetPropValue
         source_freq.magnitude_angle = True
+        assert source_freq.magnitude_angle
         source_freq.frequencies = [2000000000, 3000000000]
+        assert source_freq.frequencies[0] == 2000000000
         source_freq.vmag = [0.001, 0.02]
+        assert len(source_freq.vmag) == 2
         source_freq.vang = [0.0349065850398866, 0.0872664625997165]
+        assert source_freq.vang == [0.0349065850398866, 0.0872664625997165]
         source_freq.vreal = [2, 1]
+        assert source_freq.vreal == [2, 1]
         source_freq.vimag = ["0.2", "0.1"]
+        assert source_freq.vimag == [0.2, 0.1]
         source_freq.magnitude_angle = False
+        assert not source_freq.magnitude_angle
         source_freq.fds_filename = filepath
+        assert source_freq.fds_filename == filepath
         source_freq.fds_filename = None
-        assert source_freq.vreal
 
         assert c.create_source(source_type="VoltageDC", name="dc_pyaedt")
         c.sources["dc_pyaedt"].ac_magnitude = "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt").GetPropValue("Name") == "dc_pyaedt"
         c.sources["dc_pyaedt"].ac_phase = "2deg"
         c.sources["dc_pyaedt"].dc_magnitude = "2V"
         c.sources["dc_pyaedt"].name = "dc_pyaedt2"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("Name") == "dc_pyaedt2"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("ACMAG") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("DC") == "2V"
 
-        assert c.create_source(source_type="VoltageSin", name="VoltageSinusoidal1")
-        c.sources["VoltageSinusoidal1"].ac_magnitude = "2V"
-        c.sources["VoltageSinusoidal1"].ac_phase = "2deg"
-        c.sources["VoltageSinusoidal1"].dc_magnitude = "2V"
-        c.sources["VoltageSinusoidal1"].voltage_offset = "2V"
-        c.sources["VoltageSinusoidal1"].voltage_amplitude = "5V"
-        c.sources["VoltageSinusoidal1"].frequency = "20GHz"
-        c.sources["VoltageSinusoidal1"].delay = "20ns"
-        c.sources["VoltageSinusoidal1"].damping_factor = "200"
-        c.sources["VoltageSinusoidal1"].phase_delay = "100deg"
-        c.sources["VoltageSinusoidal1"].tone = "100Hz"
+        name = "VoltageSinusoidal1"
+        assert c.create_source(source_type="VoltageSin", name=name)
+        c.sources[name].ac_magnitude = "2V"
+        c.sources[name].ac_phase = "2deg"
+        c.sources[name].dc_magnitude = "2V"
+        c.sources[name].voltage_offset = "2V"
+        c.sources[name].voltage_amplitude = "5V"
+        c.sources[name].frequency = "20GHz"
+        c.sources[name].delay = "20ns"
+        c.sources[name].damping_factor = "200"
+        c.sources[name].phase_delay = "100deg"
+        c.sources[name].tone = "100Hz"
 
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACMAG") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VA") == "5V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FREQ") == "20GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+
+        name = "CurrentSinusoidal1"
         source_isin = c.create_source(source_type="CurrentSin", name="CurrentSinusoidal1")
-        c.sources["CurrentSinusoidal1"].ac_magnitude = "2A"
-        c.sources["CurrentSinusoidal1"].ac_phase = "2deg"
-        c.sources["CurrentSinusoidal1"].dc_magnitude = "2A"
-        c.sources["CurrentSinusoidal1"].current_offset = "2A"
-        c.sources["CurrentSinusoidal1"].current_amplitude = "5A"
-        c.sources["CurrentSinusoidal1"].multiplier = "5V"
-        c.sources["CurrentSinusoidal1"].frequency = "20GHz"
-        c.sources["CurrentSinusoidal1"].delay = "20ns"
-        c.sources["CurrentSinusoidal1"].damping_factor = "200"
-        c.sources["CurrentSinusoidal1"].phase_delay = "100deg"
-        c.sources["CurrentSinusoidal1"].tone = "100Hz"
+        source_isin.ac_magnitude = "2A"
+        source_isin.ac_phase = "2deg"
+        source_isin.dc_magnitude = "2A"
+        source_isin.current_offset = "2A"
+        source_isin.current_amplitude = "5A"
+        source_isin.multiplier = "5V"
+        source_isin.frequency = "20GHz"
+        source_isin.delay = "20ns"
+        source_isin.damping_factor = "200"
+        source_isin.phase_delay = "100deg"
+        source_isin.tone = "100Hz"
+
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACMAG") == "2A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "2A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VA") == "5A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("M") == "5V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FREQ") == "20GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
 
         assert "PowerSinusoidal3" in c.sources
 
@@ -568,15 +638,26 @@ class TestClass(BasisTest, object):
     def test_41_assign_excitations(self):
         c = self.aedtapp
         port = c.modeler.schematic.create_interface_port(name="Port1")
+
+        # Port angle not working in 2023.1
         port.angle = 90.0
+
         port.location = ["100mil", "200mil"]
+        assert port.location == ["100mil", "200mil"]
         port.mirror = True
+        assert port.mirror
         port.name = "Port3"
+        assert port.name == "Port3"
         port.use_symbol_color = False
+        assert not port.use_symbol_color
         port.impedance = [50, 50]
+        assert port.impedance[0] == 50
         port.enable_noise = True
+        assert port.enable_noise
         port.noise_temperature = "18 cel"
+        assert port.noise_temperature == "18 cel"
         port.microwave_symbol = True
+        assert port.microwave_symbol
 
         port.reference_node = "Port3"
         port.reference_node = "Ground"
@@ -588,9 +669,11 @@ class TestClass(BasisTest, object):
         setup = c.create_setup()
 
         c.excitations["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.excitations["Port3"].enabled_sources) == 1
         setup1 = c.create_setup()
         setup2 = c.create_setup()
         c.excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
 
         c.excitations["Port3"].name = "PortTest"
         assert "PortTest" in c.excitations
