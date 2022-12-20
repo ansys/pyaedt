@@ -683,3 +683,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.save_project()
         c = Circuit(designname="sources")
         assert c.sources
+
+    def test_41_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

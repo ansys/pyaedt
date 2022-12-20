@@ -554,3 +554,9 @@ class TestClass(BasisTest, object):
         result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
         assert result1.props["Nodes"]["Internal"][0] == "5W"
         assert result2.props["Nodes"]["Internal"][0] == "10W"
+
+    def test_44_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
