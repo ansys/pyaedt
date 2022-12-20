@@ -52,6 +52,7 @@ if not config["skip_edb"]:
             self.local_scratch.remove()
             del self.edbapp
 
+        @pytest.mark.skipif(is_ironpython, reason="Method not supported anymore in Ironpython")
         def test_000_export_ipc2581(self):
             ipc_path = os.path.join(self.local_scratch.path, "test.xml")
             self.edbapp.export_to_ipc2581(ipc_path)

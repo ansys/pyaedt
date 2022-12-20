@@ -702,6 +702,7 @@ class ModelPlotter(object):
         self.is_notebook = is_notebook()
         self.gif_file = None
         self._background_color = (255, 255, 255)
+        self._background_image = None
         self.off_screen = False
         if self.is_notebook:
             self.windows_size = [600, 600]
@@ -727,6 +728,51 @@ class ModelPlotter(object):
         self.color_bar = True
         self.array_coordinates = []
         self.meshes = None
+        self._x_scale = 1.0
+        self._y_scale = 1.0
+        self._z_scale = 1.0
+
+    @property
+    def x_scale(self):
+        """Scale plot on X.
+
+        Returns
+        -------
+        float
+        """
+        return self._x_scale
+
+    @x_scale.setter
+    def x_scale(self, value):
+        self._x_scale = value
+
+    @property
+    def y_scale(self):
+        """Scale plot on Y.
+
+        Returns
+        -------
+        float
+        """
+        return self._y_scale
+
+    @y_scale.setter
+    def y_scale(self, value):
+        self._y_scale = value
+
+    @property
+    def z_scale(self):
+        """Scale plot on Z.
+
+        Returns
+        -------
+        float
+        """
+        return self._z_scale
+
+    @z_scale.setter
+    def z_scale(self, value):
+        self._z_scale = value
 
     @property
     def isometric_view(self):
@@ -937,6 +983,21 @@ class ModelPlotter(object):
         elif value in CSS4_COLORS:
             h = CSS4_COLORS[value].lstrip("#")
             self._background_color = tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
+
+    @property
+    def background_image(self):
+        """Background image.
+
+        Returns
+        -------
+        str
+        """
+        return self._background_image
+
+    @background_image.setter
+    def background_image(self, value):
+        if os.path.exists(value):
+            self._background_image = value
 
     @property
     def fields(self):
@@ -1355,7 +1416,10 @@ class ModelPlotter(object):
         """
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
         self.meshes = None
-        self.pv.background_color = [i / 255 for i in self.background_color]
+        if self.background_image:
+            self.pv.add_background_image(self.background_image)
+        else:
+            self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files()
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
         if self.color_bar:
@@ -1409,6 +1473,9 @@ class ModelPlotter(object):
                     opacity=field.opacity,
                     show_edges=field.show_edge,
                 )
+
+        self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
+
         if self.show_legend:
             self._add_buttons()
 
@@ -1504,12 +1571,15 @@ class ModelPlotter(object):
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
-
-        self.pv.background_color = [i / 255 for i in self.background_color]
+        if self.background_image:
+            self.pv.add_background_image(self.background_image)
+        else:
+            self.pv.background_color = [i / 255 for i in self.background_color]
         self._read_mesh_files(read_frames=True)
 
         axes_color = [0 if i >= 128 else 1 for i in self.background_color]
 
+        self.pv.set_scale(self.x_scale, self.y_scale, self.z_scale)
         if self.show_axes:
             self.pv.show_axes()
         if self.show_grid and not self.is_notebook:

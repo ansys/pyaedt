@@ -138,3 +138,20 @@ class EDBNetsData(object):
             outline=outline,
             size=size,
         )
+
+    @pyaedt_function_handler()
+    def get_smallest_trace_width(self):
+        """Retrieve the smallest trace width from paths.
+
+        Returns
+        -------
+        float
+            Trace smallest width.
+        """
+        current_value = 1e10
+        for prim in self.net_object.Primitives:
+            if "GetWidth" in dir(prim):
+                width = prim.GetWidth()
+                if width < current_value:
+                    current_value = width
+        return current_value

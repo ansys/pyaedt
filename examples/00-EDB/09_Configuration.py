@@ -1,7 +1,7 @@
 """
 EDB: fully configurable project
 -------------------------------
-This example shows how you can use create a project using BOM file and configuration files,
+This example shows how you can create a project using a BOM file and configuration files.
 run anlasyis and get results.
 
 """
@@ -54,9 +54,9 @@ edbapp.core_components.import_definition(os.path.join(target_aedb, "1_comp_defin
 ###############################################################################
 # Import BOM
 # ~~~~~~~~~~
-# This steps import a bom csv file containg, reference designator,
-# part name, component type and default value.
-# Components not in BOM will be deactivated.
+# This step imports a BOM file in CSV format. The BOM contains the
+# reference designator, part name, component type, and default value.
+# Components not in the BOM are deactivated.
 # Csv file is store for convenience in aedb folder.
 
 edbapp.core_components.import_bom(os.path.join(target_aedb,"0_bom.csv"),

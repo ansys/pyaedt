@@ -16,6 +16,14 @@ from pyaedt.generic.DataHandlers import from_rkm_to_aedt
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.Boundary import CurrentSinSource
+from pyaedt.modules.Boundary import PowerIQSource
+from pyaedt.modules.Boundary import PowerSinSource
+from pyaedt.modules.Boundary import Sources
+from pyaedt.modules.Boundary import VoltageDCSource
+from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
+from pyaedt.modules.Boundary import VoltageSinSource
+from pyaedt.modules.CircuitTemplates import SourceKeys
 
 
 class Circuit(FieldAnalysisCircuit, object):
@@ -1054,384 +1062,138 @@ class Circuit(FieldAnalysisCircuit, object):
         return True
 
     @pyaedt_function_handler()
-    def assign_voltage_sinusoidal_excitation_to_ports(self, ports, settings):
+    def create_source(self, source_type, name=None):
+        """Create a source in Circuit.
+
+        Parameters
+        ----------
+        source_type : str
+            Source type to create. Sources available are:
+
+            * PowerSin.
+            * PowerIQ.
+            * VoltageFrequencyDependent.
+            * VoltageDC.
+            * VoltageSin.
+            * CurrentSin.
+
+        name : str, optional
+            Source name.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.Source`
+            Circuit Source Object.
+
+        References
+        ----------
+
+        >>> oDesign.UpdateSources
+        """
+        if not name:
+            name = generate_unique_name("Source")
+        if name in self.source_names:
+            self.logger.warning("Source name is defined in the design.")
+            return False
+        if source_type not in SourceKeys.SourceNames:
+            self.logger.warning("Source type is not correct.")
+            return False
+        if source_type == "PowerSin":
+            new_source = PowerSinSource(self, name, source_type)
+        elif source_type == "PowerIQ":
+            new_source = PowerIQSource(self, name, source_type)
+        elif source_type == "VoltageFrequencyDependent":
+            new_source = VoltageFrequencyDependentSource(self, name, source_type)
+        elif source_type == "VoltageDC":
+            new_source = VoltageDCSource(self, name, source_type)
+        elif source_type == "VoltageSin":
+            new_source = VoltageSinSource(self, name, source_type)
+        elif source_type == "CurrentSin":
+            new_source = CurrentSinSource(self, name, source_type)
+        else:
+            new_source = Sources(self, name, source_type)
+        new_source.create()
+        if not self._internal_sources:
+            self._internal_sources = {name: new_source}
+        else:
+            self._internal_sources.update({name: new_source})
+        return new_source
+
+    @pyaedt_function_handler()
+    def assign_voltage_sinusoidal_excitation_to_ports(self, ports):
         """Assign a voltage sinusoidal excitation to circuit ports.
 
         Parameters
         ----------
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
-        settings : list
-            List of parameter values to use to create the voltage sinusoidal excitation.
-            All settings must be provided as strings. An empty string (``""``) sets the
-            parameter to its default.
-
-            Values are given in this order:
-
-            * 0: AC magnitude for small-signal analysis. For example, ``"33V"``. The default is ``"nan V"``.
-            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
-            * 2: DC voltage. For example, ``"1V"``. The default is ``"0V"``.
-            * 3: Voltage offset from zero. For example, ``"1V"``. The default is ``"0V"``.
-            * 4: Voltage amplitude. For example, ``"3V"``. The default is ``"0V"``.
-            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
-            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
-            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
-            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
-            * 9: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz"``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.Source`
+            Circuit Source Object.
 
         References
         ----------
 
         >>> oDesign.UpdateSources
         """
-        # setting the defaults if no value is provided
-        defaults = ["nan V", "0deg", "0V", "0V", "0V", "1GHz", "0s", "0", "0deg", "0Hz"]
-        for i in range(len(settings)):
-            if settings[i] == "":
-                settings[i] = defaults[i]
 
-        id = self.modeler.schematic.create_unique_id()
-
-        arg1 = [
-            "NAME:NexximSources",
-            [
-                "NAME:NexximSources",
-                [
-                    "NAME:Data",
-                    [
-                        "NAME:VoltageSinusoidal" + str(id),
-                        "DataId:=",
-                        "Source" + str(id),
-                        "Type:=",
-                        1,
-                        "Output:=",
-                        0,
-                        "NumPins:=",
-                        2,
-                        "Netlist:=",
-                        (
-                            "V@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) "
-                            "?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)"
-                        ),
-                        "CompName:=",
-                        "Nexxim Circuit Elements\\Independent Sources:V_SIN",
-                        "FDSFileName:=",
-                        "",
-                        [
-                            "NAME:Properties",
-                            "TextProp:=",
-                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
-                            "ValueProp:=",
-                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Volts)", settings[0], 0],
-                            "ValuePropNU:=",
-                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
-                            "ValueProp:=",
-                            ["DC", "OD", "DC voltage (Volts)", settings[2], 0],
-                            "ValueProp:=",
-                            ["VO", "OD", "Voltage offset from zero (Volts)", settings[3], 0],
-                            "ValueProp:=",
-                            ["VA", "OD", "Voltage amplitude (Volts)", settings[4], 0],
-                            "ValueProp:=",
-                            ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
-                            "ValueProp:=",
-                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
-                            "ValueProp:=",
-                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
-                            "ValuePropNU:=",
-                            ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
-                            "ValueProp:=",
-                            [
-                                "TONE",
-                                "OD",
-                                (
-                                    "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of "
-                                    "(or equal to) the driving frequency and should also be included in the "
-                                    "HB analysis setup"
-                                ),
-                                settings[9],
-                                0,
-                            ],
-                            "TextProp:=",
-                            ["ModelName", "SHD", "", "V_SIN"],
-                            "MenuProp:=",
-                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
-                            "ButtonProp:=",
-                            ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
-                        ],
-                    ],
-                ],
-            ],
-        ]
-
-        arg2 = ["NAME:ComponentConfigurationData"]
-
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSinusoidal" + str(id) + ":=", ports]]
-
-        arg2.append(arg3)
-
-        self.odesign.UpdateSources(arg1, arg2)
-        self.logger.info("Voltage Source updated correctly.")
-        return True
+        source_v = self.create_source(source_type="VoltageSin")
+        for port in ports:
+            self.excitations[port].enabled_sources.append(source_v.name)
+            self.excitations[port].update()
+        return source_v
 
     @pyaedt_function_handler()
-    def assign_current_sinusoidal_excitation_to_ports(self, ports, settings):
+    def assign_current_sinusoidal_excitation_to_ports(self, ports):
         """Assign a current sinusoidal excitation to circuit ports.
 
         Parameters
         ----------
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
-        settings : list
-            List of parameter values to use to create the voltage sinusoidal excitation.
-            All settings must be provided as strings. An empty string (``""``) sets the
-            parameter to its default.
-
-            Values are given in this order:
-
-            * 0: AC magnitude for small-signal analysis. For example, ``"33A"``. The default is ``"nan A"``.
-            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
-            * 2: DC voltage. For example, ``"1A"``. The default is ``"0A"``.
-            * 3: Current offset from zero. For example, ``"1A"``. The default is ``"0A"``.
-            * 4: Current amplitude. For example, ``"3A"``. The default is ``"0A"``.
-            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
-            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
-            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
-            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
-            * 9: Multiplier for simulating multiple parallel current sources. For example, ``"4"``.
-              The default is ``"1"``.
-            * 10: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``.
-              The default is ``"0Hz".``
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.Source`
+            Circuit Source Object.
 
         References
         ----------
 
         >>> oDesign.UpdateSources
         """
-        # setting the defaults if no value is provided
-        defaults = ["nan A", "0deg", "0A", "0A", "0A", "1GHz", "0s", "0", "0deg", "1", "0Hz"]
-        for i in range(len(settings)):
-            if settings[i] == "":
-                settings[i] = defaults[i]
-
-        id = self.modeler.schematic.create_unique_id()
-
-        arg1 = [
-            "NAME:NexximSources",
-            [
-                "NAME:NexximSources",
-                [
-                    "NAME:Data",
-                    [
-                        "NAME:CurrentSinusoidal" + str(id),
-                        "DataId:=",
-                        "Source" + str(id),
-                        "Type:=",
-                        1,
-                        "Output:=",
-                        1,
-                        "NumPins:=",
-                        2,
-                        "Netlist:=",
-                        (
-                            "I@ID %0 %1 *DC(DC=@DC) SIN(?VO(@VO) ?VA(@VA) ?FREQ(@FREQ) ?TD(@TD) ?ALPHA(@ALPHA) "
-                            "?THETA(@THETA) *M(M=@M)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)"
-                        ),
-                        "CompName:=",
-                        "Nexxim Circuit Elements\\Independent Sources:I_SIN",
-                        "FDSFileName:=",
-                        "",
-                        [
-                            "NAME:Properties",
-                            "TextProp:=",
-                            ["LabelID", "HD", "Property string for netlist ID", "I@ID"],
-                            "ValueProp:=",
-                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Amps)", settings[0], 0],
-                            "ValuePropNU:=",
-                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
-                            "ValueProp:=",
-                            ["DC", "OD", "DC current (Amps)", settings[2], 0],
-                            "ValueProp:=",
-                            ["VO", "OD", "Current offset (Amps)", settings[3], 0],
-                            "ValueProp:=",
-                            ["VA", "OD", "Current amplitude (Amps)", settings[4], 0],
-                            "ValueProp:=",
-                            ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
-                            "ValueProp:=",
-                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
-                            "ValueProp:=",
-                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
-                            "ValuePropNU:=",
-                            ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
-                            "ValueProp:=",
-                            ["M", "OD", "Multiplier for simulating multiple parallel current sources", settings[9], 0],
-                            "ValueProp:=",
-                            [
-                                "TONE",
-                                "OD",
-                                "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of "
-                                "(or equal to) the driving frequency and should also be included in the "
-                                "HB analysis setup",
-                                settings[10],
-                                0,
-                            ],
-                            "TextProp:=",
-                            ["ModelName", "SHD", "", "I_SIN"],
-                            "MenuProp:=",
-                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
-                            "ButtonProp:=",
-                            ["CosimDefinition", "D", "", "", "Edit", 40501, "ButtonPropClientData:=", []],
-                        ],
-                    ],
-                ],
-            ],
-        ]
-
-        arg2 = ["NAME:ComponentConfigurationData"]
-
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "CurrentSinusoidal" + str(id) + ":=", ports]]
-
-        arg2.append(arg3)
-
-        self.odesign.UpdateSources(arg1, arg2)
-        self.logger.info("Current Source updated correctly.")
-
-        return True
+        source_i = self.create_source(source_type="CurrentSin")
+        for port in ports:
+            self.excitations[port].enabled_sources.append(source_i.name)
+            self.excitations[port].update()
+        return source_i
 
     @pyaedt_function_handler()
-    def assign_power_sinusoidal_excitation_to_ports(self, ports, settings):
+    def assign_power_sinusoidal_excitation_to_ports(self, ports):
         """Assign a power sinusoidal excitation to circuit ports.
 
         Parameters
         ----------
         ports : list
             List of circuit ports to assign to the sinusoidal excitation.
-        settings : list
-            List of parameter values to use to create the power sinusoidal excitation.
-            All settings must be provided as strings. An empty string (``""``) sets the
-            parameter to its default.
-
-            Values are given in this order:
-
-            * 0: AC magnitude for small-signal analysis. For example, ``"33V"``. The default is ``"nan V"``.
-            * 1: AC phase for small-signal analysis. For example, ``"44deg"``. The default is ``"0deg"``.
-            * 2: DC voltage. For example, ``"1V"``. The default is ``"0V"``.
-            * 3: Power offset from zero watts. For example, ``"1W"``. The default is ``"0W"``.
-            * 4: Available power of the source above VO. For example, ``"3W"``. The default is ``"0W"``.
-            * 5: Frequency. For example, ``"15GHz"``. The default is ``"1GHz"``.
-            * 6: Delay to start of sine wave. For example, ``"16s"``. The default is ``"0s"``.
-            * 7: Damping factor (1/seconds). For example, ``"2"``. The default is ``"0"``.
-            * 8: Phase delay. For example, ``"18deg"``. The default is ``"0deg"``.
-            * 9: Frequency to use for harmonic balance analysis. For example, ``"20Hz"``. The default is ``"0Hz"``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.Source`
+            Circuit Source Object.
 
         References
         ----------
 
         >>> oDesign.UpdateSources
         """
-        # setting the defaults if no value is provided
-        defaults = ["nan V", "0deg", "0V", "0W", "0W", "1GHz", "0s", "0", "0deg", "0Hz"]
-        for i in range(len(settings)):
-            if settings[i] == "":
-                settings[i] = defaults[i]
-
-        id = self.modeler.schematic.create_unique_id()
-
-        arg1 = [
-            "NAME:NexximSources",
-            [
-                "NAME:NexximSources",
-                [
-                    "NAME:Data",
-                    [
-                        "NAME:PowerSinusoidal" + str(id),
-                        "DataId:=",
-                        "Source" + str(id),
-                        "Type:=",
-                        1,
-                        "Output:=",
-                        2,
-                        "NumPins:=",
-                        2,
-                        "Netlist:=",
-                        (
-                            "V@ID %0 %1 *DC(DC=@DC) POWER SIN(?VO(@VO) ?POWER(@POWER) ?FREQ(@FREQ) ?TD(@TD) "
-                            "?ALPHA(@ALPHA) ?THETA(@THETA)) *TONE(TONE=@TONE) *ACMAG(AC @ACMAG @ACPHASE)"
-                        ),
-                        "CompName:=",
-                        "Nexxim Circuit Elements\\Independent Sources:P_SIN",
-                        "FDSFileName:=",
-                        "",
-                        [
-                            "NAME:Properties",
-                            "TextProp:=",
-                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
-                            "ValueProp:=",
-                            ["ACMAG", "OD", "AC magnitude for small-signal analysis (Volts)", settings[0], 0],
-                            "ValuePropNU:=",
-                            ["ACPHASE", "OD", "AC phase for small-signal analysis", settings[1], 0, "deg"],
-                            "ValueProp:=",
-                            ["DC", "OD", "DC voltage (Volts)", settings[2], 0],
-                            "ValuePropNU:=",
-                            ["VO", "OD", "Power offset from zero watts", settings[3], 0, "W"],
-                            "ValueProp:=",
-                            ["POWER", "OD", "Available power of the source above VO", settings[4], 0],
-                            "ValueProp:=",
-                            ["FREQ", "OD", "Frequency (Hz)", settings[5], 0],
-                            "ValueProp:=",
-                            ["TD", "OD", "Delay to start of sine wave (seconds)", settings[6], 0],
-                            "ValueProp:=",
-                            ["ALPHA", "OD", "Damping factor (1/seconds)", settings[7], 0],
-                            "ValuePropNU:=",
-                            ["THETA", "OD", "Phase delay", settings[8], 0, "deg"],
-                            "ValueProp:=",
-                            [
-                                "TONE",
-                                "OD",
-                                (
-                                    "Frequency (Hz) to use for harmonic balance analysis, should be a submultiple of "
-                                    "(or equal to) the driving frequency and should also be included in the "
-                                    "HB analysis setup"
-                                ),
-                                settings[9],
-                                0,
-                            ],
-                            "TextProp:=",
-                            ["ModelName", "SHD", "", "P_SIN"],
-                            "ButtonProp:=",
-                            ["CosimDefinition", "D", "", "Edit", "Edit", 40501, "ButtonPropClientData:=", []],
-                            "MenuProp:=",
-                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
-                        ],
-                    ],
-                ],
-            ],
-        ]
-
-        arg2 = ["NAME:ComponentConfigurationData"]
-
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "PowerSinusoidal" + str(id) + ":=", ports]]
-
-        arg2.append(arg3)
-
-        self.odesign.UpdateSources(arg1, arg2)
-        self.logger.info("Power Source updated correctly.")
-
-        return True
+        source_p = self.create_source(source_type="CurrentSin")
+        for port in ports:
+            self.excitations[port].enabled_sources.append(source_p.name)
+            self.excitations[port].update()
+        return source_p
 
     @pyaedt_function_handler()
     def assign_voltage_frequency_dependent_excitation_to_ports(self, ports, filepath):
@@ -1446,8 +1208,8 @@ class Circuit(FieldAnalysisCircuit, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modules.Boundary.Source`
+            Circuit Source Object.
 
         References
         ----------
@@ -1458,72 +1220,16 @@ class Circuit(FieldAnalysisCircuit, object):
             self.logger.error("Introduced file is not correct. Check path and format.")
             return False
 
-        if not all(elem in self.modeler.schematic.nets for elem in ports):
+        if not all(elem in self.excitation_names for elem in ports):
             self.logger.error("Defined ports do not exist")
             return False
 
-        id = self.modeler.schematic.create_unique_id()
-
-        arg1 = [
-            "NAME:NexximSources",
-            [
-                "NAME:NexximSources",
-                [
-                    "NAME:Data",
-                    [
-                        "NAME:VoltageSourceFreq" + str(id),
-                        "DataId:=",
-                        "Source" + str(id),
-                        "Type:=",
-                        17,
-                        "Output:=",
-                        0,
-                        "NumPins:=",
-                        2,
-                        "Netlist:=",
-                        "V@ID %0 %1 *FreqDependentSourceData(@FreqDependentSourceData)",
-                        "CompName:=",
-                        "Nexxim Circuit Elements\\Independent Sources:V_PWL_F",
-                        "FDSFileName:=",
-                        'voltage_source_file="' + filepath + '"',
-                        [
-                            "NAME:Properties",
-                            "TextProp:=",
-                            ["LabelID", "HD", "Property string for netlist ID", "V@ID"],
-                            "ButtonProp:=",
-                            [
-                                "FreqDependentSourceData",
-                                "OD",
-                                "Frequency Dependent Source Data",
-                                'voltage_source_file="' + filepath + '"',
-                                'voltage_source_file="' + filepath + '"',
-                                7,
-                                "ButtonPropClientData:=",
-                                [],
-                            ],
-                            "TextProp:=",
-                            ["COMPONENT", "RHD", "", "vsource_freq"],
-                            "ButtonProp:=",
-                            ["CosimDefinition", "SOD", "", "Edit", "Edit", 0, "ButtonPropClientData:=", []],
-                            "MenuProp:=",
-                            ["CoSimulator", "D", "", "DefaultNetlist", 0],
-                        ],
-                    ],
-                ],
-            ],
-        ]
-
-        arg2 = ["NAME:ComponentConfigurationData"]
-
-        arg3 = ["NAME:ComponentConfigurationData", ["NAME:EnabledPorts", "VoltageSourceFreq" + str(id) + ":=", ports]]
-
-        arg2.append(arg3)
-        try:
-            self.odesign.UpdateSources(arg1, arg2)
-        except:
-            self.logger.error("Voltage Source not updated, incorrect file.")
-            return False
-        return True
+        source_freq = self.create_source(source_type="VoltageFrequencyDependent")
+        source_freq.fds_filename = filepath
+        for port in ports:
+            self.excitations[port].enabled_sources.append(source_freq.name)
+            self.excitations[port].update()
+        return source_freq
 
     @pyaedt_function_handler()
     def set_differential_pair(
