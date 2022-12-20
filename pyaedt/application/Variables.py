@@ -1036,7 +1036,6 @@ class VariableManager(object):
             var_list += list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
 
         var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
-        # Get project array variables
         var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
         return var_list
 
