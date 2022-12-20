@@ -2990,7 +2990,7 @@ class Excitations(object):
 
     @location.setter
     def location(self, location_xy):
-        # Bug in AEDT API. The command must be called two times.
+        # The command must be called two times.
         self._app.modeler.schematic.components[self.schematic_id].location = location_xy
         self._app.modeler.schematic.components[self.schematic_id].location = location_xy
         self._location = location_xy
