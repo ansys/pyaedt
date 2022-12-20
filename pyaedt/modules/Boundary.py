@@ -1800,6 +1800,13 @@ class Sources(object):
     def update(self, original_name=None, new_source=None):
         """Update the source in AEDT.
 
+        Parameters
+        ----------
+        original_name : str, optional
+            Original name of the source. The default value is ``None``.
+        new_source : str, optional
+            New name of the source. The default value is ``None``.
+
         Returns
         -------
         bool
