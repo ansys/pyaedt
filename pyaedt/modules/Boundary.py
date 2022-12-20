@@ -2960,7 +2960,7 @@ class Excitations(object):
 
     @angle.setter
     def angle(self, angle=None):
-        self._logger.warning("Angle can not be modified. Bug in AEDT API.")
+        self._logger.warning("Angle cannot be modified. Bug in AEDT API.")
         # self._app.modeler.schematic.components[self.comp].angle = angle
 
     @property
