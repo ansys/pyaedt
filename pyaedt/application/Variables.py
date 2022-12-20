@@ -679,8 +679,8 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            listvar = self._get_var_list_from_aedt(obj)
-            for variable_name in listvar:
+            variables = self._get_var_list_from_aedt(obj)
+            for variable_name in variables:
                 if self.get_expression(variable_name):
                     variable_expression = self.get_expression(variable_name)
                     all_names[variable_name] = variable_expression
