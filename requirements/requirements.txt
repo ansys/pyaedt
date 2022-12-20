@@ -29,7 +29,7 @@ matplotlib==3.6.2; python_version > '3.6'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
-numpy==1.23.5; python_version > '3.7'
+numpy==1.24.0; python_version > '3.7'
 # License: BSD-3-Clause License
 
 pandas==1.5.2; python_version > '3.7'
