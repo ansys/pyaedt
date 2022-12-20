@@ -2070,9 +2070,9 @@ class Fields(CommonReport):
 
     @property
     def _context(self):
-        ctxt = ["Context:=", self.polyline]
-        ctxt.append("PointCount:=")
-        ctxt.append(self.point_number)
+        ctxt = []
+        if self.polyline:
+            ctxt = ["Context:=", self.polyline, "PointCount:=", self.point_number]
         return ctxt
 
 
