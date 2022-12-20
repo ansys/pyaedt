@@ -205,7 +205,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Returns
         -------
-        list
+        List of :class:`pyaedt.modules.Boundary.Sources`
             List of sources.
 
         """
