@@ -397,6 +397,7 @@ class EDBPadstack(object):
 
     @property
     def hole_params(self):
+        """Via Hole parameters values."""
 
         viaData = self.edb_padstack.GetData()
         self._hole_params = viaData.GetHoleParametersValue()
