@@ -3074,7 +3074,7 @@ class Excitations(object):
         return self._props["EnableNoise"]
 
     @enable_noise.setter
-    def enable_noise(self, enable=None):
+    def enable_noise(self, enable=False):
         """Enable noise in port.
 
         Parameters
