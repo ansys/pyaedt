@@ -126,8 +126,7 @@ class Ipc2581(object):
                     elif antipad.geometry_type == 3:
                         primitive_ref = "RECT_{}_{}".format(
                             self.from_meter_to_units(antipad.parameters_values[0], self.units),
-                            self.from_meter_to_units(antipad.parameters_values[1]),
-                            self.units,
+                            self.from_meter_to_units(antipad.parameters_values[1], self.units),
                         )
                         if not primitive_ref in self.content.standard_geometries_dict.standard_rect_dict:
                             self.content.standard_geometries_dict.standard_rect_dict[primitive_ref] = [
