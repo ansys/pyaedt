@@ -63,7 +63,6 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install .
           pip install -r requirements/requirements.txt
           pip install -r requirements/requirements_docs.txt
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
@@ -93,7 +92,7 @@ jobs:
   doc-deploy-stable:
     name: "Deploy stable documentation"
     runs-on: ubuntu-latest
-    needs: doc-build
+    needs: full_documentation
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
       - name: "Deploy the stable documentation"
@@ -102,6 +101,7 @@ jobs:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
           python-version: ${{ matrix.python-version }}
+
 
   full_documentation_json:
     # The type of runner that the job will run on
@@ -134,6 +134,7 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
+          pip install .
           pip install -r requirements/requirements.txt
           pip install -r requirements/requirements_docs.txt
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "jsondoc\Lib\site-packages\vtkmodules" -Force
@@ -142,43 +143,49 @@ jobs:
         run: |
           # Export the documentation files to JSON files.
           jsondoc\Scripts\Activate.ps1
-          sphinx-build -M json doc/source doc-json -j auto -D release=${{ steps.version.outputs.PYAEDT_VERSION }} -D version=${{ steps.version.outputs.PYAEDT_VERSION }} -w build_errors.txt -N;
+          echo "PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")" >> $env:GITHUB_ENV
+          echo PYAEDT_VERSION=$(python -c "from pyaedt import __version__; print(__version__)")
+
+      - name: Build json files
+        run: |
+          jsondoc\Scripts\Activate.ps1
+          sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
         run: |
           echo Flattening a nested directory
-          mkdir -p doc-flatten-json;
+          mkdir -p pyaedt-doc-flatten-json;
           # Move all the JSON file to the flatten directory.
           JSON_FILES=$(find doc-json/json -type f -name "*.fjson" -o -name "*.json*");
           for filename in $JSON_FILES
           do
               x=${filename#./};
               y=${x// /-};
-              mv -n ${x// /\ } "./doc-flatten-json/${y////-}";
+              mv -n ${x// /\ } "./pyaedt-doc-flatten-json/${y////-}";
           done
           # echo Make sure all the file has .json extensions instead of the .fjson
-          # for file in doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
+          # for file in pyaedt-doc-flatten-json/*.fjson ; do mv -- "$file" "${file%.fjson}.json" ; done;
           # Move all static image files to the JSON flatten folder.
-          mv -n doc-json/json/_images doc-flatten-json/_images;
+          mv -n doc-json/json/_images pyaedt-doc-flatten-json/_images;
         shell: bash
 
       - name: zip the flattened JSON directory
         run: |
-          Compress-Archive -Path doc-flatten-json -DestinationPath pyaedt-doc-flatten-json.zip
+          Compress-Archive -Path pyaedt-doc-flatten-json\* -DestinationPath pyaedt-doc-flatten-json.zip
 
       - name: move the generated documentation.
         run: |
-          mkdir pyaedt-doc-flatten-json;
-          mv pyaedt-doc-flatten-json.zip pyaedt-doc-flatten-json;
-          echo Clean up build directories after the process is completed.
-          rm -rf doc-json doc-flatten-json;
+          mkdir doc-flatten-json
+          mv pyaedt-doc-flatten-json.zip doc-flatten-json
+          # echo Clean up build directories after the process is completed.
+          rm -rf doc-json
         shell: bash
 
       - name: Upload json Documentation
         uses: actions/upload-artifact@v3
         with:
-          name: pyaedt-doc-flatten-json.zip
-          path: pyaedt-doc-flatten-json/pyaedt-doc-flatten-json.zip
+          name: pyaedt-doc-flatten-json
+          path: pyaedt-doc-flatten-json
           retention-days: 7
 
       # Verify that sphinx generates no warnings
@@ -190,8 +197,25 @@ jobs:
   # As a workaround, we are using the artifacts generated from a Windows build agent.
   deploy_json-documentation:
     name: deploy_documentation_json
+    needs: [full_documentation_json]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download Artifacts 
+        uses: actions/download-artifact@v3
+        with:
+          name: pyaedt-doc-flatten-json
+
+      # used for documentation deployment
+      - name: Get Bot Application Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.BOT_APPLICATION_ID }}
+          application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
