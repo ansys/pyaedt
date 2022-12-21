@@ -5,7 +5,7 @@ matplotlib==3.6.2
 numpy==1.21.6; python_version <= '3.7'
 numpy==1.24.0; python_version > '3.7'
 openpyxl==3.0.10
-osmnx==1.2.3
+osmnx
 pandas==1.5.2
 pytest==7.2.0
 pytest-cov==4.0.0
@@ -13,5 +13,6 @@ pytest-xdist==3.1.0
 pyvista==0.37.0
 scikit-learn==1.2.0
 sklearn==0.0.post1
-STRM.py==0.3.7
-utm==0.7.0
+STRM.py
+utm
+
