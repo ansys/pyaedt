@@ -376,7 +376,8 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return self.odesktop.GetVersion()[0:6]
+
+        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
 
     @property
     def design_name(self):
