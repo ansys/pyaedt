@@ -143,7 +143,7 @@ class EdbSiwave(object):
         if source.source_type in [SourceType.CoaxPort, SourceType.CircPort, SourceType.LumpedPort]:
             pos_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
             neg_pingroup_terminal.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-            pos_pingroup_terminal.SetSourceAmplitude(self._get_edb_value(source.impedance))
+            pos_pingroup_terminal.SetImpedance(self._get_edb_value(source.impedance))
             if source.source_type == SourceType.CircPort:
                 pos_pingroup_terminal.SetIsCircuitPort(True)
                 neg_pingroup_terminal.SetIsCircuitPort(True)
@@ -1195,6 +1195,35 @@ class EdbSiwave(object):
             pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_voltage_source_terminal(magnitude, phase)
+        neg_terminal.SetName(name + "_ref")
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+        return True
+
+    @pyaedt_function_handler
+    def create_circuit_port_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None):
+        """Create a port between two pin groups.
+
+        Parameters
+        ----------
+        pos_pin_group_name : str
+            Name of the positive pin group.
+        neg_pin_group_name : str
+            Name of the negative pin group.
+        impedance : int, float, optional
+            Impedance of the source.
+        Returns
+        -------
+
+        """
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_port_terminal(impedance)
+        if name:
+            pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("vsource")
+            pos_terminal.SetName(name)
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_port_terminal(impedance)
         neg_terminal.SetName(name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
