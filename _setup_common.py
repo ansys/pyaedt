@@ -85,3 +85,9 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
 ]
+
+project_urls={
+    "Bug Tracker": "https://github.com/pyansys/pyaedt/issues",
+    "Documentation": "https://aedt.docs.pyansys.com",
+    "Source Code": "https://github.com/pyansys/pyaedt",
+}
