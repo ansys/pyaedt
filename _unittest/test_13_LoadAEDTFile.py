@@ -48,7 +48,7 @@ class TestClass(BasisTest, object):
         self.cs3 = BasisTest.add_app(self, cs3, subfolder=test_subfolder)
         self.multiple_cs_project = self.test_project
         self.mat1 = BasisTest.add_app(self, "Add_material")
-        hfss_file = os.path.join(local_path, "example_models", test_subfolder, "Coax_HFSS.aedt")
+        hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
         self.project_dict = load_entire_aedt_file(hfss_file)
 
     def teardown_class(self):
