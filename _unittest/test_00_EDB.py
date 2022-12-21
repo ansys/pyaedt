@@ -366,7 +366,7 @@ if not config["skip_edb"]:
             assert len(self.edbapp.core_padstack.pingroups) == initial_len + 6
             assert "GND" in p4 and "RSVD_9" in p4
             assert self.edbapp.core_siwave.create_pin_group_on_net("U2A5", "V1P0_S0", "PG_V1P0_S0")
-            assert self.edbapp.core_siwave.create_port_on_pin_group(
+            assert self.edbapp.core_siwave.create_circuit_port_on_pin_group(
                 "PG_V1P0_S0", "PinGroup_2", impedance=50, name="test_port"
             )
 
