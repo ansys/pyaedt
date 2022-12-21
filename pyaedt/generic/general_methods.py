@@ -54,6 +54,13 @@ if not is_ironpython:
             "Install with \n\npip install numpy\n"
         )
 
+try:
+    import xml.etree.cElementTree as ET
+
+    ET.VERSION
+except ImportError:
+    ET = None
+
 
 class MethodNotSupportedError(Exception):
     """ """

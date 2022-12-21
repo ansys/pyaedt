@@ -65,3 +65,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.set_material_threshold(str(conductivity), str(permeability))
         assert not self.aedtapp.set_material_threshold("e", str(permeability))
         assert not self.aedtapp.set_material_threshold(conductivity, "p")
+
+    def test_06_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

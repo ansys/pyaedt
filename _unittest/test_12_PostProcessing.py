@@ -646,6 +646,18 @@ class TestClass(BasisTest, object):
             show=False,
         )
         assert os.path.exists(plot_obj.image_file)
+        os.unlink(plot_obj.image_file)
+        plot_obj.x_scale = 1.1
+        plot_obj.y_scale = 0.9
+        plot_obj.z_scale = 0.3
+        assert plot_obj.x_scale == 1.1
+        assert plot_obj.y_scale == 0.9
+        assert plot_obj.z_scale == 0.3
+
+        plot_obj.background_image = r"c:\filenot_exist.jpg"
+        assert not plot_obj.background_image
+        plot_obj.plot(plot_obj.image_file)
+        assert os.path.exists(plot_obj.image_file)
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_14B_Field_Ploton_Vector(self):
@@ -1197,6 +1209,11 @@ class TestClass(BasisTest, object):
         )
         assert len(data2) == 4
         assert len(data2[0]) == 3
+
+    def test_74_dynamic_update(self):
+        assert not self.aedtapp.post.update_report_dinamically
+        self.aedtapp.post.update_report_dinamically = True
+        assert self.aedtapp.post.update_report_dinamically
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

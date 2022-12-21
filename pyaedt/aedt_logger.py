@@ -630,7 +630,7 @@ class AedtLogger(object):
         """Write an info message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -655,7 +655,7 @@ class AedtLogger(object):
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -667,7 +667,7 @@ class AedtLogger(object):
         """Write a warning message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -679,7 +679,7 @@ class AedtLogger(object):
         """Write an error message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -691,7 +691,7 @@ class AedtLogger(object):
         """Write a debug message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:

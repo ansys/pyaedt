@@ -7,7 +7,6 @@ import math
 import re
 
 from pyaedt import _retry_ntimes
-from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.components_data import EDBComponent
 from pyaedt.edb_core.edb_data.components_data import EDBComponentDef
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
@@ -984,11 +983,11 @@ class Components(object):
         else:
             cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
+        pin_name = list(pingroup.GetPins())[0].GetName()  # taking first pin name as convention.
         if cmp_name:
-            term_name = generate_unique_name("{0}.{1}.Pingroup".format(cmp_name, net_name), n=2)
+            term_name = "{0}.{1}.{2}".format(net_name, cmp_name, pin_name)
         else:
-            term_name = generate_unique_name("{0}.Pingroup".format(net_name), n=2)
-
+            term_name = "{0}.{1}".format(net_name, pin_name)
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
