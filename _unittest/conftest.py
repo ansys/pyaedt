@@ -58,30 +58,35 @@ test_project_name = "test_primitives"
 sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
 
-# Check for the local config file, otherwise use default desktop configuration
+# Initialize default desktop configuration
+default_version = "2022.2"
+os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
+if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
+    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
+config = {
+    "desktopVersion": default_version,
+    "NonGraphical": True,
+    "NewThread": True,
+    "test_desktops": False,
+    "build_machine": True,
+    "skip_space_claim": False,
+    "skip_circuits": False,
+    "skip_edb": False,
+    "skip_debug": False,
+    "local": False,
+    "use_grpc": False,
+    "disable_sat_bounding_box": False,
+}
+
+# Check for the local config file, override defaults if found
 local_config_file = os.path.join(local_path, "local_config.json")
 if os.path.exists(local_config_file):
+    local_config = {}
     with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    default_version = "2022.2"
-    os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
-    if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-        default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
-    config = {
-        "desktopVersion": default_version,
-        "NonGraphical": True,
-        "NewThread": True,
-        "test_desktops": False,
-        "build_machine": True,
-        "skip_space_claim": False,
-        "skip_circuits": False,
-        "skip_edb": False,
-        "skip_debug": False,
-        "local": False,
-        "use_grpc": False,
-        "disable_sat_bounding_box": False,
-    }
+        local_config = json.load(f)
+    for key, val in local_config.items():
+        config[key] = val
+
 settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
