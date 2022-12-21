@@ -204,17 +204,17 @@ class TestClass(BasisTest, object):
         self.aedtapp["der_var2"] = "2mm"
         setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
         assert setup2.add_derivatives("der_var")
-        assert "der_var" in setup2.get_derivative_varibles()
+        assert "der_var" in setup2.get_derivative_variables()
         assert setup2.add_derivatives("der_var2")
-        assert "der_var2" in setup2.get_derivative_varibles()
-        assert "der_var" in setup2.get_derivative_varibles()
+        assert "der_var2" in setup2.get_derivative_variables()
+        assert "der_var" in setup2.get_derivative_variables()
         setup2.delete()
         setup3 = self.aedtapp.create_setup("MySetup_3", setuptype=0)
         assert setup3.add_derivatives("der_var")
-        assert "der_var" in setup3.get_derivative_varibles()
+        assert "der_var" in setup3.get_derivative_variables()
         assert setup3.add_derivatives("der_var2")
-        assert "der_var2" in setup3.get_derivative_varibles()
-        assert "der_var" in setup3.get_derivative_varibles()
+        assert "der_var2" in setup3.get_derivative_variables()
+        assert "der_var" in setup3.get_derivative_variables()
         setup3.delete()
 
     def test_06b_setup_exists(self):
