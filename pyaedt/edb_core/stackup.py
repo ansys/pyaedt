@@ -493,6 +493,7 @@ class LayerEdbClass(object):
 
     def _load_layer(self, layer):
         if layer:
+            # self.name = layer["name"]
             self.color = layer["color"]
             self.type = layer["type"]
             if isinstance(layer["material"], str):
@@ -1143,6 +1144,15 @@ class Stackup(object):
                     for material in v.values():
                         self._pedb.materials._load_materials(material)
                 if k == "layers":
+                    if len(list(v.values())) != len(list(self.stackup_layers.values())):
+                        logger.error("Stackup file provided does not not match with current layout layer number.")
+                        return
+                    imported_layers_list = list(v.keys())
+                    layout_layer_list = list(self.stackup_layers.keys())
+                    for layer_name in imported_layers_list:
+                        layer_index = imported_layers_list.index(layer_name)
+                        if layout_layer_list[layer_index] != layer_name:
+                            self.stackup_layers[layout_layer_list[layer_index]].name = layer_name
                     for layer_name, layer in v.items():
                         if layer_name in self.stackup_layers:
                             self.stackup_layers[layer["name"]]._load_layer(layer)
