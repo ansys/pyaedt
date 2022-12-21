@@ -3,7 +3,6 @@ from __future__ import absolute_import  # noreorder
 import datetime
 import json
 import os.path
-import pickle
 import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -812,10 +811,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             road_graph = road_geo["graph"]
             road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
             parts_dict["roads"] = road_dict
-            road_network_path = output_path + env_name + ".road_network"
-            with open(road_network_path, "wb") as f:
-                road = {"graph": road_graph}
-                pickle.dump(road, f)
 
         json_path = output_path + env_name + ".json"
 

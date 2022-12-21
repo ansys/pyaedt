@@ -34,8 +34,9 @@ class BuildingsPrep(object):
     def __init__(self, cad_path):
         self.cad_path = cad_path
 
+    @staticmethod
     @pyaedt_function_handler()
-    def create_building_roof(self, all_pos):
+    def create_building_roof(all_pos):
         """Generate a filled in polygon from outline.
         Includes concave and convex shapes.
 
@@ -114,12 +115,12 @@ class BuildingsPrep(object):
             try:
                 levels = gdf_proj["building:levels"]
                 levels = levels.array
-            except:
+            except KeyError:
                 levels = [1] * len(geo)
             try:
                 height = gdf_proj["height"]
                 height = height.array
-            except:
+            except KeyError:
                 height = [10] * len(geo)
 
             temp = [levels, height]
@@ -129,7 +130,7 @@ class BuildingsPrep(object):
 
             logger.info("\nGenerating Buildings")
             last_displayed = -1
-            for n, building in enumerate(geo):
+            for n, _ in enumerate(geo):
                 g = geo[n]
                 if hasattr(g, "exterior"):
                     outer = g.exterior
@@ -163,7 +164,7 @@ class BuildingsPrep(object):
                             # shoot ray to look for intersection point
                             start_ray = [point[0], point[1], start_z]
                             stop_ray = [point[0], point[1], stop_z]
-                            intersection_point, ind = terrain_mesh.ray_trace(start_ray, stop_ray)
+                            intersection_point, _ = terrain_mesh.ray_trace(start_ray, stop_ray)
                             if len(intersection_point) != 0:
                                 z_surface_location = intersection_point.flatten()[2]
                                 elevation_on_outline.append(z_surface_location)
@@ -261,7 +262,7 @@ class RoadPrep(object):
         center_offset_x = utm_center[0]
         center_offset_y = utm_center[1]
 
-        nodes, edges = ox.graph_to_gdfs(g_projected)
+        _, edges = ox.graph_to_gdfs(g_projected)
         lines = []
 
         buffer = 10  # additional distance so intersection test is further away than directly on surface
@@ -274,7 +275,7 @@ class RoadPrep(object):
         # convert each edge into a line
         count = 0
         last_displayed = -1
-        for idx, row in edges.iterrows():
+        for _, row in edges.iterrows():
             count += 1
             num_percent_bins = 40
 
@@ -298,7 +299,7 @@ class RoadPrep(object):
                 y_pts[n] = y_pts[n] - center_offset_y
                 start_ray = [x_pts[n], y_pts[n], start_z]
                 stop_ray = [x_pts[n], y_pts[n], stop_z]
-                points, ind = terrain_mesh.ray_trace(start_ray, stop_ray)
+                points, _ = terrain_mesh.ray_trace(start_ray, stop_ray)
                 if len(points) != 0:
                     z_surface_location = points.flatten()[2]
                     z_pts[n] = z_surface_location + z_offset
@@ -368,7 +369,7 @@ class TerrainPrep(object):
         utm_center = utm.from_latlon(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
         max_radius = max_radius * (buffer_percent + 1)
-        all_data, all_lat_lon, all_utm = self.get_elevation(
+        all_data, _, all_utm = self.get_elevation(
             center_lat_lon,
             max_radius=max_radius,
             grid_size=grid_size,
@@ -404,9 +405,9 @@ class TerrainPrep(object):
         terrain_mesh.save(file_out)
         return {"file_name": file_out, "mesh": terrain_mesh}
 
+    @staticmethod
     @pyaedt_function_handler()
     def get_elevation(
-        self,
         center_lat_lon,
         max_radius=500,
         grid_size=3,
