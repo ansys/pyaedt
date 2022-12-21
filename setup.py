@@ -81,7 +81,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/x-rst",
     install_requires=install_requires,
-    extras_require=extra_requires,
+    extras_require={"full":extra_requires},
     packages=packages,
     data_files=data_files,
     include_package_data=True,
