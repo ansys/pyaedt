@@ -33,10 +33,11 @@ def install(package):
         pip._internal.main(["install", package])
 
 
-extra_requires = [
+
+extras_require = [
     "osmnx",
     "utm",
-    "SRTM.py"
+    "SRTM.py",
 ]
 
 if sys.version_info > (3, 7):
@@ -67,7 +68,7 @@ elif sys.version_info == (3, 7):
     ]
 elif is_ironpython:
     install_requires = []
-    extra_requires = []
+    extras_require = []
 else:
     sys.exit("PyAEDT supports only CPython 3.7-3.10 and IronPython 2.7.")
 
@@ -81,7 +82,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/x-rst",
     install_requires=install_requires,
-    extras_require={"full":extra_requires},
+    extras_require={"full":extras_require},
     packages=packages,
     data_files=data_files,
     include_package_data=True,
