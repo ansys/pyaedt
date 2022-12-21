@@ -13,6 +13,6 @@ pytest-xdist==3.1.0
 pyvista==0.37.0
 scikit-learn==1.2.0
 sklearn==0.0.post1
-STRM.py
+SRTM.py
 utm
 

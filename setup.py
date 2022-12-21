@@ -36,7 +36,7 @@ def install(package):
 extra_requires = [
     "osmnx",
     "utm",
-    "STRM.py"
+    "SRTM.py"
 ]
 
 if sys.version_info > (3, 7):
