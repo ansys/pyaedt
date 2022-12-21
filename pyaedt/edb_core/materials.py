@@ -655,13 +655,23 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def _load_materials(self, material=None):
-        if material:
-            if not material["name"] in self.materials:
-                if material["conductivity"] > 1e4:
-                    self.add_conductor_material(material["name"], material["conductivity"])
-                else:
-                    self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
+        if self.materials:
+            mat_keys = [i.lower() for i in self.materials.keys()]
+            mat_keys_case = [i for i in self.materials.keys()]
+        else:
+            mat_keys = []
+            mat_keys_case = []
+
+        if not material:
+            return
+        if material["name"].lower() not in mat_keys:
+            if material["conductivity"] > 1e4:
+                self.add_conductor_material(material["name"], material["conductivity"])
+            else:
+                self.add_dielectric_material(material["name"], material["permittivity"], material["loss_tangent"])
             self.materials[material["name"]]._load(material)
+        else:
+            self.materials[mat_keys_case[mat_keys.index(material["name"].lower())]]._load(material)
 
     @pyaedt_function_handler
     def material_name_to_id(self, property_name):

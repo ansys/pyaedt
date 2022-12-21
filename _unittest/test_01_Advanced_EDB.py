@@ -787,7 +787,7 @@ if not config["skip_edb"]:
             self.local_scratch.copyfolder(target_path, out_edb)
             json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat.json")
             edbapp = Edb(out_edb, edbversion=desktop_version)
-            edbapp.stackup._import_layer_stackup(json_path)
+            edbapp.stackup.import_stackup(json_path)
             edbapp.save_edb()
             delta = 1e-6
             f = open(json_path)
@@ -828,6 +828,11 @@ if not config["skip_edb"]:
                             assert (
                                 pedb_lay.side_hallhuray_surface_ratio - layer["side_hallhuray_surface_ratio"]
                             ) < delta
+            edbapp.close_edb()
+            edbapp = Edb()
+            json_path = os.path.join(local_path, "example_models", test_subfolder, "test_mat2.json")
+            assert edbapp.stackup.import_stackup(json_path)
+            assert "SOLDER" in edbapp.stackup.stackup_layers
             edbapp.close_edb()
 
         def test_19_build_project(self):
