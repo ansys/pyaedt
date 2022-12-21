@@ -174,5 +174,4 @@ class TestClass(BasisTest, object):
             ansys_home, terrain_radius=100, road_step=3, plot_before_importing=False, import_in_aedt=True
         )
         for part in parts_dict:
-            for part in parts_dict:
-                assert os.path.exists(parts_dict[part]["file_name"])
+            assert os.path.exists(parts_dict[part]["file_name"])
