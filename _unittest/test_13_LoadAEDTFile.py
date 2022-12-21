@@ -17,7 +17,7 @@ if config["desktopVersion"] > "2022.2":
     cs2 = "Coordinate_System2_231"
     cs3 = "Coordinate_System3_231"
 else:
-    test_project_name = "Coax_HFSS_13"
+    test_project_name = "Coax_HFSS_t13"
     cs = "Coordinate_System"
     cs1 = "Coordinate_System1"
     cs2 = "Coordinate_System2"
