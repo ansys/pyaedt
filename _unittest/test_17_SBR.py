@@ -4,6 +4,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
 from pyaedt import Hfss
+from pyaedt import is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -164,3 +165,13 @@ class TestClass(BasisTest, object):
         assert not hfss_terminal.create_sbr_file_based_antenna(
             ffd_full_path=os.path.join(local_path, "example_models", test_subfolder, "test.ffd")
         )
+
+    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
+    def test_12_import_map(self):
+        self.aedtapp.insert_design("city")
+        ansys_home = [40.273726, -80.168269]
+        parts_dict = self.aedtapp.modeler.import_from_openstreet_map(
+            ansys_home, terrain_radius=100, road_step=3, plot_before_importing=False, import_in_aedt=True
+        )
+        for part in parts_dict:
+            assert os.path.exists(parts_dict[part]["file_name"])
