@@ -1200,9 +1200,7 @@ class EdbSiwave(object):
         return True
 
     @pyaedt_function_handler
-    def create_port_on_pin_group(
-        self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None
-    ):
+    def create_port_on_pin_group(self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None):
         """Create a port between two pin groups.
 
         Parameters

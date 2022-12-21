@@ -314,7 +314,6 @@ class PinGroup(object):
         return terminal
 
 
-
 class CircuitPort(Source, object):
     """Manages a circuit port."""
 
