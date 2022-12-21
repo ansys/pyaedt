@@ -11,13 +11,13 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 test_subfolder = "T13"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t13_231"
     cs = "Coordinate_System_231"
     cs1 = "Coordinate_System1_231"
     cs2 = "Coordinate_System2_231"
     cs3 = "Coordinate_System3_231"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_13"
     cs = "Coordinate_System"
     cs1 = "Coordinate_System1"
     cs2 = "Coordinate_System2"
