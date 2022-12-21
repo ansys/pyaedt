@@ -1604,6 +1604,8 @@ if not config["skip_edb"]:
             assert edbapp.stackup["TOP"].color
             edbapp.stackup["TOP"].color = [0, 120, 0]
             assert edbapp.stackup["TOP"].color == (0, 120, 0)
+            edbapp.stackup["TOP"].transparency = 10
+            assert edbapp.stackup["TOP"].transparency == 10
             edbapp.close_edb()
 
         @pytest.mark.skipif(is_ironpython, reason="Requires Pandas")

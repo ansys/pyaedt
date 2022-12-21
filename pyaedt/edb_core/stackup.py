@@ -128,6 +128,23 @@ class LayerEdbClass(object):
         self._color = rgb
 
     @property
+    def transparency(self):
+        """Retrieve transparency of the layer.
+
+        Returns
+        -------
+        int
+            An integer between 0 and 100 with 0 being fully opaque and 100 being fully transparent.
+        """
+        return self._edb_layer.GetTransparency()
+
+    @transparency.setter
+    def transparency(self, trans):
+        layer_clone = self._edb_layer
+        layer_clone.SetTransparency(trans)
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @property
     def name(self):
         """Retrieve name of the layer.
 
