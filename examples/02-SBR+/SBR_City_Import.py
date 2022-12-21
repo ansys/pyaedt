@@ -27,7 +27,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Define designs
 # ~~~~~~~~~~~~~~
 # Define two designs, one source and one target.
-# Each design connected to a different object.
+# Each design is connected to a different object.
 
 app = Hfss(
     designname="Ansys",
