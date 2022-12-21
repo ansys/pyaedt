@@ -21,6 +21,7 @@ from _setup_common import (
     data_files,
     license,
     classifiers,
+    project_urls,
 )
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
@@ -87,6 +88,7 @@ setup(
     include_package_data=True,
     license=license,
     classifiers=classifiers,
+    project_urls=project_urls,
 )
 
 if os.name == "posix" and not is_ironpython:
