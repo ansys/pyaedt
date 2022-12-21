@@ -2526,7 +2526,7 @@ class FieldPlot:
         list
             List of plot settings.
         """
-        if self.surfaces_indexes:
+        if self.surfaces_indexes or self.cutplane_indexes:
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",

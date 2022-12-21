@@ -83,6 +83,9 @@ class TestClass(BasisTest, object):
         min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
+        plot1.update_field_plot_settings()
+        plot1.update()
+        assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
 
