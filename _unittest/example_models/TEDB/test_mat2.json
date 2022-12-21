@@ -344,6 +344,26 @@
         }
     },
     "layers": {
+        "SOLDER": {
+            "name": "SOLDER",
+            "color": [
+                128,
+                0,
+                255
+            ],
+            "type": "dielectric",
+            "material": "AIR",
+            "dielectric_fill": null,
+            "thickness": 0.0001,
+            "etch_factor": 0.0,
+            "roughness_enabled": false,
+            "top_hallhuray_nodule_radius": 0.0,
+            "top_hallhuray_surface_ratio": 0.0,
+            "bottom_hallhuray_nodule_radius": 0.0,
+            "bottom_hallhuray_surface_ratio": 0.0,
+            "side_hallhuray_nodule_radius": 0.0,
+            "side_hallhuray_surface_ratio": 0.0
+        },
         "UNNAMED_000": {
             "name": "UNNAMED_000",
             "color": [

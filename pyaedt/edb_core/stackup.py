@@ -8,6 +8,7 @@ from __future__ import absolute_import  # noreorder
 import json
 import logging
 import math
+import os.path
 import warnings
 from collections import OrderedDict
 
@@ -496,7 +497,9 @@ class LayerEdbClass(object):
             self.color = layer["color"]
             self.type = layer["type"]
             if isinstance(layer["material"], str):
-                self.material = layer["material"]
+                mat_keys = [i.lower() for i in self._pclass._pedb.materials.materials.keys()]
+                mat_keys_case = [i for i in self._pclass._pedb.materials.materials.keys()]
+                self.material = mat_keys_case[mat_keys.index(layer["material"].lower())]
             else:
                 self._pclass._pedb.materials._load_materials(layer["material"])
                 self.material = layer["material"]["name"]
@@ -960,6 +963,14 @@ class Stackup(object):
             logger.error("layer {} exists.".format(layer_name))
             return False
         materials_lower = {m.lower(): m for m in list(self._pedb.materials.materials.keys())}
+        if not material:
+            if layer_type == "signal":
+                material = "copper"
+            else:
+                material = "fr4_epoxy"
+        if not fillMaterial:
+            fillMaterial = "fr4_epoxy"
+
         if material.lower() not in materials_lower:
             logger.error(material + " does not exist in material library")
         else:
@@ -1018,8 +1029,10 @@ class Stackup(object):
         Parameters
         ----------
         fpath : str
-            File path to csv file.
+            File path to csv or json file.
         """
+        if os.path.splitext(fpath)[1] == ".json":
+            return self._import_layer_stackup(fpath)
         if is_ironpython:
             self._pedb.logger.error("Method working on CPython only.")
             return False
@@ -1143,7 +1156,37 @@ class Stackup(object):
                     for material in v.values():
                         self._pedb.materials._load_materials(material)
                 if k == "layers":
+                    if len(list(v.values())) == len(list(self.stackup_layers.values())):
+                        imported_layers_list = list(v.keys())
+                        layout_layer_list = list(self.stackup_layers.keys())
+                        for layer_name in imported_layers_list:
+                            layer_index = imported_layers_list.index(layer_name)
+                            if layout_layer_list[layer_index] != layer_name:
+                                self.stackup_layers[layout_layer_list[layer_index]].name = layer_name
+                    prev_layer = None
                     for layer_name, layer in v.items():
+                        if layer_name not in self.stackup_layers:
+                            if not prev_layer:
+                                self.add_layer(
+                                    layer_name,
+                                    method="add_on_top",
+                                    layer_type=layer["type"],
+                                    material=layer["material"],
+                                    fillMaterial=layer["dielectric_fill"],
+                                    thickness=layer["thickness"],
+                                )
+                                prev_layer = layer_name
+                            else:
+                                self.add_layer(
+                                    layer_name,
+                                    base_layer=layer_name,
+                                    method="insert_below",
+                                    layer_type=layer["type"],
+                                    material=layer["material"],
+                                    fillMaterial=layer["dielectric_fill"],
+                                    thickness=layer["thickness"],
+                                )
+                                prev_layer = layer_name
                         if layer_name in self.stackup_layers:
                             self.stackup_layers[layer["name"]]._load_layer(layer)
             return True

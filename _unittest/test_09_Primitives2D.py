@@ -16,7 +16,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(
-            self, design_name="2D_Primitives", solution_type="TransientXY", application=Maxwell2d
+            self, design_name="2D_Primitives_2", solution_type="TransientXY", application=Maxwell2d
         )
 
     def teardown_class(self):
