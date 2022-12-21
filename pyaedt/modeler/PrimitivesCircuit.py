@@ -227,14 +227,17 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
-            Circuit Component Object.
+        :class:`pyaedt.modules.Boundary.Excitation`
+            Circuit Excitation Object.
 
         References
         ----------
 
         >>> oEditor.CreateIPort
         """
+        if name in self._app.excitation_names:
+            self.logger.warning("Port name already assigned.")
+            return False
         if location:
             xpos, ypos = location[0], location[1]
         else:
@@ -249,7 +252,7 @@ class CircuitComponents(object):
         # return id, self.components[id].composed_name
         for el in self.components:
             if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
-                return self.components[el]
+                return self._app.excitations[name]
         return False
 
     @pyaedt_function_handler()

@@ -517,7 +517,7 @@ class ExcitationPorts(CommonExcitation):
     pedb : pyaedt.edb.Edb
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from edblib.
+        Edge terminal instance from Edb.
 
 
     Examples
@@ -828,7 +828,7 @@ class ExcitationSources(CommonExcitation):
     pedb : pyaedt.edb.Edb
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from edblib.
+        Edge terminal instance from Edb.
 
 
 
@@ -864,7 +864,7 @@ class ExcitationProbes(CommonExcitation):
     pedb : pyaedt.edb.Edb
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from edblib.
+        Edge terminal instance from Edb.
 
 
     Examples
