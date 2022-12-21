@@ -1198,3 +1198,34 @@ class EdbSiwave(object):
         neg_terminal.SetName(name + "_ref")
         pos_terminal.SetReferenceTerminal(neg_terminal)
         return True
+
+    @pyaedt_function_handler
+    def create_port_on_pin_group(
+        self, pos_pin_group_name, neg_pin_group_name, impedance=50, name=None
+    ):
+        """Create a port between two pin groups.
+
+        Parameters
+        ----------
+        pos_pin_group_name : str
+            Name of the positive pin group.
+        neg_pin_group_name : str
+            Name of the negative pin group.
+        impedance : int, float, optional
+            Impedance of the source.
+        Returns
+        -------
+
+        """
+        pos_pin_group = self.pin_groups[pos_pin_group_name]
+        pos_terminal = pos_pin_group.create_port_terminal(impedance)
+        if name:
+            pos_terminal.SetName(name)
+        else:
+            name = generate_unique_name("vsource")
+            pos_terminal.SetName(name)
+        neg_pin_group_name = self.pin_groups[neg_pin_group_name]
+        neg_terminal = neg_pin_group_name.create_port_terminal(impedance)
+        neg_terminal.SetName(name + "_ref")
+        pos_terminal.SetReferenceTerminal(neg_terminal)
+        return True
