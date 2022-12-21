@@ -1210,6 +1210,11 @@ class TestClass(BasisTest, object):
         assert len(data2) == 4
         assert len(data2[0]) == 3
 
+    def test_74_dynamic_update(self):
+        assert not self.aedtapp.post.update_report_dinamically
+        self.aedtapp.post.update_report_dinamically = True
+        assert self.aedtapp.post.update_report_dinamically
+
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()
         vars = self.field_test.available_variations.get_variation_strings()

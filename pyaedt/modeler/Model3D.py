@@ -758,7 +758,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Road elevation offset. Default is ``0``.
         road_step : float
             Road simplification steps in meter. Default is ``3``.
-        road_width: float
+        road_width : float
             Road width  in meter. Default is ``8``.
         create_lightweigth_part : bool
             Either if import as lightweight object or not. Default is ``True``.
@@ -825,7 +825,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "type": "environment",
             "center_lat_lon": latitude_longitude,
             "radius": terrain_radius,
-            "road_network": f"{env_name}.road_network",
+            "road_network": "{}.road_network".format(env_name),
             "parts": parts_dict,
         }
 
@@ -851,9 +851,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             plt.show(interactive=True)
 
         if import_in_aedt:
+            self.model_units = "meter"
             for part in parts_dict:
                 obj_names = [i for i in self.object_names]
-                self.import_3d_cad(parts_dict[part]["file_name"], create_lightweigth_part=create_lightweigth_part)
+                self.import_3d_cad(
+                    parts_dict[part]["file_name"],
+                    create_lightweigth_part=create_lightweigth_part,
+                )
                 added_objs = [i for i in self.object_names if i not in obj_names]
                 if part == "terrain":
                     transparency = 0.2

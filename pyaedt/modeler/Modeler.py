@@ -4229,7 +4229,12 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def import_3d_cad(
-        self, filename, healing=False, refresh_all_ids=True, import_materials=False, create_lightweigth_part=False
+        self,
+        filename,
+        healing=False,
+        refresh_all_ids=True,
+        import_materials=False,
+        create_lightweigth_part=False,
     ):
         """Import a CAD model.
 
@@ -4249,7 +4254,7 @@ class GeometryModeler(Modeler, object):
             a big project.
         import_materials : bool optional
             Either to import material names from the file or not if presents.
-        create_lightweigth_part :bool ,optional
+        create_lightweigth_part : bool ,optional
             Either to import lightweight or not.
 
         Returns
@@ -4276,7 +4281,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("ImportFreeSurfaces:="), vArg1.append(False)
         vArg1.append("GroupByAssembly:="), vArg1.append(False)
         vArg1.append("CreateGroup:="), vArg1.append(True)
-        vArg1.append("STLFileUnit:="), vArg1.append(self.model_units)
+        vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
         vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
