@@ -4228,7 +4228,9 @@ class GeometryModeler(Modeler, object):
         return position_list
 
     @pyaedt_function_handler()
-    def import_3d_cad(self, filename, healing=False, refresh_all_ids=True, import_materials=False):
+    def import_3d_cad(
+        self, filename, healing=False, refresh_all_ids=True, import_materials=False, create_lightweigth_part=False
+    ):
         """Import a CAD model.
 
         Parameters
@@ -4247,6 +4249,8 @@ class GeometryModeler(Modeler, object):
             a big project.
         import_materials : bool optional
             Either to import material names from the file or not if presents.
+        create_lightweigth_part :bool ,optional
+            Either to import lightweight or not.
 
         Returns
         -------
@@ -4259,7 +4263,7 @@ class GeometryModeler(Modeler, object):
         >>> oEditor.Import
         """
 
-        if healing in [0, 1]:
+        if str(healing) in ["0", "1"]:
             warnings.warn(
                 "Assigning `0` or `1` to `healing` option is deprecated. Assign `True` or `False` instead.",
                 DeprecationWarning,
@@ -4275,7 +4279,7 @@ class GeometryModeler(Modeler, object):
         vArg1.append("STLFileUnit:="), vArg1.append(self.model_units)
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
         vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
-        vArg1.append("CreateLightweightPart:="), vArg1.append(False)
+        vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
         vArg1.append("SeparateDisjointLumps:="), vArg1.append(False)
         vArg1.append("SourceFile:="), vArg1.append(filename)
