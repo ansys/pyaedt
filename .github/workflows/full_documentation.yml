@@ -94,6 +94,7 @@ jobs:
     name: "Deploy stable documentation"
     runs-on: ubuntu-latest
     needs: full_documentation
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
       - name: "Deploy the stable documentation"
         uses: pyansys/actions/doc-deploy-stable@v2
