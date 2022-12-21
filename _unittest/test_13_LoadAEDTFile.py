@@ -11,13 +11,13 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 test_subfolder = "T13"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t13_231"
     cs = "Coordinate_System_231"
     cs1 = "Coordinate_System1_231"
     cs2 = "Coordinate_System2_231"
     cs3 = "Coordinate_System3_231"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_t13"
     cs = "Coordinate_System"
     cs1 = "Coordinate_System1"
     cs2 = "Coordinate_System2"
@@ -48,7 +48,7 @@ class TestClass(BasisTest, object):
         self.cs3 = BasisTest.add_app(self, cs3, subfolder=test_subfolder)
         self.multiple_cs_project = self.test_project
         self.mat1 = BasisTest.add_app(self, "Add_material")
-        hfss_file = os.path.join(local_path, "example_models", test_subfolder, "Coax_HFSS.aedt")
+        hfss_file = os.path.join(local_path, "example_models", test_subfolder, test_project_name + ".aedt")
         self.project_dict = load_entire_aedt_file(hfss_file)
 
     def teardown_class(self):
