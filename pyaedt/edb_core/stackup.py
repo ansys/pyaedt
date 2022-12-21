@@ -493,7 +493,6 @@ class LayerEdbClass(object):
 
     def _load_layer(self, layer):
         if layer:
-            # self.name = layer["name"]
             self.color = layer["color"]
             self.type = layer["type"]
             if isinstance(layer["material"], str):
