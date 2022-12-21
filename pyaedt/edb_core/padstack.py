@@ -393,9 +393,9 @@ class EdbPadstacks(object):
         if pin_name == "":
             pin_name = "no_pin_name"
         if use_dot_separator:
-            port_name = "{0}.{1}.{2}".format(cmp_name, net_name, pin_name)
+            port_name = "{0}.{1}.{2}".format(net_name, cmp_name, pin_name)
         else:
-            port_name = "{0}_{1}_{2}".format(cmp_name, net_name, pin_name)
+            port_name = "{0}_{1}_{2}".format(net_name, cmp_name, pin_name)
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
 

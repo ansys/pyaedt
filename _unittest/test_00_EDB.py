@@ -360,11 +360,15 @@ if not config["skip_edb"]:
             p2 = self.edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
             assert p2 != "test" and "test" in p2
             pins = self.edbapp.core_components.get_pin_from_component("U2A5")
-            p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0])
+            p3 = self.edbapp.core_siwave.create_circuit_port_on_pin(pins[200], pins[0], 45)
             assert p3 != ""
             p4 = self.edbapp.core_hfss.create_circuit_port_on_net("U2A5", "RSVD_9")
             assert len(self.edbapp.core_padstack.pingroups) == initial_len + 6
             assert "GND" in p4 and "RSVD_9" in p4
+            assert self.edbapp.core_siwave.create_pin_group_on_net("U2A5", "V1P0_S0", "PG_V1P0_S0")
+            assert self.edbapp.core_siwave.create_circuit_port_on_pin_group(
+                "PG_V1P0_S0", "PinGroup_2", impedance=50, name="test_port"
+            )
 
         def test_041_create_voltage_source(self):
             assert "Vsource_" in self.edbapp.core_siwave.create_voltage_source_on_net(
