@@ -639,6 +639,28 @@ class PostProcessorCommon(object):
         """
         return list(self.oreportsetup.GetAvailableReportTypes())
 
+    @property
+    def update_report_dinamically(self):
+        """Get/Set the boolean to automatically update reports on edits.
+
+        Returns
+        -------
+        bool
+        """
+        return (
+            True
+            if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits")
+            == 1
+            else False
+        )
+
+    @update_report_dinamically.setter
+    def update_report_dinamically(self, value):
+        if value:
+            self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 1)
+        else:
+            self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 0)
+
     @pyaedt_function_handler()
     def available_display_types(self, report_category=None):
         """Retrieve display types for a report categories.
