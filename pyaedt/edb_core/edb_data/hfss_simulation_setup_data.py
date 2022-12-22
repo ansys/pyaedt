@@ -848,10 +848,10 @@ class HfssSolverSettings(object):
     @property
     def order_basis(self):
         """Order of the basic functions for HFSS.
-        - 0=Mixed.
-        - 1=Zero.
-        - 2=1st order.
-        - 3=2nd order.
+        - 0=Zero.
+        - 1=1st order.
+        - 2=2nd order.
+        - 3=Mixed.
 
         Returns
         -------
@@ -892,7 +892,19 @@ class HfssSolverSettings(object):
         -------
         str
         """
-        return self._hfss_solver_settings.SolverType.ToString()
+        mapping = {"kAutoSolver": "auto",
+                   "kDirectSolver": "direct",
+                   "kIterativeSolver": "iterative"}
+        solver_type = self._hfss_solver_settings.SolverType.ToString()
+        return mapping[solver_type]
+
+    @solver_type.setter
+    def solver_type(self, value):
+        mapping = {"auto": self._hfss_solver_settings.SolverType.kAutoSolver,
+                   "direct": self._hfss_solver_settings.SolverType.kDirectSolver,
+                   "iterative": self._hfss_solver_settings.SolverType.kIterativeSolver}
+        self._hfss_solver_settings.SolverType = mapping[value]
+        self._parent._update_setup()
 
     @property
     def use_shell_elements(self):
@@ -1672,7 +1684,7 @@ class HfssSimulationSetup(object):
             else:
                 self._edb_sim_setup_info.Name = name
             self._name = name
-            self.hfss_solver_settings.order_basis = 0
+            self.hfss_solver_settings.order_basis = 3
 
             self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
             self._update_setup()
