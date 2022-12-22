@@ -1508,6 +1508,7 @@ class LayerEdbClass(object):
 
     @property
     def top_hallhuray_nodule_radius(self):
+        """Retrieve huray model nodule radius on top of the conductor."""
         top_roughness_model = self.get_roughness_model("top")
         if top_roughness_model:
             self._top_hallhuray_nodule_radius = top_roughness_model.NoduleRadius.ToDouble()
@@ -1519,6 +1520,7 @@ class LayerEdbClass(object):
 
     @property
     def top_hallhuray_surface_ratio(self):
+        """Retrieve huray model surface ratio on top of the conductor."""
         top_roughness_model = self.get_roughness_model("top")
         if top_roughness_model:
             self._top_hallhuray_surface_ratio = top_roughness_model.SurfaceRatio.ToDouble()
@@ -1530,6 +1532,7 @@ class LayerEdbClass(object):
 
     @property
     def bottom_hallhuray_nodule_radius(self):
+        """Retrieve huray model nodule radius on bottom of the conductor."""
         bottom_roughness_model = self.get_roughness_model("bottom")
         if bottom_roughness_model:
             self._bottom_hallhuray_nodule_radius = bottom_roughness_model.NoduleRadius.ToDouble()
@@ -1541,6 +1544,7 @@ class LayerEdbClass(object):
 
     @property
     def bottom_hallhuray_surface_ratio(self):
+        """Retrieve huray model surface ratio on bottom of the conductor."""
         bottom_roughness_model = self.get_roughness_model("bottom")
         if bottom_roughness_model:
             self._bottom_hallhuray_surface_ratio = bottom_roughness_model.SurfaceRatio.ToDouble()
@@ -1552,6 +1556,7 @@ class LayerEdbClass(object):
 
     @property
     def side_hallhuray_nodule_radius(self):
+        """Retrieve huray model nodule radius on sides of the conductor."""
         side_roughness_model = self.get_roughness_model("side")
         if side_roughness_model:
             self._side_hallhuray_nodule_radius = side_roughness_model.NoduleRadius.ToDouble()
@@ -1563,6 +1568,7 @@ class LayerEdbClass(object):
 
     @property
     def side_hallhuray_surface_ratio(self):
+        """Retrieve huray model surface ratio on sides of the conductor."""
         side_roughness_model = self.get_roughness_model("side")
         if side_roughness_model:
             self._side_hallhuray_surface_ratio = side_roughness_model.SurfaceRatio.ToDouble()
@@ -1574,7 +1580,7 @@ class LayerEdbClass(object):
 
     @pyaedt_function_handler()
     def get_roughness_model(self, surface="top"):
-        """Gets roughness model of the layer.
+        """Get roughness model of the layer.
 
         Parameters
         ----------
