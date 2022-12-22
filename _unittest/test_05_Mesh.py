@@ -8,8 +8,6 @@ try:
 except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
-test_project_name = "coax_HFSS"
-
 
 class TestClass(BasisTest, object):
     def setup_class(self):

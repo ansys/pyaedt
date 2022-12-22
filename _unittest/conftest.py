@@ -122,14 +122,15 @@ class BasisTest(object):
             except:
                 pass
         del self.edbapps
-        for aedtapp in self.aedtapps[::-1]:
-            try:
-                aedtapp.close_project(None, False)
-            except:
-                pass
-        del self.aedtapps
         for proj in oDesktop.GetProjectList():
             oDesktop.CloseProject(proj)
+        # for aedtapp in self.aedtapps[::-1]:
+        #     try:
+        #         aedtapp.close_project(None, False)
+        #     except:
+        #         pass
+        del self.aedtapps
+
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
