@@ -32,6 +32,7 @@ if not is_ironpython:
 
 logger = logging.getLogger(__name__)
 
+
 class Stackup(object):
     """Manages EDB methods for stackup accessible from `Edb.stackup` property."""
 
