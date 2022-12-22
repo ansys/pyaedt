@@ -13,9 +13,11 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
+from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 pd = None
 if not is_ironpython:
