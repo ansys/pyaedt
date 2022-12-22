@@ -747,6 +747,10 @@ class ModelPlotter(object):
     @convert_fields_in_db.setter
     def convert_fields_in_db(self, value):
         self._convert_fields_in_db = value
+        for f in self.fields:
+            f._cached_polydata = None
+        for f in self.frames:
+            f._cached_polydata = None
 
     @property
     def x_scale(self):
