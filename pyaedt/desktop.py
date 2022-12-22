@@ -290,7 +290,7 @@ def get_version_env_variable(version_id):
     return version_env_var
 
 
-class Desktop:
+class Desktop(object):
     """Initializes AEDT based on the inputs provided.
 
     .. note::

@@ -1,5 +1,6 @@
 import ast
 import csv
+import math
 import os
 import tempfile
 import time
@@ -731,6 +732,25 @@ class ModelPlotter(object):
         self._x_scale = 1.0
         self._y_scale = 1.0
         self._z_scale = 1.0
+        self._convert_fields_in_db = False
+
+    @property
+    def convert_fields_in_db(self):
+        """Either if convert the fields before plotting in dB10. Log scale will be disabled.
+
+        Returns
+        -------
+        bool
+        """
+        return self._convert_fields_in_db
+
+    @convert_fields_in_db.setter
+    def convert_fields_in_db(self, value):
+        self._convert_fields_in_db = value
+        for f in self.fields:
+            f._cached_polydata = None
+        for f in self.frames:
+            f._cached_polydata = None
 
     @property
     def x_scale(self):
@@ -1228,6 +1248,8 @@ class ModelPlotter(object):
             if field.path and not field._cached_polydata:
                 if ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
+                    if self.convert_fields_in_db:
+                        scalars = [np.multiply(np.log10(i), 10) for i in scalars]
                     fields_vals = pv.PolyData(vertices[0], faces[0])
                     field._cached_polydata = fields_vals
                     if isinstance(scalars[0], list):
@@ -1277,6 +1299,11 @@ class ModelPlotter(object):
                                 is_vector = True
                             else:
                                 values.append(float(tmp[3]))
+                    if self.convert_fields_in_db:
+                        if len(values[0]) == 1:
+                            values = [10 * math.log10(i) for i in values]
+                        else:
+                            values = [[10 * math.log10(i) for i in value] for value in values]
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
@@ -1447,7 +1474,7 @@ class ModelPlotter(object):
                 self.pv.add_mesh(
                     field._cached_polydata.arrows,
                     scalars=field.label,
-                    log_scale=field.log_scale,
+                    log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                 )
@@ -1456,7 +1483,7 @@ class ModelPlotter(object):
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
                     scalars=field.label,
-                    log_scale=field.log_scale,
+                    log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                     clim=[self.range_min, self.range_max],
@@ -1467,7 +1494,7 @@ class ModelPlotter(object):
                 field._cached_mesh = self.pv.add_mesh(
                     field._cached_polydata,
                     scalars=field.label,
-                    log_scale=field.log_scale,
+                    log_scale=False if self.convert_fields_in_db else field.log_scale,
                     scalar_bar_args=sargs,
                     cmap=field.color_map,
                     opacity=field.opacity,
@@ -1647,7 +1674,7 @@ class ModelPlotter(object):
             field._cached_mesh = self.pv.add_mesh(
                 field._cached_polydata,
                 scalars=field.label,
-                log_scale=field.log_scale,
+                log_scale=False if self.convert_fields_in_db else field.log_scale,
                 scalar_bar_args=sargs,
                 cmap=field.color_map,
                 opacity=field.opacity,
@@ -1673,7 +1700,7 @@ class ModelPlotter(object):
         self.frames[0]._cached_mesh = self.pv.add_mesh(
             self.frames[0]._cached_polydata,
             scalars=self.frames[0].label,
-            log_scale=self.frames[0].log_scale,
+            log_scale=False if self.convert_fields_in_db else self.frames[0].log_scale,
             scalar_bar_args=sargs,
             cmap=self.frames[0].color_map,
             clim=[mins, maxs],

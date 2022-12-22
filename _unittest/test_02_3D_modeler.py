@@ -12,9 +12,9 @@ except ImportError:
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t02_231"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_t02"
 
 
 class TestClass(BasisTest, object):

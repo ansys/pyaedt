@@ -1,5 +1,6 @@
 import math
 
+from _unittest.conftest import BasisTest
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT
@@ -23,7 +24,7 @@ def is_vector_equal(v, r):
     return n < 1e-12
 
 
-class TestClass:
+class TestClass(BasisTest, object):
     def setup_class(self):
         pass
 

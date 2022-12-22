@@ -19,9 +19,9 @@ test_project_name = "Test_RadioBoard"
 test_rigid_flex = "demo_flex"
 
 if config["desktopVersion"] > "2022.2":
-    diff_proj_name = "differential_pairs_231"
+    diff_proj_name = "differential_pairs_t41_231"
 else:
-    diff_proj_name = "differential_pairs"
+    diff_proj_name = "differential_pairs_t41"
 
 
 class TestClass(BasisTest, object):

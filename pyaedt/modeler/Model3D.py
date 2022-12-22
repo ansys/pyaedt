@@ -742,9 +742,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         latitude_longitude : list
             Latitude and longitude.
-        env_name : str
+        env_name : str, optional
+            Name of the environment used to create the scene. The default value is ``"default"``.
         terrain_radius : float, int
-            Radius to take around center.
+            Radius to take around center. The default value is ``500``.
         include_osm_buildings : bool
             Either if include or not 3D Buildings. Default is ``True``.
         including_osm_roads : bool
@@ -775,9 +776,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         output_path = self._app.working_directory
 
         parts_dict = {}
-        # instiate terrain module
-        terrainprep = TerrainPrep(cad_path=output_path)
-        terrain_geo = terrainprep.get_terrain(latitude_longitude, max_radius=terrain_radius, grid_size=30)
+        # instantiate terrain module
+        terrain_prep = TerrainPrep(cad_path=output_path)
+        terrain_geo = terrain_prep.get_terrain(latitude_longitude, max_radius=terrain_radius, grid_size=30)
         terrain_stl = terrain_geo["file_name"]
         terrain_mesh = terrain_geo["mesh"]
         terrain_dict = {"file_name": terrain_stl, "color": "brown", "material": "earth"}
@@ -786,8 +787,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         road_mesh = None
         if include_osm_buildings:
             self.logger.info("Generating Building Geometry")
-            buildingprep = BuildingsPrep(cad_path=output_path)
-            building_geo = buildingprep.generate_buildings(
+            building_prep = BuildingsPrep(cad_path=output_path)
+            building_geo = building_prep.generate_buildings(
                 latitude_longitude, terrain_mesh, max_radius=terrain_radius * 0.8
             )
             building_stl = building_geo["file_name"]
@@ -796,8 +797,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             parts_dict["buildings"] = building_dict
         if including_osm_roads:
             self.logger.info("Generating Road Geometry")
-            roadprep = RoadPrep(cad_path=output_path)
-            road_geo = roadprep.create_roads(
+            road_prep = RoadPrep(cad_path=output_path)
+            road_geo = road_prep.create_roads(
                 latitude_longitude,
                 terrain_mesh,
                 max_radius=terrain_radius,
@@ -808,11 +809,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
             road_stl = road_geo["file_name"]
             road_mesh = road_geo["mesh"]
-            road_graph = road_geo["graph"]
             road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
             parts_dict["roads"] = road_dict
 
-        json_path = output_path + env_name + ".json"
+        json_path = os.path.join(output_path, env_name + ".json")
 
         scene = {
             "name": env_name,
@@ -820,7 +820,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "type": "environment",
             "center_lat_lon": latitude_longitude,
             "radius": terrain_radius,
-            "road_network": "{}.road_network".format(env_name),
+            "include_buildings": include_osm_buildings,
+            "include_roads": including_osm_roads,
             "parts": parts_dict,
         }
 
@@ -866,4 +867,4 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 for obj in added_objs:
                     self[obj].transparency = transparency
                     self[obj].color = color
-        return parts_dict
+        return scene

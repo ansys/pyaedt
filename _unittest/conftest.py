@@ -58,30 +58,35 @@ test_project_name = "test_primitives"
 sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
 
-# Check for the local config file, otherwise use default desktop configuration
+# Initialize default desktop configuration
+default_version = "2022.2"
+os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
+if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
+    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
+config = {
+    "desktopVersion": default_version,
+    "NonGraphical": True,
+    "NewThread": True,
+    "test_desktops": False,
+    "build_machine": True,
+    "skip_space_claim": False,
+    "skip_circuits": False,
+    "skip_edb": False,
+    "skip_debug": False,
+    "local": False,
+    "use_grpc": False,
+    "disable_sat_bounding_box": False,
+}
+
+# Check for the local config file, override defaults if found
 local_config_file = os.path.join(local_path, "local_config.json")
 if os.path.exists(local_config_file):
+    local_config = {}
     with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    default_version = "2022.2"
-    os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
-    if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-        default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
-    config = {
-        "desktopVersion": default_version,
-        "NonGraphical": True,
-        "NewThread": True,
-        "test_desktops": False,
-        "build_machine": True,
-        "skip_space_claim": False,
-        "skip_circuits": False,
-        "skip_edb": False,
-        "skip_debug": False,
-        "local": False,
-        "use_grpc": False,
-        "disable_sat_bounding_box": False,
-    }
+        local_config = json.load(f)
+    for key, val in local_config.items():
+        config[key] = val
+
 settings.use_grpc_api = config.get("use_grpc", False)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
@@ -117,20 +122,24 @@ class BasisTest(object):
             except:
                 pass
         del self.edbapps
-        for aedtapp in self.aedtapps[::-1]:
-            try:
-                aedtapp.close_project(None, False)
-            except:
-                pass
-        del self.aedtapps
         for proj in oDesktop.GetProjectList():
             oDesktop.CloseProject(proj)
+        # for aedtapp in self.aedtapps[::-1]:
+        #     try:
+        #         aedtapp.close_project(None, False)
+        #     except:
+        #         pass
+        del self.aedtapps
+
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
-            desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            try:
+                desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            except:
+                desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
