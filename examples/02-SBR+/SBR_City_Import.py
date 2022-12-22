@@ -65,7 +65,13 @@ app.modeler.import_from_openstreet_map(ansys_home,
 # ~~~~~~~~~~
 # Plot the model.
 
-app.plot(show=False, export_path=os.path.join(app.working_directory, "Source.jpg"), plot_air_objects=True)
+plot_obj = app.plot(show=False, plot_air_objects=True)
+plot_obj.background_color = [153,203,255]
+plot_obj.zoom = 1.5
+plot_obj.show_grid = False
+plot_obj.show_axes = False
+plot_obj.bounding_box = False
+plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 
 
 ###############################################################################
