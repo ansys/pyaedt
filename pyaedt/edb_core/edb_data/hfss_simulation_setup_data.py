@@ -857,18 +857,12 @@ class HfssSolverSettings(object):
         -------
         int
             Integer value according to the description."""
-        mapping = {0: "zero",
-                   1: "first",
-                   2: "second",
-                   3: "mixed"}
+        mapping = {0: "zero", 1: "first", 2: "second", 3: "mixed"}
         return mapping[self._hfss_solver_settings.OrderBasis]
 
     @order_basis.setter
     def order_basis(self, value):
-        mapping = {"zero": 0,
-                   "first": 1,
-                   "second": 2,
-                   "mixed": 3}
+        mapping = {"zero": 0, "first": 1, "second": 2, "mixed": 3}
         self._hfss_solver_settings.OrderBasis = mapping[value]
         self._parent._update_setup()
 
@@ -900,17 +894,17 @@ class HfssSolverSettings(object):
         -------
         str
         """
-        mapping = {"kAutoSolver": "auto",
-                   "kDirectSolver": "direct",
-                   "kIterativeSolver": "iterative"}
+        mapping = {"kAutoSolver": "auto", "kDirectSolver": "direct", "kIterativeSolver": "iterative"}
         solver_type = self._hfss_solver_settings.SolverType.ToString()
         return mapping[solver_type]
 
     @solver_type.setter
     def solver_type(self, value):
-        mapping = {"auto": self._hfss_solver_settings.SolverType.kAutoSolver,
-                   "direct": self._hfss_solver_settings.SolverType.kDirectSolver,
-                   "iterative": self._hfss_solver_settings.SolverType.kIterativeSolver}
+        mapping = {
+            "auto": self._hfss_solver_settings.SolverType.kAutoSolver,
+            "direct": self._hfss_solver_settings.SolverType.kDirectSolver,
+            "iterative": self._hfss_solver_settings.SolverType.kIterativeSolver,
+        }
         self._hfss_solver_settings.SolverType = mapping[value]
         self._parent._update_setup()
 
