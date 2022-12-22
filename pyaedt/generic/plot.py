@@ -1245,7 +1245,7 @@ class ModelPlotter(object):
                 if ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
                     if self.convert_fields_in_db:
-                        scalars = [10 * math.log10(i) for i in scalars]
+                        scalars = [np.multiply(np.log10(i), 10) for i in scalars]
                     fields_vals = pv.PolyData(vertices[0], faces[0])
                     field._cached_polydata = fields_vals
                     if isinstance(scalars[0], list):
@@ -1297,7 +1297,7 @@ class ModelPlotter(object):
                                 values.append(float(tmp[3]))
                     if self.convert_fields_in_db:
                         if len(values[0]) == 1:
-                            values = [10 * math.log10(i) for i in value]
+                            values = [10 * math.log10(i) for i in values]
                         else:
                             values = [[10 * math.log10(i) for i in value] for value in values]
                     if nodes:
