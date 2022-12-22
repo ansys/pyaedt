@@ -7,8 +7,8 @@ OpenStreeMaps.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perrform rquired imports and set up the local path to the path for the PyAEDT
-# directory.
+# Perform required imports and set up the local path to the PyAEDT
+# directory path.
 
 import os
 from pyaedt import Hfss
@@ -26,8 +26,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Define designs
 # ~~~~~~~~~~~~~~
-# Define two designs, one source and one target, with each design connected to
-# a different object.
+# Define two designs, one source and one target.
+# Each design is connected to a different object.
 
 app = Hfss(
     designname="Ansys",
@@ -63,9 +63,15 @@ app.modeler.import_from_openstreet_map(ansys_home,
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
-# Plot the model
+# Plot the model.
 
-app.plot(show=False, export_path=os.path.join(app.working_directory, "Source.jpg"), plot_air_objects=True)
+plot_obj = app.plot(show=False, plot_air_objects=True)
+plot_obj.background_color = [153,203,255]
+plot_obj.zoom = 1.5
+plot_obj.show_grid = False
+plot_obj.show_axes = False
+plot_obj.bounding_box = False
+plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 
 
 ###############################################################################

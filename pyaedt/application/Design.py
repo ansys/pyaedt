@@ -2789,7 +2789,7 @@ class Design(AedtObjects):
         """
         legacy_name = self.project_name
         if name and name not in self.project_list:
-            self.logger.warning("Project not found. ", name)
+            self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:
             name = self.project_name

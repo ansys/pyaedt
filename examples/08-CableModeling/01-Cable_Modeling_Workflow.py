@@ -406,6 +406,14 @@ cable = Cable(hfss, cable_props)
 cable.create_cable_harness()
 
 ###############################################################################
+# Plot model
+# ~~~~~~~~~~
+# Plot the model.
+
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Cable.jpg"), plot_air_objects=True)
+
+
+###############################################################################
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Save the project and close AEDT.

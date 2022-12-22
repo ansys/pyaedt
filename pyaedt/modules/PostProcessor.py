@@ -640,7 +640,7 @@ class PostProcessorCommon(object):
         return list(self.oreportsetup.GetAvailableReportTypes())
 
     @property
-    def update_report_dinamically(self):
+    def update_report_dynamically(self):
         """Get/Set the boolean to automatically update reports on edits.
 
         Returns
@@ -654,8 +654,8 @@ class PostProcessorCommon(object):
             else False
         )
 
-    @update_report_dinamically.setter
-    def update_report_dinamically(self, value):
+    @update_report_dynamically.setter
+    def update_report_dynamically(self, value):
         if value:
             self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 1)
         else:
