@@ -18,13 +18,12 @@ test_field_name = "Potter_Horn"
 ipk_name = "Icepak_test"
 test_subfolder = "T42"
 if config["desktopVersion"] > "2022.2":
-    q3d_file = "via_gsg_231"
+    q3d_file = "via_gsg_t42_231"
     test_project_name = "dm boundary test_231"
-    diff_proj_name = "differential_pairs_231"
 else:
-    q3d_file = "via_gsg"
+    q3d_file = "via_gsg_t42"
     test_project_name = "dm boundary test"
-    diff_proj_name = "differential_pairs"
+diff_proj_name = "test_42"
 
 
 class TestClass(BasisTest, object):
