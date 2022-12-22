@@ -809,11 +809,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
             road_stl = road_geo["file_name"]
             road_mesh = road_geo["mesh"]
-            road_graph = road_geo["graph"]
             road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
             parts_dict["roads"] = road_dict
 
-        json_path = os.path.join(output_path, env_name, ".json")
+        json_path = os.path.join(output_path, env_name + ".json")
 
         scene = {
             "name": env_name,
@@ -821,7 +820,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "type": "environment",
             "center_lat_lon": latitude_longitude,
             "radius": terrain_radius,
-            "road_network": "{}.road_network".format(env_name),
+            "include_buildings": include_osm_buildings,
+            "include_roads": including_osm_roads,
             "parts": parts_dict,
         }
 
@@ -867,4 +867,4 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 for obj in added_objs:
                     self[obj].transparency = transparency
                     self[obj].color = color
-        return parts_dict
+        return scene
