@@ -376,7 +376,8 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return self.odesktop.GetVersion()[0:6]
+
+        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
 
     @property
     def design_name(self):
@@ -2971,7 +2972,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = new_design.GetName()
+        name = _retry_ntimes(5, new_design.GetName)
         self._odesign = new_design
         return name
 
