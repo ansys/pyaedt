@@ -857,11 +857,19 @@ class HfssSolverSettings(object):
         -------
         int
             Integer value according to the description."""
-        return self._hfss_solver_settings.OrderBasis
+        mapping = {0: "zero",
+                   1: "first",
+                   2: "second",
+                   3: "mixed"}
+        return mapping[self._hfss_solver_settings.OrderBasis]
 
     @order_basis.setter
     def order_basis(self, value):
-        self._hfss_solver_settings.OrderBasis = value
+        mapping = {"zero": 0,
+                   "first": 1,
+                   "second": 2,
+                   "mixed": 3}
+        self._hfss_solver_settings.OrderBasis = mapping[value]
         self._parent._update_setup()
 
     @property
@@ -1684,7 +1692,7 @@ class HfssSimulationSetup(object):
             else:
                 self._edb_sim_setup_info.Name = name
             self._name = name
-            self.hfss_solver_settings.order_basis = 3
+            self.hfss_solver_settings.order_basis = "mixed"
 
             self._edb_sim_setup = self._edb.edb.Utility.HFSSSimulationSetup(self._edb_sim_setup_info)
             self._update_setup()

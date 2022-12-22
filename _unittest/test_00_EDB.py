@@ -1740,12 +1740,12 @@ if not config["skip_edb"]:
             assert setup1.set_solution_broadband()
 
             setup1.hfss_solver_settings.enhanced_low_freq_accuracy = True
-            setup1.hfss_solver_settings.order_basis = 1
+            setup1.hfss_solver_settings.order_basis = "first"
             setup1.hfss_solver_settings.relative_residual = 0.0002
             setup1.hfss_solver_settings.use_shell_elements = True
 
             hfss_solver_settings = self.edbapp.setups["setup1"].hfss_solver_settings
-            assert hfss_solver_settings.order_basis == 1
+            assert hfss_solver_settings.order_basis == "first"
             assert hfss_solver_settings.relative_residual == 0.0002
             assert hfss_solver_settings.solver_type
             assert hfss_solver_settings.enhanced_low_freq_accuracy
