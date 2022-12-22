@@ -1027,14 +1027,36 @@ class EDBPadstackInstance(object):
         tuple
             Tuple of the layer name and drill diameter.
         """
-        layer = self._pedb.edb.Cell.Layer("", 1)
+        layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
         val = self._pedb.edb_value(0)
         (
-            _,
-            depth,
+            flag,
+            drill_to_layer,
             diameter,
         ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
-        return depth.GetName(), diameter.ToString()
+        if flag:
+            return drill_to_layer.GetName(), diameter.ToString()
+        else:
+            return
+
+    def set_backdrill_top(self, drill_depth, drill_diameter):
+        """Set backdrill from top.
+
+        Parameters
+        ----------
+        drill_depth : str
+            Name of the drill to layer.
+        drill_diameter : float, str
+            Diameter of backdrill size.
+
+        Returns
+        -------
+        bool
+            True if success, False otherwise.
+        """
+        layer = self._pedb.stackup.layers[drill_depth]._edb_layer
+        val = self._pedb.edb_value(drill_diameter)
+        return self._edb_padstackinstance.SetBackDrillParameters(layer, val, False)
 
     @property
     def backdrill_bottom(self):
@@ -1045,14 +1067,36 @@ class EDBPadstackInstance(object):
         tuple
             Tuple of the layer name and drill diameter.
         """
-        layer = self._pedb.edb.Cell.Layer("", 1)
+        layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
         val = self._pedb.edb_value(0)
         (
-            _,
-            depth,
+            flag,
+            drill_to_layer,
             diameter,
         ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
-        return depth.GetName(), diameter.ToString()
+        if flag:
+            return drill_to_layer.GetName(), diameter.ToString()
+        else:
+            return
+
+    def set_backdrill_bottom(self, drill_depth, drill_diameter):
+        """Set backdrill from bottom.
+
+        Parameters
+        ----------
+        drill_depth : str
+            Name of the drill to layer.
+        drill_diameter : float, str
+            Diameter of backdrill size.
+
+        Returns
+        -------
+        bool
+            True if success, False otherwise.
+        """
+        layer = self._pedb.stackup.layers[drill_depth]._edb_layer
+        val = self._pedb.edb_value(drill_diameter)
+        return self._edb_padstackinstance.SetBackDrillParameters(layer, val, True)
 
     @property
     def start_layer(self):
