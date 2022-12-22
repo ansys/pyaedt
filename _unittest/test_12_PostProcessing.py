@@ -659,6 +659,7 @@ class TestClass(BasisTest, object):
 
         plot_obj.background_image = r"c:\filenot_exist.jpg"
         assert not plot_obj.background_image
+        plot_obj.convert_fields_in_db = True
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 

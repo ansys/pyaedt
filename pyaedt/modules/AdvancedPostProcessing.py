@@ -370,7 +370,6 @@ class PostProcessor(Post):
             model.range_max = scale_max
         if show or project_path:
             model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
-            model.clean_cache_and_files(clean_cache=False)
         return model
 
     @pyaedt_function_handler()
@@ -450,7 +449,6 @@ class PostProcessor(Post):
 
         if show or export_gif:
             model.animate()
-            model.clean_cache_and_files(clean_cache=False)
         return model
 
     @pyaedt_function_handler()
@@ -548,8 +546,6 @@ class PostProcessor(Post):
             model.zoom = zoom
         if show or export_gif:
             model.animate()
-            model.clean_cache_and_files(clean_cache=False)
-
         return model
 
     @pyaedt_function_handler()
