@@ -391,9 +391,9 @@ class EdbFrequencySweep(object):
             ``True`` if correctly executed, ``False`` otherwise.
 
         """
-        start = self._sim_setup._edb.arg_to_dim(start, "Hz")
+        """start = self._sim_setup._edb.arg_to_dim(start, "Hz")
         stop = self._sim_setup._edb.arg_to_dim(stop, "Hz")
-        step = self._sim_setup._edb.arg_to_dim(step, "Hz")
+        step = self._sim_setup._edb.arg_to_dim(step, "Hz")"""
         self._edb_sweep_data.Frequencies = self._edb_sweep_data.SetFrequencies(start, stop, step)
         return self._update_sweep()
 
