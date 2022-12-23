@@ -2,7 +2,7 @@ ansys-sphinx-theme==0.8.0
 imageio==2.23.0
 imageio-ffmpeg==0.4.7
 ipython==8.7.0
-ipywidgets==8.0.3
+ipywidgets==8.0.4
 joblib==1.2.0
 jupyterlab==3.5.2
 matplotlib==3.6.2
