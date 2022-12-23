@@ -1558,7 +1558,7 @@ class Maxwell(object):
         input_objects_list,
         auto_heal=True,
         tolerant_stitch=True,
-        simplify_geom=True,
+        simplify_geometry=True,
         tighten_gaps=True,
         heal_to_solid=False,
         stop_after_first_stitch_error=False,
