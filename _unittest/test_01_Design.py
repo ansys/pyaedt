@@ -36,18 +36,6 @@ class TestClass(BasisTest, object):
     def test_app(self):
         assert self.aedtapp
 
-    @pytest.mark.skipif(config["use_grpc"], reason="Failing")
-    def test_00_destkop(self):
-        d = Desktop(desktop_version, new_desktop_session=False)
-        assert isinstance(d.project_list(), list)
-        assert isinstance(d.design_list(), list)
-        assert desktop_version == d.aedt_version_id
-        assert d.personallib
-        assert d.userlib
-        assert d.syslib
-        assert d.design_type() == "HFSS"
-        assert d.clear_messages()
-
     def test_01_designname(self):
         self.aedtapp.design_name = "myname"
         assert self.aedtapp.design_name == "myname"
