@@ -97,7 +97,7 @@ class EdbHfss(object):
             point_on_edge = self._edb.Geometry.PointData(
                 self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
             )
-        if hasattr(prim, "GetId"):
+        if hasattr(prim_id, "GetId"):
             prim = prim_id
         else:
             prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
