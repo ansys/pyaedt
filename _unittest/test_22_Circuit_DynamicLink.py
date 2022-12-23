@@ -9,7 +9,6 @@ from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import settings
 
 try:
     import pytest
@@ -64,9 +63,7 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        self.aedtapp = Circuit(
-            self.test_project, specified_version=desktop_version, non_graphical=settings.non_graphical
-        )
+        self.aedtapp = Circuit(self.test_project)
         self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):

@@ -21,9 +21,11 @@ import datetime
 import gc
 import json
 import os
+import random
 import shutil
 import sys
 import tempfile
+import time
 
 from pyaedt import pyaedt_logger
 from pyaedt import settings
@@ -124,23 +126,18 @@ class BasisTest(object):
         del self.edbapps
         for proj in oDesktop.GetProjectList():
             oDesktop.CloseProject(proj)
-        # for aedtapp in self.aedtapps[::-1]:
-        #     try:
-        #         aedtapp.close_project(None, False)
-        #     except:
-        #         pass
         del self.aedtapps
-
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
+            time.sleep(random.randrange(1, 30))
             try:
-                desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+                self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             except:
-                desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
-            desktop.disable_autosave()
+                self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            self.desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
