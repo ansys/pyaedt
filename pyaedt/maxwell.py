@@ -1605,7 +1605,7 @@ class Maxwell(object):
         max_stitch_tolerance : float, str, optional
             Max stitch tolerance for manual healing. Default value is ``0.001``.
         explode_and_stitch : bool, optional
-            explode and stitch for manual healing. Default value is ``True``.
+            Explode and stitch for manual healing. Default value is ``True``.
         geometry_simplification_tolerance : float, str, optional
             Geometry simplification tolerance for manual healing in mm. Default value is ``1``.
         maximum_generated_radius : float, str, optional
