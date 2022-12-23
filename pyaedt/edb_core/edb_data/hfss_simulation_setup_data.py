@@ -987,7 +987,12 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_settings(self):
-        """Adaptive EDB settings."""
+        """Adaptive EDB settings.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveSettings`
+        """
         return self._parent._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
 
     @property
@@ -2036,8 +2041,8 @@ class HfssSimulationSetup(object):
         bool
 
         """
-        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.adapt_type = "kSingle"
+        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
     @pyaedt_function_handler()
