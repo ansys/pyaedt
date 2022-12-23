@@ -1032,7 +1032,7 @@ class EDBPadstackInstance(object):
         if is_ironpython:  # pragma: no cover
             diameter = _clr.StrongBox[type(val)]()
             drill_to_layer = _clr.StrongBox[self._pedb.edb.Cell.ILayerReadOnly]()
-            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(drill_to_layer, diameter, False)
         else:
             (
                 flag,
