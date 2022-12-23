@@ -399,6 +399,9 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1, Magnet1_Section1, Magnet2_Section1 ")
         assert not self.aedtapp.heal_objects(input_objects_list="")
         assert not self.aedtapp.heal_objects(
+            input_objects_list=["Rotor_Section1", "Magnet1_Section1", "Magnet2_Section1"]
+        )
+        assert not self.aedtapp.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", simplify_type=3
         )
         assert self.aedtapp.heal_objects(
@@ -426,3 +429,6 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.heal_objects(
             input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1", silver_face_tolerance="1.2"
         )
+
+    def test_30_simplify_objects(self):
+        assert not self.aedtapp.simplify_objects(input_objects_list="Rotor_Section1")

@@ -1650,8 +1650,8 @@ class Maxwell(object):
 
         Returns
         -------
-        str
-            Path to the export directory.
+        bool
+            ``True`` when successful, ``False`` when failed.
         """
         if not input_objects_list:
             self.logger.error("Provide an object name or a list of object names as a string.")
@@ -1748,6 +1748,116 @@ class Maxwell(object):
             return True
         except:
             self.logger.error("Heal objects failed.")
+            return False
+
+    @pyaedt_function_handler()
+    def simplify_objects(
+        self,
+        input_objects_list,
+        simplify_type="Polygon Fit",
+        extrusion_axis="Auto",
+        clean_up=True,
+        allow_splitting=True,
+        separate_bodies=True,
+        clone_body=True,
+        generate_primitive_history=False,
+        interior_points_on_arc=5,
+        length_threshold_percentage=25,
+        create_group_for_new_objects=False,
+    ):
+        """Analyze healing objects options.
+
+        Parameters
+        ----------
+        input_objects_list : str
+            List of object names to simplify.
+        simplify_type : str, optional
+            Simplify type. Default value is ``Polygon Fit``.
+            Available values are ``Polygon Fit`` ``Primitive Fit`` or ``Bounding Box``.
+        extrusion_axis : str, optional
+            Extrusion axis. Default value is ``Auto``.
+            Available values are ``Auto`` ``X``, ``Y`` or ``Z``.
+        clean_up : bool, optional
+            Clean up. Default value is ``True``.
+        allow_splitting : bool, optional
+            Allow splitting. Default value is ``True``.
+        separate_bodies : bool, optional
+            Separate bodies. Default value is ``True``.
+        clone_body : bool, optional
+            Clone body. Default value is ``True``.
+        generate_primitive_history : bool, optional
+            Generate primitive history.
+            This option will purge the history for selected objects.
+            Default value is ``False``.
+        interior_points_on_arc : float, optional
+            Number points on curve. Default value is ``5``.
+        length_threshold_percentage : float, optional
+            Number points on curve. Default value is ``25``.
+        create_group_for_new_objects : bool, optional
+            Create group for new objects. Default value is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not input_objects_list:
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif not isinstance(input_objects_list, str):
+            self.logger.error("Provide an object name or a list of object names as a string.")
+            return False
+        elif "," in input_objects_list:
+            input_objects_list = input_objects_list.strip()
+            if ", " in input_objects_list:
+                input_objects_list_split = input_objects_list.split(", ")
+            else:
+                input_objects_list_split = input_objects_list.split(",")
+            for obj in input_objects_list_split:
+                if obj not in self.modeler.object_names:
+                    self.logger.error("Provide an object name or a list of object names that exists in current design.")
+                    return False
+            objects_selection = ",".join(input_objects_list_split)
+        else:
+            objects_selection = input_objects_list
+
+        if simplify_type not in ["Polygon Fit", "Primitive Fit", "Bounding Box"]:
+            self.logger.error("Invalid simplify type.")
+            return False
+
+        if extrusion_axis not in ["Auto", "X", "Y", "Z"]:
+            self.logger.error("Invalid extrusion axis.")
+            return False
+
+        selections_args = ["NAME:Selections", "Selections:=", objects_selection, "NewPartsModelFlag:=", "Model"]
+        simplify_parameters = [
+            "NAME:SimplifyParameters",
+            "Type:=",
+            simplify_type,
+            "ExtrusionAxis:=",
+            extrusion_axis,
+            "Cleanup:=",
+            clean_up,
+            "Splitting:=",
+            allow_splitting,
+            "SeparateBodies:=",
+            separate_bodies,
+            "CloneBody:=",
+            clone_body,
+            "Generate Primitive History:=",
+            generate_primitive_history,
+            "NumberPointsCurve:=",
+            interior_points_on_arc,
+            "LengthThresholdCurve:=",
+            length_threshold_percentage,
+        ]
+        groups_for_new_object = ["CreateGroupsForNewObjects:=", create_group_for_new_objects]
+
+        try:
+            self.oeditor.Simplify(selections_args, simplify_parameters, groups_for_new_object)
+            return True
+        except:
+            self.logger.error("Simplify objects failed.")
             return False
 
 

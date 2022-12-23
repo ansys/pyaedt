@@ -753,7 +753,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box")
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box,impedance_box_copper,Inner_Box")
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box, impedance_box_copper, Inner_Box ")
-        assert not self.aedtapp.heal_objects(input_objects_list="")
+        assert not self.aedtapp.heal_objects(input_objects_list=["impedance_box", "impedance_box_copper", "Inner_Box"])
         assert not self.aedtapp.heal_objects(input_objects_list="impedance_box", simplify_type=3)
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box_copper", max_stitch_tolerance="0.01")
         assert self.aedtapp.heal_objects(input_objects_list="Inner_Box", max_stitch_tolerance=0.01)
@@ -767,3 +767,16 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box,Inner_Box", tighten_gaps_width="0.001")
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box,Inner_Box", silver_face_tolerance=1.2)
         assert self.aedtapp.heal_objects(input_objects_list="impedance_box,Inner_Box", silver_face_tolerance="1.2")
+
+    def test_48_simplify_objects(self):
+        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box")
+        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box,impedance_box_copper,Inner_Box")
+        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box, impedance_box_copper, Inner_Box ")
+        assert not self.aedtapp.simplify_objects(
+            input_objects_list=["impedance_box", "impedance_box_copper", "Inner_Box"]
+        )
+        assert self.aedtapp.simplify_objects(input_objects_list="impedance_box", simplify_type="Primitive Fit")
+        assert not self.aedtapp.simplify_objects(input_objects_list="impedance_box", simplify_type="Invalid")
+        assert not self.aedtapp.simplify_objects(
+            input_objects_list="impedance_box", simplify_type="Polygon Fit", extrusion_axis="U"
+        )
