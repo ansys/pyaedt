@@ -1685,7 +1685,7 @@ class Maxwell(object):
             "TolerantStitch:=",
             tolerant_stitch,
             "SimplifyGeom:=",
-            simplify_geom,
+            simplify_geometry,
             "TightenGaps:=",
             tighten_gaps,
             "HealToSolid:=",
