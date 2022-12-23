@@ -235,7 +235,6 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    # @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
