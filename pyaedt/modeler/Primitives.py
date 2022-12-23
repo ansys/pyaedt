@@ -3628,7 +3628,7 @@ class Primitives(object):
         if name in self._points:
             o = Point(self, name)
             self.points[name] = o
-        if name in self.planes.keys():
+        elif name in self.planes.keys():
             o = Plane(self, name)
             self.planes[name] = o
         else:
