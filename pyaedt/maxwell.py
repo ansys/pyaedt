@@ -1594,7 +1594,7 @@ class Maxwell(object):
             Auto heal option. Default value is ``True``.
         tolerant_stitch : bool, optional
             Tolerant stitch for manual healing. Default value is ``True``.
-        simplify_geom : bool, optional
+        simplify_geometry : bool, optional
             Simplify geometry for manual healing. Default value is ``True``.
         tighten_gaps : bool, optional
             Tighten gaps for manual healing. Default value is ``True``.
