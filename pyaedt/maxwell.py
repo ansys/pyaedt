@@ -1598,8 +1598,6 @@ class Maxwell(object):
             Simplify geometry for manual healing. Default value is ``True``.
         tighten_gaps : bool, optional
             Tighten gaps for manual healing. Default value is ``True``.
-        tighten_gaps : bool, optional
-            Tighten gaps for manual healing. Default value is ``True``.
         heal_to_solid : bool, optional
             Heal to solid for manual healing. Default value is ``False``.
         stop_after_first_stitch_error : bool, optional
