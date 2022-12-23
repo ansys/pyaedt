@@ -1091,29 +1091,32 @@ class Primitives3D(Primitives, object):
     @pyaedt_function_handler()
     def insert_3d_component(
         self,
-        compFile,
-        geoParams=None,
-        szMatParams="",
-        szDesignParams="",
+        comp_file,
+        geo_params=None,
+        sz_mat_params="",
+        sz_design_params="",
         targetCS="Global",
         name=None,
+        password="",
     ):
         """Insert a new 3D component.
 
         Parameters
         ----------
-        compFile : str
+        comp_file : str
             Name of the component file.
-        geoParams : dict, optional
+        geo_params : dict, optional
             Geometrical parameters.
-        szMatParams : str, optional
+        sz_mat_params : str, optional
             Material parameters. The default is ``""``.
-        szDesignParams : str, optional
+        sz_design_params : str, optional
             Design parameters. The default is ``""``.
         targetCS : str, optional
             Target coordinate system. The default is ``"Global"``.
         name : str, optional
             3D component name. The default is ``None``.
+        password : str, optional
+            Password for encrypted components. The default is an empty string.
 
         Returns
         -------
@@ -1125,41 +1128,63 @@ class Primitives3D(Primitives, object):
 
         >>> oEditor.Insert3DComponent
         """
+        aedt_fh = open_file(comp_file, "rb")
+        if aedt_fh:
+            temp = aedt_fh.read().splitlines()
+            _all_lines = []
+            for line in temp:
+                try:
+                    _all_lines.append(line.decode("utf-8").lstrip("\t"))
+                except UnicodeDecodeError:
+                    break
+            for line in _all_lines:
+                if "IsEncrypted" in line:
+                    line_list = line.split("=")
+                    if line_list[1] in ["true", "True", True] and password == "":
+                        self.logger.error("Password can't be an empty string.")
+                        return False
+            aedt_fh.close()
         vArg1 = ["NAME:InsertComponentData"]
         sz_geo_params = ""
-        if not geoParams:
-            geometryparams = self._app.get_components3d_vars(compFile)
+        if not geo_params:
+            geometryparams = self._app.get_components3d_vars(comp_file)
             if geometryparams:
-                geoParams = geometryparams
+                geo_params = geometryparams
 
-        if geoParams:
-            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geoParams.items()])
+        if geo_params:
+            sz_geo_params = "".join(["{0}='{1}' ".format(par, val) for par, val in geo_params.items()])
         vArg1.append("TargetCS:=")
         vArg1.append(targetCS)
         vArg1.append("ComponentFile:=")
-        vArg1.append(compFile)
+        vArg1.append(comp_file)
         vArg1.append("IsLocal:=")
         vArg1.append(False)
         vArg1.append("UniqueIdentifier:=")
         vArg1.append("")
-        varg2 = ["NAME:InstanceParameters"]
-        varg2.append("GeometryParameters:=")
-        varg2.append(sz_geo_params)
-        varg2.append("MaterialParameters:=")
-        varg2.append(szMatParams)
-        varg2.append("DesignParameters:=")
-        varg2.append(szDesignParams)
+        varg2 = [
+            "NAME:InstanceParameters",
+            "GeometryParameters:=",
+            sz_geo_params,
+            "MaterialParameters:=",
+            sz_mat_params,
+            "DesignParameters:=",
+            sz_design_params,
+        ]
         vArg1.append(varg2)
-        new_object_name = self.oeditor.Insert3DComponent(vArg1)
-        if new_object_name:
-            obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
-            for new_name in obj_list:
-                self._create_object(new_name)
-            udm_obj = self._create_user_defined_component(new_object_name)
-            if name:
-                udm_obj.name = name
-            return udm_obj
-        return new_object_name
+        vArg1.append("Password:=")
+        vArg1.append(password)
+        try:
+            new_object_name = self.oeditor.Insert3DComponent(vArg1)
+            if new_object_name:
+                obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
+                for new_name in obj_list:
+                    self._create_object(new_name)
+                udm_obj = self._create_user_defined_component(new_object_name)
+                if name:
+                    udm_obj.name = name
+                return udm_obj
+        except:
+            return False
 
     @pyaedt_function_handler()
     def get_3d_component_object_list(self, componentname):

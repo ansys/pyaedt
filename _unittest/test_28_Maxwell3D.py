@@ -1,5 +1,6 @@
 # Setup paths for module imports
 import os
+import shutil
 import tempfile
 
 from _unittest.conftest import BasisTest
@@ -667,3 +668,82 @@ class TestClass(BasisTest, object):
 
     def test_43_eddy_effect_transient(self):
         assert self.m3dtransient.eddy_effects_on(["Rotor"], activate_eddy_effects=True)
+
+    def test_44_assign_master_slave(self):
+        faces = [
+            x.faces for x in self.m3dtransient.modeler.object_list if x.name == "PeriodicBC1" or x.name == "PeriodicBC2"
+        ]
+        assert self.m3dtransient.assign_master_slave(
+            master_entity=faces[0],
+            slave_entity=faces[1],
+            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_master=["0mm", "100mm", "0mm"],
+            u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
+        )
+        assert self.m3dtransient.assign_master_slave(
+            master_entity=faces[0],
+            slave_entity=faces[1],
+            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_master=["0mm", "100mm", "0mm"],
+            u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
+            bound_name="test",
+        )
+        assert self.m3dtransient.assign_master_slave(
+            master_entity=faces[0],
+            slave_entity=faces[1],
+            u_vector_origin_coordinates_master="0mm",
+            u_vector_pos_coordinates_master=["0mm", "100mm", "0mm"],
+            u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
+        ) == (False, False)
+        assert self.m3dtransient.assign_master_slave(
+            master_entity=faces[0],
+            slave_entity=faces[1],
+            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_master=[0, "100mm", "0mm"],
+            u_vector_origin_coordinates_slave=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
+        ) == (False, False)
+        assert self.m3dtransient.assign_master_slave(
+            master_entity=faces[0],
+            slave_entity=faces[1],
+            u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+            u_vector_pos_coordinates_master=[0, "100mm", "0mm"],
+            u_vector_origin_coordinates_slave=["0mm", "0mm"],
+            u_vector_pos_coordinates_slave=["0mm", "-100mm", "0mm"],
+        ) == (False, False)
+
+    def test_45_add_mesh_link(self):
+        self.m3dtransient.duplicate_design(self.m3dtransient.design_name)
+        self.m3dtransient.set_active_design(self.m3dtransient.design_list[1])
+        assert self.m3dtransient.setups[0].add_mesh_link(design_name=self.m3dtransient.design_list[0])
+        meshlink_props = self.m3dtransient.setups[0].props["MeshLink"]
+        assert meshlink_props["Project"] == "This Project*"
+        assert meshlink_props["PathRelativeTo"] == "TargetProject"
+        assert meshlink_props["Design"] == self.m3dtransient.design_list[0]
+        assert meshlink_props["Soln"] == "Setup1 : LastAdaptive"
+        assert not self.m3dtransient.setups[0].add_mesh_link(design_name="")
+        assert self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0], solution_name="Setup1 : LastAdaptive"
+        )
+        assert not self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0], solution_name="Setup_Test : LastAdaptive"
+        )
+        assert self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0],
+            parameters_dict=self.m3dtransient.available_variations.nominal_w_values_dict,
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, transient + ".aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, transient + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
+        assert self.m3dtransient.setups[0].add_mesh_link(
+            design_name=self.m3dtransient.design_list[0], project_name=example_project_copy
+        )
+
+    def test_46_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

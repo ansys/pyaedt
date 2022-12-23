@@ -150,13 +150,12 @@ edb.core_stackup.create_debye_material("My_Debye", 5, 3, 0.02, 0.05, 1e5, 1e9)
 
 edb.core_siwave.create_voltage_source_on_net("U2A5", "V1P5_S3", "U2A5", "GND", 3.3, 0, "V1")
 edb.core_siwave.create_current_source_on_net("U1B5", "V1P5_S3", "U1B5", "GND", 1.0, 0, "I1")
-settings = edb.core_siwave.get_siwave_dc_setup_template()
-settings.accuracy_level = 0
-settings.use_dc_custom_settings = True
-settings.name = "myDCIR_4"
-# settings.pos_term_to_ground = "I1"
-settings.neg_term_to_ground = "V1"
-edb.core_siwave.add_siwave_dc_analysis(settings)
+setup = edb.core_siwave.add_siwave_dc_analysis("myDCIR_4")
+setup.use_dc_custom_settings = True
+setup.dc_slider_position = 0
+setup.add_source_terminal_to_ground("V1", 1)
+
+
 
 ###############################################################################
 # Save modifications
@@ -164,7 +163,7 @@ edb.core_siwave.add_siwave_dc_analysis(settings)
 # Save modifications.
 
 edb.save_edb()
-edb.core_nets.plot(None, "TOP")
+edb.core_nets.plot(None, "TOP",plot_components_on_top=True)
 
 siw_file = edb.solve_siwave()
 
@@ -172,7 +171,7 @@ siw_file = edb.solve_siwave()
 # Export Siwave Reports
 # ~~~~~~~~~~~~~~~~~~~~~
 # Export all DC Reports quantities.
-outputs = edb.export_siwave_dc_results(siw_file, settings.name, )
+outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
 
 ###############################################################################
 # Close EDB

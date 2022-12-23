@@ -1,0 +1,43 @@
+# #############################################################################
+# requirements
+# #############################################################################
+cff1==1.15.0; python_version > '3.6' and sys_platform == 'linux'
+# https://github.com/tomerfiliba-org/rpyc
+# License: MIT
+
+dotnetcore2==3.1.23; python_version > '3.6' and sys_platform == 'linux'
+# https://github.com/dotnet/core
+# License: MIT
+
+pythonnet==3.0.1; python_version > '3.6'
+# https://github.com/pythonnet/pythonnet
+# License: MIT
+
+pywin32==305; python_version > '3.6'
+# https://github.com/mhammond/pywin32
+# License: PSF
+
+rpyc==5.3.0; python_version > '3.6'
+# https://github.com/tomerfiliba-org/rpyc
+# License: MIT
+
+# #############################################################################
+# optional
+# #############################################################################
+
+matplotlib==3.6.2; python_version > '3.6'
+# License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
+# License: PSF
+
+numpy==1.24.0; python_version > '3.7'
+# License: BSD-3-Clause License
+
+pandas==1.5.2; python_version > '3.7'
+pandas==1.5.1; python_version == '3.7'
+# License: BSD-3-Clause License
+
+psutil==5.9.4; python_version > '3.6'
+# License: BSD-3-Clause License
+
+pyvista==0.37.0; python_version > '3.6'
+# License: MIT

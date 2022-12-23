@@ -793,7 +793,7 @@ class SolutionData(object):
         size : tuple, optional
             Image size in pixel (width, height).
         show_legend : bool
-            Either to show legend or not.
+            Either to show legend or not. Flag will be ignored if number of curves to plot is greater than 15.
         xlabel : str
             Plot X label.
         ylabel : str
@@ -845,6 +845,8 @@ class SolutionData(object):
             ylabel = math_formula
         if not title:
             title = "Simulation Results Plot"
+        if len(data_plot) > 15:
+            show_legend = False
         if is_polar:
             return plot_polar_chart(data_plot, size, show_legend, xlabel, ylabel, title, snapshot_path)
         else:
@@ -1896,8 +1898,12 @@ class FfdSolutionData(object):
                 else:
                     y = 20 * np.log10(y)
             curves.append([x, y, "{}={}".format(y_key, data[y_key][theta_idx])])
-
-        return plot_2d_chart(curves, xlabel=xlabel, ylabel=qty_str, title=title, snapshot_path=export_image_path)
+        show_legend = True
+        if len(curves) > 15:
+            show_legend = False
+        return plot_2d_chart(
+            curves, xlabel=xlabel, ylabel=qty_str, title=title, snapshot_path=export_image_path, show_legend=show_legend
+        )
 
     @pyaedt_function_handler()
     def polar_plot_3d(
@@ -2520,7 +2526,7 @@ class FieldPlot:
         list
             List of plot settings.
         """
-        if self.surfaces_indexes:
+        if self.surfaces_indexes or self.cutplane_indexes:
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",

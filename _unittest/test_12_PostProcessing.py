@@ -83,6 +83,9 @@ class TestClass(BasisTest, object):
         min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
+        plot1.update_field_plot_settings()
+        plot1.update()
+        assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
 
@@ -646,6 +649,19 @@ class TestClass(BasisTest, object):
             show=False,
         )
         assert os.path.exists(plot_obj.image_file)
+        os.unlink(plot_obj.image_file)
+        plot_obj.x_scale = 1.1
+        plot_obj.y_scale = 0.9
+        plot_obj.z_scale = 0.3
+        assert plot_obj.x_scale == 1.1
+        assert plot_obj.y_scale == 0.9
+        assert plot_obj.z_scale == 0.3
+
+        plot_obj.background_image = r"c:\filenot_exist.jpg"
+        assert not plot_obj.background_image
+        plot_obj.convert_fields_in_db = True
+        plot_obj.plot(plot_obj.image_file)
+        assert os.path.exists(plot_obj.image_file)
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
     def test_14B_Field_Ploton_Vector(self):
@@ -1197,6 +1213,11 @@ class TestClass(BasisTest, object):
         )
         assert len(data2) == 4
         assert len(data2[0]) == 3
+
+    def test_74_dynamic_update(self):
+        assert not self.aedtapp.post.update_report_dynamically
+        self.aedtapp.post.update_report_dynamically = True
+        assert self.aedtapp.post.update_report_dynamically
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

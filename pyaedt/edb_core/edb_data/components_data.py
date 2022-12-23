@@ -270,13 +270,21 @@ class EDBComponent(object):
         self._pcomponents = components
         self.edbcomponent = cmp
         self._layout_instance = None
+        self._comp_instance = None
 
     @property
     def layout_instance(self):
         """Edb layout instance object."""
         if self._layout_instance is None:
-            self._layout_instance = self.edbcomponent.GetLayout().GetLayoutInstance()
+            self._layout_instance = self._pcomponents._pedb.layout_instance
         return self._layout_instance
+
+    @property
+    def component_instance(self):
+        """Edb component instance."""
+        if self._comp_instance is None:
+            self._comp_instance = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
+        return self._comp_instance
 
     @property
     def _pedb(self):  # pragma: no cover
@@ -537,8 +545,7 @@ class EDBComponent(object):
         -------
         list
         """
-        cmpinst = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
-        center = cmpinst.GetCenter()
+        center = self.component_instance.GetCenter()
         return [center.X.ToDouble(), center.Y.ToDouble()]
 
     @property
@@ -552,8 +559,7 @@ class EDBComponent(object):
             coordinates in this order: [X lower left corner, Y lower left corner,
             X upper right corner, Y upper right corner].
         """
-        cmpinst = self.layout_instance.GetLayoutObjInstance(self.edbcomponent, None)
-        bbox = cmpinst.GetBBox()
+        bbox = self.component_instance.GetBBox()
         pt1 = bbox.Item1
         pt2 = bbox.Item2
         return [pt1.X.ToDouble(), pt1.Y.ToDouble(), pt2.X.ToDouble(), pt2.Y.ToDouble()]
@@ -580,7 +586,9 @@ class EDBComponent(object):
         pins = [
             p
             for p in self.edbcomponent.LayoutObjs
-            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance and p.IsLayoutPin()
+            if p.GetObjType() == self._edb.Cell.LayoutObjType.PadstackInstance
+            and p.IsLayoutPin()
+            and p.GetComponent().GetName() == self.refdes
         ]
         return pins
 

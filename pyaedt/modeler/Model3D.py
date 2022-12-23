@@ -1,11 +1,14 @@
 from __future__ import absolute_import  # noreorder
 
 import datetime
+import json
+import os.path
 import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Modeler import GeometryModeler
 from pyaedt.modeler.Primitives3D import Primitives3D
 
@@ -62,6 +65,15 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         boundaries_list=None,
         excitation_list=None,
         included_cs=None,
+        is_encrypted=False,
+        allow_edit=False,
+        security_message="",
+        password="",
+        edit_password="",
+        password_type="UserSuppliedPassword",
+        hide_contents=False,
+        replace_names=False,
+        component_outline="BoundingBox",
     ):
         """Create a 3D component file.
 
@@ -83,6 +95,32 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of Excitation names to export. The default is all excitations
         included_cs : list, optional
             List of Coordinate Systems to export. The default is all coordinate systems
+        is_encrypted : bool, optional
+            Whether the component has encrypted protection. The default is ``False``.
+        allow_edit : bool, optional
+            Whether the component is editable with encrypted protection.
+            The default is ``False``.
+        security_message : str, optional
+            Security message to display when component is inserted.
+            The default value is an empty string.
+        password : str, optional
+            Security password needed when adding the component.
+            The default value is an empty string.
+        edit_password : str, optional
+            Edit password.
+            The default value is an empty string.
+        password_type : str, optional
+            Password type. Value can either be ``UserSuppliedPassword`` or ``InternalPassword``.
+            The default value is ``UserSuppliedPassword``.
+        hide_contents : bool, optionale
+            Whether to hide contents.
+            The default is ``False``.
+        replace_names : bool, optional
+            Whether to replace objects and materials names.
+            The default is ``False``.
+        component_outline : str, optional
+            Component outline. Value can either be ``BoundingBox`` or ``None``.
+            The default is ``BoundingBox``.
 
         Returns
         -------
@@ -99,6 +137,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
+        if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
+            return False
+        if component_outline not in ["BoundingBox", "None"]:
+            return False
         arg = [
             "NAME:CreateData",
             "ComponentName:=",
@@ -126,23 +168,23 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             "HasLabel:=",
             False,
             "IsEncrypted:=",
-            False,
+            is_encrypted,
             "AllowEdit:=",
-            False,
+            allow_edit,
             "SecurityMessage:=",
-            "",
+            security_message,
             "Password:=",
-            "",
+            password,
             "EditPassword:=",
-            "",
+            edit_password,
             "PasswordType:=",
-            "UnknownPassword",
+            password_type,
             "HideContents:=",
-            True,
+            hide_contents,
             "ReplaceNames:=",
-            True,
+            replace_names,
             "ComponentOutline:=",
-            "None",
+            component_outline,
         ]
         if object_list:
             objs = object_list
@@ -534,3 +576,295 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                     objects.append(obj)
 
         return objects
+
+    @pyaedt_function_handler()
+    def import_nastran(self, file_path, import_lines=True, lines_thickness=0):
+        """Import Nastran file into 3D Modeler by converting it to stl and reading it.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to .nas file.
+        import_lines : bool, optional
+            Whether to import the lines or only triangles. Default is ``True``.
+        lines_thickness : float, optional
+            Whether to thicken lines after creation and it's default value.
+            Every line will be parametrized with a design variable called ``xsection_linename``.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modeler.Object3d.Object3d`
+        """
+        nas_to_dict = {"Points": {}, "PointsId": {}, "Triangles": {}, "Lines": {}}
+        with open(file_path, "r") as f:
+            lines = f.read().splitlines()
+            id = 0
+            for line in lines:
+                line_split = [line[i : i + 8] for i in range(0, len(line), 8)]
+                if len(line_split) < 5:
+                    continue
+                if line_split[0].startswith("GRID"):
+                    try:
+                        n_1_3 = line[24:48]
+                        import re
+
+                        out = re.findall("^.{24}(.{8})(.{8})(.{8})", line)[0]
+                        n1 = out[0].replace(".-", ".e-").strip()
+                        n2 = out[1].replace(".-", ".e-").strip()
+                        n3 = out[2].replace(".-", ".e-").strip()
+
+                        if "-" in n1[1:]:
+                            n1 = n1[0] + n1[1:].replace("-", "e-")
+                        n1 = float(n1)
+                        if "-" in n2[1:]:
+                            n2 = n2[0] + n2[1:].replace("-", "e-")
+                        n2 = float(n2)
+                        if "-" in n3[1:]:
+                            n3 = n3[0] + n3[1:].replace("-", "e-")
+                        n3 = float(n3)
+
+                        nas_to_dict["Points"][int(line_split[1])] = [n1, n2, n3]
+                        nas_to_dict["PointsId"][int(line_split[1])] = id
+                        id += 1
+                    except:
+                        pass
+                elif line_split[0].startswith("CTRIA3"):
+                    if int(line_split[2]) in nas_to_dict["Triangles"]:
+                        nas_to_dict["Triangles"][int(line_split[2])].append(
+                            [
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                            ]
+                        )
+                    else:
+                        nas_to_dict["Triangles"][int(line_split[2])] = [
+                            [
+                                int(line_split[3]),
+                                int(line_split[4]),
+                                int(line_split[5]),
+                            ]
+                        ]
+                elif line_split[0].startswith("CROD") or line_split[0].startswith("CBEAM"):
+                    if int(line_split[2]) in nas_to_dict["Lines"]:
+                        nas_to_dict["Lines"][int(line_split[2])].append([int(line_split[3]), int(line_split[4])])
+                    else:
+                        nas_to_dict["Lines"][int(line_split[2])] = [[int(line_split[3]), int(line_split[4])]]
+        objs_before = [i for i in self.object_names]
+        f = open(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"), "w")
+        f.write("solid PyaedtStl\n")
+        for triangles in nas_to_dict["Triangles"].values():
+            for triangle in triangles:
+                try:
+                    points = [nas_to_dict["Points"][id] for id in triangle]
+                except KeyError:
+                    continue
+                fc = GeometryOperators.get_polygon_centroid(points)
+                v1 = points[0]
+                v2 = points[1]
+                cv1 = GeometryOperators.v_points(fc, v1)
+                cv2 = GeometryOperators.v_points(fc, v2)
+                if cv2[0] == cv1[0] == 0.0 and cv2[1] == cv1[1] == 0.0:
+                    n = [0, 0, 1]
+                elif cv2[0] == cv1[0] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                    n = [0, 1, 0]
+                elif cv2[1] == cv1[1] == 0.0 and cv2[2] == cv1[2] == 0.0:
+                    n = [1, 0, 0]
+                else:
+                    n = GeometryOperators.v_cross(cv1, cv2)
+                normal = GeometryOperators.normalize_vector(n)
+                if normal:
+                    f.write(" facet normal {} {} {}\n".format(normal[0], normal[1], normal[2]))
+                    f.write("  outer loop\n")
+                    f.write("   vertex {} {} {}\n".format(points[0][0], points[0][1], points[0][2]))
+                    f.write("   vertex {} {} {}\n".format(points[1][0], points[1][1], points[1][2]))
+                    f.write("   vertex {} {} {}\n".format(points[2][0], points[2][1], points[2][2]))
+                    f.write("  endloop\n")
+                    f.write(" endfacet\n")
+
+        f.write("endsolid\n")
+        f.close()
+        self.import_3d_cad(os.path.join(self._app.working_directory, self._app.design_name + "_test.stl"))
+        if not import_lines:
+            return True
+
+        for line_name, lines in nas_to_dict["Lines"].items():
+            if lines_thickness:
+                self._app["x_section_{}".format(line_name)] = lines_thickness
+            polys = []
+            id = 0
+            for line in lines:
+                try:
+                    points = [nas_to_dict["Points"][line[0]], nas_to_dict["Points"][line[1]]]
+                except KeyError:
+                    continue
+                if lines_thickness:
+                    polys.append(
+                        self.create_polyline(
+                            points,
+                            name="Poly_{}_{}".format(line_name, id),
+                            xsection_type="Circle",
+                            xsection_width="x_section_{}".format(line_name),
+                            xsection_num_seg=6,
+                        )
+                    )
+                else:
+                    polys.append(self.create_polyline(points, name="Poly_{}_{}".format(line_name, id)))
+                id += 1
+
+            if len(polys) > 1:
+                out_poly = self.unite(polys, purge=not lines_thickness)
+                if not lines_thickness and out_poly:
+                    self.generate_object_history(out_poly)
+
+        objs_after = [i for i in self.object_names]
+        new_objects = [self[i] for i in objs_after if i not in objs_before]
+        return new_objects
+
+    @pyaedt_function_handler()
+    def import_from_openstreet_map(
+        self,
+        latitude_longitude,
+        env_name="default",
+        terrain_radius=500,
+        include_osm_buildings=True,
+        including_osm_roads=True,
+        import_in_aedt=True,
+        plot_before_importing=False,
+        z_offset=2,
+        road_step=3,
+        road_width=8,
+        create_lightweigth_part=True,
+    ):
+        """Import OpenStreet Maps into AEDT.
+
+        Parameters
+        ----------
+        latitude_longitude : list
+            Latitude and longitude.
+        env_name : str, optional
+            Name of the environment used to create the scene. The default value is ``"default"``.
+        terrain_radius : float, int
+            Radius to take around center. The default value is ``500``.
+        include_osm_buildings : bool
+            Either if include or not 3D Buildings. Default is ``True``.
+        including_osm_roads : bool
+            Either if include or not road. Default is ``True``.
+        import_in_aedt : bool
+            Either if import stl after generation or not. Default is ``True``.
+        plot_before_importing : bool
+            Either if plot before importing or not. Default is ``True``.
+        z_offset : float
+            Road elevation offset. Default is ``0``.
+        road_step : float
+            Road simplification steps in meter. Default is ``3``.
+        road_width : float
+            Road width  in meter. Default is ``8``.
+        create_lightweigth_part : bool
+            Either if import as lightweight object or not. Default is ``True``.
+
+        Returns
+        -------
+        dict
+            Dictionary of generated infos.
+
+        """
+        from pyaedt.modeler.oms import BuildingsPrep
+        from pyaedt.modeler.oms import RoadPrep
+        from pyaedt.modeler.oms import TerrainPrep
+
+        output_path = self._app.working_directory
+
+        parts_dict = {}
+        # instantiate terrain module
+        terrain_prep = TerrainPrep(cad_path=output_path)
+        terrain_geo = terrain_prep.get_terrain(latitude_longitude, max_radius=terrain_radius, grid_size=30)
+        terrain_stl = terrain_geo["file_name"]
+        terrain_mesh = terrain_geo["mesh"]
+        terrain_dict = {"file_name": terrain_stl, "color": "brown", "material": "earth"}
+        parts_dict["terrain"] = terrain_dict
+        building_mesh = None
+        road_mesh = None
+        if include_osm_buildings:
+            self.logger.info("Generating Building Geometry")
+            building_prep = BuildingsPrep(cad_path=output_path)
+            building_geo = building_prep.generate_buildings(
+                latitude_longitude, terrain_mesh, max_radius=terrain_radius * 0.8
+            )
+            building_stl = building_geo["file_name"]
+            building_mesh = building_geo["mesh"]
+            building_dict = {"file_name": building_stl, "color": "grey", "material": "concrete"}
+            parts_dict["buildings"] = building_dict
+        if including_osm_roads:
+            self.logger.info("Generating Road Geometry")
+            road_prep = RoadPrep(cad_path=output_path)
+            road_geo = road_prep.create_roads(
+                latitude_longitude,
+                terrain_mesh,
+                max_radius=terrain_radius,
+                z_offset=z_offset,
+                road_step=road_step,
+                road_width=road_width,
+            )
+
+            road_stl = road_geo["file_name"]
+            road_mesh = road_geo["mesh"]
+            road_dict = {"file_name": road_stl, "color": "black", "material": "asphalt"}
+            parts_dict["roads"] = road_dict
+
+        json_path = os.path.join(output_path, env_name + ".json")
+
+        scene = {
+            "name": env_name,
+            "version": 1,
+            "type": "environment",
+            "center_lat_lon": latitude_longitude,
+            "radius": terrain_radius,
+            "include_buildings": include_osm_buildings,
+            "include_roads": including_osm_roads,
+            "parts": parts_dict,
+        }
+
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(scene, f, indent=4)
+
+        self.logger.info("Done...")
+        if plot_before_importing:
+            import pyvista as pv
+
+            self.logger.info("Viewing Geometry...")
+            # view results
+            plt = pv.Plotter()
+            if building_mesh:
+                plt.add_mesh(building_mesh, cmap="gray", label=r"Buildings")
+            if road_mesh:
+                plt.add_mesh(road_mesh, cmap="bone", label=r"Roads")
+            if terrain_mesh:
+                plt.add_mesh(terrain_mesh, cmap="terrain", label=r"Terrain")  # clim=[00, 100]
+            plt.add_legend()
+            plt.add_axes(line_width=2, xlabel="X", ylabel="Y", zlabel="Z")
+            plt.add_axes_at_origin(x_color=None, y_color=None, z_color=None, line_width=2, labels_off=True)
+            plt.show(interactive=True)
+
+        if import_in_aedt:
+            self.model_units = "meter"
+            for part in parts_dict:
+                obj_names = [i for i in self.object_names]
+                self.import_3d_cad(
+                    parts_dict[part]["file_name"],
+                    create_lightweigth_part=create_lightweigth_part,
+                )
+                added_objs = [i for i in self.object_names if i not in obj_names]
+                if part == "terrain":
+                    transparency = 0.2
+                    color = [0, 125, 0]
+                elif part == "buildings":
+                    transparency = 0.6
+                    color = [0, 0, 255]
+                else:
+                    transparency = 0.0
+                    color = [40, 40, 40]
+                for obj in added_objs:
+                    self[obj].transparency = transparency
+                    self[obj].color = color
+        return scene

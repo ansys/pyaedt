@@ -56,12 +56,11 @@ packages = [
     "pyaedt.emit_core",
     "pyaedt.examples",
     "pyaedt.rpc",
-    "pyaedt.third_party",
-    "pyaedt.third_party.ironpython",
-    "pyaedt.third_party.ironpython.rpyc_27",
-    "pyaedt.third_party.ironpython.rpyc_27.core",
-    "pyaedt.third_party.ironpython.rpyc_27.lib",
-    "pyaedt.third_party.ironpython.rpyc_27.utils",
+    "pyaedt.edb_core.ipc2581",
+    "pyaedt.edb_core.ipc2581.bom",
+    "pyaedt.edb_core.ipc2581.content",
+    "pyaedt.edb_core.ipc2581.ecad",
+    "pyaedt.edb_core.ipc2581.ecad.cad_data",
 ]
 
 data_files = [
@@ -86,3 +85,9 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
 ]
+
+project_urls={
+    "Bug Tracker": "https://github.com/pyansys/pyaedt/issues",
+    "Documentation": "https://aedt.docs.pyansys.com",
+    "Source Code": "https://github.com/pyansys/pyaedt",
+}

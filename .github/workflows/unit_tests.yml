@@ -16,6 +16,8 @@ on:
   push:
     tags:
      - 'v*'
+    branches:
+      - main
   pull_request:
     branches: [ main ]
 
@@ -40,10 +42,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # - name: Test import
-      #   working-directory: tests
-      #   run: python -c "import pyaedt"
-
       - name: 'Create virtual env'
         run: |
           python -m venv testenv
@@ -56,7 +54,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           pip install .
-          pip install -r requirements_test.txt
+          pip install -r requirements/requirements_test.txt
           pip install pytest-azurepipelines
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
           mkdir tmp
@@ -69,7 +67,7 @@ jobs:
       - name: 'Unit testing'
         run: |
           testenv\Scripts\Activate.ps1
-          pytest -n 4 --dist loadfile -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest -p no:faulthandler
+          pytest --tx 4*popen --dist loadfile -v --cov=pyaedt --cov-report=xml --cov-report=html _unittest -p no:faulthandler
 
       - name: 'Print Coverage'
         run: |
@@ -87,20 +85,6 @@ jobs:
           path: junit/test-results.xml
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
-
-      - name: Upload pytest coverage results
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-results
-          path: coverage.xml
-        # Use always() to always run this step to publish test results when there are test failures
-        if: ${{ always() }}
-
-      #- name: Publish Unit Test Results
-      #  uses: EnricoMi/publish-unit-test-result-action@v1.19
-      #  if: always()
-      #  with:
-      #    files: junit/test-results.xml
 
       - name: 'Build and validate source distribution'
         run: |

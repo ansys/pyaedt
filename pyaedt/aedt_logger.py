@@ -210,7 +210,7 @@ class AedtLogger(object):
                 handler.close()
                 if handler in handlers:
                     self._global.removeHandler(handler)
-        self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
+                self.info("logger file pyaedt_{}.log removed from handlers.".format(project_name))
 
     def remove_all_project_file_logger(self):
         """Remove all the local files from the logger handlers list."""
@@ -292,6 +292,7 @@ class AedtLogger(object):
             self._timer = time_val
         else:
             self._timer = time.time()
+        return self._timer
 
     def get_messages(self, project_name=None, design_name=None, level=0, aedt_messages=False):
         """Get the message manager content for a specified project and design.
@@ -629,7 +630,7 @@ class AedtLogger(object):
         """Write an info message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -637,11 +638,13 @@ class AedtLogger(object):
         self._log_on_dekstop(0, msg1, "Global")
         return self._log_on_handler(0, msg, *args, **kwargs)
 
-    def info_timer(self, msg, *args, **kwargs):
+    def info_timer(self, msg, start_time=None, *args, **kwargs):
         """Write an info message to the global logger with elapsed time.
         Message will have an appendix of type Elapsed time: time."""
-        td = time.time() - self._timer
-        m, s = divmod(time.time() - self._timer, 60)
+        if not start_time:
+            start_time = self._timer
+        td = time.time() - start_time
+        m, s = divmod(td, 60)
         h, m = divmod(m, 60)
         d, h = divmod(h, 24)
         if d > 0:
@@ -652,7 +655,7 @@ class AedtLogger(object):
             msg += " Elapsed time: {}m {}sec".format(round(m), round(s))
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -664,7 +667,7 @@ class AedtLogger(object):
         """Write a warning message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -676,7 +679,7 @@ class AedtLogger(object):
         """Write an error message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:
@@ -688,7 +691,7 @@ class AedtLogger(object):
         """Write a debug message to the global logger."""
         if args:
             try:
-                msg1 = msg % [str(i) for i in args]
+                msg1 = msg % tuple(str(i) for i in args)
             except TypeError:
                 msg1 = msg
         else:

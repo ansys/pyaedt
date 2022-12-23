@@ -12,9 +12,9 @@ except ImportError:
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t02_231"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_t02"
 
 
 class TestClass(BasisTest, object):
@@ -661,3 +661,9 @@ class TestClass(BasisTest, object):
         assert box1.wrap_sheet(rect)
         self.aedtapp.odesign.Undo()
         assert not box1.wrap_sheet(box2)
+
+    def test_54_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

@@ -32,3 +32,9 @@ class TestClass(BasisTest, object):
 
     def test_05_create_winding(self):
         assert self.aedtapp.modeler.schematic.create_winding("mywinding")
+
+    def test_06_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

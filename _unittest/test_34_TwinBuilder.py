@@ -73,3 +73,9 @@ class TestClass(BasisTest, object):
         id = self.aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [0.75, 0])
         assert id.parameters["AMPL"] == "200"
         assert id.parameters["FREQ"] == "20"
+
+    def test_14_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

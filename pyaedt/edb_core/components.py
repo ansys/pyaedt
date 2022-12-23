@@ -4,12 +4,9 @@
 import codecs
 import json
 import math
-import os
 import re
-import warnings
 
 from pyaedt import _retry_ntimes
-from pyaedt import generate_unique_name
 from pyaedt.edb_core.edb_data.components_data import EDBComponent
 from pyaedt.edb_core.edb_data.components_data import EDBComponentDef
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
@@ -17,19 +14,12 @@ from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.edb_core.edb_data.sources import SourceType
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.padstack import EdbPadstacks
+from pyaedt.generic.clr_module import String
+from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
-
-try:
-    import clr
-
-    clr.AddReference("System")
-    from System import String
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires PythonNet.")
 
 
 def resistor_value_parser(RValue):
@@ -651,8 +641,12 @@ class Components(object):
             if not negative_pin_group:  # pragma: no cover
                 return False
             if source.source_type == SourceType.Vsource:  # pragma: no cover
-                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                positive_pin_group_term = self._create_pin_group_terminal(
+                    positive_pin_group, source.positive_node.component
+                )
+                negative_pin_group_term = self._create_pin_group_terminal(
+                    negative_pin_group, source.negative_node.component, isref=True
+                )
                 positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kVoltageSource)
                 term_name = source.name
@@ -666,8 +660,12 @@ class Components(object):
                 negative_pin_group_term.SetImpedance(self._get_edb_value(source.impedance))
                 positive_pin_group_term.SetReferenceTerminal(negative_pin_group_term)
             elif source.source_type == SourceType.Isource:  # pragma: no cover
-                positive_pin_group_term = self._create_pin_group_terminal(positive_pin_group)
-                negative_pin_group_term = self._create_pin_group_terminal(negative_pin_group)
+                positive_pin_group_term = self._create_pin_group_terminal(
+                    positive_pin_group, source.positive_node.component
+                )
+                negative_pin_group_term = self._create_pin_group_terminal(
+                    negative_pin_group, source.negative_node.component, isref=True
+                )
                 positive_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
                 negative_pin_group_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.kCurrentSource)
                 term_name = source.name
@@ -774,7 +772,7 @@ class Components(object):
                     ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                     if not ref_pin_group:
                         return False
-                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group)
+                    ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, component, isref=True)
                     if not ref_pin_group_term:
                         return False
                 for net in net_list:
@@ -783,7 +781,7 @@ class Components(object):
                         pin_group = self.create_pingroup_from_pins(pins)
                         if not pin_group:
                             return False
-                        pin_group_term = self._create_pin_group_terminal(pin_group)
+                        pin_group_term = self._create_pin_group_terminal(pin_group, component)
                         if pin_group_term:
                             pin_group_term.SetReferenceTerminal(ref_pin_group_term)
                     else:
@@ -962,12 +960,14 @@ class Components(object):
             return True
 
     @pyaedt_function_handler()
-    def _create_pin_group_terminal(self, pingroup, isref=False):
+    def _create_pin_group_terminal(self, pingroup, component=None, isref=False):
         """Creates an EDB pin group terminal from a given EDB pin group.
 
         Parameters
         ----------
         pingroup : Edb pin group.
+
+        component : str or EdbComponent
 
         isref : bool
 
@@ -975,11 +975,19 @@ class Components(object):
         -------
         Edb pin group terminal.
         """
-
-        layout = pingroup.GetLayout()
-        cmp_name = pingroup.GetComponent().GetName()
+        if component:
+            if not isinstance(component, self._edb.Cell.Hierarchy.Component):
+                cmp_name = component
+            else:
+                cmp_name = component.GetName()
+        else:
+            cmp_name = pingroup.GetComponent().GetName()
         net_name = pingroup.GetNet().GetName()
-        term_name = generate_unique_name("Pingroup.{0}.{1}".format(cmp_name, net_name))
+        pin_name = list(pingroup.GetPins())[0].GetName()  # taking first pin name as convention.
+        if cmp_name:
+            term_name = "{0}.{1}.{2}".format(net_name, cmp_name, pin_name)
+        else:
+            term_name = "{0}.{1}".format(net_name, pin_name)
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
@@ -1160,6 +1168,7 @@ class Components(object):
         new_cmp.SetPlacementLayer(new_cmp_placement_layer)
         # cmp_transform = System.Activator.CreateInstance(self._edb.Utility.)
         # new_cmp.SetTransform(cmp_transform)
+        self._cmp[new_cmp.GetName()] = EDBComponent(self, new_cmp)
         return new_cmp
         # except:
         #    return (False, None)
@@ -1843,7 +1852,7 @@ class Components(object):
         if isinstance(pin, EDBPadstackInstance):
             pin = pin._edb_padstackinstance
         if is_ironpython:
-            name = clr.Reference[String]()
+            name = _clr.Reference[String]()
             pin.GetProductProperty(self._edb.ProductId.Designer, 11, name)
         else:
             val = String("")
@@ -2170,9 +2179,8 @@ class Components(object):
 
             trace_points.append(positions_to_short[i + 1])
 
-            path = self._pedb.core_primitives.Shape("polygon", points=trace_points)
-            self._pedb.core_primitives.create_path(
-                path,
+            self._pedb.core_primitives.create_trace(
+                trace_points,
                 layer_name=placement_layer,
                 net_name="short",
                 width=w,

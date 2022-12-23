@@ -851,7 +851,7 @@ class Polyline(Object3d):
         else:
             s_types = [self._segment_types]
         for el in s_types:
-            if isinstance(s_types, PolylineSegment):
+            if isinstance(el, PolylineSegment):
                 id_v += el.num_seg - 1
                 if id_v > segment_index:
                     id_v -= el.num_seg - 1

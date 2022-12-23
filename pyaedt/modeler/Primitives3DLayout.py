@@ -54,9 +54,14 @@ class Primitives3DLayout(object):
           Part object details.
 
         """
-        for el in self.geometries:
-            if el == partname:
-                return self.geometries[el]
+        if partname in self.geometries:
+            return self.geometries[partname]
+        if partname in self.vias:
+            return self.nets[partname]
+        if partname in self.nets:
+            return self.nets[partname]
+        if not isinstance(partname, (str, int, float, list, tuple)):
+            return partname
         return None
 
     def __init__(self, app):
@@ -73,10 +78,15 @@ class Primitives3DLayout(object):
         self._lines = {}
         self._circles = {}
         self._polygons = {}
+        self._rectangles_voids = {}
+        self._lines_voids = {}
+        self._circles_voids = {}
+        self._polygons_voids = {}
         self._pins = {}
         self._nets = {}
         self._power_nets = {}
         self._signal_nets = {}
+        self._no_nets = {}
         self._vias = {}
 
     @property
@@ -231,6 +241,156 @@ class Primitives3DLayout(object):
             objs = self.modeler.oeditor.FindObjects("Net", net_name)
         return objs
 
+    @pyaedt_function_handler()
+    def _get_names(self, categories):
+        names = []
+        for category in categories:
+            names.extend(self.modeler.oeditor.FindObjects("Type", category))
+        return names
+
+    @property
+    def polygon_names(self):
+        """Get the list of all polygons in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["poly", "plg"])
+
+    @property
+    def polygon_voids_names(self):
+        """Get the list of all void polygons in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["poly void", "plg void"])
+
+    @property
+    def line_names(self):
+        """Get the list of all lines in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["line", "arc"])
+
+    @property
+    def line_voids_names(self):
+        """Get the list of all void lines in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["line void", "arc void"])
+
+    @property
+    def rectangle_names(self):
+        """Get the list of all rectangles in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["rect"])
+
+    @property
+    def rectangle_void_names(self):
+        """Get the list of all void rectangles in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["rect void"])
+
+    @property
+    def circle_names(self):
+        """Get the list of all rectangles in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["circle"])
+
+    @property
+    def circle_voids_names(self):
+        """Get the list of all void circles in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["circle void"])
+
+    @property
+    def via_names(self):
+        """Get the list of all vias in layout.
+
+        Returns
+        -------
+        list
+        """
+        return self._get_names(["via"])
+
+    @pyaedt_function_handler()
+    def cleanup_objects(self):
+        """Clean up all 3D Layout geometries (circle, rectangles, polygons, lines and voids)
+        that have been added or no longer exist in the modeler because they were removed by previous operations.
+
+        Returns
+        -------
+        tuple
+            List of added objects, List of removed names.
+
+        """
+        families = [
+            [["poly", "plg"], self._polygons, Polygons3DLayout],
+            [["line", "arc"], self._lines, Line3dLayout],
+            [["circle"], self._circles, Circle3dLayout],
+            [
+                [
+                    "rect",
+                ],
+                self._rectangles,
+                Rect3dLayout,
+            ],
+            [["poly void", "plg void"], self._polygons, Polygons3DLayout],
+            [["line void", "arc void"], self._lines, Line3dLayout],
+            [["circle void"], self._circles, Circle3dLayout],
+            [["rect void"], self._rectangles, Rect3dLayout],
+        ]
+        obj_to_add = []
+        obj_removed = []
+        for element in families:
+            poly_types = element[0]
+            dict_in = element[1]
+            class_name = element[2]
+            names = set(dict_in.keys())
+            objs = set(self._get_names(poly_types))
+            names_to_add = set.difference(objs, names)
+            poly = poly_types[0]
+            if "void" in poly:
+                names_to_remove = [i for i in set.difference(names, objs) if dict_in[i].is_void]
+            else:
+                names_to_remove = [i for i in set.difference(names, objs) if not dict_in[i].is_void]
+            for obj in names_to_add:
+                if obj not in names:
+                    if class_name == Polygons3DLayout:
+                        dict_in[obj] = Polygons3DLayout(self, obj, poly, True if "void" in poly else False)
+                    else:
+                        dict_in[obj] = class_name(self, obj, True if "void" in poly else False)
+                    obj_to_add.append(dict_in[obj])
+            for obj in names_to_remove:
+                del dict_in[obj]
+                obj_removed.append(obj)
+        return obj_to_add, obj_removed
+
     @property
     def polygons(self):
         """Polygons.
@@ -242,11 +402,8 @@ class Primitives3DLayout(object):
         """
         if self._polygons:
             return self._polygons
-        poly_types = ["poly", "plg"]
-        for poly in poly_types:
-            objs = self.modeler.oeditor.FindObjects("Type", poly)
-            for obj in objs:
-                self._polygons[obj] = Polygons3DLayout(self, obj, poly, False)
+        for obj in self.polygon_names:
+            self._polygons[obj] = Polygons3DLayout(self, obj, "poly", False)
         return self._polygons
 
     @property
@@ -261,11 +418,9 @@ class Primitives3DLayout(object):
 
         if self._lines:
             return self._lines
-        poly_types = ["line", "arc"]
-        for poly in poly_types:
-            objs = self.modeler.oeditor.FindObjects("Type", poly)
-            for obj in objs:
-                self._lines[obj] = Line3dLayout(self, obj, False)
+
+        for obj in self.line_names:
+            self._lines[obj] = Line3dLayout(self, obj, False)
         return self._lines
 
     @property
@@ -279,8 +434,7 @@ class Primitives3DLayout(object):
         """
         if self._circles:
             return self._circles
-        objs = self.modeler.oeditor.FindObjects("Type", "circle")
-        for obj in objs:
+        for obj in self.circle_names:
             self._circles[obj] = Circle3dLayout(self, obj, False)
         return self._circles
 
@@ -295,8 +449,7 @@ class Primitives3DLayout(object):
         """
         if self._rectangles:
             return self._rectangles
-        objs = self.modeler.oeditor.FindObjects("Type", "rect")
-        for obj in objs:
+        for obj in self.rectangle_names:
             self._rectangles[obj] = Rect3dLayout(self, obj, False)
         return self._rectangles
 
@@ -309,14 +462,11 @@ class Primitives3DLayout(object):
         dict[str, :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`]
             Pyaedt Objects.
         """
-        if self._polygons:
-            return self._polygons
-        poly_types = ["poly", "plg"]
-        for poly in poly_types:
-            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
-            for obj in objs:
-                self._polygons[obj] = Polygons3DLayout(self, obj, poly, True)
-        return self._polygons
+        if self._polygons_voids:
+            return self._polygons_voids
+        for obj in self.polygon_voids_names:
+            self._polygons_voids[obj] = Polygons3DLayout(self, obj, "poly", True)
+        return self._polygons_voids
 
     @property
     def lines_voids(self):
@@ -330,11 +480,8 @@ class Primitives3DLayout(object):
 
         if self._lines:
             return self._lines
-        poly_types = ["line", "arc"]
-        for poly in poly_types:
-            objs = self.modeler.oeditor.FindObjects("Type", poly + " void")
-            for obj in objs:
-                self._lines[obj] = Line3dLayout(self, obj, True)
+        for obj in self.line_voids_names:
+            self._lines[obj] = Line3dLayout(self, obj, True)
         return self._lines
 
     @property
@@ -348,8 +495,7 @@ class Primitives3DLayout(object):
         """
         if self._circles:
             return self._circles
-        objs = self.modeler.oeditor.FindObjects("Type", "circle void")
-        for obj in objs:
+        for obj in self.circle_voids_names:
             self._circles[obj] = Circle3dLayout(self, obj, True)
         return self._circles
 
@@ -364,8 +510,7 @@ class Primitives3DLayout(object):
         """
         if self._rectangles:
             return self._rectangles
-        objs = self.modeler.oeditor.FindObjects("Type", "rect void")
-        for obj in objs:
+        for obj in self.rectangle_void_names:
             self._rectangles[obj] = Rect3dLayout(self, obj, True)
         return self._rectangles
 
@@ -385,6 +530,31 @@ class Primitives3DLayout(object):
                     self._components3d[str(i)] = Components3DLayout(self, str(i))
         return self._components3d
 
+    @pyaedt_function_handler()
+    def _cleanup_vias(self, pins=True):
+        if pins:
+            vias = set(self._get_names(["pin"]))
+        else:
+            vias = set(self._get_names(["via"]))
+        names = set(self._pins.keys())
+        names_to_add = set.difference(vias, names)
+        names_to_remove = set.difference(names, vias)
+        obj_to_add = []
+        for name in names_to_add:
+            if pins:
+                self._pins[name] = Pins3DLayout(self, name)
+                obj_to_add.append(self._pins[name])
+            else:
+                self._vias[name] = Pins3DLayout(self, name, is_pin=False)
+                obj_to_add.append(self._vias[name])
+
+        for name in names_to_remove:
+            if name in self._pins:
+                del self._pins[name]
+            elif name in self._vias:
+                del self._vias[name]
+        return obj_to_add, names_to_remove
+
     @property
     def pins(self):
         """Pins.
@@ -395,11 +565,9 @@ class Primitives3DLayout(object):
             Pins Dictionary.
 
         """
-        if self._pins:
+        if self._pins or len(self._get_names(["pin"])) == len(self._pins):
             return self._pins
-        objs = self.modeler.oeditor.FindObjects("Type", "pin")
-        for obj in objs:
-            self._pins[obj] = Pins3DLayout(self, obj)
+        self._cleanup_vias(True)
         return self._pins
 
     @property
@@ -411,11 +579,10 @@ class Primitives3DLayout(object):
         dict[str, :class:`pyaedt.modeler.object3dlayout.Pins3DLayout`]
             Vias Dictionary.
         """
-        objs = self.modeler.oeditor.FindObjects("Type", "via")
-        if self._vias and len(objs) == len(self._vias):
+        if self._vias or len(self._get_names(["via"])) == len(self._vias):
             return self._vias
-        for obj in objs:
-            self._vias[obj] = Pins3DLayout(self, obj, is_pin=False)
+        self._cleanup_vias(False)
+
         return self._vias
 
     @property
@@ -432,6 +599,8 @@ class Primitives3DLayout(object):
         for k, v in self.power_nets.items():
             n[k] = v
         for k, v in self.signal_nets.items():
+            n[k] = v
+        for k, v in self.no_nets.items():
             n[k] = v
         return n
 
@@ -470,6 +639,25 @@ class Primitives3DLayout(object):
         for obj in objs:
             self._signal_nets[obj] = Nets3DLayout(self, obj)
         return self._signal_nets
+
+    @property
+    def no_nets(self):
+        """Nets without class type.
+
+        Returns
+        -------
+        dict[str, :class:`pyaedt.modeler.object3dlayout.Nets3DLayout`]
+            No Nets Dictionary.
+
+        """
+        if self._no_nets:
+            return self._no_nets
+
+        objs = self.modeler.oeditor.GetNetClassNets("<All>")
+        for obj in objs:
+            if obj not in self.power_nets and obj not in self.signal_nets:
+                self._no_nets[obj] = Nets3DLayout(self, obj)
+        return self._no_nets
 
     @property
     def defaultmaterial(self):
@@ -719,8 +907,8 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        str or bool
-            Name of the via created when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.object3dlayout.Pins3DLayout` or bool
+            Object via created when successful, ``False`` when failed.
 
         References
         ----------
@@ -769,7 +957,8 @@ class Primitives3DLayout(object):
                         ],
                     ]
                 )
-            return name
+            self._cleanup_vias(pins=False)
+            return self.vias[name]
         except ValueError as e:
             self.logger.error(str(e))
             return False
@@ -797,8 +986,8 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        str
-            Name of the circle created when successful.
+        :class:`pyaedt.modeler.object3dlayout.Circle3dLayout`
+            Objects of the circle created when successful.
 
         References
         ----------
@@ -834,7 +1023,7 @@ class Primitives3DLayout(object):
         if net_name:
             primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
 
-        return name
+        return primitive
 
     @pyaedt_function_handler()
     def create_rectangle(
@@ -862,7 +1051,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        str
+        :class:`pyaedt.modeler.object3dlayout.Rect3dLayout`
             Name of the rectangle created when successful.
 
         References
@@ -902,7 +1091,118 @@ class Primitives3DLayout(object):
         if net_name:
             primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
 
-        return name
+        return primitive
+
+    @pyaedt_function_handler()
+    def create_polygon(self, layername, point_list, units=None, name=None, net_name=None):
+        """Create a polygon on a specified layer.
+
+        Parameters
+        ----------
+        layername : str
+            Name of the layer.
+        point_list : list
+            Origin of the coordinate system in a list of ``[x, y]`` coordinates.
+        units : str, optional
+            Polygon units. Default is modeler units.
+        name : str, optional
+            Name of the rectangle. The default is ``None``, in which case the
+            default name is assigned.
+        net_name : str, optional
+            Name of the net. The default is ``None``, in which case the
+            default name is assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`
+            Object of the rectangle created when successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreatePolygon
+        """
+        if not name:
+            name = _uname()
+        else:
+            listnames = self.oeditor.FindObjects("Name", name)
+            if listnames:
+                name = _uname(name)
+
+        vArg1 = ["NAME:Contents", "polyGeometry:="]
+        vArg2 = []
+        vArg2.append("Name:="), vArg2.append(name)
+        vArg2.append("LayerName:="), vArg2.append(layername)
+        vArg2.append("lw:="), vArg2.append("0")
+        vArg2.append("n:="), vArg2.append(len(point_list))
+        vArg2.append("U:="), vArg2.append(units if units else self.model_units)
+        for point in point_list:
+            vArg2.append("x:="), vArg2.append(point[0])
+            vArg2.append("y:="), vArg2.append(point[1])
+        vArg1.append(vArg2)
+        self.oeditor.CreatePolygon(vArg1)
+        primitive = Polygons3DLayout(self, name, is_void=False)
+        self._polygons[name] = primitive
+
+        if net_name:
+            primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
+
+        return primitive
+
+    @pyaedt_function_handler()
+    def create_polygon_void(self, layername, point_list, object_owner, units=None, name=None):
+        """Create a polygon void on a specified layer.
+
+        Parameters
+        ----------
+        layername : str
+            Name of the layer.
+        point_list : list
+            List of points in a list of ``[x, y]`` coordinates.
+        object_owner : str
+            Object Owner.
+        units : str, optional
+            Polygon units. Default is modeler units.
+        name : str, optional
+            Name of the rectangle. The default is ``None``, in which case the
+            default name is assigned.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dlayout.Polygons3DLayout`
+            Object of the rectangle created when successful.
+
+        References
+        ----------
+
+        >>> oEditor.CreatePolygon
+        """
+        if not name:
+            name = _uname()
+        else:
+            listnames = self.oeditor.FindObjects("Name", name)
+            if listnames:
+                name = _uname(name)
+        if not self.oeditor.FindObjects("Name", object_owner):
+            self._app.logger.error("Owner Polygon not found.")
+            return False
+
+        vArg1 = ["NAME:Contents", "owner:=", object_owner, "poly voidGeometry:="]
+        vArg2 = []
+        vArg2.append("Name:="), vArg2.append(name)
+        vArg2.append("LayerName:="), vArg2.append(layername)
+        vArg2.append("lw:="), vArg2.append("0")
+        vArg2.append("n:="), vArg2.append(len(point_list))
+        vArg2.append("U:="), vArg2.append(units if units else self.model_units)
+        for point in point_list:
+            vArg2.append("x:="), vArg2.append(point[0])
+            vArg2.append("y:="), vArg2.append(point[1])
+        vArg1.append(vArg2)
+        self.oeditor.CreatePolygonVoid(vArg1)
+        primitive = Polygons3DLayout(self, name, is_void=True)
+        self._polygons[name] = primitive
+
+        return primitive
 
     @pyaedt_function_handler()
     def create_line(
@@ -938,8 +1238,8 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        str
-            Name of the line created when successful.
+        :class:`pyaedt.modeler.object3dlayout.Line3dLayout`
+            Object of the line created when successful.
 
         References
         ----------
@@ -987,8 +1287,7 @@ class Primitives3DLayout(object):
 
         if net_name:
             primitive.change_property(property_val=["NAME:Net", "Value:=", net_name])
-
-        return name
+        return primitive
 
     @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits=None):

@@ -24,6 +24,7 @@ from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
+from pyaedt.modules.Boundary import NearFieldSetup
 from pyaedt.modules.solutions import FfdSolutionData
 
 
@@ -190,11 +191,21 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        List of :class:`pyaedt.modules.Boundary.FarFieldSetup`
+        List of :class:`pyaedt.modules.Boundary.FarFieldSetup` and :class:`pyaedt.modules.Boundary.NearFieldSetup`
         """
         if not self._field_setups:
             self._field_setups = self._get_rad_fields()
         return self._field_setups
+
+    @property
+    def field_setup_names(self):
+        """List of AEDT radiation field names.
+
+        Returns
+        -------
+        List of str
+        """
+        return self.odesign.GetChildObject("Radiation").GetChildNames()
 
     class BoundaryType(object):
         """Creates and manages boundaries."""
@@ -261,11 +272,24 @@ class Hfss(FieldAnalysis3D, object):
         if not self.design_properties:
             return []
         fields = []
-        if self.design_properties.get("RadField") and self.design_properties["RadField"].get("FarFieldSetups"):
-            for val in self.design_properties["RadField"]["FarFieldSetups"]:
-                p = self.design_properties["RadField"]["FarFieldSetups"][val]
-                if isinstance(p, (dict, OrderedDict)) and p.get("Type") == "Infinite Sphere":
-                    fields.append(FarFieldSetup(self, val, p, "FarFieldSphere"))
+        if self.design_properties.get("RadField"):
+            if self.design_properties["RadField"].get("FarFieldSetups"):
+                for val in self.design_properties["RadField"]["FarFieldSetups"]:
+                    p = self.design_properties["RadField"]["FarFieldSetups"][val]
+                    if isinstance(p, (dict, OrderedDict)) and p.get("Type") == "Infinite Sphere":
+                        fields.append(FarFieldSetup(self, val, p, "FarFieldSphere"))
+            if self.design_properties["RadField"].get("NearFieldSetups"):
+                for val in self.design_properties["RadField"]["NearFieldSetups"]:
+                    p = self.design_properties["RadField"]["NearFieldSetups"][val]
+                    if isinstance(p, (dict, OrderedDict)):
+                        if p["Type"] == "Near Rectangle":
+                            fields.append(NearFieldSetup(self, val, p, "NearFieldRectangle"))
+                        elif p["Type"] == "Near Line":
+                            fields.append(NearFieldSetup(self, val, p, "NearFieldLine"))
+                        elif p["Type"] == "Near Box":
+                            fields.append(NearFieldSetup(self, val, p, "NearFieldBox"))
+                        elif p["Type"] == "Near Sphere":
+                            fields.append(NearFieldSetup(self, val, p, "NearFieldSphere"))
         return fields
 
     @pyaedt_function_handler()
@@ -5003,7 +5027,7 @@ class Hfss(FieldAnalysis3D, object):
         """Create an infinite sphere.
 
         .. note::
-           This method is not supported by all HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
 
         Parameters
         ----------
@@ -5075,6 +5099,279 @@ class Hfss(FieldAnalysis3D, object):
         else:
             props["CoordSystem"] = ""
         bound = FarFieldSetup(self, name, props, "FarFieldSphere", units)
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def insert_near_field_sphere(
+        self,
+        radius=20,
+        radius_units="mm",
+        x_start=0,
+        x_stop=180,
+        x_step=10,
+        y_start=0,
+        y_stop=180,
+        y_step=10,
+        angle_units="deg",
+        custom_radiation_faces=None,
+        custom_coordinate_system=None,
+        name=None,
+    ):
+        """Create a near field sphere.
+
+        .. note::
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+
+        Parameters
+        ----------
+        radius : float, str, optional
+            Sphere radius. The default is ``20``.
+        radius_units : str
+            Radius units. The default is ``"mm"``.
+        x_start : float, str, optional
+            First angle start value. The default is ``0``.
+        x_stop : float, str, optional
+            First angle stop value. The default is ``180``.
+        x_step : float, str, optional
+            First angle step value. The default is ``10``.
+        y_start : float, str, optional
+            Second angle start value. The default is ``0``.
+        y_stop : float, str, optional
+            Second angle stop value. The default is ``180``.
+        y_step : float, str, optional
+            Second angle step value. The default is ``10``.
+        angle_units : str
+            Angle units. The default is ``"deg"``.
+        custom_radiation_faces : str, optional
+            List of radiation faces to use for far field computation. The default is ``None``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        """
+        if not self.oradfield:
+            self.logger.error("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Sphere")
+
+        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        if custom_radiation_faces:
+            props["CustomRadiationSurface"] = custom_radiation_faces
+        else:
+            props["CustomRadiationSurface"] = ""
+
+        props["Radius"] = self.modeler._arg_with_dim(radius, radius_units)
+
+        defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+        props[defs[0]] = self.modeler._arg_with_dim(x_start, angle_units)
+        props[defs[1]] = self.modeler._arg_with_dim(x_stop, angle_units)
+        props[defs[2]] = self.modeler._arg_with_dim(x_step, angle_units)
+        props[defs[3]] = self.modeler._arg_with_dim(y_start, angle_units)
+        props[defs[4]] = self.modeler._arg_with_dim(y_stop, angle_units)
+        props[defs[5]] = self.modeler._arg_with_dim(y_step, angle_units)
+        props["UseLocalCS"] = custom_coordinate_system is not None
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = ""
+        bound = NearFieldSetup(self, name, props, "NearFieldSphere")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def insert_near_field_box(
+        self,
+        u_length=20,
+        u_samples=21,
+        v_length=20,
+        v_samples=21,
+        w_length=20,
+        w_samples=21,
+        units="mm",
+        custom_radiation_faces=None,
+        custom_coordinate_system=None,
+        name=None,
+    ):
+        """Create a near field box.
+
+        .. note::
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+
+        Parameters
+        ----------
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        w_length : float, str, optional
+            W axis length. The default is ``20``.
+        w_samples : float, str, optional
+            W axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_radiation_faces : str, optional
+            List of radiation faces to use for far field computation. The default is ``None``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        """
+        if not self.oradfield:
+            self.logger.error("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Box")
+
+        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        if custom_radiation_faces:
+            props["CustomRadiationSurface"] = custom_radiation_faces
+        else:
+            props["CustomRadiationSurface"] = ""
+
+        defs = ["U Size", "V Size", "W Size", "U Samples", "V Samples", "W Samples"]
+        props[defs[0]] = self.modeler._arg_with_dim(u_length, units)
+        props[defs[1]] = self.modeler._arg_with_dim(v_length, units)
+        props[defs[2]] = self.modeler._arg_with_dim(w_length, units)
+        props[defs[3]] = self.modeler._arg_with_dim(u_samples, units)
+        props[defs[4]] = self.modeler._arg_with_dim(v_samples, units)
+        props[defs[5]] = self.modeler._arg_with_dim(w_samples, units)
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+        bound = NearFieldSetup(self, name, props, "NearFieldBox")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def insert_near_field_rectangle(
+        self,
+        u_length=20,
+        u_samples=21,
+        v_length=20,
+        v_samples=21,
+        units="mm",
+        custom_radiation_faces=None,
+        custom_coordinate_system=None,
+        name=None,
+    ):
+        """Create a near field rectangle.
+
+        .. note::
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+
+        Parameters
+        ----------
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_radiation_faces : str, optional
+            List of radiation faces to use for far field computation. The default is ``None``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        """
+        if not self.oradfield:
+            self.logger.error("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Rectangle")
+
+        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        if custom_radiation_faces:
+            props["CustomRadiationSurface"] = custom_radiation_faces
+        else:
+            props["CustomRadiationSurface"] = ""
+
+        defs = ["Length", "Width", "LengthSamples", "WidthSamples"]
+        props[defs[0]] = self.modeler._arg_with_dim(u_length, units)
+        props[defs[1]] = self.modeler._arg_with_dim(v_length, units)
+        props[defs[2]] = u_samples
+        props[defs[3]] = v_samples
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+        bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
+
+    @pyaedt_function_handler()
+    def insert_near_field_line(
+        self,
+        line,
+        points=1000,
+        custom_radiation_faces=None,
+        name=None,
+    ):
+        """Create a near field line.
+
+        .. note::
+           This method is not supported by HFSS ``EigenMode`` and ``CharacteristicMode`` solution types.
+
+        Parameters
+        ----------
+        line : str
+            Polyline name.
+        points : float, str, optional
+            Number of points. The default value is ``1000``.
+        custom_radiation_faces : str, optional
+            List of radiation faces to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.NearFieldSetup`
+        """
+        if not self.oradfield:
+            self.logger.error("Radiation Field not available in this solution.")
+        if not name:
+            name = generate_unique_name("Line")
+
+        props = OrderedDict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+        if custom_radiation_faces:
+            props["CustomRadiationSurface"] = custom_radiation_faces
+        else:
+            props["CustomRadiationSurface"] = ""
+
+        props["NumPts"] = points
+        props["Line"] = line
+
+        bound = NearFieldSetup(self, name, props, "NearFieldLine")
         if bound.create():
             self.field_setups.append(bound)
             return bound
@@ -5226,32 +5523,32 @@ class Hfss(FieldAnalysis3D, object):
         Add a 3D component array from a json file.
         Below is the content of a json file that will be used in the following code sample.
 
-        {
-        "primarylattice": "MyFirstLattice",
-        "secondarylattice": "MySecondLattice",
-        "useairobjects": true,
-        "rowdimension": 4,
-        "columndimension": 4,
-        "visible": true,
-        "showcellnumber": true,
-        "paddingcells": 0,
-        "referencecsid": 1,
-        "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
-        "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
-        "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
-        "cells": { "(1,1)": {
-                   "name" : "MyFirstCell",
-                   "color" : "(255,0,20)", #optional
-                   "active" : true, #optional
-                   "postprocessing" : true #optional
-                   "rotation" : 0.0  #optional
-                    },
-                   "(1,2)": {
-                   "name" : "MySecondCell",
-                   "rotation" : 90.0
-                    }
-                    # continue
-        }
+        >>> {
+        >>> "primarylattice": "MyFirstLattice",
+        >>> "secondarylattice": "MySecondLattice",
+        >>> "useairobjects": true,
+        >>> "rowdimension": 4,
+        >>> "columndimension": 4,
+        >>> "visible": true,
+        >>> "showcellnumber": true,
+        >>> "paddingcells": 0,
+        >>> "referencecsid": 1,
+        >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
+        >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
+        >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
+        >>> "cells": { "(1,1)": {
+        >>>            "name" : "MyFirstCell",
+        >>>            "color" : "(255,0,20)", #optional
+        >>>            "active" : true, #optional
+        >>>            "postprocessing" : true #optional
+        >>>            "rotation" : 0.0  #optional
+        >>>             },
+        >>>            "(1,2)": {
+        >>>            "name" : "MySecondCell",
+        >>>            "rotation" : 90.0
+        >>>             }
+        >>>             # continue
+        >>> }
 
         >>> from pyaedt import Hfss
         >>> from pyaedt.generic.DataHandlers import json_to_dict
@@ -5492,14 +5789,16 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         try:
-            if self.solution_type != "Modal":
-                raise ValueError("Symmetry is only available with 'Modal' solution type.")
+            if self.solution_type not in ["Modal", "Eigenmode"]:
+                self.logger.error("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
+                return False
 
             if symmetry_name is None:
                 symmetry_name = generate_unique_name("Symmetry")
 
             if not isinstance(entity_list, list):
-                raise ValueError("Entities have to be provided as a list.")
+                self.logger.error("Entities have to be provided as a list.")
+                return False
 
             entity_list = self.modeler.convert_to_selections(entity_list, True)
 

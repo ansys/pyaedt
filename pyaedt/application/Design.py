@@ -376,7 +376,8 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return self.odesktop.GetVersion()[0:6]
+
+        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
 
     @property
     def design_name(self):
@@ -2788,7 +2789,7 @@ class Design(AedtObjects):
         """
         legacy_name = self.project_name
         if name and name not in self.project_list:
-            self.logger.warning("Project not found. ", name)
+            self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:
             name = self.project_name
@@ -2971,7 +2972,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = new_design.GetName()
+        name = _retry_ntimes(5, new_design.GetName)
         self._odesign = new_design
         return name
 
@@ -3043,7 +3044,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
-        """Copy a design from a project into the active design.
+        """Copy a design from a project into the active project.
 
         Parameters
         ----------

@@ -679,17 +679,18 @@ class VariableManager(object):
         var_dict = {}
         all_names = {}
         for obj in object_list:
-            listvar = self._get_var_list_from_aedt(obj)
-            for variable_name in listvar:
-                variable_expression = self.get_expression(variable_name)
-                all_names[variable_name] = variable_expression
-                si_value = self._app.get_evaluated_value(variable_name)
-                value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
-                is_number_flag = is_number(value._calculated_value)
-                if independent and is_number_flag:
-                    var_dict[variable_name] = value
-                elif dependent and not is_number_flag:
-                    var_dict[variable_name] = value
+            variables = self._get_var_list_from_aedt(obj)
+            for variable_name in variables:
+                if self.get_expression(variable_name):
+                    variable_expression = self.get_expression(variable_name)
+                    all_names[variable_name] = variable_expression
+                    si_value = self._app.get_evaluated_value(variable_name)
+                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
+                    is_number_flag = is_number(value._calculated_value)
+                    if independent and is_number_flag:
+                        var_dict[variable_name] = value
+                    elif dependent and not is_number_flag:
+                        var_dict[variable_name] = value
         return var_dict
 
     @pyaedt_function_handler()
@@ -702,7 +703,10 @@ class VariableManager(object):
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
-        return self.aedt_object(variable_name).GetVariableValue(variable_name)
+        if variable_name not in ["CosimDefinition", "CoSimulator", "CoSimulator/Choices", "InstanceName", "ModelName"]:
+            return self.aedt_object(variable_name).GetVariableValue(variable_name)
+        else:
+            return False
 
     @pyaedt_function_handler()
     def aedt_object(self, variable):
@@ -1021,9 +1025,18 @@ class VariableManager(object):
     def _get_var_list_from_aedt(self, desktop_object):
         var_list = []
         if self._app._is_object_oriented_enabled() and self._app.design_type != "Maxwell Circuit":
-            var_list += list(desktop_object.GetChildObject("Variables").GetChildNames())
-        tmp = [i for i in list(desktop_object.GetVariables()) if i not in var_list]
-        var_list += tmp
+            # To retrieve local variables
+            var_list += list(self._app.get_oo_object(self._app.odesign, "LocalVariables").GetPropNames())
+        if self._app._is_object_oriented_enabled() and self._app.design_type in [
+            "Circuit Design",
+            "Twin Builder",
+            "HFSS 3D Layout Design",
+        ]:
+            # To retrieve Parameter Default Variables
+            var_list += list(self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames())
+
+        var_list += [i for i in list(desktop_object.GetVariables()) if i not in var_list]
+        var_list += [i for i in list(self._app.oproject.GetArrayVariables()) if i not in var_list]
         return var_list
 
 
@@ -1457,26 +1470,24 @@ class Variable(object):
     @property
     def numeric_value(self):
         """Numeric part of the expression as a float value."""
-        try:
-            if re.search(r"^[\w+]+\[\w+].*", str(self._value)):
-                var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
-                val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
-                return val
-        except TypeError:
-            pass
         if is_array(self._value):
             return list(eval(self._value))
-        if is_number(self._value):
-            try:
-                scale = AEDT_UNITS[self.unit_system][self._units]
-            except KeyError:
-                scale = 1
-            if isinstance(scale, tuple):
-                return scale[0](self._value, True)
-            else:
-                return self._value / scale
-        else:
-            return self._value
+        try:
+            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+            val, _ = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            return val
+        except (TypeError, AttributeError):
+            if is_number(self._value):
+                try:
+                    scale = AEDT_UNITS[self.unit_system][self._units]
+                except KeyError:
+                    scale = 1
+                if isinstance(scale, tuple):
+                    return scale[0](self._value, True)
+                else:
+                    return self._value / scale
+            else:  # pragma: no cover
+                return self._value
 
     @property
     def unit_system(self):
@@ -1486,6 +1497,12 @@ class Variable(object):
     @property
     def units(self):
         """Units."""
+        try:
+            var_obj = self._aedt_obj.GetChildObject("Variables").GetChildObject(self._variable_name)
+            _, self._units = decompose_variable_value(var_obj.GetPropEvaluatedValue("EvaluatedValue"))
+            return self._units
+        except (TypeError, AttributeError):
+            pass
         return self._units
 
     @property
@@ -1842,9 +1859,9 @@ class DataSet(object):
             x, y, z, v = (list(t) for t in zip(*sorted(zip(self.x, self.y, self.z, self.v), key=lambda e: float(e[0]))))
         else:
             x, y = (list(t) for t in zip(*sorted(zip(self.x, self.y), key=lambda e: float(e[0]))))
-
+        ver = self._app._aedt_version
         for i in range(len(x)):
-            if self._app._aedt_version >= "2022.1":
+            if ver >= "2022.1":
                 arg3 = ["NAME:Point"]
                 arg3.append(float(x[i]))
                 arg3.append(float(y[i]))

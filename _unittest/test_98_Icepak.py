@@ -74,7 +74,7 @@ class TestClass(BasisTest, object):
     def test_03_AssignPCBRegion(self):
         self.aedtapp.globalMeshSettings(2)
         self.aedtapp.create_meshregion_component()
-        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm")
+        pcb_mesh_region = self.aedtapp.mesh.MeshRegion(self.aedtapp.mesh.omeshmodule, [1, 1, 1], "mm", self.aedtapp)
         pcb_mesh_region.name = "PCB_Region"
         pcb_mesh_region.UserSpecifiedSettings = True
         pcb_mesh_region.MaxElementSizeX = 2
@@ -178,7 +178,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.assign_mesh_level({"USB_Shiels": 2})
         pass
 
-    def test_12_AssignMeshOperation(self):
+    def test_12a_AssignMeshOperation(self):
         self.aedtapp.oproject = test_project_name
         self.aedtapp.odesign = "IcepakDesign1"
         group_name = "Group1"
@@ -191,6 +191,23 @@ class TestClass(BasisTest, object):
         test = self.aedtapp.mesh.assign_mesh_region(component_name, mesh_level_RadioPCB, is_submodel=True)
         assert test
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
+        assert test
+
+    def test_12b_AssignVirtualMeshOperation(self):
+        self.aedtapp.oproject = test_project_name
+        self.aedtapp.odesign = "IcepakDesign1"
+        group_name = "Group1"
+        mesh_level_Filter = "2"
+        component_name = ["RadioBoard1_1"]
+        mesh_level_RadioPCB = "1"
+        test = self.aedtapp.mesh.assign_mesh_level_to_group(mesh_level_Filter, group_name)
+        assert test
+        # assert self.aedtapp.mesh.assignMeshLevel2Component(mesh_level_RadioPCB, component_name)
+        test = self.aedtapp.mesh.assign_mesh_region(
+            component_name, mesh_level_RadioPCB, is_submodel=True, virtual_region=True
+        )
+        assert test
+        test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB, virtual_region=True)
         assert test
 
     def test_13a_assign_openings(self):
@@ -510,3 +527,36 @@ class TestClass(BasisTest, object):
     def test_41_exporting_monitor_data(self):
         assert self.aedtapp.edit_design_settings()
         assert self.aedtapp.edit_design_settings(export_monitor=True, export_directory=source_project_path)
+
+    def test_42_import_idf(self):
+        self.aedtapp.insert_design("IDF")
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf")
+        )
+        assert self.aedtapp.import_idf(
+            os.path.join(local_path, "example_models", test_subfolder, "A1_uprev Cadence172.bdf"),
+            filter_cap=True,
+            filter_ind=True,
+            filter_res=True,
+            filter_height_under=2,
+            filter_height_exclude_2d=False,
+            internal_layer_coverage=20,
+            internal_layer_number=5,
+            internal_thick=0.05,
+            high_surface_thick="0.1in",
+        )
+
+    def test_43_create_two_resistor_network_block(self):
+        self.aedtapp.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
+        self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
+        self.aedtapp.modeler.create_box([20, 60, 2], [10, 10, 3], "network_box2", "copper")
+        result1 = self.aedtapp.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
+        result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
+        assert result1.props["Nodes"]["Internal"][0] == "5W"
+        assert result2.props["Nodes"]["Internal"][0] == "10W"
+
+    def test_44_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
