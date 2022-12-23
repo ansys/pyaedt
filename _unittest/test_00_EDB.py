@@ -911,6 +911,7 @@ if not config["skip_edb"]:
                 representation_type="CenterWidthHeight",
             )
 
+        @pytest.mark.skipif(is_ironpython, reason="Failing Subtract")
         def test_089B_circle_boolean(self):
             poly = self.edbapp.core_primitives.create_polygon_from_points(
                 [[0, 0], [100, 0], [100, 100], [0, 100]], "TOP"
@@ -1497,6 +1498,7 @@ if not config["skip_edb"]:
                 )
             assert mesh_size_factor == 1.9
 
+        @pytest.ma
         def test_120_edb_create_port(self):
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),

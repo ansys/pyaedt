@@ -1029,11 +1029,16 @@ class EDBPadstackInstance(object):
         """
         layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
         val = self._pedb.edb_value(0)
-        (
-            flag,
-            drill_to_layer,
-            diameter,
-        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+        if is_ironpython:  # pragma: no cover
+            diameter = _clr.StrongBox[type(val)]()
+            drill_to_layer = _clr.StrongBox[self._pedb.edb.Cell.ILayerReadOnly]()
+            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
+        else:
+            (
+                flag,
+                drill_to_layer,
+                diameter,
+            ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, False)
         if flag:
             return drill_to_layer.GetName(), diameter.ToString()
         else:
@@ -1069,11 +1074,16 @@ class EDBPadstackInstance(object):
         """
         layer = self._pedb.edb.Cell.Layer("", self._pedb.edb.Cell.LayerType.SignalLayer)
         val = self._pedb.edb_value(0)
-        (
-            flag,
-            drill_to_layer,
-            diameter,
-        ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
+        if is_ironpython:  # pragma: no cover
+            diameter = _clr.StrongBox[type(val)]()
+            drill_to_layer = _clr.StrongBox[self._pedb.edb.Cell.ILayerReadOnly]()
+            flag = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
+        else:
+            (
+                flag,
+                drill_to_layer,
+                diameter,
+            ) = self._edb_padstackinstance.GetBackDrillParametersLayerValue(layer, val, True)
         if flag:
             return drill_to_layer.GetName(), diameter.ToString()
         else:
