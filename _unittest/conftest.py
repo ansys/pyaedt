@@ -27,6 +27,7 @@ import tempfile
 
 from pyaedt import pyaedt_logger
 from pyaedt import settings
+from pyaedt.desktop import release_desktop
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
@@ -194,9 +195,10 @@ def desktop_init():
     yield
     if not is_ironpython:
         try:
-            oDesktop = sys.modules["__main__"].oDesktop
-            pid = oDesktop.GetProcessID()
-            os.kill(pid, 9)
+            release_desktop(close_projects=False, close_desktop=True)
+            # oDesktop = sys.modules["__main__"].oDesktop
+            # pid = oDesktop.GetProcessID()
+            # os.kill(pid, 9)
             # shutil.rmtree(scratch_path, ignore_errors=True)
         except:
             pass
