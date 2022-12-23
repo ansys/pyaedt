@@ -1498,7 +1498,6 @@ if not config["skip_edb"]:
                 )
             assert mesh_size_factor == 1.9
 
-        @pytest.ma
         def test_120_edb_create_port(self):
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),

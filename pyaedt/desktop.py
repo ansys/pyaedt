@@ -169,8 +169,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             else:
                 ScriptEnv.Release()
             _delete_objects()
-            if settings.remote_api:
-                return True
+            return True
         elif not inside_desktop:
             i = 0
             scopeID = 5
