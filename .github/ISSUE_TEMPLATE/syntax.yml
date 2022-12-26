@@ -14,7 +14,7 @@ body:
     id: modification-description
     attributes:
       label: Description of the current limitation
-      placeholder: Explain why the current API limitation or why it's usage is not intuitive.
+      placeholder: Explain what are the limitations of the current API or why it's usage is not intuitive.
     validations:
       required: true
 
