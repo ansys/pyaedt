@@ -1393,7 +1393,6 @@ class GeometryModeler(Modeler, object):
         [Dict with List information]
         """
         return {plane_name: self.GetChildObject(plane_name) for plane_name in self.GetChildNames("Planes")}
-        # return self.oeditor.GetChildNames("Planes")
 
     def __get__(self, instance, owner):
         self._app = instance

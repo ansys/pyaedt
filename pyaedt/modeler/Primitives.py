@@ -1254,6 +1254,9 @@ class Primitives(object):
 
         Parameters
         ----------
+        name : str, optional
+            Name of the plane. The default is ``None``, in which case the
+            default name is assigned.
         plane_base_x : str
             X coordinate of the plane base. The default value is ``"0mm"``.
         plane_base_y : str
@@ -1266,9 +1269,6 @@ class Primitives(object):
             Y coordinate of the normal plane. The default value is ``"0mm"``.
         plane_normal_z : str
             Z coordinate of the normal plane. The default value is ``"0mm"``.
-        name : str, optional
-            Name of the plane. The default is ``None``, in which case the
-            default name is assigned.
         color : str, optional
             String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
 
@@ -1291,7 +1291,6 @@ class Primitives(object):
         ...                name="myplane")
 
         """
-        # x_position, y_position, z_position = self._pos_with_arg(position)
 
         if not name:
             unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
@@ -3594,13 +3593,8 @@ class Primitives(object):
         self._planes = {
             plane_name: self.oeditor.GetChildObject(plane_name) for plane_name in self.oeditor.GetChildNames("Planes")
         }
-
-    #         assert False, "Get Planes is failing"
-    #     elif test is True:
-    #         self._planes = []  # In IronPython True is returned when no planes are present
-    #     else:
-    #         self._planes = list(test)
-    #     self._all_object_names = self._solids + self._sheets + self._lines + self._planes
+        name = None
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
     @pyaedt_function_handler()
     def _refresh_unclassified(self):

@@ -966,7 +966,6 @@ class TestClass(BasisTest, object):
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         point = self.aedtapp.modeler.create_point([30, 30, 0], name)
-        assert name in self.aedtapp.modeler.points
         point.set_color("(143 175 158)")
         point2 = self.aedtapp.modeler.create_point([50, 30, 0], "mypoint2", "(100 100 100)")
         point.logger.info("Creation and testing of a point.")
@@ -996,6 +995,10 @@ class TestClass(BasisTest, object):
         plane = self.aedtapp.modeler.create_plane(name, "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm")
         assert name in self.aedtapp.modeler.planes
         plane.set_color("(143 75 158)")
+        assert plane.name == name
+        plane.name = "my_plane1"
+        assert plane.name == "my_plane1"
+
         plane2 = self.aedtapp.modeler.create_plane(
             plane_base_x="-0.7mm",
             plane_base_z="0.3mm",
@@ -1006,21 +1009,18 @@ class TestClass(BasisTest, object):
         )
         plane.logger.info("Creation and testing of a plane.")
 
-        assert plane.name == "my_plane"
+        assert plane.name == "my_plane1"
         assert plane.coordinate_system == "Global"
         assert plane2.name == "my_plane2"
         assert plane2.coordinate_system == "Global"
 
-        assert self.aedtapp.modeler.planes["my_plane"].name == plane.name
+        assert self.aedtapp.modeler.planes["my_plane1"].name == plane.name
         assert self.aedtapp.modeler.planes["my_plane2"].name == plane2.name
 
         # Delete the first plane
         assert len(self.aedtapp.modeler.planes) == 5
-        self.aedtapp.modeler.planes["my_plane"].delete()
+        self.aedtapp.modeler.planes["my_plane1"].delete()
         assert name not in self.aedtapp.modeler.planes
-        # assert len(self.aedtapp.modeler.plane_objects) == 1
-        # assert len(self.aedtapp.modeler.plane_names) == 1
-        # assert self.aedtapp.modeler.plane_objects[0].name == "my_plane2"
 
     def test_71_create_choke(self):
         choke_file1 = os.path.join(

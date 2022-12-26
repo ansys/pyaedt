@@ -4858,8 +4858,8 @@ class Plane(object):
 
     Create a plane, to return an :class:`pyaedt.modeler.Object3d.Plane`.
 
-    >>> plane = primitives.create_plane([30, 30, 0], "my_point", (0, 195, 255))
-    >>> my_plane = primitives.planes[point.name]
+    >>> plane = primitives.create_plane("my_plane", "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "(0, 195, 255)")
+    >>> my_plane = primitives.planes[plane.name]
     """
 
     def __init__(self, primitives, name):
@@ -4891,7 +4891,7 @@ class Plane(object):
 
     @property
     def name(self):
-        """Name of the point as a string value.
+        """Name of the plane as a string value.
 
         Returns
         -------
@@ -4909,7 +4909,8 @@ class Plane(object):
 
     @name.setter
     def name(self, plane_name):
-        if plane_name not in self._primitives.points.keys:
+        if plane_name not in self._primitives.planes.keys():
+            plane_old_name = self._name
             if plane_name != self._name:
                 name_property = []
                 name_property.append("NAME:Name")
@@ -4922,7 +4923,9 @@ class Plane(object):
                 all_tabs = ["NAME:AllTabs", plane_tab]
                 _retry_ntimes(10, self._primitives.oeditor.ChangeProperty, all_tabs)
                 self._name = plane_name
-                self._primitives.cleanup_objects()
+                # TO BE DELETED self._primitives.cleanup_objects()
+                # Update the name of the plane in the ``planes`` dictionary listing all existing planes.
+                self._primitives.planes[plane_name] = self._primitives.planes.pop(plane_old_name)
         else:
             self.logger.warning("A plane named '%s' already exists.", plane_name)
 
