@@ -26,7 +26,7 @@ body:
     id: implementation-description
     attributes:
       label: Code sample expected
-      placeholder: Provide a code example that fill the gap and meet the expectations.
+      placeholder: Provide a code example that fills the gap and meets the expectations.
     validations:
       required: false
 
