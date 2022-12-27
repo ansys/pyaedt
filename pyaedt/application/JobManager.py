@@ -46,8 +46,6 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
     type
 
     """
-    old_prop = ""
-    old_line = None
     line_number = None
     new_line = ""
     with open(filnename, "r") as file:
@@ -57,11 +55,11 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
                 old_prop = line.strip()
                 old_line = line
                 line_number = i
-
-    if isvaluestring:
-        new_line = old_line.replace(old_prop, propertyname + separator + "'" + str(propertyvalue) + "'")
-    else:
-        new_line = old_line.replace(old_prop, propertyname + separator + str(propertyvalue))
+                if isvaluestring:
+                    new_line = old_line.replace(old_prop, propertyname + separator + "'" + str(propertyvalue) + "'")
+                else:
+                    new_line = old_line.replace(old_prop, propertyname + separator + str(propertyvalue))
+                break
 
     data[line_number] = new_line
 
