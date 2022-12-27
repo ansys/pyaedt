@@ -966,7 +966,6 @@ class TestClass(BasisTest, object):
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         point = self.aedtapp.modeler.create_point([30, 30, 0], name)
-        assert name in self.aedtapp.modeler.points
         point.set_color("(143 175 158)")
         point2 = self.aedtapp.modeler.create_point([50, 30, 0], "mypoint2", "(100 100 100)")
         point.logger.info("Creation and testing of a point.")
@@ -983,9 +982,48 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.points) == 2
         self.aedtapp.modeler.points[point.name].delete()
         assert name not in self.aedtapp.modeler.points
+        self.aedtapp.modeler.points
         assert len(self.aedtapp.modeler.point_objects) == 1
         assert len(self.aedtapp.modeler.point_names) == 1
         assert self.aedtapp.modeler.point_objects[0].name == "mypoint2"
+
+    def test_71_create_plane(self):
+        self.aedtapp.set_active_design("3D_Primitives")
+        name = "my_plane"
+        if self.aedtapp.modeler[name]:
+            self.aedtapp.modeler.delete(name)
+        plane = self.aedtapp.modeler.create_plane(name, "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm")
+        assert name in self.aedtapp.modeler.planes
+        plane.set_color("(143 75 158)")
+        assert plane.name == name
+        plane.name = "my_plane1"
+        assert plane.name == "my_plane1"
+
+        plane2 = self.aedtapp.modeler.create_plane(
+            plane_base_x="-0.7mm",
+            plane_base_z="0.3mm",
+            plane_normal_x="-0.7mm",
+            plane_normal_z="0.3mm",
+            name="my_plane2",
+            color="(100 100 100)",
+        )
+        plane.logger.info("Creation and testing of a plane.")
+
+        assert plane.name == "my_plane1"
+        assert plane.coordinate_system == "Global"
+        assert plane2.name == "my_plane2"
+        assert plane2.coordinate_system == "Global"
+
+        assert self.aedtapp.modeler.planes["my_plane1"].name == plane.name
+        assert self.aedtapp.modeler.planes["my_plane2"].name == plane2.name
+
+        # Delete the first plane
+        if config["desktopVersion"] < "2023.1" and not is_ironpython:
+            assert len(self.aedtapp.modeler.planes) == 2
+        else:
+            assert len(self.aedtapp.modeler.planes) == 5
+        self.aedtapp.modeler.planes["my_plane1"].delete()
+        assert name not in self.aedtapp.modeler.planes
 
     def test_71_create_choke(self):
         choke_file1 = os.path.join(
@@ -1338,6 +1376,7 @@ class TestClass(BasisTest, object):
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     def test_81_duplicate_and_mirror_3dcomponent(self):
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True

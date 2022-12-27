@@ -20,6 +20,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.GeometryOperators import GeometryOperators
 from pyaedt.modeler.Object3d import FacePrimitive
 from pyaedt.modeler.Object3d import Object3d
+from pyaedt.modeler.Object3d import Plane
 from pyaedt.modeler.Object3d import Point
 from pyaedt.modeler.Object3d import UserDefinedComponent
 from pyaedt.modeler.Object3d import _dim_arg
@@ -1238,6 +1239,84 @@ class Primitives(object):
         return self._create_object(name)
 
     @pyaedt_function_handler()
+    def create_plane(
+        self,
+        name=None,
+        plane_base_x="0mm",
+        plane_base_y="0mm",
+        plane_base_z="0mm",
+        plane_normal_x="0mm",
+        plane_normal_y="0mm",
+        plane_normal_z="0mm",
+        color="(143 175 143)",
+    ):
+        """Create a plane.
+
+        Parameters
+        ----------
+        name : str, optional
+            Name of the plane. The default is ``None``, in which case the
+            default name is assigned.
+        plane_base_x : str
+            X coordinate of the plane base. The default value is ``"0mm"``.
+        plane_base_y : str
+            Y coordinate of the plane base. The default value is ``"0mm"``.
+        plane_base_z : str
+            Z coordinate of the plane base. The default value is ``"0mm"``.
+        plane_normal_x : str
+            X coordinate of the normal plane. The default value is ``"0mm"``.
+        plane_normal_y : str
+            Y coordinate of the normal plane. The default value is ``"0mm"``.
+        plane_normal_z : str
+            Z coordinate of the normal plane. The default value is ``"0mm"``.
+        color : str, optional
+            String exposing the three integer values for the color of the plane. The
+            default value is ``"(143 175 143)"``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Primitives.Plane`
+            Planes object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateBox
+
+        Examples
+        --------
+        Create a new plane.
+        >>> from pyaedt import hfss
+        >>> hfss = Hfss()
+        >>> plane_object = hfss.modeler.primivites.create_plane(plane_base_y="-0.8mm", plane_normal_x="-0.7mm",
+        ...                name="myplane")
+
+        """
+
+        if not name:
+            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
+            name = "Plane_" + unique_name
+
+        parameters = ["NAME:PlaneParameters"]
+        parameters.append("PlaneBaseX:="), parameters.append(plane_base_x)
+        parameters.append("PlaneBaseY:="), parameters.append(plane_base_y)
+        parameters.append("PlaneBaseZ:="), parameters.append(plane_base_z)
+        parameters.append("PlaneNormalX:="), parameters.append(plane_normal_x)
+        parameters.append("PlaneNormalY:="), parameters.append(plane_normal_y)
+        parameters.append("PlaneNormalZ:="), parameters.append(plane_normal_z)
+
+        attributes = ["NAME:Attributes"]
+        attributes.append("Name:="), attributes.append(name)
+        attributes.append("Color:="), attributes.append(color)
+
+        _retry_ntimes(10, self.oeditor.CreateCutplane, parameters, attributes)
+        # self._refresh_planes()
+        self.planes[name] = None
+        plane = self._create_object(name)
+        self.planes[name] = plane
+        return plane
+
+    @pyaedt_function_handler()
     def _change_component_property(self, vPropChange, names_list):
         names = self._app.modeler.convert_to_selections(names_list, True)
         vChangedProps = ["NAME:ChangedProps", vPropChange]
@@ -1271,6 +1350,20 @@ class Primitives(object):
         for el in names:
             vPropServers.append(el)
         vGeo3d = ["NAME:Geometry3DPointTab", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3d]
+        _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
+        if "NAME:Name" in vPropChange:
+            self.cleanup_objects()
+        return True
+
+    @pyaedt_function_handler()
+    def _change_plane_property(self, vPropChange, names_list):
+        names = self._app.modeler.convert_to_selections(names_list, True)
+        vChangedProps = ["NAME:ChangedProps", vPropChange]
+        vPropServers = ["NAME:PropServers"]
+        for el in names:
+            vPropServers.append(el)
+        vGeo3d = ["NAME:Geometry3DPlaneTab", vPropServers, vChangedProps]
         vOut = ["NAME:AllTabs", vGeo3d]
         _retry_ntimes(10, self.oeditor.ChangeProperty, vOut)
         if "NAME:Name" in vPropChange:
@@ -3497,6 +3590,18 @@ class Primitives(object):
         self._all_object_names = self._solids + self._sheets + self._lines + self._points
 
     @pyaedt_function_handler()
+    def _refresh_planes(self):
+        self._planes = {}
+        try:
+            self._planes = {
+                plane_name: self.oeditor.GetChildObject(plane_name)
+                for plane_name in self.oeditor.GetChildNames("Planes")
+            }
+        except TypeError:
+            self._planes = {}
+        self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
+
+    @pyaedt_function_handler()
     def _refresh_unclassified(self):
         test = _retry_ntimes(10, self.oeditor.GetObjectsInGroup, "Unclassified")
         if test is None or test is False:
@@ -3513,6 +3618,7 @@ class Primitives(object):
         self._refresh_sheets()
         self._refresh_lines()
         self._refresh_points()
+        self._refresh_planes()
         self._refresh_unclassified()
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + self._unclassified
 
@@ -3521,6 +3627,9 @@ class Primitives(object):
         if name in self._points:
             o = Point(self, name)
             self.points[name] = o
+        elif name in self.planes.keys():
+            o = Plane(self, name)
+            self.planes[name] = o
         else:
             o = Object3d(self, name)
             if pid:
