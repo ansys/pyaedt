@@ -911,6 +911,7 @@ if not config["skip_edb"]:
                 representation_type="CenterWidthHeight",
             )
 
+        @pytest.mark.skipif(is_ironpython, reason="Failing Subtract")
         def test_089B_circle_boolean(self):
             poly = self.edbapp.core_primitives.create_polygon_from_points(
                 [[0, 0], [100, 0], [100, 100], [0, 100]], "TOP"

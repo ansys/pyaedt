@@ -1855,28 +1855,10 @@ class Design(AedtObjects):
 
         """
         if not isinstance(variable_name, list):
-            self.variable_manager[variable_name].hidden = value
-        else:
-            design_variables = ["NAME:ChangedProps"]
-            project_variables = ["NAME:ChangedProps"]
-            for name in variable_name:
-                if name in self.variable_manager.design_variable_names:
-                    design_variables.append(["NAME:" + name, "Hidden:=", value])
-                elif name in self.variable_manager.project_variable_names:
-                    project_variables.append(["NAME:" + name, "Hidden:=", value])
+            variable_name = [variable_name]
 
-            if len(design_variables) > 1:
-                command = [
-                    "NAME:AllTabs",
-                    ["NAME:LocalVariableTab", ["NAME:PropServers", "LocalVariables"], design_variables],
-                ]
-                self.odesign.ChangeProperty(command)
-            if len(project_variables) > 1:
-                command = [
-                    "NAME:AllTabs",
-                    ["NAME:ProjectVariableTab", ["NAME:PropServers", "ProjectVariables"], project_variables],
-                ]
-                self.oproject.ChangeProperty(command)
+        for var in variable_name:
+            self.variable_manager[var].hidden = value
         return True
 
     @pyaedt_function_handler
