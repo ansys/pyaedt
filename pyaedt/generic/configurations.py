@@ -1063,6 +1063,9 @@ class Configurations(object):
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
                 dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+                if setup.sweeps:
+                    for sweep in setup.sweeps:
+                        dict_out["setups"][setup.name][sweep.name] = sweep.props
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):
