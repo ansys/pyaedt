@@ -649,7 +649,9 @@ class PostProcessorCommon(object):
         """
         return (
             True
-            if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits")
+            if self._app.odesktop.GetRegistryInt(
+                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type)
+            )
             == 1
             else False
         )
@@ -657,9 +659,13 @@ class PostProcessorCommon(object):
     @update_report_dynamically.setter
     def update_report_dynamically(self, value):
         if value:
-            self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 1)
+            self._app.odesktop.SetRegistryInt(
+                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 1
+            )
         else:
-            self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 0)
+            self._app.odesktop.SetRegistryInt(
+                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 0
+            )
 
     @pyaedt_function_handler()
     def available_display_types(self, report_category=None):
