@@ -4946,6 +4946,7 @@ class Plane(object):
     # when we try to access it, we only get access to the 'edit' button.
     # Following is the line that we would use but it currently returns 'edit'.
     # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
+    @pyaedt_function_handler()
     def set_color(self, color_value):
         """Set symbol color.
 
@@ -5019,7 +5020,6 @@ class Plane(object):
 
     @coordinate_system.setter
     def coordinate_system(self, new_coordinate_system):
-
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._plane_coordinate_system = new_coordinate_system

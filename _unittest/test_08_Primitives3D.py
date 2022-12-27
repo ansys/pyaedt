@@ -1018,7 +1018,10 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.planes["my_plane2"].name == plane2.name
 
         # Delete the first plane
-        assert len(self.aedtapp.modeler.planes) == 5
+        if config["desktopVersion"] < "2023.1":
+            assert len(self.aedtapp.modeler.planes) == 2
+        else:
+            assert len(self.aedtapp.modeler.planes) == 5
         self.aedtapp.modeler.planes["my_plane1"].delete()
         assert name not in self.aedtapp.modeler.planes
 

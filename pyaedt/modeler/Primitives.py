@@ -3590,10 +3590,14 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _refresh_planes(self):
-        self._planes = {
-            plane_name: self.oeditor.GetChildObject(plane_name) for plane_name in self.oeditor.GetChildNames("Planes")
-        }
-        name = None
+        self._planes = {}
+        try:
+            self._planes = {
+                plane_name: self.oeditor.GetChildObject(plane_name)
+                for plane_name in self.oeditor.GetChildNames("Planes")
+            }
+        except TypeError:
+            self._planes = {}
         self._all_object_names = self._solids + self._sheets + self._lines + self._points + list(self._planes.keys())
 
     @pyaedt_function_handler()
