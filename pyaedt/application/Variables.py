@@ -708,8 +708,12 @@ class VariableManager(object):
         >>> oProject.GetVariableValue
         >>> oDesign.GetVariableValue
         """
-        if variable_name not in ["CosimDefinition", "CoSimulator", "CoSimulator/Choices", "InstanceName", "ModelName"]:
-            return self.aedt_object(variable_name).GetVariableValue(variable_name)
+        invalid_names = ["CosimDefinition", "CoSimulator", "CoSimulator/Choices", "InstanceName", "ModelName"]
+        if variable_name not in invalid_names:
+            try:
+                return self.aedt_object(variable_name).GetVariableValue(variable_name)
+            except:
+                return False
         else:
             return False
 
