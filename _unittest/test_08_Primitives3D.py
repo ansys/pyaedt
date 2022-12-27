@@ -1376,6 +1376,7 @@ class TestClass(BasisTest, object):
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
+    @pytest.mark.skipif(not is_ironpython and config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     def test_81_duplicate_and_mirror_3dcomponent(self):
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
