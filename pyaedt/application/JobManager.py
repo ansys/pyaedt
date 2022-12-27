@@ -46,20 +46,25 @@ def update_hpc_option(filnename, propertyname, propertyvalue, isvaluestring=True
     type
 
     """
-    old_prop = ""
+    line_number = None
     new_line = ""
-    with open(filnename) as fid:
-        for line in fid:
+    with open(filnename, "r") as file:
+        data = file.readlines()
+        for i, line in enumerate(data):
             if propertyname + separator in line:
                 old_prop = line.strip()
-        if old_prop != "":
-            if isvaluestring:
-                new_line = fid.read().replace(old_prop, propertyname + separator + "'" + str(propertyvalue) + "'")
-            else:
-                new_line = fid.read().replace(old_prop, propertyname + separator + str(propertyvalue))
-    if new_line != "":
-        with open(filnename, "w") as f:
-            f.write(new_line)
+                old_line = line
+                line_number = i
+                if isvaluestring:
+                    new_line = old_line.replace(old_prop, propertyname + separator + "'" + str(propertyvalue) + "'")
+                else:
+                    new_line = old_line.replace(old_prop, propertyname + separator + str(propertyvalue))
+                break
+
+    data[line_number] = new_line
+
+    with open(filnename, "w") as file:
+        file.writelines(data)
 
 
 def update_simulation_cores(name, nc):
