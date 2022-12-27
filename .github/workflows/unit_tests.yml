@@ -67,12 +67,7 @@ jobs:
       - name: 'Unit testing'
         run: |
           testenv\Scripts\Activate.ps1
-          pytest --tx 4*popen --dist loadfile -v --cov=pyaedt --cov-report=xml --cov-report=html _unittest -p no:faulthandler
-
-      - name: 'Print Coverage'
-        run: |
-          testenv\Scripts\Activate.ps1
-          coverage xml
+          pytest --tx 4*popen --dist loadfile -v --cov=pyaedt --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest -p no:faulthandler
 
       - uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.8'

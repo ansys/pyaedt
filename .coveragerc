@@ -1,2 +1,0 @@
-[run]
-omit = examples/**/*, doc/**/*, testvenv/Lib/**/*, third_party/**/*, pyaedt/generic/toolkit.py, pyaedt/common_rpc.py, pyaedt/conftest.py, pyaedt/rpc/*, pyaed/misc/aedtlib_personalib_install.py, pyaedt/doctest_fixtures/*, pyaedt/_unittest/*, pyaedt/_unittest_ironpython/*
