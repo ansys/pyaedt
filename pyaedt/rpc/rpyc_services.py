@@ -3,7 +3,6 @@ import os
 import random
 import tempfile
 import shutil
-import site
 import logging
 import signal
 import sys

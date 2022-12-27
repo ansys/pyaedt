@@ -97,10 +97,10 @@ class EdbHfss(object):
             point_on_edge = self._edb.Geometry.PointData(
                 self._get_edb_value(point_on_edge[0]), self._get_edb_value(point_on_edge[1])
             )
-        if isinstance(prim_id, int):  # pragma no cover
-            prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
-        else:  # pragma no cover
+        if hasattr(prim_id, "GetId"):
             prim = prim_id
+        else:
+            prim = [i for i in self._pedb.core_primitives.primitives if i.id == prim_id][0].primitive_object
         pos_edge = self._edb.Cell.Terminal.PrimitiveEdge.Create(prim, point_on_edge)
         pos_edge = convert_py_list_to_net_list(pos_edge, self._edb.Cell.Terminal.Edge)
         return self._edb.Cell.Terminal.EdgeTerminal.Create(

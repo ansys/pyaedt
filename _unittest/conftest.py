@@ -27,17 +27,11 @@ import tempfile
 
 from pyaedt import pyaedt_logger
 from pyaedt import settings
+from pyaedt.desktop import release_desktop
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
-# log_path = os.path.join(tempfile.gettempdir(), "test.log")
-# if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
-#     try:
-#         os.remove(log_path)
-#     except:
-#         pass
-# settings.logger_file_path = log_path
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 if is_ironpython:
@@ -74,7 +68,7 @@ config = {
     "skip_edb": False,
     "skip_debug": False,
     "local": False,
-    "use_grpc": False,
+    "use_grpc": True,
     "disable_sat_bounding_box": False,
 }
 
@@ -124,23 +118,14 @@ class BasisTest(object):
         del self.edbapps
         for proj in oDesktop.GetProjectList():
             oDesktop.CloseProject(proj)
-        # for aedtapp in self.aedtapps[::-1]:
-        #     try:
-        #         aedtapp.close_project(None, False)
-        #     except:
-        #         pass
         del self.aedtapps
-
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(sys.modules["__main__"]):
-            try:
-                desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
-            except:
-                desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
-            desktop.disable_autosave()
+            self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            self.desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -210,9 +195,10 @@ def desktop_init():
     yield
     if not is_ironpython:
         try:
-            oDesktop = sys.modules["__main__"].oDesktop
-            pid = oDesktop.GetProcessID()
-            os.kill(pid, 9)
+            release_desktop(close_projects=False, close_desktop=True)
+            # oDesktop = sys.modules["__main__"].oDesktop
+            # pid = oDesktop.GetProcessID()
+            # os.kill(pid, 9)
             # shutil.rmtree(scratch_path, ignore_errors=True)
         except:
             pass

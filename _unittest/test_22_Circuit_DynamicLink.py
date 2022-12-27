@@ -9,7 +9,6 @@ from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import settings
 
 try:
     import pytest
@@ -64,9 +63,7 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        self.aedtapp = Circuit(
-            self.test_project, specified_version=desktop_version, non_graphical=settings.non_graphical
-        )
+        self.aedtapp = Circuit(self.test_project)
         self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):
@@ -238,7 +235,6 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    # @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)

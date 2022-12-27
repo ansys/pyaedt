@@ -3,9 +3,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
-from _unittest.conftest import new_thread
 from pyaedt import Q2d
-from pyaedt import settings
 
 test_subfolder = "T36"
 
@@ -28,7 +26,7 @@ class TestClass(BasisTest, object):
         test_project = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_solved_sweep + ".aedtz")
         )
-        with Q2d(test_project, non_graphical=settings.non_graphical, new_desktop_session=new_thread) as q2d:
+        with Q2d(test_project) as q2d:
             try:
                 export_folder = os.path.join(self.local_scratch.path, "export_folder")
                 files = q2d.export_w_elements(False, export_folder)
@@ -44,7 +42,7 @@ class TestClass(BasisTest, object):
         test_project = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         )
-        with Q2d(test_project, non_graphical=settings.non_graphical, new_desktop_session=new_thread) as q2d:
+        with Q2d(test_project) as q2d:
             try:
                 export_folder = os.path.join(self.local_scratch.path, "export_folder")
                 files = q2d.export_w_elements(False, export_folder)
@@ -60,7 +58,7 @@ class TestClass(BasisTest, object):
         test_project = self.local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, q2d_solved_nominal + ".aedtz")
         )
-        with Q2d(test_project, non_graphical=settings.non_graphical, new_desktop_session=new_thread) as q2d:
+        with Q2d(test_project) as q2d:
             try:
                 files = q2d.export_w_elements(False)
                 assert len(files) == 1
