@@ -4942,9 +4942,9 @@ class Plane(object):
             self._all_props = _retry_ntimes(10, self.m_Editor.GetProperties, "Geometry3DPlaneTab", self._name)
         return self._all_props
 
-    # Note: We currently cannot get the color property value because
-    # when we try to access it, we only get access to the 'edit' button.
-    # Following is the line that we would use but it currently returns 'edit'.
+    # Note: You currently cannot get the color property value because
+    # when you try to access it, you only get access to the 'edit' button.
+    # Following is the line that you would use, but it currently returns 'edit'.
     # color = _retry_ntimes(10, self.m_Editor.GetPropertyValue, "Geometry3DPlaneTab", self._name, "Color")
     @pyaedt_function_handler()
     def set_color(self, color_value):

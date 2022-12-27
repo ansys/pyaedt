@@ -1270,7 +1270,8 @@ class Primitives(object):
         plane_normal_z : str
             Z coordinate of the normal plane. The default value is ``"0mm"``.
         color : str, optional
-            String exposing 3 int values such as "(value1 value2 value3)". Default value is ``"(143 175 143)"``.
+            String exposing the three integer values for the color of the plane. The
+            default value is ``"(143 175 143)"``.
 
         Returns
         -------
