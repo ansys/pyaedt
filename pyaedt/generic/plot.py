@@ -413,16 +413,17 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         `[x points, y points, label]`.
     size : tuple, optional
         Image size in pixel (width, height).
-    show_legend : bool
-        Either to show legend or not.
-    xlabel : str
-        Plot X label.
-    ylabel : str
-        Plot Y label.
-    title : str
-        Plot Title label.
-    snapshot_path : str
+    show_legend : bool, optional
+        Either to show legend or not. The default value is ``True``.
+    xlabel : str, optional
+        Plot X label. The default value is ``""``.
+    ylabel : str, optional
+        Plot Y label. The default value is ``""``.
+    title : str, optional
+        Plot Title label. The default value is ``""``.
+    snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
+        The default value is ``None``.
 
     Returns
     -------
