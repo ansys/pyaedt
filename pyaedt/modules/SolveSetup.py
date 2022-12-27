@@ -908,22 +908,22 @@ class SetupCircuit(CommonSetup):
             userelative = 0
 
         list_data = ["NAME:ExpressionCache"]
-        if type(expression_list) is list:
+        if isinstance(expression_list, list):
             i = 0
             while i < len(expression_list):
                 expression = expression_list[i]
                 name = expression.replace("(", "_") + "1"
                 name = name.replace(")", "_")
                 name = name.replace(" ", "_")
-                if type(report_type_list) is list:
+                if isinstance(report_type_list, list):
                     report_type = report_type_list[i]
                 else:
                     report_type = report_type_list
-                if type(isconvergence_list) is list:
+                if isinstance(isconvergence_list, list):
                     isconvergence = isconvergence_list[i]
                 else:
                     isconvergence = isconvergence_list
-                if type(intrinsics_list) is list:
+                if isinstance(intrinsics_list, list):
                     intrinsics = intrinsics_list[i]
                 else:
                     intrinsics = intrinsics_list

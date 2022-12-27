@@ -642,11 +642,14 @@ class VariableManager(object):
     def __init__(self, app):
         # Global Desktop Environment
         self._app = app
+        self._variables = {}
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
+        if key in self._variables:
+            del self._variables[key]
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
@@ -676,22 +679,24 @@ class VariableManager(object):
             Dictionary of the specified variables.
 
         """
-        var_dict = {}
         all_names = {}
         for obj in object_list:
             variables = self._get_var_list_from_aedt(obj)
             for variable_name in variables:
-                if self.get_expression(variable_name):
-                    variable_expression = self.get_expression(variable_name)
-                    all_names[variable_name] = variable_expression
-                    si_value = self._app.get_evaluated_value(variable_name)
-                    value = Variable(variable_expression, None, si_value, all_names, name=variable_name, app=self._app)
-                    is_number_flag = is_number(value._calculated_value)
-                    if independent and is_number_flag:
-                        var_dict[variable_name] = value
-                    elif dependent and not is_number_flag:
-                        var_dict[variable_name] = value
-        return var_dict
+                if variable_name not in self._variables:
+                    if self.get_expression(variable_name):
+                        variable_expression = self.get_expression(variable_name)
+                        all_names[variable_name] = variable_expression
+                        si_value = self._app.get_evaluated_value(variable_name)
+                        value = Variable(
+                            variable_expression, None, si_value, all_names, name=variable_name, app=self._app
+                        )
+                        is_number_flag = is_number(value._calculated_value)
+                        if independent and is_number_flag:
+                            self._variables[variable_name] = value
+                        elif dependent and not is_number_flag:
+                            self._variables[variable_name] = value
+        return self._variables
 
     @pyaedt_function_handler()
     def get_expression(self, variable_name):
@@ -801,6 +806,8 @@ class VariableManager(object):
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
         """
+        if variable_name in self._variables:
+            del self._variables[variable_name]
         if not description:
             description = ""
 
@@ -1144,6 +1151,60 @@ class Variable(object):
             )
         return False
 
+    @pyaedt_function_handler()
+    def _set_prop_val(self, prop, val, n_times=10):
+        if self._app.design_type == "Maxwell Circuit":
+            return
+        try:
+            name = "Variables"
+
+            if self._app.design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+            ]:
+                if self._variable_name in list(
+                    self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames()
+                ):
+                    name = "DefinitionParameters"
+                else:
+                    name = "LocalVariables"
+            i = 0
+            while i < n_times:
+                if name == "DefinitionParameters":
+                    result = self._app.get_oo_object(self._aedt_obj, name).SetPropValue(prop, val)
+                else:
+                    result = self._app.get_oo_object(
+                        self._aedt_obj, "{}/{}".format(name, self._variable_name)
+                    ).SetPropValue(prop, val)
+                if result:
+                    break
+                i += 1
+        except:
+            pass
+
+    @pyaedt_function_handler()
+    def _get_prop_val(self, prop):
+        if self._app.design_type == "Maxwell Circuit":
+            return
+        try:
+            name = "Variables"
+
+            if self._app.design_type in [
+                "Circuit Design",
+                "Twin Builder",
+                "HFSS 3D Layout Design",
+            ]:
+                if self._variable_name in list(
+                    self._app.get_oo_object(self._app.odesign, "DefinitionParameters").GetPropNames()
+                ):
+                    return self._app.get_oo_object(self._aedt_obj, "DefinitionParameters").GetPropValue(prop)
+                else:
+                    name = "LocalVariables"
+            return self._app.get_oo_object(self._aedt_obj, "{}/{}".format(name, self._variable_name)).GetPropValue(prop)
+        except:
+            pass
+
     @property
     def name(self):
         """Variable name."""
@@ -1161,219 +1222,115 @@ class Variable(object):
     @property
     def is_optimization_enabled(self):
         """ "Check if optimization is enabled."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Included")
-        return
+        return self._get_prop_val("Optimization/Included")
 
     @is_optimization_enabled.setter
     def is_optimization_enabled(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Included", value)
+        self._set_prop_val("Optimization/Included", value, 10)
 
     @property
     def optimization_min_value(self):
         """ "Optimization min value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Min")
-        return
+        return self._get_prop_val("Optimization/Min")
 
     @optimization_min_value.setter
     def optimization_min_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Min", value)
+        self._set_prop_val("Optimization/Min", value, 10)
 
     @property
     def optimization_max_value(self):
         """ "Optimization max value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Optimization/Max")
-        return
+        return self._get_prop_val("Optimization/Max")
 
     @optimization_max_value.setter
     def optimization_max_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Optimization/Max", value)
+        self._set_prop_val("Optimization/Max", value, 10)
 
     @property
     def is_sensitivity_enabled(self):
         """Check if Sensitivity is enabled."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Included")
-        return
+        return self._get_prop_val("Sensitivity/Included")
 
     @is_sensitivity_enabled.setter
     def is_sensitivity_enabled(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Included", value)
+        self._set_prop_val("Sensitivity/Included", value, 10)
 
     @property
     def sensitivity_min_value(self):
         """ "Sensitivity min value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Min")
-        return
+        return self._get_prop_val("Sensitivity/Min")
 
     @sensitivity_min_value.setter
     def sensitivity_min_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Min", value)
+        self._set_prop_val("Sensitivity/Min", value, 10)
 
     @property
     def sensitivity_max_value(self):
         """ "Sensitivity max value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/Max")
-        return
+        return self._get_prop_val("Sensitivity/Max")
 
     @sensitivity_max_value.setter
     def sensitivity_max_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/Max", value)
+        self._set_prop_val("Sensitivity/Max", value, 10)
 
     @property
     def sensitivity_initial_disp(self):
         """ "Sensitivity initial value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Sensitivity/IDisp")
-        return
+        return self._get_prop_val("Sensitivity/IDisp")
 
     @sensitivity_initial_disp.setter
     def sensitivity_initial_disp(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Sensitivity/IDisp", value)
+        self._set_prop_val("Sensitivity/IDisp", value, 10)
 
     @property
     def is_tuning_enabled(self):
         """Check if tuning is enabled."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Included")
-        return
+        return self._get_prop_val("Tuning/Included")
 
     @is_tuning_enabled.setter
     def is_tuning_enabled(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Included", value)
+        self._set_prop_val("Tuning/Included", value, 10)
 
     @property
     def tuning_min_value(self):
         """ "Tuning min value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Min")
-        return
+        return self._get_prop_val("Tuning/Min")
 
     @tuning_min_value.setter
     def tuning_min_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Min", value)
+        self._set_prop_val("Tuning/Min", value, 10)
 
     @property
     def tuning_max_value(self):
         """ "Tuning max value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Max")
-        return
+        return self._get_prop_val("Tuning/Max")
 
     @tuning_max_value.setter
     def tuning_max_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Max", value)
+        self._set_prop_val("Tuning/Max", value, 10)
 
     @property
     def tuning_step_value(self):
         """ "Tuning Step value."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Tuning/Step")
-        return
+        return self._get_prop_val("Tuning/Step")
 
     @tuning_step_value.setter
     def tuning_step_value(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Tuning/Step", value)
+        self._set_prop_val("Tuning/Step", value, 10)
 
     @property
     def is_statistical_enabled(self):
         """Check if statistical is enabled."""
-
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                return oo.GetChildObject(self._variable_name).GetPropValue("Statistical/Included")
-        return
+        return self._get_prop_val("Statistical/Included")
 
     @is_statistical_enabled.setter
     def is_statistical_enabled(self, value):
-        if self._app:
-            oo = self._app.get_oo_object(self._aedt_obj, "Variables")
-            if oo:
-                oo.GetChildObject(self._variable_name).SetPropValue("Statistical/Included", value)
+        self._set_prop_val("Statistical/Included", value, 10)
 
     @property
     def read_only(self):
         """Read-only flag value."""
-        if self._app:
-            try:
-                return (
-                    self._aedt_obj.GetChildObject("Variables")
-                    .GetChildObject(self._variable_name)
-                    .GetPropValue("ReadOnly")
-                )
-            except:
-                return self._readonly
+        self._readonly = self._get_prop_val("ReadOnly")
         return self._readonly
 
     @read_only.setter
@@ -1388,15 +1345,7 @@ class Variable(object):
     @property
     def hidden(self):
         """Hidden flag value."""
-        if self._app:
-            try:
-                return (
-                    self._aedt_obj.GetChildObject("Variables")
-                    .GetChildObject(self._variable_name)
-                    .GetPropValue("Hidden")
-                )
-            except:
-                return self._hidden
+        self._hidden = self._get_prop_val("Hidden")
         return self._hidden
 
     @hidden.setter
@@ -1411,15 +1360,7 @@ class Variable(object):
     @property
     def description(self):
         """Description value."""
-        if self._app:
-            try:
-                return (
-                    self._aedt_obj.GetChildObject("Variables")
-                    .GetChildObject(self._variable_name)
-                    .GetPropValue("Description")
-                )
-            except:
-                return self._description
+        self._description = self._get_prop_val("Description")
         return self._description
 
     @description.setter
@@ -1508,6 +1449,7 @@ class Variable(object):
     @property
     def value(self):
         """Value."""
+
         return self._value
 
     @property
