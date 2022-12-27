@@ -169,8 +169,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             else:
                 ScriptEnv.Release()
             _delete_objects()
-            if settings.remote_api:
-                return True
+            return True
         elif not inside_desktop:
             i = 0
             scopeID = 5
@@ -402,7 +401,7 @@ class Desktop(object):
             if _com == "ironpython":  # pragma: no cover
                 self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
-            elif _com == "grpc_v3" or settings.use_grpc_api or self.port:
+            elif _com == "grpc_v3" or settings.use_grpc_api or self.port or version_key > "2022.2":
                 settings.use_grpc_api = True
                 self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
             elif _com == "pythonnet_v3":
@@ -416,6 +415,9 @@ class Desktop(object):
                         version_key,
                         aedt_process_id,
                     )
+                else:
+                    settings.use_grpc_api = True
+                    self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
             else:
                 from pyaedt.generic.clr_module import win32_client
 
