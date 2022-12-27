@@ -81,7 +81,7 @@ if os.path.exists(local_config_file):
     for key, val in local_config.items():
         config[key] = val
 
-settings.use_grpc_api = config.get("use_grpc", False)
+settings.use_grpc_api = config.get("use_grpc", True)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
