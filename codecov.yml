@@ -17,4 +17,8 @@ coverage:
     - "_unittest"  # ignore folders and all its contents
     - "_unittest_ironpython"  # ignore folders and all its contents
     - "pyaedt/third_party/**/*.py"  # ignore folders and all its contents
+    - "pyaedt/rpc/**/*.py"  # ignore folders and all its contents
+    - "pyaedt/generic/toolkit.py"  # ignore folders and all its contents
+    - "pyaedt/doctest_fixtures/*.py"  # ignore folders and all its contents
+    - "pyaedt/siwave.py"  # ignore folders and all its contents
 
