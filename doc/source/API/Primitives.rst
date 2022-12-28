@@ -12,7 +12,7 @@ They are accessible through the ``modeler`` and ``modeler.objects`` property:
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -102,7 +102,7 @@ EM Solver and ``modeler.components`` for Circuit solvers.
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2022.1",
+    app = Circuit(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -137,7 +137,7 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -175,7 +175,7 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2022.1",
+    app = Circuit(specified_version="2022.2",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -220,7 +220,7 @@ They contain all getters and setters to simplify object manipulation.
 .. code:: python
 
     from pyaedt import Hfss3dLayout
-    app = Hfss3dLayout(specified_version="2022.1",
+    app = Hfss3dLayout(specified_version="2022.2",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -262,7 +262,7 @@ imported and used because it is made by static methods.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 

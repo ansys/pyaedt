@@ -162,12 +162,13 @@ def release_desktop(close_projects=True, close_desktop=True):
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
         if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
-            import ScriptEnv
+            if _check_grpc_port(settings.port, settings.machine):
+                import ScriptEnv
 
-            if close_desktop:
-                ScriptEnv.Shutdown()
-            else:
-                ScriptEnv.Release()
+                if close_desktop:
+                    ScriptEnv.Shutdown()
+                else:
+                    ScriptEnv.Release()
             _delete_objects()
             return True
         elif not inside_desktop:
@@ -176,8 +177,6 @@ def release_desktop(close_projects=True, close_desktop=True):
             while i <= scopeID:
                 _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
                 i += 1
-        _delete_objects()
-
         if close_desktop:
             try:
                 os.kill(pid, 9)
@@ -186,6 +185,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
+        _delete_objects()
         return True
     except AttributeError:
         _delete_objects()

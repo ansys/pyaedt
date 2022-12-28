@@ -38,7 +38,7 @@ plots in AEDT. They are accessible through the ``post`` property.
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 

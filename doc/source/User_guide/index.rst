@@ -12,10 +12,10 @@ You can start AEDT in non-graphical mode from Python:
 
 .. code:: python
 
-    # Launch AEDT 2022 R1 in non-graphical mode
+    # Launch AEDT 2022 R2 in non-graphical mode
 
     import pyaedt
-    with pyaedt.Desktop(specified_version="2022.1", non_graphical=True, new_desktop_session=True, close_on_exit=True,
+    with pyaedt.Desktop(specified_version="2022.2", non_graphical=True, new_desktop_session=True, close_on_exit=True,
                  student_version=False):
         circuit = pyaedt.Circuit()
         ...
@@ -39,7 +39,7 @@ You can obtain the same result with:
     # Launch the latest installed version of AEDT in graphical mode.
 
     import pyaedt
-    with pyaedt.Circuit(specified_version="2022.1", non_graphical=False) as circuit:
+    with pyaedt.Circuit(specified_version="2022.2", non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.
         ...
