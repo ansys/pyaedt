@@ -2,7 +2,7 @@ import math
 
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EDBPrimitives(object):
@@ -193,7 +193,7 @@ class EDBPrimitives(object):
             xt, yt = self._get_points_for_plot(my_net_points, arc_segments)
             if not xt:
                 return []
-            x, y = GeometryOperators.GeometryOperators.orient_polygon(xt, yt, clockwise=True)
+            x, y = GeometryOperators.orient_polygon(xt, yt, clockwise=True)
             return x, y
         except:
             x = []

@@ -1,6 +1,6 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Circuit import ModelerTwinBuilder
+from pyaedt.modeler.schematic import ModelerTwinBuilder
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 

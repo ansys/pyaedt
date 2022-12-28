@@ -2,13 +2,13 @@
 import math
 
 from _unittest.conftest import BasisTest
+from pyaedt.generic.general_methods import _to_boolean
+from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
-from pyaedt.modeler.Object3d import EdgePrimitive
-from pyaedt.modeler.Object3d import FacePrimitive
-from pyaedt.modeler.Object3d import _to_boolean
-from pyaedt.modeler.Object3d import _uname
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 
 try:
     import pytest

@@ -10,9 +10,7 @@ the simulation of an antenna.
 # Perform required imports.
 
 import os
-from pyaedt import Emit
-from pyaedt import Desktop
-from pyaedt import generate_unique_project_name
+import pyaedt
 
 
 ###############################################################################
@@ -35,8 +33,8 @@ desktop_version = "2022.2"
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = Desktop(desktop_version, non_graphical, NewThread)
-aedtapp = Emit(generate_unique_project_name())
+d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
 
 
 ###############################################################################

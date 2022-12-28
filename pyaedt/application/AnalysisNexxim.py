@@ -2,8 +2,8 @@ import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Circuit import ModelerNexxim
-from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.schematic import ModelerNexxim
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
 from pyaedt.modules.Boundary import PowerIQSource
@@ -74,7 +74,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component_name : str or :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        component_name : str or :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Component to initialize.
 
         Returns

@@ -10,9 +10,8 @@ solve it using the Maxwell 3D Eddy Current solver.
 # Perform required imports.
 
 import os
+import pyaedt
 
-from pyaedt import Maxwell3d
-from pyaedt import generate_unique_project_name
 
 
 ##################################################################################
@@ -36,8 +35,8 @@ Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
 DesktopVersion = "2022.2"
 
-M3D = Maxwell3d(
-    projectname=generate_unique_project_name(),
+M3D = pyaedt.Maxwell3d(
+    projectname=pyaedt.generate_unique_project_name(),
     designname=Design_Name,
     solution_type=Solver,
     specified_version=DesktopVersion,

@@ -10,10 +10,7 @@ This example shows how you can use PyAEDT to create a differential stripline des
 # Perform required imports.
 
 import os
-
-from pyaedt import Q2d
-from pyaedt.generic.general_methods import generate_unique_project_name
-
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -24,7 +21,7 @@ from pyaedt.generic.general_methods import generate_unique_project_name
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
-project_path = generate_unique_project_name()
+project_path = pyaedt.generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and 2D Extractor
@@ -32,8 +29,12 @@ project_path = generate_unique_project_name()
 # Launch AEDT 2022 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = Q2d(projectname=project_path, designname="differential_stripline",
-        specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+q = pyaedt.Q2d(projectname=project_path,
+               designname="differential_stripline",
+               specified_version="2022.2",
+               non_graphical=non_graphical,
+               new_desktop_session=True
+               )
 
 ###############################################################################
 # Define variables

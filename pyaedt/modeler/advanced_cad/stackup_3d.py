@@ -14,6 +14,7 @@ if not is_ironpython:
         pass
 
 from pyaedt import constants
+from pyaedt import pyaedt_path
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -1132,7 +1133,7 @@ class Padstack(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
             Object created.
         """
         if not instance_name:
@@ -1879,7 +1880,7 @@ class CommonObject(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
         """
         return self._aedt_object
 
@@ -3330,13 +3331,11 @@ class MachineLearningPatch(Patch, object):
                 joblib
             except NameError:  # pragma: no cover
                 raise ImportError("joblib package is needed to run ML.")
-            path_file = os.path.dirname(__file__)
-            path_folder = os.path.split(path_file)[0]
             training_file = None
             if 1e9 >= self.frequency.numeric_value >= 1e8:
-                training_file = os.path.join(path_folder, "misc", "patch_svr_model_100MHz_1GHz.joblib")
+                training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_100MHz_1GHz.joblib")
             elif 1e10 >= self.frequency.numeric_value > 1e9:
-                training_file = os.path.join(path_folder, "misc", "patch_svr_model_1GHz_10GHz.joblib")
+                training_file = os.path.join(pyaedt_path, "misc", "patch_svr_model_1GHz_10GHz.joblib")
             else:
                 self.application.logger.error(
                     "This ML algorithm can only predict patch antennas from 100 MHz to 10 GHz."

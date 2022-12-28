@@ -3,10 +3,8 @@ HFSS: 3D Components
 -------------------
 This example shows how you can use PyAEDT to place 3D Components in Hfss and in Hfss 3D Layout.
 """
-
-from pyaedt import Hfss, Hfss3dLayout
 import os
-from pyaedt.examples import download_file
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -33,7 +31,7 @@ new_session = True
 # 3D Component Definition
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # File to be used in the example
-component3d = download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
+component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
 component3d
 
 ###############################################################################
@@ -48,7 +46,7 @@ component3d
 # ~~~~~~~~~~~
 #
 
-hfss = Hfss(new_desktop_session=True, specified_version="2022.2", non_graphical=non_graphical)
+hfss = pyaedt.Hfss(new_desktop_session=True, specified_version="2022.2", non_graphical=non_graphical)
 
 hfss.solution_type = "Terminal"
 
@@ -167,7 +165,7 @@ solutions.plot(traces, math_formula="db20")
 # ~~~~~~~~~~~~~~~~~~~
 #
 
-h3d = Hfss3dLayout(new_desktop_session=new_session, specified_version=desktop_version)
+h3d = pyaedt.Hfss3dLayout(new_desktop_session=new_session, specified_version=desktop_version)
 
 ###############################################################################
 # Add stackup layers

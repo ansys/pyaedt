@@ -200,7 +200,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             # directory where function granular galleries are stored
             "backreferences_dir": None,
             # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-mapdl-core",
+            "doc_module": "ansys-pyaedt",
             "image_scrapers": ("pyvista", "matplotlib"),
             "ignore_pattern": "flycheck*",
             "thumbnail_size": (350, 350),

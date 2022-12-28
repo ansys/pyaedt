@@ -349,7 +349,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        names : list or str or :class:`pyaedt.modeler.Object3d.FacePrimitive`
+        names : list or str or :class:`pyaedt.modeler.elements3d.FacePrimitive`
             List of faces to apply the surface mesh to.
         surf_dev : float or str, optional
             Surface deviation. The default is ``None``. Allowed values are float, number with units or `"inf"`.

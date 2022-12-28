@@ -8,7 +8,7 @@ from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 def _props_with_default(dict_in, key, default_value=None):

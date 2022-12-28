@@ -8,9 +8,9 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.modeler.Object3d import CircuitComponent
-from pyaedt.modeler.PrimitivesCircuit import CircuitComponents
-from pyaedt.modeler.PrimitivesCircuit import ComponentCatalog
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.circuits.PrimitivesCircuit import CircuitComponents
+from pyaedt.modeler.circuits.PrimitivesCircuit import ComponentCatalog
 
 
 class NexximComponents(CircuitComponents):
@@ -18,7 +18,7 @@ class NexximComponents(CircuitComponents):
 
     Parameters
     ----------
-    modeler : :class:`pyaedt.modeler.Circuit.ModelerNexxim`
+    modeler : :class:`pyaedt.modeler.schematic.ModelerNexxim`
         Inherited parent object.
     Examples
     --------
@@ -48,7 +48,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         if type(partname) is int:
@@ -101,7 +101,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object when successful or ``False`` when failed.
 
         Examples
@@ -188,7 +188,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        components_to_connect : list of :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        components_to_connect : list of :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
 
         Returns
@@ -226,7 +226,7 @@ class NexximComponents(CircuitComponents):
 
         Parameters
         ----------
-        components_to_connect : list of :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        components_to_connect : list of :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
 
         Returns
@@ -281,7 +281,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -570,7 +570,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -605,7 +605,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -646,7 +646,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -690,7 +690,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -731,7 +731,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -776,7 +776,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -830,7 +830,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -884,7 +884,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -929,7 +929,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -974,7 +974,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1014,7 +1014,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1054,7 +1054,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1335,7 +1335,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1392,7 +1392,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1523,7 +1523,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1907,7 +1907,7 @@ class NexximComponents(CircuitComponents):
             "Use `assign_voltage_sinusoidal_excitation_to_ports` instead.",
             DeprecationWarning,
         )
-        return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)
+        return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports)
 
     @pyaedt_function_handler()
     def _parse_spice_model(self, model_path):
@@ -1936,7 +1936,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         models = self._parse_spice_model(model_path)
@@ -1980,7 +1980,7 @@ class NexximComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
         """
         assert os.path.exists(model_path), "Project file doesn't exist"

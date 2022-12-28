@@ -12,7 +12,7 @@ They are accessible through the ``modeler`` and ``modeler.objects`` property:
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -60,12 +60,12 @@ modeler, including all primitives methods and properties:
    :toctree: _autosummary
    :nosignatures:
 
-   Model2D.Modeler2D
-   Model3D.Modeler3D
-   Model3DLayout.Modeler3DLayout
-   Circuit.ModelerNexxim
-   Circuit.ModelerTwinBuilder
-   Circuit.ModelerEmit
+   modeler2d.Modeler2D
+   modeler3d.Modeler3D
+   modelerpcb.Modeler3DLayout
+   schematic.ModelerNexxim
+   schematic.ModelerTwinBuilder
+   schematic.ModelerEmit
 
 
 
@@ -92,17 +92,17 @@ EM Solver and ``modeler.components`` for Circuit solvers.
    :nosignatures:
 
 
-   Primitives2D.Primitives2D
-   Primitives3D.Primitives3D
-   Primitives3DLayout.Primitives3DLayout
-   PrimitivesNexxim.NexximComponents
-   PrimitivesTwinBuilder.TwinBuilderComponents
-   PrimitivesCircuit.CircuitComponents
+   cad.Primitives2D.Primitives2D
+   cad.Primitives3D.Primitives3D
+   pcb.Primitives3DLayout.Primitives3DLayout
+   circuits.PrimitivesNexxim.NexximComponents
+   circuits.PrimitivesTwinBuilder.TwinBuilderComponents
+   circuits.PrimitivesCircuit.CircuitComponents
 
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2022.1",
+    app = Circuit(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
@@ -118,26 +118,26 @@ The following classes define objects properties for 3D and 2D Solvers (excluding
 They contain all getters and setters to simplify object manipulation.
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: pyaedt.modeler.cad
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   Object3d.Object3d
-   Object3d.FacePrimitive
-   Object3d.EdgePrimitive
-   Object3d.VertexPrimitive
-   Primitives.PolylineSegment
-   Primitives.Polyline
-   Object3d.Padstack
-   Object3d.UserDefinedComponent
-   Object3d.Point
+   object3d.Object3d
+   elements3d.FacePrimitive
+   elements3d.EdgePrimitive
+   elements3d.VertexPrimitive
+   polylines.PolylineSegment
+   polylines.Polyline
+   components_3d.UserDefinedComponent
+   elements3d.Point
+   elements3d.Plane
 
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -163,19 +163,19 @@ Objects in Circuit tools
 The following classes define the objects properties for Circuit tools.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: pyaedt.modeler.circuits
 
 .. autosummary::
    :toctree: _autosummary
    :nosignatures:
 
-   Object3d.CircuitComponent
-   Object3d.CircuitPins
+   object3dcircuit.CircuitComponent
+   object3dcircuit.CircuitPins
 
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2022.1",
+    app = Circuit(specified_version="2022.2",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -201,7 +201,7 @@ Objects in HFSS 3D Layout
 The following classes define the object properties for HFSS 3D Layout.
 They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: pyaedt.modeler.pcb
 
 .. autosummary::
    :toctree: _autosummary
@@ -215,11 +215,12 @@ They contain all getters and setters to simplify object manipulation.
    object3dlayout.Circle3dLayout
    object3dlayout.Rect3dLayout
    object3dlayout.Points3dLayout
+   object3dlayout.Padstack
 
 .. code:: python
 
     from pyaedt import Hfss3dLayout
-    app = Hfss3dLayout(specified_version="2022.1",
+    app = Hfss3dLayout(specified_version="2022.2",
                non_graphical=False, new_desktop_session=True,
                close_on_exit=True, student_version=False)
 
@@ -237,7 +238,7 @@ They contain all getters and setters to simplify object manipulation.
 
     ...
 
-
+Desktop and common classes
 Coordinate systems and geometry operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -254,14 +255,14 @@ imported and used because it is made by static methods.
    :toctree: _autosummary
    :nosignatures:
 
-   Modeler.CoordinateSystem
-   GeometryOperators
+   cad.Modeler.CoordinateSystem
+   geometry_operators.GeometryOperators
 
 
 .. code:: python
 
     from pyaedt import Hfss
-    app = Hfss(specified_version="2022.1",
+    app = Hfss(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 

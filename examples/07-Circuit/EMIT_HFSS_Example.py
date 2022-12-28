@@ -11,13 +11,11 @@ as a coupling link in the EMIT design.
 # Perform required imports.
 
 import os
-import tempfile
 
 # Import required modules
+import pyaedt
 from pyaedt.generic.filesystem import Scratch
 
-from pyaedt import Emit
-from pyaedt import Desktop
 
 
 ###############################################################################
@@ -34,7 +32,7 @@ from pyaedt import Desktop
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
 desktop_version = "2022.2"
-scratch_path = tempfile.gettempdir()
+scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
 # Launch AEDT with EMIT
@@ -42,7 +40,7 @@ scratch_path = tempfile.gettempdir()
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
 
-d = Desktop(desktop_version, non_graphical, NewThread)
+d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
 
 temp_folder = os.path.join(scratch_path, ("EmitHFSSExample"))
 if not os.path.exists(temp_folder):
@@ -82,7 +80,7 @@ with Scratch(scratch_path) as local_scratch:
     if os.path.exists(example_pdf):
         local_scratch.copyfile(example_pdf, my_project_pdf)
 
-aedtapp = Emit(my_project)
+aedtapp = pyaedt.Emit(my_project)
 
 ###############################################################################
 # Create and connect EMIT components

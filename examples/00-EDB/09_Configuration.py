@@ -13,10 +13,7 @@ run anlasyis and get results.
 # on version 2022 R2.
 
 import os
-
-from pyaedt import generate_unique_folder_name,examples, Edb, Hfss3dLayout
-from pyaedt.generic.constants import SolverType
-from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+import pyaedt
 
 ##########################################################
 # Set non-graphical mode
@@ -31,8 +28,8 @@ non_graphical = True
 # Download the AEDB file and copy it in the temporary folder.
 
 
-project_path = generate_unique_folder_name()
-target_aedb = examples.download_file('edb/Galileo.aedb',destination=project_path)
+project_path = pyaedt.generate_unique_folder_name()
+target_aedb = pyaedt.downloads.download_file('edb/Galileo.aedb',destination=project_path)
 print("Project folder will be", target_aedb)
 
 ###############################################################################
@@ -40,7 +37,7 @@ print("Project folder will be", target_aedb)
 # ~~~~~~~~~~
 # Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
 
-edbapp = Edb(target_aedb, edbversion="2022.2")
+edbapp = pyaedt.Edb(target_aedb, edbversion="2022.2")
 ###############################################################################
 # Import Definitions
 # ~~~~~~~~~~~~~~~~~~
@@ -101,7 +98,7 @@ edbapp.save_edb()
 #  - Simulation settings
 
 sim_setup = edbapp.new_simulation_configuration()
-sim_setup.solver_type = SolverType.SiwaveSYZ
+sim_setup.solver_type = sim_setup.SOLVER_TYPE.SiwaveSYZ
 sim_setup.batch_solve_settings.cutout_subdesign_expansion = 0.01
 sim_setup.batch_solve_settings.do_cutout_subdesign = True
 sim_setup.use_default_cutout = False
@@ -140,7 +137,7 @@ edbapp.close_edb()
 # Open Aedt
 # ~~~~~~~~~
 # Project folder aedb will be opened in AEDT Hfss3DLayout and loaded.
-h3d = Hfss3dLayout(specified_version="2022.2", projectname=target_aedb, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2022.2", projectname=target_aedb, non_graphical=non_graphical)
 
 ###############################################################################
 # Analyze

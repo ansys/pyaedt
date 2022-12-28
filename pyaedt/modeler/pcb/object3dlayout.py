@@ -12,7 +12,8 @@ import re
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import unit_converter
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.generic.general_methods import _dim_arg
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Objec3DLayout(object):
@@ -1472,7 +1473,7 @@ class Points3dLayout(object):
         -------
 
         """
-        if self.point.Move(self._primitives.m_Editor.Point().Set(new_position[0], new_position[1])):
+        if self.point.Move(self._primitives.oeditor.Point().Set(new_position[0], new_position[1])):
             return True
 
 
@@ -1546,3 +1547,374 @@ class ComponentsSubCircuit3DLayout(Objec3DLayout, object):
             return True
         else:
             return False
+
+
+class Padstack(object):
+    """Manages properties of a padstack.
+
+    Parameters
+    ----------
+    name : str, optional
+        Name of the padstack. The default is ``"Padstack"``.
+    padstackmanager : optional
+        The default is ``None``.
+    units : str, optional
+        The default is ``mm``.
+
+    """
+
+    def __init__(self, name="Padstack", padstackmanager=None, units="mm"):
+        self.name = name
+        self.padstackmgr = padstackmanager
+        self.units = units
+        self.lib = ""
+        self.mat = "copper"
+        self.plating = 100
+        self.layers = {}
+        self.hole = self.PDSHole()
+        self.holerange = "UTL"
+        self.solder_shape = "None"
+        self.solder_placement = "abv"
+        self.solder_rad = "0mm"
+        self.sb2 = "0mm"
+        self.solder_mat = "solder"
+        self.layerid = 1
+
+    class PDSHole(object):
+        """Manages properties of a padstack hole.
+
+        Parameters
+        ----------
+        holetype : str, optional
+            Type of the hole. The default is ``Circular``.
+        sizes : str, optional
+            Diameter of the hole with units. The default is ``"1mm"``.
+        xpos : str, optional
+            The default is ``"0mm"``.
+        ypos : str, optional
+            The default is ``"0mm"``.
+        rot : str, otpional
+            Rotation in degrees. The default is ``"0deg"``.
+
+        """
+
+        def __init__(self, holetype="Cir", sizes=["1mm"], xpos="0mm", ypos="0mm", rot="0deg"):
+            self.shape = holetype
+            self.sizes = sizes
+            self.x = xpos
+            self.y = ypos
+            self.rot = rot
+
+    class PDSLayer(object):
+        """Manages properties of a padstack layer."""
+
+        def __init__(self, layername="Default", id=1):
+            self.layername = layername
+            self.id = id
+            self._pad = None
+            self._antipad = None
+            self._thermal = None
+            self.connectionx = 0
+            self.connectiony = 0
+            self.connectiondir = 0
+
+        @property
+        def pad(self):
+            """Pad."""
+            return self._pad
+
+        @property
+        def antipad(self):
+            """Antipad."""
+            return self._antipad
+
+        @pad.setter
+        def pad(self, value=None):
+            if value:
+                self._pad = value
+            else:
+                self._pad = Padstack.PDSHole(holetype="None", sizes=[])
+
+        @antipad.setter
+        def antipad(self, value=None):
+            if value:
+                self._antipad = value
+            else:
+                self._antipad = Padstack.PDSHole(holetype="None", sizes=[])
+
+        @property
+        def thermal(self):
+            """Thermal."""
+            return self._thermal
+
+        @thermal.setter
+        def thermal(self, value=None):
+            if value:
+                self._thermal = value
+            else:
+                self._thermal = Padstack.PDSHole(holetype="None", sizes=[])
+
+    @property
+    def pads_args(self):
+        """Pad properties."""
+        arg = [
+            "NAME:" + self.name,
+            "ModTime:=",
+            1594101963,
+            "Library:=",
+            "",
+            "ModSinceLib:=",
+            False,
+            "LibLocation:=",
+            "Project",
+        ]
+        arg2 = ["NAME:psd", "nam:=", self.name, "lib:=", "", "mat:=", self.mat, "plt:=", self.plating]
+        arg3 = ["NAME:pds"]
+        id = 0
+        for el in self.layers:
+            arg4 = []
+            id += 1
+            arg4.append("NAME:lgm")
+            arg4.append("lay:=")
+            arg4.append(self.layers[el].layername)
+            arg4.append("id:=")
+            arg4.append(id)
+            arg4.append("pad:=")
+            arg4.append(
+                [
+                    "shp:=",
+                    self.layers[el].pad.shape,
+                    "Szs:=",
+                    self.layers[el].pad.sizes,
+                    "X:=",
+                    self.layers[el].pad.x,
+                    "Y:=",
+                    self.layers[el].pad.y,
+                    "R:=",
+                    self.layers[el].pad.rot,
+                ]
+            )
+            arg4.append("ant:=")
+            arg4.append(
+                [
+                    "shp:=",
+                    self.layers[el].antipad.shape,
+                    "Szs:=",
+                    self.layers[el].antipad.sizes,
+                    "X:=",
+                    self.layers[el].antipad.x,
+                    "Y:=",
+                    self.layers[el].antipad.y,
+                    "R:=",
+                    self.layers[el].antipad.rot,
+                ]
+            )
+            arg4.append("thm:=")
+            arg4.append(
+                [
+                    "shp:=",
+                    self.layers[el].thermal.shape,
+                    "Szs:=",
+                    self.layers[el].thermal.sizes,
+                    "X:=",
+                    self.layers[el].thermal.x,
+                    "Y:=",
+                    self.layers[el].thermal.y,
+                    "R:=",
+                    self.layers[el].thermal.rot,
+                ]
+            )
+            arg4.append("X:=")
+            arg4.append(self.layers[el].connectionx)
+            arg4.append("Y:=")
+            arg4.append(self.layers[el].connectiony)
+            arg4.append("dir:=")
+            arg4.append(self.layers[el].connectiondir)
+            arg3.append(arg4)
+        arg2.append(arg3)
+        arg2.append("hle:=")
+        arg2.append(
+            [
+                "shp:=",
+                self.hole.shape,
+                "Szs:=",
+                self.hole.sizes,
+                "X:=",
+                self.hole.x,
+                "Y:=",
+                self.hole.y,
+                "R:=",
+                self.hole.rot,
+            ]
+        )
+        arg2.append("hRg:=")
+        arg2.append(self.holerange)
+        arg2.append("sbsh:=")
+        arg2.append(self.solder_shape)
+        arg2.append("sbpl:=")
+        arg2.append(self.solder_placement)
+        arg2.append("sbr:=")
+        arg2.append(self.solder_rad)
+        arg2.append("sb2:=")
+        arg2.append(self.sb2)
+        arg2.append("sbn:=")
+        arg2.append(self.solder_mat)
+        arg.append(arg2)
+        arg.append("ppl:=")
+        arg.append([])
+        return arg
+
+    @pyaedt_function_handler()
+    def add_layer(
+        self,
+        layername="Start",
+        pad_hole=None,
+        antipad_hole=None,
+        thermal_hole=None,
+        connx=0,
+        conny=0,
+        conndir=0,
+        layer_id=None,
+    ):
+        """Create a layer in the padstack.
+
+        Parameters
+        ----------
+        layername : str, optional
+            Name of layer. The default is ``"Start"``.
+        pad_hole : pyaedt.modeler.Object3d.Object3d.PDSHole
+            Pad hole object, which you can create with the :func:`add_hole` method.
+            The default is ``None``.
+        antipad_hole :
+            Antipad hole object, which you can create with the :func:`add_hole` method.
+            The default is ``None``.
+        thermal_hole :
+            Thermal hole object, which you can create with the :func:`add_hole` method.
+            The default is ``None``.
+        connx : optional
+            Connection in the X-axis direction. The default is ``0.``
+        conny : optional
+            Connection in the Y-axis direction. The default is ``0.``
+        conndir :
+            Connection attach angle. The default is ``0.``
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        layer_id = None
+        if layername in self.layers:
+            return False
+        else:
+            if not layer_id:
+                layer_id = len(list(self.layers.keys())) + 1
+            new_layer = self.PDSLayer(layername, layer_id)
+            new_layer.pad = pad_hole
+            new_layer.antipad = antipad_hole
+            new_layer.thermal = thermal_hole
+            new_layer.connectionx = connx
+            new_layer.connectiony = conny
+            new_layer.connectiondir = conndir
+            self.layers[layername] = new_layer
+            return True
+
+    @pyaedt_function_handler()
+    def add_hole(self, holetype="Cir", sizes=[1], xpos=0, ypos=0, rot=0):
+        """Add a hole.
+
+        Parameters
+        ----------
+        holetype : str, optional
+            Type of the hole. Options are:
+
+            * No" - no pad
+            * "Cir" - Circle
+            * "Sq" - Square
+            * "Rct" - Rectangle
+            * "Ov" - Oval
+            * "Blt" - Bullet
+            * "Ply" - Polygons
+            * "R45" - Round 45 thermal
+            * "R90" - Round 90 thermal
+            * "S45" - Square 45 thermal
+            * "S90" - Square 90 thermal
+
+            The default is ``"Cir"``.
+        sizes : array, optional
+            Array of sizes, which depends on the object. For example, a circle ias an array
+            of one element. The default is ``[1]``.
+        xpos :
+            Position on the X axis. The default is ``0``.
+        ypos :
+            Position on the Y axis. The default is ``0``.
+        rot : float, optional
+            Angle rotation in degrees. The default is ``0``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Object3d.Object3d.PDSHole`
+            Hole object to be passed to padstack or layer.
+
+        """
+        hole = self.PDSHole()
+        hole.shape = holetype
+        sizes = [_dim_arg(i, self.units) for i in sizes if type(i) is int or float]
+        hole.sizes = sizes
+        hole.x = _dim_arg(xpos, self.units)
+        hole.y = _dim_arg(ypos, self.units)
+        hole.rot = _dim_arg(rot, "deg")
+        return hole
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a padstack in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oPadstackManager.Add
+
+        """
+        self.padstackmgr.Add(self.pads_args)
+        return True
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the padstack in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oPadstackManager.Edit
+
+        """
+        self.padstackmgr.Edit(self.name, self.pads_args)
+
+    @pyaedt_function_handler()
+    def remove(self):
+        """Remove the padstack in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oPadstackManager.Remove
+
+        """
+        self.padstackmgr.Remove(self.name, True, "", "Project")

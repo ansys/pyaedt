@@ -1092,7 +1092,7 @@ class Layers(object):
 
     Parameters
     ----------
-    modeler : :class:`pyaedt.modeler.Model3DLayout.Modeler3DLayout`
+    modeler : :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
 
     roughnessunits : str, optional
        Units for the roughness of layers. The default is ``"um"``.

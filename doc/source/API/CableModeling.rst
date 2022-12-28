@@ -36,7 +36,7 @@ Cable bundle creation example:
     from pyaedt.generic.DataHandlers import json_to_dict
     from pyaedt.modules.CableModeling import Cable
 
-    hfss = Hfss(projectname=project_path, specified_version="2022.1",
+    hfss = Hfss(projectname=project_path, specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
     # This call returns a dictionary out of the JSON file
@@ -68,7 +68,7 @@ Clock source creation example:
     from pyaedt.generic.DataHandlers import json_to_dict
     from pyaedt.modules.CableModeling import Cable
 
-    hfss = Hfss(projectname=project_path, specified_version="2022.1",
+    hfss = Hfss(projectname=project_path, specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
     # This call returns a dictionary out of the JSON file
@@ -100,7 +100,7 @@ Cable harness creation example:
     from pyaedt.generic.DataHandlers import json_to_dict
     from pyaedt.modules.CableModeling import Cable
 
-    hfss = Hfss(projectname=project_path, specified_version="2022.1",
+    hfss = Hfss(projectname=project_path, specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
     # This call returns a dictionary out of the JSON file

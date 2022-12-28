@@ -9,7 +9,7 @@ Example with AEDT:
 .. code:: python
 
     from pyaedt import Desktop, Circuit
-    d = Desktop(specified_version="2022.1",
+    d = Desktop(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
      circuit = Circuit()
@@ -23,7 +23,7 @@ Example without desktop:
 .. code:: python
 
     from pyaedt import Circuit
-    circuit = Circuit(specified_version="2022.1",
+    circuit = Circuit(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
      circuit = Circuit()

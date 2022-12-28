@@ -12,7 +12,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
-from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 
 
 class CircuitComponents(object):
@@ -270,7 +270,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -306,7 +306,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -588,7 +588,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -615,7 +615,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -669,7 +669,7 @@ class CircuitComponents(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
@@ -1177,7 +1177,7 @@ class ComponentInfo(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Circuit Component Object.
 
         References
