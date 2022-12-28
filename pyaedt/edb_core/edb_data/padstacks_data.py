@@ -7,7 +7,7 @@ from pyaedt.generic.clr_module import String
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class EDBPadProperties(object):

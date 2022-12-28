@@ -14,6 +14,9 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
         __version__ = f.read().strip()
 
 
+import pyaedt.examples as examples
+import pyaedt.generic.DataHandlers as data_handler
+import pyaedt.generic.general_methods as general_methods
 from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
@@ -49,3 +52,4 @@ from pyaedt.generic.design_types import Simplorer
 from pyaedt.generic.design_types import Siwave
 from pyaedt.generic.design_types import TwinBuilder
 from pyaedt.generic.design_types import get_pyaedt_app
+from pyaedt.generic.design_types import launch_desktop

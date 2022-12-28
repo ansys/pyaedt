@@ -2,6 +2,7 @@ import os
 import re
 from warnings import warn
 
+import pyaedt.modeler.cad.elements3d
 from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.constants import AEDT_UNITS
@@ -13,9 +14,9 @@ from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.cad.Modeler import Modeler
+from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.pcb.Primitives3DLayout import Primitives3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
 
@@ -442,13 +443,15 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         layer = _retry_ntimes(10, self.oeditor.GetPropertyValue, "BaseElementTab", object_to_expand, "PlacementLayer")
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
-        geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+        geom_names = self.oeditor.FindObjectsByPoint(pyaedt.modeler.cad.elements3d.Point().Set(pos[0], pos[1]), layer)
         self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
         self.cleanup_objects()
         if not replace_original:
             new_geom_names = [
                 i
-                for i in self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
+                for i in self.oeditor.FindObjectsByPoint(
+                    pyaedt.modeler.cad.elements3d.Point().Set(pos[0], pos[1]), layer
+                )
                 if i not in geom_names
             ]
             return new_geom_names[0]

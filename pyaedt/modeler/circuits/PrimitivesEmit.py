@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ..generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class EmitComponents(object):

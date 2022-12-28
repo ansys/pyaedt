@@ -3,20 +3,20 @@ import sys
 import warnings
 
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import Padstack
-from pyaedt.modeler.Object3d import _uname
-from pyaedt.modeler.object3dlayout import Circle3dLayout
-from pyaedt.modeler.object3dlayout import Components3DLayout
-from pyaedt.modeler.object3dlayout import ComponentsSubCircuit3DLayout
-from pyaedt.modeler.object3dlayout import Line3dLayout
-from pyaedt.modeler.object3dlayout import Nets3DLayout
-from pyaedt.modeler.object3dlayout import Pins3DLayout
-from pyaedt.modeler.object3dlayout import Polygons3DLayout
-from pyaedt.modeler.object3dlayout import Rect3dLayout
-from pyaedt.modeler.Primitives import default_materials
+from pyaedt.modeler.cad.Primitives import default_materials
+from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modeler.pcb.object3dlayout import Circle3dLayout
+from pyaedt.modeler.pcb.object3dlayout import Components3DLayout
+from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
+from pyaedt.modeler.pcb.object3dlayout import Line3dLayout
+from pyaedt.modeler.pcb.object3dlayout import Nets3DLayout
+from pyaedt.modeler.pcb.object3dlayout import Padstack
+from pyaedt.modeler.pcb.object3dlayout import Pins3DLayout
+from pyaedt.modeler.pcb.object3dlayout import Polygons3DLayout
+from pyaedt.modeler.pcb.object3dlayout import Rect3dLayout
 
 
 class Primitives3DLayout(object):
@@ -27,7 +27,7 @@ class Primitives3DLayout(object):
 
     Parameters
     ----------
-    modeler : :class:`pyaedt.modeler.Model3DLayout.Modeler3DLayout`
+    modeler : :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         Name of the modeler.
 
     Examples
@@ -714,7 +714,7 @@ class Primitives3DLayout(object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Padstack`
+        :class:`pyaedt.modeler.object3dlayout.Padstack`
             Padstack object if a padstack with this name does not already exist.
 
         """

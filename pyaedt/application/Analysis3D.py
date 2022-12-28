@@ -11,9 +11,9 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Model2D import Modeler2D
-from pyaedt.modeler.Model3D import Modeler3D
-from pyaedt.modeler.stackup_3d import Stackup3D
+from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+from pyaedt.modeler.modeler2d import Modeler2D
+from pyaedt.modeler.modeler3d import Modeler3D
 from pyaedt.modules.Mesh import Mesh
 from pyaedt.modules.MeshIcepak import IcepakMesh
 
@@ -122,7 +122,7 @@ class FieldAnalysis3D(Analysis, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Model3D.Modeler3D` or :class:`pyaedt.modeler.Model2D.Modeler2D`
+        :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`
         """
         return self._modeler
 

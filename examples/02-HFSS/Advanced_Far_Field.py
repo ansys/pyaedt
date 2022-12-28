@@ -13,12 +13,10 @@ This examples runs only on Windows using CPython.
 import os
 import time
 
-from pyaedt import examples
-from pyaedt import Desktop
-from pyaedt import Hfss
+import pyaedt
 from pyaedt.generic.general_methods import remove_project_lock
 
-project_name = examples.download_antenna_array()
+project_name = pyaedt.examples.download_antenna_array()
 
 ###############################################################################
 # Set non-graphical mode
@@ -45,7 +43,7 @@ import matplotlib.pyplot as plt
 
 desktopVersion = "2022.2"
 NewThread = False
-desktop = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
+desktop = pyaedt.launch_desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
 
 ###############################################################################
 # Open HFSS project
@@ -54,7 +52,7 @@ desktop = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_sessi
 
 remove_project_lock(project_name)
 
-hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
+hfss = pyaedt.Hfss(project_name, "4X4_MultiCell_CA-Array")
 
 
 ###############################################################################

@@ -1,7 +1,7 @@
 import os
 
 from pyaedt import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Part(object):

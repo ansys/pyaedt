@@ -1,5 +1,5 @@
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Primitives import Primitives
+from pyaedt.modeler.cad.Primitives import Primitives
 
 
 class Primitives2D(Primitives, object):
@@ -53,7 +53,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        pyaedt.modeler.object3d.Object3d
             Object3d
 
         References
@@ -109,7 +109,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        pyaedt.modeler.object3d.Object3d
             Object3d
 
         References
@@ -160,7 +160,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
 
         References
         ----------
@@ -216,7 +216,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        pyaedt.modeler.object3d.Object3d
 
         References
         ----------
@@ -266,7 +266,7 @@ class Primitives2D(Primitives, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
             Region object.
 
         References

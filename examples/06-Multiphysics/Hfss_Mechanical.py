@@ -10,12 +10,9 @@ includes Circuit, HFSS, and Mechanical.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import tempfile
 import os
-import shutil
+import pyaedt
 
-from pyaedt import examples, generate_unique_folder_name
-from pyaedt import Hfss, Circuit, Mechanical
 
 ###############################################################################
 # Set non-graphical mode
@@ -31,7 +28,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
+project_temp_name = pyaedt.examples.download_via_wizard(pyaedt.generate_unique_folder_name())
 
 
 ###############################################################################
@@ -40,7 +37,7 @@ project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
 # Start HFSS and initialize the PyAEDT object.
 
 version = "2022.2"
-hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
 pin_names = hfss.excitations
 
 ###############################################################################
@@ -48,7 +45,7 @@ pin_names = hfss.excitations
 # ~~~~~~~~~~~~~~
 # Start Circuit and add the HFSS dynamic link component to it.
 
-circuit = Circuit()
+circuit = pyaedt.Circuit()
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
@@ -118,7 +115,7 @@ circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 # ~~~~~~~~~~~~~~~~~
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = Mechanical()
+mech = pyaedt.Mechanical()
 mech.copy_solid_bodies_from(hfss)
 
 

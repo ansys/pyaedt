@@ -13,10 +13,8 @@ an interior permanent magnet electric motor.
 from math import sqrt as mysqrt
 import csv
 import os
+import pyaedt
 
-from pyaedt import Maxwell2d
-from pyaedt import examples
-from pyaedt import generate_unique_project_name
 
 #################################################################################
 # Initialize Maxwell 2D
@@ -29,7 +27,7 @@ desktopVersion = "2022.2"
 sName = "MySetupAuto"
 sType = "TransientXY"
 
-pName = generate_unique_project_name()
+pName = pyaedt.generate_unique_project_name()
 dName = "Sinusoidal"
 
 #################################################################################
@@ -126,9 +124,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = Maxwell2d(projectname=pName, specified_version=desktopVersion, designname=dName,
-                solution_type=sType, new_desktop_session=False,
-                non_graphical=non_graphical)
+M2D = pyaedt.Maxwell2d(projectname=pName, specified_version=desktopVersion, designname=dName,
+                       solution_type=sType, new_desktop_session=False,
+                       non_graphical=non_graphical)
 
 ##########################################################
 # Create object to access 2D modeler
@@ -159,7 +157,8 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = examples.download_leaf()
+filename_lam, filename_PM = pyaedt.examples.download_leaf()
+
 ##########################################################
 # Create first material
 # ~~~~~~~~~~~~~~~~~~~~~

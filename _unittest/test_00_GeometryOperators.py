@@ -5,7 +5,7 @@ from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT
 from pyaedt.generic.constants import unit_converter
-from pyaedt.modeler.GeometryOperators import GeometryOperators as go
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
 try:
     import pytest  # noqa: F401

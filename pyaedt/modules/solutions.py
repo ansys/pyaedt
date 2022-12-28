@@ -21,7 +21,7 @@ from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
-from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 
 pd = None
 np = None

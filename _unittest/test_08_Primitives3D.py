@@ -14,11 +14,11 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import Object3d
-from pyaedt.modeler.Object3d import UserDefinedComponent
-from pyaedt.modeler.Primitives import Polyline
-from pyaedt.modeler.Primitives import PolylineSegment
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.cad.polylines import Polyline
+from pyaedt.modeler.cad.Primitives import PolylineSegment
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 test = sys.modules.keys()
 

@@ -303,6 +303,11 @@ class Design(AedtObjects):
         self._mesh = None
 
     @property
+    def settings(self):
+        """Settings of the current Python/Pyaedt session."""
+        return settings
+
+    @property
     def logger(self):
         """Logger for the design.
 

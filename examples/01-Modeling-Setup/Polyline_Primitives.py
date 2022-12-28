@@ -10,9 +10,7 @@ This example shows how you can use PyAEDT to create and manipulate polylines.
 # Perform required imports.
 
 import os
-from pyaedt.maxwell import Maxwell3d
-from pyaedt.modeler.Primitives import PolylineSegment
-
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -27,9 +25,8 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a :class:`pyaedt.Maxwell3d` object and set the unit type to ``"mm"``.
 
-M3D = Maxwell3d(
-    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical,
-)
+M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2022.2",
+                       new_desktop_session=True, non_graphical=non_graphical, )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler
 
@@ -94,7 +91,7 @@ print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id]
 # must contain at least four position values.
 
 P = prim3D.create_polyline(
-    position_list=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="PL03_spline_4pt"
+    position_list=test_points, segment_type=prim3D.polyline_segment("Spline", num_points=4), name="PL03_spline_4pt"
 )
 
 ###############################################################################

@@ -23,11 +23,11 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import EdgePrimitive
-from pyaedt.modeler.Object3d import FacePrimitive
-from pyaedt.modeler.Object3d import Object3d
-from pyaedt.modeler.Object3d import VertexPrimitive
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import VertexPrimitive
+from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class CsProps(OrderedDict):
@@ -2375,7 +2375,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.Object3d.Object3d`
+        list of :class:`pyaedt.modeler.object3d.Object3d`
             List of split objects.
 
         References
@@ -2688,7 +2688,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        pyaedt.modeler.object3d.Object3d
 
         References
         ----------
@@ -2720,7 +2720,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.Object3d
+        pyaedt.modeler.object3d.Object3d
 
         References
         ----------
@@ -3661,7 +3661,7 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
             3D object.
 
         References

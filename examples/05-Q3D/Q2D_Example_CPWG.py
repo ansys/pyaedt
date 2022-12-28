@@ -10,9 +10,7 @@ in 2D Extractor and run a simulation.
 # Perform required imports.
 
 import os
-
-from pyaedt import Q2d, Desktop
-from pyaedt.generic.general_methods import generate_unique_name
+import pyaedt
 
 
 ###############################################################################
@@ -30,8 +28,11 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch AEDT 2022 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = Q2d(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
-        projectname=generate_unique_name("pyaedt_q2d_example"), designname="coplanar_waveguide")
+q = pyaedt.Q2d(specified_version="2022.2",
+               non_graphical=non_graphical,
+               new_desktop_session=True,
+               projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),
+               designname="coplanar_waveguide")
 
 ###############################################################################
 # Define variables

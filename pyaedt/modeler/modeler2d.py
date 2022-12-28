@@ -2,9 +2,9 @@ import math
 from warnings import warn
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Modeler import GeometryModeler
-from pyaedt.modeler.Modeler import Modeler
-from pyaedt.modeler.Primitives2D import Primitives2D
+from pyaedt.modeler.cad.Modeler import GeometryModeler
+from pyaedt.modeler.cad.Modeler import Modeler
+from pyaedt.modeler.cad.Primitives2D import Primitives2D
 
 
 class ModelerRMxprt(Modeler):
@@ -157,7 +157,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.Object3d`
+        list of :class:`pyaedt.modeler.object3d`
         """
 
         if len(bounding_box) != 4 and len(bounding_box) != 6:

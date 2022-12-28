@@ -8,9 +8,9 @@ import warnings
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Modeler import GeometryModeler
-from pyaedt.modeler.Primitives3D import Primitives3D
+from pyaedt.modeler.cad.Modeler import GeometryModeler
+from pyaedt.modeler.cad.Primitives3D import Primitives3D
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 class Modeler3D(GeometryModeler, Primitives3D, object):
@@ -531,7 +531,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Returns
         -------
-        list of :class:`pyaedt.modeler.Object3d`
+        list of :class:`pyaedt.modeler.object3d`
         """
 
         if len(bounding_box) != 6:
@@ -769,9 +769,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Dictionary of generated infos.
 
         """
-        from pyaedt.modeler.oms import BuildingsPrep
-        from pyaedt.modeler.oms import RoadPrep
-        from pyaedt.modeler.oms import TerrainPrep
+        from pyaedt.modeler.advanced_cad.oms import BuildingsPrep
+        from pyaedt.modeler.advanced_cad.oms import RoadPrep
+        from pyaedt.modeler.advanced_cad.oms import TerrainPrep
 
         output_path = self._app.working_directory
 
