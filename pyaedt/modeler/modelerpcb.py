@@ -5,7 +5,6 @@ from warnings import warn
 from pyaedt import settings
 from pyaedt.edb import Edb
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
@@ -503,7 +502,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         -------
 
         """
-        if isinstance(value, str if _pythonver >= 3 else basestring):
+        if isinstance(value, str):
             return value
         else:
             return str(value) + self.model_units
