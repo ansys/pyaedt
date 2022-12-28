@@ -814,10 +814,6 @@ class Primitives(object):
         Returns
         -------
         :class:`pyaedt.modeler.polylines.PolylineSegment`
-        Examples
-        --------
-        See :class:`pyaedt.Primitives.Polyline`.
-
         """
         return PolylineSegment(
             type=type,
