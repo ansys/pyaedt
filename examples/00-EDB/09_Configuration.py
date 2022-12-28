@@ -29,7 +29,7 @@ non_graphical = True
 
 
 project_path = pyaedt.generate_unique_folder_name()
-target_aedb = pyaedt.examples.download_file('edb/Galileo.aedb',destination=project_path)
+target_aedb = pyaedt.downloads.download_file('edb/Galileo.aedb',destination=project_path)
 print("Project folder will be", target_aedb)
 
 ###############################################################################

@@ -161,7 +161,7 @@ for k, v in oper_params.items():
 # Define the path for non-linear material properties.
 # Materials are stored in text files.
 
-filename_lam, filename_PM = pyaedt.examples.download_leaf()
+filename_lam, filename_PM = pyaedt.downloads.download_leaf()
 
 ##########################################################
 # Create first material

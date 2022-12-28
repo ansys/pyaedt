@@ -20,7 +20,7 @@ import pyaedt
 aedt_version = "2022.2"
 projectname = "MicroDoppler_with_ADP"
 designname = "doppler"
-library_path = pyaedt.examples.download_multiparts()
+library_path = pyaedt.downloads.download_multiparts()
 
 ###############################################################################
 # Set non-graphical mode

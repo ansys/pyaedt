@@ -20,7 +20,7 @@ import pyaedt
 
 temp_folder = pyaedt.generate_unique_folder_name()
 
-targetfile = os.path.dirname(pyaedt.examples.download_aedb(temp_folder))
+targetfile = os.path.dirname(pyaedt.downloads.download_aedb(temp_folder))
 
 ipc2581_file = os.path.join(temp_folder, "Galileo.xml")
 

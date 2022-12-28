@@ -15,7 +15,7 @@ import time
 import pyaedt
 
 temp_folder = pyaedt.generate_unique_folder_name()
-example_path = pyaedt.examples.download_aedb(temp_folder)
+example_path = pyaedt.downloads.download_aedb(temp_folder)
 
 targetfile = os.path.dirname(example_path)
 

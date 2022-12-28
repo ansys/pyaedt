@@ -31,7 +31,7 @@ new_session = True
 # 3D Component Definition
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # File to be used in the example
-component3d = pyaedt.examples.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
+component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
 component3d
 
 ###############################################################################

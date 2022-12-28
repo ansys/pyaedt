@@ -16,7 +16,7 @@ import time
 import pyaedt
 from pyaedt.generic.general_methods import remove_project_lock
 
-project_name = pyaedt.examples.download_antenna_array()
+project_name = pyaedt.downloads.download_antenna_array()
 
 ###############################################################################
 # Set non-graphical mode

@@ -26,7 +26,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Download 3D component
 # ~~~~~~~~~~~~~~~~~~~~~
 # Download the 3D component that is needed to run the example.
-example_path = pyaedt.examples.download_3dcomponent()
+example_path = pyaedt.downloads.download_3dcomponent()
 
 ##########################################################
 # Launch HFSS and save project

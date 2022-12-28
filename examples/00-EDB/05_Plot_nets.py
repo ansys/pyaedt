@@ -19,7 +19,7 @@ import pyaedt
 
 temp_folder = pyaedt.generate_unique_folder_name()
 
-targetfolder = os.path.dirname(pyaedt.examples.download_aedb(temp_folder))
+targetfolder = os.path.dirname(pyaedt.downloads.download_aedb(temp_folder))
 
 
 ###############################################################################

@@ -28,7 +28,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = pyaedt.examples.download_via_wizard(pyaedt.generate_unique_folder_name())
+project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_folder_name())
 
 
 ###############################################################################

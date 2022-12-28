@@ -15,7 +15,7 @@ EDBs (package on board).
 
 import tempfile
 
-from pyaedt.examples.downloads import download_edb_merge_utility
+from pyaedt.downloads import download_edb_merge_utility
 
 python_file = download_edb_merge_utility(force_download=True, destination=tempfile.gettempdir())
 desktop_version = "2022.2"

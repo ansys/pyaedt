@@ -29,7 +29,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Download the project, open it, and save it to the temporary folder.
 
 temp_folder = pyaedt.generate_unique_folder_name()
-project_temp_name = pyaedt.examples.download_icepak(temp_folder)
+project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
 
 ipk = pyaedt.Icepak(project_temp_name,

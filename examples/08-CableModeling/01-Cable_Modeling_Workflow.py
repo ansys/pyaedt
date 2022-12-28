@@ -15,8 +15,8 @@ from pyaedt.modules.CableModeling import Cable
 
 # Set local temporary folder to export the cable library into.
 temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.examples.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
-json_path = pyaedt.examples.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
+project_path = pyaedt.downloads.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
+json_path = pyaedt.downloads.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
 
 ###############################################################################
 # Launch AEDT
@@ -340,7 +340,7 @@ cable.update_pwl_source()
 
 # Create a pwl source from file.
 
-pwl_path = pyaedt.examples.download_file("cable_modeling", "import_pwl.pwl", temp_folder)
+pwl_path = pyaedt.downloads.download_file("cable_modeling", "import_pwl.pwl", temp_folder)
 
 cable_props["Add_Source"] = "True"
 cable_props["Update_Source"] = "False"

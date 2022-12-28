@@ -23,7 +23,7 @@ print(temp_folder)
 # Copy an example into the temporary folder.
 
 
-targetfile = pyaedt.examples.download_aedb()
+targetfile = pyaedt.downloads.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 

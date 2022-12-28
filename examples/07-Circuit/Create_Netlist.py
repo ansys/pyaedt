@@ -13,7 +13,7 @@ HSPICE files are fully supported. Mentor files are partially supported.
 import os
 
 import pyaedt
-netlist = pyaedt.examples.download_netlist()
+netlist = pyaedt.downloads.download_netlist()
 
 project_name = pyaedt.generate_unique_project_name()
 print(project_name)

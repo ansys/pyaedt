@@ -48,7 +48,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-project_full_name = pyaedt.examples.download_icepak(pyaedt.generate_unique_folder_name("Graphic_Card"))
+project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name("Graphic_Card"))
 
 ipk = pyaedt.Icepak(project_full_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()

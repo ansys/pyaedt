@@ -16,7 +16,7 @@ import datetime
 
 # Set paths
 project_folder = pyaedt.generate_unique_folder_name()
-input_dir = pyaedt.examples.download_sherlock()
+input_dir = pyaedt.downloads.download_sherlock()
 
 ###############################################################################
 # Set non-graphical mode

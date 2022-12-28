@@ -14,7 +14,7 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
         __version__ = f.read().strip()
 
 
-import pyaedt.examples as examples
+import pyaedt.downloads as downloads
 import pyaedt.generic.DataHandlers as data_handler
 import pyaedt.generic.general_methods as general_methods
 from pyaedt.generic import constants

@@ -18,7 +18,7 @@ import pyaedt
 
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.examples.download_file("ami", "ami_usb.aedtz", temp_folder)
+project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folder)
 
 
 ###############################################################################

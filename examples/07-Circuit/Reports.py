@@ -18,7 +18,7 @@ import pyaedt
 
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()
-project_path = pyaedt.examples.download_custom_reports(temp_folder)
+project_path = pyaedt.downloads.download_custom_reports(temp_folder)
 
 
 

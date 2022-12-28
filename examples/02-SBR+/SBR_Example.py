@@ -14,7 +14,7 @@ import os
 import pyaedt
 
 
-project_full_name = pyaedt.examples.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
+project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
 
 
 ###############################################################################
