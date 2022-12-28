@@ -51,26 +51,26 @@ class GeometryOperators(object):
             String to convert. For example, ``"2mm"``.
         scale_to_unit : str
             Units for the value to convert. For example, ``"mm"``.
-        variable_manager : `pyaedt.application.Variables.VariableManager`, optional
+        variable_manager : :class:`pyaedt.application.Variables.VariableManager`, optional
             Try to parse formula and returns numeric value.
 
         Returns
         -------
         float
-            Float value for the converted value and units. For example, ``0.002`.
+            Value for the converted value and units. For example, ``0.002``.
 
         Examples
         --------
         Parse `'"2mm"'`.
 
-        >>> from pyaedt.modeler.GeometryOperators import GeometryOperators as go
+        >>> from pyaedt.modeler.geometry_operators import GeometryOperators as go
         >>> go.parse_dim_arg('2mm')
-        0.002
+        >>> 0.002
 
         Use the optional argument ``scale_to_unit`` to specify the destination unit.
 
         >>> go.parse_dim_arg('2mm', scale_to_unit='mm')
-        2.0
+        >>> 2.0
 
         """
 
@@ -452,9 +452,9 @@ class GeometryOperators(object):
         Parameters
         ----------
         p1 : list
-            List of ``[x1,y1,z1]"`` coordinates for the first point.
+            List of ``[x1,y1,z1]`` coordinates for the first point.
         p2 : list
-            List of ``[x2,y2,z2] coordinates for the second ppint.
+            List of ``[x2,y2,z2]`` coordinates for the second ppint.
 
         Returns
         -------
@@ -1172,15 +1172,15 @@ class GeometryOperators(object):
     def q_rotation(v, q):
         """Evaluate the rotation of a vector defined by a quaternion.
         Evaluated as:
-        ``q = q0 + q' = q0 + iq1 + jq2 + kq3``,
-        ``w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)``.
+        ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
+        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
 
         Parameters
         ----------
         v : list
             List of ``[v1, v2, v3]`` coordinates for the vector.
         q : list
-            List of ``[q1, q2, q3, q4]``coordinates for the quaternion.
+            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
