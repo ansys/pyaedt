@@ -102,12 +102,15 @@ class BasisTest(object):
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
+        self._main = sys.modules["__main__"]
 
     def my_teardown(self):
         try:
-            oDesktop = sys.modules["__main__"].oDesktop
+            oDesktop = self._main.oDesktop
+            proj_list = oDesktop.GetProjectList()
         except Exception as e:
             oDesktop = None
+            proj_list = []
         if oDesktop and not settings.non_graphical:
             oDesktop.ClearMessages("", "", 3)
         for edbapp in self.edbapps[::-1]:
@@ -116,14 +119,14 @@ class BasisTest(object):
             except:
                 pass
         del self.edbapps
-        for proj in oDesktop.GetProjectList():
+        for proj in proj_list:
             oDesktop.CloseProject(proj)
         del self.aedtapps
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
-        if "oDesktop" not in dir(sys.modules["__main__"]):
+        if "oDesktop" not in dir(self._main):
             self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             self.desktop.disable_autosave()
         if project_name:
