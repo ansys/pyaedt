@@ -256,7 +256,7 @@ imported and used because it is made by static methods.
    :nosignatures:
 
    cad.Modeler.CoordinateSystem
-   geometry_operators
+   geometry_operators.GeometryOperators
 
 
 .. code:: python
