@@ -1907,7 +1907,7 @@ class NexximComponents(CircuitComponents):
             "Use `assign_voltage_sinusoidal_excitation_to_ports` instead.",
             DeprecationWarning,
         )
-        return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports, settings)
+        return self._app.assign_voltage_sinusoidal_excitation_to_ports(ports)
 
     @pyaedt_function_handler()
     def _parse_spice_model(self, model_path):

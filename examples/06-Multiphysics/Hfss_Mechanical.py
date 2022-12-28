@@ -37,12 +37,12 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # Start HFSS and initialize the PyAEDT object.
 
 version = "2022.2"
-hfss = pyaedt.Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical, new_desktop_session=True)
 pin_names = hfss.excitations
 
 ###############################################################################
 # Start Circuit
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~
 # Start Circuit and add the HFSS dynamic link component to it.
 
 circuit = pyaedt.Circuit()
@@ -82,11 +82,12 @@ circuit.modeler.schematic.create_interface_port(
 voltage = 1
 phase = 0
 ports_list = ["Excitation_1", "Excitation_2"]
-circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
-
+source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
+source.ac_magnitude = voltage
+source.phase = phase
 ###############################################################################
 # Create setup
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~
 # Create a setup.
 
 setup_name = "MySetup"
@@ -100,7 +101,7 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 
 ###############################################################################
 # Solve and push excitations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
@@ -111,7 +112,7 @@ circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 
 ###############################################################################
 # Start Mechanical
-# ~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Start Mechanical and copy bodies from the HFSS project.
 
 mech = pyaedt.Mechanical()

@@ -43,7 +43,6 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def parse_dim_arg(string, scale_to_unit=None, variable_manager=None):
         """Convert a number and unit to a float.
-
         Angles are converted in radians.
 
         Parameters
@@ -54,6 +53,7 @@ class GeometryOperators(object):
             Units for the value to convert. For example, ``"mm"``.
         variable_manager : `pyaedt.application.Variables.VariableManager`, optional
             Try to parse formula and returns numeric value.
+
         Returns
         -------
         float
@@ -428,19 +428,19 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def v_points(p1, p2):
-        """Return the vector from one point to another point.
+        """Vector from one point to another point.
 
         Parameters
         ----------
         p1 : list
-            List of ``[x1,y1,z1]`` coordinates for the first point.
+            Coordinates ``[x1,y1,z1]`` for the first point.
         p2 : list
-            List of ``[x2,y2,z2]`` coordinates for second point.
+            Coordinates ``[x2,y2,z2]`` for second point.
 
         Returns
         -------
         List
-            List of ``[vx, vy, vz]``coordinates for the vector from the first point to the second point.
+            Coordinates ``[vx, vy, vz]`` for the vector from the first point to the second point.
         """
         return GeometryOperators.v_sub(p2, p1)
 
@@ -506,8 +506,8 @@ class GeometryOperators(object):
         """Evaluate the vector distance between point ``p`` and a line defined by two points, ``a`` and ``b``.
 
         .. note::
-        The formula is  ``d = (a-p)-((a-p)dot p)n``, where ``a`` is a point of the line (either ``a`` or ``b``)
-        and ``n`` is the unit vector in the direction of the line.
+            he formula is  ``d = (a-p)-((a-p)dot p)n``, where ``a`` is a point of the line (either ``a`` or ``b``)
+            and ``n`` is the unit vector in the direction of the line.
 
         Parameters
         ----------
@@ -765,7 +765,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zxz(x, y, z):
-        """Finds the Euler angles of a frame defined by X, Y, and Z axes, following the rotation sequence ZXZ.
+        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following the rotation sequence ZXZ.
 
         Provides assumption for the gimbal lock problem.
 
@@ -808,7 +808,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zyz(x, y, z):
-        """Finds the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
+        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
 
         Provides assumption for the gimbal lock problem.
 
@@ -1108,7 +1108,7 @@ class GeometryOperators(object):
         math.atan2(-0.0, 0.0) = -0.0
         math.atan2(0.0, -0.0) = 3.141592653589793
         math.atan2(-0.0, -0.0) = -3.141592653589793
-        and returns always 0.0
+        and returns always 0.0.
 
         Parameters
         ----------
@@ -1135,12 +1135,9 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def q_prod(p, q):
         """Evaluate the product of two quaternions, ``p`` and ``q``, defined as:
-
-            * p = p0 + p' = p0 + ip1 + jp2 + kp3
-
-            * q = q0 + q' = q0 + iq1 + jq2 + kq3
-
-            r = pq = p0q0 - p' • q' + p0q' + q0p' + p' x q'
+        p = p0 + p' = p0 + ip1 + jp2 + kp3.
+        q = q0 + q' = q0 + iq1 + jq2 + kq3.
+        r = pq = p0q0 - p' • q' + p0q' + q0p' + p' x q'.
 
         Parameters
         ----------
@@ -1349,12 +1346,12 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def numeric_cs(cs_in):
-        """
-        Return a list of [x,y,z] numeric values
-        given a coordinate system as input:
+        """Return a list of [x,y,z] numeric values given a coordinate system as input:
 
-        cs_in could be a list of strings, ["x", "y", "z"]
-        or "Global"
+        Parameters
+        ----------
+        cs_in : list of str or str
+            ``["x", "y", "z"]`` or "Global".
         """
         if type(cs_in) is str:
             if cs_in == "Global":
@@ -1441,18 +1438,13 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def v_angle_sign(va, vb, vn, right_handed=True):
         """Evaluate the signed angle between two geometry vectors.
-
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
-        Assuming that the plane normal is normalized (|Vn| == 1), the signed angle is simply:
-
+        Assuming that the plane normal is normalized (|Vn| == 1), the signed angle is simplified.
         For the right-handed rotation from Va to Vb:
-
-            atan2((Va x Vb) . Vn, Va . Vb)
-
+        - atan2((Va x Vb) . Vn, Va . Vb).
         For the left-handed rotation from Va to Vb:
-
-            atan2((Vb x Va) . Vn, Va . Vb)
+        - atan2((Vb x Va) . Vn, Va . Vb).
 
         Parameters
         ----------
@@ -1902,7 +1894,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def degrees_over_rounded(angle, digits):
-        """
+        """Ceil of angle.
 
         Parameters
         ----------
@@ -1940,7 +1932,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def degrees_default_rounded(angle, digits):
-        """
+        """Convert angle to degree with given digits rounding.
 
         Parameters
         ----------
@@ -1959,7 +1951,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def radians_default_rounded(angle, digits):
-        """
+        """Convert to radians with given round.
 
         Parameters
         ----------
