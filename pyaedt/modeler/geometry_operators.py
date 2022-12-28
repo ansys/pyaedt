@@ -1346,7 +1346,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def numeric_cs(cs_in):
-        """Return a list of [x,y,z] numeric values given a coordinate system as input:
+        """Return a list of [x,y,z] numeric values given a coordinate system as input.
 
         Parameters
         ----------
@@ -1913,7 +1913,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def radians_over_rounded(angle, digits):
-        """
+        """Radian angle ceiling.
 
         Parameters
         ----------
