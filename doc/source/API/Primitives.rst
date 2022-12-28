@@ -238,7 +238,7 @@ They contain all getters and setters to simplify object manipulation.
 
     ...
 
-
+Desktop and common classes
 Coordinate systems and geometry operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

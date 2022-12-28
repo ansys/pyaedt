@@ -9,7 +9,7 @@ It can be opened and edited using the ``Edb`` class.
 .. autosummary::
    :toctree: _autosummary
 
-   Edb
+   edb.Edb
 
 
 .. code:: python

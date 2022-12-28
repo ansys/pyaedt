@@ -9,7 +9,7 @@ This section contains the classes that are common and not related to a specific 
 .. autosummary::
    :toctree: _autosummary
 
-   Desktop
+   desktop.Desktop
 
 
 .. toctree::
