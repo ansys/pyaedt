@@ -124,9 +124,13 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
 
-M2D = pyaedt.Maxwell2d(projectname=pName, specified_version=desktopVersion, designname=dName,
-                       solution_type=sType, new_desktop_session=False,
-                       non_graphical=non_graphical)
+M2D = pyaedt.Maxwell2d(projectname=pName,
+                       specified_version=desktopVersion,
+                       designname=dName,
+                       solution_type=sType,
+                       new_desktop_session=True,
+                       non_graphical=non_graphical
+                       )
 
 ##########################################################
 # Create object to access 2D modeler

@@ -44,7 +44,7 @@ target = pyaedt.Hfss(
 source = pyaedt.Hfss(projectname=target.project_name,
                      designname="feeder",
                      specified_version="2022.2",
-                     new_desktop_session=False)
+                     )
 
 ###############################################################################
 # Define linked antenna

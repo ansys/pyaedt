@@ -9,7 +9,6 @@ from __future__ import absolute_import  # noreorder
 import math
 import re
 
-import pyaedt.modeler.cad.elements3d
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import unit_converter
@@ -1474,7 +1473,7 @@ class Points3dLayout(object):
         -------
 
         """
-        if self.point.Move(pyaedt.modeler.cad.elements3d.Point().Set(new_position[0], new_position[1])):
+        if self.point.Move(self._primitives.oeditor.Point().Set(new_position[0], new_position[1])):
             return True
 
 

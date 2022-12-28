@@ -110,7 +110,7 @@ start_point = [100, 100, 0]
 center_point = [0, 0, 0]
 P = prim3D.create_polyline(
     position_list=[start_point],
-    segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg"),
+    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg"),
     name="PL04_center_point_arc",
 )
 
@@ -124,12 +124,12 @@ start_point = [100, 0, 0]
 center_point = [0, 0, 0]
 P = prim3D.create_polyline(
     position_list=[start_point],
-    segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
+    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
     name="PL04_center_point_arc_rot_XY",
 )
 P = prim3D.create_polyline(
     position_list=[start_point],
-    segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
+    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
     name="PL04_center_point_arc_rot_ZX",
 )
 
@@ -218,7 +218,7 @@ arc_angle_1 = "43.47deg"
 P = prim3D.create_polyline(
     name="First_Arc",
     position_list=[start_point],
-    segment_type=PolylineSegment(type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1),
+    segment_type=prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1),
 )
 
 ###############################################################################
@@ -237,7 +237,7 @@ arc_center_2 = [3400, 200, 3800]
 
 P.insert_segment(
     position_list=[end_of_line_segment],
-    segment=PolylineSegment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2),
+    segment=prim3D.polyline_segment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2),
 )
 
 ###############################################################################
@@ -247,9 +247,9 @@ P.insert_segment(
 prim3D.create_polyline(
     position_list=[start_point, end_of_line_segment],
     segment_type=[
-        PolylineSegment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
-        PolylineSegment(type="Line"),
-        PolylineSegment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
+        prim3D.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
+        prim3D.polyline_segment(type="Line"),
+        prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
     ],
     name="Compound_Polyline_One_Command",
 )
