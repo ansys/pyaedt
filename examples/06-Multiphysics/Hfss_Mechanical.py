@@ -81,9 +81,8 @@ circuit.modeler.schematic.create_interface_port(
 
 voltage = 1
 phase = 0
-excitation_settings = [str(voltage) + " V", str(phase) + " deg", "0V", "0V", "0V", "1GHz", "0s", "0", "0deg", "0Hz"]
 ports_list = ["Excitation_1", "Excitation_2"]
-circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
+circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
 ###############################################################################
 # Create setup
