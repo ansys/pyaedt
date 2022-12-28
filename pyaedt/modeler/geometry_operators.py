@@ -1171,18 +1171,14 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def q_rotation(v, q):
         """Evaluate the rotation of a vector defined by a quaternion.
-
         Evaluated as:
-
-        ``q = q0 + q' = q0 + iq1 + jq2 + kq3``
-
-        ``w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)``
+        ``q = q0 + q' = q0 + iq1 + jq2 + kq3``,
+        ``w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)``.
 
         Parameters
         ----------
         v : list
             List of ``[v1, v2, v3]`` coordinates for the vector.
-
         q : list
             List of ``[q1, q2, q3, q4]``coordinates for the quaternion.
 
@@ -1190,7 +1186,6 @@ class GeometryOperators(object):
         -------
         list
             List of ``[w1, w2, w3]`` coordinates for the result vector ``w``.
-
         """
         q0 = q[0]
         qv = q[1:4]
@@ -1440,11 +1435,11 @@ class GeometryOperators(object):
         """Evaluate the signed angle between two geometry vectors.
         The sign is evaluated respect to the normal to the plane containing the two vectors as per the following rule.
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
-        Assuming that the plane normal is normalized (|Vn| == 1), the signed angle is simplified.
+        Assuming that the plane normal is normalized (vb == 1), the signed angle is simplified.
         For the right-handed rotation from Va to Vb:
-        - atan2((Va x Vb) . Vn, Va . Vb).
+        - atan2((va x Vb) . vn, va . vb).
         For the left-handed rotation from Va to Vb:
-        - atan2((Vb x Va) . Vn, Va . Vb).
+        - atan2((Vb x va) . vn, va . vb).
 
         Parameters
         ----------
@@ -1455,8 +1450,8 @@ class GeometryOperators(object):
         vn : list
             List of ``[x, y, z]`` coordinates for the plane normal.
         right_handed : bool
-            Whether to consider the right-handed rotation from Va to Vb. The default is ``True``.
-            When ``False``, left-hand rotation from Va to Vb is considered.
+            Whether to consider the right-handed rotation from va to vb. The default is ``True``.
+            When ``False``, left-hand rotation from va to vb is considered.
 
         Returns
         -------

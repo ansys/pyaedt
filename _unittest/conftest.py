@@ -196,10 +196,6 @@ def desktop_init():
     if not is_ironpython:
         try:
             release_desktop(close_projects=False, close_desktop=True)
-            # oDesktop = sys.modules["__main__"].oDesktop
-            # pid = oDesktop.GetProcessID()
-            # os.kill(pid, 9)
-            # shutil.rmtree(scratch_path, ignore_errors=True)
         except:
             pass
 
