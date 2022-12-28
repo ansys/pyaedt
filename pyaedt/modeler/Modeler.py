@@ -18,7 +18,6 @@ from collections import OrderedDict
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import PropsManager
-from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -4551,7 +4550,7 @@ class GeometryModeler(Modeler, object):
         -------
 
         """
-        if isinstance(value, str if _pythonver >= 3 else basestring):
+        if isinstance(value, str):
             return value
         else:
             return str(value) + self.model_units
