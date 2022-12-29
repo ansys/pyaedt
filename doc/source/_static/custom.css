@@ -21,6 +21,11 @@ nav.bd-links ul li.toctree-l2 > a {
     text-indent: 1px;
 }
 nav.bd-links ul li.toctree-l3 > a {
-    font-size: .65rem;
+    font-size: .70rem;
     text-indent: 2px;
+}
+
+nav.bd-links ul li.toctree-l4 > a {
+    font-size: .70rem;
+    text-indent: 3px;
 }
