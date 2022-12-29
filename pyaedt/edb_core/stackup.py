@@ -1337,6 +1337,7 @@ class EdbStackup(object):
 
         .. deprecated:: 0.6.27
            Use :func:`Edb.materials.add_conductor_material` function instead.
+
         Parameters
         ----------
         name : str
@@ -1346,7 +1347,7 @@ class EdbStackup(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.edb_core.materials.Material`
             Material definition.
         """
         warnings.warn("Use `Edb.materials.add_conductor_material` function instead.", DeprecationWarning)

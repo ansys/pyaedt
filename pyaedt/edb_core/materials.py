@@ -372,6 +372,27 @@ class Materials(object):
         dielectric_loss_tangent=0,
         magnetic_loss_tangent=0,
     ):
+        """Add a new material.
+
+        Parameters
+        ----------
+        name : str
+            Material Name. Default is ``"air"``.
+        permittivity : float, str
+            Material permittivity. Default is ``1.0006``.
+        permeability : float, str
+            Material permeability. Default is ``1.0000004``.
+        conductivity : float, str
+            Material conductivity. Default is ``0``.
+        dielectric_loss_tangent : float, str
+            Material dielectric loss tangent. Default is ``0``.
+        magnetic_loss_tangent : float, str
+            Material magnetic loss tangent. Default is ``0``.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.materials.Material`
+        """
         if not name in self.materials:
             self._edb.Definition.MaterialDef.Create(self._db, name)
             new_material = self.materials[name]
@@ -395,7 +416,10 @@ class Materials(object):
             Name of the new material.
         conductivity : float
             Conductivity of the new material.
+
+        Returns
         -------
+        :class:`pyaedt.edb_core.materials.Material`
 
         """
         if not name in self.materials:
@@ -423,9 +447,10 @@ class Materials(object):
             Loss tangent of the new material.
         permeability: float
             Permeability of the new material.
+
         Returns
         -------
-
+        :class:`pyaedt.edb_core.materials.Material`
         """
         if not name in self.materials:
             self._edb.Definition.MaterialDef.Create(self._db, name)
@@ -440,11 +465,11 @@ class Materials(object):
 
     @pyaedt_function_handler()
     def get_djordjevicsarkar_model(self, material_name=None):
-        """
+        """Djordjevic-Sarkar model if present.
 
         Parameters
         ----------
-        material_name
+        material_name : str
 
         Returns
         -------
@@ -477,7 +502,7 @@ class Materials(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.edb_core.materials.Material`
             Material definition.
         """
         material_def = self._edb.Definition.DjordjecvicSarkarModel()
@@ -527,7 +552,7 @@ class Materials(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.edb_core.materials.Material`
             Material definition.
         """
         material_def = self._edb.Definition.DebyeModel()
@@ -561,7 +586,7 @@ class Materials(object):
 
         Returns
         -------
-        type
+        :class:`pyaedt.edb_core.materials.Material`
             Material definition.
 
         Examples
