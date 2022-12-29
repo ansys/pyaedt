@@ -587,7 +587,7 @@ class Emit(FieldAnalysisEmit, object):
             last Revision object which was generated
 
         Examples
-        ----------
+        --------
         >>> rev = aedtapp.analyze()
 
         """

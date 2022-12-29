@@ -5,6 +5,11 @@ These classes cannot be used directly but can be accessed through an app.
 Example:
 
 
+
+Material Management
+~~~~~~~~~~~~~~~~~~~
+This section cover all materials classes and methods.
+
 .. currentmodule:: pyaedt.modules
 
 .. autosummary::
@@ -12,13 +17,12 @@ Example:
    :nosignatures:
 
    MaterialLib.Materials
+   Material.Material
+   Material.SurfaceMaterial
    Material.MatProperties
    Material.SurfMatProperties
    Material.MatProperty
-   Material.Material
-   Material.SurfaceMaterial
-   LayerStackup.Layers
-   LayerStackup.Layer
+
 
 .. code:: python
 
@@ -34,3 +38,19 @@ Example:
     # This property is from the MatProperty class
     copper.conductivity
     ...
+
+
+
+Stackup Management
+~~~~~~~~~~~~~~~~~~
+This section cover all layer classes and methods used in HFSS 3D Layout (and indirectly in Circuit).
+
+.. currentmodule:: pyaedt.modules
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   LayerStackup.Layers
+   LayerStackup.Layer

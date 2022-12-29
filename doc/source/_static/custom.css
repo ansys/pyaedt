@@ -1,0 +1,26 @@
+/* override table no-wrap */
+.wy-table-responsive table td, .wy-table-responsive table th {
+    white-space: normal;
+}
+
+
+.bd-content .sd-card .sd-card-body, .bd-content .sd-card .sd-card-footer {
+    background-color: transparent;
+}
+
+.sd-sphinx-override .code {
+   background-color: var(--pst-color-surface);
+}
+
+nav.bd-links ul li.toctree-l1 > a {
+  font-size: .90rem;
+}
+
+nav.bd-links ul li.toctree-l2 > a {
+    font-size: .75rem;
+    text-indent: 1px;
+}
+nav.bd-links ul li.toctree-l3 > a {
+    font-size: .65rem;
+    text-indent: 2px;
+}

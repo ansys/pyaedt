@@ -5,20 +5,96 @@ API reference
 This section describes PyAEDT core classes, methods, and functions
 for AEDT apps and modules. Use the search feature or click links
 to view API documentation.
+The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
+`AEDT <https://www.ansys.com/it-it/products/electronics>`_ provides access to the Ansys gold-standard
+electromagnetics simulation solutions such as Ansys HFSS,
+Ansys Maxwell, Ansys Q3D Extractor, Ansys SIwave, and Ansys Icepak using electrical CAD (ECAD) and
+mechanical CAD (MCAD) workflows.
+In addition, it also includes direct links to the complete Ansys portfolio of thermal, fluid,
+and mechanical solvers for comprehensive Multiphysics analysis.
+Tight integration among these solutions provides the user with unprecedented ease of use for setup and
+faster resolution of complex simulations for design and optimization.
+
+.. image:: ../Resources/aedt.png
+  :width: 800
+  :alt: AEDT Applications
+  :target: https://www.ansys.com/it-it/products/electronics
+
+The PyAEDT API includes classes for apps and modules. You must initialize the
+app to get access to all modules and methods. Availables apps are:
+
+- `Hfss <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
+- `Hfss3dLayout <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
+- `Maxwell3d <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
+- `Maxwell2d <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
+- `MaxwellCircuit <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
+- `Q3d <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
+- `Q2d Extractor <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
+- `Icepak <https://www.ansys.com/it-it/products/electronics>`_
+- `Mechanical <https://www.ansys.com/products/structures/ansys-mechanical>`_
+- Rmxprt
+- Emit
+- Circuit
+- `TwinBuilder <https://www.ansys.com/it-it/products/digital-twin/ansys-twin-builder>`_
+
+All other classes and methods are inherited into the app class.
+The desktop app is implicitly launched in any of the other applications.
+Before accessing an AEDT app the Desktop has to be launched and initialized.
+Desktop can be explicitily or implicitily initialized as in following examples.
+
+Example with ``Desktop`` class explicit initialization:
+
+.. code:: python
+
+    from pyaedt import launch_desktop, Circuit
+    d = launch_desktop(specified_version="2022.2",
+                       non_graphical=False,
+                       new_desktop_session=True,
+                       close_on_exit=True,
+                       student_version=False):
+     circuit = Circuit()
+     ...
+     # Any error here will be caught by Desktop.
+     ...
+     d.release_desktop()
+
+Example with ``Desktop`` class implicit initialization:
+
+.. code:: python
+
+    from pyaedt import Circuit
+    circuit = Circuit(specified_version="2022.2",
+                      non_graphical=False,
+                      new_desktop_session=True,
+                      close_on_exit=True,
+                      student_version=False):
+     circuit = Circuit()
+     ...
+     # Any error here will be caught by Desktop.
+     ...
+     circuit.release_desktop()
+
 
 .. toctree::
    :maxdepth: 2
 
-   Common
-   CoreEdb
    Application
    MaterialManagement
-   Primitives
-   CoreModules
+   Primitives3D
+   Primitives3DLayout
+   PrimitivesCircuit
+   Boundaries
    Mesh
-   CableModeling
    Setup
    Post
+   Logger
+   Optimetrics
+   Variables
+   Constants
+   Configuration
+   SetupTemplates
+   CableModeling
+
 
 
 

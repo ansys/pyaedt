@@ -1220,7 +1220,6 @@ class OptimizationSetups(object):
         report_type=None,
     ):
         """Add a basic optimization analysis.
-
         You can customize all options after the analysis is added.
 
         Parameters

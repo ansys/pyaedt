@@ -124,9 +124,9 @@ class EdbFrequencySweep(object):
     def freq_sweep_type(self):
         """Sweep type.
         Options are:
-           - ``kInterpolatingSweep``.
-           - ``kDiscreteSweep``.
-           - ``kBroadbandFastSweep``.
+        - ``kInterpolatingSweep``.
+        - ``kDiscreteSweep``.
+        - ``kBroadbandFastSweep``.
 
         Returns
         -------
@@ -1234,13 +1234,12 @@ class DefeatureSettings(object):
     def healing_option(self):
         """Whether to turn on healing of mis-aligned points and edges.
         Options:
-          0- Turn off.
-          1- Turn on.
+        0- Turn off.
+        1- Turn on.
 
         Returns
         -------
         int
-
         """
         return self._defeature_settings.HealingOption
 
@@ -1748,10 +1747,10 @@ class HfssSimulationSetup(object):
     def solver_slider_type(self):
         """Solver slider type.
         Options:
-         1- ``kFast``.
-         2- ``kMedium``.
-         3- ``kAccurate``.
-         4- ``kNumSliderTypes``.
+        1 - ``kFast``.
+        2 - ``kMedium``.
+        3 - ``kAccurate``.
+        4 - ``kNumSliderTypes``.
 
         Returns
         -------
@@ -2012,10 +2011,20 @@ class HfssSimulationSetup(object):
         name : str, optional
             Name of the frequency sweep.
         frequency_sweep : list, optional
+            Frequency List Points.
 
         Returns
-        ----------
+        -------
         :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_hfss_setup("setup1")
+        >>> setup1.add_frequency_sweep(frequency_sweep=[
+        ...                           ["linear count", "0", "1kHz", 1],
+        ...                           ["log scale", "1kHz", "0.1GHz", 10],
+        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ...                           ])
         """
         if name in self.frequency_sweeps:
             return False

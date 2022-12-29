@@ -1690,7 +1690,7 @@ class PostProcessorCommon(object):
         subdesign_id : int, optional
             Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
             The default value is ``None``.
-        polyline_points : int, optional,
+        polyline_points : int, optional
             Number of points on which create the report for plots on polylines.
         math_formula : str, optional
             It is one of the available AEDT mathematical formulas. Example abs, dB.
@@ -1700,7 +1700,6 @@ class PostProcessorCommon(object):
         -------
         :class:`pyaedt.modules.solutions.SolutionData`
             `Solution Data object.
-
 
         References
         ----------

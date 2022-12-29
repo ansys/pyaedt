@@ -490,7 +490,7 @@ class EdbPadstacks(object):
             anti-pad value
 
         Returns
-        --------
+        -------
         bool
             ``True`` when all succeed. ``False`` if one of anti-pads value failed to be assigned.
         """

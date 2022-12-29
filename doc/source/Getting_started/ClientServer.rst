@@ -20,35 +20,41 @@ In AEDT 2022 R2 and later, PyAEDT fully supports the gRPC API (except for EDB):
     hfss = Hfss(machine="fullmachinename", port=portnumber)
 
 If the ``machine`` argument is provided and the machine is a remote machine, AEDT
-must be up and running on the remote server listening on the specified port.
+must be up and running on the remote server listening on the specified port ``portnumber``.
 
 To start AEDT in listening mode on the remote machine:
 
 .. code::
 
-   path/to/aedt/ansysedt.exe -grpcsrv portnumber  #windows
-   path/to/aedt/ansysedt -grpcsrv portnumber   #linux
+   path/to/ANSYSEM/v222/Win64/ansysedt.exe -grpcsrv portnumber  #windows
+   path/to/ANSYSEM/v222/Lin64/ansysedt -grpcsrv portnumber   #linux
 
-If the connection is local, the ``machine`` argument can remain empty. PyAEDT then
+If the connection is local, the ``machine`` argument has to be left empty. PyAEDT then
 starts the AEDT session automatically. Machine and port arguments are available to
 all applications except EDB.
 
 
-Remote application call
-~~~~~~~~~~~~~~~~~~~~~~~
+Pyaedt Remote Service Manager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PyAEDT includes also a service manager that can be run on Server Machine and can launch, on-demand,
+AEDT Sessions and as well act as a file manager.
 You can make a remote application call on a CPython server
 or any Windows client machine starting from AEDT 2022.2.
 
-On a CPython Server run the service pyaedt_service_manager that will listen on port 17878
+On a CPython Server run the service ``pyaedt_service_manager`` that will listen on port 17878
 for incoming requests of connection from clients. Port is configurable.
 Requirements:
 
-- Python 3.7+ Virtual Environment. You could use the CPython in AEDT installation folder but you need to add the
-  Python lib folder to the LD_LIBRARY_PATH.
+- Python 3.7+ Virtual Environment.
 - pyaedt > 0.6.0
-- export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64 #Win64 in case of Windows Server
-- export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
 
+In addition to above requirements, on Linux the following environment are needed.
+- You could use the CPython in AEDT installation folder but you need to add the Python lib folder to the
+LD_LIBRARY_PATH or any other Pythn 3.7+ installed on Linux machine.
+- export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64.
+- export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH.
+
+On Server the service will be up and running and listen for incoming connections:
 
 .. code:: python
 
@@ -57,7 +63,7 @@ Requirements:
     pyaedt_service_manager()
 
 
-On any Windows client machine user needs to establish the connection as shown in example below.
+On any client machine user needs to establish the connection as shown in example below.
 AEDT can be launched directly while creating the session or after the connection is established.
 
 .. code:: python
@@ -65,6 +71,7 @@ AEDT can be launched directly while creating the session or after the connection
     from pyaedt.common_rpc import create_session
     # User can establish the connection and start a new AEDT session.
     cl1 = create_session("server_name", launch_aedt_on_server=True, aedt_port=17880, non_graphical=True)
+
     # Optionally AEDT can be launched after the connection is established
     cl2 = create_session("server_name", launch_aedt_on_server=False)
     cl2.aedt(port=17880, non_graphical=True)

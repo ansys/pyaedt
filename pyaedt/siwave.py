@@ -19,7 +19,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.misc import list_installed_ansysem
 
 
-class Siwave:
+class Siwave(object):
     """Initializes SIwave based on the inputs provided and manages SIwave release and closing.
 
     Parameters
@@ -292,10 +292,10 @@ class Siwave:
 
         Parameters
         ----------
-        simulation_name :
-
-        file_path :
-
+        simulation_name : str
+            Name of setup.
+        file_path : str
+            Path to exported report.
         data_type : str, optional
             The default is ``"Vias"``.
 
@@ -303,21 +303,20 @@ class Siwave:
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         """
         self.oproject.ScrExportElementData(simulation_name, file_path, data_type)
         return True
 
     @pyaedt_function_handler()
     def export_siwave_report(self, simulation_name, file_path, bkground_color="White"):
-        """Export the SiwaveE report.
+        """Export the Siwave report.
 
         Parameters
         ----------
-        simulation_name :
-
-        file_path :
-
+        simulation_name : str
+            Name of setup.
+        file_path : str
+            Path to exported report.
         bkground_color : str, optional
             Color of the report's background. The default is ``"White"``.
 

@@ -288,7 +288,7 @@ class Layer3D(object):
     ----------
     stackup : :class:`pyaedt.modeler.stackup_3d.Stackup3D`
         The stackup where the layers will be added.
-    app : :class:`pyaedt.hfss.Hfss
+    app : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     name : str
         The name of the layer.
@@ -308,7 +308,7 @@ class Layer3D(object):
     Examples
     --------
     >>> from pyaedt import Hfss
-    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
     >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
@@ -2339,7 +2339,6 @@ class Patch(CommonObject, object):
 
         Parameters
         ----------
-
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
             The reference layer, in most cases the ground layer.
         opposite_side : bool, optional
@@ -2350,6 +2349,7 @@ class Patch(CommonObject, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
+
         Returns
         -------
         bool
@@ -2367,7 +2367,6 @@ class Patch(CommonObject, object):
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_patch.create_lumped_port(gnd)
-
         """
         string_position_x = self.position_x.name
         if opposite_side:
@@ -2515,7 +2514,6 @@ class Trace(CommonObject, object):
 
     Examples
     --------
-
     >>> from pyaedt import Hfss
     >>> from pyaedt.modeler.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop_session=True)
@@ -2525,7 +2523,6 @@ class Trace(CommonObject, object):
     >>> top = my_stackup.add_signal_layer("top")
     >>> my_trace = top.add_trace(line_width=2.5, line_length=22)
     >>> my_stackup.resize_around_element(my_trace)
-
     """
 
     def __init__(
@@ -3077,7 +3074,6 @@ class Trace(CommonObject, object):
 
         Parameters
         ----------
-
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
             The reference layer, in most cases the ground layer.
         opposite_side : bool, optional
@@ -3088,13 +3084,13 @@ class Trace(CommonObject, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
+
         Returns
         -------
         bool
 
         Examples
         --------
-
         >>> from pyaedt import Hfss
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss(new_desktop_session=True)

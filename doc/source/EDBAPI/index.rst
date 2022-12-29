@@ -1,0 +1,33 @@
+=================
+EDB API reference
+=================
+
+This section describes PyAEDT EDB  classes, methods, and functions
+for EDB apps and modules. Use the search feature or click links
+to view API documentation.
+
+The PyAEDT Edb API includes classes for apps and modules. You must initialize the
+Edb Class to get access to all modules and methods.
+All other classes and methods are inherited into the app class.
+If Edb is launched from ``HfssdLayout`` class then it will be accessible in read-only mode.
+Example:
+
+.. code:: python
+
+    from pyaedt import Edb
+    edb = Edb("my_project.aedb", edbversion="2022.2")
+    edb.core_components.components["R1"].r_value = 40
+    edb.close_edb()
+
+
+.. toctree::
+   :maxdepth: 2
+
+   CoreEdb
+   DataEdb
+   LayerData
+   SourcesEdb
+   PadstackEdb
+   SimulationEdb
+   SimulationConfigurationEdb
+   SiWave

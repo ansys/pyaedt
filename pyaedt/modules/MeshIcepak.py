@@ -8,7 +8,7 @@ from pyaedt.modules.Mesh import meshers
 
 
 class IcepakMesh(object):
-    """Manages Icepak meshes.
+    """Class that manages Icepak meshes.
 
     Parameters
     ----------

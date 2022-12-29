@@ -151,6 +151,10 @@ master_doc = "index"
 pygments_style = "sphinx"
 
 
+add_module_names = False
+
+toc_object_entries_show_parents = "hide"
+
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
 
@@ -248,6 +252,12 @@ html_theme_options = {
 }
 
 html_static_path = ["_static"]
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'custom.css',
+]
 
 # -- Options for HTMLHelp output ---------------------------------------------
 

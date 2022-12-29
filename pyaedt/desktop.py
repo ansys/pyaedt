@@ -290,11 +290,7 @@ def get_version_env_variable(version_id):
 
 
 class Desktop(object):
-    """Initializes AEDT based on the inputs provided.
-
-    .. note::
-       On Windows, this class works without limitations in IronPython and CPython.
-       On Linux, this class works only in embedded IronPython in AEDT.
+    """Provides Ansys Electronics Desktop (AEDT) interface.
 
     Parameters
     ----------

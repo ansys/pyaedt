@@ -4,7 +4,7 @@ This section lists modules for creating and editing
 plots in AEDT. They are accessible through the ``post`` property.
 
 .. note::
-   The `AdvancedPostProcessing` module requires Python 3 and
+   Some of  `AdvancedPostProcessing` module requires Python 3 and
    that the `numpy <https://numpy.org/doc/stable/>`_, `matplotlib <https://matplotlib.org/>`_,
    and `pyvista <https://docs.pyvista.org/>`_ packages are installed.
 
@@ -19,21 +19,11 @@ plots in AEDT. They are accessible through the ``post`` property.
    :toctree: _autosummary
    :nosignatures:
 
-   PostProcessor.CircuitPostProcessor
    AdvancedPostProcessing.PostProcessor
    solutions.SolutionData
    solutions.FieldPlot
    solutions.FfdSolutionData
-   AdvancedPostProcessing.ModelPlotter
-   report_templates.Trace
-   report_templates.LimitLine
-   report_templates.Standard
-   report_templates.Fields
-   report_templates.NearField
-   report_templates.FarField
-   report_templates.EyeDiagram
-   report_templates.Emission
-   report_templates.Spectral
+
 
 .. code:: python
 
@@ -56,3 +46,51 @@ plots in AEDT. They are accessible through the ``post`` property.
     standard_report.create()
     sols = standard_report.get_solution_data()
     ...
+
+
+AEDT Report Management
+~~~~~~~~~~~~~~~~~~~~~~
+Aedt provides great fleaxibility in reports.
+PyAEDT has developed classess for manipulating any report property.
+
+
+.. note::
+   Some functionalities are available only when AEDT is running
+   in graphical mode.
+
+
+.. currentmodule:: pyaedt.modules
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   report_templates.Trace
+   report_templates.LimitLine
+   report_templates.Standard
+   report_templates.Fields
+   report_templates.NearField
+   report_templates.FarField
+   report_templates.EyeDiagram
+   report_templates.Emission
+   report_templates.Spectral
+
+
+Plot Fields and Data outside AEDT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PyAEDT also supports external report capabilities.
+Those are available with third party packages like  `numpy <https://numpy.org/doc/stable/>`_,
+`pandas <https://pandas.pydata.org/>`_, `matplotlib <https://matplotlib.org/>`_,
+and `pyvista <https://docs.pyvista.org/>`_ packages installed with PyAEDT.
+
+.. currentmodule:: pyaedt.modules
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+
+   solutions.SolutionData
+   solutions.FieldPlot
+   solutions.FfdSolutionData
+   AdvancedPostProcessing.ModelPlotter
