@@ -1,4 +1,4 @@
-Simulation Configuration
+Simulation configuration
 ========================
 These classes are the containers of Simulation Configuration constructors of the EDB.
 

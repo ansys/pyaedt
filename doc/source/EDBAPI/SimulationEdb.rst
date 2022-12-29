@@ -1,4 +1,4 @@
-EDB Setup
+EDB setup
 =========
 These classes are the containers of Setup Classes in EDB for both HFSS and Siwave.
 

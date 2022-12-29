@@ -6,7 +6,7 @@ Example:
 
 
 
-Material Management
+Material management
 ~~~~~~~~~~~~~~~~~~~
 This section cover all materials classes and methods.
 
@@ -41,7 +41,7 @@ This section cover all materials classes and methods.
 
 
 
-Stackup Management
+Stackup management
 ~~~~~~~~~~~~~~~~~~
 This section cover all layer classes and methods used in HFSS 3D Layout (and indirectly in Circuit).
 

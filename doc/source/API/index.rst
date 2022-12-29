@@ -23,13 +23,13 @@ faster resolution of complex simulations for design and optimization.
 The PyAEDT API includes classes for apps and modules. You must initialize the
 app to get access to all modules and methods. Available apps are:
 
-- `Hfss <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
-- `Hfss3dLayout <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
-- `Maxwell3d <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
-- `Maxwell2d <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
-- `MaxwellCircuit <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
-- `Q3d <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
-- `Q2d Extractor <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
+- `HFSS <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
+- `HFSS 3D Layout <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
+- `Maxwell 3D <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
+- `Maxwell 2D <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
+- `Maxwell Circuit <https://www.ansys.com/it-it/products/electronics/ansys-maxwell>`_
+- `Q3D <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
+- `Q2D Extractor <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
 - `Icepak <https://www.ansys.com/it-it/products/electronics>`_
 - `Mechanical <https://www.ansys.com/products/structures/ansys-mechanical>`_
 - Rmxprt
@@ -40,7 +40,7 @@ app to get access to all modules and methods. Available apps are:
 All other classes and methods are inherited into the app class.
 The desktop app is implicitly launched in any of the other applications.
 Before accessing an AEDT app the Desktop has to be launched and initialized.
-Desktop can be explicitily or implicitily initialized as in following examples.
+Desktop can be explicitly or implicitly initialized as in following examples.
 
 Example with ``Desktop`` class explicit initialization:
 
@@ -54,7 +54,7 @@ Example with ``Desktop`` class explicit initialization:
                        student_version=False):
      circuit = Circuit()
      ...
-     # Any error here will be caught by Desktop.
+     # Any error here should be caught by Desktop.
      ...
      d.release_desktop()
 
@@ -70,7 +70,7 @@ Example with ``Desktop`` class implicit initialization:
                       student_version=False):
      circuit = Circuit()
      ...
-     # Any error here will be caught by Desktop.
+     # Any error here should be caught by Desktop.
      ...
      circuit.release_desktop()
 

@@ -1,4 +1,4 @@
-EDB Manager
+EDB manager
 ===========
 An AEDB database is a folder that contains the database representing any part of a PCB.
 It can be opened and edited using the ``Edb`` class.

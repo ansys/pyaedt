@@ -1,6 +1,7 @@
 Components, Primitives and Nets
 ===============================
-These classes are the containers of Components, Geometris and Nets and all relative methods.
+These classes are the containers of components, primitives (planes, lines, rectangles, circles)
+and nets and all relative methods.
 
 
 .. code:: python

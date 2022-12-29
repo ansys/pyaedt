@@ -50,7 +50,7 @@ plots in AEDT. They are accessible through the ``post`` property.
 
 AEDT Report Management
 ~~~~~~~~~~~~~~~~~~~~~~
-Aedt provides great fleaxibility in reports.
+AEDT provides great fleaxibility in reports.
 PyAEDT has developed classess for manipulating any report property.
 
 
