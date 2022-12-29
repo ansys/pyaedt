@@ -1,6 +1,6 @@
 Padstack
 ========
-These classes are the containers of data management for Padstack and Padstack Definitions.
+These classes are the containers of data management for padstacks and padstack definitions.
 
 .. code:: python
 

@@ -1,6 +1,6 @@
 EDB Sources
 ===========
-These classes are the containers of sources methods of the EDB for both HFSS and SiWave.
+These classes are the containers of sources methods of the EDB for both HFSS and Siwave.
 
 
 .. code:: python

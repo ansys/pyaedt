@@ -7,7 +7,7 @@ All Setups can be implemented through Edb API.
 
 .. image:: ../Resources/siwave.png
   :width: 800
-  :alt: SiWave
+  :alt: Siwave
   :target: https://www.ansys.com/it-it/products/electronics/ansys-siwave
 
 

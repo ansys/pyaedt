@@ -6,10 +6,10 @@ This section describes PyAEDT EDB  classes, methods, and functions
 for EDB apps and modules. Use the search feature or click links
 to view API documentation.
 
-The PyAEDT Edb API includes classes for apps and modules. You must initialize the
-Edb Class to get access to all modules and methods.
+The PyAEDT EDB API includes classes for apps and modules. You must initialize the
+EDB class to get access to all modules and methods.
 All other classes and methods are inherited into the app class.
-If Edb is launched from ``HfssdLayout`` class then it will be accessible in read-only mode.
+If EDB is launched within ``HfssdLayout`` class then it will be accessible in read-only mode.
 Example:
 
 .. code:: python

@@ -3,19 +3,19 @@ AEDT apps
 The PyAEDT API includes classes for apps and modules. You must initialize the 
 app to get access to all modules and methods. Availables apps are:
 
-- Hfss
-- Hfss3dLayout
-- Maxwell3d
-- Maxwell2d
-- MaxwellCircuit
-- Q3d
-- Q2d
-- Icepak
-- Mechanical
-- Rmxprt
-- Emit
-- Circuit
-- TwinBuilder
+- ``Hfss``
+- ``Hfss3dLayout``
+- ``Maxwell3d``
+- ``Maxwell2d``
+- ``MaxwellCircuit``
+- ``Q3d``
+- ``Q2d``
+- ``Icepak``
+- ``Mechanical``
+- ``Rmxprt``
+- ``Emit``
+- ``Circuit``
+- ``TwinBuilder``
 
 
 .. image:: ../Resources/aedt_2.png
