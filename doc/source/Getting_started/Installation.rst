@@ -47,7 +47,7 @@ Wheelhouses for CPython 3.7, 3.8, and 3.9 are available in the releases for PyAE
 and later for both Windows and Linux.
 You can install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
-`Github WheelHouse Releases <https://github.com/pyansys/pyaedt/releases>`
+`WheelHouse releases <https://github.com/pyansys/pyaedt/releases>`
 
 
 For example, here is a command for installing the PyAEDT package and all its dependencies from a wheelhouse:

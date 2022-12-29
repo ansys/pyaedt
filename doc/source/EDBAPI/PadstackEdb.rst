@@ -1,5 +1,5 @@
-Padstack
-========
+EDB padstack
+============
 These classes are the containers of data management for padstacks and padstack definitions.
 
 .. code:: python

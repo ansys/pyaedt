@@ -1,6 +1,7 @@
-Siwave Manager
+Siwave manager
 ==============
-`Siwave <https://www.ansys.com/it-it/products/electronics/ansys-siwave>`_ is a specialized tool for power integrity, signal integrity and EMI analysis of IC packages and PCBs.
+`Siwave <https://www.ansys.com/it-it/products/electronics/ansys-siwave>`_ is a specialized tool for power integrity,
+signal integrity and EMI analysis of IC packages and PCB.
 Solves power delivery systems and high-speed channels in electronic devices.
 It can be accessed from pyaedt in Windows only.
 All Setups can be implemented through EDB API.

@@ -1,6 +1,6 @@
-EDB Layer classes
+EDB layer classes
 =================
-These classes are the containers of layer and stacup manager of EDB API-.
+These classes are the containers of layer and stackup manager of EDB API-.
 
 
 .. code:: python

@@ -34,7 +34,7 @@ starts the AEDT session automatically. Machine and port arguments are available 
 all applications except EDB.
 
 
-PyAEDT Remote Service Manager
+PyAEDT remote service manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT includes also a service manager that can be run on Server Machine and can launch, on-demand,
 AEDT Sessions and as well act as a file manager.
