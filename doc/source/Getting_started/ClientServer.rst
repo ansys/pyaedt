@@ -34,7 +34,7 @@ starts the AEDT session automatically. Machine and port arguments are available 
 all applications except EDB.
 
 
-Pyaedt Remote Service Manager
+PyAEDT Remote Service Manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT includes also a service manager that can be run on Server Machine and can launch, on-demand,
 AEDT Sessions and as well act as a file manager.
@@ -50,7 +50,7 @@ Requirements:
 
 In addition to above requirements, on Linux the following environment are needed.
 - You could use the CPython in AEDT installation folder but you need to add the Python lib folder to the
-LD_LIBRARY_PATH or any other Pythn 3.7+ installed on Linux machine.
+LD_LIBRARY_PATH or any other Python 3.7+ installed on Linux machine.
 - export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64.
 - export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH.
 

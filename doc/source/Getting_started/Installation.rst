@@ -21,14 +21,14 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
 
     pip install pyaedt
 
-Pyaedt is also available on Conda-Forge:
+PyAEDT is also available on Conda-Forge:
 
 .. code:: python
 
     conda install -c conda-forge pyaedt
 
 
-Linux Support
+Linux support
 ~~~~~~~~~~~~~
 
 PyAEDT works with CPython 3.7 through 3.10  in Linux in AEDT 2022 R2 and later.
@@ -120,7 +120,7 @@ Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like ``matplotlib``,
 ``numpy`` and ``pyvista``.
-Anyway user can still use Pyaedt in IronPython environment available in AEDT with some limitations.
+Anyway user can still use PyAEDT in IronPython environment available in AEDT with some limitations.
 To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``.

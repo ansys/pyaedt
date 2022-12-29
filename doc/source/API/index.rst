@@ -32,7 +32,7 @@ app to get access to all modules and methods. Available apps are:
 - `Q2D Extractor <https://www.ansys.com/it-it/products/electronics/ansys-q3d-extractor>`_
 - `Icepak <https://www.ansys.com/it-it/products/electronics>`_
 - `Mechanical <https://www.ansys.com/products/structures/ansys-mechanical>`_
-- Rmxprt
+- RMXprt
 - Emit
 - Circuit
 - `TwinBuilder <https://www.ansys.com/it-it/products/digital-twin/ansys-twin-builder>`_

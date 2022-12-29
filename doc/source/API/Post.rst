@@ -48,10 +48,10 @@ plots in AEDT. They are accessible through the ``post`` property.
     ...
 
 
-AEDT Report Management
+AEDT report management
 ~~~~~~~~~~~~~~~~~~~~~~
-AEDT provides great fleaxibility in reports.
-PyAEDT has developed classess for manipulating any report property.
+AEDT provides great flexibility in reports.
+PyAEDT has classes for manipulating any report property.
 
 
 .. note::
@@ -76,7 +76,7 @@ PyAEDT has developed classess for manipulating any report property.
    report_templates.Spectral
 
 
-Plot Fields and Data outside AEDT
+Plot fields and data outside AEDT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT also supports external report capabilities.
 Those are available with third party packages like  `numpy <https://numpy.org/doc/stable/>`_,
