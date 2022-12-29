@@ -159,7 +159,7 @@ imported and used because it is made by static methods.
     ...
 
 
-Advanced Modeler Operations
+Advanced modeler operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PyAEDT also includes some advanced modeler tool like ``MultiPartComponent`` for 3DComponent management
 and ``Stackup3D`` for 3D Modeler Stackup parametric creation.
