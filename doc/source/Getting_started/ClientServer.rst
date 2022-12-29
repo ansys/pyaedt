@@ -41,7 +41,7 @@ AEDT Sessions and as well act as a file manager.
 You can make a remote application call on a CPython server
 or any Windows client machine starting from AEDT 2022.2.
 
-On a CPython Server run the service ``pyaedt_service_manager`` that will listen on port 17878
+On a CPython Server run the service ``pyaedt_service_manager`` that listen on port 17878
 for incoming requests of connection from clients. Port is configurable.
 Requirements:
 
@@ -54,7 +54,7 @@ LD_LIBRARY_PATH or any other Python 3.7+ installed on Linux machine.
 - export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64.
 - export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH.
 
-On Server the service will be up and running and listen for incoming connections:
+On Server ``pyaedt_service_manager`` listen for incoming connections:
 
 .. code:: python
 
