@@ -1274,6 +1274,7 @@ class Material(CommonMaterial, object):
                 )
             }
         )
+        self.update()
 
     @property
     def permittivity(self):
