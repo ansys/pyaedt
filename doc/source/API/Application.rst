@@ -1,26 +1,32 @@
-AEDT apps
-=========
+PyAEDT apps
+===========
 The PyAEDT API includes classes for apps and modules. You must initialize the 
-app to get access to all modules and methods. Available apps are:
-
-- ``Hfss``
-- ``Hfss3dLayout``
-- ``Maxwell3d``
-- ``Maxwell2d``
-- ``MaxwellCircuit``
-- ``Q3d``
-- ``Q2d``
-- ``Icepak``
-- ``Mechanical``
-- ``Rmxprt``
-- ``Emit``
-- ``Circuit``
-- ``TwinBuilder``
-
+app to get access to all modules and methods.
 
 .. image:: ../Resources/aedt_2.png
   :width: 800
   :alt: Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
+
+
+Available apps are:
+
+.. autosummary::
+   :toctree: _autosummary
+
+   pyaedt.desktop.Desktop
+   pyaedt.hfss.Hfss
+   pyaedt.q3d.Q3d
+   pyaedt.q3d.Q2d
+   pyaedt.maxwell.Maxwell2d
+   pyaedt.maxwell.Maxwell3d
+   pyaedt.icepak.Icepak
+   pyaedt.hfss3dlayout.Hfss3dLayout
+   pyaedt.mechanical.Mechanical
+   pyaedt.rmxprt.Rmxprt
+   pyaedt.circuit.Circuit
+   pyaedt.maxwellcircuit.MaxwellCircuit
+   pyaedt.emit.Emit
+   pyaedt.twinbuilder.TwinBuilder
 
 
 All other classes and methods are inherited into the app class.
@@ -60,22 +66,4 @@ Example with ``Desktop`` class implicit initialization:
      ...
      circuit.release_desktop()
 
-
-.. autosummary::
-   :toctree: _autosummary
-
-   pyaedt.desktop.Desktop
-   pyaedt.hfss.Hfss
-   pyaedt.q3d.Q3d
-   pyaedt.q3d.Q2d
-   pyaedt.maxwell.Maxwell2d
-   pyaedt.maxwell.Maxwell3d
-   pyaedt.icepak.Icepak
-   pyaedt.hfss3dlayout.Hfss3dLayout
-   pyaedt.mechanical.Mechanical
-   pyaedt.rmxprt.Rmxprt
-   pyaedt.circuit.Circuit
-   pyaedt.maxwellcircuit.MaxwellCircuit
-   pyaedt.emit.Emit
-   pyaedt.twinbuilder.TwinBuilder
 
