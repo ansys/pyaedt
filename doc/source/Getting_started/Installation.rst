@@ -44,7 +44,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 Wheelhouses for CPython 3.7, 3.8, and 3.9 are available in the releases for PyAEDT v0.4.70
-and later for both windows and linux.
+and later for both Windows and Linux.
 You can install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
 `Github WheelHouse Releases <https://github.com/pyansys/pyaedt/releases>`
@@ -118,8 +118,9 @@ Otherwise, you must download and use the correct wheelhouse:
 
 Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
-PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like Matplotlib, Numpy and Pyvista.
-Anyway user can still use Pyaedt in Ironpython environment available in AEDT with some limitations.
+PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like ``matplotlib``,
+``numpy`` and ``pyvista``.
+Anyway user can still use Pyaedt in IronPython environment available in AEDT with some limitations.
 To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``.
