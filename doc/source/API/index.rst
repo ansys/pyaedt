@@ -7,11 +7,11 @@ for AEDT apps and modules. Use the search feature or click links
 to view API documentation.
 The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
 `AEDT <https://www.ansys.com/it-it/products/electronics>`_ provides access to the Ansys gold-standard
-electromagnetics simulation solutions such as Ansys HFSS,
-Ansys Maxwell, Ansys Q3D Extractor, Ansys SIwave, and Ansys Icepak using electrical CAD (ECAD) and
-mechanical CAD (MCAD) workflows.
+electro-magnetics simulation solutions such as Ansys HFSS,
+Ansys Maxwell, Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
+Mechanical CAD (MCAD) workflows.
 In addition, it also includes direct links to the complete Ansys portfolio of thermal, fluid,
-and mechanical solvers for comprehensive Multiphysics analysis.
+and Mechanical solvers for comprehensive multiphysics analysis.
 Tight integration among these solutions provides the user with unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
@@ -21,7 +21,7 @@ faster resolution of complex simulations for design and optimization.
   :target: https://www.ansys.com/it-it/products/electronics
 
 The PyAEDT API includes classes for apps and modules. You must initialize the
-app to get access to all modules and methods. Availables apps are:
+app to get access to all modules and methods. Available apps are:
 
 - `Hfss <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
 - `Hfss3dLayout <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_

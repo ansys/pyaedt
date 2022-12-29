@@ -1,7 +1,7 @@
 AEDT apps
 =========
 The PyAEDT API includes classes for apps and modules. You must initialize the 
-app to get access to all modules and methods. Availables apps are:
+app to get access to all modules and methods. Available apps are:
 
 - ``Hfss``
 - ``Hfss3dLayout``
@@ -26,7 +26,7 @@ app to get access to all modules and methods. Availables apps are:
 All other classes and methods are inherited into the app class.
 The desktop app is implicitly launched in any of the other applications.
 Before accessing an AEDT app the Desktop has to be launched and initialized.
-Desktop can be explicitily or implicitily initialized as in following examples.
+Desktop can be explicitly or implicitly initialized as in following examples.
 
 Example with ``Desktop`` class explicit initialization:
 
