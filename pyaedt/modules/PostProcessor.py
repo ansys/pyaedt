@@ -1688,12 +1688,13 @@ class PostProcessorCommon(object):
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
             If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
-            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            Subdesign ID for exporting a Touchstone file of this subdesign. This parameter
+            is valid for Circuit only.
             The default value is ``None``.
         polyline_points : int, optional
-            Number of points on which create the report for plots on polylines.
+            Number of points on which to create the report for plots on polylines.
         math_formula : str, optional
-            It is one of the available AEDT mathematical formulas. Example abs, dB.
+            One of the available AEDT mathematical formulas. For example, ``abs, dB``.
 
 
         Returns

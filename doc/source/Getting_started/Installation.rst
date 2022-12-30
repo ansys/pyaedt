@@ -9,7 +9,7 @@ basic support for EDB and Circuit (Nexxim).
 Requirements
 ~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, PyAEDT
-requires Ansys Electronics Desktop (AEDT) 2021 R2 or later. AEDT Student Version is also supported.
+requires Ansys Electronics Desktop (AEDT) 2021 R2 or later. The AEDT Student Version is also supported.
 
 
 
@@ -21,7 +21,7 @@ You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
 
     pip install pyaedt
 
-PyAEDT is also available on Conda-Forge:
+You can also install PyAEDT from Conda-Forge:
 
 .. code:: python
 
@@ -31,7 +31,7 @@ PyAEDT is also available on Conda-Forge:
 Linux support
 ~~~~~~~~~~~~~
 
-PyAEDT works with CPython 3.7 through 3.10  in Linux in AEDT 2022 R2 and later.
+PyAEDT works with CPython 3.7 through 3.10 on Linux in AEDT 2022 R2 and later.
 However, you must set up the following environment variables:
 
 .. code::
@@ -59,8 +59,8 @@ For example, here is a command for installing the PyAEDT package and all its dep
 
 Install from a batch file
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-AEDT already includes CPython 3.7, which can be used to run PyAEDT,
-then is possible to use it as a virtual environment to run pyaedt.
+AEDT already includes CPython 3.7, which can be used to run PyAEDT.
+It is also possible to use CPython 3.7 as a virtual environment to run PyAEDT.
 
 If you are running on Windows, you can download
 :download:`PyAEDT Environment with IDE bat file <../Resources/pyaedt_with_IDE.bat>`
@@ -118,9 +118,10 @@ Otherwise, you must download and use the correct wheelhouse:
 
 Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
-PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like ``matplotlib``,
-``numpy`` and ``pyvista``.
-Anyway user can still use PyAEDT in IronPython environment available in AEDT with some limitations.
+PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like
+``matplotlib``, ``numpy``, and ``pyvista``. A user can still use PyAEDT in the IronPython
+environment available in AEDT with some limitations.
+
 To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``.

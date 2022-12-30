@@ -8,7 +8,7 @@ Example:
 
 Material management
 ~~~~~~~~~~~~~~~~~~~
-This section cover all materials classes and methods.
+This section describes all material-related classes and methods.
 
 .. currentmodule:: pyaedt.modules
 
@@ -43,7 +43,7 @@ This section cover all materials classes and methods.
 
 Stackup management
 ~~~~~~~~~~~~~~~~~~
-This section cover all layer classes and methods used in HFSS 3D Layout (and indirectly in Circuit).
+This section describes all layer-related classes and methods used in HFSS 3D Layout (and indirectly in Circuit).
 
 .. currentmodule:: pyaedt.modules
 

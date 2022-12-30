@@ -862,8 +862,8 @@ class ModelPlotter(object):
 
     @property
     def camera_position(self):
-        """Get or Set the camera position value. It disables the default iso view.
-        Value of camera position. One of ``"xy"``, ``"xz"``,``"yz"``.
+        """Get or set the camera position value. This parameter disables the default iso view.
+        Value for the camera position. The value is for ``"xy"``, ``"xz"``, or ``"yz"``.
 
         Returns
         -------

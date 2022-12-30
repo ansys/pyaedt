@@ -1233,7 +1233,7 @@ class DefeatureSettings(object):
     @property
     def healing_option(self):
         """Whether to turn on healing of mis-aligned points and edges.
-        Options:
+        Options are:
         0- Turn off.
         1- Turn on.
 
@@ -1746,7 +1746,7 @@ class HfssSimulationSetup(object):
     @property
     def solver_slider_type(self):
         """Solver slider type.
-        Options:
+        Options are:
         1 - ``kFast``.
         2 - ``kMedium``.
         3 - ``kAccurate``.
@@ -2011,7 +2011,7 @@ class HfssSimulationSetup(object):
         name : str, optional
             Name of the frequency sweep.
         frequency_sweep : list, optional
-            Frequency List Points.
+            List of frequency points.
 
         Returns
         -------

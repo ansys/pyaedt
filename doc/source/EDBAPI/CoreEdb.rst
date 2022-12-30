@@ -5,7 +5,7 @@ It can be opened and edited using the ``Edb`` class.
 
 .. image:: ../Resources/3dlayout_1.png
   :width: 800
-  :alt: Hfss3D Layout is the tool used to visualize EDB Content.
+  :alt: HFSS 3D Layout is the tool used to visualize EDB content.
 
 
 .. currentmodule:: pyaedt
@@ -19,7 +19,7 @@ It can be opened and edited using the ``Edb`` class.
 .. code:: python
 
     from pyaedt import Edb
-    # this call returns the Edb Class initialized on 2022 R2
+    # this call returns the Edb class initialized on 2022 R2
     edb = Edb(myedb, edbversion="2022.2")
 
     ...

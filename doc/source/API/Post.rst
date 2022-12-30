@@ -4,9 +4,10 @@ This section lists modules for creating and editing
 plots in AEDT. They are accessible through the ``post`` property.
 
 .. note::
-   Some of  `AdvancedPostProcessing` module requires Python 3 and
-   that the `numpy <https://numpy.org/doc/stable/>`_, `matplotlib <https://matplotlib.org/>`_,
-   and `pyvista <https://docs.pyvista.org/>`_ packages are installed.
+   Some capabilities of the ``AdvancedPostProcessing`` module require Python 3 and
+   installations of the `numpy <https://numpy.org/doc/stable/>`_,
+   `matplotlib <https://matplotlib.org/>`_, and `pyvista <https://docs.pyvista.org/>`_ 
+   packages.
 
 .. note::
    Some functionalities are available only when AEDT is running 
@@ -78,10 +79,10 @@ PyAEDT has classes for manipulating any report property.
 
 Plot fields and data outside AEDT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PyAEDT also supports external report capabilities.
-Those are available with third party packages like  `numpy <https://numpy.org/doc/stable/>`_,
+PyAEDT supports external report capabilities available with installed third-party
+packages like `numpy <https://numpy.org/doc/stable/>`_,
 `pandas <https://pandas.pydata.org/>`_, `matplotlib <https://matplotlib.org/>`_,
-and `pyvista <https://docs.pyvista.org/>`_ packages installed with PyAEDT.
+and `pyvista <https://docs.pyvista.org/>`_.
 
 .. currentmodule:: pyaedt.modules
 

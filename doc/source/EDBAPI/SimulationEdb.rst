@@ -1,6 +1,6 @@
 EDB setup
 =========
-These classes are the containers of Setup Classes in EDB for both HFSS and Siwave.
+These classes are the containers of ``setup`` classes in EDB for both HFSS and Siwave.
 
 
 .. code:: python
@@ -8,7 +8,7 @@ These classes are the containers of Setup Classes in EDB for both HFSS and Siwav
     from pyaedt import Edb
     edb = Edb(myedb, edbversion="2022.2")
 
-    # this call create a setup and return the object
+    # this call create a setup and returns the object
     setup = edb.create_hfss_setup("my_setup")
     setup.set_solution_single_frequency()
     setup.hfss_solver_settings.enhanced_low_freq_accuracy = True

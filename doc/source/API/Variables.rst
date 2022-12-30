@@ -10,7 +10,7 @@ design and project variables in the 3D tools.
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
-    # This call returns the VariableManager Class
+    # This call returns the VariableManager class
     variable_manager = self.aedtapp._variable_manager
 
     # Set and get a variable

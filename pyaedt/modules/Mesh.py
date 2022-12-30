@@ -190,7 +190,7 @@ class MeshOperation(PropsManager, object):
 
 
 class Mesh(object):
-    """Class that manages AEDT mesh functions for 2D and 3D Solver (HFSS, Maxwell, Q3D).
+    """Manages AEDT mesh functions for 2D and 3D solvers (HFSS, Maxwell, and Q3D).
 
     Parameters
     ----------

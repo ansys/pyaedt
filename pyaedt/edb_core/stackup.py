@@ -1212,7 +1212,7 @@ class Stackup(object):
 
 
 class EdbStackup(object):
-    """Manages EDB methods for stackup and material management accessible from `Edb.core_stackup` property (deprecated).
+    """Manages EDB methods for stackup and material management accessible from the ``Edb.core_stackup`` property (deprecated).
 
     .. deprecated:: 0.6.5
         This class has been deprecated and replaced by the ``Stackup`` class.
@@ -1336,7 +1336,7 @@ class EdbStackup(object):
         """Create a conductor with simple properties.
 
         .. deprecated:: 0.6.27
-           Use :func:`Edb.materials.add_conductor_material` function instead.
+           Use the :func:`Edb.materials.add_conductor_material` function instead.
 
         Parameters
         ----------

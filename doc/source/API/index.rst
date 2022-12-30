@@ -10,9 +10,9 @@ The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics
 electro-magnetics simulation solutions such as Ansys HFSS,
 Ansys Maxwell, Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
 Mechanical CAD (MCAD) workflows.
-In addition, it also includes direct links to the complete Ansys portfolio of thermal, fluid,
-and Mechanical solvers for comprehensive multiphysics analysis.
-Tight integration among these solutions provides the user with unprecedented ease of use for setup and
+In addition, it includes direct links to the complete Ansys portfolio of thermal, fluid,
+and mechanical solvers for comprehensive multiphysics analysis.
+Tight integration among these solutions provides unprecedented ease of use for setup and
 faster resolution of complex simulations for design and optimization.
 
 .. image:: ../Resources/aedt.png
@@ -39,8 +39,8 @@ app to get access to all modules and methods. Available apps are:
 
 All other classes and methods are inherited into the app class.
 The desktop app is implicitly launched in any of the other applications.
-Before accessing an AEDT app the Desktop has to be launched and initialized.
-Desktop can be explicitly or implicitly initialized as in following examples.
+Before accessing a PyAEDT app, the desktop app has to be launched and initialized.
+The desktop app can be explicitly or implicitly initialized as shown in the following examples.
 
 Example with ``Desktop`` class explicit initialization:
 
@@ -54,7 +54,7 @@ Example with ``Desktop`` class explicit initialization:
                        student_version=False):
      circuit = Circuit()
      ...
-     # Any error here should be caught by Desktop.
+     # Any error here should be caught by the desktop app.
      ...
      d.release_desktop()
 
@@ -70,7 +70,7 @@ Example with ``Desktop`` class implicit initialization:
                       student_version=False):
      circuit = Circuit()
      ...
-     # Any error here should be caught by Desktop.
+     # Any error here should be caught by the desktop app.
      ...
      circuit.release_desktop()
 

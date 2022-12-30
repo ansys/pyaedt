@@ -29,32 +29,33 @@ To start AEDT in listening mode on the remote machine:
    path/to/ANSYSEM/v222/Win64/ansysedt.exe -grpcsrv portnumber  #windows
    path/to/ANSYSEM/v222/Lin64/ansysedt -grpcsrv portnumber   #linux
 
-If the connection is local, the ``machine`` argument has to be left empty. PyAEDT then
+If the connection is local, the ``machine`` argument must be left empty. PyAEDT then
 starts the AEDT session automatically. Machine and port arguments are available to
 all applications except EDB.
 
 
 PyAEDT remote service manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PyAEDT includes also a service manager that can be run on Server Machine and can launch, on-demand,
-AEDT Sessions and as well act as a file manager.
+PyAEDT includes a service manager that can be run on the server machine and can be
+launched on-demand in AEDT sessions and act as a file manager.
 You can make a remote application call on a CPython server
-or any Windows client machine starting from AEDT 2022.2.
+or any Windows client machine in AEDT 2022 R2 and later.
 
-On a CPython Server run the service ``pyaedt_service_manager`` that listen on port 17878
-for incoming requests of connection from clients. Port is configurable.
+On a CPython Server run the ``pyaedt_service_manager`` service that listens on port 17878
+for incoming requests of connections from clients. The port is configurable.
 Requirements:
 
 - Python 3.7+ Virtual Environment.
 - pyaedt > 0.6.0
 
-In addition to above requirements, on Linux the following environment are needed.
-- You could use the CPython in AEDT installation folder but you need to add the Python lib folder to the
-LD_LIBRARY_PATH or any other Python 3.7+ installed on Linux machine.
-- export ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64.
-- export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH.
+On Linux, in addition to the preceding requirements, these environments are needed:
+- You can use the CPython version in the AEDT installation folder if you first
+  add the Python library folder to the ``LD_LIBRARY_PATH`` environment variable.
+- You can use the Python 3.7 or later version that is installed.
+- You can export ``ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64``.
+- You can export ``LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH``.
 
-On Server ``pyaedt_service_manager`` listen for incoming connections:
+On the server, the ``pyaedt_service_manager`` service listen for incoming connections:
 
 .. code:: python
 
@@ -63,13 +64,13 @@ On Server ``pyaedt_service_manager`` listen for incoming connections:
     pyaedt_service_manager()
 
 
-On any client machine user needs to establish the connection as shown in example below.
+On any client machine, the user must establish the connection as shown in following example.
 AEDT can be launched directly while creating the session or after the connection is established.
 
 .. code:: python
 
     from pyaedt.common_rpc import create_session
-    # User can establish the connection and start a new AEDT session.
+    # User can establish the connection and start a new AEDT session
     cl1 = create_session("server_name", launch_aedt_on_server=True, aedt_port=17880, non_graphical=True)
 
     # Optionally AEDT can be launched after the connection is established

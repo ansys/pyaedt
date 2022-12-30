@@ -290,7 +290,7 @@ def get_version_env_variable(version_id):
 
 
 class Desktop(object):
-    """Provides Ansys Electronics Desktop (AEDT) interface.
+    """Provides the Ansys Electronics Desktop (AEDT) interface.
 
     Parameters
     ----------

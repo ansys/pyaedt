@@ -1,6 +1,6 @@
 EDB layer classes
 =================
-These classes are the containers of layer and stackup manager of EDB API-.
+These classes are the containers of the layer and stackup manager of the EDB API.
 
 
 .. code:: python
@@ -8,10 +8,10 @@ These classes are the containers of layer and stackup manager of EDB API-.
     from pyaedt import Edb
     edb = Edb(myedb, edbversion="2022.2")
 
-    # this call returns the EDBLayers Class
+    # this call returns the EDBLayers class
     layer = edb.core_stackup.stackup_layers
 
-    # this call returns the EDBLayer Class
+    # this call returns the EDBLayer class
     layer = edb.core_stackup.stackup_layers.layers["TOP"]
     ...
 

@@ -291,7 +291,7 @@ class Layer3D(object):
     app : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     name : str
-        The name of the layer.
+        Name of the layer.
     layer_type : str
         "S" for signal layers, "D" for dielectric layers, "G" for ground layers.
     material_name : str
@@ -2340,7 +2340,7 @@ class Patch(CommonObject, object):
         Parameters
         ----------
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
-            The reference layer, in most cases the ground layer.
+            Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.
         port_name : str, optional
@@ -3075,7 +3075,7 @@ class Trace(CommonObject, object):
         Parameters
         ----------
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
-            The reference layer, in most cases the ground layer.
+            Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.
         port_name : str, optional
@@ -3088,6 +3088,7 @@ class Trace(CommonObject, object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------

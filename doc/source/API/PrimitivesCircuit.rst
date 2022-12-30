@@ -7,7 +7,7 @@ This section lists the core AEDT Modeler modules:
 * Primitives
 * Objects
 
-They are accessible through the ``modeler`` and ``modeler.objects`` property:
+They are accessible through the ``modeler`` module and ``modeler.objects`` property:
 
 .. code:: python
 
@@ -49,7 +49,7 @@ modeler, including all primitives methods and properties:
 
 Objects in Circuit tools
 ~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the objects properties for Circuit tools.
+The following classes define the object properties for Circuit tools.
 They contain all getters and setters to simplify object manipulation.
 
 .. currentmodule:: pyaedt.modeler.circuits
@@ -74,7 +74,7 @@ They contain all getters and setters to simplify object manipulation.
     # This call returns a Schematic object
     schematic = modeler.schematic
 
-    # This call return an Object3d object
+    # This call returns an Object3d object
     my_res = schematic.create_resistor("R1", 50)
 
     # Getter and setter

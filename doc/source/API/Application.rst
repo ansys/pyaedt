@@ -1,14 +1,14 @@
 PyAEDT apps
 ===========
-The PyAEDT API includes classes for apps and modules. You must initialize the 
-app to get access to all modules and methods.
+The PyAEDT API includes classes for apps and modules. You must initialize Ansys 
+Electronics Desktop (AEDT) to get access to all PyAEDT modules and methods.
 
 .. image:: ../Resources/aedt_2.png
   :width: 800
   :alt: Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
 
 
-Available apps are:
+Available PyAEDT apps are:
 
 .. autosummary::
    :toctree: _autosummary
@@ -30,9 +30,9 @@ Available apps are:
 
 
 All other classes and methods are inherited into the app class.
-The desktop app is implicitly launched in any of the other applications.
-Before accessing an AEDT app the Desktop has to be launched and initialized.
-Desktop can be explicitly or implicitly initialized as in following examples.
+AEDT, which is also referred to as the desktop app, is implicitly launched in any PyAEDT app.
+Before accessing a PyAEDT app, the desktop app must be launched and initialized.
+The desktop app can be explicitly or implicitly initialized as in the following examples.
 
 Example with ``Desktop`` class explicit initialization:
 

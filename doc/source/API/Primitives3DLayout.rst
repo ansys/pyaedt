@@ -7,7 +7,7 @@ This section lists the core AEDT Modeler modules available in HFSS 3D Layout:
 * Primitives
 * Objects
 
-They are accessible through the ``modeler`` and ``modeler.objects`` property:
+They are accessible through the ``modeler`` module and ``modeler.objects`` property:
 
 .. code:: python
 
@@ -74,7 +74,7 @@ They contain all getters and setters to simplify object manipulation.
     # This call returns a Primitives3D object
     primitives = modeler
 
-    # This call return a Object3d object
+    # This call returns an Object3d object
     my_rect = primitives.create_rectangle([0,0,0],[10,10])
 
     # Getter and setter

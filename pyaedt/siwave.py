@@ -293,11 +293,11 @@ class Siwave(object):
         Parameters
         ----------
         simulation_name : str
-            Name of setup.
+            Name of the setup.
         file_path : str
-            Path to exported report.
+            Path to the exported report.
         data_type : str, optional
-            The default is ``"Vias"``.
+            Type of the data. The default is ``"Vias"``.
 
         Returns
         -------
@@ -314,9 +314,9 @@ class Siwave(object):
         Parameters
         ----------
         simulation_name : str
-            Name of setup.
+            Name of the setup.
         file_path : str
-            Path to exported report.
+            Path to the exported report.
         bkground_color : str, optional
             Color of the report's background. The default is ``"White"``.
 

@@ -826,7 +826,7 @@ class SiwaveSYZSimulationSetup(SiwaveAdvancedSettings, object):
         name : str, optional
             Name of the frequency sweep.
         frequency_sweep : list, optional
-            Frequency List Points.
+            List of frequency points.
 
         Returns
         -------

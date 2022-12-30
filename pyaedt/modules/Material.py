@@ -2177,7 +2177,7 @@ class Material(CommonMaterial, object):
 
 
 class SurfaceMaterial(CommonMaterial, object):
-    """Manages surface material properties (Icepak Only).
+    """Manages surface material properties for Icepak only.
 
     Parameters
     ----------

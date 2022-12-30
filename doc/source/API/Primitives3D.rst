@@ -1,7 +1,8 @@
-Modeler and  primitives 2D/3D
-=============================
+Modeler and primitives in 2D and 3D
+===================================
 
-This section lists the core AEDT Modeler modules available in 2D and 3D Solver (HFSS, Maxwell, Icepak, Q3D, Mechanical):
+This section lists the core AEDT Modeler modules with both 2D and 3D solvers (HFSS, Maxwell,
+Icepak, Q3D, and Mechanical):
 
 * Modeler
 * Primitives
@@ -161,8 +162,8 @@ imported and used because it is made by static methods.
 
 Advanced modeler operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-PyAEDT also includes some advanced modeler tool like ``MultiPartComponent`` for 3DComponent management
-and ``Stackup3D`` for 3D Modeler Stackup parametric creation.
+PyAEDT includes some advanced modeler tools like ``MultiPartComponent`` for 3D component
+management and ``Stackup3D`` for parametric creation of 3D modeler stackups.
 
 .. toctree::
    :maxdepth: 2

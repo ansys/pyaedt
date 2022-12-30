@@ -376,18 +376,18 @@ class Materials(object):
 
         Parameters
         ----------
-        name : str
-            Material Name. Default is ``"air"``.
-        permittivity : float, str
-            Material permittivity. Default is ``1.0006``.
-        permeability : float, str
-            Material permeability. Default is ``1.0000004``.
-        conductivity : float, str
-            Material conductivity. Default is ``0``.
-        dielectric_loss_tangent : float, str
-            Material dielectric loss tangent. Default is ``0``.
-        magnetic_loss_tangent : float, str
-            Material magnetic loss tangent. Default is ``0``.
+        name : str, optional
+            Material Name. The default is ``"air"``.
+        permittivity : float, str, optional
+            Material permittivity. The default is ``1.0006``.
+        permeability : float, str, optional
+            Material permeability. The default is ``1.0000004``.
+        conductivity : float, str, optional
+            Material conductivity. The default is ``0``.
+        dielectric_loss_tangent : float, str, optional
+            Material dielectric loss tangent. The default is ``0``.
+        magnetic_loss_tangent : float, str, optional
+            Material magnetic loss tangent. The default is ``0``.
 
         Returns
         -------
