@@ -226,5 +226,4 @@ solutions.plot(math_formula="db20", is_polar=True)
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    d.release_desktop()
+d.release_desktop()

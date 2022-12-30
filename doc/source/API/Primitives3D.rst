@@ -1,7 +1,8 @@
-Modeler and  primitives
-=======================
+Modeler in 2D and 3D
+====================
 
-This section lists the core AEDT Modeler modules:
+This section lists the core AEDT Modeler modules with both 2D and 3D solvers (HFSS, Maxwell,
+Icepak, Q3D, and Mechanical):
 
 * Modeler
 * Primitives
@@ -48,10 +49,6 @@ modeler, including all primitives methods and properties:
 
 * ``Modeler2D`` for Maxwell 2D and Q2D Extractor
 * ``Modeler3D`` for HFSS, Maxwell 3D, Q3D Extractor, and Icepak
-* ``Modeler3DLayout`` for HFSS 3D Layout
-* ``ModelerNexxim`` for Circuit
-* ``ModelerTwinBuilder`` for Twin Builder
-* ``ModelerEmit`` for Emit
 
 
 .. currentmodule:: pyaedt.modeler
@@ -62,52 +59,20 @@ modeler, including all primitives methods and properties:
 
    modeler2d.Modeler2D
    modeler3d.Modeler3D
-   modelerpcb.Modeler3DLayout
-   schematic.ModelerNexxim
-   schematic.ModelerTwinBuilder
-   schematic.ModelerEmit
 
-
-
-Primitives
-~~~~~~~~~~
-
-The ``Primitives`` module includes these classes:
-
-* ``Primitives2D`` for Maxwell 2D and Q2D Extractor
-* ``Primitives3D`` for HFSS, Maxwell 3D, Q3D Extractor, and Icepak
-* ``Primitives3DLayout`` for HFSS 3D Layout
-* ``NexximComponents`` for Circuit
-* ``TwinBuilderComponents`` for Twin Builder
-* ``CircuitComponents`` for Emit
-
-Primitive objects are accessible through the ``modeler`` property for
-EM Solver and ``modeler.components`` for Circuit solvers.
-
-
-.. currentmodule:: pyaedt.modeler
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-
-   cad.Primitives2D.Primitives2D
-   cad.Primitives3D.Primitives3D
-   pcb.Primitives3DLayout.Primitives3DLayout
-   circuits.PrimitivesNexxim.NexximComponents
-   circuits.PrimitivesTwinBuilder.TwinBuilderComponents
-   circuits.PrimitivesCircuit.CircuitComponents
 
 .. code:: python
 
     from pyaedt import Circuit
-    app = Circuit(specified_version="2022.2",
+    app = Hfss(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False)
 
     # This call returns the NexximComponents class
-    components = app.modeler.components
+    origin = [0,0,0]
+    dimensions = [10,5,20]
+    #Material and name are not mandatory fields
+    box_object = app.modeler.primivites.create_box(origin, dimensions, name="mybox", matname="copper")
 
     ...
 
@@ -158,87 +123,7 @@ They contain all getters and setters to simplify object manipulation.
 
     ...
 
-Objects in Circuit tools
-~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the objects properties for Circuit tools.
-They contain all getters and setters to simplify object manipulation.
 
-.. currentmodule:: pyaedt.modeler.circuits
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   object3dcircuit.CircuitComponent
-   object3dcircuit.CircuitPins
-
-.. code:: python
-
-    from pyaedt import Circuit
-    app = Circuit(specified_version="2022.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
-
-    # This call returns the Modeler class
-    modeler = app.modeler
-
-    # This call returns a Schematic object
-    schematic = modeler.schematic
-
-    # This call return an Object3d object
-    my_res = schematic.create_resistor("R1", 50)
-
-    # Getter and setter
-    my_res.location
-    my_res.parameters["R"]=100
-
-
-    ...
-
-
-Objects in HFSS 3D Layout
-~~~~~~~~~~~~~~~~~~~~~~~~~
-The following classes define the object properties for HFSS 3D Layout.
-They contain all getters and setters to simplify object manipulation.
-
-.. currentmodule:: pyaedt.modeler.pcb
-
-.. autosummary::
-   :toctree: _autosummary
-   :nosignatures:
-
-   object3dlayout.Components3DLayout
-   object3dlayout.Nets3DLayout
-   object3dlayout.Pins3DLayout
-   object3dlayout.Line3dLayout
-   object3dlayout.Polygons3DLayout
-   object3dlayout.Circle3dLayout
-   object3dlayout.Rect3dLayout
-   object3dlayout.Points3dLayout
-   object3dlayout.Padstack
-
-.. code:: python
-
-    from pyaedt import Hfss3dLayout
-    app = Hfss3dLayout(specified_version="2022.2",
-               non_graphical=False, new_desktop_session=True,
-               close_on_exit=True, student_version=False)
-
-    # This call returns the Modeler3DLayout class
-    modeler = app.modeler
-
-    # This call returns a Primitives3D object
-    primitives = modeler
-
-    # This call return a Object3d object
-    my_rect = primitives.create_rectangle([0,0,0],[10,10])
-
-    # Getter and setter
-    my_rect.material_name
-
-    ...
-
-Desktop and common classes
 Coordinate systems and geometry operators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -273,3 +158,15 @@ imported and used because it is made by static methods.
     new_cs = app.modeler.create_coordinate_system()
 
     ...
+
+
+Advanced modeler operations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PyAEDT includes some advanced modeler tools like ``MultiPartComponent`` for 3D component
+management and ``Stackup3D`` for parametric creation of 3D modeler stackups.
+
+.. toctree::
+   :maxdepth: 2
+
+   MultiPartComponent
+   Stackup3D

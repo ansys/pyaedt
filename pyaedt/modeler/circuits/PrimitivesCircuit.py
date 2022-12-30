@@ -1143,7 +1143,7 @@ class CircuitComponents(object):
 
 
 class ComponentInfo(object):
-    """Class that manage Circuit Catalog info."""
+    """Manages Circuit Catalog info."""
 
     def __init__(self, name, component_manager, file_name, component_library):
         self._component_manager = component_manager
@@ -1196,7 +1196,7 @@ class ComponentInfo(object):
 
 
 class ComponentCatalog(object):
-    """Class that indexes Circuit Sys Catalog."""
+    """Indexes Circuit Sys Catalog."""
 
     @pyaedt_function_handler()
     def __getitem__(self, compname):

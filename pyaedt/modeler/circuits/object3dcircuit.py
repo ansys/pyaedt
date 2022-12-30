@@ -16,7 +16,7 @@ from pyaedt.modeler.cad.elements3d import _dict2arg
 
 
 class CircuitPins(object):
-    """Class that manages circuit component pins."""
+    """Manages circuit component pins."""
 
     def __init__(self, circuit_comp, pinname):
         self._circuit_comp = circuit_comp

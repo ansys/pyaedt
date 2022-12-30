@@ -327,7 +327,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         dict
-            :class:`pyaedt.modeler.Object3d.UserDefinedComponentParameters
+            :class:`pyaedt.modeler.Object3d.UserDefinedComponentParameters`
 
         References
         ----------
@@ -362,7 +362,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         dict
-           :class:`pyaedt.modeler.Object3d
+           :class:`pyaedt.modeler.Object3d`
 
         """
         component_parts = list(self._primitives.oeditor.GetChildObject(self.name).GetChildNames())

@@ -160,5 +160,4 @@ a.plot()
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
-if os.name != "posix":
-    q.release_desktop(close_projects=True, close_desktop=True)
+q.release_desktop(close_projects=True, close_desktop=True)

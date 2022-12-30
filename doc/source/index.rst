@@ -12,6 +12,7 @@ PyAEDT documentation  |version|
    Getting_started/index
    User_guide/index
    API/index
+   EDBAPI/index
    examples/index
    Contributing
 

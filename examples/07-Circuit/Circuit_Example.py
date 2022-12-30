@@ -132,5 +132,4 @@ fig = solutions.plot()
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    desktop.release_desktop()
+desktop.release_desktop()

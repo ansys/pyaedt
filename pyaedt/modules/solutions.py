@@ -1099,7 +1099,7 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Class containing Hfss Far Field Solution Data (ffd)."""
+    """Contains Hfss Far Field Solution Data (ffd)."""
 
     def __init__(self, app, sphere_name, setup_name, frequencies, variations=None, overwrite=True, taper="flat"):
         self._app = app

@@ -29,7 +29,7 @@ if not is_ironpython:
 
 
 class BuildingsPrep(object):
-    """Class that contains all basic functions needed to generate buildings stl files."""
+    """Contains all basic functions needed to generate buildings stl files."""
 
     def __init__(self, cad_path):
         self.cad_path = cad_path
@@ -221,9 +221,7 @@ class BuildingsPrep(object):
 
 
 class RoadPrep(object):
-    """
-    Class that contains all basic functions needed to generate road stl files.
-    """
+    """Contains all basic functions needed to generate road stl files."""
 
     def __init__(self, cad_path):
         self.cad_path = cad_path
@@ -337,9 +335,7 @@ class RoadPrep(object):
 
 
 class TerrainPrep(object):
-    """
-    Class that contains all basic functions needed for creating a terrain stl mesh.
-    """
+    """Contains all basic functions needed for creating a terrain stl mesh."""
 
     def __init__(self, cad_path="./"):
         self.cad_path = cad_path

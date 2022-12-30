@@ -574,7 +574,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
 
 
 class ObjClass(object):
-    """Class that manages mesh files to be plotted in pyvista.
+    """Manages mesh files to be plotted in pyvista.
 
     Parameters
     ----------
@@ -667,12 +667,12 @@ class FieldClass(object):
 
 
 class ModelPlotter(object):
-    """Class that manage the plot data.
+    """Manages the data to be plotted with ``pyvista``.
 
     Examples
     --------
     This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
-    and standalone.
+    and standalone).
     Here an example of standalone project
 
     >>> model = ModelPlotter()
@@ -862,12 +862,8 @@ class ModelPlotter(object):
 
     @property
     def camera_position(self):
-        """Get/Set the camera position value. It disables the default iso view.
-
-        Parameters
-        ----------
-        value : str or tuple
-            Value of camera position. One of `"xy"`, `"xz"`,`"yz"`.
+        """Get or set the camera position value. This parameter disables the default iso view.
+        Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
         Returns
         -------

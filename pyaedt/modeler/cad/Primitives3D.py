@@ -1627,10 +1627,10 @@ class Primitives3D(Primitives, object):
         List of
             bool
                 ``True`` when successful, ``False`` when failed.
-            :class:`pyaedt.modeler.Object3d.Object3d`
+            :class:`pyaedt.modeler.cad.object3d.Object3d`
                 3D object core.
             list of
-                :class:`pyaedt.modeler.Object3d.Object3d`
+                :class:`pyaedt.modeler.cad.object3d.Object3d`
                     3D object winding.
                 list
                     list of point coordinates of the winding.

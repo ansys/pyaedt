@@ -6,8 +6,7 @@ from pyaedt.modules.SolveSetup import SetupCircuit
 
 
 class AnalysisTwinBuilder(Analysis):
-    """Class for Twin Builder Analysis Setup (TwinBuilder)
-
+    """Provides the Twin Builder Analysis Setup (TwinBuilder).
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
 
