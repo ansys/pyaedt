@@ -215,5 +215,4 @@ m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    m3d.release_desktop()
+m3d.release_desktop()

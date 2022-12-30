@@ -190,14 +190,11 @@ class MeshOperation(PropsManager, object):
 
 
 class Mesh(object):
-    """Mesh class.
-
-    This class manages AEDT mesh functions.
+    """Manages AEDT mesh functions for 2D and 3D solvers (HFSS, Maxwell, and Q3D).
 
     Parameters
     ----------
     app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
-
     """
 
     def __init__(self, app):

@@ -1666,7 +1666,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         expressions : str or list, optional
-            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"``.
             Default is `None` which will return all traces.
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
@@ -1684,23 +1684,23 @@ class PostProcessorCommon(object):
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
         context : str, dict, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            The default is ``None``. It can be `None`, ``"Differential Pairs"`` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
             If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
-            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            Subdesign ID for exporting a Touchstone file of this subdesign. This parameter
+            is valid for Circuit only.
             The default value is ``None``.
-        polyline_points : int, optional,
-            Number of points on which create the report for plots on polylines.
+        polyline_points : int, optional
+            Number of points on which to create the report for plots on polylines.
         math_formula : str, optional
-            It is one of the available AEDT mathematical formulas. Example abs, dB.
+            One of the available AEDT mathematical formulas. For example, ``abs, dB``.
 
 
         Returns
         -------
         :class:`pyaedt.modules.solutions.SolutionData`
-            `Solution Data object.
-
+            Solution Data object.
 
         References
         ----------

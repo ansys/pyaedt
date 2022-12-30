@@ -99,7 +99,7 @@ def _getRGBfromI(value):
 
 
 class Layer(object):
-    """Manages the stackup layer.
+    """Manages the stackup layer for the Circuit and HFSS 3D Layout tools.
 
     Parameters
     ----------
@@ -1088,7 +1088,7 @@ class Layer(object):
 
 
 class Layers(object):
-    """Manages layers for the Circuit and HFSS 3D Layout tools.
+    """Manages stackup for the Circuit and HFSS 3D Layout tools.
 
     Parameters
     ----------

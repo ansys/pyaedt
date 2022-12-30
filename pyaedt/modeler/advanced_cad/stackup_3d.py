@@ -61,10 +61,10 @@ class NamedVariable(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     name : str
-        The name of the variable. If the the name begins with an '$', the variable will be a project variable.
+        The name of the variable. If the name begins with an '$', the variable will be a project variable.
         Otherwise, it will be a design variable.
     expression : str
         Expression of the value.
@@ -288,10 +288,10 @@ class Layer3D(object):
     ----------
     stackup : :class:`pyaedt.modeler.stackup_3d.Stackup3D`
         The stackup where the layers will be added.
-    app : :class:`pyaedt.hfss.Hfss
+    app : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     name : str
-        The name of the layer.
+        Name of the layer.
     layer_type : str
         "S" for signal layers, "D" for dielectric layers, "G" for ground layers.
     material_name : str
@@ -308,7 +308,7 @@ class Layer3D(object):
     Examples
     --------
     >>> from pyaedt import Hfss
-    >>> from pyaedt.modeler.stackup_3d import Stackup3D
+    >>> from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss()
     >>> my_stackup = Stackup3D(hfss, 2.5e9)
     >>> my_layer = my_stackup.add_layer("my_layer", layer_type="D", material_name="air",
@@ -1206,7 +1206,7 @@ class Stackup3D(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float
         The stackup frequency, it will be common to all layers in the stackup.
@@ -1270,7 +1270,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.Hfss
+        :class:`pyaedt.hfss.Hfss`
         """
         return self._app
 
@@ -1934,7 +1934,7 @@ class Patch(CommonObject, object):
     Parameters
     ----------
 
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
         The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
@@ -2339,9 +2339,8 @@ class Patch(CommonObject, object):
 
         Parameters
         ----------
-
         reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
-            The reference layer, in most cases the ground layer.
+            Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.
         port_name : str, optional
@@ -2350,6 +2349,7 @@ class Patch(CommonObject, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
+
         Returns
         -------
         bool
@@ -2367,7 +2367,6 @@ class Patch(CommonObject, object):
         >>> my_patch = top.add_patch(frequency=None, patch_width=51, patch_name="MLPatch")
         >>> my_stackup.resize_around_element(my_patch)
         >>> my_patch.create_lumped_port(gnd)
-
         """
         string_position_x = self.position_x.name
         if opposite_side:
@@ -2480,7 +2479,7 @@ class Trace(CommonObject, object):
     Parameters
     ----------
 
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
         The line frequency, it is used in prediction formulas. If it is None, the line frequency will be that of the
@@ -2515,7 +2514,6 @@ class Trace(CommonObject, object):
 
     Examples
     --------
-
     >>> from pyaedt import Hfss
     >>> from pyaedt.modeler.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop_session=True)
@@ -2525,7 +2523,6 @@ class Trace(CommonObject, object):
     >>> top = my_stackup.add_signal_layer("top")
     >>> my_trace = top.add_trace(line_width=2.5, line_length=22)
     >>> my_stackup.resize_around_element(my_trace)
-
     """
 
     def __init__(
@@ -3077,9 +3074,8 @@ class Trace(CommonObject, object):
 
         Parameters
         ----------
-
-        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
-            The reference layer, in most cases the ground layer.
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
+            Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.
         port_name : str, optional
@@ -3088,13 +3084,15 @@ class Trace(CommonObject, object):
             Position of the port. It should be one of the values for ``Application.AxisDir``,
             which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
             The default is ``Application.AxisDir.XNeg``.
+
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
-
         >>> from pyaedt import Hfss
         >>> from pyaedt.modeler.stackup_3d import Stackup3D
         >>> hfss = Hfss(new_desktop_session=True)

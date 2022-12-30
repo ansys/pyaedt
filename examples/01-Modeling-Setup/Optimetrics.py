@@ -145,5 +145,4 @@ sweep6 = hfss.optimizations.add(
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()

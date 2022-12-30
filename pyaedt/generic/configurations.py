@@ -153,7 +153,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_parametrics = False  # Disable the parametrics export

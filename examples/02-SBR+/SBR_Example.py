@@ -123,5 +123,4 @@ solution.plot()
 # ~~~~~~~~~~~~
 # Release AEDT and close the example.
 
-if os.name != "posix":
-    target.release_desktop()
+target.release_desktop()

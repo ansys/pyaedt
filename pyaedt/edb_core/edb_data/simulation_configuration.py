@@ -16,7 +16,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class SimulationConfigurationBatch(object):
-    """Class containing all Cuotut and Batch analysis settings.
+    """Contains all Cuotut and Batch analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
 
     """
@@ -470,7 +470,7 @@ class SimulationConfigurationBatch(object):
 
 
 class SimulationConfigurationDc(object):
-    """Class containing all DC analysis settings.
+    """Contains all DC analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
 
     """
@@ -1020,7 +1020,7 @@ class SimulationConfigurationDc(object):
 
 
 class SimulationConfigurationAc(object):
-    """Class containing all AC analysis settings.
+    """Contains all AC analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
 
     """

@@ -79,5 +79,4 @@ plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
 # ~~~~~~~~~~~~
 # Release AEDT and close the example.
 
-if os.name != "posix":
-    app.release_desktop()
+app.release_desktop()
