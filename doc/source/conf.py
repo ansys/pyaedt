@@ -232,7 +232,6 @@ html_context = {
 
 html_theme_options = {
     "github_url": "https://github.com/pyansys/pyaedt",
-    "body_max_width": 'none',
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "collapse_navigation": True,
