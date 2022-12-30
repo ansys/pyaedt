@@ -181,7 +181,7 @@ class Polyline(Object3d):
             self._is_closed = close_surface
             self._is_covered = cover_surface
 
-            self._segment_types = "Line"
+            self._segment_types = None
             if segment_type:
                 if isinstance(segment_type, (list, tuple)):
                     # self._segment_types = copy(segment_type)
