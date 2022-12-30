@@ -70,6 +70,15 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
+
+add_module_names = False
+autodoc_add_module_names = False
+
+toc_object_entries_show_parents = "hide"
+
+
+
+
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
@@ -150,10 +159,6 @@ master_doc = "index"
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-
-add_module_names = False
-
-toc_object_entries_show_parents = "hide"
 
 # Manage errors
 pyvista.set_error_output_file("errors.txt")
