@@ -574,7 +574,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
 
 
 class ObjClass(object):
-    """Class that manages mesh files to be plotted in pyvista.
+    """Manages mesh files to be plotted in pyvista.
 
     Parameters
     ----------
@@ -667,7 +667,7 @@ class FieldClass(object):
 
 
 class ModelPlotter(object):
-    """Class that manage the plot data.
+    """Manages the data to be plotted with ``pyvista``.
 
     Examples
     --------

@@ -1396,7 +1396,7 @@ def _dim_arg(value, units):
 
 
 class Settings(object):
-    """Class that manages all PyAEDT environment variables and global settings."""
+    """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
         self._enable_logger = True

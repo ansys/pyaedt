@@ -1063,7 +1063,7 @@ class Geometries3DLayout(Objec3DLayout, object):
 
 
 class Polygons3DLayout(Geometries3DLayout, object):
-    """Class for Hfss 3D Layout polygons management."""
+    """Manages Hfss 3D Layout polygons."""
 
     def __init__(self, primitives, name, prim_type="poly", is_void=False):
         Geometries3DLayout.__init__(self, primitives, name, prim_type, is_void)
@@ -1097,7 +1097,7 @@ class Polygons3DLayout(Geometries3DLayout, object):
 
 
 class Circle3dLayout(Geometries3DLayout, object):
-    """Class for Hfss 3D Layout circles management."""
+    """Manages Hfss 3D Layout circles."""
 
     def __init__(self, primitives, name, is_void=False):
         Geometries3DLayout.__init__(self, primitives, name, "circle", is_void)
@@ -1148,7 +1148,7 @@ class Circle3dLayout(Geometries3DLayout, object):
 
 
 class Rect3dLayout(Geometries3DLayout, object):
-    """Class for Hfss 3D Layout rectangles management."""
+    """Manages Hfss 3D Layout rectangles."""
 
     def __init__(self, primitives, name, is_void=False):
         Geometries3DLayout.__init__(self, primitives, name, "rect", is_void)
@@ -1323,7 +1323,7 @@ class Rect3dLayout(Geometries3DLayout, object):
 
 
 class Line3dLayout(Geometries3DLayout, object):
-    """Class for Hfss 3D Layout lines management."""
+    """Manages Hfss 3D Layout lines."""
 
     def __init__(self, primitives, name, is_void=False):
         Geometries3DLayout.__init__(self, primitives, name, "line", is_void)
@@ -1431,7 +1431,7 @@ class Line3dLayout(Geometries3DLayout, object):
 
 
 class Points3dLayout(object):
-    """Class for Hfss 3D Layout Points management."""
+    """Manages Hfss 3D Layout Points."""
 
     def __init__(self, primitives, point):
         self._primitives = primitives
