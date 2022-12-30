@@ -3089,6 +3089,7 @@ class Trace(CommonObject, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
