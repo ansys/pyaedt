@@ -181,7 +181,7 @@ class Polyline(Object3d):
             self._is_closed = close_surface
             self._is_covered = cover_surface
 
-            self._segment_types = None
+            self._segment_types = "Line"
             if segment_type:
                 if isinstance(segment_type, (list, tuple)):
                     # self._segment_types = copy(segment_type)
@@ -820,7 +820,7 @@ class Polyline(Object3d):
             s_types = [self._segment_types]
         for el in s_types:
             if isinstance(el, PolylineSegment):
-                id_v += el.num_seg - 1
+                id_v += max(0, el.num_seg - 1)
                 if id_v > segment_index:
                     id_v -= el.num_seg - 1
                     break

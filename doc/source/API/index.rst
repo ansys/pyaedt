@@ -87,7 +87,7 @@ Example with ``Desktop`` class implicit initialization:
    Mesh
    Setup
    Post
-   Logger
+   DesktopMessenger
    Optimetrics
    Variables
    Constants

@@ -1,5 +1,5 @@
-Modeler and  primitives HFSS 3D Layout
-======================================
+Modeler in  HFSS 3D Layout
+==========================
 
 This section lists the core AEDT Modeler modules available in HFSS 3D Layout:
 
@@ -26,9 +26,7 @@ modeler, including all primitives methods and properties:
 
 
 * ``Modeler3DLayout`` for HFSS 3D Layout
-* ``ModelerNexxim`` for Circuit
-* ``ModelerTwinBuilder`` for Twin Builder
-* ``ModelerEmit`` for Emit
+
 
 
 .. currentmodule:: pyaedt.modeler

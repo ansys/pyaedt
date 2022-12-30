@@ -1,5 +1,5 @@
-Modeler and primitives in 2D and 3D
-===================================
+Modeler in 2D and 3D
+====================
 
 This section lists the core AEDT Modeler modules with both 2D and 3D solvers (HFSS, Maxwell,
 Icepak, Q3D, and Mechanical):
