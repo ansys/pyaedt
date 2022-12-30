@@ -31,11 +31,7 @@ design has changed, the boundary fails to apply.
 # Perform required imports from PyAEDT.
 
 import os
-import tempfile
-import shutil
-from pyaedt import Icepak
-from pyaedt import examples
-from pyaedt import generate_unique_folder_name
+import pyaedt
 
 
 ###############################################################################
@@ -52,9 +48,9 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~
 # Download the project, open it, and save it to the temporary folder.
 
-project_full_name = examples.download_icepak(generate_unique_folder_name("Graphic_Card"))
+project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = Icepak(project_full_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+ipk = pyaedt.Icepak(project_full_name, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 
 ###############################################################################
@@ -62,8 +58,8 @@ ipk.autosave_disable()
 # ~~~~~~~~~~~~~~~~~~~~
 # Create a source block on the CPU and memories.
 
-ipk.create_source_block("CPU", "25W")
-ipk.create_source_block(["MEMORY1", "MEMORY1_1"], "5W")
+ipk.create_source_block(object_name="CPU", input_power="25W")
+ipk.create_source_block(object_name=["MEMORY1", "MEMORY1_1"], input_power="5W")
 
 ###############################################################################
 # Assign boundaries
@@ -111,7 +107,7 @@ ipk.close_project()
 # ~~~~~~~~~~~~~~
 # Create an Icepak project and import the step.
 
-app = Icepak(projectname="new_proj_Ipk")
+app = pyaedt.Icepak(projectname="new_proj_Ipk")
 app.modeler.import_3d_cad(file_path)
 
 ###############################################################################
@@ -129,5 +125,4 @@ app.configurations.results.global_import_success
 # ~~~~~~~~~~~~~
 # Close the project.
 
-if os.name != "posix":
-    app.release_desktop()
+app.release_desktop()

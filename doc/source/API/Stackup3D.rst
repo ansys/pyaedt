@@ -6,7 +6,7 @@ and vias.
 
 
 
-.. currentmodule:: pyaedt.modeler
+.. currentmodule:: pyaedt.modeler.advanced_cad
 
 .. autosummary::
    :toctree: _autosummary

@@ -1,7 +1,7 @@
 PyAEDT
 ======
 
-|pyansys| |pypi| |PyPIact| |PythonVersion| |GH-CI| |codecov| |MIT| |black|
+|pyansys| |pypi| |PyPIact| |PythonVersion| |GH-CI| |codecov| |MIT| |black| |Anaconda|
 
 .. |pyansys| image:: https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC
    :target: https://docs.pyansys.com/
@@ -10,9 +10,9 @@ PyAEDT
 .. |pypi| image:: https://img.shields.io/pypi/v/pyaedt.svg?logo=python&logoColor=white
    :target: https://pypi.org/project/pyaedt/
 
-.. |PyPIact| image:: https://img.shields.io/pypi/dm/pyaedt.svg?label=PyPI%20downloads
+.. |PyPIact|  image:: https://pepy.tech/badge/pyaedt/month
    :target: https://pypi.org/project/pyaedt/
-   
+
 .. |PythonVersion| image:: https://img.shields.io/badge/python-3.7+-blue.svg
    :target: https://www.python.org/downloads/
 
@@ -29,6 +29,8 @@ PyAEDT
   :target: https://github.com/psf/black
   :alt: black
 
+.. |Anaconda| image:: https://anaconda.org/conda-forge/pyaedt/badges/version.svg
+  :target: https://anaconda.org/conda-forge/pyaedt
 
 Introduction
 ------------
@@ -130,10 +132,10 @@ Explicit AEDT declaration and error management
 
 .. code:: python
 
-    # Launch AEDT 2022 R1 in non-graphical mode
+    # Launch AEDT 2022 R2 in non-graphical mode
 
     from pyaedt import Desktop, Circuit
-    with Desktop(specified_version="2022.1",
+    with Desktop(specified_version="2022.2",
                  non_graphical=False, new_desktop_session=True,
                  close_on_exit=True, student_version=False):
         circuit = Circuit()
@@ -152,7 +154,7 @@ Implicit AEDT declaration and error management
     # Launch the latest installed version of AEDT in graphical mode
 
     from pyaedt import Circuit
-    with Circuit(specified_version="2022.1",
+    with Circuit(specified_version="2022.2",
                  non_graphical=False) as circuit:
         ...
         # Any error here will be caught by Desktop.

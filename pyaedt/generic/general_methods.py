@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import ast
 import codecs
 import csv
@@ -1245,8 +1247,156 @@ class PropsManager(object):
         pass
 
 
+clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+rgb_color_codes = {
+    "Black": (0, 0, 0),
+    "Green": (0, 128, 0),
+    "White": (255, 255, 255),
+    "Red": (255, 0, 0),
+    "Lime": (0, 255, 0),
+    "Blue": (0, 0, 255),
+    "Yellow": (255, 255, 0),
+    "Cyan": (0, 255, 255),
+    "Magenta": (255, 0, 255),
+    "Silver": (192, 192, 192),
+    "Gray": (128, 128, 128),
+    "Maroon": (128, 0, 0),
+    "Olive": (128, 128, 0),
+    "Purple": (128, 0, 128),
+    "Teal": (0, 128, 128),
+    "Navy": (0, 0, 128),
+    "copper": (184, 115, 51),
+    "stainless steel": (224, 223, 219),
+}
+
+
+@pyaedt_function_handler()
+def _arg2dict(arg, dict_out):
+    if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
+        if arg[0][5:] in dict_out:
+            if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+            else:
+                dict_out[arg[0][5:]] = [dict_out[arg[0][5:]]]
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+        else:
+            dict_out[arg[0][5:]] = list(arg[1:])
+    elif arg[0][:5] == "NAME:":
+        top_key = arg[0][5:]
+        dict_in = OrderedDict()
+        i = 1
+        while i < len(arg):
+            if arg[i][0][:5] == "NAME:" and (
+                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
+            ):
+                _arg2dict(list(arg[i]), dict_in)
+                i += 1
+            elif arg[i][-2:] == ":=":
+                if str(type(arg[i + 1])) == r"<type 'List'>":
+                    if arg[i][:-2] in dict_in:
+                        dict_in[arg[i][:-2]].append(list(arg[i + 1]))
+                    else:
+                        dict_in[arg[i][:-2]] = list(arg[i + 1])
+                else:
+                    if arg[i][:-2] in dict_in:
+                        if isinstance(dict_in[arg[i][:-2]], list):
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                        else:
+                            dict_in[arg[i][:-2]] = [dict_in[arg[i][:-2]]]
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                    else:
+                        dict_in[arg[i][:-2]] = arg[i + 1]
+
+                i += 2
+            else:
+                raise ValueError("Incorrect data argument format")
+        if top_key in dict_out:
+            if isinstance(dict_out[top_key], list):
+                dict_out[top_key].append(dict_in)
+            else:
+                dict_out[top_key] = [dict_out[top_key], dict_in]
+        else:
+            dict_out[top_key] = dict_in
+    else:
+        raise ValueError("Incorrect data argument format")
+
+
+def _uname(name=None):
+    """Append a 6-digit hash code to a specified name.
+
+    Parameters
+    ----------
+    name : str
+        Name to append the hash code to. The default is ``"NewObject_"``.
+
+    Returns
+    -------
+    str
+
+    """
+    char_set = string.ascii_uppercase + string.digits
+    unique_name = "".join(random.sample(char_set, 6))
+    if name:
+        return name + unique_name
+    else:
+        return "NewObject_" + unique_name
+
+
+@pyaedt_function_handler()
+def _to_boolean(val):
+    """Retrieve the Boolean value of the provided input.
+
+        If the value is a Boolean, return the value.
+        Otherwise check to see if the value is in
+        ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+        and return True if the value is not in the list.
+
+    Parameters
+    ----------
+    val : bool or str
+        Input value to test for True/False condition.
+
+    Returns
+    -------
+    bool
+
+    """
+
+    if val is True or val is False:
+        return val
+
+    false_items = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
+
+    return not str(val).strip().lower() in false_items
+
+
+@pyaedt_function_handler()
+def _dim_arg(value, units):
+    """Concatenate a specified units string to a numerical input.
+
+    Parameters
+    ----------
+    value : str or number
+        Valid expression string in the AEDT modeler. For example, ``"5mm"``.
+    units : str
+        Valid units string in the AEDT modeler. For example, ``"mm"``.
+
+    Returns
+    -------
+    str
+
+    """
+    try:
+        val = float(value)
+        if isinstance(value, int):
+            val = value
+        return str(val) + units
+    except:
+        return value
+
+
 class Settings(object):
-    """Class that manages all PyAEDT environment variables and global settings."""
+    """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
         self._enable_logger = True

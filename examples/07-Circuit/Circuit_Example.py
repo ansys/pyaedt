@@ -11,9 +11,7 @@ and run a Nexxim time-domain simulation.
 
 # sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
 
-from pyaedt import Circuit
-from pyaedt import Desktop
-from pyaedt import generate_unique_project_name
+import pyaedt
 import os
 
 ###############################################################################
@@ -42,8 +40,8 @@ new_thread = True
 # Launch AEDT and Circuit. The :class:`pyaedt.Desktop` class initializes AEDT and
 # starts the specified version in the specified mode.
 
-desktop = Desktop(desktop_version, non_graphical, new_thread)
-aedt_app = Circuit(projectname=generate_unique_project_name())
+desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
+aedt_app = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name())
 
 ###############################################################################
 # Create circuit setup
@@ -134,5 +132,4 @@ fig = solutions.plot()
 # :func:`pyaedt.Desktop.force_close_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    desktop.release_desktop()
+desktop.release_desktop()

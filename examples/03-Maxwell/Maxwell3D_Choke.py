@@ -10,10 +10,7 @@ This example shows how you can use PyAEDT to create a choke setup in Maxwell 3D.
 
 import json
 import os
-
-from pyaedt import generate_unique_project_name
-from pyaedt import Maxwell3d
-from pyaedt.modules.Mesh import Mesh
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -30,9 +27,12 @@ version = "2022.2"
 # ~~~~~~~~~~~~~~~~
 # Launch Maxwell 3D 2022 R2 in graphical mode.
 
-m3d = Maxwell3d(projectname=generate_unique_project_name(),
-    solution_type="EddyCurrent", specified_version=version, non_graphical=non_graphical, new_desktop_session=True
-)
+m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
+                       solution_type="EddyCurrent",
+                       specified_version=version,
+                       non_graphical=non_graphical,
+                       new_desktop_session=True
+                       )
 
 ###############################################################################
 # Rules and information of use
@@ -162,7 +162,7 @@ m3d.assign_matrix(["phase_1_in", "phase_2_in", "phase_3_in"], matrix_name="curre
 # ~~~~~~~~~~~~~~~~~~~~~
 # Create the mesh operation.
 
-mesh = Mesh(m3d)
+mesh = m3d.mesh
 mesh.assign_skin_depth(
     [first_winding_list[0], second_winding_list[0], third_winding_list[0]],
     0.20,
@@ -215,5 +215,4 @@ m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    m3d.release_desktop()
+m3d.release_desktop()

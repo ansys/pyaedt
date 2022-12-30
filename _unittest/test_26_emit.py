@@ -7,9 +7,9 @@ from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit import Interaction_Domain
 from pyaedt.emit import Revision
-from pyaedt.modeler.PrimitivesEmit import EmitAntennaComponent
-from pyaedt.modeler.PrimitivesEmit import EmitComponent
-from pyaedt.modeler.PrimitivesEmit import EmitComponents
+from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
+from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
+from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 
 try:
     import pytest

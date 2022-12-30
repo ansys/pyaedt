@@ -12,24 +12,15 @@ This example shows how you can use PyAEDT to create reports automatically using 
 # sphinx_gallery_thumbnail_path = 'Resources/spectrum_plot.png'
 import os
 
-import shutil
-from pyaedt import examples
-from pyaedt import generate_unique_folder_name
+import pyaedt
 
-import tempfile
+
 
 # Set local path to path for PyAEDT
-temp_folder = generate_unique_folder_name()
-project_path = examples.download_custom_reports(temp_folder)
+temp_folder = pyaedt.generate_unique_folder_name()
+project_path = pyaedt.downloads.download_custom_reports(temp_folder)
 
 
-###############################################################################
-# Import main classes
-# ~~~~~~~~~~~~~~~~~~~
-# Import the main classes that are needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
-
-from pyaedt import Circuit
-from pyaedt.generic.DataHandlers import json_to_dict
 
 ###############################################################################
 # Launch AEDT
@@ -56,8 +47,10 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-cir = Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example22R1.aedtz'), non_graphical=non_graphical,
-              specified_version=desktopVersion)
+cir = pyaedt.Circuit(projectname=os.path.join(project_path, 'CISPR25_Radiated_Emissions_Example22R1.aedtz'),
+                     non_graphical=non_graphical,
+                     specified_version=desktopVersion
+                     )
 
 ###############################################################################
 # Create spectrum report
@@ -82,9 +75,9 @@ if not non_graphical:
 # mode in AEDT 2022 R2 and later.
 
 if non_graphical:
-    props = json_to_dict(os.path.join(project_path, 'Transient_CISPR_Basic.json'))
+    props = pyaedt.data_handler.json_to_dict(os.path.join(project_path, 'Transient_CISPR_Basic.json'))
 else:
-    props = json_to_dict(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
+    props = pyaedt.data_handler.json_to_dict(os.path.join(project_path, 'Transient_CISPR_Custom.json'))
 
 report2 = cir.post.create_report_from_configuration(input_dict=props, solution_name="NexximTransient")
 props["expressions"] = {"V(Battery)": {}, "V(U1_VDD)": {}}

@@ -9,8 +9,8 @@ from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Modeler import CoordinateSystem
+from pyaedt.modeler.cad.Modeler import CoordinateSystem
+from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import BoundaryProps
 from pyaedt.modules.DesignXPloration import SetupOpti
@@ -153,7 +153,7 @@ class ConfigurationsOptions(object):
         bool
 
         Examples
-        ---------
+        --------
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.configurations.options.export_parametrics = False  # Disable the parametrics export
@@ -1063,6 +1063,9 @@ class Configurations(object):
             for setup in self._app.setups:
                 dict_out["setups"][setup.name] = setup.props
                 dict_out["setups"][setup.name]["SetupType"] = setup.setuptype
+                if setup.sweeps:
+                    for sweep in setup.sweeps:
+                        dict_out["setups"][setup.name][sweep.name] = sweep.props
 
     @pyaedt_function_handler()
     def _export_optimizations(self, dict_out):

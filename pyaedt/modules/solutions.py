@@ -21,7 +21,7 @@ from pyaedt.generic.plot import plot_2d_chart
 from pyaedt.generic.plot import plot_3d_chart
 from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
-from pyaedt.modeler.Object3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
 
 pd = None
 np = None
@@ -1099,7 +1099,7 @@ class SolutionData(object):
 
 
 class FfdSolutionData(object):
-    """Class containing Hfss Far Field Solution Data (ffd)."""
+    """Contains Hfss Far Field Solution Data (ffd)."""
 
     def __init__(self, app, sphere_name, setup_name, frequencies, variations=None, overwrite=True, taper="flat"):
         self._app = app

@@ -10,11 +10,10 @@ This example shows how you can use EDB to create a layout.
 
 import os
 import numpy as np
-from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_folder_name, generate_unique_name
+import pyaedt
 
 
-aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("via_opt") + ".aedb")
+aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("via_opt") + ".aedb")
 
 ###############################################################################
 # Create stackup
@@ -39,7 +38,7 @@ def _create_ground_planes(edb, layers):
 # ~~~~~~~~~~
 # Create EDB. If the path doesn't exist, PyAEDT automatically generates a new AEDB folder.
 
-edb = Edb(edbpath=aedb_path, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2022.2")
 
 ##################################################################################
 # Create stackup layers
@@ -56,7 +55,10 @@ trace_in_layer = "TOP"
 trace_out_layer = "L10"
 gvia_num = 10
 gvia_angle = 30
-edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner, outer_layer_thickness=cond_thickness_outer, soldermask_thickness=soldermask_thickness,dielectric_thickness=diel_thickness, dielectric_material=diel_material_name )
+edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thickness=cond_thickness_inner,
+                                     outer_layer_thickness=cond_thickness_outer,
+                                     soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
+                                     dielectric_material=diel_material_name)
 
 # StackupSimple(
 #     edb,
