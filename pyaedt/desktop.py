@@ -547,6 +547,7 @@ class Desktop(object):
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
+        settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
@@ -594,8 +595,6 @@ class Desktop(object):
             oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
         else:
             oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-        if non_graphical:
-            settings.enable_desktop_logs = False
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
         sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
@@ -654,8 +653,6 @@ class Desktop(object):
             StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
         else:
             StandalonePyScriptWrapper.CreateObject(version)
-        if non_graphical:
-            settings.enable_desktop_logs = False
         processID2 = []
         if IsWindows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
@@ -761,8 +758,6 @@ class Desktop(object):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
             _proc = self._main.oDesktop.GetProcessID()
-            if non_graphical:
-                settings.enable_desktop_logs = False
             if new_aedt_session:
                 message = "{} {} version started with process ID {}.".format(
                     version, "Student" if student_version else "", _proc
