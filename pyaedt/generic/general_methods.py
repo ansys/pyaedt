@@ -1595,7 +1595,7 @@ class Settings(object):
     @property
     def enable_desktop_logs(self):
         """Get the content for the environment variable."""
-        return self._enable_desktop_logs
+        return False if self.non_graphical else self._enable_desktop_logs
 
     @enable_desktop_logs.setter
     def enable_desktop_logs(self, val):
