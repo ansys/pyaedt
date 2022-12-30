@@ -244,7 +244,7 @@ class EDBPrimitives(object):
     @property
     def type(self):
         """Return the type of the primitive.
-        Allowed outputs are `"Circle"`, `"Rectangle"`,`"Polygon"`,`"Path"`,`"Bondwire"`.
+        Allowed outputs are ``"Circle"``, ``"Rectangle"``,``"Polygon"``,``"Path"`` or ``"Bondwire"``.
 
         Returns
         -------

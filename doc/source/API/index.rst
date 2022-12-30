@@ -1,6 +1,6 @@
-=============
-API reference
-=============
+==================
+API AEDT reference
+==================
 
 This section describes PyAEDT core classes, methods, and functions
 for AEDT apps and modules. Use the search feature or click links
@@ -21,7 +21,7 @@ faster resolution of complex simulations for design and optimization.
   :target: https://www.ansys.com/it-it/products/electronics
 
 The PyAEDT API includes classes for apps and modules. You must initialize the
-app to get access to all modules and methods. Available apps are:
+PyAEDT app to get access to all modules and methods. Available apps are:
 
 - `HFSS <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_
 - `HFSS 3D Layout <https://www.ansys.com/it-it/products/electronics/ansys-hfss>`_

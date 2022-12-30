@@ -50,7 +50,7 @@ Requirements:
 
 On Linux, in addition to the preceding requirements, these environments are needed:
 - You can use the CPython version in the AEDT installation folder if you first
-  add the Python library folder to the ``LD_LIBRARY_PATH`` environment variable.
+add the Python library folder to the ``LD_LIBRARY_PATH`` environment variable.
 - You can use the Python 3.7 or later version that is installed.
 - You can export ``ANSYSEM_ROOT222=/path/to/AnsysEM/v222/Linux64``.
 - You can export ``LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH``.

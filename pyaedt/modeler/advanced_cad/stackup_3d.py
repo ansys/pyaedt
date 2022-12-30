@@ -61,10 +61,10 @@ class NamedVariable(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     name : str
-        The name of the variable. If the the name begins with an '$', the variable will be a project variable.
+        The name of the variable. If the name begins with an '$', the variable will be a project variable.
         Otherwise, it will be a design variable.
     expression : str
         Expression of the value.
@@ -1206,7 +1206,7 @@ class Stackup3D(object):
 
     Parameters
     ----------
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float
         The stackup frequency, it will be common to all layers in the stackup.
@@ -1270,7 +1270,7 @@ class Stackup3D(object):
 
         Returns
         -------
-        :class:`pyaedt.hfss.Hfss
+        :class:`pyaedt.hfss.Hfss`
         """
         return self._app
 
@@ -1934,7 +1934,7 @@ class Patch(CommonObject, object):
     Parameters
     ----------
 
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
         The patch frequency, it is used in prediction formulas. If it is None, the patch frequency will be that of the
@@ -2479,7 +2479,7 @@ class Trace(CommonObject, object):
     Parameters
     ----------
 
-    application : :class:`pyaedt.hfss.Hfss
+    application : :class:`pyaedt.hfss.Hfss`
         HFSS design or project where the variable is to be created.
     frequency : float, None
         The line frequency, it is used in prediction formulas. If it is None, the line frequency will be that of the
@@ -3074,7 +3074,7 @@ class Trace(CommonObject, object):
 
         Parameters
         ----------
-        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D
+        reference_layer : class:`pyaedt.modeler.stackup_3d.Layer3D`
             Reference layer, which is the ground layer in most cases.
         opposite_side : bool, optional
             Change the side where the port is created.

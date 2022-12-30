@@ -672,7 +672,7 @@ class ModelPlotter(object):
     Examples
     --------
     This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
-    and standalone.
+    and standalone).
     Here an example of standalone project
 
     >>> model = ModelPlotter()
@@ -863,7 +863,7 @@ class ModelPlotter(object):
     @property
     def camera_position(self):
         """Get or set the camera position value. This parameter disables the default iso view.
-        Value for the camera position. The value is for ``"xy"``, ``"xz"``, or ``"yz"``.
+        Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
         Returns
         -------

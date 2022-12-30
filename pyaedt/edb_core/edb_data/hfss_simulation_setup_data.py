@@ -2015,7 +2015,7 @@ class HfssSimulationSetup(object):
 
         Returns
         -------
-        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep`
 
         Examples
         --------

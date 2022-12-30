@@ -1666,7 +1666,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         expressions : str or list, optional
-            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"``.
             Default is `None` which will return all traces.
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
@@ -1684,7 +1684,7 @@ class PostProcessorCommon(object):
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
         context : str, dict, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            The default is ``None``. It can be `None`, ``"Differential Pairs"`` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
             If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
@@ -1700,7 +1700,7 @@ class PostProcessorCommon(object):
         Returns
         -------
         :class:`pyaedt.modules.solutions.SolutionData`
-            `Solution Data object.
+            Solution Data object.
 
         References
         ----------

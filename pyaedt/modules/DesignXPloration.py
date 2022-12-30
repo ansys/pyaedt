@@ -989,7 +989,6 @@ class ParametricSetups(object):
         parametricname=None,
     ):
         """Add a basic sensitivity analysis.
-
         You can customize all options after the analysis is added.
 
         Parameters
@@ -1235,7 +1234,7 @@ class OptimizationSetups(object):
         optim_type : strm optional
             Optimization Type.
             Possible values are `"Optimization"`, `"DXDOE"`,`"DesignExplorer"`,`"Sensitivity"`,`"Statistical"`
-            and `"optiSLang"'.
+            and `"optiSLang"`.
         condition : string, optional
             The default is ``"<="``.
         goal_value : optional

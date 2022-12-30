@@ -1,5 +1,5 @@
 =================
-EDB API reference
+API EDB reference
 =================
 
 This section describes PyAEDT EDB classes, methods, and functions
