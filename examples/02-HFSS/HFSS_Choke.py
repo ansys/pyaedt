@@ -221,6 +221,5 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # All methods provide for saving the project before closing.
 
 
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()
 

@@ -70,5 +70,4 @@ aedtapp.create_schematic_from_netlist(netlist)
 # After adding any other desired functionalities, close the project and release
 # AEDT.
 
-if os.name != "posix":
-    desktop.release_desktop()
+desktop.release_desktop()

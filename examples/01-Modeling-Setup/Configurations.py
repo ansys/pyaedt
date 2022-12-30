@@ -125,5 +125,4 @@ app.configurations.results.global_import_success
 # ~~~~~~~~~~~~~
 # Close the project.
 
-if os.name != "posix":
-    app.release_desktop()
+app.release_desktop()

@@ -108,5 +108,4 @@ tb.save_project()
 # After the simulation completes, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    tb.release_desktop()
+tb.release_desktop()

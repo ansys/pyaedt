@@ -183,5 +183,4 @@ x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q
 # Save the project and close AEDT.
 
 hfss.save_project(project_name)
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()

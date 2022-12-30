@@ -30,12 +30,6 @@ M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D",
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler
 
-###############################################################################
-# Clear existing objects
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Clear existing objects.
-
-prim3D.delete()
 
 ###############################################################################
 # Define variables
@@ -312,5 +306,4 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 
 M3D.save_project(project_file)
 
-if os.name != "posix":
-    M3D.release_desktop()
+M3D.release_desktop()
