@@ -877,12 +877,12 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, PlotName=None):
+    def delete_report(self, plot_name=None):
         """Delete all reports or specific report.
 
         Parameters
         ----------
-        PlotName : str, optional
+        plot_name : str, optional
             Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
 
         Returns
@@ -895,21 +895,28 @@ class PostProcessorCommon(object):
 
         >>> oModule.DeleteReports
         """
-        if PlotName:
-            self.oreportsetup.DeleteReports([PlotName])
-        else:
-            self.oreportsetup.DeleteAllReports()
-        return True
+        try:
+            if plot_name:
+                self.oreportsetup.DeleteReports([plot_name])
+                for plot in self.plots:
+                    if plot.plot_name == plot_name:
+                        self.plots.remove(plot)
+            else:
+                self.oreportsetup.DeleteAllReports()
+                self.plots.clear()
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
-    def rename_report(self, PlotName, newname):
+    def rename_report(self, plot_name, new_name):
         """Rename a plot.
 
         Parameters
         ----------
-        PlotName : str
+        plot_name : str
             Name of the plot.
-        newname : str
+        new_name : str
             New name of the plot.
 
         Returns
@@ -922,8 +929,14 @@ class PostProcessorCommon(object):
 
         >>> oModule.RenameReport
         """
-        self.oreportsetup.RenameReport(PlotName, newname)
-        return True
+        try:
+            self.oreportsetup.RenameReport(plot_name, new_name)
+            for plot in self.plots:
+                if plot.plot_name == plot_name:
+                    plot.plot_name = self.oreportsetup.GetChildObject(new_name).GetPropValue("Name")
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def get_report_data(
