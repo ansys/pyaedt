@@ -561,7 +561,7 @@ class UserDefinedComponent(object):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, attach_object=False, *kwargs):
+    def duplicate_along_line(self, vector, nclones=2, attach_object=False, **kwargs):
         """Duplicate the object along a line.
 
         Parameters

@@ -730,17 +730,17 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is `None` which will take first default category.
+            Report Category. Default is ``None`` which will take first default category.
         display_type : str, optional
             Report Display Type.
-            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+            Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
             Report Setup. Default is `None` which will take first nominal_adpative solution.
         quantities_category : str, optional
-            The category to which quantities belong. It has to be one of `available_quantities_categories` method.
-            Default is `None` which will take first default quantity.".
+            The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
+            Default is ``None`` which will take first default quantity.".
         context : str, optional
-            Report Category. Default is `""` which will take first default context.
+            Report Category. Default is ``""`` which will take first default context.
 
         Returns
         -------
