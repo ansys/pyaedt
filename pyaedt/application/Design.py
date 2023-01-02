@@ -206,6 +206,7 @@ class Design(AedtObjects):
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop
+        settings.enable_desktop_logs = main_module.oDesktop.GetIsNonGraphical()
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._odesign = None
         self._oproject = None

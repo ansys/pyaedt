@@ -13,9 +13,9 @@ This example runs only on Windows using CPython.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports and set the local path to the path for PyAEDT.
 
-from pyaedt import examples
+from pyaedt import downloads
 
-example_path = examples.download_touchstone()
+example_path = downloads.download_touchstone()
 
 ###############################################################################
 # Import libraries and Touchstone file
