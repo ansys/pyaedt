@@ -903,7 +903,10 @@ class PostProcessorCommon(object):
                         self.plots.remove(plot)
             else:
                 self.oreportsetup.DeleteAllReports()
-                self.plots.clear()
+                if is_ironpython:
+                    del self.plots[:]
+                else:
+                    self.plots.clear()
             return True
         except:
             return False
