@@ -21,6 +21,7 @@ development mode, run:
 
     git clone https://github.com/pyansys/pyaedt
     cd pyaedt
+    python -m pip install --upgrade pip
     pip install -e .
 
 Post issues
@@ -63,9 +64,11 @@ For example::
   $ pre-commit install
   $ git commit -am "Add my cool feature."
   black....................................................................Passed
-  isort....................................................................Passed
+  isort (python)...........................................................Passed
   flake8...................................................................Passed
   codespell................................................................Passed
+  fix requirements.txt.....................................................Passed
+  blacken-docs.............................................................Passed
 
 Log errors
 ~~~~~~~~~~
