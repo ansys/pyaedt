@@ -3747,7 +3747,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         )
         return plotname
 
-    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, plot_name=None):
+    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, plotname=None):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
@@ -3758,7 +3758,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             Name of the probe to plot in the EYE diagram.
         variation_list_w_value : list
             List of variations with relative values.
-        plot_name : str, optional
+        plotname : str, optional
             The name of the plot.
 
         Returns
@@ -3771,8 +3771,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateReport
         """
-        if not plot_name:
-            plot_name = generate_unique_name("AMIAanalysis")
+        if not plotname:
+            plotname = generate_unique_name("AMIAanalysis")
         variations = [
             "__UnitInterval:=",
             ["All"],
@@ -3798,7 +3798,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             ycomponents = [probe_names]
 
         self.oreportsetup.CreateReport(
-            plot_name,
+            plotname,
             "Statistical Eye",
             "Statistical Eye Plot",
             setupname,
@@ -3837,7 +3837,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
-        return plot_name
+        return plotname
 
     def sample_waveform(
         self,

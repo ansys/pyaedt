@@ -279,7 +279,7 @@ class TestClass(BasisTest, object):
                 "Dom_Quick",
                 "b_input_15.int_ami_rx.eye_probe",
                 ami_design.available_variations.nominal,
-                plot_name="MyReportQ",
+                plotname="MyReportQ",
             )
             == "MyReportQ"
         )
@@ -291,7 +291,7 @@ class TestClass(BasisTest, object):
                 "Dom_Verify",
                 "b_input_15.int_ami_rx.eye_probe",
                 self.aedtapp.available_variations.nominal,
-                plot_name="MyReportV",
+                plotname="MyReportV",
             )
             == "MyReportV"
         )
