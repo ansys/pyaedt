@@ -422,8 +422,8 @@ else:
 
 surflist = modeler.get_object_faces("Plate")
 intrinsic_dict = {"Freq": "200Hz", "Phase": "0deg"}
-M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsic_dict=intrinsic_dict, plot_name="Mag_J")
-M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsic_dict=intrinsic_dict, plot_name="Mag_B")
+M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
+M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_dict, plot_name="Mag_B")
 
 ###################################################################################################
 # Save project and solve

@@ -235,7 +235,7 @@ solutions.plot()
 
 surflist = modeler.get_object_faces("LadderPlate")
 intrinsic_dict = {"Freq": "50Hz", "Phase": "0deg"}
-M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsic_dict=intrinsic_dict, plot_name="Mag_J")
+M3D.post.create_fieldplot_surface(surflist, "Mag_J", intrinsincDict=intrinsic_dict, plot_name="Mag_J")
 
 ###############################################################################
 # Release AEDT

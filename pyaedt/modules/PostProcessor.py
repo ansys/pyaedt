@@ -853,12 +853,12 @@ class PostProcessorCommon(object):
         return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler()
-    def copy_report_data(self, plot_name):
+    def copy_report_data(self, PlotName):
         """Copy report data as static data.
 
         Parameters
         ----------
-        plot_name : str
+        PlotName : str
             Name of the report.
 
         Returns
@@ -872,17 +872,17 @@ class PostProcessorCommon(object):
         >>> oModule.CopyReportsData
         >>> oModule.PasteReports
         """
-        self.oreportsetup.CopyReportsData([plot_name])
+        self.oreportsetup.CopyReportsData([PlotName])
         self.oreportsetup.PasteReports()
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, plot_name=None):
+    def delete_report(self, PlotName=None):
         """Delete all reports or specific report.
 
         Parameters
         ----------
-        plot_name : str, optional
+        PlotName : str, optional
             Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
 
         Returns
@@ -896,10 +896,10 @@ class PostProcessorCommon(object):
         >>> oModule.DeleteReports
         """
         try:
-            if plot_name:
-                self.oreportsetup.DeleteReports([plot_name])
+            if PlotName:
+                self.oreportsetup.DeleteReports([PlotName])
                 for plot in self.plots:
-                    if plot.plot_name == plot_name:
+                    if plot.plot_name == PlotName:
                         self.plots.remove(plot)
             else:
                 self.oreportsetup.DeleteAllReports()
@@ -1040,7 +1040,7 @@ class PostProcessorCommon(object):
         families_dict=None,
         primary_sweep_variable="Freq",
         context=None,
-        plot_name=None,
+        plotname=None,
         report_category=None,
         plot_type="Rectangular Plot",
     ):
@@ -1061,7 +1061,7 @@ class PostProcessorCommon(object):
             Name of the primary sweep. The default is ``"Freq"``.
         context : str, optional
             The default is ``None``.
-        plot_name : str, optional
+        plotname : str, optional
             Name of the plot. The default is ``None``.
         report_category : str, optional
             Type of the Report to be created. If `None` default data Report will be used
@@ -1079,6 +1079,7 @@ class PostProcessorCommon(object):
         """
         if families_dict is None:
             families_dict = {"Freq": ["All"]}
+
         warnings.warn(
             "`create_rectangular_plot` is deprecated. Use `create_report` property instead.", DeprecationWarning
         )
@@ -1115,8 +1116,8 @@ class PostProcessorCommon(object):
             modal_data = self._app.design_solutions.report_type
         else:
             modal_data = report_category
-        if not plot_name:
-            plot_name = generate_unique_name("Plot")
+        if not plotname:
+            plotname = generate_unique_name("Plot")
         families_input = [primary_sweep_variable + ":="]
         if primary_sweep_variable not in families_dict:
             families_input.append(["All"])
@@ -1133,7 +1134,7 @@ class PostProcessorCommon(object):
             else:
                 families_input.append([families_dict[el]])
         self.oreportsetup.CreateReport(
-            plot_name,
+            plotname,
             modal_data,
             plot_type,
             setup_sweep_name,
@@ -1141,18 +1142,18 @@ class PostProcessorCommon(object):
             families_input,
             ["X Component:=", primary_sweep_variable, "Y Component:=", expression],
         )
-        self.logger.info("Report %s correctly created.", plot_name)
+        self.logger.info("Report %s correctly created.", plotname)
         return True
 
     @pyaedt_function_handler()
     def get_solution_data_per_variation(
-        self, solution_type="Far Fields", setup_sweep_name="", ctxt=None, sweeps=None, expression=""
+        self, soltype="Far Fields", setup_sweep_name="", ctxt=None, sweeps=None, expression=""
     ):
         """Retrieve solution data for each variation.
 
         Parameters
         ----------
-        solution_type : str, optional
+        soltype : str, optional
             Type of the solution. For example, ``"Far Fields"`` or ``"Modal Solution Data"``. The default
             is ``"Far Fields"``.
         setup_sweep_name : str, optional
@@ -1188,9 +1189,7 @@ class PostProcessorCommon(object):
         sweep_list = _convert_dict_to_report_sel(sweeps)
         try:
             data = list(
-                self.oreportsetup.GetSolutionDataPerVariation(
-                    solution_type, setup_sweep_name, ctxt, sweep_list, expression
-                )
+                self.oreportsetup.GetSolutionDataPerVariation(soltype, setup_sweep_name, ctxt, sweep_list, expression)
             )
             self.logger.info("Solution Data Correctly Loaded.")
             return SolutionData(data)
@@ -2116,16 +2115,16 @@ class PostProcessor(PostProcessorCommon, object):
         return name
 
     @pyaedt_function_handler()
-    def change_field_property(self, plot_name, property_name, property_val):
+    def change_field_property(self, plotname, propertyname, propertyval):
         """Modify a field plot property.
 
         Parameters
         ----------
-        plot_name : str
+        plotname : str
             Name of the field plot.
-        property_name : str
+        propertyname : str
             Name of the property.
-        property_val :
+        propertyval :
             Value for the property.
 
         Returns
@@ -2143,8 +2142,8 @@ class PostProcessor(PostProcessorCommon, object):
                 "NAME:AllTabs",
                 [
                     "NAME:FieldsPostProcessorTab",
-                    ["NAME:PropServers", "FieldsReporter:" + plot_name],
-                    ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_val]],
+                    ["NAME:PropServers", "FieldsReporter:" + plotname],
+                    ["NAME:ChangedProps", ["NAME:" + propertyname, "Value:=", propertyval]],
                 ],
             ]
         )
@@ -2156,7 +2155,7 @@ class PostProcessor(PostProcessorCommon, object):
         scalar_function="Maximum",
         solution=None,
         variation_dict=None,
-        is_vector=False,
+        isvector=False,
         intrinsics=None,
         phase=None,
     ):
@@ -2171,7 +2170,7 @@ class PostProcessor(PostProcessorCommon, object):
         variation_dict : dict, optional
             Dictionary of all variation variables with their values.
             The default is ``None``.
-        is_vector : bool, optional
+        isvector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
             This parameter is mandatory for a frequency field
@@ -2198,7 +2197,7 @@ class PostProcessor(PostProcessorCommon, object):
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         self.ofieldsreporter.CalcStack("clear")
-        if is_vector:
+        if isvector:
             try:
                 self.ofieldsreporter.EnterQty(quantity_name)
             except:
@@ -2250,12 +2249,12 @@ class PostProcessor(PostProcessorCommon, object):
         solution=None,
         variation_dict=None,
         filename=None,
-        grid_type="Cartesian",
+        gridtype="Cartesian",
         grid_center=[0, 0, 0],
         grid_start=[0, 0, 0],
         grid_stop=[0, 0, 0],
         grid_step=[0, 0, 0],
-        is_vector=False,
+        isvector=False,
         intrinsics=None,
         phase=None,
     ):
@@ -2273,7 +2272,7 @@ class PostProcessor(PostProcessorCommon, object):
         filename : str, optional
             Full path and name to save the file to.
             The default is ``None`` which export file in working_directory.
-        grid_type : str, optional
+        gridtype : str, optional
             Type of the grid to export. The default is ``"Cartesian"``.
         grid_center : list, optional
             The ``[x, y, z]`` coordinates for the center of the grid.
@@ -2288,7 +2287,7 @@ class PostProcessor(PostProcessorCommon, object):
         grid_step : list, optional
             The ``[x, y, z]`` coordinates for the step size of the grid.
             The default is ``[0, 0, 0]``.
-        is_vector : bool, optional
+        isvector : bool, optional
             Whether the quantity is a vector. The  default is ``False``.
         intrinsics : str, optional
             This parameter is mandatory for a frequency field
@@ -2334,7 +2333,7 @@ class PostProcessor(PostProcessorCommon, object):
             self.ofieldsreporter.EnterQty(quantity_name)
         except:
             self.ofieldsreporter.CopyNamedExprToStack(quantity_name)
-        if is_vector:
+        if isvector:
             self.ofieldsreporter.CalcOp("Smooth")
             if phase:
                 self.ofieldsreporter.EnterScalar(0)
@@ -2342,17 +2341,17 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.CalcOp("Mag")
         units = self.modeler.model_units
         ang_units = "deg"
-        if grid_type == "Cartesian":
+        if gridtype == "Cartesian":
             grid_center = ["0mm", "0mm", "0mm"]
             grid_start_wu = [str(i) + units for i in grid_start]
             grid_stop_wu = [str(i) + units for i in grid_stop]
             grid_step_wu = [str(i) + units for i in grid_step]
-        elif grid_type == "Cylindrical":
+        elif gridtype == "Cylindrical":
             grid_center = [str(i) + units for i in grid_center]
             grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + units]
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + units]
             grid_step_wu = [str(grid_step[0]) + units, str(grid_step[1]) + ang_units, str(grid_step[2]) + units]
-        elif grid_type == "Spherical":
+        elif gridtype == "Spherical":
             grid_center = [str(i) + units for i in grid_center]
             grid_start_wu = [str(grid_start[0]) + units, str(grid_start[1]) + ang_units, str(grid_start[2]) + ang_units]
             grid_stop_wu = [str(grid_stop[0]) + units, str(grid_stop[1]) + ang_units, str(grid_stop[2]) + ang_units]
@@ -2383,7 +2382,7 @@ class PostProcessor(PostProcessorCommon, object):
             solution,
             variation_dict,
             True,
-            grid_type,
+            gridtype,
             grid_center,
             False,
         )
@@ -2532,12 +2531,12 @@ class PostProcessor(PostProcessorCommon, object):
         return False  # pragma: no cover
 
     @pyaedt_function_handler()
-    def export_field_plot(self, plot_name, filepath, filename="", file_format="aedtplt"):
+    def export_field_plot(self, plotname, filepath, filename="", file_format="aedtplt"):
         """Export a field plot.
 
         Parameters
         ----------
-        plot_name : str
+        plotname : str
             Name of the plot.
 
         filepath : str
@@ -2560,8 +2559,8 @@ class PostProcessor(PostProcessorCommon, object):
         >>> oModule.ExportFieldPlot
         """
         if not filename:
-            filename = plot_name
-        self.ofieldsreporter.ExportFieldPlot(plot_name, False, os.path.join(filepath, filename + "." + file_format))
+            filename = plotname
+        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + "." + file_format))
         return os.path.join(filepath, filename + "." + file_format)
 
     @pyaedt_function_handler()
@@ -2624,7 +2623,7 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def _create_fieldplot(self, objlist, quantity_name, setup_name, intrinsic_list, list_type, plot_name=None):
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, list_type, plot_name=None):
         objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
@@ -2638,45 +2637,45 @@ class PostProcessor(PostProcessorCommon, object):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantity_name + "_" + "".join(random.sample(char_set, 6))
+            plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
         if list_type == "CutPlane":
             plot = FieldPlot(
                 self,
                 cutplanelist=objlist,
                 solutionName=setup_name,
-                quantityName=quantity_name,
-                intrinsincList=intrinsic_list,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
             )
         elif list_type == "FacesList":
             plot = FieldPlot(
                 self,
                 surfacelist=objlist,
                 solutionName=setup_name,
-                quantityName=quantity_name,
-                intrinsincList=intrinsic_list,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
             )
         elif list_type == "ObjList":
             plot = FieldPlot(
                 self,
                 objlist=objlist,
                 solutionName=setup_name,
-                quantityName=quantity_name,
-                intrinsincList=intrinsic_list,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
             )
         elif list_type == "Line":
             plot = FieldPlot(
                 self,
                 linelist=objlist,
                 solutionName=setup_name,
-                quantityName=quantity_name,
-                intrinsincList=intrinsic_list,
+                quantityName=quantityName,
+                intrinsincList=intrinsincList,
             )
         plot.name = plot_name
         plot.plotFolder = plot_name
 
         plt = plot.create()
         if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
-            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsic_list["Time"])
+            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsincList["Time"])
         if plt:
             self.field_plots[plot_name] = plot
             return plot
@@ -2684,19 +2683,19 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
-    def create_fieldplot_line(self, objlist, quantity_name, setup_name=None, intrinsic_dict=None, plot_name=None):
+    def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
         """Create a field plot of line.
 
         Parameters
         ----------
         objlist : list
             List of polyline to plot.
-        quantity_name : str
+        quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsic_dict : dict, optional
+        intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -2712,27 +2711,27 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsic_dict is None:
-            intrinsic_dict = {}
+        if intrinsincDict is None:
+            intrinsincDict = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantity_name, setup_name, intrinsic_dict, "Line", plot_name)
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name)
 
     @pyaedt_function_handler()
-    def create_fieldplot_surface(self, objlist, quantity_name, setup_name=None, intrinsic_dict=None, plot_name=None):
+    def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
         """Create a field plot of surfaces.
 
         Parameters
         ----------
         objlist : list
             List of surfaces to plot.
-        quantity_name : str
+        quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsic_dict : dict, optional
+        intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -2748,8 +2747,8 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsic_dict is None:
-            intrinsic_dict = {}
+        if intrinsincDict is None:
+            intrinsincDict = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -2761,23 +2760,23 @@ class PostProcessor(PostProcessorCommon, object):
                 new_obj_list.extend([i.id for i in self._app.modeler[objs].faces])
             else:
                 new_obj_list.append(objs)
-        return self._create_fieldplot(new_obj_list, quantity_name, setup_name, intrinsic_dict, "FacesList", plot_name)
+        return self._create_fieldplot(new_obj_list, quantityName, setup_name, intrinsincDict, "FacesList", plot_name)
 
     @pyaedt_function_handler()
-    def create_fieldplot_cutplane(self, objlist, quantity_name, setup_name=None, intrinsic_dict=None, plot_name=None):
+    def create_fieldplot_cutplane(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
         """Create a field plot of cut planes.
 
         Parameters
         ----------
         objlist : list
             List of cut planes to plot.
-        quantity_name : str
+        quantityName : str
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup in the format
             ``"setupName : sweepName"``. The default is ``None``,
             in which case ``"nominal, lastadaptive"`` is used.
-        intrinsic_dict : dict, optional
+        intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables.
             The default is ``{}``.
         plot_name : str, optional
@@ -2793,28 +2792,28 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsic_dict is None:
-            intrinsic_dict = {}
+        if intrinsincDict is None:
+            intrinsincDict = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantity_name, setup_name, intrinsic_dict, "CutPlane", plot_name)
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "CutPlane", plot_name)
 
     @pyaedt_function_handler()
-    def create_fieldplot_volume(self, objlist, quantity_name, setup_name=None, intrinsic_dict=None, plot_name=None):
+    def create_fieldplot_volume(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
         """Create a field plot of volumes.
 
         Parameters
         ----------
         objlist : list
             List of volumes to plot.
-        quantity_name :
+        quantityName :
             Name of the quantity to plot.
         setup_name : str, optional
             Name of the setup in the format
             ``"setupName : sweepName"``. The default is ``None``,
             in which case ``"nominal, lastadaptive"`` is used.
-        intrinsic_dict : dict, optional
+        intrinsincDict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -2830,19 +2829,19 @@ class PostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateFieldPlot
         """
-        if intrinsic_dict is None:
-            intrinsic_dict = {}
+        if intrinsincDict is None:
+            intrinsincDict = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
-        return self._create_fieldplot(objlist, quantity_name, setup_name, intrinsic_dict, "ObjList", plot_name)
+        return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "ObjList", plot_name)
 
     @pyaedt_function_handler()
     def export_field_jpg(
         self,
-        file_name,
-        plot_name,
-        folder_name,
+        fileName,
+        plotName,
+        foldername,
         orientation="isometric",
         width=1920,
         height=1080,
@@ -2852,11 +2851,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        file_name : str
+        fileName : str
             Full path and name to save the JPG file to.
-        plot_name : str
+        plotName : str
             Name of the plot.
-        folder_name : str
+        foldername : str
             Name of the folder plot.
         orientation : str
             Name of the orientation to apply.
@@ -2895,24 +2894,24 @@ class PostProcessor(PostProcessorCommon, object):
                 ]
                 view = orientation_to_view.get(orientation, "iso")
                 cs = self.modeler.create_coordinate_system(origin=center, mode="view", view=view)
-                self.ofieldsreporter.ExportPlotImageToFile(file_name, folder_name, plot_name, cs.name)
+                self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
 
                 self.export_model_picture(
-                    full_name=file_name, width=width, height=height, orientation=orientation, field_selections=plot_name
+                    full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )
 
             for solid in wireframes:
                 self._primitives[solid].display_wireframe = False
         else:
             self.ofieldsreporter.ExportPlotImageWithViewToFile(
-                file_name, folder_name, plot_name, width, height, orientation
+                fileName, foldername, plotName, width, height, orientation
             )
         return True
 
     @pyaedt_function_handler()
-    def export_field_image_with_view(self, plot_name, folder_name, export_file_path, view="isometric", wireframe=True):
+    def export_field_image_with_view(self, plotName, foldername, exportFilePath, view="isometric", wireframe=True):
         """Export a field plot image with a view.
 
         .. deprecated:: 0.5.0
@@ -2924,11 +2923,11 @@ class PostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        plot_name : str
+        plotName : str
             Name of the plot.
-        folder_name : str
+        foldername : str
             Path to folder.
-        export_file_path :
+        exportFilePath :
             Path for exporting the image file.
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
@@ -2952,7 +2951,7 @@ class PostProcessor(PostProcessorCommon, object):
         )
 
         return self.export_field_jpg(
-            export_file_path, plot_name, folder_name, orientation=view, display_wireframe=wireframe
+            exportFilePath, plotName, foldername, orientation=view, display_wireframe=wireframe
         )
 
     @pyaedt_function_handler()
@@ -3537,20 +3536,20 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
     def create_ami_initial_response_plot(
         self,
-        setup_name,
+        setupname,
         ami_name,
         variation_list_w_value,
         plot_type="Rectangular Plot",
         plot_initial_response=True,
         plot_intermediate_response=False,
         plot_final_response=False,
-        plot_name=None,
+        plotname=None,
     ):
         """Create an AMI initial response plot.
 
         Parameters
         ----------
-        setup_name : str
+        setupname : str
             Name of the setup.
         ami_name : str
             AMI probe name to use.
@@ -3566,7 +3565,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             Set whether to plot the intermediate input response.  Default is ``False``.
         plot_final_response : bool, optional
             Set whether to plot the final input response.  Default is ``False``.
-        plot_name : str, optional
+        plotname : str, optional
             The plot name.  Default is a unique name.
 
         Returns
@@ -3574,8 +3573,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         str
             Name of the plot.
         """
-        if not plot_name:
-            plot_name = generate_unique_name("AMIAnalysis")
+        if not plotname:
+            plotname = generate_unique_name("AMIAnalysis")
         variations = ["__InitialTime:=", ["All"]]
         i = 0
         for a in variation_list_w_value:
@@ -3598,10 +3597,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         if plot_final_response:
             ycomponents.append("FinalImpulseResponse<{}.int_ami_rx>".format(ami_name))
         self.oreportsetup.CreateReport(
-            plot_name,
+            plotname,
             "Standard",
             plot_type,
-            setup_name,
+            setupname,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -3640,16 +3639,16 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__InitialTime", "Y Component:=", ycomponents],
         )
-        return plot_name
+        return plotname
 
     def create_ami_statistical_eye_plot(
-        self, setup_name, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plot_name=None
+        self, setupname, ami_name, variation_list_w_value, ami_plot_type="InitialEye", plotname=None
     ):
         """Create an AMI statistical eye plot.
 
         Parameters
         ----------
-        setup_name : str
+        setupname : str
             Name of the setup.
         ami_name : str
             AMI probe name to use.
@@ -3658,7 +3657,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         ami_plot_type : str, optional
             String containing the report AMI type. Default is ``"InitialEye"``. It can be ``"EyeAfterSource"``,
             ``"EyeAfterChannel"`` or ``"EyeAfterProbe"``.
-        plot_name : str, optional
+        plotname : str, optional
             The name of the plot.  Defaults to a unique name starting with ``"Plot"``.
 
         Returns
@@ -3671,8 +3670,8 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         >>> oModule.CreateReport
         """
-        if not plot_name:
-            plot_name = generate_unique_name("AMYAanalysis")
+        if not plotname:
+            plotname = generate_unique_name("AMYAanalysis")
         variations = [
             "__UnitInterval:=",
             ["All"],
@@ -3707,10 +3706,10 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         elif ami_plot_type == "EyeAfterProbe":
             ami_id = "3"
         self.oreportsetup.CreateReport(
-            plot_name,
+            plotname,
             "Statistical Eye",
             "Statistical Eye Plot",
-            setup_name,
+            setupname,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -3746,14 +3745,14 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             variations,
             ["X Component:=", "__UnitInterval", "Y Component:=", "__Amplitude", "Eye Diagram Component:=", ycomponents],
         )
-        return plot_name
+        return plotname
 
-    def create_statistical_eye_plot(self, setup_name, probe_names, variation_list_w_value, plot_name=None):
+    def create_statistical_eye_plot(self, setupname, probe_names, variation_list_w_value, plot_name=None):
         """Create a statistical QuickEye, VerifEye, and/or Statistical Eye plot.
 
         Parameters
         ----------
-        setup_name : str
+        setupname : str
             Name of the setup.
         probe_names : str or list
             Name of the probe to plot in the EYE diagram.
@@ -3802,7 +3801,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             plot_name,
             "Statistical Eye",
             "Statistical Eye Plot",
-            setup_name,
+            setupname,
             [
                 "NAME:Context",
                 "SimValueContext:=",
@@ -3929,7 +3928,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
     def sample_ami_waveform(
         self,
-        setup_name,
+        setupname,
         probe_name,
         source_name,
         variation_list_w_value,
@@ -3942,7 +3941,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
 
         Parameters
         ----------
-        setup_name : str
+        setupname : str
             Name of the setup.
         probe_name : str
             Name of the AMI probe.
@@ -3970,7 +3969,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         Examples
         --------
         >>> aedtapp = Circuit()
-        >>> aedtapp.post.sample_ami_waveform(setup_name, probe_name, source_name, aedtapp.available_variations.nominal)
+        >>> aedtapp.post.sample_ami_waveform(setupname, probe_name, source_name, aedtapp.available_variations.nominal)
 
         """
         initial_solution_type = self.post_solution_type
@@ -3993,7 +3992,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
         waveform_sweep_unit = []
         for exp in plot_expression:
             waveform_data = self.get_solution_data(
-                expressions=exp, setup_sweep_name=setup_name, domain="Time", variations=variation_list_w_value
+                expressions=exp, setup_sweep_name=setupname, domain="Time", variations=variation_list_w_value
             )
             samples_per_bit = 0
             for sample in waveform_data.primary_sweep_values:
@@ -4019,7 +4018,7 @@ class CircuitPostProcessor(PostProcessorCommon, object):
             clock_expression = "ClockTics<" + probe_name + ".int_ami_rx>"
             clock_tic = self.get_solution_data(
                 expressions=clock_expression,
-                setup_sweep_name=setup_name,
+                setup_sweep_name=setupname,
                 domain="Clock Times",
                 variations=variation_list_w_value,
             )

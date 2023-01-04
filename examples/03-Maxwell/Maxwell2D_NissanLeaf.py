@@ -716,7 +716,7 @@ for k, v in post_params_multiplot.items():
 faces_reg = mod2D.get_object_faces(object_list[1].name)  # Region
 # Maxwell Transient needs time specified in a dictionary
 # "IntrinsicVar:="	, "Time=\'0\'",
-M2D.post.create_fieldplot_surface(objlist=faces_reg, quantity_name='Flux_Lines', intrinsic_dict={"Time": "0.000"},
+M2D.post.create_fieldplot_surface(objlist=faces_reg, quantityName='Flux_Lines', intrinsincDict={"Time": "0.000"},
                                   plot_name="Flux_Lines")
 
 ##########################################################

@@ -260,7 +260,7 @@ class TestClass(BasisTest, object):
                 plot_type="Rectangular Stacked Plot",
                 plot_final_response=True,
                 plot_intermediate_response=True,
-                plot_name=report_name,
+                plotname=report_name,
             )
             == report_name
         )
@@ -270,7 +270,7 @@ class TestClass(BasisTest, object):
         assert ami_design.create_setup(setup_name, "NexximQuickEye")
         assert (
             ami_design.post.create_ami_statistical_eye_plot(
-                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plot_name="MyReport1"
+                "AMIAnalysis", "b_output4_14", ami_design.available_variations.nominal, plotname="MyReport1"
             )
             == "MyReport1"
         )

@@ -152,7 +152,7 @@ mech.analyze_nominal()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(objlist=surfaces, quantity_name="Temperature")
+mech.post.create_fieldplot_surface(objlist=surfaces, quantityName="Temperature")
 
 ###############################################################################
 # Release AEDT

@@ -225,7 +225,7 @@ class TestClass(BasisTest, object):
             os.path.join(self.local_scratch.path, "Efield.fld"),
             grid_stop=[5, 5, 5],
             grid_step=[0.5, 0.5, 0.5],
-            is_vector=True,
+            isvector=True,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "Efield.fld"))
@@ -235,10 +235,10 @@ class TestClass(BasisTest, object):
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values,
             os.path.join(self.local_scratch.path, "MagEfieldSph.fld"),
-            grid_type="Spherical",
+            gridtype="Spherical",
             grid_stop=[5, 300, 300],
             grid_step=[5, 50, 50],
-            is_vector=False,
+            isvector=False,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldSph.fld"))
@@ -248,10 +248,10 @@ class TestClass(BasisTest, object):
             "Setup1 : LastAdaptive",
             self.aedtapp.available_variations.nominal_w_values,
             os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"),
-            grid_type="Cylindrical",
+            gridtype="Cylindrical",
             grid_stop=[5, 300, 5],
             grid_step=[5, 50, 5],
-            is_vector=False,
+            isvector=False,
             intrinsics="5GHz",
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "MagEfieldCyl.fld"))
@@ -703,7 +703,7 @@ class TestClass(BasisTest, object):
             objlist=cutlist,
             quantityName="Mag_E",
             setup_name=self.aedtapp.nominal_adaptive,
-            intrinsic_list={"Freq": "5GHz", "Phase": "0deg"},
+            intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
             list_type="CutPlane",
         )
         assert plot
