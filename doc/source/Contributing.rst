@@ -36,7 +36,7 @@ Documentation for the latest stable release of PyAEDT is hosted at
 `PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.  
 
 Documentation for the latest development version, which tracks the
-``main`` branch, is hosted at  `Development PyAEDT Documentation <https://dev.aedt.docs.pyansys.com/>`_.
+``main`` branch, is hosted at  `Development PyAEDT Documentation <https://aedt.docs.pyansys.com/dev/>`_.
 This version is automatically kept up to date via GitHub actions.
 
 Adhere to code style
