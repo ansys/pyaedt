@@ -1401,20 +1401,20 @@ class Icepak(FieldAnalysis3D):
             object_list = []
 
         self.logger.info("Mapping HFSS EM losses.")
-        oName = self.project_name
-        if oName == source_project_name or source_project_name is None:
-            projname = "This Project*"
+
+        if self.project_name == source_project_name or source_project_name is None:
+            project_name = "This Project*"
         else:
-            projname = source_project_name + ".aedt"
+            project_name = source_project_name + ".aedt"
         #
         # Generate a list of model objects from the lists made previously and use to map the HFSS losses into Icepak
         #
         if not object_list:
-            allObjects = self.modeler.object_names
-            if "Region" in allObjects:
-                allObjects.remove("Region")
+            all_objects = self.modeler.object_names
+            if "Region" in all_objects:
+                all_objects.remove("Region")
         else:
-            allObjects = object_list[:]
+            all_objects = object_list[:]
 
         surfaces = surface_objects
         if map_frequency:
@@ -1435,8 +1435,8 @@ class Icepak(FieldAnalysis3D):
 
         props = OrderedDict(
             {
-                "Objects": allObjects,
-                "Project": projname,
+                "Objects": all_objects,
+                "Project": project_name,
                 "Product": "ElectronicsDesktop",
                 "Design": designname,
                 "Soln": setupname + " : " + sweepname,
@@ -1453,7 +1453,7 @@ class Icepak(FieldAnalysis3D):
         bound = BoundaryObject(self, name, props, "EMLoss")
         if bound.create():
             self.boundaries.append(bound)
-            self.logger.info("EM losses mapped from design %s.", designname)
+            self.logger.info("EM losses mapped from design: %s.", designname)
             return bound
         return False
 
@@ -1712,23 +1712,24 @@ class Icepak(FieldAnalysis3D):
         Returns
         -------
         (bool, bool)
+            Tuple containing the low side radiation and the high side radiation.
         """
         if radiation == "Nothing":
-            lowSideRad = False
-            highSideRad = False
+            low_side_radiation = False
+            high_side_radiation = False
         elif radiation == "Low":
-            lowSideRad = True
-            highSideRad = False
+            low_side_radiation = True
+            high_side_radiation = False
         elif radiation == "High":
-            lowSideRad = False
-            highSideRad = True
+            low_side_radiation = False
+            high_side_radiation = True
         elif radiation == "Both":
-            lowSideRad = True
-            highSideRad = True
-        return lowSideRad, highSideRad
+            low_side_radiation = True
+            high_side_radiation = True
+        return low_side_radiation, high_side_radiation
 
     @pyaedt_function_handler()
-    def get_link_data(self, linkData):
+    def get_link_data(self, links_data, **kwargs):
         """Get a list of linked data.
 
         Parameters
@@ -1748,15 +1749,23 @@ class Icepak(FieldAnalysis3D):
             List containing the requested link data.
 
         """
-        if linkData[0] is None:
+
+        if "linkData" in kwargs:
+            warnings.warn(
+                "``linkData`` was deprecated in 0.6.43. Use ``links_data`` instead.",
+                DeprecationWarning,
+            )
+            links_data = kwargs["linkData"]
+
+        if links_data[0] is None:
             project_name = "This Project*"
         else:
-            project_name = linkData[0].replace("\\", "/")
+            project_name = links_data[0].replace("\\", "/")
 
-        designName = linkData[1]
-        hfssSolutionName = linkData[2]
-        forceSourceSimEnabler = linkData[3]
-        preserveSrcResEnabler = linkData[4]
+        design_name = links_data[1]
+        hfss_solution_name = links_data[2]
+        force_source_sim_enabler = links_data[3]
+        preserve_src_res_enabler = links_data[4]
 
         arg = [
             "NAME:DefnLink",
@@ -1765,14 +1774,14 @@ class Icepak(FieldAnalysis3D):
             "Product:=",
             "ElectronicsDesktop",
             "Design:=",
-            designName,
+            design_name,
             "Soln:=",
-            hfssSolutionName,
+            hfss_solution_name,
             ["NAME:Params"],
             "ForceSourceToSolve:=",
-            forceSourceSimEnabler,
+            force_source_sim_enabler,
             "PreservePartnerSoln:=",
-            preserveSrcResEnabler,
+            preserve_src_res_enabler,
             "PathRelativeTo:=",
             "TargetProject",
         ]
@@ -1797,7 +1806,7 @@ class Icepak(FieldAnalysis3D):
         name : str, optional
             Fan name. The default is ``None``, in which case the default name is used.
         is_2d : bool, optional
-            Whether the fan is modeled as 2D. The default is ``False``, in which
+            Whether the fan is modeled as 2D or not. The default value is ``False``, in which
             case the fan is modeled as 3D.
         shape : str, optional
             Fan shape. Options are ``"Circular"`` and ``"Rectangular"``. The default
@@ -1895,7 +1904,7 @@ class Icepak(FieldAnalysis3D):
             }
         )
 
-        insts = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
+        component3d_names = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
 
         native = NativeComponentObject(self, "Fan", name, native_props)
         if native.create():
@@ -1903,7 +1912,9 @@ class Icepak(FieldAnalysis3D):
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], "Fan"
             )
             self.modeler.user_defined_components[native.name] = user_defined_component
-            new_name = [i for i in list(self.modeler.oeditor.Get3DComponentInstanceNames(name)) if i not in insts][0]
+            new_name = [
+                i for i in list(self.modeler.oeditor.Get3DComponentInstanceNames(name)) if i not in component3d_names
+            ][0]
             self.modeler.refresh_all_ids()
             self.materials._load_from_project()
             self.native_components.append(native)
@@ -1921,11 +1932,12 @@ class Icepak(FieldAnalysis3D):
         resolution,
         PCB_CS="Global",
         rad="Nothing",
-        extenttype="Bounding Box",
-        outlinepolygon="",
+        extent_type="Bounding Box",
+        outline_polygon="",
         powerin="0W",
         custom_x_resolution=None,
         custom_y_resolution=None,
+        **kwargs,
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -1944,10 +1956,10 @@ class Icepak(FieldAnalysis3D):
             Coordinate system for the PCB. The default is ``"Global"``.
         rad : str, optional
             Radiating faces. The default is ``"Nothing"``.
-        extenttype : str, optional
+        extent_type : str, optional
             Type of the extent. Options are ``"Bounding Box"`` and ``"Polygon"``.
             The default is ``"Bounding Box"``.
-        outlinepolygon : str, optional
+        outline_polygon : str, optional
             Name of the polygon if ``extentype="Polygon"``. The default is ``""``.
         powerin : str, optional
             Power to dissipate if cosimulation is disabled. The default is ``"0W"``.
@@ -1966,9 +1978,24 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
-        lowRad, highRad = self.get_radiation_settings(rad)
-        hfssLinkInfo = OrderedDict({})
-        _arg2dict(self.get_link_data(setupLinkInfo), hfssLinkInfo)
+
+        if "extenttype" in kwargs:
+            warnings.warn(
+                "``extenttype`` was deprecated in 0.6.43. Use ``extent_type`` instead.",
+                DeprecationWarning,
+            )
+            extent_type = kwargs["extenttype"]
+
+        if "outlinepolygon" in kwargs:
+            warnings.warn(
+                "``outlinepolygon`` was deprecated in 0.6.43. Use ``outline_polygon`` instead.",
+                DeprecationWarning,
+            )
+            outline_polygon = kwargs["outlinepolygon"]
+
+        low_radiation, high_radiation = self.get_radiation_settings(rad)
+        hfss_link_info = OrderedDict({})
+        _arg2dict(self.get_link_data(setupLinkInfo), hfss_link_info)
 
         native_props = OrderedDict(
             {
@@ -1978,14 +2005,14 @@ class Icepak(FieldAnalysis3D):
                         "Unit": self.modeler.model_units,
                         "MovePlane": "XY",
                         "Use3DLayoutExtents": False,
-                        "ExtentsType": extenttype,
-                        "OutlinePolygon": outlinepolygon,
+                        "ExtentsType": extent_type,
+                        "OutlinePolygon": outline_polygon,
                         "CreateDevices": False,
                         "CreateTopSolderballs": False,
                         "CreateBottomSolderballs": False,
                         "Resolution": int(resolution),
-                        "LowSide": OrderedDict({"Radiate": lowRad}),
-                        "HighSide": OrderedDict({"Radiate": highRad}),
+                        "LowSide": OrderedDict({"Radiate": low_radiation}),
+                        "HighSide": OrderedDict({"Radiate": high_radiation}),
                     }
                 )
             }
@@ -2007,11 +2034,11 @@ class Icepak(FieldAnalysis3D):
             #                    "CustomResolution:=", False]
         if solutionFreq:
             native_props["NativeComponentDefinitionProvider"]["Frequency"] = solutionFreq
-            native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfssLinkInfo["DefnLink"]
+            native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
             # compDefinition += ["Frequency:=", solutionFreq, hfssLinkInfo]
         else:
             native_props["NativeComponentDefinitionProvider"]["Power"] = powerin
-            native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfssLinkInfo["DefnLink"]
+            native_props["NativeComponentDefinitionProvider"]["DefnLink"] = hfss_link_info["DefnLink"]
             # compDefinition += ["Power:=", powerin, hfssLinkInfo]
 
         native_props["TargetCS"] = PCB_CS
@@ -2034,12 +2061,13 @@ class Icepak(FieldAnalysis3D):
         project_name,
         design_name,
         resolution=2,
-        extenttype="Bounding Box",
-        outlinepolygon="",
+        extent_type="Bounding Box",
+        outline_polygon="",
         close_linked_project_after_import=True,
         custom_x_resolution=None,
         custom_y_resolution=None,
         power_in=0,
+        **kwargs,
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
@@ -2056,11 +2084,11 @@ class Icepak(FieldAnalysis3D):
             Name of the design.
         resolution : int, optional
             Resolution of the mapping. The default is ``2``.
-        extenttype :
+        extent_type :
             Type of the extent. Options are ``"Polygon"`` and ``"Bounding Box"``. The default
             is ``"Bounding Box"``.
-        outlinepolygon : str, optional
-            Name of the outline polygon if ``extenttype="Polygon"``. The default is ``""``.
+        outline_polygon : str, optional
+            Name of the outline polygon if ``extent_type="Polygon"``. The default is ``""``.
         close_linked_project_after_import : bool, optional
             Whether to close the linked AEDT project after the import. The default is ``True``.
         custom_x_resolution :
@@ -2080,6 +2108,21 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.InsertNativeComponent
         """
+
+        if "extenttype" in kwargs:
+            warnings.warn(
+                "``extenttype`` was deprecated in 0.6.43. Use ``extent_type`` instead.",
+                DeprecationWarning,
+            )
+            extent_type = kwargs["extenttype"]
+
+        if "outlinepolygon" in kwargs:
+            warnings.warn(
+                "``outlinepolygon`` was deprecated in 0.6.43. Use ``outline_polygon`` instead.",
+                DeprecationWarning,
+            )
+            outline_polygon = kwargs["outlinepolygon"]
+
         if project_name == self.project_name:
             project_name = "This Project*"
         link_data = [project_name, design_name, "<--EDB Layout Data-->", False, False]
@@ -2088,8 +2131,8 @@ class Icepak(FieldAnalysis3D):
             link_data,
             "",
             resolution,
-            extenttype=extenttype,
-            outlinepolygon=outlinepolygon,
+            extent_type=extent_type,
+            outline_polygon=outline_polygon,
             custom_x_resolution=custom_x_resolution,
             custom_y_resolution=custom_y_resolution,
             powerin=self.modeler._arg_with_dim(power_in, "W"),
@@ -2102,18 +2145,18 @@ class Icepak(FieldAnalysis3D):
         return status
 
     @pyaedt_function_handler()
-    def copyGroupFrom(self, groupName, sourceDesign, sourceProject=None, sourceProjectPath=None):
+    def copyGroupFrom(self, group_name, source_design, source_project_name=None, source_project_path=None, **kwargs):
         """Copy a group from another design.
 
         Parameters
         ----------
-        groupName : str
+        group_name : str
             Name of the group.
-        sourceDesign : str
+        source_design : str
             Name of the source design.
-        sourceProject : str, optional
+        source_project_name : str, optional
             Name of the source project. The default is ``None``.
-        sourceProjectPath : str, optional
+        source_project_path : str, optional
             Path to the source project. The default is ``None``.
 
         Returns
@@ -2127,16 +2170,44 @@ class Icepak(FieldAnalysis3D):
         >>> oEditor.Copy
         >>> oeditor.Paste
         """
-        oName = self.project_name
-        if sourceProject == oName or sourceProject is None:
-            oSrcProject = self._desktop.GetActiveProject()
-        else:
-            self._desktop.OpenProject(sourceProjectPath)
-            oSrcProject = self._desktop.SetActiveProject(sourceProject)
 
-        oDesign = oSrcProject.SetActiveDesign(sourceDesign)
-        oEditor = oDesign.SetActiveEditor("3D Modeler")
-        oEditor.Copy(["NAME:Selections", "Selections:=", groupName])
+        if "groupName" in kwargs:
+            warnings.warn(
+                "``groupName`` was deprecated in 0.6.43. Use ``group_name`` instead.",
+                DeprecationWarning,
+            )
+            group_name = kwargs["groupName"]
+
+        if "sourceDesign" in kwargs:
+            warnings.warn(
+                "``sourceDesign`` was deprecated in 0.6.43. Use ``source_design`` instead.",
+                DeprecationWarning,
+            )
+            source_design = kwargs["sourceDesign"]
+
+        if "sourceProject" in kwargs:
+            warnings.warn(
+                "``sourceProject`` was deprecated in 0.6.43. Use ``source_project_name`` instead.",
+                DeprecationWarning,
+            )
+            source_project_name = kwargs["sourceProject"]
+
+        if "sourceProjectPath" in kwargs:
+            warnings.warn(
+                "``sourceProjectPath`` was deprecated in 0.6.43. Use ``source_project_path`` instead.",
+                DeprecationWarning,
+            )
+            source_project_path = kwargs["sourceProjectPath"]
+
+        if source_project_name == self.project_name or source_project_name is None:
+            active_project = self._desktop.GetActiveProject()
+        else:
+            self._desktop.OpenProject(source_project_path)
+            active_project = self._desktop.SetActiveProject(source_project_name)
+
+        active_design = active_project.SetActiveDesign(source_design)
+        active_editor = active_design.SetActiveEditor("3D Modeler")
+        active_editor.Copy(["NAME:Selections", "Selections:=", group_name])
 
         self.modeler.oeditor.Paste()
         self.modeler.refresh_all_ids()
@@ -2188,10 +2259,10 @@ class Icepak(FieldAnalysis3D):
         >>> oModule.EditGlobalMeshRegion
         """
 
-        oBoundingBox = self.modeler.oeditor.GetModelBoundingBox()
-        xsize = abs(float(oBoundingBox[0]) - float(oBoundingBox[3])) / (15 * meshtype * meshtype)
-        ysize = abs(float(oBoundingBox[1]) - float(oBoundingBox[4])) / (15 * meshtype * meshtype)
-        zsize = abs(float(oBoundingBox[2]) - float(oBoundingBox[5])) / (10 * meshtype)
+        bounding_box = self.modeler.oeditor.GetModelBoundingBox()
+        xsize = abs(float(bounding_box[0]) - float(bounding_box[3])) / (15 * meshtype * meshtype)
+        ysize = abs(float(bounding_box[1]) - float(bounding_box[4])) / (15 * meshtype * meshtype)
+        zsize = abs(float(bounding_box[2]) - float(bounding_box[5])) / (10 * meshtype)
         MaxSizeRatio = 1 + (meshtype / 2)
 
         self.omeshmodule.EditGlobalMeshRegion(
@@ -2268,13 +2339,13 @@ class Icepak(FieldAnalysis3D):
         """
         self.modeler.edit_region_dimensions([0, 0, 0, 0, 0, 0])
 
-        verticesID = self.modeler.oeditor.GetVertexIDsFromObject("Region")
+        vertex_ids = self.modeler.oeditor.GetVertexIDsFromObject("Region")
 
         x_values = []
         y_values = []
         z_values = []
 
-        for id in verticesID:
+        for id in vertex_ids:
             tmp = self.modeler.oeditor.GetVertexPosition(id)
             x_values.append(tmp[0])
             y_values.append(tmp[1])
@@ -2336,13 +2407,10 @@ class Icepak(FieldAnalysis3D):
             "PointZ:=",
             point_coord[2],
         ]
-
         arg2 = ["NAME:Attributes", "Name:=", point_name, "Color:=", "(143 175 143)"]
-
         self.modeler.oeditor.CreatePoint(arg1, arg2)
 
         arg = ["NAME:" + str(point_name), "Quantities:=", ["Temperature"], "Points:=", [str(point_name)]]
-
         self.omonitor.AssignPointMonitor(arg)
         return True
 
@@ -2555,11 +2623,11 @@ class Icepak(FieldAnalysis3D):
             Whether to perform minimal validation. The default is ``True``.
             If ``False``, full validation is performend.
         default_fluid : str, optional
-            Default for the type of fluid. The default is ``"Air"``.
+            Default type of fluid. The default is ``"Air"``.
         default_solid :
-            Default for  the type of solid. The default is ``"Al-Extruded"``.
+            Default type of solid. The default is ``"Al-Extruded"``.
         default_surface :
-            Default for the type of surface. The default is ``"Steel-oxidised-surface"``.
+            Default type of surface. The default is ``"Steel-oxidised-surface"``.
 
         Returns
         -------
@@ -2572,13 +2640,13 @@ class Icepak(FieldAnalysis3D):
         >>> oDesign.SetDesignSettings
         """
 
-        AmbientTemp = self.modeler._arg_with_dim(ambienttemp, "cel")
+        ambient_temperature = self.modeler._arg_with_dim(ambienttemp, "cel")
 
-        IceGravity = ["X", "Y", "Z"]
+        axes = ["X", "Y", "Z"]
         GVPos = False
         if int(gravityDir) > 2:
             GVPos = True
-        GVA = IceGravity[int(gravityDir) - 3]
+        gravity_axis = axes[int(gravityDir) - 3]
         self.odesign.SetDesignSettings(
             [
                 "NAME:Design Settings Data",
@@ -2591,15 +2659,15 @@ class Icepak(FieldAnalysis3D):
                 "Default Surface Material:=",
                 default_surface,
                 "AmbientTemperature:=",
-                AmbientTemp,
+                ambient_temperature,
                 "AmbientPressure:=",
                 "0n_per_meter_sq",
                 "AmbientRadiationTemperature:=",
-                AmbientTemp,
+                ambient_temperature,
                 "Gravity Vector CS ID:=",
                 1,
                 "Gravity Vector Axis:=",
-                GVA,
+                gravity_axis,
                 "Positive:=",
                 GVPos,
             ],
@@ -2893,9 +2961,9 @@ class Icepak(FieldAnalysis3D):
         def get_face_normal(obj_face):
             vertex1 = obj_face.vertices[0].position
             vertex2 = obj_face.vertices[1].position
-            fc = obj_face.center_from_aedt
-            v1 = [i - j for i, j in zip(vertex1, fc)]
-            v2 = [i - j for i, j in zip(vertex2, fc)]
+            face_center = obj_face.center_from_aedt
+            v1 = [i - j for i, j in zip(vertex1, face_center)]
+            v2 = [i - j for i, j in zip(vertex2, face_center)]
             n = GeometryOperators.v_cross(v1, v2)
             normalized_n = GeometryOperators.normalize_vector(n)
             return normalized_n
@@ -2953,9 +3021,9 @@ class Icepak(FieldAnalysis3D):
         }
 
         self.modeler.primitives[object_name].material_name = "Ceramic_material"
-        bound = BoundaryObject(self, object_name, props, "Network")
-        if bound.create():
-            self.boundaries.append(bound)
+        boundary = BoundaryObject(self, object_name, props, "Network")
+        if boundary.create():
+            self.boundaries.append(boundary)
             self.modeler.primitives[object_name].solve_inside = False
-            return bound
+            return boundary
         return None
