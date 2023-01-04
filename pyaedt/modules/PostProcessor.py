@@ -2623,7 +2623,7 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, list_type, plot_name=None):
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
         objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
@@ -2638,7 +2638,7 @@ class PostProcessor(PostProcessorCommon, object):
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
             plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
-        if list_type == "CutPlane":
+        if listtype == "CutPlane":
             plot = FieldPlot(
                 self,
                 cutplanelist=objlist,
@@ -2646,7 +2646,7 @@ class PostProcessor(PostProcessorCommon, object):
                 quantityName=quantityName,
                 intrinsincList=intrinsincList,
             )
-        elif list_type == "FacesList":
+        elif listtype == "FacesList":
             plot = FieldPlot(
                 self,
                 surfacelist=objlist,
@@ -2654,7 +2654,7 @@ class PostProcessor(PostProcessorCommon, object):
                 quantityName=quantityName,
                 intrinsincList=intrinsincList,
             )
-        elif list_type == "ObjList":
+        elif listtype == "ObjList":
             plot = FieldPlot(
                 self,
                 objlist=objlist,
@@ -2662,7 +2662,7 @@ class PostProcessor(PostProcessorCommon, object):
                 quantityName=quantityName,
                 intrinsincList=intrinsincList,
             )
-        elif list_type == "Line":
+        elif listtype == "Line":
             plot = FieldPlot(
                 self,
                 linelist=objlist,

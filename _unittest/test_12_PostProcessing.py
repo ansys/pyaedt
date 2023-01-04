@@ -704,7 +704,7 @@ class TestClass(BasisTest, object):
             quantityName="Mag_E",
             setup_name=self.aedtapp.nominal_adaptive,
             intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
-            list_type="CutPlane",
+            listtype="CutPlane",
         )
         assert plot
 
