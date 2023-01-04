@@ -16,7 +16,7 @@ exclude: |
 
 repos:
 - repo: https://github.com/psf/black
-  rev: 22.12.0
+  rev: 22.12.0  # IF VERSION CHANGES --> MODIFY "blacken-docs" MANUALLY AS WELL!!
   hooks:
   - id: black
     args:
