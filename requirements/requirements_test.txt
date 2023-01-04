@@ -1,5 +1,5 @@
 codecov==2.1.12
-ipython==8.7.0
+ipython==8.8.0
 joblib==1.2.0
 matplotlib==3.6.2
 numpy==1.21.6; python_version <= '3.7'
