@@ -1220,7 +1220,7 @@ class EdbSiwave(object):
         if name:
             pos_terminal.SetName(name)
         else:
-            name = generate_unique_name("vsource")
+            name = generate_unique_name("port")
             pos_terminal.SetName(name)
         neg_pin_group_name = self.pin_groups[neg_pin_group_name]
         neg_terminal = neg_pin_group_name.create_port_terminal(impedance)
