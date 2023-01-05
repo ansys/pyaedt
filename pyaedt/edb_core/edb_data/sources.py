@@ -281,10 +281,13 @@ class PinGroup(object):
 
     def _create_terminal(self, is_reference=False):
         pg_term = self._edb_pin_group.GetPinGroupTerminal()
+        edb_net = self._edb_pin_group.GetNet()
+        if edb_net.IsNull():
+            edb_net = list(self._edb_pin_group.GetPins())[0].GetNet()
         if pg_term.IsNull():
             return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
                 self._active_layout,
-                self._edb_pin_group.GetNet(),
+                edb_net,
                 self.name,
                 self._edb_pin_group,
                 is_reference,
