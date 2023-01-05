@@ -47,6 +47,12 @@ repos:
   hooks:
   - id: requirements-txt-fixer
 
+# validate GitHub workflow files
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.19.2
+  hooks:
+    - id: check-github-workflows
+
 - repo: https://github.com/asottile/blacken-docs
   rev: v1.12.1
   hooks:
