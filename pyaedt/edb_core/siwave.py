@@ -1217,7 +1217,7 @@ class EdbSiwave(object):
         """
         pos_pin_group = self.pin_groups[pos_pin_group_name]
         pos_terminal = pos_pin_group.create_port_terminal(impedance)
-        if name:
+        if name:  # pragma: no cover
             pos_terminal.SetName(name)
         else:
             name = generate_unique_name("port")
