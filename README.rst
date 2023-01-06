@@ -72,9 +72,9 @@ as much as possible across the API.
 Documentation and issues
 ------------------------
 In addition to installation and usage information, the PyAEDT
-documentation provides `API reference <https://aedt.docs.pyansys.com/API/>`_,
-`Examples <https://aedt.docs.pyansys.com/examples/index.html>`_, and `Contribute 
-<https://aedt.docs.pyansys.com/Contributing.html>`_ sections.
+documentation provides `API reference <https://aedt.docs.pyansys.com/release/0.6/API/index.html>`_,
+`Examples <https://aedt.docs.pyansys.com/release/0.6/examples/index.html>`_, and `Contribute 
+<https://aedt.docs.pyansys.com/release/0.6/Contributing.html>`_ sections.
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
 create issues to submit questions, report bugs, and request new features. To reach
