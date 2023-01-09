@@ -74,14 +74,14 @@ source.pins[0].connect_to_component(gnd.pins[0])
 
 ###############################################################################
 # Parametrize transient setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Parametrize the default transient setup by setting the end time.
 
 tb.set_end_time("300ms")
 
 ###############################################################################
 # Solve transient setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~
 # Solve the transient setup.
 
 tb.analyze_setup("TR")
