@@ -37,7 +37,7 @@ m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
 ###############################################################################
 # Rules and information of use
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The dictionary values containg the different parameters of the core and 
+# The dictionary values containing the different parameters of the core and
 # the windings that compose the choke. You must not change the main structure of
 # the dictionary. The dictionary has many primary keys, including
 # ``"Number of Windings"``, ``"Layer"``, and ``"Layer Type"``, that have
@@ -197,7 +197,6 @@ setup.props["MaximumPasses"] = 10
 setup.props["HasSweepSetup"] = True
 setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, count=12, units="kHz", clear=True)
 
-
 ###############################################################################
 # Save project
 # ~~~~~~~~~~~~
@@ -206,7 +205,6 @@ setup.add_eddy_current_sweep(range_type="LinearCount", start=100, end=1000, coun
 m3d.save_project()
 m3d.modeler.fit_all()
 m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"), plot_air_objects=True)
-
 
 ###############################################################################
 # Close AEDT

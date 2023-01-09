@@ -13,7 +13,6 @@ OpenStreeMaps.
 import os
 from pyaedt import Hfss
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -43,9 +42,6 @@ app = Hfss(
 # Define latitude and longitude to import.
 ansys_home = [40.273726, -80.168269]
 
-
-
-
 ###############################################################################
 # Generate map and import
 # ~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,9 +52,6 @@ app.modeler.import_from_openstreet_map(ansys_home,
                                        road_step=3,
                                        plot_before_importing=False,
                                        import_in_aedt=True)
-
-
-
 
 ###############################################################################
 # Plot model
@@ -72,7 +65,6 @@ plot_obj.show_grid = False
 plot_obj.show_axes = False
 plot_obj.bounding_box = False
 plot_obj.plot(os.path.join(app.working_directory, "Source.jpg"))
-
 
 ###############################################################################
 # Release AEDT
