@@ -468,8 +468,8 @@ class Monitor:
 
         Parameters
         ----------
-        monitor : FaceMonitor or PointMonitor object
-           Monitor object
+        monitor : str or FaceMonitor or PointMonitor object
+           Monitor object or monitor object name
 
         Returns
         -------

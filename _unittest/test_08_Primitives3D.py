@@ -1014,7 +1014,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.planes["my_plane2"].name == plane2.name
 
         # Delete the first plane
-        if config["desktopVersion"] < "2022.2" and not is_ironpython:
+        if config["desktopVersion"] < "2023.1" and not is_ironpython:
             assert len(self.aedtapp.modeler.planes) == 2
         else:
             assert len(self.aedtapp.modeler.planes) == 5
