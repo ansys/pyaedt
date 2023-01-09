@@ -413,16 +413,17 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
         `[x points, y points, label]`.
     size : tuple, optional
         Image size in pixel (width, height).
-    show_legend : bool
-        Either to show legend or not.
-    xlabel : str
-        Plot X label.
-    ylabel : str
-        Plot Y label.
-    title : str
-        Plot Title label.
-    snapshot_path : str
+    show_legend : bool, optional
+        Either to show legend or not. The default value is ``True``.
+    xlabel : str, optional
+        Plot X label. The default value is ``""``.
+    ylabel : str, optional
+        Plot Y label. The default value is ``""``.
+    title : str, optional
+        Plot Title label. The default value is ``""``.
+    snapshot_path : str, optional
         Full path to image file if a snapshot is needed.
+        The default value is ``None``.
 
     Returns
     -------
@@ -573,7 +574,7 @@ def plot_contour(qty_to_plot, x, y, size=(2000, 1600), xlabel="", ylabel="", tit
 
 
 class ObjClass(object):
-    """Class that manages mesh files to be plotted in pyvista.
+    """Manages mesh files to be plotted in pyvista.
 
     Parameters
     ----------
@@ -666,12 +667,12 @@ class FieldClass(object):
 
 
 class ModelPlotter(object):
-    """Class that manage the plot data.
+    """Manages the data to be plotted with ``pyvista``.
 
     Examples
     --------
     This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
-    and standalone.
+    and standalone).
     Here an example of standalone project
 
     >>> model = ModelPlotter()
@@ -861,12 +862,8 @@ class ModelPlotter(object):
 
     @property
     def camera_position(self):
-        """Get/Set the camera position value. It disables the default iso view.
-
-        Parameters
-        ----------
-        value : str or tuple
-            Value of camera position. One of `"xy"`, `"xz"`,`"yz"`.
+        """Get or set the camera position value. This parameter disables the default iso view.
+        Value for the camera position. The value is for ``"xy"``, ``"xz"`` or ``"yz"``.
 
         Returns
         -------

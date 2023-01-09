@@ -12,22 +12,12 @@ HSPICE files are fully supported. Mentor files are partially supported.
 
 import os
 
-# Import required modules
-from pyaedt import examples
-from pyaedt import generate_unique_project_name
-netlist = examples.download_netlist()
+import pyaedt
+netlist = pyaedt.downloads.download_netlist()
 
-project_name = generate_unique_project_name()
+project_name = pyaedt.generate_unique_project_name()
 print(project_name)
 
-
-###############################################################################
-# Import main classes
-# ~~~~~~~~~~~~~~~~~~~
-# Import the main classes that are needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
-
-from pyaedt import Circuit
-from pyaedt import Desktop
 
 ###############################################################################
 # Launch AEDT
@@ -55,8 +45,8 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts it on the specified version in the specified graphical mode.
 
-desktop = Desktop(desktopVersion, non_graphical, NewThread)
-aedtapp = Circuit(projectname=project_name)
+desktop = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
+aedtapp = pyaedt.Circuit(projectname=project_name)
 
 ###############################################################################
 # Define variable
@@ -80,5 +70,4 @@ aedtapp.create_schematic_from_netlist(netlist)
 # After adding any other desired functionalities, close the project and release
 # AEDT.
 
-if os.name != "posix":
-    desktop.release_desktop()
+desktop.release_desktop()

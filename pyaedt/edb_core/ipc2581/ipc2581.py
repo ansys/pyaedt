@@ -12,7 +12,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Ipc2581(object):
-    """Class that manages the Ipc2581 exporter."""
+    """Manages the Ipc2581 exporter."""
 
     def __init__(self, pedb, units):
         self.revision = "C"

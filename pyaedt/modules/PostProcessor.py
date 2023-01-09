@@ -649,7 +649,9 @@ class PostProcessorCommon(object):
         """
         return (
             True
-            if self._app.odesktop.GetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits")
+            if self._app.odesktop.GetRegistryInt(
+                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type)
+            )
             == 1
             else False
         )
@@ -657,9 +659,13 @@ class PostProcessorCommon(object):
     @update_report_dynamically.setter
     def update_report_dynamically(self, value):
         if value:
-            self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 1)
+            self._app.odesktop.SetRegistryInt(
+                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 1
+            )
         else:
-            self._app.odesktop.SetRegistryInt("Desktop/Settings/ProjectOptions/HFSS/UpdateReportsDynamicallyOnEdits", 0)
+            self._app.odesktop.SetRegistryInt(
+                "Desktop/Settings/ProjectOptions/{}/UpdateReportsDynamicallyOnEdits".format(self._app.design_type), 0
+            )
 
     @pyaedt_function_handler()
     def available_display_types(self, report_category=None):
@@ -724,17 +730,17 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         report_category : str, optional
-            Report Category. Default is `None` which will take first default category.
+            Report Category. Default is ``None`` which will take first default category.
         display_type : str, optional
             Report Display Type.
-            Default is `None` which will take first default type which is in most of the case "Rectangular Plot".
+            Default is ``None`` which will take first default type which is in most of the case "Rectangular Plot".
         solution : str, optional
             Report Setup. Default is `None` which will take first nominal_adpative solution.
         quantities_category : str, optional
-            The category to which quantities belong. It has to be one of `available_quantities_categories` method.
-            Default is `None` which will take first default quantity.".
+            The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
+            Default is ``None`` which will take first default quantity.".
         context : str, optional
-            Report Category. Default is `""` which will take first default context.
+            Report Category. Default is ``""`` which will take first default context.
 
         Returns
         -------
@@ -871,12 +877,12 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, PlotName=None):
+    def delete_report(self, plot_name=None):
         """Delete all reports or specific report.
 
         Parameters
         ----------
-        PlotName : str, optional
+        plot_name : str, optional
             Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
 
         Returns
@@ -889,21 +895,31 @@ class PostProcessorCommon(object):
 
         >>> oModule.DeleteReports
         """
-        if PlotName:
-            self.oreportsetup.DeleteReports([PlotName])
-        else:
-            self.oreportsetup.DeleteAllReports()
-        return True
+        try:
+            if plot_name:
+                self.oreportsetup.DeleteReports([plot_name])
+                for plot in self.plots:
+                    if plot.plot_name == plot_name:
+                        self.plots.remove(plot)
+            else:
+                self.oreportsetup.DeleteAllReports()
+                if is_ironpython:
+                    del self.plots[:]
+                else:
+                    self.plots.clear()
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
-    def rename_report(self, PlotName, newname):
+    def rename_report(self, plot_name, new_name):
         """Rename a plot.
 
         Parameters
         ----------
-        PlotName : str
+        plot_name : str
             Name of the plot.
-        newname : str
+        new_name : str
             New name of the plot.
 
         Returns
@@ -916,8 +932,14 @@ class PostProcessorCommon(object):
 
         >>> oModule.RenameReport
         """
-        self.oreportsetup.RenameReport(PlotName, newname)
-        return True
+        try:
+            self.oreportsetup.RenameReport(plot_name, new_name)
+            for plot in self.plots:
+                if plot.plot_name == plot_name:
+                    plot.plot_name = self.oreportsetup.GetChildObject(new_name).GetPropValue("Name")
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def get_report_data(
@@ -1660,7 +1682,7 @@ class PostProcessorCommon(object):
         Parameters
         ----------
         expressions : str or list, optional
-            One or more formulas to add to the report. Example is value = ``"dB(S(1,1))"``.
+            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"``.
             Default is `None` which will return all traces.
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
@@ -1678,23 +1700,23 @@ class PostProcessorCommon(object):
             Depending on the setup different categories are available.
             If `None` default category will be used (the first item in the Results drop down menu in AEDT).
         context : str, dict, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            The default is ``None``. It can be `None`, ``"Differential Pairs"`` or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
             If dictionary is passed, key is the report property name and value is property value.
         subdesign_id : int, optional
-            Specify a subdesign ID to export a Touchstone file of this subdesign. Valid for Circuit Only.
+            Subdesign ID for exporting a Touchstone file of this subdesign. This parameter
+            is valid for Circuit only.
             The default value is ``None``.
-        polyline_points : int, optional,
-            Number of points on which create the report for plots on polylines.
+        polyline_points : int, optional
+            Number of points on which to create the report for plots on polylines.
         math_formula : str, optional
-            It is one of the available AEDT mathematical formulas. Example abs, dB.
+            One of the available AEDT mathematical formulas. For example, ``abs, dB``.
 
 
         Returns
         -------
         :class:`pyaedt.modules.solutions.SolutionData`
-            `Solution Data object.
-
+            Solution Data object.
 
         References
         ----------

@@ -1,13 +1,12 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Circuit import ModelerTwinBuilder
+from pyaedt.modeler.schematic import ModelerTwinBuilder
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
 
 class AnalysisTwinBuilder(Analysis):
-    """Class for Twin Builder Analysis Setup (TwinBuilder)
-
+    """Provides the Twin Builder Analysis Setup (TwinBuilder).
     It is automatically initialized by Application call (Twin Builder).
     Refer to Application function for inputs definition
 

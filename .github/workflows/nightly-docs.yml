@@ -43,12 +43,16 @@ jobs:
           path: doc/_build/html
           retention-days: 7
 
+  docs_upload:
+    needs: docs_build
+    runs-on: ubuntu-latest
+    steps:
+
       - name: Deploy development documentation
         uses: pyansys/actions/doc-deploy-dev@v2
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
 
   # docstring_testing:
   #   runs-on: Windows

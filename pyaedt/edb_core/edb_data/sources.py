@@ -892,7 +892,7 @@ class ExcitationProbes(CommonExcitation):
 
 
 class ExcitationDifferential:
-    """Manage differential excitation properties."""
+    """Manages differential excitation properties."""
 
     def __init__(self, pedb, edb_boundle_terminal):
         self._pedb = pedb

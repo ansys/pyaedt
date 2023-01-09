@@ -9,8 +9,7 @@ parametric via analysis.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required inports.
-
-from pyaedt import Hfss3dLayout
+import pyaedt
 import os
 
 ###############################################################################
@@ -27,7 +26,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-h3d = Hfss3dLayout(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Set up variables
@@ -125,5 +124,4 @@ solutions.plot(math_formula="db20")
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    h3d.release_desktop()
+h3d.release_desktop()

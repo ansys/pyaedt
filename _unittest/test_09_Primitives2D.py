@@ -2,7 +2,7 @@
 # Import required modules
 from _unittest.conftest import BasisTest
 from pyaedt import Maxwell2d
-from pyaedt.modeler.Primitives import Polyline
+from pyaedt.modeler.cad.polylines import Polyline
 
 # Setup paths for module imports
 

@@ -10,12 +10,9 @@ includes Circuit, HFSS, and Mechanical.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import tempfile
 import os
-import shutil
+import pyaedt
 
-from pyaedt import examples, generate_unique_folder_name
-from pyaedt import Hfss, Circuit, Mechanical
 
 ###############################################################################
 # Set non-graphical mode
@@ -31,7 +28,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
+project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_folder_name())
 
 
 ###############################################################################
@@ -40,15 +37,15 @@ project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
 # Start HFSS and initialize the PyAEDT object.
 
 version = "2022.2"
-hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical, new_desktop_session=True)
 pin_names = hfss.excitations
 
 ###############################################################################
 # Start Circuit
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~
 # Start Circuit and add the HFSS dynamic link component to it.
 
-circuit = Circuit()
+circuit = pyaedt.Circuit()
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
@@ -84,13 +81,13 @@ circuit.modeler.schematic.create_interface_port(
 
 voltage = 1
 phase = 0
-excitation_settings = [str(voltage) + " V", str(phase) + " deg", "0V", "0V", "0V", "1GHz", "0s", "0", "0deg", "0Hz"]
 ports_list = ["Excitation_1", "Excitation_2"]
-circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
-
+source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
+source.ac_magnitude = voltage
+source.phase = phase
 ###############################################################################
 # Create setup
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~
 # Create a setup.
 
 setup_name = "MySetup"
@@ -104,7 +101,7 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 
 ###############################################################################
 # Solve and push excitations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
@@ -115,10 +112,10 @@ circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 
 ###############################################################################
 # Start Mechanical
-# ~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = Mechanical()
+mech = pyaedt.Mechanical()
 mech.copy_solid_bodies_from(hfss)
 
 

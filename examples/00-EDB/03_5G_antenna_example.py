@@ -10,9 +10,7 @@ This example shows how you can use HFSS 3D Layout to create and solve a 5G linea
 # Perform required imports.
 
 import tempfile
-from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt import Hfss3dLayout
+import pyaedt
 import os
 
 ##########################################################
@@ -72,9 +70,9 @@ class LinearArray:
 
 
 tmpfold = tempfile.gettempdir()
-aedb_path = os.path.join(tmpfold, generate_unique_name("pcb") + ".aedb")
+aedb_path = os.path.join(tmpfold, pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2022.2")
 
 
 ###############################################################################
@@ -224,7 +222,8 @@ print("EDB saved correctly to {}. You can import in AEDT.".format(aedb_path))
 # Launch HFSS 3D Layout and open EDB.
 
 project = os.path.join(aedb_path, "edb.def")
-h3d = Hfss3dLayout(projectname=project, specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(projectname=project, specified_version="2022.2", new_desktop_session=True,
+                          non_graphical=non_graphical)
 
 ###############################################################################
 # Plot geometry

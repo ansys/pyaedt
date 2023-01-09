@@ -10,13 +10,8 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 
 import json
 import os
-
-from pyaedt import generate_unique_project_name
-from pyaedt import Hfss
-from pyaedt.modules.Mesh import Mesh
-
-
-project_name = generate_unique_project_name(project_name="choke")
+import pyaedt
+project_name = pyaedt.generate_unique_project_name(project_name="choke")
 
 ###############################################################################
 # Set non-graphical mode
@@ -32,8 +27,11 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~
 # Launches HFSS 2022 R2 in graphical mode.
 
-hfss = Hfss(projectname=project_name, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True,
-            solution_type="Terminal")
+hfss = pyaedt.Hfss(projectname=project_name,
+                   specified_version="2022.2",
+                   non_graphical=non_graphical,
+                   new_desktop_session=True,
+                   solution_type="Terminal")
 
 ###############################################################################
 # Rules and information of use
@@ -175,8 +173,7 @@ cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
 mesh_operation_cylinder = hfss.modeler.create_cylinder(
     "XY", cylinder_position, ground_radius, cylinder_height, numSides=36, name="mesh_cylinder"
 )
-mesh = Mesh(hfss)
-mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
+hfss.mesh.assign_length_mesh([mesh_operation_cylinder], maxlength=15, maxel=None, meshop_name="choke_mesh")
 
 
 ###############################################################################
@@ -224,6 +221,5 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # All methods provide for saving the project before closing.
 
 
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()
 

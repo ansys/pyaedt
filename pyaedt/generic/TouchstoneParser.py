@@ -193,7 +193,7 @@ class ParseError(Exception):
 
 
 class TouchstoneData(object):
-    """Data Class containing information from Touchstone Read call"""
+    """Contains data information from Touchstone Read call"""
 
     def __init__(self, freqs, matrix, portnames):
         self._sweeps_names = ["Freq"]

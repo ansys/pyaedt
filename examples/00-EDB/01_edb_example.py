@@ -12,10 +12,10 @@ import shutil
 
 import os
 import time
-from pyaedt import examples, generate_unique_folder_name
+import pyaedt
 
-temp_folder = generate_unique_folder_name()
-example_path = examples.download_aedb(temp_folder)
+temp_folder = pyaedt.generate_unique_folder_name()
+example_path = pyaedt.downloads.download_aedb(temp_folder)
 
 targetfile = os.path.dirname(example_path)
 
@@ -23,7 +23,6 @@ siwave_file = os.path.join(os.path.dirname(targetfile), "Galileo.siw")
 print(targetfile)
 aedt_file = targetfile[:-4] + "aedt"
 
-from pyaedt import Edb
 
 ###############################################################################
 # Launch EDB
@@ -32,7 +31,7 @@ from pyaedt import Edb
 
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-edb = Edb(edbpath=targetfile, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion="2022.2")
 
 ###############################################################################
 # Compute nets and components

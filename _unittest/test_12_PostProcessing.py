@@ -264,6 +264,8 @@ class TestClass(BasisTest, object):
 
     def test_08_manipulate_report(self):
         assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
+        assert [plot for plot in self.aedtapp.post.plots if plot.plot_name == "MyNewScattering"]
+        assert not self.aedtapp.post.rename_report("invalid", "MyNewScattering")
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
@@ -612,8 +614,11 @@ class TestClass(BasisTest, object):
         pass
 
     def test_10_delete_report(self):
+        plots_number = len(self.aedtapp.post.plots)
         assert self.aedtapp.post.delete_report("MyNewScattering")
+        assert len(self.aedtapp.post.plots) == plots_number - 1
         assert self.aedtapp.post.delete_report()
+        assert len(self.aedtapp.post.plots) == 0
 
     def test_12_steal_on_focus(self):
         assert self.aedtapp.post.steal_focus_oneditor()
@@ -1215,9 +1220,9 @@ class TestClass(BasisTest, object):
         assert len(data2[0]) == 3
 
     def test_74_dynamic_update(self):
-        assert not self.aedtapp.post.update_report_dynamically
-        self.aedtapp.post.update_report_dynamically = True
-        assert self.aedtapp.post.update_report_dynamically
+        val = self.aedtapp.post.update_report_dynamically
+        self.aedtapp.post.update_report_dynamically = not val
+        assert self.aedtapp.post.update_report_dynamically != val
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

@@ -14,7 +14,7 @@ from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators as go
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
 
@@ -416,13 +416,14 @@ class QExtractor(FieldAnalysis3D, object):
         length_setting="Distributed",
         length="1meter",
     ):
-        r"""Export matrix data.
+        """Export matrix data.
 
         Parameters
         ----------
         file_name : str
             Full path to save the matrix data to.
-            Options for file extensions are: *.m, *.lvl, *.csv, *.txt.
+            Options for file extensions are: ``*.m``, ``*.lvl``, ``*.csv``,
+            and ``*.txt``.
         problem_type : str, optional
             Problem type. The default value is ``None``, in which case ``"C"`` is
             used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
@@ -800,7 +801,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is True.
         coupling_limit_type : int, optional
             Coupling limit types.
-            Values can be : "By Value" -> 0  or "By Fraction Of Self Term" -> 1.
+            Values can be: ``"By Value" -> 0`` or ``"By Fraction Of Self Term" -> 1``.
             If None, no coupling limits are set.
             Default value is None.
         include_dcr : bool, optional
@@ -827,9 +828,6 @@ class QExtractor(FieldAnalysis3D, object):
         parse_pin_names : bool, optional
             Parse pin names.
             Default value is False.
-        cs : str, optional
-            Coordinate system for chip package control.
-            Default value is Global.
         export_distributed : bool, optional
             Flag to tell whether to export in distributed mode or Lumped mode.
             Default value is True.
@@ -866,7 +864,8 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is 0.
         file_type : str, optional
             The type of file format.
-            Used to specify the type of "HSPICE" file format (all HSPICE file formats have same extension *.sp).
+            Type of HSPICE file format. (All HSPICE file formats have the same extension,
+            which is ``*.sp``.) Options are:
             "Hspice": simple HSPICE file format.
             "Welement": Nexxim/HSPICE W Element file format
             "RLGC": Nexxim/HSPICE RLGC W Element file format
@@ -1976,7 +1975,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
             3D object.
 
         References

@@ -70,6 +70,12 @@ intersphinx_mapping = {
     "pytest": ("https://docs.pytest.org/en/stable", None),
 }
 
+
+toc_object_entries_show_parents = "hide"
+
+
+
+
 # numpydoc configuration
 numpydoc_use_plots = True
 numpydoc_show_class_members = False
@@ -200,7 +206,7 @@ if os.name != "posix" and "PYAEDT_CI_NO_EXAMPLES" not in os.environ:
             # directory where function granular galleries are stored
             "backreferences_dir": None,
             # Modules for which function level galleries are created.  In
-            "doc_module": "ansys-mapdl-core",
+            "doc_module": "ansys-pyaedt",
             "image_scrapers": ("pyvista", "matplotlib"),
             "ignore_pattern": "flycheck*",
             "thumbnail_size": (350, 350),
@@ -248,6 +254,13 @@ html_theme_options = {
 }
 
 html_static_path = ["_static"]
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'custom.css',
+]
+
 
 # -- Options for HTMLHelp output ---------------------------------------------
 

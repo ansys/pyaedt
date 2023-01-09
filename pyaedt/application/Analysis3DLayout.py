@@ -4,7 +4,7 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Model3DLayout import Modeler3DLayout
+from pyaedt.modeler.modelerpcb import Modeler3DLayout
 from pyaedt.modules.Mesh3DLayout import Mesh3d
 from pyaedt.modules.SolveSetup import Setup3DLayout
 

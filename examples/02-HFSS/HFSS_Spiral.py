@@ -10,11 +10,10 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 # Perform required imports.
 
 import os
-from pyaedt import Hfss, constants
-from pyaedt import generate_unique_project_name
+import pyaedt
 
 
-project_name = generate_unique_project_name(project_name="spiral")
+project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
 #############################################################
 # Set non-graphical mode
@@ -31,7 +30,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch HFSS 2022 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, designname="A1")
+hfss = pyaedt.Hfss(specified_version="2022.2", non_graphical=non_graphical, designname="A1")
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
@@ -94,10 +93,12 @@ p.create_box((x0 - width / 2, y0 - width / 2, -gap - thickness / 2), (width, wid
 # ~~~~~~~~~~~~~
 # Create port 1.
 
-p.create_rectangle(
-    constants.PLANE.YZ, (abs(x1) + 5, y0 - width / 2, -gap - thickness / 2), (width, -Tsub + gap), name="port1"
-)
-hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=constants.AXIS.Z)
+p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
+                   position=(abs(x1) + 5, y0 - width / 2, -gap - thickness / 2),
+                   dimension_list=(width, -Tsub + gap),
+                   name="port1"
+                   )
+hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=pyaedt.constants.AXIS.Z)
 
 
 ################################################################
@@ -106,8 +107,8 @@ hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=constants.AXIS.Z)
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
-p.create_rectangle(constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
-hfss.create_lumped_port_to_sheet(sheet_name="port2", axisdir=constants.AXIS.Z)
+p.create_rectangle(pyaedt.constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
+hfss.create_lumped_port_to_sheet(sheet_name="port2", axisdir=pyaedt.constants.AXIS.Z)
 
 
 ################################################################
@@ -182,5 +183,4 @@ x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q
 # Save the project and close AEDT.
 
 hfss.save_project(project_name)
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()

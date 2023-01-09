@@ -124,9 +124,9 @@ class EdbFrequencySweep(object):
     def freq_sweep_type(self):
         """Sweep type.
         Options are:
-           - ``kInterpolatingSweep``.
-           - ``kDiscreteSweep``.
-           - ``kBroadbandFastSweep``.
+        - ``kInterpolatingSweep``.
+        - ``kDiscreteSweep``.
+        - ``kBroadbandFastSweep``.
 
         Returns
         -------
@@ -987,7 +987,12 @@ class AdaptiveSettings(object):
 
     @property
     def adaptive_settings(self):
-        """Adaptive EDB settings."""
+        """Adaptive EDB settings.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.AdaptiveSettings`
+        """
         return self._parent._edb_sim_setup_info.SimulationSettings.AdaptiveSettings
 
     @property
@@ -1228,14 +1233,13 @@ class DefeatureSettings(object):
     @property
     def healing_option(self):
         """Whether to turn on healing of mis-aligned points and edges.
-        Options:
-          0- Turn off.
-          1- Turn on.
+        Options are:
+        0- Turn off.
+        1- Turn on.
 
         Returns
         -------
         int
-
         """
         return self._defeature_settings.HealingOption
 
@@ -1742,11 +1746,11 @@ class HfssSimulationSetup(object):
     @property
     def solver_slider_type(self):
         """Solver slider type.
-        Options:
-         1- ``kFast``.
-         2- ``kMedium``.
-         3- ``kAccurate``.
-         4- ``kNumSliderTypes``.
+        Options are:
+        1 - ``kFast``.
+        2 - ``kMedium``.
+        3 - ``kAccurate``.
+        4 - ``kNumSliderTypes``.
 
         Returns
         -------
@@ -2007,10 +2011,20 @@ class HfssSimulationSetup(object):
         name : str, optional
             Name of the frequency sweep.
         frequency_sweep : list, optional
+            List of frequency points.
 
         Returns
-        ----------
-        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep
+        -------
+        :class:`pyaedt.edb_core.edb_data.hfss_simulation_setup_data.EdbFrequencySweep`
+
+        Examples
+        --------
+        >>> setup1 = edbapp.create_hfss_setup("setup1")
+        >>> setup1.add_frequency_sweep(frequency_sweep=[
+        ...                           ["linear count", "0", "1kHz", 1],
+        ...                           ["log scale", "1kHz", "0.1GHz", 10],
+        ...                           ["linear scale", "0.1GHz", "10GHz", "0.1GHz"],
+        ...                           ])
         """
         if name in self.frequency_sweeps:
             return False
@@ -2036,8 +2050,8 @@ class HfssSimulationSetup(object):
         bool
 
         """
-        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         self.adaptive_settings.adapt_type = "kSingle"
+        self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         return self.adaptive_settings.add_adaptive_frequency_data(frequency, max_num_passes, max_delta_s)
 
     @pyaedt_function_handler()
