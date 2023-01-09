@@ -77,7 +77,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         auxiliary_dict_file=False,
         monitor_objects=None,
         datasets=None,
-        native_components=None
+        native_components=None,
     ):
         """Create a 3D component file.
 
@@ -202,14 +202,17 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if object_list:
             objs = object_list
         else:
-            native_objs = [obj.name for _, v in self.modeler.user_defined_components.items()
-                           for _, obj in v.parts.items()]
+            native_objs = [
+                obj.name for _, v in self.modeler.user_defined_components.items() for _, obj in v.parts.items()
+            ]
             objs = [obj for obj in self.object_names if obj not in native_objs]
             if not native_components and native_objs:
-                self.logger.warning("Native component objects cannot be exported. Use native_components argument to"
-                                    " export an auxiliary dictionary file containing 3D components information")
+                self.logger.warning(
+                    "Native component objects cannot be exported. Use native_components argument to"
+                    " export an auxiliary dictionary file containing 3D components information"
+                )
         for el in objs:
-            if 'CreateRegion:1' in self.oeditor.GetChildObject(el).GetChildNames():
+            if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
         arg.append("HiddenParts:="), arg.append([])
@@ -272,8 +275,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if auxiliary_dict_file:
             if isinstance(auxiliary_dict_file, bool):
                 auxiliary_dict_file = component_file + ".json"
-            cachesettings = {prop: getattr(self._app.configurations.options, prop) for prop in
-                             vars(self._app.configurations.options) if prop.startswith("_export_")}
+            cachesettings = {
+                prop: getattr(self._app.configurations.options, prop)
+                for prop in vars(self._app.configurations.options)
+                if prop.startswith("_export_")
+            }
             self._app.configurations.options.unset_all_export()
             self._app.configurations.options.export_monitor = True
             self._app.configurations.options.export_datasets = True
@@ -299,8 +305,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["monitor"][i]
                     else:
                         if out_dict["monitor"][i]["Type"] in ["Object", "Surface"]:
-                            out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(
-                                out_dict["monitor"][i]["ID"])
+                            out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(out_dict["monitor"][i]["ID"])
             if datasets:
                 out_dict["datasets"] = config_dict["datasets"]
                 for i in list(out_dict["datasets"]):
@@ -311,26 +316,28 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 out_dict["native components"] = {}
                 coordinatesystems_set = set()
                 for _, nc in self._app.native_components.items():
-                    nc_name = nc.props['SubmodelDefinitionName']
+                    nc_name = nc.props["SubmodelDefinitionName"]
                     nc_props = dict(nc.props).copy()
-                    nc_type = nc.props['NativeComponentDefinitionProvider']['Type']
-                    if nc_type == "PCB" and nc_props['NativeComponentDefinitionProvider']["DefnLink"][
-                        "Project"] == "This Project*":
-                        nc_props['NativeComponentDefinitionProvider']["DefnLink"]["Project"] = self._app.project_file
-                    CSs = [v.target_coordinate_system for i, v in self._app.modeler.user_defined_components.items()
-                           if v.definition_name == nc_name and
-                           'Target Coordinate System' in self._app.oeditor.GetChildObject(i).GetPropNames()]
-                    out_dict["native components"][nc_name] = {
-                        'Type': nc_type,
-                        "Props": nc_props,
-                        "CS": CSs}
+                    nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
+                    if (
+                        nc_type == "PCB"
+                        and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
+                    ):
+                        nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
+                    CSs = [
+                        v.target_coordinate_system
+                        for i, v in self._app.modeler.user_defined_components.items()
+                        if v.definition_name == nc_name
+                        and "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames()
+                    ]
+                    out_dict["native components"][nc_name] = {"Type": nc_type, "Props": nc_props, "CS": CSs}
                     for cs in CSs:
                         while cs != "Global":
                             coordinatesystems_set.update(cs)
                             cs = config_dict["coordinatesystems"][cs]["Reference CS"]
                 if config_dict.get("coordinatesystems", None):
                     out_dict["coordinatesystems"] = config_dict["coordinatesystems"]
-            with open(auxiliary_dict_file, 'w') as outfile:
+            with open(auxiliary_dict_file, "w") as outfile:
                 json.dump(out_dict, outfile)
         return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 

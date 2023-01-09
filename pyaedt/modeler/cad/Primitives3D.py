@@ -10,9 +10,10 @@ from math import sin
 from math import sqrt
 from math import tan
 
+from pyaedt import Icepak
+from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import open_file
-from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.advanced_cad.actors import Bird
 from pyaedt.modeler.advanced_cad.actors import Person
@@ -22,7 +23,7 @@ from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent
 from pyaedt.modeler.cad.Primitives import Primitives
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt import Icepak
+
 
 class Primitives3D(Primitives, object):
     """Manages primitives in 3D tools.

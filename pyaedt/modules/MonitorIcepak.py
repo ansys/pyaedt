@@ -1,26 +1,26 @@
-from pyaedt.generic.general_methods import generate_unique_name
-from pyaedt.generic.general_methods import pyaedt_function_handler
 import re
 
-class Monitor():
+from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
+
+class Monitor:
     def __init__(self, p_app):
         self._face_monitors = {}
         self._point_monitors = {}
         self._app = p_app
         self._omonitor = self._app.odesign.GetModule("Monitor")
         if self._app.design_properties:  # if is not a 3d comp/blank file
-            aedtfile_monitor_dict = self._app.design_properties['Monitor']['IcepakMonitors'].copy()
-            del aedtfile_monitor_dict['NextUniqueID']
-            del aedtfile_monitor_dict['MoveBackwards']
+            aedtfile_monitor_dict = self._app.design_properties["Monitor"]["IcepakMonitors"].copy()
+            del aedtfile_monitor_dict["NextUniqueID"]
+            del aedtfile_monitor_dict["MoveBackwards"]
             if aedtfile_monitor_dict:
                 self._load_monitor_objects(aedtfile_monitor_dict)
-
 
     @pyaedt_function_handler
     def _find_point(self, position):
         for point in self._app.oeditor.GetPoints():
-            point_pos = self._app.oeditor.GetChildObject(point).GetPropValue('Position')
+            point_pos = self._app.oeditor.GetChildObject(point).GetPropValue("Position")
             if all(point_pos[2 * i + 1] == position[i] for i in range(3)):
                 return point
         return None
@@ -41,14 +41,14 @@ class Monitor():
         list
             List of names
         """
-        if n==1:
+        if n == 1:
             return [name]
         else:
             names = [name]
-            j=1
-            if re.search(r'\d+$', name) is not None:
-                j=int(re.search(r'\d+$', name).group(0))+1
-            names += [re.sub(r'\d+$', '', name) + str(i+j) for i in range(n-1)]
+            j = 1
+            if re.search(r"\d+$", name) is not None:
+                j = int(re.search(r"\d+$", name).group(0)) + 1
+            names += [re.sub(r"\d+$", "", name) + str(i + j) for i in range(n - 1)]
             return names
 
     @pyaedt_function_handler
@@ -67,23 +67,55 @@ class Monitor():
             21: "K_Y",
             22: "K_Z",
             29: "HeatFlux",
-            31: "HeatFlowRate"
+            31: "HeatFlowRate",
         }
         for monitor_name, monitor_prop in aedtfile_monitor_dict.items():
-            if 'Faces' in monitor_prop.keys():
-                self._face_monitors[monitor_name] = FaceMonitor(monitor_name, "Face", monitor_prop['Faces'][0], [quantities_dict[i] for i in monitor_prop['Quantities']], self._app)
+            if "Faces" in monitor_prop.keys():
+                self._face_monitors[monitor_name] = FaceMonitor(
+                    monitor_name,
+                    "Face",
+                    monitor_prop["Faces"][0],
+                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    self._app,
+                )
             elif "Objects" in monitor_prop.keys() and monitor_prop["Type"] == 2:
-                self._point_monitors[monitor_name] = PointMonitor(monitor_name, "Object", self._app.oeditor.GetObjectNameByID(int(monitor_prop['Objects'][0])), [quantities_dict[i] for i in monitor_prop['Quantities']], self._app)
-            elif 'Objects' in monitor_prop.keys():
-                self._face_monitors[monitor_name] = FaceMonitor(monitor_name, "Surface", self._app.oeditor.GetObjectNameByID(int(monitor_prop['Objects'][0])), [quantities_dict[i] for i in monitor_prop['Quantities']], self._app)
+                self._point_monitors[monitor_name] = PointMonitor(
+                    monitor_name,
+                    "Object",
+                    self._app.oeditor.GetObjectNameByID(int(monitor_prop["Objects"][0])),
+                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    self._app,
+                )
+            elif "Objects" in monitor_prop.keys():
+                self._face_monitors[monitor_name] = FaceMonitor(
+                    monitor_name,
+                    "Surface",
+                    self._app.oeditor.GetObjectNameByID(int(monitor_prop["Objects"][0])),
+                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    self._app,
+                )
             elif "Points" in monitor_prop.keys():
-                point_name = self._find_point(self._app.odesign.GetChildObject("Monitor").GetChildObject(
-                            monitor_name).GetPropValue('Location').split(', '))
-                self._point_monitors[monitor_name] = PointMonitor(monitor_name, "Point", point_name, [quantities_dict[i] for i in monitor_prop['Quantities']], self._app)
+                point_name = self._find_point(
+                    self._app.odesign.GetChildObject("Monitor")
+                    .GetChildObject(monitor_name)
+                    .GetPropValue("Location")
+                    .split(", ")
+                )
+                self._point_monitors[monitor_name] = PointMonitor(
+                    monitor_name,
+                    "Point",
+                    point_name,
+                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    self._app,
+                )
             else:
-                self._point_monitors[monitor_name] = PointMonitor(monitor_name, "Vertex", monitor_prop['Vertices'][0],
-                                                                 [quantities_dict[i] for i in
-                                                                  monitor_prop['Quantities']], self._app)
+                self._point_monitors[monitor_name] = PointMonitor(
+                    monitor_name,
+                    "Vertex",
+                    monitor_prop["Vertices"][0],
+                    [quantities_dict[i] for i in monitor_prop["Quantities"]],
+                    self._app,
+                )
         return True
 
     @pyaedt_function_handler
@@ -159,11 +191,11 @@ class Monitor():
         ['monitor1', 'monitor2']
 
         """
-        point_names=[]
+        point_names = []
         if not isinstance(point_position[0], list):
-            point_position=[point_position]
+            point_position = [point_position]
         if not isinstance(monitor_quantity, list):
-            monitor_quantity=[monitor_quantity]
+            monitor_quantity = [monitor_quantity]
         for p_p in point_position:
             point_name = generate_unique_name("Point")
             self._app.modeler.oeditor.CreatePoint(
@@ -324,15 +356,13 @@ class Monitor():
             monitor_quantity = [monitor_quantity]
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
-        self._omonitor.AssignFaceMonitor(
-            ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Faces:=", face_id]
-        )
+        self._omonitor.AssignFaceMonitor(["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Faces:=", face_id])
         try:
             monitor_names = self._generate_monitor_names(monitor_name, len(face_id))
             for i, mn in enumerate(monitor_names):
                 self._face_monitors[mn] = FaceMonitor(mn, "Face", face_id[i], monitor_quantity, self._app)
         except:
-                return False
+            return False
         if len(monitor_names) == 1:
             return monitor_names[0]
         else:
@@ -372,9 +402,9 @@ class Monitor():
         "'monitor2'
         """
         if not isinstance(name, list):
-            name=[name]
+            name = [name]
         if not isinstance(monitor_quantity, list):
-            monitor_quantity=[monitor_quantity]
+            monitor_quantity = [monitor_quantity]
         name_sel = self._app.modeler.convert_to_selections(name, True)
         original_monitors = list(self._app.odesign.GetChildObject("Monitor").GetChildNames())
         if not monitor_name:
@@ -395,7 +425,7 @@ class Monitor():
                 self._point_monitors[mn] = PointMonitor(mn, "Object", existing_names[i], monitor_quantity, self._app)
         except:
             return False
-        if len(monitor_names)==1:
+        if len(monitor_names) == 1:
             return monitor_names[0]
         else:
             return monitor_names
@@ -434,7 +464,7 @@ class Monitor():
     def get_monitor_object_assignment(self, monitor):
         """
         Get the object that the monitor is applied to
-         
+
         Parameters
         ----------
         monitor : FaceMonitor or PointMonitor object
@@ -460,12 +490,17 @@ class Monitor():
             for i in list(j):
                 if i not in existing_monitors:
                     del j[i]
-                    self._app.logger.info("{} monitor object lost its assignment due to geometry modifications and has been deleted.".format(i))
+                    self._app.logger.info(
+                        "{} monitor object lost its assignment due to geometry modifications and has been deleted.".format(
+                            i
+                        )
+                    )
+
 
 class PointMonitor(Monitor):
     def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
-        self._name=monitor_name
-        self._type= monitor_type
+        self._name = monitor_name
+        self._type = monitor_type
         self._id = point_id
         if not isinstance(quantity, list):
             quantity = [quantity]
@@ -514,8 +549,13 @@ class PointMonitor(Monitor):
         -------
         list of floats
         """
-        return [float(i.strip(self._app.modeler.model_units)) for i in
-         self._app.odesign.GetChildObject("Monitor").GetChildObject(self._name).GetPropValue('Location').split(', ')]
+        return [
+            float(i.strip(self._app.modeler.model_units))
+            for i in self._app.odesign.GetChildObject("Monitor")
+            .GetChildObject(self._name)
+            .GetPropValue("Location")
+            .split(", ")
+        ]
 
     @property
     def quantities(self):
@@ -538,22 +578,23 @@ class PointMonitor(Monitor):
         dict
         """
         return {
-                    "Name": self.name,
-                    "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
-                    "Type": self.type,
-                    "ID": self.id,
-                    "Location": self.location,
-                    "Quantity": self.quantities
-                }
-    
+            "Name": self.name,
+            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
+            "Type": self.type,
+            "ID": self.id,
+            "Location": self.location,
+            "Quantity": self.quantities,
+        }
+
     @pyaedt_function_handler
     def delete(self):
         self.delete_monitor(self._name)
 
+
 class FaceMonitor(Monitor):
     def __init__(self, monitor_name, type, face_id, quantity, app):
-        self._name=monitor_name
-        self._type= type
+        self._name = monitor_name
+        self._type = type
         self._id = face_id
         if not isinstance(quantity, list):
             quantity = [quantity]
@@ -609,7 +650,6 @@ class FaceMonitor(Monitor):
         elif self.type == "Surface":
             return self._app.modeler.get_object_from_name(self.get_monitor_object_assignment(self)).faces[0].center
 
-
     @property
     def quantities(self):
         """
@@ -631,14 +671,14 @@ class FaceMonitor(Monitor):
         dict
         """
         return {
-                    "Name": self.name,
-                    "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
-                    "Type": self.type,
-                    "ID": self.id,
-                    "Location": self.location,
-                    "Quantity": self.quantities
-                }
-    
+            "Name": self.name,
+            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
+            "Type": self.type,
+            "ID": self.id,
+            "Location": self.location,
+            "Quantity": self.quantities,
+        }
+
     @pyaedt_function_handler
     def delete(self):
         self.delete_monitor(self.name)
