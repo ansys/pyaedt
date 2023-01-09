@@ -1475,15 +1475,11 @@ class ConfigurationsIcepak(Configurations):
         elif m_case == "Face":
             self._app.monitor.assign_face_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
         elif m_case == "Vertex":
-            self._app.monitor.assign_point_monitor_to_vertex(
-                m_object, monitor_quantity=m_quantity, monitor_name=m_name
-            )
+            self._app.monitor.assign_point_monitor_to_vertex(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
         elif m_case == "Surface":
             self._app.monitor.assign_surface_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
         elif m_case == "Object":
-            self._app.monitor.assign_point_monitor_in_object(
-                m_object, monitor_quantity=m_quantity, monitor_name=m_name
-            )
+            self._app.monitor.assign_point_monitor_in_object(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
         return True
 
     @pyaedt_function_handler()

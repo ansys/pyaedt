@@ -969,9 +969,7 @@ class FieldAnalysis3D(Analysis, object):
                             try:
                                 for f in self.modeler.get_object_from_name(obj).faces:
                                     if f.center == objs_monitors[obj][mon]["ID Position"]:
-                                        self.monitor.assign_face_monitor(
-                                            f.id, objs_monitors[obj][mon]["Quantity"], mon
-                                        )
+                                        self.monitor.assign_face_monitor(f.id, objs_monitors[obj][mon]["Quantity"], mon)
                                         break
                             except:
                                 self.logger.error("{} monitor object could not be restored".format(mon))

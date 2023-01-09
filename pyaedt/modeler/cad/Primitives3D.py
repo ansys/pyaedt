@@ -1269,7 +1269,7 @@ class Primitives3D(Primitives, object):
                             val["Location"], monitor_quantity=val["Quantity"], monitor_name=key
                         )
                         self._app.modeler.set_working_coordinate_system(cs_old)
-                    elif m_case ==  "Face":
+                    elif m_case == "Face":
                         self._app.monitor.assign_face_monitor(
                             mapping_dict["FaceKeyIDMap"][str(val["ID"])],
                             monitor_quantity=val["Quantity"],
