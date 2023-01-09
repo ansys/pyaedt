@@ -882,7 +882,7 @@ class PostProcessorCommon(object):
 
         Parameters
         ----------
-        PlotName : str, optional
+        plot_name : str, optional
             Name of the plot to delete. The default  value is ``None`` and in this case, all reports will be deleted.
 
         Returns
@@ -896,10 +896,10 @@ class PostProcessorCommon(object):
         >>> oModule.DeleteReports
         """
         try:
-            if PlotName:
-                self.oreportsetup.DeleteReports([PlotName])
+            if plot_name:
+                self.oreportsetup.DeleteReports([plot_name])
                 for plot in self.plots:
-                    if plot.plot_name == PlotName:
+                    if plot.plot_name == plot_name:
                         self.plots.remove(plot)
             else:
                 self.oreportsetup.DeleteAllReports()
