@@ -19,7 +19,7 @@ example_path = downloads.download_touchstone()
 
 ###############################################################################
 # Import libraries and Touchstone file
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Import Matplotlib, NumPy, and the Touchstone file.
 
 import matplotlib.pyplot as plt
@@ -47,10 +47,9 @@ data = read_touchstone(example_path)
 # insertion losses, fext, and next based on a few inputs and port names.
 
 rl_list = get_return_losses(data.ports)
-il_list = get_insertion_losses_from_prefix(data.ports, "U1", "U7")
-fext_list = get_fext_xtalk_from_prefix(data.ports, "U1", "U7")
-next_list = get_next_xtalk(data.ports, "U1")
-
+il_list = get_insertion_losses_from_prefix(expressions=data.ports, tx_prefix="U1", rx_prefix="U7")
+fext_list = get_fext_xtalk_from_prefix(expressions=data.ports, tx_prefix="U1", rx_prefix="U7")
+next_list = get_next_xtalk(expressions=data.ports, tx_prefix="U1")
 
 ###############################################################################
 # Get curve worst cases

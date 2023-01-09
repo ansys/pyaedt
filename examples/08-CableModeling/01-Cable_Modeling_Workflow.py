@@ -1,7 +1,10 @@
 """
 HFSS: Cable Modeling
 --------------------
-This example shows how you can use PyAEDT to use all the cable modeling feature available in HFSS.
+This example shows how you can use PyAEDT to use all the cable modeling features available in HFSS.
+Cable Modeling requires a pre-defined JSON file with all the cables and cable harness properties to set.
+In this example the properties are explicitly set but the user can also set them manually inside the file, save it
+and instantiate the Cable class to access all the available methods.
 """
 
 ###############################################################################
@@ -14,6 +17,8 @@ import pyaedt
 from pyaedt.modules.CableModeling import Cable
 
 # Set local temporary folder to export the cable library into.
+# set_cable_properties.json is the required json file to work with the Cable class.
+# Its structure must never change except for the properties values.
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
 json_path = pyaedt.downloads.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
@@ -131,6 +136,7 @@ cable.create_cable()
 # Update cable bundle
 # ~~~~~~~~~~~~~~~~~~~
 # The first cable bundle (insulation jacket type) is updated.
+
 cable_props["Update_Cable"] = "True"
 cable_props["Cable_prop"]["IsJacketTypeNoJacket"] = "False"
 cable_props["Cable_prop"]["IsJacketTypeBraidShield"] = "False"
