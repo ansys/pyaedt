@@ -15,7 +15,10 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
+import re
+
 from pyaedt.application.Analysis3D import FieldAnalysis3D
+from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.general_methods import generate_unique_name
@@ -26,8 +29,7 @@ from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.MonitorIcepak import Monitor
-from pyaedt.generic.configurations import ConfigurationsIcepak
-import re
+
 
 class Icepak(FieldAnalysis3D):
     """Provides the Icepak application interface.
@@ -198,7 +200,7 @@ class Icepak(FieldAnalysis3D):
         -------
         :class:`pyaedt.modules.MonitorIcepak.Monitor`
         """
-        self._monitor._delete_removed_monitors() # force update. some operations may delete monitors
+        self._monitor._delete_removed_monitors()  # force update. some operations may delete monitors
         return self._monitor
 
     @pyaedt_function_handler()
@@ -508,22 +510,24 @@ class Icepak(FieldAnalysis3D):
         return None
 
     @pyaedt_function_handler()
-    def create_conduting_plate(self, face_id,
-                               thermal_specification,
-                               thermal_dependent_dataset=None,
-                               input_power="0W",
-                               radiate_low=False,
-                               low_surf_material="Steel-oxidised-surface",
-                               radiate_high=False,
-                               high_surf_material="Steel-oxidised-surface",
-                               shell_conduction=False,
-                               thickness="1mm",
-                               solid_material="Al-Extruded",
-                               thermal_conductance="0W_per_Cel",
-                               thermal_resistance="0Kel_per_W",
-                               thermal_impedance="0celm2_per_w",
-                               bc_name=None,
-                               ):
+    def create_conduting_plate(
+        self,
+        face_id,
+        thermal_specification,
+        thermal_dependent_dataset=None,
+        input_power="0W",
+        radiate_low=False,
+        low_surf_material="Steel-oxidised-surface",
+        radiate_high=False,
+        high_surf_material="Steel-oxidised-surface",
+        shell_conduction=False,
+        thickness="1mm",
+        solid_material="Al-Extruded",
+        thermal_conductance="0W_per_Cel",
+        thermal_resistance="0Kel_per_W",
+        thermal_impedance="0celm2_per_w",
+        bc_name=None,
+    ):
         """Add a conductive plate thermal assignment on a face.
 
         Parameters
@@ -578,12 +582,14 @@ class Icepak(FieldAnalysis3D):
             props["Objects"] = [face_id]
         if radiate_low:
             props["LowSide"] = OrderedDict(
-                {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_surf_material})
+                {"Radiate": True, "RadiateTo": "AllObjects", "Surface Material": low_surf_material}
+            )
         else:
             props["LowSide"] = OrderedDict({"Radiate": False})
         if radiate_high:
             props["HighSide"] = OrderedDict(
-                {"Radiate": True, "RadiateTo": "AllObjects - High", "Surface Material - High": high_surf_material})
+                {"Radiate": True, "RadiateTo": "AllObjects - High", "Surface Material - High": high_surf_material}
+            )
         else:
             props["HighSide"] = OrderedDict({"Radiate": False})
         props["Thermal Specification"] = thermal_specification
@@ -595,10 +601,13 @@ class Icepak(FieldAnalysis3D):
         if thermal_dependent_dataset is None:
             props["Total Power"] = input_power
         else:
-            props["Total Power Variation Data"] = OrderedDict({"Variation Type": "Temp Dep",
-                                                               "Variation Function": "Piecewise Linear",
-                                                               "Variation Value": "[\"1W\", \"pwl({},Temp)\"]".format(
-                                                                   thermal_dependent_dataset)})
+            props["Total Power Variation Data"] = OrderedDict(
+                {
+                    "Variation Type": "Temp Dep",
+                    "Variation Function": "Piecewise Linear",
+                    "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
+                }
+            )
         props["Shell Conduction"] = shell_conduction
         bound = BoundaryObject(self, bc_name, props, "Conducting Plate")
         if bound.create():
@@ -664,8 +673,8 @@ class Icepak(FieldAnalysis3D):
         '28cel'
 
         """
-        if input_power==0:
-            input_power="0W"
+        if input_power == 0:
+            input_power = "0W"
         if not bool(input_power) ^ bool(thermal_dependent_dataset):
             self.logger.error("Please assigned one input between ``thermal_dependent_dataset`` and  ``input_power``")
         if not source_name:
@@ -679,10 +688,13 @@ class Icepak(FieldAnalysis3D):
         if thermal_dependent_dataset == None:
             props["Total Power"] = input_power
         else:
-            props["Total Power Variation Data"] = OrderedDict({"Variation Type": "Temp Dep",
-                                                               "Variation Function": "Piecewise Linear",
-                                                               "Variation Value": "[\"1W\", \"pwl({},Temp)\"]".format(
-                                                                   thermal_dependent_dataset)})
+            props["Total Power Variation Data"] = OrderedDict(
+                {
+                    "Variation Type": "Temp Dep",
+                    "Variation Function": "Piecewise Linear",
+                    "Variation Value": '["1W", "pwl({},Temp)"]'.format(thermal_dependent_dataset),
+                }
+            )
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
         props["Radiation"] = OrderedDict({"Radiate": radiate})
@@ -912,9 +924,7 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
-        warnings.warn(
-            "This method is deprecated. Please use monitor.assign_surface_monitor", DeprecationWarning
-        )
+        warnings.warn("This method is deprecated. Please use monitor.assign_surface_monitor", DeprecationWarning)
         return self._monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
     @pyaedt_function_handler()
@@ -953,10 +963,10 @@ class Icepak(FieldAnalysis3D):
         'monitor1'
 
         """
-        warnings.warn(
-            "This method is deprecated. Please use monitor.assign_point_monitor", DeprecationWarning
+        warnings.warn("This method is deprecated. Please use monitor.assign_point_monitor", DeprecationWarning)
+        return self._monitor.assign_point_monitor(
+            point_position, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
-        return self._monitor.assign_point_monitor(point_position, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
     @pyaedt_function_handler()
     def assign_point_monitor_in_object(self, name, monitor_type="Temperature", monitor_name=None):
@@ -997,7 +1007,9 @@ class Icepak(FieldAnalysis3D):
         warnings.warn(
             "This method is deprecated. Please use monitor.assign_point_monitor_in_object", DeprecationWarning
         )
-        return self._monitor.assign_point_monitor_in_object(name, monitor_quantity=monitor_type, monitor_name=monitor_name)
+        return self._monitor.assign_point_monitor_in_object(
+            name, monitor_quantity=monitor_type, monitor_name=monitor_name
+        )
 
     @pyaedt_function_handler()
     def assign_block_from_sherlock_file(self, csv_name):
@@ -2430,10 +2442,10 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignPointMonitor
         """
-        warnings.warn(
-            "This method is deprecated. Please use monitor.assign_point_monitor", DeprecationWarning
+        warnings.warn("This method is deprecated. Please use monitor.assign_point_monitor", DeprecationWarning)
+        return bool(
+            self._monitor.assign_point_monitor(point_coord, monitor_quantity="Temperature", monitor_name=point_name)
         )
-        return bool(self._monitor.assign_point_monitor(point_coord, monitor_quantity="Temperature", monitor_name=point_name))
 
     @pyaedt_function_handler()
     def delete_em_losses(self, bound_name):
@@ -2991,9 +3003,13 @@ class Icepak(FieldAnalysis3D):
 
         net_handle = self.modeler.get_object_from_name(object_name)
         if pcb in self.modeler.user_defined_component_names:
-            part_names = sorted([pcb_layer for pcb_layer in self.modeler.get_3d_component_object_list(componentname=pcb)
-                                 if re.search(self.modeler.user_defined_components[pcb].definition_name+"_\d\d\d.*",
-                                              pcb_layer)])
+            part_names = sorted(
+                [
+                    pcb_layer
+                    for pcb_layer in self.modeler.get_3d_component_object_list(componentname=pcb)
+                    if re.search(self.modeler.user_defined_components[pcb].definition_name + "_\d\d\d.*", pcb_layer)
+                ]
+            )
             pcb_layers = [part_names[0], part_names[-1]]
             for layer in pcb_layers:
                 x = self.modeler.get_object_from_name(object_name).get_touching_faces(layer)

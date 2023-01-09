@@ -2216,8 +2216,8 @@ class GeometryModeler(Modeler, object):
 
         >>> oModule.GetBoundaries
         """
-        if self._app.design_type == 'Icepak':
-            return list(self._app.odesign.GetChildObject('Thermal').GetChildNames())
+        if self._app.design_type == "Icepak":
+            return list(self._app.odesign.GetChildObject("Thermal").GetChildNames())
         else:
             list_names = list(self._app.oboundary.GetBoundaries())
             del list_names[1::2]
