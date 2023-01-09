@@ -10,8 +10,8 @@ It pushes down the child subcircuit and pops up to the parent design.
 # Perform the required import.
 
 import os
-from pyaedt import Circuit
-from pyaedt import generate_unique_project_name
+import pyaedt
+
 
 ##########################################################
 # Set non-graphical mode
@@ -27,7 +27,11 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode with Circuit.
 
-circuit = Circuit(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
+                         specified_version="2022.2",
+                         non_graphical=non_graphical,
+                         new_desktop_session=True
+                         )
 
 ###############################################################################
 # Add subcircuit

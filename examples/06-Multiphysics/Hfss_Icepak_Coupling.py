@@ -15,12 +15,8 @@ This examples runs only on Windows using CPython.
 # Perform required imports.
 
 import os
-import sys
-from pyaedt import generate_unique_project_name
+import pyaedt
 
-from pyaedt.generic.constants import GLOBALCS
-from pyaedt import Hfss
-from pyaedt import Icepak
 
 ###############################################################################
 # Set non-graphical mode
@@ -39,7 +35,7 @@ desktopVersion = "2022.2"
 
 NewThread = True
 
-project_file = generate_unique_project_name()
+project_file = pyaedt.generate_unique_project_name()
 
 ###############################################################################
 # Launch AEDT and initialize HFSS
@@ -47,7 +43,11 @@ project_file = generate_unique_project_name()
 # Launch AEDT and initialize HFSS. If there is an active HFSS design, the ``aedtapp``
 # object is linked to it. Otherwise, a new design is created.
 
-aedtapp = Hfss(projectname=project_file, specified_version=desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
+aedtapp = pyaedt.Hfss(projectname=project_file,
+                      specified_version=desktopVersion,
+                      non_graphical=non_graphical,
+                      new_desktop_session=NewThread
+                      )
 
 ###############################################################################
 # Initialize variable settings
@@ -155,7 +155,7 @@ sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, s
 # project and run a coupled physics analysis. The :func:`FieldAnalysis3D.copy_solid_bodies_from`
 # method imports a model from HFSS with all material settings.
 
-ipkapp = Icepak()
+ipkapp = pyaedt.Icepak()
 ipkapp.copy_solid_bodies_from(aedtapp)
 
 ################################################################################
@@ -207,8 +207,8 @@ ipkapp.assign_openings(airfaces)
 
 aedtapp.save_project()
 aedtapp.close_project(aedtapp.project_name)
-aedtapp = Hfss(project_file)
-ipkapp = Icepak()
+aedtapp = pyaedt.Hfss(project_file)
+ipkapp = pyaedt.Icepak()
 ipkapp.solution_type = ipkapp.SOLUTIONS.Icepak.SteadyTemperatureAndFlow
 ipkapp.modeler.fit_all()
 
@@ -227,7 +227,7 @@ aedtapp.analyze_setup("MySetup")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate field plots on the HFSS project and export them as images.
 
-cutlist = [GLOBALCS.XY, GLOBALCS.ZX, GLOBALCS.YZ]
+cutlist = [pyaedt.constants.GLOBALCS.XY, pyaedt.constants.GLOBALCS.ZX, pyaedt.constants.GLOBALCS.YZ]
 vollist = [o2.name]
 setup_name = "MySetup : LastAdaptive"
 quantity_name = "ComplexMag_E"

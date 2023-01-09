@@ -697,6 +697,7 @@ class Edb(object):
 
     @property
     def layout_instance(self):
+        """Edb Layout Instance."""
         if not self._layout_instance:
             self._layout_instance = self.active_layout.GetLayoutInstance()
         return self._layout_instance
@@ -2224,6 +2225,17 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def new_simulation_configuration(self, filename=None):
+        """New SimulationConfiguration Object.
+
+        Parameters
+        ----------
+        filename : str, optional
+            Input config file.
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.simulation_configuration.SimulationConfiguration`
+        """
         return SimulationConfiguration(filename, self)
 
     @property

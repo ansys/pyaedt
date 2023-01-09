@@ -27,7 +27,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 
 from pyaedt import Hfss
-from pyaedt.modeler.stackup_3d import Stackup3D
+from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 
 
 ###############################################################################

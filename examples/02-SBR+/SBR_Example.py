@@ -11,10 +11,10 @@ HFSS antenna and run a simulation.
 # directory.
 
 import os
-from pyaedt import examples, generate_unique_project_name
-from pyaedt import Hfss
+import pyaedt
 
-project_full_name = examples.download_sbr(generate_unique_project_name(project_name="sbr_freq"))
+
+project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
 
 
 ###############################################################################
@@ -32,7 +32,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Define two designs, one source and one target, with each design connected to
 # a different object.
 
-target = Hfss(
+target = pyaedt.Hfss(
     projectname=project_full_name,
     designname="Cassegrain_",
     solution_type="SBR+",
@@ -40,7 +40,11 @@ target = Hfss(
     new_desktop_session=True,
     non_graphical=non_graphical
 )
-source = Hfss(projectname=target.project_name, designname="feeder", specified_version="2022.2", new_desktop_session=False)
+
+source = pyaedt.Hfss(projectname=target.project_name,
+                     designname="feeder",
+                     specified_version="2022.2",
+                     )
 
 ###############################################################################
 # Define linked antenna
@@ -119,5 +123,4 @@ solution.plot()
 # ~~~~~~~~~~~~
 # Release AEDT and close the example.
 
-if os.name != "posix":
-    target.release_desktop()
+target.release_desktop()

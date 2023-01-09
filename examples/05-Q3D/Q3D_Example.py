@@ -10,9 +10,8 @@ Q3D Extractor and run a simulation.
 # Perform required imports.
 
 import os
+import pyaedt
 
-from pyaedt import Q3d
-from pyaedt import generate_unique_project_name
 
 ###############################################################################
 # Set non-graphical mode
@@ -29,7 +28,10 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 
-q = Q3d(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
+               specified_version="2022.2",
+               non_graphical=non_graphical,
+               new_desktop_session=True)
 
 ###############################################################################
 # Create primitives
@@ -158,5 +160,4 @@ a.plot()
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
-if os.name != "posix":
-    q.release_desktop(close_projects=True, close_desktop=True)
+q.release_desktop(close_projects=True, close_desktop=True)

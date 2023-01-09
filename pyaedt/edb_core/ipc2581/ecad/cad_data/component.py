@@ -2,7 +2,7 @@ from pyaedt.generic.general_methods import ET
 
 
 class Component(object):
-    """Class containing IPC2581 component information."""
+    """Contains IPC2581 component information."""
 
     def __init__(self):
         self.refdes = ""

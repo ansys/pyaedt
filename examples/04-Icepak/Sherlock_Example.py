@@ -11,14 +11,12 @@ files (STEP and CSV) and an AEDB board.
 
 import time
 import os
-import tempfile
+import pyaedt
 import datetime
 
-from pyaedt import examples, generate_unique_folder_name
-
 # Set paths
-project_folder = generate_unique_folder_name()
-input_dir = examples.download_sherlock()
+project_folder = pyaedt.generate_unique_folder_name()
+input_dir = pyaedt.downloads.download_sherlock()
 
 ###############################################################################
 # Set non-graphical mode
@@ -44,19 +42,11 @@ stackup_thickness = 2.11836
 outline_polygon_name = "poly_14188"
 
 ###############################################################################
-# Import Icepak and AEDT
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Import Icepak and AEDT.
-
-from pyaedt import Icepak
-from pyaedt import Desktop
-
-###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-d = Desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -70,7 +60,7 @@ project_name = os.path.join(project_folder, component_step[:-3] + "aedt")
 # ~~~~~~~~~~~~~~~~~~~~~
 # Create an Icepak project.
 
-ipk = Icepak(project_name)
+ipk = pyaedt.Icepak(project_name)
 
 ###############################################################################
 # Delete region to speed up import
@@ -207,6 +197,5 @@ ipk.save_project()
 end = time.time() - start
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(ipk.project_file))
-if os.name != "posix":
-    ipk.release_desktop()
+ipk.release_desktop()
 

@@ -8,10 +8,10 @@ interact with a 3D layout.
 
 import os
 import tempfile
-from pyaedt import generate_unique_name
+import pyaedt
 
 tmpfold = tempfile.gettempdir()
-temp_folder = os.path.join(tmpfold, generate_unique_name("Example"))
+temp_folder = os.path.join(tmpfold, pyaedt.generate_unique_name("Example"))
 if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 print(temp_folder)
@@ -22,12 +22,8 @@ print(temp_folder)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copy an example into the temporary folder.
 
-from pyaedt import Desktop
-from pyaedt import Hfss3dLayout
-from pyaedt import examples
 
-
-targetfile = examples.download_aedb()
+targetfile = pyaedt.downloads.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
@@ -56,10 +52,10 @@ desktopVersion = "2022.2"
 # Initialize AEDT and launch HFSS 3D Layout.
 # The ``h3d`` object contains the :class:`pyaedt.Edb` class query methods.
 
-d = Desktop(desktopVersion, non_graphical, NewThread)
+d = pyaedt.launch_desktop(desktopVersion, non_graphical, NewThread)
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-h3d = Hfss3dLayout(targetfile)
+h3d = pyaedt.Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
 
 
@@ -130,6 +126,5 @@ h3d.modeler.fit_all()
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    h3d.close_project()
-    d.release_desktop()
+h3d.close_project()
+d.release_desktop()

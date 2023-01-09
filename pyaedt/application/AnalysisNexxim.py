@@ -2,8 +2,8 @@ import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Circuit import ModelerNexxim
-from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.schematic import ModelerNexxim
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
 from pyaedt.modules.Boundary import PowerIQSource
@@ -74,7 +74,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component_name : str or :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        component_name : str or :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Component to initialize.
 
         Returns
@@ -331,12 +331,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of exctitations.
+        """List of all S parameters for a list of excitations.
 
         Parameters
         ----------
         excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
+            List of excitations. The default value is ``[]``, in which case
             the S parameters for all excitations are to be provided.
             For example, ``["1", "2"]``.
 
