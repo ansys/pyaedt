@@ -313,7 +313,7 @@ class Monitor:
         if not monitor_name:
             monitor_name = generate_unique_name("Monitor")
         self._omonitor.AssignFaceMonitor(
-            ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", [surface_name]]
+            ["NAME:" + monitor_name, "Quantities:=", monitor_quantity, "Objects:=", surface_name]
         )
         try:
             monitor_names = self._generate_monitor_names(monitor_name, len(surface_name))
