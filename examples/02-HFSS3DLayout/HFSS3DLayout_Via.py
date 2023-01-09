@@ -8,7 +8,7 @@ parametric via analysis.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required inports.
+# Perform required imports.
 import pyaedt
 import os
 
@@ -44,18 +44,18 @@ h3d["len"] = "50mm"
 # ~~~~~~~~~~~~~~~~~~
 # Add stackup layers.
 
-h3d.modeler.layers.add_layer("GND", "signal", thickness="0", isnegative=True)
-h3d.modeler.layers.add_layer("diel", "dielectric", thickness="0.2mm", material="FR4_epoxy")
-h3d.modeler.layers.add_layer("TOP", "signal", thickness="0.035mm", elevation="0.2mm")
+h3d.modeler.layers.add_layer(layername="GND", layertype="signal", thickness="0", isnegative=True)
+h3d.modeler.layers.add_layer(layername="diel", layertype="dielectric", thickness="0.2mm", material="FR4_epoxy")
+h3d.modeler.layers.add_layer(layername="TOP", layertype="signal", thickness="0.035mm", elevation="0.2mm")
 
 ###############################################################################
 # Create signal net and ground planes
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a signal net and ground planes.
 
-h3d.modeler.create_line("TOP", [[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
-h3d.modeler.create_rectangle("TOP", [0, "-w1/2-sp"], ["len", "-w1/2-sp-20mm"])
-h3d.modeler.create_rectangle("TOP", [0, "w1/2+sp"], ["len", "w1/2+sp+20mm"])
+h3d.modeler.create_line(layername="TOP", center_line_list=[[0, 0], ["len", 0]], lw="w1", netname="microstrip", name="microstrip")
+h3d.modeler.create_rectangle(layername="TOP", origin=[0, "-w1/2-sp"], dimensions=["len", "-w1/2-sp-20mm"])
+h3d.modeler.create_rectangle(layername="TOP", origin=[0, "w1/2+sp"], dimensions=["len", "w1/2+sp+20mm"])
 
 ###############################################################################
 # Create vias
@@ -115,7 +115,6 @@ traces = h3d.get_traces_for_plot(first_element_filter="Port1", category="S")
 
 solutions = h3d.post.get_solution_data(expressions=traces)
 solutions.plot(math_formula="db20")
-
 
 ###############################################################################
 # Close AEDT

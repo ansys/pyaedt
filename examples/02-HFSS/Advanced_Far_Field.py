@@ -27,7 +27,6 @@ project_name = pyaedt.downloads.download_antenna_array()
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
-
 ###############################################################################
 # Import modules for postprocessing
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,10 +58,9 @@ remove_project_lock(project_name)
 hfss = pyaedt.Hfss(projectname=project_name,
                    designname="4X4_MultiCell_CA-Array")
 
-
 ###############################################################################
 # Solve HFSS project
-# ~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Solves the HFSS project.
 # The solution time is computed.
 
@@ -78,6 +76,7 @@ start = time.time()
 ff_data = hfss.post.get_efields_data(ff_setup="3D")
 end = time.time() - start
 print("Postprocessing Time", end)
+
 
 ###############################################################################
 # Calculate far field values
@@ -198,7 +197,6 @@ vals.plot(math_formula="db20", is_polar=True)
 
 vals.plot(math_formula="db20", is_polar=False)
 
-
 ###############################################################################
 # Generate plot using Phi as primary sweep
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -210,7 +208,6 @@ vals3d = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep,
                                       )
 
 vals3d.plot_3d()
-
 
 #######################################
 # Close HFSS project and AEDT

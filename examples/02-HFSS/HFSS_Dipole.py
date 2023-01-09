@@ -14,7 +14,6 @@ import pyaedt
 
 project_name = pyaedt.generate_unique_project_name(project_name="dipole")
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -149,7 +148,7 @@ new_report.create("Realized3D")
 # Get solution data
 # ~~~~~~~~~~~~~~~~~
 # Get solution data using the object ``new_report``` and postprocess or plot the
-# data outside of AEDT.
+# data outside AEDT.
 
 solution_data = new_report.get_solution_data()
 solution_data.plot()
@@ -163,15 +162,14 @@ solution_data.plot()
 # method with an arbitrary name.
 
 hfss["post_x"] = 2
-hfss.variable_manager.set_variable("y_post", 1, postprocessing=True)
-hfss.modeler.create_coordinate_system(["post_x", "y_post", 0], name="CS_Post")
+hfss.variable_manager.set_variable(variable_name="y_post", expression=1, postprocessing=True)
+hfss.modeler.create_coordinate_system(origin=["post_x", "y_post", 0], name="CS_Post")
 hfss.insert_infinite_sphere(custom_coordinate_system="CS_Post", name="Sphere_Custom")
 
 ###############################################################################
 # Get solution data
 # ~~~~~~~~~~~~~~~~~
-# Get solution data. You can use this code to generate the same plot outside
-# of AEDT.
+# Get solution data. You can use this code to generate the same plot outside AEDT.
 
 new_report = hfss.post.reports_by_category.far_field("GainTotal", hfss.nominal_adaptive, "3D")
 new_report.primary_sweep = "Theta"

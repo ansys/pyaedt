@@ -30,7 +30,6 @@ M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D",
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler
 
-
 ###############################################################################
 # Define variables
 # ~~~~~~~~~~~~~~~~
@@ -177,7 +176,6 @@ P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="
 start_point = P.start_point
 insert_point = ["90mm", "20mm", "0mm"]
 
-
 P.insert_segment(position_list=[start_point, insert_point])
 
 ###############################################################################
@@ -189,7 +187,6 @@ P.insert_segment(position_list=[start_point, insert_point])
 # that the segment is inserted after the first segment of the original polyline.
 
 P = prim3D.create_polyline(position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc")
-
 
 start_point = P.vertex_positions[1]
 insert_point1 = ["90mm", "20mm", "0mm"]
