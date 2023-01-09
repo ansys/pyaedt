@@ -490,10 +490,8 @@ class Monitor:
             for i in list(j):
                 if i not in existing_monitors:
                     del j[i]
-                    self._app.logger.info(
-                        "{} monitor object lost its assignment due to geometry modifications and has been deleted.".format(
-                            i
-                        )
+                    self._app.logger.info(i +
+                        " monitor object lost its assignment due to geometry modifications and has been deleted."
                     )
 
 
