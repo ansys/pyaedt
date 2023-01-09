@@ -877,7 +877,7 @@ class PostProcessorCommon(object):
         return True
 
     @pyaedt_function_handler()
-    def delete_report(self, PlotName=None):
+    def delete_report(self, plot_name=None):
         """Delete all reports or specific report.
 
         Parameters
