@@ -475,14 +475,13 @@ class Monitor:
         str
             Name of the object.
         """
-        type = monitor.type
-        match type:
-            case "Face":
-                return self._app.oeditor.GetObjectNameByFaceID(monitor.id)
-            case "Vertex":
-                return self._app.oeditor.GetObjectNameByVertexID(monitor.id)
-            case _:
-                return monitor.id
+        m_type = monitor.type
+        if m_type =="Face":
+            return self._app.oeditor.GetObjectNameByFaceID(monitor.id)
+        elif m_type=="Vertex":
+            return self._app.oeditor.GetObjectNameByVertexID(monitor.id)
+        else:
+            return monitor.id
 
     def _delete_removed_monitors(self):
         existing_monitors = self._app.odesign.GetChildObject("Monitor").GetChildNames()

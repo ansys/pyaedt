@@ -1262,40 +1262,37 @@ class Primitives3D(Primitives, object):
                 for key, val in aux_dict["monitor"].items():
                     key = udm_obj.name + "_" + key
                     m_case = val["Type"]
-                    match m_case:
-                        case "Point":
-                            cs_old = self._app.odesign.SetActiveEditor("3D Modeler").GetActiveCoordinateSystem()
-                            self._app.modeler.set_working_coordinate_system(targetCS)
-                            self._app.monitor.assign_point_monitor(
-                                val["Location"], monitor_quantity=val["Quantity"], monitor_name=key
-                            )
-                            self._app.modeler.set_working_coordinate_system(cs_old)
-                        case "Face":
-                            self._app.monitor.assign_face_monitor(
-                                mapping_dict["FaceKeyIDMap"][str(val["ID"])],
-                                monitor_quantity=val["Quantity"],
-                                monitor_name=key,
-                            )
-                        case "Vertex":
-                            self._app.monitor.assign_point_monitor_to_vertex(
-                                mapping_dict["VertexKeyIDMap"][str(val["ID"])],
-                                monitor_quantity=val["Quantity"],
-                                monitor_name=key,
-                            )
-                        case "Surface":
-                            self._app.monitor.assign_surface_monitor(
-                                self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
-                                monitor_quantity=val["Quantity"],
-                                monitor_name=key,
-                            )
-                        case "Object":
-                            self._app.monitor.assign_point_monitor_in_object(
-                                self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
-                                monitor_quantity=val["Quantity"],
-                                monitor_name=key,
-                            )
-                        case _:
-                            pass
+                    if m_case == "Point":
+                        cs_old = self._app.odesign.SetActiveEditor("3D Modeler").GetActiveCoordinateSystem()
+                        self._app.modeler.set_working_coordinate_system(targetCS)
+                        self._app.monitor.assign_point_monitor(
+                            val["Location"], monitor_quantity=val["Quantity"], monitor_name=key
+                        )
+                        self._app.modeler.set_working_coordinate_system(cs_old)
+                    elif m_case ==  "Face":
+                        self._app.monitor.assign_face_monitor(
+                            mapping_dict["FaceKeyIDMap"][str(val["ID"])],
+                            monitor_quantity=val["Quantity"],
+                            monitor_name=key,
+                        )
+                    elif m_case == "Vertex":
+                        self._app.monitor.assign_point_monitor_to_vertex(
+                            mapping_dict["VertexKeyIDMap"][str(val["ID"])],
+                            monitor_quantity=val["Quantity"],
+                            monitor_name=key,
+                        )
+                    elif m_case == "Surface":
+                        self._app.monitor.assign_surface_monitor(
+                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
+                            monitor_quantity=val["Quantity"],
+                            monitor_name=key,
+                        )
+                    elif m_case == "Object":
+                        self._app.monitor.assign_point_monitor_in_object(
+                            self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
+                            monitor_quantity=val["Quantity"],
+                            monitor_name=key,
+                        )
             if aux_dict.get("datasets", None):
                 for key, val in aux_dict["datasets"].items():
                     if key.startswith("$"):

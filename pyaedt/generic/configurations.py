@@ -1470,23 +1470,20 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def _update_monitor(self, m_case, m_object, m_quantity, m_name):
-        match m_case:
-            case "Point":
-                self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
-            case "Face":
-                self._app.monitor.assign_face_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
-            case "Vertex":
-                self._app.monitor.assign_point_monitor_to_vertex(
-                    m_object, monitor_quantity=m_quantity, monitor_name=m_name
-                )
-            case "Surface":
-                self._app.monitor.assign_surface_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
-            case "Object":
-                self._app.monitor.assign_point_monitor_in_object(
-                    m_object, monitor_quantity=m_quantity, monitor_name=m_name
-                )
-            case _:
-                pass
+        if m_case == "Point":
+            self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Face":
+            self._app.monitor.assign_face_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Vertex":
+            self._app.monitor.assign_point_monitor_to_vertex(
+                m_object, monitor_quantity=m_quantity, monitor_name=m_name
+            )
+        elif m_case == "Surface":
+            self._app.monitor.assign_surface_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+        elif m_case == "Object":
+            self._app.monitor.assign_point_monitor_in_object(
+                m_object, monitor_quantity=m_quantity, monitor_name=m_name
+            )
         return True
 
     @pyaedt_function_handler()

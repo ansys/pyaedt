@@ -965,38 +965,37 @@ class FieldAnalysis3D(Analysis, object):
                 for obj in objs_monitors:
                     for mon in objs_monitors[obj]:
                         mon_type = objs_monitors[obj][mon]["Location"]
-                        match mon_type:
-                            case "Face":
-                                try:
-                                    for f in self.modeler.get_object_from_name(obj).faces:
-                                        if f.center == objs_monitors[obj][mon]["ID Position"]:
-                                            self.monitor.assign_face_monitor(
-                                                f.id, objs_monitors[obj][mon]["Quantity"], mon
-                                            )
-                                            break
-                                except:
-                                    self.logger.error("{} monitor object could not be restored".format(mon))
-                            case "Vertex":
-                                try:
-                                    for v in self.modeler.get_object_from_name(obj).vertices:
-                                        if v.position == objs_monitors[obj][mon]["ID Position"]:
-                                            self.monitor.assign_point_monitor_to_vertex(
-                                                v.id, objs_monitors[obj][mon]["Quantity"], mon
-                                            )
-                                except:
-                                    self.logger.error("{} monitor object could not be restored".format(mon))
-                            case "Object":
-                                try:
-                                    self.monitor.assign_point_monitor_in_object(
-                                        obj, objs_monitors[obj][mon]["Quantity"], mon
-                                    )
-                                except:
-                                    self.logger.error("{} monitor object could not be restored".format(mon))
-                            case "Surface":
-                                try:
-                                    self.monitor.assign_surface_monitor(obj, objs_monitors[obj][mon]["Quantity"], mon)
-                                except:
-                                    self.logger.error("{} monitor object could not be restored".format(mon))
+                        if mon_type == "Face":
+                            try:
+                                for f in self.modeler.get_object_from_name(obj).faces:
+                                    if f.center == objs_monitors[obj][mon]["ID Position"]:
+                                        self.monitor.assign_face_monitor(
+                                            f.id, objs_monitors[obj][mon]["Quantity"], mon
+                                        )
+                                        break
+                            except:
+                                self.logger.error("{} monitor object could not be restored".format(mon))
+                        elif mon_type == "Vertex":
+                            try:
+                                for v in self.modeler.get_object_from_name(obj).vertices:
+                                    if v.position == objs_monitors[obj][mon]["ID Position"]:
+                                        self.monitor.assign_point_monitor_to_vertex(
+                                            v.id, objs_monitors[obj][mon]["Quantity"], mon
+                                        )
+                            except:
+                                self.logger.error("{} monitor object could not be restored".format(mon))
+                        elif mon_type == "Object":
+                            try:
+                                self.monitor.assign_point_monitor_in_object(
+                                    obj, objs_monitors[obj][mon]["Quantity"], mon
+                                )
+                            except:
+                                self.logger.error("{} monitor object could not be restored".format(mon))
+                        elif mon_type == "Surface":
+                            try:
+                                self.monitor.assign_surface_monitor(obj, objs_monitors[obj][mon]["Quantity"], mon)
+                            except:
+                                self.logger.error("{} monitor object could not be restored".format(mon))
             app.close_project(save_project=False)
             self.modeler.refresh_all_ids()
         return True
