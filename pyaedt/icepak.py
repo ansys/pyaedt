@@ -2345,8 +2345,8 @@ class Icepak(FieldAnalysis3D):
         y_values = []
         z_values = []
 
-        for id in vertex_ids:
-            tmp = self.modeler.oeditor.GetVertexPosition(id)
+        for vertex_id in vertex_ids:
+            tmp = self.modeler.oeditor.GetVertexPosition(vertex_id)
             x_values.append(tmp[0])
             y_values.append(tmp[1])
             z_values.append(tmp[2])
