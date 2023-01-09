@@ -287,7 +287,7 @@ class PinGroup(object):
         if pg_term.IsNull():
             return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
                 self._active_layout,
-                edb_net,
+                pin_group_net,
                 self.name,
                 self._edb_pin_group,
                 is_reference,
