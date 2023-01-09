@@ -53,7 +53,7 @@ class Monitor:
 
     @pyaedt_function_handler
     def _load_monitor_objects(self, aedtfile_monitor_dict):
-        quantities_dict = { # pragma: no cover
+        quantities_dict = {  # pragma: no cover
             8: "Speed",
             9: "Pressure",
             10: "TKE",
@@ -221,7 +221,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(point_position))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
-        except: # pragma: no cover
+        except:  # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -266,7 +266,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(vertex_id))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Vertex", vertex_id[i], monitor_quantity, self._app)
-        except: # pragma: no cover
+        except:  # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -424,7 +424,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(existing_names))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Object", existing_names[i], monitor_quantity, self._app)
-        except: # pragma: no cover
+        except:  # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
