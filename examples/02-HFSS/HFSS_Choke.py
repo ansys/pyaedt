@@ -11,6 +11,7 @@ This example shows how you can use PyAEDT to create a choke setup in HFSS.
 import json
 import os
 import pyaedt
+
 project_name = pyaedt.generate_unique_project_name(project_name="choke")
 
 ###############################################################################
@@ -133,7 +134,6 @@ core = list_object[1]
 first_winding_list = list_object[2]
 second_winding_list = list_object[3]
 
-
 ###############################################################################
 # Create ground
 # ~~~~~~~~~~~~~
@@ -220,6 +220,4 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 # :func:`pyaedt.Desktop.release_desktop` method.
 # All methods provide for saving the project before closing.
 
-
 hfss.release_desktop()
-
