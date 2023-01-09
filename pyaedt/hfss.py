@@ -18,9 +18,9 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.actors import Radar
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import UserDefinedComponent
+from pyaedt.modeler.advanced_cad.actors import Radar
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -1721,8 +1721,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
-        end_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        start_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+        end_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
 
         Returns
         -------
@@ -3124,7 +3124,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or list or :class:`pyaedt.modeler.Object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
@@ -4442,7 +4442,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -4483,7 +4483,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.

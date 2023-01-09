@@ -135,8 +135,6 @@ class AedtLogger(object):
         self._files_handlers = []
         self._projects = {}
 
-        # if not self._global.handlers:
-        #     self._global.addHandler(log_handler.LogHandler(self, "Global", logging.DEBUG))
         self._global.setLevel(level)
         self._global.addFilter(AppFilter())
 
@@ -181,7 +179,6 @@ class AedtLogger(object):
     def add_file_logger(self, filename, project_name, level=None):
         """Add a new file to the logger handlers list."""
         _project = logging.getLogger(project_name)
-        # _project.addHandler(log_handler.LogHandler(self, "Project", level if level else self.level))
         _project.setLevel(level if level else self.level)
         _project.addFilter(AppFilter("Project", project_name))
         _file_handler = logging.FileHandler(filename)
@@ -559,7 +556,6 @@ class AedtLogger(object):
         if destination == "Project":
             project_name = self._project_name
             self._project = logging.getLogger(project_name)
-            # self._project.addHandler(log_handler.LogHandler(self, "Project", level))
             self._project.setLevel(level)
             self._project.addFilter(AppFilter("Project", project_name))
             if self._files_handlers:
@@ -572,7 +568,6 @@ class AedtLogger(object):
             project_name = self._project_name
             design_name = self._design_name
             self._design = logging.getLogger(project_name + ":" + design_name)
-            # self._design.addHandler(log_handler.LogHandler(self, "Design", level))
             self._design.setLevel(level)
             self._design.addFilter(AppFilter("Design", design_name))
             if self._files_handlers:

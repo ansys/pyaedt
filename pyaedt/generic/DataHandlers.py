@@ -9,9 +9,9 @@ from decimal import Decimal
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
-from pyaedt.modeler.Object3d import EdgePrimitive
-from pyaedt.modeler.Object3d import FacePrimitive
-from pyaedt.modeler.Object3d import VertexPrimitive
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import VertexPrimitive
 
 
 @pyaedt_function_handler()
@@ -31,12 +31,12 @@ def _tuple2dict(t, d):
     """
     k = t[0]
     v = t[1]
-    if type(v) is list and len(t) > 2:
+    if isinstance(v, list) and len(t) > 2:
         d[k] = v
-    elif type(v) is list and len(t) == 2 and not v:
+    elif isinstance(v, list) and len(t) == 2 and not v:
         d[k] = None
     elif (
-        type(v) is list and type(v[0]) is tuple and len(t) == 2
+        isinstance(v, list) and isinstance(v[0], tuple) and len(t) == 2
     ):  # len check is to avoid expanding the list with a 3rd element=None
         if k in d:
             if not isinstance(d[k], list):
@@ -59,13 +59,9 @@ def _dict2arg(d, arg_out):
 
     Parameters
     ----------
-    d :
+    d : dict
 
     arg_out :
-
-
-    Returns
-    -------
 
     """
     for k, v in d.items():

@@ -207,6 +207,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: pyaedt-doc-flatten-json
+          path: json_artifacts
 
       # used for documentation deployment
       - name: Get Bot Application Token
@@ -221,6 +222,6 @@ jobs:
         with:
           repository-name: pyansys/devportal-doc-archive
           branch: drupal
-          folder: pyaedt-doc-flatten-json
+          folder: json_artifacts
           token: ${{ steps.get_workflow_token.outputs.token }}
           clean: false

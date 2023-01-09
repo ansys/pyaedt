@@ -13,12 +13,10 @@ This examples runs only on Windows using CPython.
 import os
 import time
 
-from pyaedt import examples
-from pyaedt import Desktop
-from pyaedt import Hfss
+import pyaedt
 from pyaedt.generic.general_methods import remove_project_lock
 
-project_name = examples.download_antenna_array()
+project_name = pyaedt.downloads.download_antenna_array()
 
 ###############################################################################
 # Set non-graphical mode
@@ -44,17 +42,22 @@ import matplotlib.pyplot as plt
 # Launch AEDT 2022 R2 in non-graphical mode.
 
 desktopVersion = "2022.2"
-NewThread = False
-desktop = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=NewThread)
+NewThread = True
+desktop = pyaedt.launch_desktop(specified_version=desktopVersion,
+                                non_graphical=non_graphical,
+                                new_desktop_session=NewThread
+                                )
 
 ###############################################################################
 # Open HFSS project
 # ~~~~~~~~~~~~~~~~~
-# Open the HFSS project.
+# Open the HFSS project. ``Hfss`` class allows to initialize a new project or
+# open an existing project and point to a design name.
 
 remove_project_lock(project_name)
 
-hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
+hfss = pyaedt.Hfss(projectname=project_name,
+                   designname="4X4_MultiCell_CA-Array")
 
 
 ###############################################################################
@@ -63,11 +66,8 @@ hfss = Hfss(project_name, "4X4_MultiCell_CA-Array")
 # Solves the HFSS project.
 # The solution time is computed.
 
-start = time.time()
 hfss.analyze_setup("Setup1")
 hfss.save_project()
-end = time.time() - start
-print("Solution Time", end)
 
 #######################################
 # Get efields data from solution
@@ -179,9 +179,10 @@ ff_calc()
 #          y=widgets.FloatSlider(value=0, min=-180, max=180, step=1))
 
 
-vals = hfss.post.get_far_field_data(
-    setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Elevation"
-)
+vals = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep,
+                                    expression="RealizedGainTotal",
+                                    domain="Elevation"
+                                    )
 
 ###############################################################################
 # Generate polar plot
@@ -203,9 +204,10 @@ vals.plot(math_formula="db20", is_polar=False)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Generate the plot using Phi as the primary sweep.
 
-vals3d = hfss.post.get_far_field_data(
-    setup_sweep_name=hfss.nominal_sweep, expression="RealizedGainTotal", domain="Infinite Sphere1"
-)
+vals3d = hfss.post.get_far_field_data(setup_sweep_name=hfss.nominal_sweep,
+                                      expression="RealizedGainTotal",
+                                      domain="Infinite Sphere1"
+                                      )
 
 vals3d.plot_3d()
 

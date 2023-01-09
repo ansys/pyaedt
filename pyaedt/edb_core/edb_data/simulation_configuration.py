@@ -16,7 +16,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class SimulationConfigurationBatch(object):
-    """Class containing all Cuotut and Batch analysis settings.
+    """Contains all Cuotut and Batch analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
 
     """
@@ -470,7 +470,7 @@ class SimulationConfigurationBatch(object):
 
 
 class SimulationConfigurationDc(object):
-    """Class containing all DC analysis settings.
+    """Contains all DC analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
 
     """
@@ -1020,7 +1020,7 @@ class SimulationConfigurationDc(object):
 
 
 class SimulationConfigurationAc(object):
-    """Class containing all AC analysis settings.
+    """Contains all AC analysis settings.
     The class is part of `SimulationConfiguration` class as a property.
 
     """
@@ -1781,6 +1781,7 @@ class SimulationConfiguration(object):
             self.import_json(filename)
         self._read_cfg()
         self._pedb = edb
+        self.SOLVER_TYPE = SolverType
 
     @property
     def open_edb_after_build(self):
@@ -2139,7 +2140,7 @@ class SimulationConfiguration(object):
             raise
 
     def _dict_to_json(self, dict_out, dict_in=None):
-        exclude = ["_pedb"]
+        exclude = ["_pedb", "SOLVER_TYPE"]
         for k, v in dict_in.items():
             if k in exclude:
                 continue

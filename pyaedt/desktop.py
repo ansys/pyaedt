@@ -162,23 +162,21 @@ def release_desktop(close_projects=True, close_desktop=True):
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
         if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
-            import ScriptEnv
+            if _check_grpc_port(settings.port, settings.machine):
+                import ScriptEnv
 
-            if close_desktop:
-                ScriptEnv.Shutdown()
-            else:
-                ScriptEnv.Release()
+                if close_desktop:
+                    ScriptEnv.Shutdown()
+                else:
+                    ScriptEnv.Release()
             _delete_objects()
-            if settings.remote_api:
-                return True
+            return True
         elif not inside_desktop:
             i = 0
             scopeID = 5
             while i <= scopeID:
                 _main.COMUtil.ReleaseCOMObjectScope(_main.COMUtil.PInvokeProxyAPI, i)
                 i += 1
-        _delete_objects()
-
         if close_desktop:
             try:
                 os.kill(pid, 9)
@@ -187,6 +185,7 @@ def release_desktop(close_projects=True, close_desktop=True):
             except Exception:  # pragma: no cover
                 warnings.warn("Something went wrong in closing AEDT.")
                 return False
+        _delete_objects()
         return True
     except AttributeError:
         _delete_objects()
@@ -291,11 +290,7 @@ def get_version_env_variable(version_id):
 
 
 class Desktop(object):
-    """Initializes AEDT based on the inputs provided.
-
-    .. note::
-       On Windows, this class works without limitations in IronPython and CPython.
-       On Linux, this class works only in embedded IronPython in AEDT.
+    """Provides the Ansys Electronics Desktop (AEDT) interface.
 
     Parameters
     ----------
@@ -402,7 +397,7 @@ class Desktop(object):
             if _com == "ironpython":  # pragma: no cover
                 self._logger.info("Launching PyAEDT outside AEDT with IronPython.")
                 self._init_ironpython(non_graphical, new_desktop_session, version)
-            elif _com == "grpc_v3" or settings.use_grpc_api or self.port:
+            elif _com == "grpc_v3" or settings.use_grpc_api or self.port or version_key > "2022.2":
                 settings.use_grpc_api = True
                 self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
             elif _com == "pythonnet_v3":
@@ -416,6 +411,9 @@ class Desktop(object):
                         version_key,
                         aedt_process_id,
                     )
+                else:
+                    settings.use_grpc_api = True
+                    self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
             else:
                 from pyaedt.generic.clr_module import win32_client
 
@@ -549,6 +547,7 @@ class Desktop(object):
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
+        settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
@@ -596,8 +595,6 @@ class Desktop(object):
             oAnsoftApp = StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
         else:
             oAnsoftApp = StandalonePyScriptWrapper.CreateObject(version)
-        if non_graphical:
-            settings.enable_desktop_logs = False
         self._main.oDesktop = oAnsoftApp.GetAppDesktop()
         self._main.isoutsideDesktop = True
         sys.path.append(os.path.join(base_path, "common", "commonfiles", "IronPython", "DLLs"))
@@ -656,8 +653,6 @@ class Desktop(object):
             StandalonePyScriptWrapper.CreateObjectNew(non_graphical)
         else:
             StandalonePyScriptWrapper.CreateObject(version)
-        if non_graphical:
-            settings.enable_desktop_logs = False
         processID2 = []
         if IsWindows:
             processID2 = com_active_sessions(version, student_version, non_graphical)
@@ -763,8 +758,6 @@ class Desktop(object):
             self._main.isoutsideDesktop = True
             self._main.oDesktop = self._main.oAnsoftApplication.GetAppDesktop()
             _proc = self._main.oDesktop.GetProcessID()
-            if non_graphical:
-                settings.enable_desktop_logs = False
             if new_aedt_session:
                 message = "{} {} version started with process ID {}.".format(
                     version, "Student" if student_version else "", _proc

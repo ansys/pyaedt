@@ -584,10 +584,10 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         rev:class:`pyaedt.modules.Revision`
-            last Revision object which was generated
+            Last ``Revision`` object that was generated.
 
         Examples
-        ----------
+        --------
         >>> rev = aedtapp.analyze()
 
         """

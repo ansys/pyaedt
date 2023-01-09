@@ -1203,7 +1203,7 @@ class EDBLayers(object):
 
 
 class LayerEdbClass(object):
-    """New Edb Layer management class. Replaces EDBLayer."""
+    """Manages Edb Layers. Replaces EDBLayer."""
 
     def __init__(self, pclass, name):
         self._pclass = pclass

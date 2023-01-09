@@ -15,15 +15,14 @@ if os.name == "posix" and is_ironpython:
 else:
     import subprocess
 
-
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import UserDefinedComponent
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.MonitorIcepak import Monitor

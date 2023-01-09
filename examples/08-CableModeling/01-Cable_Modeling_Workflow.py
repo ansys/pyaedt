@@ -10,20 +10,13 @@ This example shows how you can use PyAEDT to use all the cable modeling feature 
 # Perform required imports.
 
 import os
-import tempfile
-
-from pyaedt import Desktop
-from pyaedt import Hfss
-from pyaedt.generic.DataHandlers import json_to_dict
+import pyaedt
 from pyaedt.modules.CableModeling import Cable
 
-from pyaedt import examples
-from pyaedt import generate_unique_folder_name
-
 # Set local temporary folder to export the cable library into.
-temp_folder = generate_unique_folder_name()
-project_path = examples.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
-json_path = examples.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
+temp_folder = pyaedt.generate_unique_folder_name()
+project_path = pyaedt.downloads.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
+json_path = pyaedt.downloads.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
 
 ###############################################################################
 # Launch AEDT
@@ -46,14 +39,14 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-d = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2022 R2 in graphical mode.
 
-hfss = Hfss(projectname=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
 hfss.modeler.model_units = "mm"
 
 ###############################################################################
@@ -71,7 +64,7 @@ cable = Cable(hfss, json_path)
 # in json file).
 # A cable bundle with insulation jacket type is created.
 
-cable_props = json_to_dict(json_path)
+cable_props = pyaedt.data_handler.json_to_dict(json_path)
 
 cable_props["Add_Cable"] = "True"
 cable_props["Cable_prop"]["CableType"] = "bundle"
@@ -347,7 +340,7 @@ cable.update_pwl_source()
 
 # Create a pwl source from file.
 
-pwl_path = examples.download_file("cable_modeling", "import_pwl.pwl", temp_folder)
+pwl_path = pyaedt.downloads.download_file("cable_modeling", "import_pwl.pwl", temp_folder)
 
 cable_props["Add_Source"] = "True"
 cable_props["Update_Source"] = "False"

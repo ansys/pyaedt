@@ -13,8 +13,7 @@ and run a Twin Builder time-domain simulation.
 import os
 import math
 import matplotlib.pyplot as plt
-from pyaedt import TwinBuilder
-from pyaedt import generate_unique_project_name
+import pyaedt
 
 ###############################################################################
 # Select version and set launch options
@@ -37,7 +36,11 @@ new_thread = True
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
+                        specified_version=desktop_version,
+                        non_graphical=non_graphical,
+                        new_desktop_session=new_thread
+                        )
 
 ###############################################################################
 # Create components for bridge rectifier
@@ -143,5 +146,4 @@ plt.show()
 # After the simulation is completed, you can close Twin Builder or release it.
 # All methods provide for saving the project before closing.
 
-if os.name != "posix":
-    tb.release_desktop()
+tb.release_desktop()

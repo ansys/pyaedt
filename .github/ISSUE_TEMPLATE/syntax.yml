@@ -1,0 +1,43 @@
+name: 💡 Improve API and code syntax
+description: Enhance the API design
+title: "Improve ..."
+labels: ["enhancement"]
+assignees: [""]
+
+body:
+
+  - type: markdown
+    attributes:
+      value: '# 📝 **API enhancements**'
+
+  - type: textarea
+    id: modification-description
+    attributes:
+      label: Description of the current limitations
+      placeholder: Explain what are the limitations of the current API or why its usage is not intuitive.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: '# 💡 **Implementation**'
+
+  - type: textarea
+    id: implementation-description
+    attributes:
+      label: Code sample expected
+      placeholder: Provide a code example that fills the gap and meets the expectations.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: '# 🔗 **References**'
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Useful links and references
+      placeholder: A list of links and references to help when implementing the feature
+    validations:
+      required: false

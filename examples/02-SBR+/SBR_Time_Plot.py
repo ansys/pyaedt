@@ -11,7 +11,7 @@ and save it to a GIF file. This example works only on CPython.
 # Perform requried imports.
 
 import os
-from pyaedt import Hfss, examples
+from pyaedt import Hfss, downloads
 
 ###############################################################################
 # Set non-graphical mode
@@ -27,7 +27,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and load the project.
 
-project_file = examples.download_sbr_time()
+project_file = downloads.download_sbr_time()
 
 hfss = Hfss(project_file, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 

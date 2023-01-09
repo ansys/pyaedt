@@ -15,21 +15,11 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 import pyaedt
-from pyaedt import examples
-from pyaedt import generate_unique_folder_name
 
 # Set local path to path for PyAEDT
-temp_folder = generate_unique_folder_name()
-project_path = examples.download_file("ami", "ami_usb.aedtz", temp_folder)
+temp_folder = pyaedt.generate_unique_folder_name()
+project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folder)
 
-###############################################################################
-# Import main classes
-# ~~~~~~~~~~~~~~~~~~~
-# Import the main classes that are needed: :class:`pyaedt.Desktop` and :class:`pyaedt.Circuit`.
-
-from pyaedt import Circuit
-from pyaedt import constants
-from pyaedt import settings
 
 ###############################################################################
 # Launch AEDT
@@ -57,8 +47,8 @@ NewThread = True
 # Launch AEDT with Circuit. The :class:`pyaedt.Desktop` class initializes AEDT
 # and starts the specified version in the specified mode.
 
-settings.enable_pandas_output = True
-cir = Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
+pyaedt.settings.enable_pandas_output = True
+cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
               specified_version=desktopVersion, new_desktop_session=NewThread)
 
 ###############################################################################
@@ -111,9 +101,9 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
 
 tstop = 55e-9
 tstart = 50e-9
-scale_time = constants.unit_converter(1, unit_system="Time", input_units="s",
+scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
                                  output_units=original_data.units_sweeps["Time"])
-scale_data = constants.unit_converter(1, unit_system="Voltage", input_units="V",
+scale_data = pyaedt.constants.unit_converter(1, unit_system="Voltage", input_units="V",
                                  output_units=original_data.units_data[plot_name])
 
 tstop_ns = scale_time * tstop
@@ -214,9 +204,9 @@ sample_waveform = cir.post.sample_waveform(
 
 tstop = 40.0e-9
 tstart = 25.0e-9
-scale_time = constants.unit_converter(1, unit_system="Time", input_units="s",
+scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
                                  output_units=waveform_sweep_unit)
-scale_data = constants.unit_converter(1, unit_system="Voltage", input_units="V",
+scale_data = pyaedt.constants.unit_converter(1, unit_system="Voltage", input_units="V",
                                  output_units=waveform_unit)
 
 tstop_ns = scale_time * tstop
