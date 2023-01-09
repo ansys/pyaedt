@@ -6,8 +6,8 @@ and run a Twin Builder time-domain simulation.
 """
 
 ###############################################################################
-# Perform required imputs
-# ~~~~~~~~~~~~~~~~~~~~~~~
+# Perform required imports
+# ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
 import os
@@ -17,7 +17,7 @@ import pyaedt
 
 ###############################################################################
 # Select version and set launch options
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select the Twin Builder version and set the launch options. The following code
 # launches Twin Builder 2022 R2 in graphical mode.
 #
@@ -57,22 +57,22 @@ source = tb.modeler.schematic.create_voltage_source("V_AC", "ESINE", 100, 50, [-
 
 # Create the four diodes of the bridge rectifier.
 
-diode1 = tb.modeler.schematic.create_diode("D1", [10 * G, 6 * G], 3 * math.pi / 2)
-diode2 = tb.modeler.schematic.create_diode("D2", [20 * G, 6 * G], 3 * math.pi / 2)
-diode3 = tb.modeler.schematic.create_diode("D3", [10 * G, -4 * G], 3 * math.pi / 2)
-diode4 = tb.modeler.schematic.create_diode("D4", [20 * G, -4 * G], 3 * math.pi / 2)
+diode1 = tb.modeler.schematic.create_diode(compname="D1", location=[10 * G, 6 * G], angle=3 * math.pi / 2)
+diode2 = tb.modeler.schematic.create_diode(compname="D2", location=[20 * G, 6 * G], angle=3 * math.pi / 2)
+diode3 = tb.modeler.schematic.create_diode(compname="D3", location=[10 * G, -4 * G], angle=3 * math.pi / 2)
+diode4 = tb.modeler.schematic.create_diode(compname="D4", location=[20 * G, -4 * G], angle=3 * math.pi / 2)
 
 # Create a capacitor filter.
 
-capacitor = tb.modeler.schematic.create_capacitor("C_FILTER", 1e-6, [29 * G, -10 * G])
+capacitor = tb.modeler.schematic.create_capacitor(compname="C_FILTER", value=1e-6, location=[29 * G, -10 * G])
 
 # Create a load resistor.
 
-resistor = tb.modeler.schematic.create_resistor("RL", 100000, [39 * G, -10 * G])
+resistor = tb.modeler.schematic.create_resistor(compname="RL", value=100000, location=[39 * G, -10 * G])
 
 # Create a ground.
 
-gnd = tb.modeler.components.create_gnd([5 * G, -16 * G])
+gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
 
 ###############################################################################
 # Connect components
@@ -81,26 +81,26 @@ gnd = tb.modeler.components.create_gnd([5 * G, -16 * G])
 
 # Wire the diode bridge.
 
-tb.modeler.schematic.create_wire([diode1.pins[0].location, diode3.pins[0].location])
-tb.modeler.schematic.create_wire([diode2.pins[1].location, diode4.pins[1].location])
-tb.modeler.schematic.create_wire([diode1.pins[1].location, diode2.pins[0].location])
-tb.modeler.schematic.create_wire([diode3.pins[1].location, diode4.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[diode1.pins[0].location, diode3.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[diode2.pins[1].location, diode4.pins[1].location])
+tb.modeler.schematic.create_wire(points_array=[diode1.pins[1].location, diode2.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[diode3.pins[1].location, diode4.pins[0].location])
 
 # Wire the AC source.
 
-tb.modeler.schematic.create_wire([source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
-tb.modeler.schematic.create_wire([source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
+tb.modeler.schematic.create_wire(points_array=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
+tb.modeler.schematic.create_wire(points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
 
 # Wire the filter capacitor and load resistor.
 
-tb.modeler.schematic.create_wire([resistor.pins[0].location, [40 * G, 0], [22 * G, 0]])
-tb.modeler.schematic.create_wire([capacitor.pins[0].location, [30 * G, 0]])
+tb.modeler.schematic.create_wire(points_array=[resistor.pins[0].location, [40 * G, 0], [22 * G, 0]])
+tb.modeler.schematic.create_wire(points_array=[capacitor.pins[0].location, [30 * G, 0]])
 
 # Wire the ground.
 
-tb.modeler.schematic.create_wire([resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
-tb.modeler.schematic.create_wire([capacitor.pins[1].location, [30 * G, -15 * G]])
-tb.modeler.schematic.create_wire([gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
+tb.modeler.schematic.create_wire(points_array=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[capacitor.pins[1].location, [30 * G, -15 * G]])
+tb.modeler.schematic.create_wire(points_array=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
 
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()
@@ -114,7 +114,7 @@ tb.set_end_time("100ms")
 
 ###############################################################################
 # Solve transient setup
-# ~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~
 # Solve the transient setup.
 
 tb.analyze_setup("TR")

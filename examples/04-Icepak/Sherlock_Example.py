@@ -46,7 +46,7 @@ outline_polygon_name = "poly_14188"
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-d = pyaedt.launch_desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 start = time.time()
 material_list = os.path.join(input_dir, material_name)
@@ -77,9 +77,8 @@ component_name = "from_ODB"
 # Import a PCB from an AEDB file.
 
 odb_path = os.path.join(input_dir, aedt_odb_project)
-ipk.create_pcb_from_3dlayout(
-    component_name, odb_path, aedt_odb_design_name, extenttype="Polygon", outlinepolygon=outline_polygon_name
-)
+ipk.create_pcb_from_3dlayout(component_name=component_name, project_name=odb_path, design_name=aedt_odb_design_name,
+                             extenttype="Polygon", outlinepolygon=outline_polygon_name)
 
 ###############################################################################
 # Create offset coordinate system
@@ -87,7 +86,7 @@ ipk.create_pcb_from_3dlayout(
 # Create an offset coordinate system to match ODB++ with the
 # Sherlock STEP file.
 
-ipk.modeler.create_coordinate_system([0, 0, stackup_thickness / 2], mode="view", view="XY")
+ipk.modeler.create_coordinate_system(origin=[0, 0, stackup_thickness / 2], mode="view", view="XY")
 
 ###############################################################################
 # Import CAD file
@@ -103,14 +102,12 @@ ipk.modeler.import_3d_cad(file_path, refresh_all_ids=False)
 
 ipk.save_project(refresh_obj_ids_after_save=True)
 
-
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
 ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
-
 
 ###############################################################################
 # Delete PCB objects
@@ -129,7 +126,7 @@ ipk.modeler.create_air_region(*[20, 20, 300, 20, 20, 300])
 ###############################################################################
 # Assign materials
 # ~~~~~~~~~~~~~~~~
-# Assign materials from the the Sherlock file.
+# Assign materials from Sherlock file.
 
 ipk.assignmaterial_from_sherlock_files(component_list, material_list)
 
@@ -154,8 +151,7 @@ all_objects = ipk.modeler.object_names
 # ~~~~~~~~~~~~~~~~~~~
 # Assign power blocks from the Sherlock file.
 
-total_power = ipk.assign_block_from_sherlock_file(component_list)
-
+total_power = ipk.assign_block_from_sherlock_file(csv_name=component_list)
 
 ###############################################################################
 # Plot model
@@ -163,7 +159,6 @@ total_power = ipk.assign_block_from_sherlock_file(component_list)
 # Plot the model again now that materials are assigned.
 
 ipk.plot(show=False, export_path=os.path.join(project_folder, "Sherlock_Example.jpg"), plot_air_objects=False)
-
 
 ###############################################################################
 # Set up boundaries
@@ -198,4 +193,3 @@ end = time.time() - start
 print("Elapsed time: {}".format(datetime.timedelta(seconds=end)))
 print("Project Saved in {} ".format(ipk.project_file))
 ipk.release_desktop()
-

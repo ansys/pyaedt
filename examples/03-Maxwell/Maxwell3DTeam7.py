@@ -26,7 +26,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 ###########################################################################################
 # Launch AEDT and Maxwell 3D
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT and Maxwell 3D. The following code sets up the project and design names, the solver, and
 # the version. It also creates an instance of the ``Maxwell3d`` class named ``M3D``. 
 
@@ -36,12 +36,15 @@ Solver = "EddyCurrent"
 DesktopVersion = "2022.2"
 
 M3D = Maxwell3d(
-    projectname=generate_unique_project_name(), designname=Design_Name, solution_type=Solver, specified_version=DesktopVersion, non_graphical=non_graphical
+    projectname=generate_unique_project_name(),
+    designname=Design_Name,
+    solution_type=Solver,
+    specified_version=DesktopVersion,
+    non_graphical=non_graphical
 )
 M3D.modeler.model_units = "mm"
 modeler = M3D.modeler
 Plot = M3D.odesign.GetModule("ReportSetup")
-
 
 ###########################################################################################
 # Add Maxwell 3D setup
@@ -154,9 +157,10 @@ mat.conductivity = 3.526e7
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Model the aluminium plate with a hole by subtracting two rectangular cuboids.
 
-plate = M3D.modeler.create_box([0, 0, 0], [294, 294, 19], name="Plate", matname="team7_aluminium")
+plate = M3D.modeler.create_box(position=[0, 0, 0], dimensions_list=[294, 294, 19], name="Plate",
+                               matname="team7_aluminium")
 M3D.modeler.fit_all()
-hole = M3D.modeler.create_box([18, 18, 0], [108, 108, 19], name="Hole")
+hole = M3D.modeler.create_box(position=[18, 18, 0], dimensions_list=[108, 108, 19], name="Hole")
 M3D.modeler.subtract("Plate", ["Hole"], keep_originals=False)
 
 ###########################################################################################
@@ -173,8 +177,8 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # for all parts. The setting for eddy effect is ignored for the stranded conductor type
 # used in the coil.
 
-M3D.eddy_effects_on("Plate")
-M3D.eddy_effects_on(["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
+M3D.eddy_effects_on(object_list="Plate")
+M3D.eddy_effects_on(object_list=["Coil", "Region", "Line_A1_B1mesh", "Line_A2_B2mesh"],
                     activate_eddy_effects=False,
                     activate_displacement_current=False)
 
@@ -195,7 +199,7 @@ Fields.AddNamedExpression("Bz", "Fields")
 
 ################################################################################
 # Draw two lines along which to plot Bz
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw two lines along which to plot Bz. The following code also adds a small cylinder
 # to refine the mesh locally around each line.
 
@@ -203,13 +207,13 @@ lines = ["Line_A1_B1", "Line_A2_B2"]
 mesh_diameter = "2mm"
 
 line_points_1 = [["0mm", "72mm", "34mm"], ["288mm", "72mm", "34mm"]]
-polyline = modeler.create_polyline(line_points_1, name=lines[0])
-L1Mesh = modeler.create_polyline(line_points_1, name=lines[0] + "mesh")
+polyline = modeler.create_polyline(position_list=line_points_1, name=lines[0])
+L1Mesh = modeler.create_polyline(position_list=line_points_1, name=lines[0] + "mesh")
 L1Mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 line_points_2 = [["0mm", "144mm", "34mm"], ["288mm", "144mm", "34mm"]]
-polyline2 = modeler.create_polyline(line_points_2, name=lines[1])
-polyline2_mesh = modeler.create_polyline(line_points_2, name=lines[1] + "mesh")
+polyline2 = modeler.create_polyline(position_list=line_points_2, name=lines[1])
+polyline2_mesh = modeler.create_polyline(position_list=line_points_2, name=lines[1] + "mesh")
 polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 
 ###############################################################################
@@ -218,7 +222,6 @@ polyline2_mesh.set_crosssection_properties(type="Circle", width=mesh_diameter)
 # Plot the model.
 
 M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
-
 
 ################################################################################
 # Published measurement results are included with this script via the list below.

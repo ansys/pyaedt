@@ -13,9 +13,7 @@ HFSS antenna and run a simulation.
 import os
 import pyaedt
 
-
 project_full_name = pyaedt.downloads.download_sbr(pyaedt.generate_unique_project_name(project_name="sbr_freq"))
-
 
 ###############################################################################
 # Set non-graphical mode
@@ -60,7 +58,6 @@ target.create_sbr_linked_antenna(source, target_cs="feederPosition", fieldtype="
 
 target.assign_perfecte_to_sheets(["Reflector", "Subreflector"])
 target.mesh.assign_curvilinear_elements(["Reflector", "Subreflector"])
-
 
 ###############################################################################
 # Plot model
@@ -116,7 +113,6 @@ solution = target.post.get_solution_data(
     report_category="Far Fields",
 )
 solution.plot()
-
 
 ###############################################################################
 # Release AEDT
