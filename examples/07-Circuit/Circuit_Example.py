@@ -21,7 +21,6 @@ import os
 
 desktop_version = "2022.2"
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -56,9 +55,9 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # ~~~~~~~~~~~~~~~~~
 # Create components, such as an inductor, resistor, and capacitor.
 
-inductor = aedt_app.modeler.schematic.create_inductor("L1", 1e-9, [0, 0])
-resistor = aedt_app.modeler.schematic.create_resistor("R1", 50, [0.0254, 0])
-capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12)
+inductor = aedt_app.modeler.schematic.create_inductor(compname="L1", value=1e-9, location=[0, 0])
+resistor = aedt_app.modeler.schematic.create_resistor(compname="R1", value=50, location=[0.0254, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-12)
 
 ###############################################################################
 # Get all pins
@@ -67,13 +66,12 @@ capacitor = aedt_app.modeler.schematic.create_capacitor("C1", 1e-12)
 
 pins_resistor = resistor.pins
 
-
 ###############################################################################
 # Create port and ground
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a port and a ground, which are needed for the circuit analysis.
 
-port = aedt_app.modeler.components.create_interface_port("myport")
+port = aedt_app.modeler.components.create_interface_port(name="myport")
 gnd = aedt_app.modeler.components.create_gnd()
 
 ###############################################################################
@@ -81,19 +79,19 @@ gnd = aedt_app.modeler.components.create_gnd()
 # ~~~~~~~~~~~~~~~~~~
 # Connect components with wires.
 
-port.pins[0].connect_to_component(inductor.pins[0])
-inductor.pins[1].connect_to_component(resistor.pins[0])
-resistor.pins[1].connect_to_component(capacitor.pins[0])
-capacitor.pins[1].connect_to_component(gnd.pins[0])
+port.pins[0].connect_to_component(component_pin=inductor.pins[0])
+inductor.pins[1].connect_to_component(component_pin=resistor.pins[0])
+resistor.pins[1].connect_to_component(component_pin=capacitor.pins[0])
+capacitor.pins[1].connect_to_component(component_pin=gnd.pins[0])
 
 ###############################################################################
 # Create transient setup
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient setup.
 
-setup2 = aedt_app.create_setup("MyTransient", aedt_app.SETUPS.NexximTransient)
+setup2 = aedt_app.create_setup(setupname="MyTransient", setuptype=aedt_app.SETUPS.NexximTransient)
 setup2.props["TransientData"] = ["0.01ns", "200ns"]
-setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
+setup3 = aedt_app.create_setup(setupname="MyDC", setuptype=aedt_app.SETUPS.NexximDC)
 
 ###############################################################################
 # Solve transient setup
@@ -101,9 +99,7 @@ setup3 = aedt_app.create_setup("MyDC", aedt_app.SETUPS.NexximDC)
 # Solve the transient setup.
 
 aedt_app.analyze_setup("MyLNA")
-
 aedt_app.export_fullwave_spice()
-
 
 ###############################################################################
 # Create report
@@ -121,9 +117,8 @@ print(real)
 # Plot data
 # ~~~~~~~~~
 # Create a plot based on solution data.
+
 fig = solutions.plot()
-
-
 
 ###############################################################################
 # Close AEDT

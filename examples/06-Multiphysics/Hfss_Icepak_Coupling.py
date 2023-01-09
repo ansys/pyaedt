@@ -17,7 +17,6 @@ This examples runs only on Windows using CPython.
 import os
 import pyaedt
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -69,9 +68,12 @@ aedtapp["inner"] = "3mm"
 # Optionally, you can assign a material using the :func:`assign_material` method.
 
 # TODO: How does this work when two truesurfaces are defined?
-o1 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, "inner", "$coax_dimension", numSides=0, name="inner")
-o2 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 8, "$coax_dimension", numSides=0, matname="teflon_based")
-o3 = aedtapp.modeler.create_cylinder(aedtapp.PLANE.ZX, udp, 10, "$coax_dimension", numSides=0, name="outer")
+o1 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius="inner", height="$coax_dimension",
+                                     numSides=0, name="inner")
+o2 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=8, height="$coax_dimension",
+                                     numSides=0, matname="teflon_based")
+o3 = aedtapp.modeler.create_cylinder(cs_axis=aedtapp.PLANE.ZX, position=udp, radius=10, height="$coax_dimension",
+                                     numSides=0, name="outer")
 
 ###############################################################################
 # Assign colors
@@ -109,9 +111,9 @@ aedtapp.modeler.subtract(o2, o1, True)
 # After a mesh is created, you can access a mesh operation to
 # edit or review parameter values.
 
-aedtapp.mesh.assign_initial_mesh_from_slider(6)
-aedtapp.mesh.assign_model_resolution([o1.name, o3.name], None)
-aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
+aedtapp.mesh.assign_initial_mesh_from_slider(level=6)
+aedtapp.mesh.assign_model_resolution(names=[o1.name, o3.name], defeature_length=None)
+aedtapp.mesh.assign_length_mesh(names=o2.faces, isinside=False, maxlength=1, maxel=2000)
 
 ###############################################################################
 # Create excitations
@@ -121,16 +123,17 @@ aedtapp.mesh.assign_length_mesh(o2.faces, False, 1, 2000)
 # the faces. It also assigns a port to this face. If ``add_pec_cap=True``, the method
 # creates a PEC cap.
 
-aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=1, add_pec_cap=True, portname="P1")
-aedtapp.create_wave_port_between_objects("inner", "outer", axisdir=4, add_pec_cap=True, portname="P2")
+aedtapp.create_wave_port_between_objects(startobj="inner", endobject="outer", axisdir=1, add_pec_cap=True,
+                                         portname="P1")
+aedtapp.create_wave_port_between_objects(startobj="inner", endobject="outer", axisdir=4, add_pec_cap=True,
+                                         portname="P2")
 
-portnames = aedtapp.get_all_sources()
+port_names = aedtapp.get_all_sources()
 aedtapp.modeler.fit_all()
-
 
 ###############################################################################
 # Create setup
-# ~~~~~~~~~~~~~
+# ~~~~~~~~~~~~
 # Create a setup. A setup is created with default values. After its creation,
 # you can change values and update the setup. The ``update`` method returns a Boolean
 # value.
@@ -146,7 +149,8 @@ setup.props["MaximumPasses"] = 1
 # ~~~~~~~~~~~~
 # Create a sweep. A sweep is created with default values.
 
-sweepname = aedtapp.create_linear_count_sweep("MySetup", "GHz", 0.8, 1.2, 401, sweep_type="Interpolating")
+sweepname = aedtapp.create_linear_count_sweep(setupname="MySetup", unit="GHz", freqstart=0.8, freqstop=1.2,
+                                              num_of_freq_points=401, sweep_type="Interpolating")
 
 ################################################################################
 # Create Icepak model
@@ -164,9 +168,8 @@ ipkapp.copy_solid_bodies_from(aedtapp)
 # Link sources to the EM losses.
 
 surfaceobj = ["inner", "outer"]
-ipkapp.assign_em_losses(
-    aedtapp.design_name, "MySetup", "LastAdaptive", "1GHz", surfaceobj, paramlist=["$coax_dimension", "inner"]
-)
+ipkapp.assign_em_losses(designname=aedtapp.design_name, setupname="MySetup", sweepname="LastAdaptive",
+                        map_frequency="1GHz", surface_objects=surfaceobj, paramlist=["$coax_dimension", "inner"])
 
 #################################################################################
 # Edit gravity setting
@@ -324,5 +327,4 @@ my_data.plot(trace_names, "db20", xlabel="Frequency (Ghz)", ylabel="SParameters(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Close the project and release AEDT.
 
-# aedtapp.close_project(aedtapp.project_name)
 aedtapp.release_desktop()
