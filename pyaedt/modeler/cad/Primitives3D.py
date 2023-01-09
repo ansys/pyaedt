@@ -1122,7 +1122,8 @@ class Primitives3D(Primitives, object):
         password : str, optional
             Password for encrypted components. The default is an empty string.
         auxiliary_dict : bool or str, optional
-            Enable the advanced 3d component import. It is possible to set explicitly the json file. The default is ``False``.
+            Enable the advanced 3d component import. It is possible to set explicitly the json file.
+            The default is ``False``.
 
         Returns
         -------
