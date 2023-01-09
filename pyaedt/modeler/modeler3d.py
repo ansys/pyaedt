@@ -60,11 +60,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_file,
         component_name=None,
         variables_to_include=[],
-        exclude_region=False,
         object_list=None,
         boundaries_list=None,
         excitation_list=None,
         included_cs=None,
+        reference_cs="Global",
         is_encrypted=False,
         allow_edit=False,
         security_message="",
@@ -89,8 +89,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
              List of variables to include. The default is ``[]``.
-        exclude_region : bool, optional
-             Whether to exclude the region. The default is ``False`` except for Icepak where it is set to ``True``.
         object_list : list, optional
             List of Objects names to export. The default is all objects
         boundaries_list : list, optional
@@ -99,6 +97,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             List of Excitation names to export. The default is all excitations
         included_cs : list, optional
             List of Coordinate Systems to export. The default is all coordinate systems
+        reference_cs : str, optional
+
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
         allow_edit : bool, optional
@@ -149,8 +149,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         >>> oEditor.Create3DComponent
         """
-        if self._app.design_type == "Icepak":
-            exclude_region = True
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
@@ -220,13 +218,12 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 objs.remove(el)
         arg.append("IncludedParts:="), arg.append(objs)
         arg.append("HiddenParts:="), arg.append([])
-        activecs = self.oeditor.GetActiveCoordinateSystem()
         if included_cs:
             allcs = included_cs
         else:
             allcs = self.oeditor.GetCoordinateSystems()
         arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(activecs)
+        arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
         if variables_to_include:
             variables = variables_to_include

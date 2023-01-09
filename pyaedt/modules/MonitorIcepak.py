@@ -53,7 +53,7 @@ class Monitor:
 
     @pyaedt_function_handler
     def _load_monitor_objects(self, aedtfile_monitor_dict):
-        quantities_dict = {
+        quantities_dict = { # pragma: no cover
             8: "Speed",
             9: "Pressure",
             10: "TKE",
@@ -156,7 +156,10 @@ class Monitor:
             Monitor objects dictionary.
 
         """
-        return {**self.face_monitors, **self.point_monitors}
+        out_dict = {}
+        out_dict.update(self.face_monitors)
+        out_dict.update(self.point_monitors)
+        return out_dict
 
     @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_quantity="Temperature", monitor_name=None):
@@ -179,12 +182,10 @@ class Monitor:
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
         --------
-
         Create two temperature monitor at the points ``[0, 0, 0]`` and ``[1, 1, 1]``.
 
         >>> icepak.monitor.assign_point_monitor([[0,0,0], [1, 1, 1]], monitor_name="monitor1")
@@ -220,7 +221,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(point_position))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Point", point_names[i], monitor_quantity, self._app)
-        except:
+        except: # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -265,7 +266,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(vertex_id))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Vertex", vertex_id[i], monitor_quantity, self._app)
-        except:
+        except: # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -319,7 +320,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(surface_name))
             for i, mn in enumerate(monitor_names):
                 self._face_monitors[mn] = FaceMonitor(mn, "Surface", surface_name[i], monitor_quantity, self._app)
-        except:
+        except:  # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -361,7 +362,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(face_id))
             for i, mn in enumerate(monitor_names):
                 self._face_monitors[mn] = FaceMonitor(mn, "Face", face_id[i], monitor_quantity, self._app)
-        except:
+        except:  # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -423,7 +424,7 @@ class Monitor:
             monitor_names = self._generate_monitor_names(monitor_name, len(existing_names))
             for i, mn in enumerate(monitor_names):
                 self._point_monitors[mn] = PointMonitor(mn, "Object", existing_names[i], monitor_quantity, self._app)
-        except:
+        except: # pragma: no cover
             return False
         if len(monitor_names) == 1:
             return monitor_names[0]
@@ -499,8 +500,6 @@ class PointMonitor(Monitor):
         self._name = monitor_name
         self._type = monitor_type
         self._id = point_id
-        if not isinstance(quantity, list):
-            quantity = [quantity]
         self._quantities = quantity
         self._app = app
 
@@ -589,12 +588,10 @@ class PointMonitor(Monitor):
 
 
 class FaceMonitor(Monitor):
-    def __init__(self, monitor_name, type, face_id, quantity, app):
+    def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
         self._name = monitor_name
-        self._type = type
+        self._type = monitor_type
         self._id = face_id
-        if not isinstance(quantity, list):
-            quantity = [quantity]
         self._quantities = quantity
         self._app = app
 

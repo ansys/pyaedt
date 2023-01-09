@@ -561,6 +561,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.monitor.assign_surface_monitor(
             ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
         ) == ["monitor_surfs", "monitor_surfs1"]
+        assert self.aedtapp.monitor.assign_surface_monitor("surf1")
 
     def test_46_point_monitors(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
@@ -574,6 +575,8 @@ class TestClass(BasisTest, object):
             self.aedtapp.monitor.assign_point_monitor_in_object("box", monitor_name="monitor_point1")
             == "monitor_point1"
         )
+        assert self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
+        assert self.aedtapp.monitor._find_point()
         assert self.aedtapp.monitor.assign_point_monitor_in_object("box", monitor_name="monitor_point")
         assert self.aedtapp.monitor.assign_point_monitor_in_object("box2")
         assert not self.aedtapp.monitor.assign_point_monitor_in_object("box1")
@@ -592,6 +595,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.monitor.assign_point_monitor_to_vertex(
             [vertex1.id, vertex2.id], monitor_quantity=["Temperature", "Speed"], monitor_name="monitor_vertex_123"
         ) == ["monitor_vertex_123", "monitor_vertex_124"]
+        assert self.aedtapp.monitor.get_monitor_object_assignment("monitor_vertex_123") == "box"
+        assert self.aedtapp.monitor.assign_point_monitor_to_vertex(vertex1.id)
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
@@ -606,11 +611,13 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.monitor.assign_face_monitor(
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
         ) == ["monitor_faces", "monitor_faces1"]
+        assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
 
     def test_49_delete_monitors(self):
-        for mon in self.aedtapp.monitor.all_monitors:
-            self.aedtapp.monitor.delete_monitor(mon)
+        for _, mon_obj in self.aedtapp.monitor.all_monitors.items():
+            mon_obj.delete()
         assert self.aedtapp.monitor.all_monitors == {}
+        assert not self.aedtapp.monitor.delete_monitor("Test")
 
     def test_50_advanced3dcomp_export(self):
         self.aedtapp.insert_design("advanced3dcompTest")

@@ -534,10 +534,10 @@ class Icepak(FieldAnalysis3D):
         ----------
         face_id : int or str
             If int, Face ID. If str, object name.
-        thermal_specification: str
+        thermal_specification : str
             Select what thermal specification is to be applied. The possible choices are ``"Thickness"``,
             ``"Conductance"``, ``"Thermal Impedance"`` and ``"Thermal Resistance"``
-        thermal_dependent_dataset: str, optional
+        thermal_dependent_dataset : str, optional
             Name of the dataset if a thermal dependent power source is to be assigned. The default is ``None``.
         input_power : str, float, or int, optional
             Input power. The default is ``"0W"``. Ignored if thermal_dependent_dataset is set
@@ -632,7 +632,7 @@ class Icepak(FieldAnalysis3D):
         ----------
         face_id : int or str
             If int, Face ID. If str, object name.
-        thermal_dependent_dataset: str, optional
+        thermal_dependent_dataset : str, optional
             Name of the dataset if a thermal dependent power source is to be assigned. The default is ``None``.
         input_power : str, float, or int, optional
             Input power. The default is ``"0W"``.
@@ -891,9 +891,6 @@ class Icepak(FieldAnalysis3D):
     def assign_surface_monitor(self, face_name, monitor_type="Temperature", monitor_name=None):
         """Assign a surface monitor.
 
-        .. deprecated::
-            This method will be moved inside the monitor class (`monitor.assign_surface_monitor`).
-
         Parameters
         ----------
         face_name : str
@@ -924,15 +921,11 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
-        warnings.warn("This method is deprecated. Please use monitor.assign_surface_monitor", DeprecationWarning)
         return self._monitor.assign_surface_monitor(face_name, monitor_quantity=monitor_type, monitor_name=monitor_name)
 
     @pyaedt_function_handler()
     def assign_point_monitor(self, point_position, monitor_type="Temperature", monitor_name=None):
         """Create and assign a point monitor.
-
-        .. deprecated::
-        This method will be moved inside the monitor class (`monitor.assign_point_monitor`).
 
         Parameters
         ----------
@@ -951,19 +944,16 @@ class Icepak(FieldAnalysis3D):
 
         References
         ----------
-
         >>> oModule.AssignPointMonitor
 
         Examples
         --------
-
         Create a temperature monitor at the point ``[1, 1, 1]``.
 
         >>> icepak.assign_point_monitor([1, 1, 1], monitor_name="monitor1")
         'monitor1'
 
         """
-        warnings.warn("This method is deprecated. Please use monitor.assign_point_monitor", DeprecationWarning)
         return self._monitor.assign_point_monitor(
             point_position, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
@@ -971,9 +961,6 @@ class Icepak(FieldAnalysis3D):
     @pyaedt_function_handler()
     def assign_point_monitor_in_object(self, name, monitor_type="Temperature", monitor_name=None):
         """Assign a point monitor in the centroid of a specific object.
-
-        .. deprecated::
-        This method will be moved inside the monitor class (`monitor.assign_point_monitor_in_object`).
 
         Parameters
         ----------
@@ -1004,9 +991,6 @@ class Icepak(FieldAnalysis3D):
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
-        warnings.warn(
-            "This method is deprecated. Please use monitor.assign_point_monitor_in_object", DeprecationWarning
-        )
         return self._monitor.assign_point_monitor_in_object(
             name, monitor_quantity=monitor_type, monitor_name=monitor_name
         )
@@ -2415,37 +2399,6 @@ class Icepak(FieldAnalysis3D):
 
         self.modeler.edit_region_dimensions(restore_padding_values)
         return dis_x, dis_y, dis_z
-
-    @pyaedt_function_handler()
-    def create_temp_point_monitor(self, point_name, point_coord=[0, 0, 0]):
-        """Create a temperature monitor for the simulation.
-
-        .. deprecated::
-        This method will be moved inside the monitor class (`monitor.assign_point_monitor`).
-
-
-        Parameters
-        ----------
-        point_name : str
-            Name of the temperature monitor.
-        point_coord : list, optional
-            List of ``[x, y, z}"" coordinates for the temperature monitor.
-            The default is ``[0, 0, 0]``.
-
-        Returns
-        -------
-        bool
-             ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.AssignPointMonitor
-        """
-        warnings.warn("This method is deprecated. Please use monitor.assign_point_monitor", DeprecationWarning)
-        return bool(
-            self._monitor.assign_point_monitor(point_coord, monitor_quantity="Temperature", monitor_name=point_name)
-        )
 
     @pyaedt_function_handler()
     def delete_em_losses(self, bound_name):

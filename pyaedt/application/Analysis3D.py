@@ -945,10 +945,10 @@ class FieldAnalysis3D(Analysis, object):
                 objs_monitors = {part.name: {} for _, part in comp.parts.items()}
                 for mon_name in self.monitor.all_monitors:
                     try:
-                        type = self.monitor.all_monitors[mon_name].type
+                        mon_type = self.monitor.all_monitors[mon_name].type
                         obj_name = self.monitor.get_monitor_object_assignment(self.monitor.all_monitors[mon_name])
                         objs_monitors[obj_name][mon_name] = {
-                            "Location": type,
+                            "Location": mon_type,
                             "ID Position": self.monitor.all_monitors[mon_name].location,
                             "Quantity": self.monitor.all_monitors[mon_name].quantities,
                         }
