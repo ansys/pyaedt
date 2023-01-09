@@ -964,8 +964,8 @@ class FieldAnalysis3D(Analysis, object):
             if self.design_type == "Icepak":
                 for obj in objs_monitors:
                     for mon in objs_monitors[obj]:
-                        type = objs_monitors[obj][mon]["Location"]
-                        match type:
+                        mon_type = objs_monitors[obj][mon]["Location"]
+                        match mon_type:
                             case "Face":
                                 try:
                                     for f in self.modeler.get_object_from_name(obj).faces:
