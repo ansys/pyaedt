@@ -4666,6 +4666,37 @@ class GeometryModeler(Modeler, object):
         return sel
 
     @pyaedt_function_handler()
+    def scale(self, obj_list, x=2.0, y=2.0, z=2.0):
+        """Scale a list of objects.
+
+        Parameters
+        ----------
+        obj_list : list
+            List of objects IDs or names.
+        x : float, optional
+            Scale factor for X.
+        y : float, optional
+            Scale factor for Y.
+        z : float, optional
+            Scale factor for Z.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Scale
+        """
+        selections = self.convert_to_selections(obj_list, True)
+        arg1 = ["NAME:Selections", "Selections:=", ", ".join(selections), "NewPartsModelFlag:=", "Model"]
+        arg2 = ["NAME:ScaleParameters", "ScaleX:=", str(x), "ScaleY:=", str(y), "ScaleZ:=", str(z)]
+        self.oeditor.Scale(arg1, arg2)
+        return True
+
+    @pyaedt_function_handler()
     def select_allfaces_fromobjects(self, elements):
         """Select all outer faces given a list of objects.
 
