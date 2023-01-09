@@ -476,6 +476,8 @@ class Monitor:
         str
             Name of the object.
         """
+        if isinstance(monitor, str):
+            monitor = self.all_monitors[monitor]
         m_type = monitor.type
         if m_type == "Face":
             return self._app.oeditor.GetObjectNameByFaceID(monitor.id)
@@ -584,7 +586,7 @@ class PointMonitor(Monitor):
 
     @pyaedt_function_handler
     def delete(self):
-        self.delete_monitor(self._name)
+        self._app.monitor.delete_monitor(self.name)
 
 
 class FaceMonitor(Monitor):
@@ -675,4 +677,4 @@ class FaceMonitor(Monitor):
 
     @pyaedt_function_handler
     def delete(self):
-        self.delete_monitor(self.name)
+        self._app.monitor.delete_monitor(self.name)

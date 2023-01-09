@@ -944,16 +944,14 @@ class FieldAnalysis3D(Analysis, object):
             if self.design_type == "Icepak":
                 objs_monitors = {part.name: {} for _, part in comp.parts.items()}
                 for mon_name in self.monitor.all_monitors:
-                    try:
+                    obj_name = self.monitor.get_monitor_object_assignment(self.monitor.all_monitors[mon_name])
+                    if obj_name in objs_monitors:
                         mon_type = self.monitor.all_monitors[mon_name].type
-                        obj_name = self.monitor.get_monitor_object_assignment(self.monitor.all_monitors[mon_name])
                         objs_monitors[obj_name][mon_name] = {
                             "Location": mon_type,
                             "ID Position": self.monitor.all_monitors[mon_name].location,
                             "Quantity": self.monitor.all_monitors[mon_name].quantities,
                         }
-                    except:
-                        pass
             oldcs = self.oeditor.GetActiveCoordinateSystem()
             self.modeler.set_working_coordinate_system(
                 self.modeler.user_defined_components[cmp].target_coordinate_system

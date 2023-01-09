@@ -685,7 +685,7 @@ class Icepak(FieldAnalysis3D):
         elif isinstance(face_id, str):
             props["Objects"] = [face_id]
         props["Thermal Condition"] = thermal_condtion
-        if thermal_dependent_dataset == None:
+        if thermal_dependent_dataset is None:
             props["Total Power"] = input_power
         else:
             props["Total Power Variation Data"] = OrderedDict(
@@ -2960,7 +2960,7 @@ class Icepak(FieldAnalysis3D):
                 [
                     pcb_layer
                     for pcb_layer in self.modeler.get_3d_component_object_list(componentname=pcb)
-                    if re.search(self.modeler.user_defined_components[pcb].definition_name + "_\d\d\d.*", pcb_layer)
+                    if re.search(self.modeler.user_defined_components[pcb].definition_name + r"_\d\d\d.*", pcb_layer)
                 ]
             )
             pcb_layers = [part_names[0], part_names[-1]]

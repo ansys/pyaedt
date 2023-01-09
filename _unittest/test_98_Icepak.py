@@ -576,7 +576,7 @@ class TestClass(BasisTest, object):
             == "monitor_point1"
         )
         assert self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
-        assert self.aedtapp.monitor._find_point()
+        assert self.aedtapp.monitor._find_point(["0mm", "0mm", "0mm"])
         assert self.aedtapp.monitor.assign_point_monitor_in_object("box", monitor_name="monitor_point")
         assert self.aedtapp.monitor.assign_point_monitor_in_object("box2")
         assert not self.aedtapp.monitor.assign_point_monitor_in_object("box1")
