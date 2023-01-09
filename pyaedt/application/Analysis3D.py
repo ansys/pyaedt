@@ -904,6 +904,7 @@ class FieldAnalysis3D(Analysis, object):
     @pyaedt_function_handler()
     def flatten_3d_components(self, component_name=None, purge_history=True, password=""):
         """Flatten one or multiple 3d components in the actual layout. Each 3d Component is replaced with objects.
+        This function will work only if the reference coordinate system of the 3d component is the global one.
 
         Parameters
         ----------
@@ -920,8 +921,10 @@ class FieldAnalysis3D(Analysis, object):
         bool
             `True` if succeeded.
         """
+        native_comp_names = [i.props["BasicComponentInfo"]["ComponentName"] for _, i in self.native_components.items()]
         if not component_name:
-            component_name = self.modeler.user_defined_component_names
+            component_name = [key for key, val in self.modeler.user_defined_components.items() if
+                              val.definition_name not in native_comp_names]
         else:
             if isinstance(component_name, str):
                 component_name = [component_name]
@@ -935,8 +938,55 @@ class FieldAnalysis3D(Analysis, object):
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
             self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
-            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
-            app.close_project(save_project=False)
+            if self.design_type == 'Icepak':
+                objs_monitors = {part.name: {} for _, part in comp.parts.items()}
+                for mon_name in self.monitor.all_monitors:
+                    try:
+                        type = self.monitor.all_monitors[mon_name].type
+                        obj_name = self.monitor.get_monitor_object_assignment(self.monitor.all_monitors[mon_name])
+                        objs_monitors[obj_name][mon_name] = {'Location': type,
+                                                             'ID Position': self.monitor.all_monitors[mon_name].location,
+                                                             'Quantity': self.monitor.all_monitors[mon_name].quantities
+                                                             }
+                    except:
+                        pass
+            oldcs = self.oeditor.GetActiveCoordinateSystem()
+            self.modeler.set_working_coordinate_system(self.modeler.user_defined_components[cmp].target_coordinate_system)
             comp.delete()
+            self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
+            self.modeler.set_working_coordinate_system(oldcs)
+            if self.design_type == 'Icepak':
+                for obj in objs_monitors:
+                    for mon in objs_monitors[obj]:
+                        type=objs_monitors[obj][mon]["Location"]
+                        match type:
+                            case "Face":
+                                try:
+                                    for f in self.modeler.get_object_from_name(obj).faces:
+                                        if f.center == objs_monitors[obj][mon]["ID Position"]:
+                                            self.monitor.assign_face_monitor(f.id, objs_monitors[obj][mon]["Quantity"], mon)
+                                            break
+                                except:
+                                    self.logger.error("{} monitor object could not be restored".format(mon))
+                            case "Vertex":
+                                try:
+                                    for v in self.modeler.get_object_from_name(obj).vertices:
+                                        if v.position == objs_monitors[obj][mon]["ID Position"]:
+                                            self.monitor.assign_point_monitor_to_vertex(v.id,
+                                                                            objs_monitors[obj][mon]["Quantity"], mon)
+                                except:
+                                    self.logger.error("{} monitor object could not be restored".format(mon))
+                            case "Object":
+                                try:
+                                    self.monitor.assign_point_monitor_in_object(obj,
+                                        objs_monitors[obj][mon]["Quantity"], mon)
+                                except:
+                                    self.logger.error("{} monitor object could not be restored".format(mon))
+                            case "Surface":
+                                try:
+                                    self.monitor.assign_surface_monitor(obj, objs_monitors[obj][mon]["Quantity"], mon)
+                                except:
+                                    self.logger.error("{} monitor object could not be restored".format(mon))
+            app.close_project(save_project=False)
             self.modeler.refresh_all_ids()
         return True
