@@ -936,16 +936,18 @@ class Configurations(object):
         if name.startswith("$"):
             is_project_dataset = True
         if name not in self._app.project_datasets.keys() or name not in self._app.design_datasets.keys():
-            self._app.create_dataset(name,
-                                     data_dict["x"],
-                                     data_dict["y"],
-                                     data_dict["z"],
-                                     data_dict["v"],
-                                     is_project_dataset,
-                                     data_dict["xunit"],
-                                     data_dict["yunit"],
-                                     data_dict["zunit"],
-                                     data_dict["vunit"])
+            self._app.create_dataset(
+                name,
+                data_dict["x"],
+                data_dict["y"],
+                data_dict["z"],
+                data_dict["v"],
+                is_project_dataset,
+                data_dict["xunit"],
+                data_dict["yunit"],
+                data_dict["zunit"],
+                data_dict["vunit"],
+            )
 
     @pyaedt_function_handler()
     def import_config(self, config_file):
@@ -1000,7 +1002,7 @@ class Configurations(object):
                 zunit = ""
 
                 new_list = [
-                    val["Coordinates"]["Points"][i: i + numcol]
+                    val["Coordinates"]["Points"][i : i + numcol]
                     for i in range(0, len(val["Coordinates"]["Points"]), numcol)
                 ]
                 xval = new_list[0]
@@ -1197,21 +1199,27 @@ class Configurations(object):
             for dataset_dict in [self._app.project_datasets, self._app.design_datasets]:
                 for k, obj in dataset_dict.items():
                     if k not in dict_out.get("material datasets", []):
-                        dict_out["datasets"][k] = {'v': obj.v,
-                                                   'vunit': obj.vunit,
-                                                   'x': obj.x,
-                                                   'xunit': obj.xunit,
-                                                   'y': obj.y,
-                                                   'yunit': obj.yunit,
-                                                   'z': obj.z,
-                                                   'zunit': obj.zunit}
+                        dict_out["datasets"][k] = {
+                            "v": obj.v,
+                            "vunit": obj.vunit,
+                            "x": obj.x,
+                            "xunit": obj.xunit,
+                            "y": obj.y,
+                            "yunit": obj.yunit,
+                            "z": obj.z,
+                            "zunit": obj.zunit,
+                        }
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
         dict_monitor = {}
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
-                dict_monitor[mon_name] = {key: val for key, val in self._app.monitor.all_monitors[mon_name].properties.items() if key not in ["Name", "Object"]}
+                dict_monitor[mon_name] = {
+                    key: val
+                    for key, val in self._app.monitor.all_monitors[mon_name].properties.items()
+                    if key not in ["Name", "Object"]
+                }
         dict_out["monitor"] = dict_monitor
 
     @pyaedt_function_handler()
@@ -1294,7 +1302,7 @@ class Configurations(object):
             self._export_materials(dict_out)
         if self.options.export_datasets:
             self._export_datasets(dict_out)
-        if hasattr(self.options, 'export_monitor'):
+        if hasattr(self.options, "export_monitor"):
             if self.options.export_monitor:
                 self._export_monitor(dict_out)
         # update the json if it exists already
@@ -1406,7 +1414,7 @@ class ConfigurationsIcepak(Configurations):
                     return mesh_el.update()
 
         bound = self._app.mesh.MeshRegion(
-            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units,  self._app
+            self._app.mesh.omeshmodule, self._app.mesh.boundingdimension, self._app.mesh._model_units, self._app
         )
         bound.name = name
         for el in props:
@@ -1468,11 +1476,15 @@ class ConfigurationsIcepak(Configurations):
             case "Face":
                 self._app.monitor.assign_face_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
             case "Vertex":
-                self._app.monitor.assign_point_monitor_to_vertex(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+                self._app.monitor.assign_point_monitor_to_vertex(
+                    m_object, monitor_quantity=m_quantity, monitor_name=m_name
+                )
             case "Surface":
                 self._app.monitor.assign_surface_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
             case "Object":
-                self._app.monitor.assign_point_monitor_in_object(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
+                self._app.monitor.assign_point_monitor_in_object(
+                    m_object, monitor_quantity=m_quantity, monitor_name=m_name
+                )
             case _:
                 pass
         return True
@@ -1485,9 +1497,8 @@ class ConfigurationsIcepak(Configurations):
             for monitor_obj in dict_in["monitor"]:
                 m_type = dict_in["monitor"][monitor_obj]["Type"]
                 m_obj = dict_in["monitor"][monitor_obj]["ID"]
-                if m_type=="Point":
+                if m_type == "Point":
                     m_obj = dict_in["monitor"][monitor_obj]["Location"]
-                if not self._update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"],
-                                            monitor_obj):
+                if not self._update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
                     self.results.import_monitor = False
         return dict_in

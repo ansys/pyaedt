@@ -558,29 +558,40 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [20, 20], name="surf2")
         assert self.aedtapp.monitor.assign_surface_monitor("surf1", monitor_name="monitor_surf") == "monitor_surf"
-        assert self.aedtapp.monitor.assign_surface_monitor(["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"],
-                                                           monitor_name="monitor_surfs") == ["monitor_surfs", "monitor_surfs1"]
+        assert self.aedtapp.monitor.assign_surface_monitor(
+            ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
+        ) == ["monitor_surfs", "monitor_surfs1"]
 
     def test_46_point_monitors(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], "box", "copper")
         self.aedtapp.modeler.create_box([9, 9, 9], [5, 5, 5], "box2", "copper")
         assert self.aedtapp.monitor.assign_point_monitor([0, 0, 0], monitor_name="monitor_point") == "monitor_point"
         assert self.aedtapp.monitor.point_monitors["monitor_point"].location == [0, 0, 0]
-        assert self.aedtapp.monitor.assign_point_monitor([[0, 0, 0], [0.5, 0.5, 0.5]],
-                                                         monitor_quantity=["Temperature", "Speed"],
-                                                         monitor_name="monitor_points") == ["monitor_points", "monitor_points1"]
-        assert self.aedtapp.monitor.assign_point_monitor_in_object("box", monitor_name="monitor_point1") == "monitor_point1"
+        assert self.aedtapp.monitor.assign_point_monitor(
+            [[0, 0, 0], [0.5, 0.5, 0.5]], monitor_quantity=["Temperature", "Speed"], monitor_name="monitor_points"
+        ) == ["monitor_points", "monitor_points1"]
+        assert (
+            self.aedtapp.monitor.assign_point_monitor_in_object("box", monitor_name="monitor_point1")
+            == "monitor_point1"
+        )
         assert self.aedtapp.monitor.assign_point_monitor_in_object("box", monitor_name="monitor_point")
         assert self.aedtapp.monitor.assign_point_monitor_in_object("box2")
         assert not self.aedtapp.monitor.assign_point_monitor_in_object("box1")
         assert isinstance(self.aedtapp.monitor.assign_point_monitor_in_object(["box", "box2"]), list)
-        assert self.aedtapp.monitor.assign_point_monitor_in_object(["box", "box2"], monitor_quantity=["Temperature",
-                                                                                                  "HeatFlowRate"],
-                                                         monitor_name="monitor_in_obj1") == ["monitor_in_obj1", "monitor_in_obj2"]
+        assert self.aedtapp.monitor.assign_point_monitor_in_object(
+            ["box", "box2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_in_obj1"
+        ) == ["monitor_in_obj1", "monitor_in_obj2"]
         vertex1 = self.aedtapp.modeler.get_object_from_name("box").vertices[0]
         vertex2 = self.aedtapp.modeler.get_object_from_name("box").vertices[1]
-        assert self.aedtapp.monitor.assign_point_monitor_to_vertex(vertex1.id, monitor_quantity="Temperature", monitor_name="monitor_vertex") == "monitor_vertex"
-        assert self.aedtapp.monitor.assign_point_monitor_to_vertex([vertex1.id, vertex2.id], monitor_quantity=["Temperature", "Speed"], monitor_name="monitor_vertex_123") == ["monitor_vertex_123", "monitor_vertex_124"]
+        assert (
+            self.aedtapp.monitor.assign_point_monitor_to_vertex(
+                vertex1.id, monitor_quantity="Temperature", monitor_name="monitor_vertex"
+            )
+            == "monitor_vertex"
+        )
+        assert self.aedtapp.monitor.assign_point_monitor_to_vertex(
+            [vertex1.id, vertex2.id], monitor_quantity=["Temperature", "Speed"], monitor_name="monitor_vertex_123"
+        ) == ["monitor_vertex_123", "monitor_vertex_124"]
 
     def test_47_face_monitor(self):
         self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], "box3", "copper")
@@ -588,9 +599,14 @@ class TestClass(BasisTest, object):
         face_2 = self.aedtapp.modeler.get_object_from_name("box3").faces[1]
         assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_face") == "monitor_face"
         assert self.aedtapp.monitor.face_monitors["monitor_face"].location == face_1.center
-        assert self.aedtapp.monitor.get_monitor_object_assignment(self.aedtapp.monitor.face_monitors["monitor_face"]) == "box3"
-        assert self.aedtapp.monitor.assign_face_monitor([face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"],
-                                                        monitor_name="monitor_faces") == ["monitor_faces", "monitor_faces1"]
+        assert (
+            self.aedtapp.monitor.get_monitor_object_assignment(self.aedtapp.monitor.face_monitors["monitor_face"])
+            == "box3"
+        )
+        assert self.aedtapp.monitor.assign_face_monitor(
+            [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
+        ) == ["monitor_faces", "monitor_faces1"]
+
     def test_49_delete_monitors(self):
         for mon in self.aedtapp.monitor.all_monitors:
             self.aedtapp.monitor.delete_monitor(mon)
@@ -615,8 +631,18 @@ class TestClass(BasisTest, object):
         self.aedtapp.monitor.assign_face_monitor(box1.faces[0].id, "Temperature", "FaceMonitor")
         self.aedtapp.monitor.assign_point_monitor_in_object(box1.name, "Temperature", "BoxMonitor")
         self.aedtapp.monitor.assign_surface_monitor(surf1.name, "Temperature", "SurfaceMonitor")
-        self.aedtapp.create_dataset("test_dataset", [1,2,3,4], [1,2,3,4], zlist=None, vlist=None,
-            is_project_dataset=False, xunit="cel", yunit="W", zunit="", vunit="")
+        self.aedtapp.create_dataset(
+            "test_dataset",
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            zlist=None,
+            vlist=None,
+            is_project_dataset=False,
+            xunit="cel",
+            yunit="W",
+            zunit="",
+            vunit="",
+        )
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp.a3dcomp"
         self.aedtapp.modeler.set_working_coordinate_system("Global")
@@ -640,20 +666,29 @@ class TestClass(BasisTest, object):
         cs2.props["OriginZ"] = 20
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp.a3dcomp"
-        self.aedtapp.modeler.insert_3d_component(comp_file=os.path.join(file_path, file_name), targetCS="CS2",
-                                                 auxiliary_dict=True)
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+        )
         assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
-        assert all(i in self.aedtapp.monitor.all_monitors for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"])
+        assert all(
+            i in self.aedtapp.monitor.all_monitors
+            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
+        )
         assert "test_dataset" in self.aedtapp.design_datasets
-        assert "board_assembly1_CS1"in [i.name for i in self.aedtapp.modeler.coordinate_systems]
+        assert "board_assembly1_CS1" in [i.name for i in self.aedtapp.modeler.coordinate_systems]
 
     def test_52_flatten_3d_components(self):
         assert self.aedtapp.flatten_3d_components()
-        assert all(i in self.aedtapp.monitor.all_monitors for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"])
+        assert all(
+            i in self.aedtapp.monitor.all_monitors
+            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
+        )
         assert "test_dataset" in self.aedtapp.design_datasets
 
     def test_53_create_conduting_plate(self):
-        assert self.aedtapp.create_conduting_plate(self.aedtapp.modeler.get_object_from_name("box1").faces[0].id,
-                                                   thermal_specification="Thickness",
-                                                   input_power="1W",
-                                                   thickness="1mm")
+        assert self.aedtapp.create_conduting_plate(
+            self.aedtapp.modeler.get_object_from_name("box1").faces[0].id,
+            thermal_specification="Thickness",
+            input_power="1W",
+            thickness="1mm",
+        )
