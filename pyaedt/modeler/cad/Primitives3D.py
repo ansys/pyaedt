@@ -10,12 +10,11 @@ from math import sin
 from math import sqrt
 from math import tan
 
+from pyaedt import Icepak
+from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import open_file
-from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt import Icepak
 from pyaedt.modeler.advanced_cad.actors import Bird
 from pyaedt.modeler.advanced_cad.actors import Person
 from pyaedt.modeler.advanced_cad.actors import Vehicle
@@ -23,6 +22,7 @@ from pyaedt.modeler.advanced_cad.multiparts import Environment
 from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent
 from pyaedt.modeler.cad.Primitives import Primitives
 from pyaedt.modeler.geometry_operators import GeometryOperators
+from pyaedt.modules.Boundary import NativeComponentObject
 
 
 class Primitives3D(Primitives, object):
@@ -1101,7 +1101,7 @@ class Primitives3D(Primitives, object):
         targetCS="Global",
         name=None,
         password="",
-        auxiliary_dict=False
+        auxiliary_dict=False,
     ):
         """Insert a new 3D component.
 
@@ -1122,7 +1122,8 @@ class Primitives3D(Primitives, object):
         password : str, optional
             Password for encrypted components. The default is an empty string.
         auxiliary_dict : bool or str, optional
-            Enable the advanced 3d component import. It is possible to set explicitly the json file. The default is ``False``.
+            Enable the advanced 3d component import. It is possible to set explicitly the json file.
+            The default is ``False``.
 
         Returns
         -------
@@ -1192,9 +1193,9 @@ class Primitives3D(Primitives, object):
             udm_obj = False
         if auxiliary_dict and udm_obj:
             if isinstance(auxiliary_dict, bool):
-                auxiliary_dict = comp_file + '.json'
-            aux_dict = json.load(open(auxiliary_dict, 'r'))
-            mapping_dict={}
+                auxiliary_dict = comp_file + ".json"
+            aux_dict = json.load(open(auxiliary_dict, "r"))
+            mapping_dict = {}
             if aux_dict.get("monitor", None):
                 temp_proj_name = self._app._generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
@@ -1203,74 +1204,101 @@ class Primitives3D(Primitives, object):
                 ipkapp_temp.oproject.Paste()
                 temp_proj = ipkapp_temp.project_file
                 ipkapp_temp.close_project()
-                read_dict = LoadAEDTFile.load_keyword_in_aedt_file(temp_proj, 'ToplevelParts')
+                read_dict = LoadAEDTFile.load_keyword_in_aedt_file(temp_proj, "ToplevelParts")
                 read_cs = False
                 parts_name = self._app.odesign.GetChildObject("3D Modeler").GetChildObject(udm_obj.name).GetChildNames()
-                mapping_dict = {'ReferenceCoordSystemID': 0, 'FaceKeyIDMap': {}, 'EdgeKeyIDMap': {},
-                                'VertexKeyIDMap': {}, "BodyKeyIDMap": {}}
-                geometry_part_list = read_dict['ToplevelParts']['GeometryPart']
+                mapping_dict = {
+                    "ReferenceCoordSystemID": 0,
+                    "FaceKeyIDMap": {},
+                    "EdgeKeyIDMap": {},
+                    "VertexKeyIDMap": {},
+                    "BodyKeyIDMap": {},
+                }
+                geometry_part_list = read_dict["ToplevelParts"]["GeometryPart"]
                 if isinstance(geometry_part_list, dict):
                     geometry_part_list = [geometry_part_list]
                 for part in geometry_part_list:
-                    if part['Attributes']['Name'] in parts_name:
-                        mapping_dict['ReferenceCoordSystemID'] = part['Operations']['Operation'][
-                            'ReferenceCoordSystemID']
-                        for i in ['FaceKeyIDMap', 'EdgeKeyIDMap', 'VertexKeyIDMap', "BodyKeyIDMap"]:
+                    if part["Attributes"]["Name"] in parts_name:
+                        mapping_dict["ReferenceCoordSystemID"] = part["Operations"]["Operation"][
+                            "ReferenceCoordSystemID"
+                        ]
+                        for i in ["FaceKeyIDMap", "EdgeKeyIDMap", "VertexKeyIDMap", "BodyKeyIDMap"]:
                             try:
-                                dict_str = "{" + ",".join(
-                                    part['Operations']['Operation']['OperationIdentity'][i]
-                                ).replace("'", '"').replace("=", ":") + "}"
+                                dict_str = (
+                                    "{"
+                                    + ",".join(part["Operations"]["Operation"]["OperationIdentity"][i])
+                                    .replace("'", '"')
+                                    .replace("=", ":")
+                                    + "}"
+                                )
                             except KeyError:  # TODO: fix reading AEDT
-                                for key, val in part['Operations']['Operation']['OperationIdentity'].items():
+                                for key, val in part["Operations"]["Operation"]["OperationIdentity"].items():
                                     if i in key:
                                         keyarr = key.split("(")
-                                        dict_str = '{' + '{}: {}'.format(
-                                            keyarr[1], val.replace(')', '')).replace("'", '"') + "}"
+                                        dict_str = (
+                                            "{"
+                                            + "{}: {}".format(keyarr[1], val.replace(")", "")).replace("'", '"')
+                                            + "}"
+                                        )
                                         break
                             mapping_dict[i].update(json.loads(dict_str))
-                if mapping_dict['ReferenceCoordSystemID'] != 1:
+                if mapping_dict["ReferenceCoordSystemID"] != 1:
                     read_cs = True
                 if read_cs:
-                    read_dict = LoadAEDTFile.load_keyword_in_aedt_file(temp_proj, 'CoordinateSystems')
-                    if isinstance(read_dict['CoordinateSystems']['Operation'], list):
-                        cs_dict = {cs['ID']: cs['Attributes']['Name'] for cs in
-                                   read_dict['CoordinateSystems']['Operation']}
+                    read_dict = LoadAEDTFile.load_keyword_in_aedt_file(temp_proj, "CoordinateSystems")
+                    if isinstance(read_dict["CoordinateSystems"]["Operation"], list):
+                        cs_dict = {
+                            cs["ID"]: cs["Attributes"]["Name"] for cs in read_dict["CoordinateSystems"]["Operation"]
+                        }
                     else:
-                        cs_dict = {read_dict['CoordinateSystems']['Operation']['ID']:
-                                       read_dict['CoordinateSystems']['Operation']['Attributes']['Name']}
-                    mapping_dict['ReferenceCoordSystemName'] = cs_dict[mapping_dict['ReferenceCoordSystemID']]
+                        cs_dict = {
+                            read_dict["CoordinateSystems"]["Operation"]["ID"]: read_dict["CoordinateSystems"][
+                                "Operation"
+                            ]["Attributes"]["Name"]
+                        }
+                    mapping_dict["ReferenceCoordSystemName"] = cs_dict[mapping_dict["ReferenceCoordSystemID"]]
                 else:
-                    mapping_dict['ReferenceCoordSystemName'] = 'Global'
+                    mapping_dict["ReferenceCoordSystemName"] = "Global"
                 for key, val in aux_dict["monitor"].items():
                     key = udm_obj.name + "_" + key
-                    m_case = val['Type']
+                    m_case = val["Type"]
                     match m_case:
                         case "Point":
                             cs_old = self._app.odesign.SetActiveEditor("3D Modeler").GetActiveCoordinateSystem()
                             self._app.modeler.set_working_coordinate_system(targetCS)
-                            self._app.monitor.assign_point_monitor(val['Location'], monitor_quantity=val['Quantity'],
-                                                                   monitor_name=key)
+                            self._app.monitor.assign_point_monitor(
+                                val["Location"], monitor_quantity=val["Quantity"], monitor_name=key
+                            )
                             self._app.modeler.set_working_coordinate_system(cs_old)
                         case "Face":
-                            self._app.monitor.assign_face_monitor(mapping_dict['FaceKeyIDMap'][str(val['ID'])],
-                                                                  monitor_quantity=val['Quantity'], monitor_name=key)
+                            self._app.monitor.assign_face_monitor(
+                                mapping_dict["FaceKeyIDMap"][str(val["ID"])],
+                                monitor_quantity=val["Quantity"],
+                                monitor_name=key,
+                            )
                         case "Vertex":
                             self._app.monitor.assign_point_monitor_to_vertex(
-                                mapping_dict['VertexKeyIDMap'][str(val['ID'])],
-                                monitor_quantity=val['Quantity'], monitor_name=key)
+                                mapping_dict["VertexKeyIDMap"][str(val["ID"])],
+                                monitor_quantity=val["Quantity"],
+                                monitor_name=key,
+                            )
                         case "Surface":
                             self._app.monitor.assign_surface_monitor(
-                                self._app.modeler.objects[mapping_dict['BodyKeyIDMap'][str(val['ID'])]].name,
-                                monitor_quantity=val['Quantity'], monitor_name=key)
+                                self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
+                                monitor_quantity=val["Quantity"],
+                                monitor_name=key,
+                            )
                         case "Object":
                             self._app.monitor.assign_point_monitor_in_object(
-                                self._app.modeler.objects[mapping_dict['BodyKeyIDMap'][str(val['ID'])]].name,
-                                monitor_quantity=val['Quantity'], monitor_name=key)
+                                self._app.modeler.objects[mapping_dict["BodyKeyIDMap"][str(val["ID"])]].name,
+                                monitor_quantity=val["Quantity"],
+                                monitor_name=key,
+                            )
                         case _:
                             pass
             if aux_dict.get("datasets", None):
                 for key, val in aux_dict["datasets"].items():
-                    if key.startswith('$'):
+                    if key.startswith("$"):
                         is_project_dataset = True
                         dsname = key[1:]
                     else:
@@ -1293,25 +1321,29 @@ class Primitives3D(Primitives, object):
             if aux_dict.get("native components", None):
                 if aux_dict.get("coordinatesystems", None):
                     for cs in list(aux_dict["coordinatesystems"].keys()):
-                       aux_dict["coordinatesystems"][udm_obj.name + "_" + cs] = aux_dict["coordinatesystems"][cs]
-                       aux_dict["coordinatesystems"].pop(cs)
-                       if aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] == "Global":
-                           aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = targetCS
-                       else:
-                           aux_dict["coordinatesystems"][udm_obj.name + "_" + cs][
-                               "Reference CS"] = udm_obj.name + "_" + aux_dict[
-                               "coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
+                        aux_dict["coordinatesystems"][udm_obj.name + "_" + cs] = aux_dict["coordinatesystems"][cs]
+                        aux_dict["coordinatesystems"].pop(cs)
+                        if aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] == "Global":
+                            aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = targetCS
+                        else:
+                            aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = (
+                                udm_obj.name
+                                + "_"
+                                + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
+                            )
                     add_cs = list(aux_dict["coordinatesystems"].keys())
                     available_cs = ["Global"] + [cs.name for cs in self.modeler.coordinate_systems]
-                    i=0
+                    i = 0
                     while add_cs:
                         if aux_dict["coordinatesystems"][add_cs[i]]["Reference CS"] in available_cs:
-                            self._app.configurations._update_coordinate_systems(add_cs[i], aux_dict["coordinatesystems"][add_cs[i]])
+                            self._app.configurations._update_coordinate_systems(
+                                add_cs[i], aux_dict["coordinatesystems"][add_cs[i]]
+                            )
                             available_cs.append(add_cs[i])
                             add_cs.pop(i)
-                            i=0
+                            i = 0
                         else:
-                            i+=1
+                            i += 1
                 for nc, ncdict in aux_dict["native components"].items():
                     for nc_cs in ncdict["CS"]:
                         if nc_cs == "Global":
