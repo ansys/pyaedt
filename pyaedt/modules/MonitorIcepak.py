@@ -593,6 +593,7 @@ class PointMonitor(Monitor):
             "ID": self.id,
             "Location": self.location,
             "Quantity": self.quantities,
+            "Geometry Assignment": self.get_monitor_object_assignment(self),
         }
 
     @pyaedt_function_handler
@@ -684,6 +685,7 @@ class FaceMonitor(Monitor):
             "ID": self.id,
             "Location": self.location,
             "Quantity": self.quantities,
+            "Geometry Assignment": self.get_monitor_object_assignment(self),
         }
 
     @pyaedt_function_handler
