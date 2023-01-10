@@ -526,8 +526,8 @@ class Mechanical(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_heat_flux(self, objects_list, heat_flux_type, value, boundary_name=""):
-        """
-        Assign heat flux boundary condition to an object or face list
+        """Assign heat flux boundary condition to an object or face list.
+
         Parameters
         ----------
         objects_list : list
@@ -575,8 +575,8 @@ class Mechanical(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_heat_generation(self, objects_list, value, boundary_name=""):
-        """
-        Assign heat generation boundary condition to an object list
+        """Assign heat generation boundary condition to an object list.
+
         Parameters
         ----------
         objects_list : list
