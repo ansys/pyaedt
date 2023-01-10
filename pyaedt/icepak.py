@@ -1901,7 +1901,7 @@ class Icepak(FieldAnalysis3D):
         name : str, optional
             Fan name. The default is ``None``, in which case the default name is used.
         is_2d : bool, optional
-            Whether the fan is modeled as 2D or not. The default value is ``False``, in which
+            Whether the fan is modeled as 2D. The default is ``False``, in which
             case the fan is modeled as 3D.
         shape : str, optional
             Fan shape. Options are ``"Circular"`` and ``"Rectangular"``. The default
@@ -2680,11 +2680,11 @@ class Icepak(FieldAnalysis3D):
             Whether to perform minimal validation. The default is ``True``.
             If ``False``, full validation is performend.
         default_fluid : str, optional
-            Default type of fluid. The default is ``"Air"``.
+            Type of fluid. The default is ``"Air"``.
         default_solid :
-            Default type of solid. The default is ``"Al-Extruded"``.
+            Type of solid. The default is ``"Al-Extruded"``.
         default_surface :
-            Default type of surface. The default is ``"Steel-oxidised-surface"``.
+            Type of surface. The default is ``"Steel-oxidised-surface"``.
 
         Returns
         -------
