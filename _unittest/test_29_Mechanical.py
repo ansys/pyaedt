@@ -101,6 +101,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.mesh.initial_mesh_settings.props
 
     def test_09_assign_heat_flux(self):
+        self.aedtapp.insert_design("Th1", "Thermal")
         self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 3], "box1", "copper")
         b2 = self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "box2", "copper")
         hf1 = self.aedtapp.assign_heat_flux(["box1"], heat_flux_type="Total Power", value="5W")
@@ -109,6 +110,7 @@ class TestClass(BasisTest, object):
         assert hf2.props["SurfaceFlux"] == "25mW_per_m2"
 
     def test_10_assign_heat_generation(self):
+        self.aedtapp.insert_design("Th2", "Thermal")
         self.aedtapp.modeler.create_box([40, 40, 2], [10, 10, 3], "box3", "copper")
         hg1 = self.aedtapp.assign_heat_generation(["box3"], value="1W", boundary_name="heatgenBC")
         assert hg1.props["TotalPower"] == "1W"
