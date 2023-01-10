@@ -128,6 +128,7 @@ if not config["skip_edb"]:
         def test_007_get_signal_layers(self):
             signal_layers = self.edbapp.core_stackup.signal_layers
             assert len(list(signal_layers.values()))
+            assert self.edbapp.stackup.report_copper_rate()
 
         def test_008_component_lists(self):
             component_list = self.edbapp.core_components.components
@@ -2121,6 +2122,3 @@ if not config["skip_edb"]:
             assert setup1.snap_length_threshold == "3.5um"
             assert not setup1.use_si_settings
             assert setup1.xtalk_threshold == "-44"
-
-        def test_132_report_copper_area(self):
-            assert self.edbapp.stackup.report_copper_rate()
