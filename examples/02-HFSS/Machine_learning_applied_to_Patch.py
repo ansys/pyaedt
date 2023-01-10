@@ -27,8 +27,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 
 from pyaedt import Hfss
-from pyaedt.modeler.stackup_3d import Stackup3D
-
+from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 
 ###############################################################################
 # Set non-graphical mode
@@ -174,7 +173,12 @@ pad_percent = [50, 50, 300, 50, 50, 10]
 region = hfss.modeler.primitives.create_region(pad_percent)
 hfss.assign_radiation_boundary_to_objects(region)
 
-hfss.plot(show=False)
+###############################################################################
+# Plot
+# ~~~~
+# Plot patch
+
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=True)
 
 ###############################################################################
 # Create setup and sweep
@@ -206,7 +210,6 @@ for freq in frequency_list:
         save_fields=False,
         sweep_type="Interpolating",
     )
-
 
 ###############################################################################
 # Define function
@@ -364,7 +367,6 @@ print(len(my_dictio_list_test))
 # - One for the output of training
 # - Oone for the input of the test
 # - One for the output of the test
-
 
 input_for_training_list = []
 output_for_training_list = []

@@ -10,11 +10,9 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 # Perform required imports.
 
 import os
-from pyaedt import Hfss, constants
-from pyaedt import generate_unique_project_name
+import pyaedt
 
-
-project_name = generate_unique_project_name(project_name="spiral")
+project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
 #############################################################
 # Set non-graphical mode
@@ -31,7 +29,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Launch HFSS 2022 R2 in non-graphical mode and change the
 # units to microns.
 
-hfss = Hfss(specified_version="2022.2", non_graphical=non_graphical, designname="A1")
+hfss = pyaedt.Hfss(specified_version="2022.2", non_graphical=non_graphical, designname="A1")
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
@@ -94,11 +92,12 @@ p.create_box((x0 - width / 2, y0 - width / 2, -gap - thickness / 2), (width, wid
 # ~~~~~~~~~~~~~
 # Create port 1.
 
-p.create_rectangle(
-    constants.PLANE.YZ, (abs(x1) + 5, y0 - width / 2, -gap - thickness / 2), (width, -Tsub + gap), name="port1"
-)
-hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=constants.AXIS.Z)
-
+p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
+                   position=(abs(x1) + 5, y0 - width / 2, -gap - thickness / 2),
+                   dimension_list=(width, -Tsub + gap),
+                   name="port1"
+                   )
+hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create port 2
@@ -106,9 +105,8 @@ hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=constants.AXIS.Z)
 # Create port 2.
 
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
-p.create_rectangle(constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
-hfss.create_lumped_port_to_sheet(sheet_name="port2", axisdir=constants.AXIS.Z)
-
+p.create_rectangle(pyaedt.constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
+hfss.create_lumped_port_to_sheet(sheet_name="port2", axisdir=pyaedt.constants.AXIS.Z)
 
 ################################################################
 # Create silicon substrate and ground plane
@@ -138,14 +136,12 @@ hfss.assign_radiation_boundary_to_objects("airbox")
 
 hfss.change_material_override()
 
-
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
 hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
-
 
 ################################################################
 # Create setup
@@ -154,7 +150,8 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 
 setup1 = hfss.create_setup(setupname="setup1")
 setup1.props["Frequency"] = "10GHz"
-hfss.create_linear_count_sweep("setup1", "GHz", 1e-3, 50, 451, sweep_type="Interpolating")
+hfss.create_linear_count_sweep(setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451,
+                               sweep_type="Interpolating")
 hfss.save_project()
 hfss.analyze_all()
 
@@ -173,8 +170,7 @@ Q_formula = "im(Y(1,1))/re(Y(1,1))"
 # Plot the calculated values in Matplotlib.
 
 x = hfss.post.get_solution_data([L_formula, Q_formula])
-x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
-
+x.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
 
 ################################################################
 # Save project and close AEDT
@@ -182,5 +178,4 @@ x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q
 # Save the project and close AEDT.
 
 hfss.save_project(project_name)
-if os.name != "posix":
-    hfss.release_desktop()
+hfss.release_desktop()

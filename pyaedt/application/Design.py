@@ -206,6 +206,7 @@ class Design(AedtObjects):
         self._mttime = None
         self._design_type = design_type
         self._desktop = main_module.oDesktop
+        settings.enable_desktop_logs = main_module.oDesktop.GetIsNonGraphical()
         self._desktop_install_dir = main_module.sDesktopinstallDirectory
         self._odesign = None
         self._oproject = None
@@ -303,6 +304,11 @@ class Design(AedtObjects):
         self._mesh = None
 
     @property
+    def settings(self):
+        """Settings of the current Python/Pyaedt session."""
+        return settings
+
+    @property
     def logger(self):
         """Logger for the design.
 
@@ -376,7 +382,8 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-        return self.odesktop.GetVersion()[0:6]
+
+        return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
 
     @property
     def design_name(self):
@@ -1854,28 +1861,10 @@ class Design(AedtObjects):
 
         """
         if not isinstance(variable_name, list):
-            self.variable_manager[variable_name].hidden = value
-        else:
-            design_variables = ["NAME:ChangedProps"]
-            project_variables = ["NAME:ChangedProps"]
-            for name in variable_name:
-                if name in self.variable_manager.design_variable_names:
-                    design_variables.append(["NAME:" + name, "Hidden:=", value])
-                elif name in self.variable_manager.project_variable_names:
-                    project_variables.append(["NAME:" + name, "Hidden:=", value])
+            variable_name = [variable_name]
 
-            if len(design_variables) > 1:
-                command = [
-                    "NAME:AllTabs",
-                    ["NAME:LocalVariableTab", ["NAME:PropServers", "LocalVariables"], design_variables],
-                ]
-                self.odesign.ChangeProperty(command)
-            if len(project_variables) > 1:
-                command = [
-                    "NAME:AllTabs",
-                    ["NAME:ProjectVariableTab", ["NAME:PropServers", "ProjectVariables"], project_variables],
-                ]
-                self.oproject.ChangeProperty(command)
+        for var in variable_name:
+            self.variable_manager[var].hidden = value
         return True
 
     @pyaedt_function_handler
@@ -2788,7 +2777,7 @@ class Design(AedtObjects):
         """
         legacy_name = self.project_name
         if name and name not in self.project_list:
-            self.logger.warning("Project not found. ", name)
+            self.logger.warning("Project named '%s' was not found.", name)
             return False
         if not name:
             name = self.project_name
@@ -2971,7 +2960,7 @@ class Design(AedtObjects):
                     design_type, unique_design_name, self.default_solution_type, ""
                 )
         self.logger.info("Added design '%s' of type %s.", unique_design_name, design_type)
-        name = new_design.GetName()
+        name = _retry_ntimes(5, new_design.GetName)
         self._odesign = new_design
         return name
 
@@ -3043,7 +3032,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
-        """Copy a design from a project into the active design.
+        """Copy a design from a project into the active project.
 
         Parameters
         ----------

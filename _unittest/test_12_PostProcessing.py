@@ -83,6 +83,9 @@ class TestClass(BasisTest, object):
         min_value = self.aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         plot1 = self.aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
+        plot1.update_field_plot_settings()
+        plot1.update()
+        assert self.aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000")
         assert self.aedtapp.post.create_fieldplot_volume("inner", "Vector_E", setup_name, intrinsic)
 
@@ -261,6 +264,8 @@ class TestClass(BasisTest, object):
 
     def test_08_manipulate_report(self):
         assert self.aedtapp.post.rename_report("MyTestScattering", "MyNewScattering")
+        assert [plot for plot in self.aedtapp.post.plots if plot.plot_name == "MyNewScattering"]
+        assert not self.aedtapp.post.rename_report("invalid", "MyNewScattering")
 
     def test_09_manipulate_report(self):
         assert self.aedtapp.post.create_report("dB(S(1,1))")
@@ -609,8 +614,11 @@ class TestClass(BasisTest, object):
         pass
 
     def test_10_delete_report(self):
+        plots_number = len(self.aedtapp.post.plots)
         assert self.aedtapp.post.delete_report("MyNewScattering")
+        assert len(self.aedtapp.post.plots) == plots_number - 1
         assert self.aedtapp.post.delete_report()
+        assert len(self.aedtapp.post.plots) == 0
 
     def test_12_steal_on_focus(self):
         assert self.aedtapp.post.steal_focus_oneditor()
@@ -645,6 +653,19 @@ class TestClass(BasisTest, object):
             view="isometric",
             show=False,
         )
+        assert os.path.exists(plot_obj.image_file)
+        os.unlink(plot_obj.image_file)
+        plot_obj.x_scale = 1.1
+        plot_obj.y_scale = 0.9
+        plot_obj.z_scale = 0.3
+        assert plot_obj.x_scale == 1.1
+        assert plot_obj.y_scale == 0.9
+        assert plot_obj.z_scale == 0.3
+
+        plot_obj.background_image = r"c:\filenot_exist.jpg"
+        assert not plot_obj.background_image
+        plot_obj.convert_fields_in_db = True
+        plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
     @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
@@ -1197,6 +1218,11 @@ class TestClass(BasisTest, object):
         )
         assert len(data2) == 4
         assert len(data2[0]) == 3
+
+    def test_74_dynamic_update(self):
+        val = self.aedtapp.post.update_report_dynamically
+        self.aedtapp.post.update_report_dynamically = not val
+        assert self.aedtapp.post.update_report_dynamically != val
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

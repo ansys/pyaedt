@@ -14,7 +14,7 @@ from pyaedt.generic.constants import MATRIXOPERATIONSQ2D
 from pyaedt.generic.constants import MATRIXOPERATIONSQ3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators as go
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
 
@@ -416,13 +416,14 @@ class QExtractor(FieldAnalysis3D, object):
         length_setting="Distributed",
         length="1meter",
     ):
-        r"""Export matrix data.
+        """Export matrix data.
 
         Parameters
         ----------
         file_name : str
             Full path to save the matrix data to.
-            Options for file extensions are: *.m, *.lvl, *.csv, *.txt.
+            Options for file extensions are: ``*.m``, ``*.lvl``, ``*.csv``,
+            and ``*.txt``.
         problem_type : str, optional
             Problem type. The default value is ``None``, in which case ``"C"`` is
             used. Options are ``"C"``, ``"AC RL"``, and ``"DC RL"``.
@@ -800,7 +801,7 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is True.
         coupling_limit_type : int, optional
             Coupling limit types.
-            Values can be : "By Value" -> 0  or "By Fraction Of Self Term" -> 1.
+            Values can be: ``"By Value" -> 0`` or ``"By Fraction Of Self Term" -> 1``.
             If None, no coupling limits are set.
             Default value is None.
         include_dcr : bool, optional
@@ -827,9 +828,6 @@ class QExtractor(FieldAnalysis3D, object):
         parse_pin_names : bool, optional
             Parse pin names.
             Default value is False.
-        cs : str, optional
-            Coordinate system for chip package control.
-            Default value is Global.
         export_distributed : bool, optional
             Flag to tell whether to export in distributed mode or Lumped mode.
             Default value is True.
@@ -866,7 +864,8 @@ class QExtractor(FieldAnalysis3D, object):
             Default value is 0.
         file_type : str, optional
             The type of file format.
-            Used to specify the type of "HSPICE" file format (all HSPICE file formats have same extension *.sp).
+            Type of HSPICE file format. (All HSPICE file formats have the same extension,
+            which is ``*.sp``.) Options are:
             "Hspice": simple HSPICE file format.
             "Welement": Nexxim/HSPICE W Element file format
             "RLGC": Nexxim/HSPICE RLGC W Element file format
@@ -1292,6 +1291,41 @@ class Q3d(QExtractor, object):
         return net_names
 
     @pyaedt_function_handler()
+    def objects_from_nets(self, nets, materials=None):
+        """Find the objects that belongs to a net. Material can be applied as filter.
+
+        Parameters
+        ----------
+        nets : str, list
+            Nets to search for. Case insensitive.
+        materials : str, list, optional
+            Materials to filter the nets objects. Case insensitive.
+
+        Returns
+        -------
+        dict
+            Dictionary of net name and objects that belongs to it.
+        """
+        if isinstance(nets, str):
+            nets = [nets]
+        if isinstance(materials, str):
+            materials = [materials]
+        elif not materials:
+            materials = []
+        materials = [i.lower() for i in materials]
+        objects = {}
+        for net in nets:
+            for bound in self.boundaries:
+                if net.lower() == bound.name.lower() and "Net" in bound.type:
+                    obj_list = self.modeler.convert_to_selections(bound.props.get("Objects", []), True)
+                    if materials:
+                        obj_list = [
+                            self.modeler[i].name for i in obj_list if self.modeler[i].material_name.lower() in materials
+                        ]
+                    objects[net] = obj_list
+        return objects
+
+    @pyaedt_function_handler()
     def net_sources(self, net_name):
         """Check if a net has sources and return a list of source names.
 
@@ -1483,7 +1517,9 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
-    def assign_source_to_sheet(self, sheetname, objectname=None, netname=None, sourcename=None):
+    def assign_source_to_sheet(
+        self, sheetname, objectname=None, netname=None, sourcename=None, terminal_type="voltage"
+    ):
         """Generate a source on a sheet.
 
         Parameters
@@ -1496,6 +1532,8 @@ class Q3d(QExtractor, object):
             Name of the net. The default is ``None``.
         sourcename : str,  optional
             Name of the source. The default is ``None``.
+        terminal_type : str
+            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
         -------
@@ -1513,10 +1551,16 @@ class Q3d(QExtractor, object):
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
-        props["TerminalType"] = "ConstantVoltage"
+
+        if terminal_type == "current":
+            terminal_str = "UniformCurrent"
+        else:
+            terminal_str = "ConstantVoltage"
+
+        props["TerminalType"] = terminal_str
         if netname:
             props["Net"] = netname
-        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict({"Objects": sheetname, "TerminalType": terminal_str, "Net": netname})
         bound = BoundaryObject(self, sourcename, props, "Source")
         if bound.create():
             self.boundaries.append(bound)
@@ -1572,7 +1616,7 @@ class Q3d(QExtractor, object):
         return False
 
     @pyaedt_function_handler()
-    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None):
+    def assign_sink_to_sheet(self, sheetname, objectname=None, netname=None, sinkname=None, terminal_type="voltage"):
         """Generate a sink on a sheet.
 
         Parameters
@@ -1585,6 +1629,8 @@ class Q3d(QExtractor, object):
             Name of the net. The default is ``None``.
         sinkname : str, optional
             Name of the sink. The default is ``None``.
+        terminal_type : str
+            Type of the terminal. Options are ``voltage`` and ``current``. The default is ``voltage``.
 
         Returns
         -------
@@ -1602,11 +1648,18 @@ class Q3d(QExtractor, object):
         props = OrderedDict({"Objects": [sheetname]})
         if objectname:
             props["ParentBndID"] = objectname
-        props["TerminalType"] = "ConstantVoltage"
+
+        if terminal_type == "current":
+            terminal_str = "UniformCurrent"
+        else:
+            terminal_str = "ConstantVoltage"
+
+        props["TerminalType"] = terminal_str
+
         if netname:
             props["Net"] = netname
 
-        props = OrderedDict({"Objects": sheetname, "TerminalType": "ConstantVoltage", "Net": netname})
+        props = OrderedDict({"Objects": sheetname, "TerminalType": terminal_str, "Net": netname})
         bound = BoundaryObject(self, sinkname, props, "Sink")
         if bound.create():
             self.boundaries.append(bound)
@@ -1922,7 +1975,7 @@ class Q2d(QExtractor, object):
 
         Returns
         -------
-        :class:`pyaedt.modeler.Object3d.Object3d`
+        :class:`pyaedt.modeler.object3d.Object3d`
             3D object.
 
         References

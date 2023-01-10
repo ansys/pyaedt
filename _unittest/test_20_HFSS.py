@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from _unittest.conftest import config
 
@@ -199,6 +200,22 @@ class TestClass(BasisTest, object):
                 e.args[0] == "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
         assert exception_raised
+        self.aedtapp["der_var"] = "1mm"
+        self.aedtapp["der_var2"] = "2mm"
+        setup2 = self.aedtapp.create_setup("MySetup_2", setuptype=0)
+        assert setup2.add_derivatives("der_var")
+        assert "der_var" in setup2.get_derivative_variables()
+        assert setup2.add_derivatives("der_var2")
+        assert "der_var2" in setup2.get_derivative_variables()
+        assert "der_var" in setup2.get_derivative_variables()
+        setup2.delete()
+        setup3 = self.aedtapp.create_setup("MySetup_3", setuptype=0)
+        assert setup3.add_derivatives("der_var")
+        assert "der_var" in setup3.get_derivative_variables()
+        assert setup3.add_derivatives("der_var2")
+        assert "der_var2" in setup3.get_derivative_variables()
+        assert "der_var" in setup3.get_derivative_variables()
+        setup3.delete()
 
     def test_06b_setup_exists(self):
         assert self.aedtapp.analysis_setup is not None
@@ -740,6 +757,35 @@ class TestClass(BasisTest, object):
     def test_30_assign_initial_mesh(self):
         assert self.aedtapp.mesh.assign_initial_mesh_from_slider(6)
 
+    def test_30a_add_mesh_link(self):
+        self.aedtapp.duplicate_design(self.aedtapp.design_name)
+        self.aedtapp.set_active_design(self.aedtapp.design_list[0])
+        assert self.aedtapp.setups[0].add_mesh_link(design_name=self.aedtapp.design_list[1])
+        meshlink_props = self.aedtapp.setups[0].props["MeshLink"]
+        assert meshlink_props["Project"] == "This Project*"
+        assert meshlink_props["PathRelativeTo"] == "TargetProject"
+        assert meshlink_props["Design"] == self.aedtapp.design_list[1]
+        assert meshlink_props["Soln"] == "MySetup : LastAdaptive"
+        assert sorted(list(meshlink_props["Params"].keys())) == sorted(self.aedtapp.available_variations.variables)
+        assert sorted(list(meshlink_props["Params"].values())) == sorted(self.aedtapp.available_variations.variables)
+        assert not self.aedtapp.setups[0].add_mesh_link(design_name="")
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1], solution_name="MySetup : LastAdaptive"
+        )
+        assert not self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1], solution_name="Setup_Test : LastAdaptive"
+        )
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1],
+            parameters_dict=self.aedtapp.available_variations.nominal_w_values_dict,
+        )
+        example_project = os.path.join(local_path, "example_models", test_subfolder, diff_proj_name + ".aedt")
+        example_project_copy = os.path.join(self.local_scratch.path, diff_proj_name + "_copy.aedt")
+        shutil.copyfile(example_project, example_project_copy)
+        assert self.aedtapp.setups[0].add_mesh_link(
+            design_name=self.aedtapp.design_list[1], project_name=example_project_copy
+        )
+
     def test_31_create_microstrip_port(self):
         self.aedtapp.insert_design("Microstrip")
         self.aedtapp.solution_type = "Modal"
@@ -1186,3 +1232,16 @@ class TestClass(BasisTest, object):
         )
         bound.props["NumPts"] = "200"
         assert bound
+
+    def test_59_test_nastran(self):
+        self.aedtapp.insert_design("Nas_teest")
+        example_project = os.path.join(local_path, "example_models", test_subfolder, "test_cad.nas")
+
+        cads = self.aedtapp.modeler.import_nastran(example_project)
+        assert len(cads) > 0
+
+    def test_60_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

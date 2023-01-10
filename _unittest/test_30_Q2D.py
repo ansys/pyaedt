@@ -270,3 +270,9 @@ class TestClass(BasisTest, object):
         exported_files = q2d.export_results()
         assert len(exported_files) > 0
         self.aedtapp.close_project(q2d.project_name, save_project=False)
+
+    def test_17_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

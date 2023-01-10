@@ -30,7 +30,7 @@ jobs:
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
           pip install .
-          pip install -r requirements_test.txt
+          pip install -r requirements/requirements_test.txt
           pip install pytest-azurepipelines
           cp "C:\actions-runner\opengl32.dll" "testenv\Lib\site-packages\vtkmodules"
           mkdir tmp
@@ -40,7 +40,7 @@ jobs:
       - name: 'Unit testing'
         run: |
           testenv\Scripts\Activate.ps1
-          pytest -n 4 --dist loadfile -v --cov=pyaedt --cov=_unittest --cov-config=.coveragerc --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest -p no:faulthandler
+          pytest -n 4 --dist loadfile -v --cov=pyaedt --cov-report=xml --cov-report=html --junitxml=junit/test-results.xml _unittest -p no:faulthandler
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3

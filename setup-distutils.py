@@ -12,6 +12,7 @@ from _setup_common import (
     data_files,
     license,
     classifiers,
+    project_urls,
 )
 
 setup(
@@ -26,4 +27,5 @@ setup(
     data_files=data_files,
     license=license,
     classifiers=classifiers,
+    project_urls=project_urls,
 )

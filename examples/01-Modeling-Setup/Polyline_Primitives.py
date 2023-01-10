@@ -10,9 +10,7 @@ This example shows how you can use PyAEDT to create and manipulate polylines.
 # Perform required imports.
 
 import os
-from pyaedt.maxwell import Maxwell3d
-from pyaedt.modeler.Primitives import PolylineSegment
-
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -25,20 +23,12 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Create Maxwell 3D object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a :class:`pyaedt.Maxwell3d` object and set the unit type to ``"mm"``.
+# Create a :class:`pyaedt.maxwell.Maxwell3d` object and set the unit type to ``"mm"``.
 
-M3D = Maxwell3d(
-    solution_type="Transient", designname="test_polyline_3D", specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical,
-)
+M3D = pyaedt.Maxwell3d(solution_type="Transient", designname="test_polyline_3D", specified_version="2022.2",
+                       new_desktop_session=True, non_graphical=non_graphical, )
 M3D.modeler.model_units = "mm"
 prim3D = M3D.modeler
-
-###############################################################################
-# Clear existing objects
-# ~~~~~~~~~~~~~~~~~~~~~~
-# Clear existing objects.
-
-prim3D.delete()
 
 ###############################################################################
 # Define variables
@@ -94,7 +84,7 @@ print("Created object with id {} and name {}.".format(P.id, prim3D.objects[P.id]
 # must contain at least four position values.
 
 P = prim3D.create_polyline(
-    position_list=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="PL03_spline_4pt"
+    position_list=test_points, segment_type=prim3D.polyline_segment("Spline", num_points=4), name="PL03_spline_4pt"
 )
 
 ###############################################################################
@@ -113,7 +103,7 @@ start_point = [100, 100, 0]
 center_point = [0, 0, 0]
 P = prim3D.create_polyline(
     position_list=[start_point],
-    segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg"),
+    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg"),
     name="PL04_center_point_arc",
 )
 
@@ -127,12 +117,12 @@ start_point = [100, 0, 0]
 center_point = [0, 0, 0]
 P = prim3D.create_polyline(
     position_list=[start_point],
-    segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
+    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="XY"),
     name="PL04_center_point_arc_rot_XY",
 )
 P = prim3D.create_polyline(
     position_list=[start_point],
-    segment_type=PolylineSegment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
+    segment_type=prim3D.polyline_segment("AngularArc", arc_center=center_point, arc_angle="30deg", arc_plane="ZX"),
     name="PL04_center_point_arc_rot_ZX",
 )
 
@@ -186,7 +176,6 @@ P = prim3D.create_polyline(position_list=test_points, close_surface=True, name="
 start_point = P.start_point
 insert_point = ["90mm", "20mm", "0mm"]
 
-
 P.insert_segment(position_list=[start_point, insert_point])
 
 ###############################################################################
@@ -198,7 +187,6 @@ P.insert_segment(position_list=[start_point, insert_point])
 # that the segment is inserted after the first segment of the original polyline.
 
 P = prim3D.create_polyline(position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc")
-
 
 start_point = P.vertex_positions[1]
 insert_point1 = ["90mm", "20mm", "0mm"]
@@ -221,7 +209,7 @@ arc_angle_1 = "43.47deg"
 P = prim3D.create_polyline(
     name="First_Arc",
     position_list=[start_point],
-    segment_type=PolylineSegment(type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1),
+    segment_type=prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_1, arc_center=arc_center_1),
 )
 
 ###############################################################################
@@ -240,7 +228,7 @@ arc_center_2 = [3400, 200, 3800]
 
 P.insert_segment(
     position_list=[end_of_line_segment],
-    segment=PolylineSegment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2),
+    segment=prim3D.polyline_segment(type="AngularArc", arc_center=arc_center_2, arc_angle=arc_angle_2),
 )
 
 ###############################################################################
@@ -250,9 +238,9 @@ P.insert_segment(
 prim3D.create_polyline(
     position_list=[start_point, end_of_line_segment],
     segment_type=[
-        PolylineSegment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
-        PolylineSegment(type="Line"),
-        PolylineSegment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
+        prim3D.polyline_segment(type="AngularArc", arc_angle="43.47deg", arc_center=arc_center_1),
+        prim3D.polyline_segment(type="Line"),
+        prim3D.polyline_segment(type="AngularArc", arc_angle=arc_angle_2, arc_center=arc_center_2),
     ],
     name="Compound_Polyline_One_Command",
 )
@@ -315,5 +303,4 @@ project_file = os.path.join(project_dir, project_name + ".aedt")
 
 M3D.save_project(project_file)
 
-if os.name != "posix":
-    M3D.release_desktop()
+M3D.release_desktop()

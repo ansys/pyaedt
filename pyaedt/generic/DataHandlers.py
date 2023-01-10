@@ -1,31 +1,17 @@
 # -*- coding: utf-8 -*-
 import json
 import math
-import os
 import random
 import re
 import string
-import warnings
 from collections import OrderedDict
 from decimal import Decimal
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import settings
-from pyaedt.modeler.Object3d import EdgePrimitive
-from pyaedt.modeler.Object3d import FacePrimitive
-from pyaedt.modeler.Object3d import VertexPrimitive
-
-try:
-    import clr
-
-    clr.AddReference("System.Collections")
-    from System.Collections.Generic import List
-
-    clr.AddReference("System")
-    from System import Double
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("PythonNET is needed to run pyaedt")
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import VertexPrimitive
 
 
 @pyaedt_function_handler()
@@ -45,12 +31,12 @@ def _tuple2dict(t, d):
     """
     k = t[0]
     v = t[1]
-    if type(v) is list and len(t) > 2:
+    if isinstance(v, list) and len(t) > 2:
         d[k] = v
-    elif type(v) is list and len(t) == 2 and not v:
+    elif isinstance(v, list) and len(t) == 2 and not v:
         d[k] = None
     elif (
-        type(v) is list and type(v[0]) is tuple and len(t) == 2
+        isinstance(v, list) and isinstance(v[0], tuple) and len(t) == 2
     ):  # len check is to avoid expanding the list with a 3rd element=None
         if k in d:
             if not isinstance(d[k], list):
@@ -73,13 +59,9 @@ def _dict2arg(d, arg_out):
 
     Parameters
     ----------
-    d :
+    d : dict
 
     arg_out :
-
-
-    Returns
-    -------
 
     """
     for k, v in d.items():
@@ -187,6 +169,9 @@ def create_list_for_csharp(input_list, return_strings=False):
     -------
 
     """
+    from pyaedt.generic.clr_module import Double
+    from pyaedt.generic.clr_module import List
+
     if return_strings:
         col = List[str]()
     else:
@@ -215,6 +200,8 @@ def create_table_for_csharp(input_list_of_list, return_strings=True):
     -------
 
     """
+    from pyaedt.generic.clr_module import List
+
     new_table = List[List[str]]()
     for col in input_list_of_list:
         newcol = create_list_for_csharp(col, return_strings)

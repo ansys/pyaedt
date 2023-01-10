@@ -8,7 +8,7 @@ from pyaedt.generic.constants import SymbolStyle
 from pyaedt.generic.constants import TraceType
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 
 def _props_with_default(dict_in, key, default_value=None):
@@ -776,14 +776,14 @@ class CommonReport(object):
         return self.props["context"]["primary_sweep"]
 
     @primary_sweep.setter
-    def primary_sweep(self, val):
-        if val == self.props["context"].get("secondary_sweep", None):
+    def primary_sweep(self, value):
+        if value == self.props["context"].get("secondary_sweep", None):
             self.props["context"]["secondary_sweep"] = self.props["context"]["primary_sweep"]
-        self.props["context"]["primary_sweep"] = val
-        if val == "Time":
+        self.props["context"]["primary_sweep"] = value
+        if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
-        elif val == "Freq":
+        elif value == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
 
@@ -798,14 +798,14 @@ class CommonReport(object):
         return self.props["context"].get("secondary_sweep", None)
 
     @secondary_sweep.setter
-    def secondary_sweep(self, val):
-        if val == self.props["context"]["primary_sweep"]:
+    def secondary_sweep(self, value):
+        if value == self.props["context"]["primary_sweep"]:
             self.props["context"]["primary_sweep"] = self.props["context"]["secondary_sweep"]
-        self.props["context"]["secondary_sweep"] = val
-        if val == "Time":
+        self.props["context"]["secondary_sweep"] = value
+        if value == "Time":
             self.variations.pop("Freq", None)
             self.variations["Time"] = ["All"]
-        elif val == "Freq":
+        elif value == "Freq":
             self.variations.pop("Time", None)
             self.variations["Freq"] = ["All"]
 
@@ -820,8 +820,8 @@ class CommonReport(object):
         return self.props["context"]["primary_sweep_range"]
 
     @primary_sweep_range.setter
-    def primary_sweep_range(self, val):
-        self.props["context"]["primary_sweep_range"] = val
+    def primary_sweep_range(self, value):
+        self.props["context"]["primary_sweep_range"] = value
 
     @property
     def secondary_sweep_range(self):
@@ -834,8 +834,8 @@ class CommonReport(object):
         return self.props["context"]["secondary_sweep_range"]
 
     @secondary_sweep_range.setter
-    def secondary_sweep_range(self, val):
-        self.props["context"]["secondary_sweep_range"] = val
+    def secondary_sweep_range(self, value):
+        self.props["context"]["secondary_sweep_range"] = value
 
     @property
     def _context(self):
@@ -1142,7 +1142,10 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_x_marker(self, val, name=None):  # pragma: no cover
-        """Add a cartesian X marker. This method works only in graphical mode.
+        """Add a cartesian X marker.
+
+        .. note::
+           This method only works in graphical mode.
 
         Parameters
         ----------
@@ -1164,7 +1167,10 @@ class CommonReport(object):
 
     @pyaedt_function_handler()
     def add_cartesian_y_marker(self, val, name=None, y_axis=1):  # pragma: no cover
-        """Add a cartesian Y marker. This method works only in graphical mode.
+        """Add a cartesian Y marker.
+
+        .. note::
+           This method only works in graphical mode.
 
         Parameters
         ----------
@@ -2070,9 +2076,9 @@ class Fields(CommonReport):
 
     @property
     def _context(self):
-        ctxt = ["Context:=", self.polyline]
-        ctxt.append("PointCount:=")
-        ctxt.append(self.point_number)
+        ctxt = []
+        if self.polyline:
+            ctxt = ["Context:=", self.polyline, "PointCount:=", self.point_number]
         return ctxt
 
 

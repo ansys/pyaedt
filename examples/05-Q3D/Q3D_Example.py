@@ -1,6 +1,6 @@
 """
 Q3D Extractor: busbar analysis
---------------------
+------------------------------
 This example shows how you can use PyAEDT to create a busbar design in
 Q3D Extractor and run a simulation.
 """
@@ -10,9 +10,7 @@ Q3D Extractor and run a simulation.
 # Perform required imports.
 
 import os
-
-from pyaedt import Q3d
-from pyaedt import generate_unique_project_name
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -28,8 +26,10 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
-
-q = Q3d(projectname=generate_unique_project_name(), specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
+               specified_version="2022.2",
+               non_graphical=non_graphical,
+               new_desktop_session=True)
 
 ###############################################################################
 # Create primitives
@@ -117,7 +117,7 @@ sw1.update()
 
 ###############################################################################
 # Get curves to plot
-# ~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~
 # Get the curves to plot. The following code simplifies the way to get curves.
 
 data_plot_self = q.matrices[0].get_sources_for_plot(get_self_terms=True, get_mutual_terms=False)
@@ -131,7 +131,6 @@ data_plot_mutual
 # Create a rectangular plot and a data table.
 
 q.post.create_report(expressions=data_plot_self)
-
 q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type="Data Table")
 
 ###############################################################################
@@ -158,5 +157,4 @@ a.plot()
 # After the simulation completes, you can close AEDT or release it using the
 # ``release_desktop`` method. All methods provide for saving projects before closing.
 
-if os.name != "posix":
-    q.release_desktop(close_projects=True, close_desktop=True)
+q.release_desktop(close_projects=True, close_desktop=True)

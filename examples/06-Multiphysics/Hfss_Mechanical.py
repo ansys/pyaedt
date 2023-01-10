@@ -10,12 +10,8 @@ includes Circuit, HFSS, and Mechanical.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-import tempfile
 import os
-import shutil
-
-from pyaedt import examples, generate_unique_folder_name
-from pyaedt import Hfss, Circuit, Mechanical
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -31,8 +27,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open the project. Save it to the temporary folder.
 
-project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
-
+project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_folder_name())
 
 ###############################################################################
 # Start HFSS
@@ -40,15 +35,16 @@ project_temp_name = examples.download_via_wizard(generate_unique_folder_name())
 # Start HFSS and initialize the PyAEDT object.
 
 version = "2022.2"
-hfss = Hfss(project_temp_name, specified_version=version, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
+                   new_desktop_session=True)
 pin_names = hfss.excitations
 
 ###############################################################################
 # Start Circuit
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~
 # Start Circuit and add the HFSS dynamic link component to it.
 
-circuit = Circuit()
+circuit = pyaedt.Circuit()
 hfss_comp = circuit.modeler.schematic.add_subcircuit_dynamic_link(hfss)
 
 ###############################################################################
@@ -68,29 +64,29 @@ circuit.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp.composed
 # Create ports and excitations. Find component pin locations and create interface
 # ports on them. Define the voltage source on the input port.
 
-
 circuit.modeler.schematic.create_interface_port(
-    "Excitation_1", [hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]]
+    name="Excitation_1", location=[hfss_comp.pins[0].location[0], hfss_comp.pins[0].location[1]]
 )
 circuit.modeler.schematic.create_interface_port(
-    "Excitation_2", [hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]]
+    name="Excitation_2", location=[hfss_comp.pins[1].location[0], hfss_comp.pins[1].location[1]]
 )
 circuit.modeler.schematic.create_interface_port(
-    "Port_1", [hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]]
+    name="Port_1", location=[hfss_comp.pins[2].location[0], hfss_comp.pins[2].location[1]]
 )
 circuit.modeler.schematic.create_interface_port(
-    "Port_2", [hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]]
+    name="Port_2", location=[hfss_comp.pins[3].location[0], hfss_comp.pins[3].location[1]]
 )
 
 voltage = 1
 phase = 0
-excitation_settings = [str(voltage) + " V", str(phase) + " deg", "0V", "0V", "0V", "1GHz", "0s", "0", "0deg", "0Hz"]
 ports_list = ["Excitation_1", "Excitation_2"]
-circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
+source = circuit.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
+source.ac_magnitude = voltage
+source.phase = phase
 
 ###############################################################################
 # Create setup
-# ~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~
 # Create a setup.
 
 setup_name = "MySetup"
@@ -104,21 +100,20 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 
 ###############################################################################
 # Solve and push excitations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
 circuit.analyze_nominal()
-
 circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 
 
 ###############################################################################
 # Start Mechanical
-# ~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~
 # Start Mechanical and copy bodies from the HFSS project.
 
-mech = Mechanical()
+mech = pyaedt.Mechanical()
 mech.copy_solid_bodies_from(hfss)
 
 
@@ -127,18 +122,17 @@ mech.copy_solid_bodies_from(hfss)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get losses from HFSS and assign the convection to Mechanical.
 
-
 mech.assign_em_losses(
-    hfss.design_name,
-    hfss.setups[0].name,
-    "LastAdaptive",
-    hfss.setups[0].props["Frequency"],
+    designname=hfss.design_name,
+    setupname=hfss.setups[0].name,
+    sweepname="LastAdaptive",
+    map_frequency=hfss.setups[0].props["Frequency"],
     surface_objects=hfss.get_all_conductors_names(),
 )
 diels = ["1_pd", "2_pd", "3_pd", "4_pd", "5_pd"]
 for el in diels:
-    mech.assign_uniform_convection([mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y], 3)
-
+    mech.assign_uniform_convection(object_list=[mech.modeler[el].top_face_y, mech.modeler[el].bottom_face_y],
+                                   convection_value=3)
 
 ###############################################################################
 # Plot model
@@ -158,8 +152,7 @@ mech.analyze_nominal()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))
-mech.post.create_fieldplot_surface(surfaces, "Temperature")
-
+mech.post.create_fieldplot_surface(objlist=surfaces, quantityName="Temperature")
 
 ###############################################################################
 # Release AEDT

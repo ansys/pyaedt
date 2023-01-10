@@ -297,19 +297,16 @@ class TestClass(BasisTest, object):
         )
 
     def test_21_assign_voltage_sinusoidal_excitation_to_ports(self):
-        settings = ["123 V", "10deg", "", "", "0V", "15GHz", "0s", "0", "0deg", ""]
-        ports_list = ["P1_1", "P2_2"]
-        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, settings)
+        ports_list = ["Port1", "Port2"]
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
     def test_22_assign_current_sinusoidal_excitation_to_ports(self):
-        settings = ["", "", "20A", "50A", "4A", "", "0s", "0", "0deg", "1", "20Hz"]
-        ports_list = ["P1_1"]
-        assert self.aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list, settings)
+        ports_list = ["Port1"]
+        assert self.aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list)
 
     def test_23_assign_power_sinusoidal_excitation_to_ports(self):
-        settings = ["", "", "", "", "20W", "14GHz", "0s", "0", "0deg", "0Hz"]
-        ports_list = ["P2_2"]
-        assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list, settings)
+        ports_list = ["Port2"]
+        assert self.aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
     def test_24_new_connect_components(self):
         self.aedtapp.insert_design("Components")
@@ -391,7 +388,10 @@ class TestClass(BasisTest, object):
         assert subcircuit.location[1] == "0.0mil"
         assert subcircuit.angle == 0.0
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Duplicate doesn't work in non-graphical mode.")
+    @pytest.mark.skipif(
+        config["NonGraphical"] and config["desktopVersion"] < "2023.1",
+        reason="Duplicate doesn't work in non-graphical mode.",
+    )
     def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
@@ -484,3 +484,211 @@ class TestClass(BasisTest, object):
     def test_39_export_results_circuit(self):
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) > 0
+
+    def test_40_assign_sources(self):
+        self.aedtapp.insert_design("sources")
+        c = self.aedtapp
+        filepath = os.path.join(local_path, "example_models", test_subfolder, "frequency_dependent_source.fds")
+        name = "PowerSinusoidal3"
+        assert c.create_source(source_type="PowerSin", name=name)
+        c.sources[name].ac_magnitude = "2V"
+        c.sources[name].ac_phase = "2deg"
+        c.sources[name].dc_magnitude = "2V"
+        c.sources[name].power_offset = "2W"
+        c.sources[name].power_magnitude = "20W"
+        c.sources[name].frequency = "20GHz"
+        c.sources[name].delay = "20ns"
+        c.sources[name].damping_factor = "200"
+        c.sources[name].phase_delay = "100deg"
+        c.sources[name].tone = "100Hz"
+
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACMAG") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "2W"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("POWER") == "20W"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FREQ") == "20GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+
+        name = "PowerIQ"
+        assert c.create_source(source_type="PowerIQ", name="PowerIQ")
+        c.sources[name].carrier_frequency = "2GHz"
+        c.sources[name].sampling_time = "2s"
+        c.sources[name].dc_magnitude = "2V"
+        c.sources[name].repeat_from = "22s"
+        c.sources[name].delay = "20ns"
+        c.sources[name].carrier_amplitude_voltage = "20V"
+        c.sources[name].carrier_amplitude_power = "20W"
+        c.sources[name].carrier_offset = "100V"
+        c.sources[name].real_impedance = "100ohm"
+        c.sources[name].imaginary_impedance = "1000ohm"
+        c.sources[name].damping_factor = "200"
+        c.sources[name].phase_delay = "100deg"
+        c.sources[name].tone = "100Hz"
+        c.sources[name].i_q_values = [["0s", "1V", "2V"], ["1s", "3V", "2V"]]
+        c.sources[name].file = filepath
+
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FC") == "2GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TS") == "2s"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("R") == "22s"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("V") == "20V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VA") == "20W"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "100V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("RZ") == "100ohm"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("IZ") == "1000ohm"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("time1") == "0s"
+
+        source_freq = c.create_source(source_type="VoltageFrequencyDependent", name="freq_pyaedt")
+        # Data can not be obtained from GetPropValue
+        source_freq.magnitude_angle = True
+        assert source_freq.magnitude_angle
+        source_freq.frequencies = [2000000000, 3000000000]
+        assert source_freq.frequencies[0] == 2000000000
+        source_freq.vmag = [0.001, 0.02]
+        assert len(source_freq.vmag) == 2
+        source_freq.vang = [0.0349065850398866, 0.0872664625997165]
+        assert source_freq.vang == [0.0349065850398866, 0.0872664625997165]
+        source_freq.vreal = [2, 1]
+        assert source_freq.vreal == [2, 1]
+        source_freq.vimag = ["0.2", "0.1"]
+        assert source_freq.vimag == [0.2, 0.1]
+        source_freq.magnitude_angle = False
+        assert not source_freq.magnitude_angle
+        source_freq.fds_filename = filepath
+        assert source_freq.fds_filename == filepath
+        source_freq.fds_filename = None
+
+        assert c.create_source(source_type="VoltageDC", name="dc_pyaedt")
+        c.sources["dc_pyaedt"].ac_magnitude = "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt").GetPropValue("Name") == "dc_pyaedt"
+        c.sources["dc_pyaedt"].ac_phase = "2deg"
+        c.sources["dc_pyaedt"].dc_magnitude = "2V"
+        c.sources["dc_pyaedt"].name = "dc_pyaedt2"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("Name") == "dc_pyaedt2"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("ACMAG") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject("dc_pyaedt2").GetPropValue("DC") == "2V"
+
+        name = "VoltageSinusoidal1"
+        assert c.create_source(source_type="VoltageSin", name=name)
+        c.sources[name].ac_magnitude = "2V"
+        c.sources[name].ac_phase = "2deg"
+        c.sources[name].dc_magnitude = "2V"
+        c.sources[name].voltage_offset = "2V"
+        c.sources[name].voltage_amplitude = "5V"
+        c.sources[name].frequency = "20GHz"
+        c.sources[name].delay = "20ns"
+        c.sources[name].damping_factor = "200"
+        c.sources[name].phase_delay = "100deg"
+        c.sources[name].tone = "100Hz"
+
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACMAG") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "2V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VA") == "5V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FREQ") == "20GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+
+        name = "CurrentSinusoidal1"
+        source_isin = c.create_source(source_type="CurrentSin", name="CurrentSinusoidal1")
+        source_isin.ac_magnitude = "2A"
+        source_isin.ac_phase = "2deg"
+        source_isin.dc_magnitude = "2A"
+        source_isin.current_offset = "2A"
+        source_isin.current_amplitude = "5A"
+        source_isin.multiplier = "5V"
+        source_isin.frequency = "20GHz"
+        source_isin.delay = "20ns"
+        source_isin.damping_factor = "200"
+        source_isin.phase_delay = "100deg"
+        source_isin.tone = "100Hz"
+
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("Name") == name
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACMAG") == "2A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ACPHASE") == "2deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("DC") == "2A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VO") == "2A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("VA") == "5A"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("M") == "5V"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("FREQ") == "20GHz"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TD") == "20ns"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("ALPHA") == "200"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("THETA") == "100deg"
+        assert c.odesign.GetChildObject("Excitations").GetChildObject(name).GetPropValue("TONE") == "100Hz"
+
+        assert "PowerSinusoidal3" in c.sources
+
+        c.sources["PowerSinusoidal3"].name = "PowerTest"
+        assert "PowerTest" in c.source_names
+        c.sources["freq_pyaedt"].delete()
+        assert len(c.source_objects) == 5
+
+    def test_41_assign_excitations(self):
+        c = self.aedtapp
+        port = c.modeler.schematic.create_interface_port(name="Port1")
+
+        # Port angle not working in 2023.1
+        port.angle = 90.0
+
+        port.location = ["100mil", "200mil"]
+        assert port.location == ["100mil", "200mil"]
+        port.mirror = True
+        assert port.mirror
+        port.name = "Port3"
+        assert port.name == "Port3"
+        port.use_symbol_color = False
+        assert not port.use_symbol_color
+        port.impedance = [50, 50]
+        assert port.impedance[0] == 50
+        port.enable_noise = True
+        assert port.enable_noise
+        port.noise_temperature = "18 cel"
+        assert port.noise_temperature == "18 cel"
+        port.microwave_symbol = True
+        assert port.microwave_symbol
+
+        port.reference_node = "Port3"
+        port.reference_node = "Ground"
+        port.reference_node = "NoNet"
+        port.reference_node = "Z"
+
+        assert c.excitation_objets
+
+        setup = c.create_setup()
+
+        c.excitations["Port3"].enabled_sources = ["PowerTest"]
+        assert len(c.excitations["Port3"].enabled_sources) == 1
+        setup1 = c.create_setup()
+        setup2 = c.create_setup()
+        c.excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
+        assert c.excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
+
+        c.excitations["Port3"].name = "PortTest"
+        assert "PortTest" in c.excitations
+        assert "PortTest" in c.excitation_names
+        c.excitations["PortTest"].delete()
+        assert len(c.excitation_objets) == 0
+        self.aedtapp.save_project()
+        c = Circuit(designname="sources")
+        assert c.sources
+
+    def test_41_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

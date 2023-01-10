@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import ast
 import codecs
 import csv
@@ -21,10 +23,11 @@ import warnings
 from collections import OrderedDict
 from functools import update_wrapper
 
+from pyaedt.generic.constants import CSS4_COLORS
+
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
 inside_desktop = True
-main_module = sys.modules["__main__"]
 try:
     import ScriptEnv
 
@@ -32,7 +35,6 @@ try:
 except:
     inside_desktop = False
 
-is_remote_server = os.getenv("PYAEDT_IRONPYTHON_SERVER", "False").lower() in ("true", "1", "t")
 
 if not is_ironpython:
     import psutil
@@ -53,6 +55,13 @@ if not is_ironpython:
             "The NumPy module is required to run some functionalities of PostProcess.\n"
             "Install with \n\npip install numpy\n"
         )
+
+try:
+    import xml.etree.cElementTree as ET
+
+    ET.VERSION
+except ImportError:
+    ET = None
 
 
 class MethodNotSupportedError(Exception):
@@ -97,7 +106,7 @@ def _exception(ex_info, func, args, kwargs, message="Type Error"):
 
     message_to_print = ""
     try:
-        messages = list(main_module.oDesktop.GetMessages("", "", 2))
+        messages = list(sys.modules["__main__"].oDesktop.GetMessages("", "", 2))
     except AttributeError:
         messages = []
     except TypeError:
@@ -214,63 +223,6 @@ def open_file(file_path, file_options="r"):
         settings.logger.error("The file: %s does not exist", dir_name)
 
 
-def convert_remote_object(arg):
-    """Convert a remote list or dictionary to a native list or dictionary.
-
-    .. note::
-        This method is needed only on a Cpython-to-Ironpython connection.
-
-    Parameters
-    ----------
-    arg : dict or list
-        Dictionary or list to convert.
-
-    Returns
-    -------
-    dict or list
-        Converted dictionary or list
-    """
-    if _check_types(arg) == "list":
-        if arg.__len__() > 0:
-            if (
-                isinstance(arg[0], (int, float, str))
-                or _check_types(arg[0]) == "list"
-                or _check_types(arg[0]) == "dict"
-            ):
-                a = list(ast.literal_eval(str(arg)))
-                for i, el in enumerate(a):
-                    a[i] = convert_remote_object(el)
-                return a
-            else:
-                return [arg[i] for i in range(arg.__len__())]
-        else:
-            return []
-    elif _check_types(arg) == "dict":
-        a = dict(ast.literal_eval(str(arg)))
-        for k, v in a.items():
-            a[k] = convert_remote_object(v)
-        return a
-    return arg
-
-
-def _remote_list_conversion(args):
-    new_args = []
-    if args:
-        for arg in args:
-            new_args.append(convert_remote_object(arg))
-    return new_args
-
-
-def _remote_dict_conversion(args):
-    if args:
-        new_kwargs = {}
-        for arg in args:
-            new_kwargs[arg] = convert_remote_object(args[arg])
-    else:
-        new_kwargs = args
-    return new_kwargs
-
-
 def _log_method(func, new_args, new_kwargs):
     if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
         return
@@ -351,11 +303,6 @@ def _function_handler_wrapper(user_function):
             result = user_function(*args, **kwargs)
             return result
         else:
-            if is_remote_server:
-                converted_args = _remote_list_conversion(args)
-                converted_kwargs = _remote_dict_conversion(kwargs)
-                args = converted_args
-                kwargs = converted_kwargs
             try:
                 settings.time_tick = time.time()
                 out = user_function(*args, **kwargs)
@@ -363,8 +310,7 @@ def _function_handler_wrapper(user_function):
                     _log_method(user_function, args, kwargs)
                 return out
             except TypeError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
+                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
                 return False
             except ValueError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
@@ -376,9 +322,8 @@ def _function_handler_wrapper(user_function):
                 _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
                 return False
             except IndexError:
-                if not is_remote_server:
-                    _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
-                    return False
+                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
+                return False
             except AssertionError:
                 _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
                 return False
@@ -1136,6 +1081,64 @@ def parse_excitation_file(
     return freq, mag, phase
 
 
+def tech_to_control_file(tech_path, unit="nm", control_path=None):
+    """Convert a TECH file to an XML file for use in a GDS or DXF import.
+
+    Parameters
+    ----------
+    tech_path : str
+        Full path to the TECH file.
+    unit : str, optional
+        Tech units. If specified in tech file this parameter will not be used. Default is ``"nm"``.
+    control_path : str, optional
+        Path for outputting the XML file.
+
+    Returns
+    -------
+    str
+        Out xml file.
+    """
+    result = []
+    with open(tech_path) as f:
+        vals = list(CSS4_COLORS.values())
+        id_layer = 0
+        for line in f:
+            line_split = line.split()
+            if len(line_split) == 5:
+                layerID, layer_name, _, elevation, layer_height = line.split()
+                x = '      <Layer Color="{}" GDSIIVia="{}" Name="{}" TargetLayer="{}" Thickness="{}"'.format(
+                    vals[id_layer],
+                    "true" if layer_name.lower().startswith("v") else "false",
+                    layerID,
+                    layer_name,
+                    layer_height,
+                )
+                x += ' Type="conductor"/>'
+                result.append(x)
+                id_layer += 1
+            elif len(line_split) > 1 and "UNIT" in line_split[0]:
+                unit = line_split[1]
+    if not control_path:
+        control_path = os.path.splitext(tech_path)[0] + ".xml"
+    with open(control_path, "w") as f:
+        f.write('<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n')
+        f.write('    <c:Control xmlns:c="http://www.ansys.com/control" schemaVersion="1.0">\n')
+        f.write("\n")
+        f.write('      <Stackup schemaVersion="1.0">\n')
+        f.write('        <Layers LengthUnit="{}">\n'.format(unit))
+        for res in result:
+            f.write(res + "\n")
+
+        f.write("    </Layers>\n")
+        f.write("  </Stackup>\n")
+        f.write("\n")
+        f.write('  <ImportOptions Flatten="true" GDSIIConvertPolygonToCircles="false" ImportDummyNet="true"/>\n')
+        f.write("\n")
+        f.write("</c:Control>\n")
+
+    return control_path
+
+
 class PropsManager(object):
     def __getitem__(self, item):
         """Get the `self.props` key value.
@@ -1244,8 +1247,156 @@ class PropsManager(object):
         pass
 
 
+clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+rgb_color_codes = {
+    "Black": (0, 0, 0),
+    "Green": (0, 128, 0),
+    "White": (255, 255, 255),
+    "Red": (255, 0, 0),
+    "Lime": (0, 255, 0),
+    "Blue": (0, 0, 255),
+    "Yellow": (255, 255, 0),
+    "Cyan": (0, 255, 255),
+    "Magenta": (255, 0, 255),
+    "Silver": (192, 192, 192),
+    "Gray": (128, 128, 128),
+    "Maroon": (128, 0, 0),
+    "Olive": (128, 128, 0),
+    "Purple": (128, 0, 128),
+    "Teal": (0, 128, 128),
+    "Navy": (0, 0, 128),
+    "copper": (184, 115, 51),
+    "stainless steel": (224, 223, 219),
+}
+
+
+@pyaedt_function_handler()
+def _arg2dict(arg, dict_out):
+    if arg[0] == "NAME:DimUnits" or "NAME:Point" in arg[0]:
+        if arg[0][5:] in dict_out:
+            if isinstance(dict_out[arg[0][5:]][0], (list, tuple)):
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+            else:
+                dict_out[arg[0][5:]] = [dict_out[arg[0][5:]]]
+                dict_out[arg[0][5:]].append(list(arg[1:]))
+        else:
+            dict_out[arg[0][5:]] = list(arg[1:])
+    elif arg[0][:5] == "NAME:":
+        top_key = arg[0][5:]
+        dict_in = OrderedDict()
+        i = 1
+        while i < len(arg):
+            if arg[i][0][:5] == "NAME:" and (
+                isinstance(arg[i], (list, tuple)) or str(type(arg[i])) == r"<type 'List'>"
+            ):
+                _arg2dict(list(arg[i]), dict_in)
+                i += 1
+            elif arg[i][-2:] == ":=":
+                if str(type(arg[i + 1])) == r"<type 'List'>":
+                    if arg[i][:-2] in dict_in:
+                        dict_in[arg[i][:-2]].append(list(arg[i + 1]))
+                    else:
+                        dict_in[arg[i][:-2]] = list(arg[i + 1])
+                else:
+                    if arg[i][:-2] in dict_in:
+                        if isinstance(dict_in[arg[i][:-2]], list):
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                        else:
+                            dict_in[arg[i][:-2]] = [dict_in[arg[i][:-2]]]
+                            dict_in[arg[i][:-2]].append(arg[i + 1])
+                    else:
+                        dict_in[arg[i][:-2]] = arg[i + 1]
+
+                i += 2
+            else:
+                raise ValueError("Incorrect data argument format")
+        if top_key in dict_out:
+            if isinstance(dict_out[top_key], list):
+                dict_out[top_key].append(dict_in)
+            else:
+                dict_out[top_key] = [dict_out[top_key], dict_in]
+        else:
+            dict_out[top_key] = dict_in
+    else:
+        raise ValueError("Incorrect data argument format")
+
+
+def _uname(name=None):
+    """Append a 6-digit hash code to a specified name.
+
+    Parameters
+    ----------
+    name : str
+        Name to append the hash code to. The default is ``"NewObject_"``.
+
+    Returns
+    -------
+    str
+
+    """
+    char_set = string.ascii_uppercase + string.digits
+    unique_name = "".join(random.sample(char_set, 6))
+    if name:
+        return name + unique_name
+    else:
+        return "NewObject_" + unique_name
+
+
+@pyaedt_function_handler()
+def _to_boolean(val):
+    """Retrieve the Boolean value of the provided input.
+
+        If the value is a Boolean, return the value.
+        Otherwise check to see if the value is in
+        ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+        and return True if the value is not in the list.
+
+    Parameters
+    ----------
+    val : bool or str
+        Input value to test for True/False condition.
+
+    Returns
+    -------
+    bool
+
+    """
+
+    if val is True or val is False:
+        return val
+
+    false_items = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
+
+    return not str(val).strip().lower() in false_items
+
+
+@pyaedt_function_handler()
+def _dim_arg(value, units):
+    """Concatenate a specified units string to a numerical input.
+
+    Parameters
+    ----------
+    value : str or number
+        Valid expression string in the AEDT modeler. For example, ``"5mm"``.
+    units : str
+        Valid units string in the AEDT modeler. For example, ``"mm"``.
+
+    Returns
+    -------
+    str
+
+    """
+    try:
+        val = float(value)
+        if isinstance(value, int):
+            val = value
+        return str(val) + units
+    except:
+        return value
+
+
 class Settings(object):
-    """Class that manages all PyAEDT environment variables and global settings."""
+    """Manages all PyAEDT environment variables and global settings."""
 
     def __init__(self):
         self._enable_logger = True
@@ -1444,7 +1595,7 @@ class Settings(object):
     @property
     def enable_desktop_logs(self):
         """Get the content for the environment variable."""
-        return self._enable_desktop_logs
+        return False if self.non_graphical else self._enable_desktop_logs
 
     @enable_desktop_logs.setter
     def enable_desktop_logs(self, val):

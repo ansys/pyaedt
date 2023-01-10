@@ -18,9 +18,9 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.actors import Radar
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import UserDefinedComponent
+from pyaedt.modeler.advanced_cad.actors import Radar
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
@@ -1180,7 +1180,7 @@ class Hfss(FieldAnalysis3D, object):
                 self.modeler, native.name, native_props["NativeComponentDefinitionProvider"], antenna_type
             )
             self.modeler.user_defined_components[native.name] = user_defined_component
-            self.native_components.append(native)
+            self._native_components.append(native)
             self.logger.info("Native component %s %s has been correctly created.", antenna_type, antenna_name)
             return native
         self.logger.error("Error in native component creation for %s %s.", antenna_type, antenna_name)
@@ -1721,8 +1721,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        start_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
-        end_object : str or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        start_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+        end_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
 
         Returns
         -------
@@ -3124,7 +3124,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        sheet : str or int or list or :class:`pyaedt.modeler.Object3d.Object3d`
+        sheet : str or int or list or :class:`pyaedt.modeler.object3d.Object3d`
             Name of the sheet.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
@@ -4442,7 +4442,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -4483,7 +4483,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        obj_names : str or list or int or :class:`pyaedt.modeler.Object3d.Object3d`
+        obj_names : str or list or int or :class:`pyaedt.modeler.object3d.Object3d`
             One or more object names or IDs.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``.
@@ -5523,32 +5523,32 @@ class Hfss(FieldAnalysis3D, object):
         Add a 3D component array from a json file.
         Below is the content of a json file that will be used in the following code sample.
 
-        {
-        "primarylattice": "MyFirstLattice",
-        "secondarylattice": "MySecondLattice",
-        "useairobjects": true,
-        "rowdimension": 4,
-        "columndimension": 4,
-        "visible": true,
-        "showcellnumber": true,
-        "paddingcells": 0,
-        "referencecsid": 1,
-        "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
-        "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
-        "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
-        "cells": { "(1,1)": {
-                   "name" : "MyFirstCell",
-                   "color" : "(255,0,20)", #optional
-                   "active" : true, #optional
-                   "postprocessing" : true #optional
-                   "rotation" : 0.0  #optional
-                    },
-                   "(1,2)": {
-                   "name" : "MySecondCell",
-                   "rotation" : 90.0
-                    }
-                    # continue
-        }
+        >>> {
+        >>> "primarylattice": "MyFirstLattice",
+        >>> "secondarylattice": "MySecondLattice",
+        >>> "useairobjects": true,
+        >>> "rowdimension": 4,
+        >>> "columndimension": 4,
+        >>> "visible": true,
+        >>> "showcellnumber": true,
+        >>> "paddingcells": 0,
+        >>> "referencecsid": 1,
+        >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
+        >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
+        >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
+        >>> "cells": { "(1,1)": {
+        >>>            "name" : "MyFirstCell",
+        >>>            "color" : "(255,0,20)", #optional
+        >>>            "active" : true, #optional
+        >>>            "postprocessing" : true #optional
+        >>>            "rotation" : 0.0  #optional
+        >>>             },
+        >>>            "(1,2)": {
+        >>>            "name" : "MySecondCell",
+        >>>            "rotation" : 90.0
+        >>>             }
+        >>>             # continue
+        >>> }
 
         >>> from pyaedt import Hfss
         >>> from pyaedt.generic.DataHandlers import json_to_dict
@@ -5789,14 +5789,16 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         try:
-            if self.solution_type != "Modal":
-                raise ValueError("Symmetry is only available with 'Modal' solution type.")
+            if self.solution_type not in ["Modal", "Eigenmode"]:
+                self.logger.error("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
+                return False
 
             if symmetry_name is None:
                 symmetry_name = generate_unique_name("Symmetry")
 
             if not isinstance(entity_list, list):
-                raise ValueError("Entities have to be provided as a list.")
+                self.logger.error("Entities have to be provided as a list.")
+                return False
 
             entity_list = self.modeler.convert_to_selections(entity_list, True)
 

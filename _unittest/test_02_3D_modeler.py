@@ -2,8 +2,8 @@
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.Modeler import FaceCoordinateSystem
-from pyaedt.modeler.Primitives import PolylineSegment
+from pyaedt.modeler.cad.Modeler import FaceCoordinateSystem
+from pyaedt.modeler.cad.Primitives import PolylineSegment
 
 try:
     import pytest  # noqa: F401
@@ -12,9 +12,9 @@ except ImportError:
 
 test_subfolder = "T02"
 if config["desktopVersion"] > "2022.2":
-    test_project_name = "Coax_HFSS_231"
+    test_project_name = "Coax_HFSS_t02_231"
 else:
-    test_project_name = "Coax_HFSS"
+    test_project_name = "Coax_HFSS_t02"
 
 
 class TestClass(BasisTest, object):
@@ -661,3 +661,12 @@ class TestClass(BasisTest, object):
         assert box1.wrap_sheet(rect)
         self.aedtapp.odesign.Undo()
         assert not box1.wrap_sheet(box2)
+
+    def test_54_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_55_scale(self):
+        assert self.aedtapp.modeler.scale([self.aedtapp.modeler.object_list[0], "Second_airbox"])

@@ -4,10 +4,10 @@
 Contribute
 ==========
 Overall guidance on contributing to a PyAnsys repository appears in
-`Contribute <https://dev.docs.pyansys.com/overview/contributing.html>`_
+`Contribute <https://dev.docs.pyansys.com/how-to/contributing.html>`_
 in the *PyAnsys Developer's Guide*. Ensure that you are thoroughly familiar
 with this guide, paying particular attention to `Guidelines and Best Practices
-<https://dev.docs.pyansys.com/guidelines/index.html>`_, before attempting
+<https://dev.docs.pyansys.com/how-to/index.html>`_, before attempting
 to contribute to PyAEDT.
  
 The following contribution information is specific to PyAEDT.
@@ -21,6 +21,7 @@ development mode, run:
 
     git clone https://github.com/pyansys/pyaedt
     cd pyaedt
+    python -m pip install --upgrade pip
     pip install -e .
 
 Post issues
@@ -36,7 +37,7 @@ Documentation for the latest stable release of PyAEDT is hosted at
 `PyAEDT Documentation <https://aedt.docs.pyansys.com>`_.  
 
 Documentation for the latest development version, which tracks the
-``main`` branch, is hosted at  `Development PyAEDT Documentation <https://dev.aedt.docs.pyansys.com/>`_.
+``main`` branch, is hosted at  `Development PyAEDT Documentation <https://aedt.docs.pyansys.com/dev/>`_.
 This version is automatically kept up to date via GitHub actions.
 
 Adhere to code style
@@ -63,9 +64,11 @@ For example::
   $ pre-commit install
   $ git commit -am "Add my cool feature."
   black....................................................................Passed
-  isort....................................................................Passed
+  isort (python)...........................................................Passed
   flake8...................................................................Passed
   codespell................................................................Passed
+  fix requirements.txt.....................................................Passed
+  blacken-docs.............................................................Passed
 
 Log errors
 ~~~~~~~~~~

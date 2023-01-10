@@ -18,13 +18,12 @@ test_field_name = "Potter_Horn"
 ipk_name = "Icepak_test"
 test_subfolder = "T42"
 if config["desktopVersion"] > "2022.2":
-    q3d_file = "via_gsg_231"
+    q3d_file = "via_gsg_t42_231"
     test_project_name = "dm boundary test_231"
-    diff_proj_name = "differential_pairs_231"
 else:
-    q3d_file = "via_gsg"
+    q3d_file = "via_gsg_t42"
     test_project_name = "dm boundary test"
-    diff_proj_name = "differential_pairs"
+diff_proj_name = "test_42"
 
 
 class TestClass(BasisTest, object):
@@ -123,9 +122,11 @@ class TestClass(BasisTest, object):
         box1 = self.icepak.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"
         region = self.icepak.modeler["Region"]
+        self.icepak.monitor.assign_point_monitor_in_object(box1.name)
+        self.icepak.monitor.assign_face_monitor(box1.faces[0].id)
+        self.icepak.monitor.assign_point_monitor([5, 5, 5])
         self.icepak.assign_openings(air_faces=region.bottom_face_x.id)
         self.icepak.create_setup()
-        conf_file = self.icepak.configurations.export_config()
         self.icepak.modeler.create_coordinate_system([10, 1, 10])
         self.icepak.mesh.assign_mesh_region([box1.name])
         self.icepak.mesh.global_mesh_region.MaxElementSizeX = "2mm"
@@ -137,6 +138,18 @@ class TestClass(BasisTest, object):
         self.icepak.mesh.global_mesh_region.MaxLevels = 2
         self.icepak.mesh.global_mesh_region.BufferLayers = 1
         self.icepak.mesh.global_mesh_region.update()
+        self.icepak.create_dataset(
+            "test_dataset",
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            zlist=None,
+            vlist=None,
+            is_project_dataset=False,
+            xunit="cel",
+            yunit="W",
+            zunit="",
+            vunit="",
+        )
         conf_file = self.icepak.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.icepak.design_name

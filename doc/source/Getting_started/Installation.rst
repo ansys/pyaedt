@@ -9,23 +9,30 @@ basic support for EDB and Circuit (Nexxim).
 Requirements
 ~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, PyAEDT
-requires AEDT 2021 R1 or later.
+requires Ansys Electronics Desktop (AEDT) 2021 R2 or later. The AEDT Student Version is also supported.
 
-.. todo::
-   Add how to install from the AEDT installer like as in https://mapdldocs.pyansys.com/getting_started/running_mapdl.html
 
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install PyAEDT on CPython 3.7 through 3.10 from PyPI. Install the prerequisite packages ``pythonnet``
-and ``pywin32`` with:
+You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
 
 .. code:: python
 
     pip install pyaedt
 
-PyAEDT works with CPython in Linux in AEDT 2022 R2 and later. However, you must set up the following environment
-variables:
+You can also install PyAEDT from Conda-Forge:
+
+.. code:: python
+
+    conda install -c conda-forge pyaedt
+
+
+Linux support
+~~~~~~~~~~~~~
+
+PyAEDT works with CPython 3.7 through 3.10 on Linux in AEDT 2022 R2 and later.
+However, you must set up the following environment variables:
 
 .. code::
 
@@ -35,12 +42,13 @@ variables:
 
 Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can install PyAEDT from a wheelhouse in a release's assets. Wheelhouses for CPython 3.7, 3.8, and 3.9
-are available in the releases for PyAEDT v0.4.70 and later.
-
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
+Wheelhouses for CPython 3.7, 3.8, and 3.9 are available in the releases for PyAEDT v0.4.70
+and later for both Windows and Linux.
 You can install PyAEDT and all of its dependencies from one single entry point that can be shared internally,
 which eases the security review of the PyAEDT package content.
+`WheelHouse releases <https://github.com/pyansys/pyaedt/releases>`
+
 
 For example, here is a command for installing the PyAEDT package and all its dependencies from a wheelhouse:
 
@@ -52,6 +60,8 @@ For example, here is a command for installing the PyAEDT package and all its dep
 Install from a batch file
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 AEDT already includes CPython 3.7, which can be used to run PyAEDT.
+It is also possible to use CPython 3.7 as a virtual environment to run PyAEDT.
+
 If you are running on Windows, you can download
 :download:`PyAEDT Environment with IDE bat file <../Resources/pyaedt_with_IDE.bat>`
 and run this batch file on your local machine. Using this approach
@@ -108,6 +118,10 @@ Otherwise, you must download and use the correct wheelhouse:
 
 Use IronPython in AEDT
 ~~~~~~~~~~~~~~~~~~~~~~
+PyAEDT is designed to work in CPython 3.7+ and supports many advanced processing packages like
+``matplotlib``, ``numpy``, and ``pyvista``. A user can still use PyAEDT in the IronPython
+environment available in AEDT with some limitations.
+
 To use IronPython in AEDT:
 
 1. Download the PyAEDT package from ``https://pypi.org/project/pyaedt/#files``.

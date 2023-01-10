@@ -60,24 +60,24 @@ jobs:
           echo "::set-output name=PYAEDT_VERSION::$(python -c "from pyaedt import __version__; print(__version__)")"
           echo "PyAEDT version is: $(python -c "from pyaedt import __version__; print(__version__)")"
 
-      - name: Cache docs build directory
-        uses: actions/cache@v3
-        with:
-          path: doc/build
-          key: doc-build-v${{ env.RESET_DOC_BUILD_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}-${{ github.sha }}
-          restore-keys: |
-            doc-build-v${{ env.RESET_DOC_BUILD_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}
-      - name: Cache autosummary
-        uses: actions/cache@v3
-        with:
-          path: doc/source/**/_autosummary/*.rst
-          key: autosummary-v${{ env.RESET_AUTOSUMMARY_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}-${{ github.sha }}
-          restore-keys: |
-            autosummary-v${{ env.RESET_AUTOSUMMARY_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}
+      # - name: Cache docs build directory
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: doc/build
+      #     key: doc-build-v${{ env.RESET_DOC_BUILD_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}-${{ github.sha }}
+      #     restore-keys: |
+      #       doc-build-v${{ env.RESET_DOC_BUILD_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}
+      # - name: Cache autosummary
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: doc/source/**/_autosummary/*.rst
+      #     key: autosummary-v${{ env.RESET_AUTOSUMMARY_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}-${{ github.sha }}
+      #     restore-keys: |
+      #       autosummary-v${{ env.RESET_AUTOSUMMARY_CACHE }}-${{ steps.version.outputs.PYAEDT_VERSION }}
 
       - name: Install doc build requirements
         run: |
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements_docs.txt
           sudo apt install graphviz
 
       # run doc build, without creating the examples directory

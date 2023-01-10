@@ -1,7 +1,10 @@
 """
 HFSS: Cable Modeling
 --------------------
-This example shows how you can use PyAEDT to use all the cable modeling feature available in HFSS.
+This example shows how you can use PyAEDT to use all the cable modeling features available in HFSS.
+Cable Modeling requires a pre-defined JSON file with all the cables and cable harness properties to set.
+In this example the properties are explicitly set but the user can also set them manually inside the file, save it
+and instantiate the Cable class to access all the available methods.
 """
 
 ###############################################################################
@@ -10,20 +13,15 @@ This example shows how you can use PyAEDT to use all the cable modeling feature 
 # Perform required imports.
 
 import os
-import tempfile
-
-from pyaedt import Desktop
-from pyaedt import Hfss
-from pyaedt.generic.DataHandlers import json_to_dict
+import pyaedt
 from pyaedt.modules.CableModeling import Cable
 
-from pyaedt import examples
-from pyaedt import generate_unique_folder_name
-
 # Set local temporary folder to export the cable library into.
-temp_folder = generate_unique_folder_name()
-project_path = examples.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
-json_path = examples.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
+# set_cable_properties.json is the required json file to work with the Cable class.
+# Its structure must never change except for the properties values.
+temp_folder = pyaedt.generate_unique_folder_name()
+project_path = pyaedt.downloads.download_file("cable_modeling", "cable_modeling.aedt", temp_folder)
+json_path = pyaedt.downloads.download_file("cable_modeling", "set_cable_properties.json", temp_folder)
 
 ###############################################################################
 # Launch AEDT
@@ -46,14 +44,14 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-d = Desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
 # Launch HFSS 2022 R2 in graphical mode.
 
-hfss = Hfss(projectname=project_path, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
 hfss.modeler.model_units = "mm"
 
 ###############################################################################
@@ -71,7 +69,7 @@ cable = Cable(hfss, json_path)
 # in json file).
 # A cable bundle with insulation jacket type is created.
 
-cable_props = json_to_dict(json_path)
+cable_props = pyaedt.data_handler.json_to_dict(json_path)
 
 cable_props["Add_Cable"] = "True"
 cable_props["Cable_prop"]["CableType"] = "bundle"
@@ -138,6 +136,7 @@ cable.create_cable()
 # Update cable bundle
 # ~~~~~~~~~~~~~~~~~~~
 # The first cable bundle (insulation jacket type) is updated.
+
 cable_props["Update_Cable"] = "True"
 cable_props["Cable_prop"]["IsJacketTypeNoJacket"] = "False"
 cable_props["Cable_prop"]["IsJacketTypeBraidShield"] = "False"
@@ -347,7 +346,7 @@ cable.update_pwl_source()
 
 # Create a pwl source from file.
 
-pwl_path = examples.download_file("cable_modeling", "import_pwl.pwl", temp_folder)
+pwl_path = pyaedt.downloads.download_file("cable_modeling", "import_pwl.pwl", temp_folder)
 
 cable_props["Add_Source"] = "True"
 cable_props["Update_Source"] = "False"
@@ -404,6 +403,14 @@ cable_props["CableHarness_prop"]["CableTerminationsToInclude"][2]["CableName"] =
 
 cable = Cable(hfss, cable_props)
 cable.create_cable_harness()
+
+###############################################################################
+# Plot model
+# ~~~~~~~~~~
+# Plot the model.
+
+hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Cable.jpg"), plot_air_objects=True)
+
 
 ###############################################################################
 # Save project and close AEDT

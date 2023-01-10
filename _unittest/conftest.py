@@ -31,13 +31,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
 
-# log_path = os.path.join(tempfile.gettempdir(), "test.log")
-# if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
-#     try:
-#         os.remove(log_path)
-#     except:
-#         pass
-# settings.logger_file_path = log_path
 settings.enable_error_handler = False
 settings.enable_desktop_logs = False
 if is_ironpython:
@@ -58,30 +51,36 @@ test_project_name = "test_primitives"
 sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
 
-# Check for the local config file, otherwise use default desktop configuration
+# Initialize default desktop configuration
+default_version = "2022.2"
+os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
+if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
+    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
+config = {
+    "desktopVersion": default_version,
+    "NonGraphical": True,
+    "NewThread": True,
+    "test_desktops": False,
+    "build_machine": True,
+    "skip_space_claim": False,
+    "skip_circuits": False,
+    "skip_edb": False,
+    "skip_debug": False,
+    "local": False,
+    "use_grpc": True,
+    "disable_sat_bounding_box": False,
+}
+
+# Check for the local config file, override defaults if found
 local_config_file = os.path.join(local_path, "local_config.json")
 if os.path.exists(local_config_file):
+    local_config = {}
     with open(local_config_file) as f:
-        config = json.load(f)
-else:
-    default_version = "2022.2"
-    if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-        default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
-    config = {
-        "desktopVersion": default_version,
-        "NonGraphical": True,
-        "NewThread": True,
-        "test_desktops": False,
-        "build_machine": True,
-        "skip_space_claim": False,
-        "skip_circuits": False,
-        "skip_edb": False,
-        "skip_debug": False,
-        "local": False,
-        "use_grpc": False,
-        "disable_sat_bounding_box": False,
-    }
-settings.use_grpc_api = config.get("use_grpc", False)
+        local_config = json.load(f)
+    for key, val in local_config.items():
+        config[key] = val
+
+settings.use_grpc_api = config.get("use_grpc", True)
 settings.non_graphical = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 
@@ -102,12 +101,15 @@ class BasisTest(object):
         self.local_scratch = Scratch(scratch_path)
         self.aedtapps = []
         self.edbapps = []
+        self._main = sys.modules["__main__"]
 
     def my_teardown(self):
         try:
-            oDesktop = sys.modules["__main__"].oDesktop
+            oDesktop = self._main.oDesktop
+            proj_list = oDesktop.GetProjectList()
         except Exception as e:
             oDesktop = None
+            proj_list = []
         if oDesktop and not settings.non_graphical:
             oDesktop.ClearMessages("", "", 3)
         for edbapp in self.edbapps[::-1]:
@@ -116,21 +118,16 @@ class BasisTest(object):
             except:
                 pass
         del self.edbapps
-        for aedtapp in self.aedtapps[::-1]:
-            try:
-                aedtapp.close_project(None, False)
-            except:
-                pass
-        del self.aedtapps
-        for proj in oDesktop.GetProjectList():
+        for proj in proj_list:
             oDesktop.CloseProject(proj)
+        del self.aedtapps
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
-        if "oDesktop" not in dir(sys.modules["__main__"]):
-            desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
-            desktop.disable_autosave()
+        if "oDesktop" not in dir(self._main):
+            self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            self.desktop.disable_autosave()
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -200,10 +197,14 @@ def desktop_init():
     yield
     if not is_ironpython:
         try:
-            oDesktop = sys.modules["__main__"].oDesktop
-            pid = oDesktop.GetProcessID()
-            os.kill(pid, 9)
-            # shutil.rmtree(scratch_path, ignore_errors=True)
+            _main = sys.modules["__main__"]
+            try:
+                desktop = _main.oDesktop
+                pid = desktop.GetProcessID()
+                os.kill(pid, 9)
+            except:
+                pass
+            # release_desktop(close_projects=False, close_desktop=True)
         except:
             pass
 

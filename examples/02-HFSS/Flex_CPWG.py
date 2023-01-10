@@ -5,13 +5,13 @@ This example shows how you can use PyAEDT to create a flex cable CPWG (coplanar 
 """
 
 ###############################################################################
-# Perform required immoprts
+# Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
 import os
 from math import radians, sin, cos, sqrt
-from pyaedt import Hfss
+import pyaedt
 
 ###############################################################################
 # Set non-graphical mode
@@ -27,13 +27,15 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-hfss = Hfss(specified_version="2022.2", solution_type="DrivenTerminal", new_desktop_session=True, non_graphical=non_graphical)
+hfss = pyaedt.Hfss(specified_version="2022.2",
+                   solution_type="DrivenTerminal",
+                   new_desktop_session=True,
+                   non_graphical=non_graphical)
 hfss.change_material_override(True)
 hfss.change_automatically_use_causal_materials(True)
 hfss.create_open_region("100GHz")
 hfss.modeler.model_units = "mil"
 hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
-
 
 ###############################################################################
 # Create variables
@@ -77,7 +79,7 @@ def create_bending(radius, extension=0):
 ###############################################################################
 # Draw signal line
 # ~~~~~~~~~~~~~~~~
-# Draw a signal line to create a bended signal wire.
+# Draw a signal line to create a bent signal wire.
 
 position_list = create_bending(r, 1)
 line = hfss.modeler.create_polyline(
@@ -91,7 +93,7 @@ line = hfss.modeler.create_polyline(
 ###############################################################################
 # Draw ground line
 # ~~~~~~~~~~~~~~~~
-# Draw a ground line to create two bended ground wires.
+# Draw a ground line to create two bent ground wires.
 
 gnd_r = [(x, spacing + width / 2 + gnd_width / 2, z) for x, y, z in position_list]
 gnd_l = [(x, -y, z) for x, y, z in gnd_r]
@@ -133,7 +135,6 @@ bot = hfss.modeler.create_polyline(
     xsection_height=width + 2 * spacing + 2 * gnd_width,
     matname="copper",
 )
-
 
 ###############################################################################
 # Create port interfaces
@@ -184,7 +185,6 @@ for s, port_name in zip(port_faces, ["1", "2"]):
 
     hfss.create_wave_port_from_sheet(s.id, portname=port_name, terminal_references=reference)
 
-
 ###############################################################################
 # Create setup and sweep
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -223,4 +223,3 @@ my_plot.plot(
 # model and release AEDT.
 
 hfss.release_desktop()
-# hfss.analyze_nominal(num_cores=4)

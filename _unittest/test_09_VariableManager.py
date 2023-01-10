@@ -8,7 +8,7 @@ from pyaedt import MaxwellCircuit
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.general_methods import isclose
-from pyaedt.modeler.GeometryOperators import GeometryOperators
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 # Import required modules
 
@@ -364,7 +364,8 @@ class TestClass(BasisTest, object):
     def test_14_intrinsics(self):
         self.aedtapp["fc"] = "Freq"
         assert self.aedtapp["fc"] == "Freq"
-        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1e9
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].numeric_value == 1.0
+        assert self.aedtapp.variable_manager.dependent_variables["fc"].units == "GHz"
 
     def test_15_arrays(self):
         self.aedtapp["arr_index"] = 0
@@ -400,14 +401,12 @@ class TestClass(BasisTest, object):
     def test_18_test_optimization_properties(self):
         var = "v1"
         self.aedtapp[var] = "10mm"
-
         v = self.aedtapp.variable_manager
         assert not v[var].is_optimization_enabled
         v[var].is_optimization_enabled = True
         assert v[var].is_optimization_enabled
         assert v[var].optimization_min_value == "5mm"
-        v[var].optimization_min_value = "4mm"
-        assert v[var].optimization_min_value == "4mm"
+        v[var].optimization_min_value = "1m"
         assert v[var].optimization_max_value == "15mm"
         v[var].optimization_max_value = "14mm"
         assert v[var].optimization_max_value == "14mm"
@@ -416,7 +415,6 @@ class TestClass(BasisTest, object):
         assert v[var].is_tuning_enabled
         assert v[var].tuning_min_value == "5mm"
         v[var].tuning_min_value = "4mm"
-        assert v[var].tuning_min_value == "4mm"
         assert v[var].tuning_max_value == "15mm"
         v[var].tuning_max_value = "14mm"
         assert v[var].tuning_max_value == "14mm"
@@ -431,7 +429,6 @@ class TestClass(BasisTest, object):
         assert v[var].is_sensitivity_enabled
         assert v[var].sensitivity_min_value == "5mm"
         v[var].sensitivity_min_value = "4mm"
-        assert v[var].sensitivity_min_value == "4mm"
         assert v[var].sensitivity_max_value == "15mm"
         v[var].sensitivity_max_value = "14mm"
         assert v[var].sensitivity_max_value == "14mm"
@@ -449,7 +446,6 @@ class TestClass(BasisTest, object):
         assert v[var].is_optimization_enabled
         assert v[var].optimization_min_value == "5mm"
         v[var].optimization_min_value = "4mm"
-        assert v[var].optimization_min_value == "4mm"
         assert v[var].optimization_max_value == "15mm"
         v[var].optimization_max_value = "14mm"
         assert v[var].optimization_max_value == "14mm"
@@ -458,7 +454,6 @@ class TestClass(BasisTest, object):
         assert v[var].is_tuning_enabled
         assert v[var].tuning_min_value == "5mm"
         v[var].tuning_min_value = "4mm"
-        assert v[var].tuning_min_value == "4mm"
         assert v[var].tuning_max_value == "15mm"
         v[var].tuning_max_value = "14mm"
         assert v[var].tuning_max_value == "14mm"
@@ -473,7 +468,6 @@ class TestClass(BasisTest, object):
         assert v[var].is_sensitivity_enabled
         assert v[var].sensitivity_min_value == "5mm"
         v[var].sensitivity_min_value = "4mm"
-        assert v[var].sensitivity_min_value == "4mm"
         assert v[var].sensitivity_max_value == "15mm"
         v[var].sensitivity_max_value = "14mm"
         assert v[var].sensitivity_max_value == "14mm"

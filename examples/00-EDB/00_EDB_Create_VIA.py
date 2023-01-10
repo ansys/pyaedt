@@ -11,14 +11,13 @@ This example shows how you can use EDB to create a layout.
 
 import time
 import os
-from pyaedt import Edb
-from pyaedt.generic.general_methods import generate_unique_folder_name,generate_unique_name
+import pyaedt
 
 start = time.time()
 
-aedb_path = os.path.join(generate_unique_folder_name(), generate_unique_name("pcb") + ".aedb")
+aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = Edb(edbpath=aedb_path, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2022.2")
 
 ####################
 # Add stackup layers
@@ -40,15 +39,12 @@ if edb:
         [0.0, 0],
         [100e-3, 0.0],
     ]
-    path = edb.core_primitives.Shape("polygon", points=points)
-    edb.core_primitives.create_path(path, "TOP", width=1e-3)
+    edb.core_primitives.create_trace(points, "TOP", width=1e-3)
     points = [[0.0, 1e-3], [0.0, 10e-3], [100e-3, 10e-3], [100e-3, 1e-3], [0.0, 1e-3]]
-    plane = edb.core_primitives.Shape("polygon", points=points)
-    edb.core_primitives.create_polygon(plane, "TOP")
+    edb.core_primitives.create_polygon_from_points(points, "TOP")
 
     points = [[0.0, -1e-3], [0.0, -10e-3], [100e-3, -10e-3], [100e-3, -1e-3], [0.0, -1e-3]]
-    plane = edb.core_primitives.Shape("polygon", points=points)
-    edb.core_primitives.create_polygon(plane, "TOP")
+    edb.core_primitives.create_polygon_from_points(points, "TOP")
 
 #######################################
 # Create vias with parametric positions
@@ -66,7 +62,7 @@ if edb:
     edb.core_padstack.place_padstack([35e-3, -5e-3], "MyVia")
     edb.core_padstack.place_padstack([45e-3, -5e-3], "MyVia")
 
-edb.core_nets.plot(None)
+edb.core_nets.plot(None, color_by_net=True)
 
 ####################
 # Save and close EDB

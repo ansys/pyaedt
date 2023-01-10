@@ -275,12 +275,19 @@ class PinGroup(object):
     def net(self, value):
         self._net = value
 
+    @property
+    def net_name(self):
+        return self._edb_pin_group.GetNet().GetName()
+
     def _create_terminal(self, is_reference=False):
         pg_term = self._edb_pin_group.GetPinGroupTerminal()
+        pin_group_net = self._edb_pin_group.GetNet()
+        if pin_group_net.IsNull():  # pragma: no cover
+            pin_group_net = list(self._edb_pin_group.GetPins())[0].GetNet()
         if pg_term.IsNull():
             return self._pedb.edb.Cell.Terminal.PinGroupTerminal.Create(
                 self._active_layout,
-                self._edb_pin_group.GetNet(),
+                pin_group_net,
                 self.name,
                 self._edb_pin_group,
                 is_reference,
@@ -300,6 +307,13 @@ class PinGroup(object):
         terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.kVoltageSource)
         terminal.SetSourceAmplitude(self._pedb.edb_value(magnitude))
         terminal.SetSourcePhase(self._pedb.edb.Utility.Value(phase))
+        return terminal
+
+    def create_port_terminal(self, impedance=50):
+        terminal = self._create_terminal()
+        terminal.SetBoundaryType(self._pedb.edb.Cell.Terminal.BoundaryType.PortBoundary)
+        terminal.SetImpedance(self._pedb.edb_value(impedance))
+        terminal.SetIsCircuitPort(True)
         return terminal
 
 
@@ -517,7 +531,7 @@ class ExcitationPorts(CommonExcitation):
     pedb : pyaedt.edb.Edb
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from edblib.
+        Edge terminal instance from Edb.
 
 
     Examples
@@ -828,7 +842,7 @@ class ExcitationSources(CommonExcitation):
     pedb : pyaedt.edb.Edb
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from edblib.
+        Edge terminal instance from Edb.
 
 
 
@@ -864,7 +878,7 @@ class ExcitationProbes(CommonExcitation):
     pedb : pyaedt.edb.Edb
         Edb object from Edblib.
     edb_terminal : Ansys.Ansoft.Edb.Cell.Terminal.EdgeTerminal
-        Edge terminal instance from edblib.
+        Edge terminal instance from Edb.
 
 
     Examples
@@ -881,7 +895,7 @@ class ExcitationProbes(CommonExcitation):
 
 
 class ExcitationDifferential:
-    """Manage differential excitation properties."""
+    """Manages differential excitation properties."""
 
     def __init__(self, pedb, edb_boundle_terminal):
         self._pedb = pedb

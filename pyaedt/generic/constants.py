@@ -636,11 +636,11 @@ class SolverType(object):
 
 
 class CutoutSubdesignType(object):
-    (Conformal, BoundingBox, ConvexHull, Invalid) = range(0, 4)
+    (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
 
 
 class RadiationBoxType(object):
-    (Conformal, BoundingBox, ConvexHull, Invalid) = range(0, 4)
+    (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
 
 
 class SweepType(object):

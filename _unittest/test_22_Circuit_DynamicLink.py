@@ -9,7 +9,6 @@ from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d
 from pyaedt import Q3d
-from pyaedt import settings
 
 try:
     import pytest
@@ -64,9 +63,7 @@ class TestClass(BasisTest, object):
                         ).encode()
                         found = True
                 outf.write(line + b"\n")
-        self.aedtapp = Circuit(
-            self.test_project, specified_version=desktop_version, non_graphical=settings.non_graphical
-        )
+        self.aedtapp = Circuit(self.test_project)
         self.aedtapps.append(self.aedtapp)
 
     def teardown_class(self):
@@ -160,21 +157,29 @@ class TestClass(BasisTest, object):
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Excitation_1", [hfss_pin2location["USB_VCC_T1"][0], hfss_pin2location["USB_VCC_T1"][1]]
         )
-        assert "Excitation_1" in portname.composed_name
+        assert "Excitation_1" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Excitation_2", [hfss_pin2location["usb_P_pcb"][0], hfss_pin2location["usb_P_pcb"][1]]
         )
-        assert "Excitation_2" in portname.composed_name
+        assert "Excitation_2" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_1",
             [hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][0], hfss3Dlayout_pin2location["L3M1.2.USBH2_DP_CH"][1]],
         )
-        assert "Port_1" in portname.composed_name
+        assert "Port_1" in portname.name
         portname = self.aedtapp.modeler.schematic.create_interface_port(
             "Port_2",
             [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
         )
-        assert "Port_2" in portname.composed_name
+        assert "Port_2" in portname.name
+
+        portname = self.aedtapp.modeler.schematic.create_interface_port(
+            "Port_remove",
+            [hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][0], hfss3Dlayout_pin2location["J3B2.2.USBH2_DN_CH"][1]],
+        )
+        self.aedtapp.excitations[portname.name].delete()
+
+        assert "Port_remove" not in self.aedtapp.excitation_names
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_08_assign_excitations(self):
@@ -190,13 +195,8 @@ class TestClass(BasisTest, object):
         ports_list = ["Excitation_1", "Excitation_3"]
         assert not self.aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
 
-        excitation_settings = ["1 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
         ports_list = ["Excitation_1"]
-        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
-
-        excitation_settings = ["10 V", "0deg", "0V", "25V", "1V", "2.5GHz", "0s", "0", "0deg", "0Hz"]
-        ports_list = ["Port_1"]
-        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list, excitation_settings)
+        assert self.aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_09_setup(self):
@@ -235,7 +235,6 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
-    # @pytest.mark.skipif(config["desktopVersion"] >= "2022.2" and config["use_grpc"], reason="Not working with grpc")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
@@ -256,6 +255,6 @@ class TestClass(BasisTest, object):
         )
         assert not self.aedtapp.modeler.components.create_interface_port(name="Port122", location=[0.6, -0.50])
         assert page_port.composed_name != second_page_port.composed_name
-        assert page_port.composed_name != interface_port.composed_name
-        assert page_port.composed_name != second_interface_port.composed_name
-        assert interface_port.composed_name != second_interface_port.composed_name
+        assert page_port.composed_name != interface_port.name
+        assert page_port.composed_name != second_interface_port.name
+        assert interface_port.name != second_interface_port.name

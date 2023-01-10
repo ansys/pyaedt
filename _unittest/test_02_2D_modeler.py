@@ -175,3 +175,9 @@ class TestClass(BasisTest, object):
             with pytest.raises(ValueError):
                 bounding_box_5_elements = [1, 2, 3, 4, 5]
                 self.aedtapp.modeler.objects_in_bounding_box(bounding_box_5_elements)
+
+    def test_13_set_variable(self):
+        self.aedtapp.variable_manager.set_variable("var_test", expression="123")
+        self.aedtapp["var_test"] = "234"
+        assert "var_test" in self.aedtapp.variable_manager.design_variable_names
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"

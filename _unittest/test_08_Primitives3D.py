@@ -14,17 +14,18 @@ from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
-from pyaedt.modeler.GeometryOperators import GeometryOperators
-from pyaedt.modeler.Object3d import Object3d
-from pyaedt.modeler.Object3d import UserDefinedComponent
-from pyaedt.modeler.Primitives import Polyline
-from pyaedt.modeler.Primitives import PolylineSegment
+from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.cad.object3d import Object3d
+from pyaedt.modeler.cad.polylines import Polyline
+from pyaedt.modeler.cad.Primitives import PolylineSegment
+from pyaedt.modeler.geometry_operators import GeometryOperators
 
 test = sys.modules.keys()
 
 scdoc = "input.scdoc"
 step = "input.stp"
 component3d = "new.a3dcomp"
+encrypted_cylinder = "encrypted_cylinder.a3dcomp"
 test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
@@ -44,6 +45,7 @@ class TestClass(BasisTest, object):
         self.local_scratch.copyfile(scdoc_file)
         self.step_file = os.path.join(local_path, "example_models", test_subfolder, step)
         self.component3d_file = os.path.join(self.local_scratch.path, component3d)
+        self.encrypted_cylinder = os.path.join(local_path, "example_models", test_subfolder, encrypted_cylinder)
         test_98_project = os.path.join(local_path, "example_models", test_subfolder, assembly2 + ".aedt")
         self.test_98_project = self.local_scratch.copyfile(test_98_project)
         test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
@@ -831,13 +833,34 @@ class TestClass(BasisTest, object):
         exc = self.aedtapp.create_wave_port_from_sheet(obj1.faces[0])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            exclude_region=True,
             object_list=["Solid", new_obj[1][0]],
             boundaries_list=[rad.name],
             excitation_list=[exc.name],
             included_cs="Global",
         )
         assert os.path.exists(self.component3d_file)
+
+    def test_64_create_3d_component_encrypted(self):
+        assert self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+        )
+        assert not self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+            password_type="Invalid",
+        )
+        assert not self.aedtapp.modeler.create_3dcomponent(
+            self.component3d_file,
+            included_cs="Global",
+            is_encrypted=True,
+            password="password_test",
+            component_outline="Invalid",
+        )
 
     def test_65_create_equationbased_curve(self):
         self.aedtapp.insert_design("Equations")
@@ -856,7 +879,12 @@ class TestClass(BasisTest, object):
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
-        assert self.aedtapp.change_property(self.aedtapp.oeditor, "General", obj_3dcomp.name, "Name", "new_name1")
+
+    @pytest.mark.skipif(config["use_grpc"] and config["desktopVersion"] < "2023.1", reason="Failing in grpc 2022.2")
+    def test_66a_insert_encrypted_3dcomp(self):
+        assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder)
+        # assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="dfgdg")
+        assert self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="test")
 
     def test_66b_group_components(self):
         self.aedtapp["l_dipole"] = "13.5cm"
@@ -934,7 +962,6 @@ class TestClass(BasisTest, object):
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
         point = self.aedtapp.modeler.create_point([30, 30, 0], name)
-        assert name in self.aedtapp.modeler.points
         point.set_color("(143 175 158)")
         point2 = self.aedtapp.modeler.create_point([50, 30, 0], "mypoint2", "(100 100 100)")
         point.logger.info("Creation and testing of a point.")
@@ -951,9 +978,48 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.modeler.points) == 2
         self.aedtapp.modeler.points[point.name].delete()
         assert name not in self.aedtapp.modeler.points
+        self.aedtapp.modeler.points
         assert len(self.aedtapp.modeler.point_objects) == 1
         assert len(self.aedtapp.modeler.point_names) == 1
         assert self.aedtapp.modeler.point_objects[0].name == "mypoint2"
+
+    def test_71_create_plane(self):
+        self.aedtapp.set_active_design("3D_Primitives")
+        name = "my_plane"
+        if self.aedtapp.modeler[name]:
+            self.aedtapp.modeler.delete(name)
+        plane = self.aedtapp.modeler.create_plane(name, "-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm")
+        assert name in self.aedtapp.modeler.planes
+        plane.set_color("(143 75 158)")
+        assert plane.name == name
+        plane.name = "my_plane1"
+        assert plane.name == "my_plane1"
+
+        plane2 = self.aedtapp.modeler.create_plane(
+            plane_base_x="-0.7mm",
+            plane_base_z="0.3mm",
+            plane_normal_x="-0.7mm",
+            plane_normal_z="0.3mm",
+            name="my_plane2",
+            color="(100 100 100)",
+        )
+        plane.logger.info("Creation and testing of a plane.")
+
+        assert plane.name == "my_plane1"
+        assert plane.coordinate_system == "Global"
+        assert plane2.name == "my_plane2"
+        assert plane2.coordinate_system == "Global"
+
+        assert self.aedtapp.modeler.planes["my_plane1"].name == plane.name
+        assert self.aedtapp.modeler.planes["my_plane2"].name == plane2.name
+
+        # Delete the first plane
+        if config["desktopVersion"] < "2023.1" and not is_ironpython:
+            assert len(self.aedtapp.modeler.planes) == 2
+        else:
+            assert len(self.aedtapp.modeler.planes) == 5
+        self.aedtapp.modeler.planes["my_plane1"].delete()
+        assert name not in self.aedtapp.modeler.planes
 
     def test_71_create_choke(self):
         choke_file1 = os.path.join(
@@ -1195,6 +1261,7 @@ class TestClass(BasisTest, object):
             assert box2.name not in box1.faces[1].touching_objects
         assert box2.get_touching_faces(box1)
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
@@ -1234,13 +1301,21 @@ class TestClass(BasisTest, object):
         assert obj_3dcomp.mirror(udp, udp2)
         assert obj_3dcomp.rotate(cs_axis="Y", angle=180)
         assert obj_3dcomp.move(udp2)
+
         new_comps = obj_3dcomp.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
         assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
+
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
-        new_comps = obj_3dcomp.duplicate_along_line(udp, num_clones)
-        assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
+        attached_clones = obj_3dcomp.duplicate_along_line(udp, num_clones)
+        assert attached_clones[0] in self.aedtapp.modeler.user_defined_component_names
 
+        attached_clones = obj_3dcomp.duplicate_along_line(
+            self.aedtapp.modeler.Position(-5, -5, -5), 2, attach_object=True
+        )
+        assert attached_clones[0] in self.aedtapp.modeler.user_defined_component_names
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_80_udm_operations(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
@@ -1304,7 +1379,7 @@ class TestClass(BasisTest, object):
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing randomly in 2022.2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     def test_81_duplicate_and_mirror_3dcomponent(self):
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
@@ -1312,4 +1387,3 @@ class TestClass(BasisTest, object):
 
     def test_82_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
-        pass

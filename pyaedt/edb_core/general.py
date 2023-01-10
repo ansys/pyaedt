@@ -6,21 +6,11 @@ This module contains EDB general methods and related methods.
 from __future__ import absolute_import  # noreorder
 
 import logging
-import os
-import warnings
 
+from pyaedt.generic.clr_module import Dictionary
+from pyaedt.generic.clr_module import List
+from pyaedt.generic.clr_module import Tuple
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
-try:
-    import clr
-
-    clr.AddReference("System.Collections")
-    from System import Tuple
-    from System.Collections.Generic import List
-
-except ImportError:
-    if os.name != "posix":
-        warnings.warn("This module requires PythonNET.")
 
 logger = logging.getLogger(__name__)
 
@@ -61,21 +51,24 @@ def convert_pytuple_to_nettuple(_tuple):
 
 
 @pyaedt_function_handler()
-def convert_pydict_to_netdict(dict):
-    """Convert a Python dictionarty to a Net dictionary.
+def convert_pydict_to_netdict(input_dict):
+    """Convert a Python dictionary to a .NET dictionary.
 
     Parameters
     ----------
-    dict : dict
+    input_dict : dict
         Python dictionary to convert.
 
 
     Returns
     -------
     dict
-        Dictionary converted to Net.
+        Dictionary converted to .NET.
     """
-    type = dict[dict.Keys[0]]
+    net_dict = Dictionary[type(list(input_dict.keys())[0]), type(list(input_dict.values())[0])]()
+    for k1, v1 in input_dict.items():  # pragma: no cover
+        net_dict[k1] = v1
+    return net_dict
     # to be completed
 
 

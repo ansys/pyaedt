@@ -5,6 +5,9 @@ on:
   schedule:  # UTC at 0400
     - cron:  '0 4 * * *'
 
+env:
+  DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,14 +18,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      # used for documentation deployment
-      - name: Get Bot Application Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@v2
-        with:
-          application_id: ${{ secrets.BOT_APPLICATION_ID }}
-          application_private_key: ${{ secrets.BOT_APPLICATION_PRIVATE_KEY }}
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -35,29 +30,29 @@ jobs:
 
       - name: Install doc build requirements
         run: |
-          pip install -r requirements_docs.txt
+          pip install -r requirements/requirements_docs.txt
 
       - name: Full Documentation Build
         run: |
           make -C doc phtml
-          touch doc/_build/html/.nojekyll
-          echo "dev.aedt.docs.pyansys.com" >> doc/_build/html/CNAME
 
-      - name: Upload Documentation
+      - name: Upload documentation HTML artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Documentation
+          name: documentation-html
           path: doc/_build/html
           retention-days: 7
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
+  docs_upload:
+    needs: docs_build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Deploy development documentation
+        uses: pyansys/actions/doc-deploy-dev@v2
         with:
-          repository-name: pyansys/pyaedt-dev-docs
-          branch: gh-pages
-          folder: doc/_build/html/
-          token: ${{ steps.get_workflow_token.outputs.token }}
-          clean: true
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   # docstring_testing:
   #   runs-on: Windows
@@ -88,7 +83,7 @@ jobs:
   #     - name: Install testing requirements
   #       run: |
   #         testenv\Scripts\Activate.ps1
-  #         pip install -r requirements_test.txt
+  #         pip install -r requirements/requirements_test.txt
   #         pip install pytest-azurepipelines
 
   #     - name: Docstring testing

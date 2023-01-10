@@ -116,7 +116,7 @@ class Mesh3DOperation(PropsManager, object):
 
 
 class Mesh3d(object):
-    """Mesh class.
+    """Manages mesh operations for HFSS 3D Layout.
 
     Provides the main AEDT mesh functionality. The inherited class
     ``AEDTConfig`` contains all ``_desktop`` hierarchical calls needed by this class.

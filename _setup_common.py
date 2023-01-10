@@ -17,6 +17,19 @@ def recursive_glob(startpath, filepattern):
         if fnmatch.fnmatch(filename, filepattern)
     ]
 
+def recursive_glob_folder(startpath, exclude_list=["dlls", "__pycache__",]):
+    """Return a list of files matching a pattern, searching recursively from a start path.
+
+    Keyword Arguments:
+    startpath -- starting path (directory)
+    """
+    list_in =  [
+        dirpath.replace(startpath, "pyaedt").replace("\\", ".")
+        for dirpath, _, filenames in os.walk(startpath)
+    ]
+    list_excl = [el for i in exclude_list for el in list_in  if i in el]
+    return [i for i in list_in if i not in list_excl]
+
 
 open3 = open
 if sys.version_info < (3, 0):
@@ -44,25 +57,7 @@ description = "Higher-Level Pythonic Ansys Electronics Desktop Framework"
 with open3(os.path.join(HERE, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
 
-packages = [
-    "pyaedt",
-    "pyaedt.misc",
-    "pyaedt.application",
-    "pyaedt.modeler",
-    "pyaedt.modules",
-    "pyaedt.generic",
-    "pyaedt.edb_core",
-    "pyaedt.edb_core.edb_data",
-    "pyaedt.emit_core",
-    "pyaedt.examples",
-    "pyaedt.rpc",
-    "pyaedt.third_party",
-    "pyaedt.third_party.ironpython",
-    "pyaedt.third_party.ironpython.rpyc_27",
-    "pyaedt.third_party.ironpython.rpyc_27.core",
-    "pyaedt.third_party.ironpython.rpyc_27.lib",
-    "pyaedt.third_party.ironpython.rpyc_27.utils",
-]
+packages = recursive_glob_folder(os.path.join(HERE, "pyaedt"))
 
 data_files = [
     ("dlls", recursive_glob(os.path.join("pyaedt", "dlls"), "*")),
@@ -86,3 +81,9 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
 ]
+
+project_urls={
+    "Bug Tracker": "https://github.com/pyansys/pyaedt/issues",
+    "Documentation": "https://aedt.docs.pyansys.com",
+    "Source Code": "https://github.com/pyansys/pyaedt",
+}

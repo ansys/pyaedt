@@ -2,8 +2,16 @@ import warnings
 
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.Circuit import ModelerNexxim
-from pyaedt.modeler.Object3d import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.schematic import ModelerNexxim
+from pyaedt.modules.Boundary import CurrentSinSource
+from pyaedt.modules.Boundary import Excitations
+from pyaedt.modules.Boundary import PowerIQSource
+from pyaedt.modules.Boundary import PowerSinSource
+from pyaedt.modules.Boundary import Sources
+from pyaedt.modules.Boundary import VoltageDCSource
+from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
+from pyaedt.modules.Boundary import VoltageSinSource
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 
@@ -57,6 +65,8 @@ class FieldAnalysisCircuit(Analysis):
 
         self._modeler = ModelerNexxim(self)
         self._post = CircuitPostProcessor(self)
+        self._internal_excitations = None
+        self._internal_sources = None
 
     @pyaedt_function_handler()
     def push_down(self, component_name):
@@ -64,7 +74,7 @@ class FieldAnalysisCircuit(Analysis):
 
         Parameters
         ----------
-        component_name : str or :class:`pyaedt.modeler.Object3d.CircuitComponent`
+        component_name : str or :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
             Component to initialize.
 
         Returns
@@ -163,14 +173,85 @@ class FieldAnalysisCircuit(Analysis):
         return self.oanalysis.GetAllSolutionSetups()
 
     @property
-    def excitations(self):
-        """Get all excitation names.
+    def source_names(self):
+        """Get all source names.
 
         Returns
         -------
         list
-            List of excitation names. Excitations with multiple modes will return one
-            excitation for each mode.
+            List of source names.
+
+        References
+        ----------
+
+        >>> oDesign.GetChildObject("Excitations").GetChildNames()
+        """
+        return list(self.odesign.GetChildObject("Excitations").GetChildNames())
+
+    @property
+    def source_objects(self):
+        """Get all source objects.
+
+        Returns
+        -------
+        list
+            List of source objects.
+        """
+        return [self.sources[name] for name in self.sources]
+
+    @property
+    def sources(self):
+        """Get all sources.
+
+        Returns
+        -------
+        List of :class:`pyaedt.modules.Boundary.Sources`
+            List of sources.
+
+        """
+        props = {}
+        if not self._internal_sources:
+            for source in self.source_names:
+                props[source] = Sources(self, source)
+                if props[source].source_type == "PowerSin":
+                    props[source] = PowerSinSource(self, source)
+                elif props[source].source_type == "PowerIQ":
+                    props[source] = PowerIQSource(self, source)
+                elif props[source].source_type == "VoltageFrequencyDependent":
+                    props[source] = VoltageFrequencyDependentSource(self, source)
+                elif props[source].source_type == "VoltageDC":
+                    props[source] = VoltageDCSource(self, source)
+                elif props[source].source_type == "VoltageSin":
+                    props[source] = VoltageSinSource(self, source)
+                elif props[source].source_type == "CurrentSin":
+                    props[source] = CurrentSinSource(self, source)
+            self._internal_sources = props
+        else:
+            props = self._internal_sources
+            if not sorted(list(props.keys())) == sorted(self.source_names):
+                a = set(str(x) for x in props.keys())
+                b = set(str(x) for x in self.source_names)
+                if len(a) == len(b):
+                    unmatched_new_name = list(b - a)[0]
+                    unmatched_old_name = list(a - b)[0]
+                    props[unmatched_new_name] = props[unmatched_old_name]
+                    del props[unmatched_old_name]
+                else:
+                    for old_source in props.keys():
+                        if old_source not in self.source_names:
+                            del props[old_source]
+                            break
+
+        return props
+
+    @property
+    def excitation_names(self):
+        """List of port names.
+
+        Returns
+        -------
+        list
+            List of excitation names.
 
         References
         ----------
@@ -179,6 +260,54 @@ class FieldAnalysisCircuit(Analysis):
         """
         ports = [p.replace("IPort@", "").split(";")[0] for p in self.modeler.oeditor.GetAllPorts() if "IPort@" in p]
         return ports
+
+    @property
+    def excitation_objets(self):
+        """List of port objects.
+
+        Returns
+        -------
+        list
+            List of port objects.
+        """
+        return [self.excitations[name] for name in self.excitations]
+
+    @property
+    def excitations(self):
+        """Get all ports.
+
+        Returns
+        -------
+        list
+            List of ports.
+
+        """
+        props = {}
+        if not self._internal_excitations:
+            for port in self.excitation_names:
+                props[port] = Excitations(self, port)
+            self._internal_excitations = props
+        else:
+            props = self._internal_excitations
+            if not sorted(list(props.keys())) == sorted(self.excitation_names):
+                a = set(str(x) for x in props.keys())
+                b = set(str(x) for x in self.excitation_names)
+                if len(a) == len(b):
+                    unmatched_new_name = list(b - a)[0]
+                    unmatched_old_name = list(a - b)[0]
+                    props[unmatched_new_name] = props[unmatched_old_name]
+                    del props[unmatched_old_name]
+                else:
+                    if len(a) > len(b):
+                        for old_port in props.keys():
+                            if old_port not in self.excitation_names:
+                                del props[old_port]
+                                return props
+                    else:
+                        for new_port in self.excitation_names:
+                            if new_port not in props.keys():
+                                props[new_port] = Excitations(self, new_port)
+        return props
 
     @property
     def get_excitations_name(self):
@@ -202,12 +331,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of exctitations.
+        """List of all S parameters for a list of excitations.
 
         Parameters
         ----------
         excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
+            List of excitations. The default value is ``[]``, in which case
             the S parameters for all excitations are to be provided.
             For example, ``["1", "2"]``.
 
