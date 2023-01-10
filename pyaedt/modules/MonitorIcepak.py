@@ -507,19 +507,78 @@ class Monitor:
                         i + " monitor object lost its assignment due to geometry modifications and has been deleted."
                     )
 
+    @pyaedt_function_handler()
+    def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
+        """
+        Get the object that the monitor is applied to
 
-class PointMonitor(Monitor):
-    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
+        Parameters
+        ----------
+        monitor_dict : dict
+           Dictionary containing monitor object information
+        mode : int
+            Integer to select the information to handle. To identify faces, vertices, surfaces and object to which the
+            monitor is to be assigned it is possible to use:
+                ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity"
+                positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity"
+
+        Returns
+        -------
+            Name of the monitor object.
+        """
+        m_case = monitor_dict["Type"]
+        m_quantity = monitor_dict["Quantity"]
+        m_name = monitor_dict["Name"]
+        m_object = None
+        if mode == 1:
+            if m_case == "Face":
+                for f in self._app.modeler.get_object_from_name(monitor_dict["Geometry Assignment"]).faces:
+                    if f.center == monitor_dict["Location"]:
+                        m_object = f.id
+                        break
+            elif m_case == "Vertex":
+                for v in self._app.modeler.get_object_from_name(monitor_dict["Geometry Assignment"]).vertices:
+                    if v.position == monitor_dict["Location"]:
+                        m_object = v.id
+                        break
+            elif m_case == "Object":
+                m_object = monitor_dict["Geometry Assignment"]
+            elif m_case == "Surface":
+                m_object = monitor_dict["Geometry Assignment"]
+        elif mode == 0:
+            m_object = monitor_dict["ID"]
+        else:
+            self._app.logger.error("Only modes supported are 0 and 1")
+        if m_object is None:
+            self._app.logger.error("{} monitor object could not be restored".format(m_name))
+            return False
+        self._app.configurations.update_monitor(m_case, m_object, m_quantity, m_name)
+        return m_name
+
+
+class ObjectMonitor:
+    def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
         self._name = monitor_name
         self._type = monitor_type
-        self._id = point_id
+        self._id = monitor_id
         self._quantities = quantity
         self._app = app
 
     @property
+    def geometry_assignment(self):
+        """
+        Get the geometry assignment for the monitor object.
+
+        Returns
+        -------
+        str
+        """
+        return self._app.monitor.get_monitor_object_assignment(self)
+
+    @property
     def name(self):
         """
-        Get the name of the monitor point
+        Get the name of the monitor object
 
         Returns
         -------
@@ -530,7 +589,7 @@ class PointMonitor(Monitor):
     @property
     def id(self):
         """
-        Get the point name, object name or vertex id as appropriate
+        Get the name, or id of geometry assignment
 
         Returns
         -------
@@ -539,15 +598,62 @@ class PointMonitor(Monitor):
         return self._id
 
     @property
+    def properties(self):
+        """
+        Get a dictionary of properties
+
+        Returns
+        -------
+        dict
+        """
+        return {
+            "Name": self.name,
+            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
+            "Type": self.type,
+            "ID": self.id,
+            "Location": self.location,
+            "Quantity": self.quantities,
+            "Geometry Assignment": self.geometry_assignment,
+        }
+
+    @pyaedt_function_handler
+    def delete(self):
+        """
+        Delete a monitor object
+
+        Returns
+        -------
+        True if successful
+        """
+        self._app.monitor.delete_monitor(self.name)
+        return True
+
+    @property
+    def quantities(self):
+        """
+        Get the quantities being monitored
+
+        Returns
+        -------
+        list of str
+        """
+        return self._quantities
+
+    @property
     def type(self):
         """
-        Get the point monitor type: point, object or vertex depending on the assignment.
+        Get the monitor type
 
         Returns
         -------
         str
         """
         return self._type
+
+
+class PointMonitor(ObjectMonitor):
+    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
+        super().__init__(monitor_name, monitor_type, point_id, quantity, app)
 
     @property
     def location(self):
@@ -566,81 +672,10 @@ class PointMonitor(Monitor):
             .split(", ")
         ]
 
-    @property
-    def quantities(self):
-        """
-        Get the quantities being monitored
 
-        Returns
-        -------
-        list of str
-        """
-        return self._quantities
-
-    @property
-    def properties(self):
-        """
-        Get a dictionary of properties
-
-        Returns
-        -------
-        dict
-        """
-        return {
-            "Name": self.name,
-            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
-            "Type": self.type,
-            "ID": self.id,
-            "Location": self.location,
-            "Quantity": self.quantities,
-            "Geometry Assignment": self.get_monitor_object_assignment(self),
-        }
-
-    @pyaedt_function_handler
-    def delete(self):
-        self._app.monitor.delete_monitor(self.name)
-
-
-class FaceMonitor(Monitor):
+class FaceMonitor(ObjectMonitor):
     def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
-        self._name = monitor_name
-        self._type = monitor_type
-        self._id = face_id
-        self._quantities = quantity
-        self._app = app
-
-    @property
-    def name(self):
-        """
-        Get the name of the object monitor
-
-        Returns
-        -------
-        str
-        """
-        return self._name
-
-    @property
-    def id(self):
-        """
-        Get the face id or the surface name as appropriate
-
-        Returns
-        -------
-        int or str
-        """
-        return self._id
-
-    @property
-    def type(self):
-        """
-        Get the face monitor type: face or surface object
-
-        Returns
-        -------
-        str
-        """
-        return self._type
+        super().__init__(monitor_name, monitor_type, face_id, quantity, app)
 
     @property
     def location(self):
@@ -652,42 +687,8 @@ class FaceMonitor(Monitor):
         list of floats
         """
         if self.type == "Face":
-            for f in self._app.modeler.get_object_from_name(self.get_monitor_object_assignment(self)).faces:
+            for f in self._app.modeler.get_object_from_name(self.geometry_assignment).faces:
                 if f.id == self.id:
                     return f.center
         elif self.type == "Surface":
-            return self._app.modeler.get_object_from_name(self.get_monitor_object_assignment(self)).faces[0].center
-
-    @property
-    def quantities(self):
-        """
-        Get the quantities being monitored
-
-        Returns
-        -------
-        list of str
-        """
-        return self._quantities
-
-    @property
-    def properties(self):
-        """
-        Get a dictionary of properties
-
-        Returns
-        -------
-        dict
-        """
-        return {
-            "Name": self.name,
-            "Object": self._app.odesign.GetChildObject("Monitor").GetChildObject(self.name),
-            "Type": self.type,
-            "ID": self.id,
-            "Location": self.location,
-            "Quantity": self.quantities,
-            "Geometry Assignment": self.get_monitor_object_assignment(self),
-        }
-
-    @pyaedt_function_handler
-    def delete(self):
-        self._app.monitor.delete_monitor(self.name)
+            return self._app.modeler.get_object_from_name(self.geometry_assignment).faces[0].center
