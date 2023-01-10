@@ -546,7 +546,8 @@ class Mechanical(FieldAnalysis3D, object):
             Boundary object.
 
         References
-        -------
+        ----------
+
         >>> oModule.AssignHeatFlux
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
@@ -593,7 +594,8 @@ class Mechanical(FieldAnalysis3D, object):
             Boundary object.
 
         References
-        -------
+        ----------
+
         >>> oModule.AssignHeatGeneration
         """
         assert "Thermal" in self.solution_type, "This method works only in a Mechanical Thermal analysis."
