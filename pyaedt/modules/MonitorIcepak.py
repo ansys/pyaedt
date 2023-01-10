@@ -41,14 +41,25 @@ class Monitor:
         list
             List of names
         """
-        if n == 1:
+        if n == 1 and name not in self.all_monitors:
             return [name]
         else:
-            names = [name]
+            if name not in self.all_monitors:
+                names = [name]
+            else:
+                names = []
+                n += 1
             j = 1
             if re.search(r"\d+$", name) is not None:
                 j = int(re.search(r"\d+$", name).group(0)) + 1
-            names += [re.sub(r"\d+$", "", name) + str(i + j) for i in range(n - 1)]
+            n_names_left = n - 1
+            while n_names_left:
+                i = n - 1 - n_names_left
+                candidate_name = re.sub(r"\d+$", "", name) + str(i + j)
+                if candidate_name not in self.all_monitors:
+                    names.append(candidate_name)
+                    n_names_left -= 1
+                n += 1
             return names
 
     @pyaedt_function_handler
