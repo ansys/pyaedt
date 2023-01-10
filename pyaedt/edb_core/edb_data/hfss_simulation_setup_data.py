@@ -1164,7 +1164,41 @@ class AdaptiveSettings(object):
         self._parent._update_setup()
 
     @pyaedt_function_handler()
-    def add_adaptive_frequency_data(self, low_frequency=0, high_frequency=10e9, max_num_passes=10, max_delta_s=0.02):
+    def add_adaptive_frequency_data(self, frequency=0, max_num_passes=10, max_delta_s=0.02):
+        """Add a setup for frequency data.
+
+        Parameters
+        ----------
+        low_frequency : str, float
+            Frequency with units or float frequency (in Hz).
+        high_frequency : str, float
+            Frequency with units or float frequency (in Hz).
+        max_num_passes : int, optional
+            Maximum number of passes. The default is ``10``.
+        max_delta_s : float, optional
+            Maximum delta S. The default is ``0.02``.
+
+        Returns
+        -------
+        bool
+            ``True`` if method is successful, ``False`` otherwise.
+        """
+        low_freq_adapt_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
+        low_freq_adapt_data.MaxDelta = self._parent._edb.edb_value(max_delta_s).ToString()
+        low_freq_adapt_data.MaxPasses = max_num_passes
+        low_freq_adapt_data.AdaptiveFrequency = self._parent._edb.edb_value(frequency).ToString()
+        high_freq_adapt_data = self._parent._edb.simsetupdata.AdaptiveFrequencyData()
+        high_freq_adapt_data.MaxDelta = self._parent._edb.edb_value(max_delta_s).ToString()
+        high_freq_adapt_data.MaxPasses = max_num_passes
+        high_freq_adapt_data.AdaptiveFrequency = self._parent._edb.edb_value(frequency).ToString()
+        self.adaptive_settings.AdaptiveFrequencyDataList.Add(low_freq_adapt_data)
+        self.adaptive_settings.AdaptiveFrequencyDataList.Add(high_freq_adapt_data)
+        return self._parent._update_setup()
+
+    @pyaedt_function_handler()
+    def add_broadband_adaptive_frequency_data(
+        self, low_frequency=0, high_frequency=10e9, max_num_passes=10, max_delta_s=0.02
+    ):
         """Add a setup for frequency data.
 
         Parameters
@@ -2108,7 +2142,7 @@ class HfssSimulationSetup(object):
         """
         self.adaptive_settings.adapt_type = "kBroadband"
         self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
-        if not self.adaptive_settings.add_adaptive_frequency_data(
+        if not self.adaptive_settings.add_broadband_adaptive_frequency_data(
             low_frequency, high_frequency, max_num_passes, max_delta_s
         ):
             return False
