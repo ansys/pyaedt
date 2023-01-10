@@ -13,11 +13,11 @@ HSPICE files are fully supported. Mentor files are partially supported.
 import os
 
 import pyaedt
+
 netlist = pyaedt.downloads.download_netlist()
 
 project_name = pyaedt.generate_unique_project_name()
 print(project_name)
-
 
 ###############################################################################
 # Launch AEDT
@@ -25,7 +25,6 @@ print(project_name)
 # Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
 desktopVersion = "2022.2"
-
 
 ###############################################################################
 # Set non-graphical mode

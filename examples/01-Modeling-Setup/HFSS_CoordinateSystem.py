@@ -12,7 +12,6 @@ import os
 
 import pyaedt
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -22,13 +21,12 @@ import pyaedt
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 
-
 ###############################################################################
 # Launch AEDT in graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode.
 
-d = pyaedt.launch_desktop("2022.2", non_graphical=non_graphical, new_desktop_session=True)
+d = pyaedt.launch_desktop(specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Insert HFSS design
@@ -198,7 +196,6 @@ fcs6 = hfss.modeler.create_face_coordinate_system(face=face, origin=face, axis_p
 cs_fcs = hfss.modeler.create_coordinate_system(
     name="CS_FCS", origin=[0, 0, 0], reference_cs=fcs6.name, mode="view", view="iso"
 )
-
 
 ###############################################################################
 # Get all coordinate systems

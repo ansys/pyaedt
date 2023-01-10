@@ -16,10 +16,8 @@ import os
 import pyaedt
 from pyaedt.generic.filesystem import Scratch
 
-
-
 ###############################################################################
-## Set non-graphical mode
+# Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
@@ -111,7 +109,6 @@ for link in aedtapp.couplings.coupling_names:
 # Run EMIT simulation
 # ~~~~~~~~~~~~~~~~~~~
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
-
 
 ###############################################################################
 # Save project and close AEDT
