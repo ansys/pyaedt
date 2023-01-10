@@ -1237,7 +1237,7 @@ class Stackup(object):
                 temp_data[layer_name] = temp_data[layer_name] + i.area()
             else:
                 pass
-        temp_data = {name: area for name, area in temp_data.items()}
+        temp_data = {name: area/outline_area for name, area in temp_data.items()}
         return temp_data
 
 
