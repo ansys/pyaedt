@@ -17,7 +17,6 @@ else:
 
 import re
 
-
 from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.DataHandlers import _arg2dict
