@@ -1210,6 +1210,37 @@ class Stackup(object):
 
         return True
 
+    @pyaedt_function_handler
+    def report_copper_area(self):
+        """Report copper area per layer.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        dict
+            Copper area per layer.
+
+        Examples
+        --------
+        >>> edb = Edb(edbpath=targetfile1,  edbversion="2021.2")
+        >>> edb.stackup.report_copper_area()
+        """
+        temp_data = {name: 0 for name, _ in self.signal_layers.items()}
+        outline_area = 0
+        for i in self._pedb.core_primitives.primitives:
+            if i.GetLayer().GetName().lower() == "outline":
+                if i.area() > outline_area:
+                    outline_area = i.area()
+            elif not i.is_void:
+                layer_name = i.GetLayer().GetName()
+                temp_data[layer_name] = temp_data[layer_name] + i.area()
+            else:
+                pass
+        temp_data = {name: area/outline_area for name, area in temp_data.items()}
+        return temp_data
+
 
 class EdbStackup(object):
     """Manages EDB methods for stackup and material management accessible from the
