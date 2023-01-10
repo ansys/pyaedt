@@ -1230,15 +1230,17 @@ class Stackup(object):
         temp_data = {name: 0 for name, _ in self.signal_layers.items()}
         outline_area = 0
         for i in self._pedb.core_primitives.primitives:
-            if i.GetLayer().GetName().lower() == "outline":
+            layer_name = i.GetLayer().GetName()
+            if layer_name.lower() == "outline":
                 if i.area() > outline_area:
                     outline_area = i.area()
+            elif layer_name not in temp_data:
+                continue
             elif not i.is_void:
-                layer_name = i.GetLayer().GetName()
                 temp_data[layer_name] = temp_data[layer_name] + i.area()
             else:
                 pass
-        temp_data = {name: area / outline_area for name, area in temp_data.items()}
+        temp_data = {name: area for name, area in temp_data.items()}
         return temp_data
 
 
