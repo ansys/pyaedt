@@ -1214,9 +1214,6 @@ class Stackup(object):
     def report_copper_rate(self):
         """Report copper area per layer.
 
-        Parameters
-        ----------
-
         Returns
         -------
         dict
