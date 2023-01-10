@@ -276,9 +276,9 @@ class NativeComponentObject(BoundaryCommon, object):
 
         """
         self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.name])
-        for el in self._app.native_components:
+        for el in self._app._native_components:
             if el.component_name == self.component_name:
-                self._app.native_components.remove(el)
+                self._app._native_components.remove(el)
                 del self._app.modeler.user_defined_components[self.name]
                 self._app.modeler.cleanup_objects()
         return True
