@@ -2123,4 +2123,4 @@ if not config["skip_edb"]:
             assert setup1.xtalk_threshold == "-44"
 
         def test_132_report_copper_area(self):
-            assert self.edbapp.stackup.report_copper_area()
+            assert self.edbapp.stackup.report_copper_rate()
