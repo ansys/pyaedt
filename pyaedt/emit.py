@@ -682,7 +682,7 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         ver : str
-            All of the version information
+            All of the version information.
 
         Examples
         --------

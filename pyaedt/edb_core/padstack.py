@@ -542,7 +542,7 @@ class EdbPadstacks(object):
         Returns
         -------
         list of Edb.Cell.Primitive.PadstackInstance
-            list of EDB vias.
+            List of EDB vias.
         """
         if net_list == None:
             net_list = []

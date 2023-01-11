@@ -4675,8 +4675,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        tuple
+            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4780,7 +4781,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`,
+        tuple
+            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
             :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         References
@@ -4876,7 +4878,8 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`,
+        tuple
+            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
             :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
 
         References

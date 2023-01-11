@@ -1121,7 +1121,6 @@ class GeometryOperators(object):
         Returns
         -------
         float
-            atan2(y, x)
 
         """
         eps = 7.0 / 3.0 - 4.0 / 3.0 - 1.0
@@ -1800,7 +1799,7 @@ class GeometryOperators(object):
         -------
         list of list
             List containing the rectangles points. Return all rectangles found.
-            List is in the form: [[[x1, y1],[x2, y2],...],[[x1, y1],[x2, y2],...],...]
+            List is in the form: [[[x1, y1],[x2, y2],...],[[x1, y1],[x2, y2],...],...].
         """
 
         # fmt: off

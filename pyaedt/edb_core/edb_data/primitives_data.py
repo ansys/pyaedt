@@ -185,8 +185,8 @@ class EDBPrimitives(object):
 
         Returns
         -------
-        list, list
-            x and y list of points.
+        tuple
+            The tuple contains 2 lists made of X and Y points coordinates.
         """
         try:
             my_net_points = list(self.primitive_object.GetPolygonData().Points)

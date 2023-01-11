@@ -692,7 +692,7 @@ class EdbHfss(object):
         Returns
         -------
         tuple
-            Port name, pyaedt.edb_core.edb_data.sources.Excitation
+            The tuple contains: (Port name, pyaedt.edb_core.edb_data.sources.Excitation).
 
         Examples
         --------

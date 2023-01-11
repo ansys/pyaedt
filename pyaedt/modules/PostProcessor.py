@@ -1245,7 +1245,7 @@ class PostProcessorCommon(object):
         Returns
         -------
         str
-            path of exported file
+            Path of exported file.
 
         References
         ----------
