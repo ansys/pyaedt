@@ -1211,8 +1211,8 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def report_residual_copper_rate_per_layer(self):
-        """Report copper area per layer.
+    def report_residual_copper_area_per_layer(self):
+        """Report residual copper rate per layer.
 
         Returns
         -------
@@ -1222,7 +1222,7 @@ class Stackup(object):
         Examples
         --------
         >>> edb = Edb(edbpath=targetfile1,  edbversion="2021.2")
-        >>> edb.stackup.report_residual_copper_rate_per_layer()
+        >>> edb.stackup.report_residual_copper_area_per_layer()
         """
         temp_data = {name: 0 for name, _ in self.signal_layers.items()}
         outline_area = 0

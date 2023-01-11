@@ -144,7 +144,7 @@ if not config["skip_edb"]:
         def test_007_get_signal_layers(self):
             signal_layers = self.edbapp.core_stackup.signal_layers
             assert len(list(signal_layers.values()))
-            assert self.edbapp.stackup.report_residual_copper_rate_per_layer()
+            assert self.edbapp.stackup.report_residual_copper_area_per_layer()
 
         def test_008_component_lists(self):
             component_list = self.edbapp.core_components.components
