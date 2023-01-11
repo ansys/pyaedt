@@ -613,7 +613,7 @@ class GeometryOperators(object):
         Returns
         -------
         float
-            _vdot of 4 vertex of 2 segments
+            _vdot of 4 vertices of 2 segments.
         """
         va = GeometryOperators.v_points(a1, a2)
         vb = GeometryOperators.v_points(b1, b2)
@@ -1363,7 +1363,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def orient_polygon(x, y, clockwise=True):
         """
-        Orient a polygon clockwise or counterclockwise. The vertex should be already ordered either way.
+        Orient a polygon clockwise or counterclockwise. The vertices should be already ordered either way.
         Use this function to change the orientation.
         The polygon is represented by its vertices coordinates.
 
@@ -1374,13 +1374,13 @@ class GeometryOperators(object):
         y : list
             List of y coordinates of the vertices. Must be of the same length as x.
         clockwise : bool
-            If `True` the polygon is oriented colckwise, if `False` it is oriented counterclockwise.
-            Default is `True`.
+            If ``True`` the polygon is oriented colckwise, if ``False`` it is oriented counterclockwise.
+            Default is ``True``.
 
         Returns
         -------
         list of list
-            Lists of oriented vertices
+            Lists of oriented vertices.
         """
         # select a vertex on the hull
         if len(x) < 3:  # pragma: no cover

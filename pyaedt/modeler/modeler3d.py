@@ -22,6 +22,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     Parameters
     ----------
     application : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+
     Examples
     --------
     >>> from pyaedt import Hfss

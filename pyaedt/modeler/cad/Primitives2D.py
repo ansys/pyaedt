@@ -110,7 +110,7 @@ class Primitives2D(Primitives, object):
         Returns
         -------
         pyaedt.modeler.object3d.Object3d
-            Object3d
+            Object 3d.
 
         References
         ----------

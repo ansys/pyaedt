@@ -1334,13 +1334,13 @@ class EDBPadstackInstance(object):
         Parameters
         ----------
         prefix : str, optional
-            Prefix for the variable name.
+            Prefix for the variable name. Default is ``None``.
             Example `"MyVariableName"` will create 2 Project variables $MyVariableNamesX and $MyVariableNamesY.
 
         Returns
         -------
         List
-            Variables created
+            List of variables created.
         """
         p = self.position
         if not prefix:

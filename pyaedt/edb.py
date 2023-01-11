@@ -1407,9 +1407,8 @@ class Edb(object):
 
         Returns
         -------
-
-        Edb polygon object
-            Edb.Cell.Primitive.Polygon object
+        :class:`Edb.Cell.Primitive.Polygon`
+            Edb polygon object.
 
         """
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"

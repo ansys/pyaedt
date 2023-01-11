@@ -314,7 +314,7 @@ class EDBPrimitives(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete this primtive."""
+        """Delete this primitive."""
         return self.primitive_object.Delete()
 
     @pyaedt_function_handler()

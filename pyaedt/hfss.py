@@ -3564,7 +3564,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object if successful, ``False`` otherwise
+            Boundary object if successful, ``False`` otherwise.
 
         References
         ----------

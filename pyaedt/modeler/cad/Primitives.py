@@ -579,7 +579,7 @@ class Primitives(object):
         Returns
         -------
         bool
-            ``True`` when successful, ``False`` when failed
+            ``True`` when successful, ``False`` when failed.
 
         """
         if isinstance(object, int):
