@@ -533,9 +533,9 @@ class Mechanical(FieldAnalysis3D, object):
         objects_list : list
             List of objects, faces, or both.
         heat_flux_type : str
-            ``"Total Power"`` or ``"Surface Flux"``
+            Type of the heat flux. Options are ``"Total Power"`` or ``"Surface Flux"``.
         value : str
-            Value of heat flux with units
+            Value of heat flux with units.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``, in which case the default
             name is used.
@@ -576,14 +576,14 @@ class Mechanical(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def assign_heat_generation(self, objects_list, value, boundary_name=""):
-        """Assign heat generation boundary condition to an object list.
+        """Assign a heat generation boundary condition to an object list.
 
         Parameters
         ----------
         objects_list : list
-            List of objects
+            List of objects.
         value : str
-            Value of heat generation with units
+            Value of heat generation with units.
         boundary_name : str, optional
             Name of the boundary. The default is ``""``, in which case the default
             name is used.

@@ -2721,25 +2721,26 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_two_resistor_network_block_depr(self, object_name, power, rjb, rjc, placement):
-        """Function to create 2-Resistor network object.
+        """Create a two-resistor network block.
 
         .. deprecated:: 0.6.30
-            This method will be replaced by `create_two_resistor_network_block`.
+            This method is replaced by the ``create_two_resistor_network_block`` method.
 
         Parameters
         ----------
         object_name : str
-            name of the object (3D block primitive) on which 2-R network is to be created
+            Name of the object (3D block primitive) on which to create the two-resistor
+            network.
         power : float
-            junction power in [W]
+            Junction power in [W].
         rjb : float
-            Junction to board thermal resistance in [K/W]
+            Junction-to-board thermal resistance in [K/W].
         rjc : float
-            Junction to case thermal resistance in [K/W]
+            Junction-to-case thermal resistance in [K/W].
         placement : str
-            Acceptable entries are "top" or "bottom"
-            "top" : network block is placed on top of board
-            "bottom" : network block is placed on bottom of board
+            Placement of the network block. Options are:
+            - ``top``: Network block is placed on top of the board.
+            - "bottom" : Network block is placed on bottom of the board.
 
         Returns
         -------
@@ -2760,7 +2761,8 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         warnings.warn(
-            "This method is deprecated in 0.6.29. Please use create_two_resistor_network_block", DeprecationWarning
+            "This method is deprecated in 0.6.29. Use the ``create_two_resistor_network_block``
+            method instead. DeprecationWarning
         )
         object_handle = self.modeler.get_object_from_name(object_name)
         placement = placement.lower()
@@ -2794,10 +2796,10 @@ class Icepak(FieldAnalysis3D):
             "SchematicData": ({}),
         }
 
-        # Default material is Ceramic Material
+        # Default material is Ceramic_material
         self.modeler[object_name].material_name = "Ceramic_material"
 
-        # Create boundary condition and set Solve Inside to No
+        # Create boundary condition and set solve_inside = False
         bound = BoundaryObject(self, object_name, props, "Network")
         if bound.create():
             self.boundaries.append(bound)
