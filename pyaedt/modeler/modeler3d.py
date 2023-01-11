@@ -5,6 +5,7 @@ import json
 import os.path
 import warnings
 
+from pyaedt.generic import design_types
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -314,30 +315,32 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["datasets"][i]
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
-                out_dict["native components"] = {}
-                coordinatesystems_set = set()
-                for _, nc in self._app.native_components.items():
-                    nc_name = nc.props["SubmodelDefinitionName"]
-                    nc_props = dict(nc.props).copy()
-                    nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
-                    if (
-                        nc_type == "PCB"
-                        and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
-                    ):
-                        nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
-                    CSs = [
-                        v.target_coordinate_system
-                        for i, v in self._app.modeler.user_defined_components.items()
-                        if v.definition_name == nc_name
-                        and "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames()
-                    ]
-                    out_dict["native components"][nc_name] = {"Type": nc_type, "Props": nc_props, "CS": CSs}
-                    for cs in CSs:
-                        while cs != "Global":
-                            coordinatesystems_set.update(cs)
-                            cs = config_dict["coordinatesystems"][cs]["Reference CS"]
-                if config_dict.get("coordinatesystems", None):
-                    out_dict["coordinatesystems"] = config_dict["coordinatesystems"]
+                new_proj_name = os.path.split(component_file)[1] + ".native"
+                native_proj = design_types.app_map[self._app.design_type](
+                    projectname=os.path.join(self._app.project_path, new_proj_name)
+                )
+                native_proj.delete_design()
+                for nc_name, nc_obj in self._app.native_components.items():
+                    subcomponents = []
+                    sc_parts = []
+                    for sc_name, sc_obj in self._app.modeler.user_defined_components.items():
+                        if sc_obj.definition_name == nc_name:
+                            subcomponents.append(sc_name)
+                            sc_parts += sc_obj.parts
+                    if subcomponents:
+                        native_proj.insert_design(nc_name)
+                        self._app.oeditor.Copy(["NAME:Selections", "Selections:=", ",".join(subcomponents)])
+                        native_proj.oeditor.Paste()
+                        if self.design_type == "Icepak":
+                            monitor_cache = {}
+                            for mon_name, mon_obj in self._app.monitor.all_monitors.items():
+                                obj_name = mon_obj.properties["Geometry Assignment"]
+                                if obj_name in sc_parts:
+                                    monitor_cache.update({mon_obj.name: mon_obj.properties})
+                            for _, mon_dict in monitor_cache.items():
+                                native_proj.monitor.insert_monitor_object_from_dict(mon_dict, mode=1)
+                native_proj.close_project(save_project=True)
+                out_dict["native components"] = os.path.join(self._app.project_path, new_proj_name)
             with open(auxiliary_dict_file, "w") as outfile:
                 json.dump(out_dict, outfile)
         return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
