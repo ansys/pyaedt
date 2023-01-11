@@ -751,6 +751,19 @@ class EDBPrimitives(object):
 
 
 class EDBArcs(object):
+    """Manages EDB Arc Data functionalities.
+    It Inherits EDB primitives arcs properties.
+
+    Examples
+    --------
+    >>> from pyaedt import Edb
+    >>> edb = Edb(myedb, edbversion="2021.2")
+    >>> prim_arcs = edb.core_primitives.primitives[0].arcs
+    >>> prim_arcs.center # arc center
+    >>> prim_arcs.points # arc point list
+    >>> prim_arcs.mid_point # arc mid point
+    """
+
     def __init__(self, app, arc):
         self._app = app
         self.arc_object = arc
