@@ -104,23 +104,24 @@ class BasisTest(object):
         self._main = sys.modules["__main__"]
 
     def my_teardown(self):
-        try:
-            oDesktop = self._main.oDesktop
-            proj_list = oDesktop.GetProjectList()
-        except Exception as e:
-            oDesktop = None
-            proj_list = []
-        if oDesktop and not settings.non_graphical:
-            oDesktop.ClearMessages("", "", 3)
+        if self.aedtapps:
+            try:
+                oDesktop = self._main.oDesktop
+                proj_list = oDesktop.GetProjectList()
+            except Exception as e:
+                oDesktop = None
+                proj_list = []
+            if oDesktop and not settings.non_graphical:
+                oDesktop.ClearMessages("", "", 3)
+            for proj in proj_list:
+                oDesktop.CloseProject(proj)
+            del self.aedtapps
         for edbapp in self.edbapps[::-1]:
             try:
                 edbapp.close_edb()
             except:
                 pass
         del self.edbapps
-        for proj in proj_list:
-            oDesktop.CloseProject(proj)
-        del self.aedtapps
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
 
