@@ -1847,7 +1847,7 @@ class Icepak(FieldAnalysis3D):
 
         if "linkData" in kwargs:
             warnings.warn(
-                "``linkData`` was deprecated in 0.6.43. Use ``links_data`` instead.",
+                "The ``linkData`` parameter was deprecated in 0.6.43. Use the ``links_data`` parameter instead.",
                 DeprecationWarning,
             )
             links_data = kwargs["linkData"]
@@ -2076,14 +2076,15 @@ class Icepak(FieldAnalysis3D):
 
         if "extenttype" in kwargs:
             warnings.warn(
-                "``extenttype`` was deprecated in 0.6.43. Use ``extent_type`` instead.",
+                "The ``extenttype`` parameter was deprecated in 0.6.43. Use the ``extent_type`` parameter instead.",
                 DeprecationWarning,
             )
             extent_type = kwargs["extenttype"]
 
         if "outlinepolygon" in kwargs:
             warnings.warn(
-                "``outlinepolygon`` was deprecated in 0.6.43. Use ``outline_polygon`` instead.",
+                """The ``outlinepolygon`` parameter was deprecated in 0.6.43.
+                Use the ``outline_polygon`` parameter instead.""",
                 DeprecationWarning,
             )
             outline_polygon = kwargs["outlinepolygon"]
@@ -2268,28 +2269,30 @@ class Icepak(FieldAnalysis3D):
 
         if "groupName" in kwargs:
             warnings.warn(
-                "``groupName`` was deprecated in 0.6.43. Use ``group_name`` instead.",
+                "The ``groupName`` parameter was deprecated in 0.6.43. Use the ``group_name`` parameter instead.",
                 DeprecationWarning,
             )
             group_name = kwargs["groupName"]
 
         if "sourceDesign" in kwargs:
             warnings.warn(
-                "``sourceDesign`` was deprecated in 0.6.43. Use ``source_design`` instead.",
+                "The ``sourceDesign`` parameter was deprecated in 0.6.43. Use the ``source_design`` parameter instead.",
                 DeprecationWarning,
             )
             source_design = kwargs["sourceDesign"]
 
         if "sourceProject" in kwargs:
             warnings.warn(
-                "``sourceProject`` was deprecated in 0.6.43. Use ``source_project_name`` instead.",
+                """The ``sourceProject`` parameter was deprecated in 0.6.43.
+                Use the ``source_project_name`` parameter instead.""",
                 DeprecationWarning,
             )
             source_project_name = kwargs["sourceProject"]
 
         if "sourceProjectPath" in kwargs:
             warnings.warn(
-                "``sourceProjectPath`` was deprecated in 0.6.43. Use ``source_project_path`` instead.",
+                """The ``sourceProjectPath`` parameter was deprecated in 0.6.43.
+                Use the ``source_project_path`` parameter instead.""",
                 DeprecationWarning,
             )
             source_project_path = kwargs["sourceProjectPath"]
