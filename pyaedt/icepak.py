@@ -2761,8 +2761,8 @@ class Icepak(FieldAnalysis3D):
         '2W'
         """
         warnings.warn(
-            "This method is deprecated in 0.6.29. Use the ``create_two_resistor_network_block``
-            method instead. DeprecationWarning
+            "This method is deprecated in 0.6.29. Use the ``create_two_resistor_network_block`` method instead.",
+            DeprecationWarning,
         )
         object_handle = self.modeler.get_object_from_name(object_name)
         placement = placement.lower()
