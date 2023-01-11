@@ -2678,7 +2678,7 @@ class Icepak(FieldAnalysis3D):
             Gravity direction index in the range ``[0, 5]``. The default is ``5``.
         perform_minimal_val : bool, optional
             Whether to perform minimal validation. The default is ``True``.
-            If ``False``, full validation is performend.
+            If ``False``, full validation is performed.
         default_fluid : str, optional
             Type of fluid. The default is ``"Air"``.
         default_solid :
