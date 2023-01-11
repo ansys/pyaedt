@@ -540,6 +540,7 @@ class TestClass(BasisTest, object):
         result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
         assert result1.props["Nodes"]["Internal"][0] == "5W"
         assert result2.props["Nodes"]["Internal"][0] == "10W"
+
         self.aedtapp.create_ipk_3dcomponent_pcb(
             "RadioBoard1", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
