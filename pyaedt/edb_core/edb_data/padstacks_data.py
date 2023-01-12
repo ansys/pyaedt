@@ -1376,13 +1376,14 @@ class EDBPadstackInstance(object):
         Parameters
         ----------
         net_name : str
-            Net name of the voids to be checked.
+            Net name of the voids to be checked. Default is ``None``.
         layer_name : str
-            Layer name of the voids to be checked.
+            Layer name of the voids to be checked. Default is ``None``.
+
         Returns
         -------
         list
-            List of the voids includes this padstack instance.
+            List of the voids that include this padstack instance.
         """
         x_pos = self._pedb.edb_value(self.position[0])
         y_pos = self._pedb.edb_value(self.position[1])

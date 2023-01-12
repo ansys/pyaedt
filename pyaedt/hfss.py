@@ -4783,7 +4783,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         tuple
             The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4880,7 +4880,7 @@ class Hfss(FieldAnalysis3D, object):
         -------
         tuple
             The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------

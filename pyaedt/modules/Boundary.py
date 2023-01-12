@@ -1472,7 +1472,7 @@ class Matrix(object):
         Returns
         -------
         bool
-            `True` if succeeded.
+            ``True`` when successful, ``False`` when failed.
         """
         self.omatrix.DeleteRM(self.name)
         for el in self._app.matrices:
