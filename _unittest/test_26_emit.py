@@ -164,7 +164,9 @@ class TestClass(BasisTest, object):
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
         assert bandsRX[0] == "Rx - Base Data Rate"
         assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
         assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_frequencies() == 1
@@ -177,7 +179,6 @@ class TestClass(BasisTest, object):
     def test_static_type_generation(self):
         domain = Interaction_Domain()
         assert str(type(domain._obj)) == "<class 'EmitApiPython.InteractionDomain'>"
-
 
         mode = self.aedtapp.tx_rx_mode()
         mode_rx = self.aedtapp.tx_rx_mode().rx
@@ -283,7 +284,9 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.results.revisions_list) == 1
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
-        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
         domain = Interaction_Domain()
         domain.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
         radiosTX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().tx)
@@ -291,7 +294,9 @@ class TestClass(BasisTest, object):
         tx_bands = []
         for radio in radiosTX:
             bandsTX = self.aedtapp.results.get_band_names(radio, self.aedtapp.tx_rx_mode().tx)
-            tx_frequencies = self.aedtapp.results.get_active_frequencies(radio, bandsTX[0], self.aedtapp.tx_rx_mode().tx)
+            tx_frequencies = self.aedtapp.results.get_active_frequencies(
+                radio, bandsTX[0], self.aedtapp.tx_rx_mode().tx
+            )
             tx_bands.append(bandsTX[0])
             tx_freqs.append(tx_frequencies[0])
         domain.set_interferers(radiosTX, tx_bands, tx_freqs)
@@ -314,9 +319,7 @@ class TestClass(BasisTest, object):
             availability = interaction.get_availability(domain._obj)
         except RuntimeError as e:
             exception_raised = True
-            assert (
-                e.args[0] == "ERROR: Availability only defined for 1 to 1 runs."
-            )
+            assert e.args[0] == "ERROR: Availability only defined for 1 to 1 runs."
         assert exception_raised
 
     @pytest.mark.skipif(
@@ -353,11 +356,15 @@ class TestClass(BasisTest, object):
         domain = Interaction_Domain()
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
-        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().tx)
         bandsTX = self.aedtapp.results.get_band_names(radiosTX[0], self.aedtapp.tx_rx_mode().tx)
-        tx_frequencies = self.aedtapp.results.get_active_frequencies(radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx)
+        tx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
+        )
         radtx = []
         bandtx = []
         radtx.append(radiosTX[0])
@@ -366,11 +373,15 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.results.revisions_list) == 2
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
-        rx_frequencies = self.aedtapp.results.get_active_frequencies(radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().tx)
         bandsTX = self.aedtapp.results.get_band_names(radiosTX[0], self.aedtapp.tx_rx_mode().tx)
-        tx_frequencies = self.aedtapp.results.get_active_frequencies(radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx)
+        tx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
+        )
         radtx = []
         bandtx = []
         radtx.append(radiosTX[0])
