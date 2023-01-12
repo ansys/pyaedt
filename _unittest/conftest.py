@@ -77,8 +77,7 @@ if os.path.exists(local_config_file):
     local_config = {}
     with open(local_config_file) as f:
         local_config = json.load(f)
-    for key, val in local_config.items():
-        config[key] = val
+    config.update(local_config)
 
 settings.use_grpc_api = config.get("use_grpc", True)
 settings.non_graphical = config["NonGraphical"]
