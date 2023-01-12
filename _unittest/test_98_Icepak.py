@@ -540,6 +540,7 @@ class TestClass(BasisTest, object):
         result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
         assert result1.props["Nodes"]["Internal"][0] == "5W"
         assert result2.props["Nodes"]["Internal"][0] == "10W"
+
         self.aedtapp.create_ipk_3dcomponent_pcb(
             "RadioBoard1", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
@@ -608,9 +609,11 @@ class TestClass(BasisTest, object):
             self.aedtapp.monitor.get_monitor_object_assignment(self.aedtapp.monitor.face_monitors["monitor_face"])
             == "box3"
         )
+        assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_faces1") == "monitor_faces1"
+        assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_faces2") == "monitor_faces2"
         assert self.aedtapp.monitor.assign_face_monitor(
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
-        ) == ["monitor_faces", "monitor_faces1"]
+        ) == ["monitor_faces", "monitor_faces3"]
         assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
 
     def test_49_delete_monitors(self):

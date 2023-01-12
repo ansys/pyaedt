@@ -463,16 +463,18 @@ class FieldAnalysis3D(Analysis, object):
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
     @pyaedt_function_handler()
-    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=None, removed_objects=None):
+    def export_3d_model(
+        self, file_name="", file_path="", file_format=".step", object_list=None, removed_objects=None, **kwargs
+    ):
         """Export the 3D model.
 
         Parameters
         ----------
-        fileName : str
+        file_name : str, optional
             Name of the file.
-        filePath : str
+        file_path : str, optional
             Path for the file.
-        fileFormat : str, optional
+        file_format : str, optional
             Format of the file. The default is ``".step"``.
         object_list : list, optional
             List of objects to export. The default is ``None``.
@@ -489,7 +491,31 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
+        if "fileName" in kwargs:
+            warnings.warn(
+                "`fileName` is deprecated. Use `file_name` instead.",
+                DeprecationWarning,
+            )
 
+            file_name = kwargs["fileName"]
+        if "filePath" in kwargs:
+            warnings.warn(
+                "`filePath` is deprecated. Use `file_path` instead.",
+                DeprecationWarning,
+            )
+
+            file_path = kwargs["filePath"]
+        if "fileFormat" in kwargs:
+            warnings.warn(
+                "`fileFormat` is deprecated. Use `file_format` instead.",
+                DeprecationWarning,
+            )
+
+            file_format = kwargs["fileFormat"]
+        if not file_name:
+            file_name = self.project_name + "_" + self.design_name
+        if not file_path:
+            file_path = self.working_directory
         if object_list is None:
             object_list = []
         if removed_objects is None:
@@ -510,7 +536,7 @@ class FieldAnalysis3D(Analysis, object):
         major = -1
         minor = -1
         # actual version supported by AEDT is 29.0
-        if fileFormat in [".sm3", ".sat", ".sab"]:
+        if file_format in [".sm3", ".sat", ".sab"]:
             major = 29
             minor = 0
         stringa = ",".join(allObjects)
@@ -523,7 +549,7 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            os.path.join(filePath, fileName + fileFormat).replace("\\", "/"),
+            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
             "Major Version:=",
             major,
             "Minor Version:=",
@@ -942,16 +968,12 @@ class FieldAnalysis3D(Analysis, object):
                 app.modeler.purge_history(app.modeler._all_object_names)
             self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
             if self.design_type == "Icepak":
-                objs_monitors = {part.name: {} for _, part in comp.parts.items()}
-                for mon_name in self.monitor.all_monitors:
-                    obj_name = self.monitor.get_monitor_object_assignment(self.monitor.all_monitors[mon_name])
+                objs_monitors = [part.name for _, part in comp.parts.items()]
+                monitor_cache = {}
+                for mon_name, mon_obj in self.monitor.all_monitors.items():
+                    obj_name = mon_obj.properties["Geometry Assignment"]
                     if obj_name in objs_monitors:
-                        mon_type = self.monitor.all_monitors[mon_name].type
-                        objs_monitors[obj_name][mon_name] = {
-                            "Location": mon_type,
-                            "ID Position": self.monitor.all_monitors[mon_name].location,
-                            "Quantity": self.monitor.all_monitors[mon_name].quantities,
-                        }
+                        monitor_cache.update({mon_obj.name: mon_obj.properties})
             oldcs = self.oeditor.GetActiveCoordinateSystem()
             self.modeler.set_working_coordinate_system(
                 self.modeler.user_defined_components[cmp].target_coordinate_system
@@ -960,38 +982,8 @@ class FieldAnalysis3D(Analysis, object):
             self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
             self.modeler.set_working_coordinate_system(oldcs)
             if self.design_type == "Icepak":
-                for obj in objs_monitors:
-                    for mon in objs_monitors[obj]:
-                        mon_type = objs_monitors[obj][mon]["Location"]
-                        if mon_type == "Face":
-                            try:
-                                for f in self.modeler.get_object_from_name(obj).faces:
-                                    if f.center == objs_monitors[obj][mon]["ID Position"]:
-                                        self.monitor.assign_face_monitor(f.id, objs_monitors[obj][mon]["Quantity"], mon)
-                                        break
-                            except:
-                                self.logger.error("{} monitor object could not be restored".format(mon))
-                        elif mon_type == "Vertex":
-                            try:
-                                for v in self.modeler.get_object_from_name(obj).vertices:
-                                    if v.position == objs_monitors[obj][mon]["ID Position"]:
-                                        self.monitor.assign_point_monitor_to_vertex(
-                                            v.id, objs_monitors[obj][mon]["Quantity"], mon
-                                        )
-                            except:
-                                self.logger.error("{} monitor object could not be restored".format(mon))
-                        elif mon_type == "Object":
-                            try:
-                                self.monitor.assign_point_monitor_in_object(
-                                    obj, objs_monitors[obj][mon]["Quantity"], mon
-                                )
-                            except:
-                                self.logger.error("{} monitor object could not be restored".format(mon))
-                        elif mon_type == "Surface":
-                            try:
-                                self.monitor.assign_surface_monitor(obj, objs_monitors[obj][mon]["Quantity"], mon)
-                            except:
-                                self.logger.error("{} monitor object could not be restored".format(mon))
+                for _, mon_dict in monitor_cache.items():
+                    self.monitor.insert_monitor_object_from_dict(mon_dict, mode=1)
             app.close_project(save_project=False)
             self.modeler.refresh_all_ids()
         return True
