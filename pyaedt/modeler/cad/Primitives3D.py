@@ -1805,7 +1805,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        List of
+        List
+            Three parameters output
             bool
                 ``True`` when successful, ``False`` when failed.
             :class:`pyaedt.modeler.cad.object3d.Object3d`

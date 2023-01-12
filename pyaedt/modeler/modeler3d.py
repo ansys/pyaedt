@@ -130,13 +130,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Whether to export or not the auxiliary file containing information about defined datasets and Icepak monitor
              objects. A destination file can be specified using a string.
             The default is ``False``.
-        monitor_objects
+        monitor_objects : list, optional
             List of monitor objects names to export. The default is all monitor objects. This argument is relevant only
             if ``auxiliary_dict_file`` is not set to ``False``.
-        datasets
+        datasets : list, optional
             List of dataset names to export. The default is all datasets. This argument is relevant only if
             ``auxiliary_dict_file`` is not set to ``False``.
-        native_components
+        native_components : list, optional
             List of native_components names to export. The default is all native_components. This argument is relevant
             only if ``auxiliary_dict_file`` is not set to ``False``.
 

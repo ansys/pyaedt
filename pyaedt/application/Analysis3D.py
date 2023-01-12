@@ -463,16 +463,18 @@ class FieldAnalysis3D(Analysis, object):
         return self.export_3d_model(fileName, filePath, fileFormat, object_list, removed_objects)
 
     @pyaedt_function_handler()
-    def export_3d_model(self, fileName, filePath, fileFormat=".step", object_list=None, removed_objects=None):
+    def export_3d_model(
+        self, file_name="", file_path="", file_format=".step", object_list=None, removed_objects=None, **kwargs
+    ):
         """Export the 3D model.
 
         Parameters
         ----------
-        fileName : str
+        file_name : str, optional
             Name of the file.
-        filePath : str
+        file_path : str, optional
             Path for the file.
-        fileFormat : str, optional
+        file_format : str, optional
             Format of the file. The default is ``".step"``.
         object_list : list, optional
             List of objects to export. The default is ``None``.
@@ -489,7 +491,31 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> oEditor.Export
         """
+        if "fileName" in kwargs:
+            warnings.warn(
+                "`fileName` is deprecated. Use `file_name` instead.",
+                DeprecationWarning,
+            )
 
+            file_name = kwargs["fileName"]
+        if "filePath" in kwargs:
+            warnings.warn(
+                "`filePath` is deprecated. Use `file_path` instead.",
+                DeprecationWarning,
+            )
+
+            file_path = kwargs["filePath"]
+        if "fileFormat" in kwargs:
+            warnings.warn(
+                "`fileFormat` is deprecated. Use `file_format` instead.",
+                DeprecationWarning,
+            )
+
+            file_format = kwargs["fileFormat"]
+        if not file_name:
+            file_name = self.project_name + "_" + self.design_name
+        if not file_path:
+            file_path = self.working_directory
         if object_list is None:
             object_list = []
         if removed_objects is None:
@@ -510,7 +536,7 @@ class FieldAnalysis3D(Analysis, object):
         major = -1
         minor = -1
         # actual version supported by AEDT is 29.0
-        if fileFormat in [".sm3", ".sat", ".sab"]:
+        if file_format in [".sm3", ".sat", ".sab"]:
             major = 29
             minor = 0
         stringa = ",".join(allObjects)
@@ -523,7 +549,7 @@ class FieldAnalysis3D(Analysis, object):
             "Selections:=",
             stringa,
             "File Name:=",
-            os.path.join(filePath, fileName + fileFormat).replace("\\", "/"),
+            os.path.join(file_path, file_name + file_format).replace("\\", "/"),
             "Major Version:=",
             major,
             "Minor Version:=",
