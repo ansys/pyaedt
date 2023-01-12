@@ -1334,13 +1334,13 @@ class EDBPadstackInstance(object):
         Parameters
         ----------
         prefix : str, optional
-            Prefix for the variable name.
+            Prefix for the variable name. Default is ``None``.
             Example `"MyVariableName"` will create 2 Project variables $MyVariableNamesX and $MyVariableNamesY.
 
         Returns
         -------
         List
-            Variables created
+            List of variables created.
         """
         p = self.position
         if not prefix:
@@ -1376,13 +1376,14 @@ class EDBPadstackInstance(object):
         Parameters
         ----------
         net_name : str
-            Net name of the voids to be checked.
+            Net name of the voids to be checked. Default is ``None``.
         layer_name : str
-            Layer name of the voids to be checked.
+            Layer name of the voids to be checked. Default is ``None``.
+
         Returns
         -------
         list
-            List of the voids includes this padstack instance.
+            List of the voids that include this padstack instance.
         """
         x_pos = self._pedb.edb_value(self.position[0])
         y_pos = self._pedb.edb_value(self.position[1])

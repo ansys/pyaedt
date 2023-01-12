@@ -3495,8 +3495,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        type
-            Plane string
+        str
+            Name of the plane. It can be "XY", "XZ" or "YZ".
 
         """
 
