@@ -654,6 +654,12 @@ class ObjectMonitor:
 class PointMonitor(ObjectMonitor):
     def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
         super().__init__(monitor_name, monitor_type, point_id, quantity, app)
+        return self._type
+
+
+class PointMonitor(ObjectMonitor):
+    def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
+        ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
     def location(self):
@@ -675,7 +681,7 @@ class PointMonitor(ObjectMonitor):
 
 class FaceMonitor(ObjectMonitor):
     def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
-        super().__init__(monitor_name, monitor_type, face_id, quantity, app)
+        ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
     @property
     def location(self):

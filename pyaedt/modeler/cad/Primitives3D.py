@@ -511,7 +511,7 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                                     bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
@@ -584,6 +584,15 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.CreateRectangle
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> plane = 0
+        >>> position = [0,0,0]
+        >>> dimension = [10,5]
+        >>> rect_obj = hfss.modeler.create_rectangle(plane, position, dimension)
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
