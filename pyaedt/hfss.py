@@ -3586,7 +3586,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.Boundary.BoundaryObject`
-            Boundary object if successful, ``False`` otherwise
+            Boundary object if successful, ``False`` otherwise.
 
         References
         ----------
@@ -4697,8 +4697,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        tuple
+            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4802,8 +4803,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        tuple
+            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------
@@ -4898,8 +4900,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        (:class:`pyaedt.modules.SolveSetup.Setup`,
-            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`)
+        tuple
+            The tuple contains: (:class:`pyaedt.modules.SolveSetup.Setup`,
+            :class:`pyaedt.modules.DesignXPloration.ParametericsSetups.Optimetrics`).
 
         References
         ----------

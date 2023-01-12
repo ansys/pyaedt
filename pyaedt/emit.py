@@ -631,7 +631,7 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         result :class:`result_type`
-            result type object which can later be assigned a status (emi, sensitivity, desense)
+            Result type object which can later be assigned a status (emi, sensitivity, desense).
 
         Examples
         --------
@@ -653,8 +653,8 @@ class Emit(FieldAnalysisEmit, object):
 
         Returns
         -------
-        tx_rx :class:`Emit.tx_rx_mode`
-            mode status which can later be assigned a status (tx, rx)
+        :class:`Emit.tx_rx_mode`
+            Mode status which can later be assigned a status (tx, rx).
 
         Examples
         --------
@@ -682,7 +682,7 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         ver : str
-            All of the version information
+            All of the version information.
 
         Examples
         --------
