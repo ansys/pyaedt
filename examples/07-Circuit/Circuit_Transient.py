@@ -14,11 +14,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pyaedt
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode, ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# Set non-graphical mode, ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
@@ -34,7 +33,6 @@ cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
                      new_desktop_session=True,
                      non_graphical=non_graphical
                      )
-
 
 ###############################################################################
 # Read IBIS file
@@ -57,9 +55,8 @@ tr1.parameters["P"] = "50mm"
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a resistor and ground in the schematic.
 
-res = cir.modeler.components.create_resistor("R1", "1Meg")
+res = cir.modeler.components.create_resistor(compname="R1", value="1Meg")
 gnd1 = cir.modeler.components.create_gnd()
-
 
 ###############################################################################
 # Connect elements
@@ -87,10 +84,9 @@ pr2.pins[0].connect_to_component(ibs.pins[0])
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create a transient analysis setup and analyze it.
 
-trans_setup = cir.create_setup("TransientRun", "NexximTransient")
+trans_setup = cir.create_setup(setupname="TransientRun", setuptype="NexximTransient")
 trans_setup.props["TransientData"] = ["0.01ns", "200ns"]
 cir.analyze_setup("TransientRun")
-
 
 ###############################################################################
 # Create report outside AEDT
@@ -102,7 +98,7 @@ cir.analyze_setup("TransientRun")
 report = cir.post.create_report("V(Vout)", domain="Time")
 if not non_graphical:
     report.add_cartesian_y_marker(0)
-solutions = cir.post.get_solution_data( domain="Time")
+solutions = cir.post.get_solution_data(domain="Time")
 solutions.plot("V(Vout)")
 
 ###############################################################################
@@ -171,7 +167,6 @@ for a, b in zip(t, ys):
     cellsv = np.append(cellsv, bn)
 plt.plot(cellst.T,  cellsv.T, zorder=0)
 plt.show()
-
 
 ###############################################################################
 # Release AEDT

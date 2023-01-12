@@ -16,7 +16,7 @@ from pyaedt import Hfss, downloads
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical model. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
@@ -29,7 +29,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 project_file = downloads.download_sbr_time()
 
-hfss = Hfss(project_file, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
+hfss = Hfss(projectname=project_file, specified_version="2022.2", non_graphical=non_graphical, new_desktop_session=True)
 
 hfss.analyze_nominal()
 
@@ -65,10 +65,10 @@ frames_list_file = solution_data.ifft_to_file(coord_system_center=[-0.15, 0, 0],
 # ~~~~~~~~~~
 # Plot the scene to create the time plot animation
 
-hfss.post.plot_scene(frames_list_file, os.path.join(hfss.working_directory, "animation.gif"), norm_index=15, dy_rng=35,
+hfss.post.plot_scene(frames_list=frames_list_file,
+                     output_gif_path=os.path.join(hfss.working_directory, "animation.gif"),
+                     norm_index=15,
+                     dy_rng=35,
                      show=False, view="xy", zoom=1)
 
-
 hfss.release_desktop()
-
-

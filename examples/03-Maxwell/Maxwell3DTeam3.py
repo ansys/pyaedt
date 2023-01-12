@@ -12,12 +12,10 @@ solve it using the Maxwell 3D Eddy Current solver.
 import os
 import pyaedt
 
-
-
 ##################################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
@@ -75,9 +73,10 @@ M3D.modeler.create_air_region(x_pos=100, y_pos=100, z_pos=100, x_neg=100, y_neg=
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw a ladder plate and assign it the newly created material ``team3_aluminium``.
 
-M3D.modeler.create_box([-30, -55, 0], [60, 110, -6.35], name="LadderPlate", matname="team3_aluminium")
-M3D.modeler.create_box([-20, -35, 0], [40, 30, -6.35], name="CutoutTool1")
-M3D.modeler.create_box([-20, 5, 0], [40, 30, -6.35], name="CutoutTool2")
+M3D.modeler.create_box(position=[-30, -55, 0], dimensions_list=[60, 110, -6.35], name="LadderPlate",
+                       matname="team3_aluminium")
+M3D.modeler.create_box(position=[-20, -35, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool1")
+M3D.modeler.create_box(position=[-20, 5, 0], dimensions_list=[40, 30, -6.35], name="CutoutTool2")
 M3D.modeler.subtract("LadderPlate", ["CutoutTool1", "CutoutTool2"], keep_originals=False)
 
 ################################################################################
@@ -103,7 +102,7 @@ M3D.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
 M3D.modeler.section("SearchCoil", "YZ")
 M3D.modeler.separate_bodies("SearchCoil_Section1")
 M3D.modeler.delete("SearchCoil_Section1_Separate1")
-M3D.assign_current(["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
+M3D.assign_current(object_list=["SearchCoil_Section1"], amplitude=1260, solid=False, name="SearchCoil_Excitation")
 
 ################################################################################
 # Draw a line for plotting Bz
@@ -113,10 +112,9 @@ M3D.assign_current(["SearchCoil_Section1"], amplitude=1260, solid=False, name="S
 # mesh locally around the line.
 
 Line_Points = [["0mm", "-55mm", "0.5mm"], ["0mm", "55mm", "0.5mm"]]
-P1 = modeler.create_polyline(Line_Points, name="Line_AB")
-P2 = modeler.create_polyline(Line_Points, name="Line_AB_MeshRefinement")
+P1 = modeler.create_polyline(position_list=Line_Points, name="Line_AB")
+P2 = modeler.create_polyline(position_list=Line_Points, name="Line_AB_MeshRefinement")
 P2.set_crosssection_properties(type="Circle", width="0.5mm")
-
 
 ###############################################################################
 # Plot model
@@ -124,7 +122,6 @@ P2.set_crosssection_properties(type="Circle", width="0.5mm")
 # Plot the model.
 
 M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"), plot_air_objects=False)
-
 
 ###############################################################################
 # Add Maxwell 3D setup
@@ -134,8 +131,7 @@ M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
-Setup.add_eddy_current_sweep("LinearStep", 50, 200, 150, clear=True)
-
+Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
 
 ################################################################################
 # Adjust eddy effects
@@ -201,11 +197,10 @@ M3D.post.create_report(
     plotname="mag(Bz) Along 'Line_AB' Coil",
 )
 
-
 ###############################################################################
 # Generate plot outside of AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate the same plot outside of AEDT.
+# Generate the same plot outside AEDT.
 
 variations = {"Distance": ["All"], "Freq": ["All"], "Phase": ["0deg"], "Coil_Position": ["All"]}
 
@@ -227,12 +222,11 @@ solutions.plot()
 
 ###############################################################################
 # Change sweep value and plot solution
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Change the sweep value and plot the solution again.
 
 solutions.active_variation["Coil_Position"] = 0
 solutions.plot()
-
 
 ###############################################################################
 # Plot induced current density on surface of ladder plate

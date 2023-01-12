@@ -14,13 +14,9 @@ import os
 
 import pyaedt
 
-
-
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_custom_reports(temp_folder)
-
-
 
 ###############################################################################
 # Launch AEDT
@@ -32,7 +28,7 @@ desktopVersion = "2022.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
@@ -91,10 +87,10 @@ report3 = cir.post.create_report_from_configuration(input_dict=props, solution_n
 # an eye diagram and fully customize it. You can create custom reports in
 # non-graphical mode in AEDT 2022 R2 and later.
 
-report4 = cir.post.create_report_from_configuration(os.path.join(project_path,'EyeDiagram_CISPR_Basic.json'))
+report4 = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Basic.json'))
 
 if not non_graphical:
-    report4_full = cir.post.create_report_from_configuration(os.path.join(project_path,'EyeDiagram_CISPR_Custom.json'))
+    report4_full = cir.post.create_report_from_configuration(os.path.join(project_path, 'EyeDiagram_CISPR_Custom.json'))
 
 if not non_graphical:
     cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)

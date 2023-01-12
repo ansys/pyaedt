@@ -16,22 +16,19 @@ if not os.path.exists(temp_folder):
     os.makedirs(temp_folder)
 print(temp_folder)
 
-
 ###############################################################################
 # Copy example into temporary folder
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copy an example into the temporary folder.
 
-
 targetfile = pyaedt.downloads.download_aedb()
 print(targetfile)
 aedt_file = targetfile[:-12] + "aedt"
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
@@ -45,7 +42,6 @@ NewThread = True
 
 desktopVersion = "2022.2"
 
-
 ###############################################################################
 # Initialize AEDT and launch HFSS 3D Layout
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,7 +53,6 @@ if os.path.exists(aedt_file):
     os.remove(aedt_file)
 h3d = pyaedt.Hfss3dLayout(targetfile)
 h3d.save_project(os.path.join(temp_folder, "edb_demo.aedt"))
-
 
 ###############################################################################
 # Print boundaries

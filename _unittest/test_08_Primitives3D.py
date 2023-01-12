@@ -833,7 +833,6 @@ class TestClass(BasisTest, object):
         exc = self.aedtapp.create_wave_port_from_sheet(obj1.faces[0])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            exclude_region=True,
             object_list=["Solid", new_obj[1][0]],
             boundaries_list=[rad.name],
             excitation_list=[exc.name],
@@ -844,14 +843,12 @@ class TestClass(BasisTest, object):
     def test_64_create_3d_component_encrypted(self):
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            exclude_region=True,
             included_cs="Global",
             is_encrypted=True,
             password="password_test",
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            exclude_region=True,
             included_cs="Global",
             is_encrypted=True,
             password="password_test",
@@ -859,7 +856,6 @@ class TestClass(BasisTest, object):
         )
         assert not self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            exclude_region=True,
             included_cs="Global",
             is_encrypted=True,
             password="password_test",
@@ -1305,12 +1301,19 @@ class TestClass(BasisTest, object):
         assert obj_3dcomp.mirror(udp, udp2)
         assert obj_3dcomp.rotate(cs_axis="Y", angle=180)
         assert obj_3dcomp.move(udp2)
+
         new_comps = obj_3dcomp.duplicate_around_axis(cs_axis="Z", angle=8, nclones=3)
         assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
+
         udp = self.aedtapp.modeler.Position(5, 5, 5)
         num_clones = 5
-        new_comps = obj_3dcomp.duplicate_along_line(udp, num_clones)
-        assert new_comps[0] in self.aedtapp.modeler.user_defined_component_names
+        attached_clones = obj_3dcomp.duplicate_along_line(udp, num_clones)
+        assert attached_clones[0] in self.aedtapp.modeler.user_defined_component_names
+
+        attached_clones = obj_3dcomp.duplicate_along_line(
+            self.aedtapp.modeler.Position(-5, -5, -5), 2, attach_object=True
+        )
+        assert attached_clones[0] in self.aedtapp.modeler.user_defined_component_names
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_80_udm_operations(self):

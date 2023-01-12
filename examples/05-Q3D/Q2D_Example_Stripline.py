@@ -20,7 +20,6 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-
 project_path = pyaedt.generate_unique_project_name()
 
 ###############################################################################
@@ -95,27 +94,30 @@ q.modeler.move([base_line_obj], ["{}+{}".format(co_gnd_w, clearance), 0, 0])
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a negative signal.
 
-base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n")
-top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
-q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
+base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [sig_w, layer_2_lh, 0]], name="signal_n")
+top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [sig_top_w, layer_2_uh, 0]])
+q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move([base_line_obj], ["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
+q.modeler.move(objid=[base_line_obj], vector=["{}+{}+{}+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
 
 ###############################################################################
 # Create coplanar ground
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a coplanar ground.
 
-base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_left")
-top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
+base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
+                                          name="co_gnd_left")
+top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
 q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
 
-base_line_obj = q.modeler.create_polyline([[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]], name="co_gnd_right")
-top_line_obj = q.modeler.create_polyline([[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
-q.modeler.move([top_line_obj], [delta_w_half, 0, 0])
+base_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_lh, 0], [co_gnd_w, layer_2_lh, 0]],
+                                          name="co_gnd_right")
+top_line_obj = q.modeler.create_polyline(position_list=[[0, layer_2_uh, 0], [co_gnd_top_w, layer_2_uh, 0]])
+q.modeler.move(objid=[top_line_obj], vector=[delta_w_half, 0, 0])
 q.modeler.connect([base_line_obj, top_line_obj])
-q.modeler.move([base_line_obj], ["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
+q.modeler.move(objid=[base_line_obj],
+               vector=["{}+{}*2+{}*2+{}".format(co_gnd_w, clearance, sig_w, sig_gap), 0, 0])
 
 ###############################################################################
 # Create reference ground plane
@@ -181,7 +183,8 @@ q.assign_huray_finitecond_to_edges(obj.edges, radius="0.5um", ratio=3, name="b_"
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the differential pair.
 
-matrix = q.insert_reduced_matrix(q.MATRIXOPERATIONS.DiffPair, ["signal_p", "signal_n"], rm_name="diff_pair")
+matrix = q.insert_reduced_matrix(operation_name=q.MATRIXOPERATIONS.DiffPair, source_names=["signal_p", "signal_n"],
+                                 rm_name="diff_pair")
 
 ###############################################################################
 # Create setup, analyze, and plot
@@ -209,8 +212,10 @@ a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg")) # Save plot as jpg
 
 # Add a parametric sweep and analyze.
-parametric = q.parametrics.add("sig_bot_w", 75, 100, 5, "LinearStep")
-parametric.add_variation("sig_gap", "100um", "200um", 5,variation_type="LinearCount")
+parametric = q.parametrics.add(sweep_var="sig_bot_w", start_point=75, end_point=100, step=5,
+                               variation_type="LinearStep")
+parametric.add_variation(sweep_var="sig_gap", start_point="100um", end_point="200um", step=5,
+                         variation_type="LinearCount")
 q.analyze_setup(name=parametric.name)
 
 ###############################################################################

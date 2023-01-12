@@ -12,14 +12,13 @@ This example shows how you can use PyAEDT to create a spiral inductor, solve it,
 import os
 import pyaedt
 
-
 project_name = pyaedt.generate_unique_project_name(project_name="spiral")
 
 #############################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical model. ``"PYAEDT_NON_GRAPHICAL"``` is needed to
-# generate documentation only.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
@@ -100,7 +99,6 @@ p.create_rectangle(csPlane=pyaedt.constants.PLANE.YZ,
                    )
 hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=pyaedt.constants.AXIS.Z)
 
-
 ################################################################
 # Create port 2
 # ~~~~~~~~~~~~~
@@ -109,7 +107,6 @@ hfss.create_lumped_port_to_sheet(sheet_name="port1", axisdir=pyaedt.constants.AX
 create_line([(x1 + width / 2, y1, 0), (x1 - 5, y1, 0)])
 p.create_rectangle(pyaedt.constants.PLANE.YZ, (x1 - 5, y1 - width / 2, -thickness / 2), (width, -Tsub), name="port2")
 hfss.create_lumped_port_to_sheet(sheet_name="port2", axisdir=pyaedt.constants.AXIS.Z)
-
 
 ################################################################
 # Create silicon substrate and ground plane
@@ -139,14 +136,12 @@ hfss.assign_radiation_boundary_to_objects("airbox")
 
 hfss.change_material_override()
 
-
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
 hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jpg"), plot_air_objects=False)
-
 
 ################################################################
 # Create setup
@@ -155,7 +150,8 @@ hfss.plot(show=False, export_path=os.path.join(hfss.working_directory, "Image.jp
 
 setup1 = hfss.create_setup(setupname="setup1")
 setup1.props["Frequency"] = "10GHz"
-hfss.create_linear_count_sweep("setup1", "GHz", 1e-3, 50, 451, sweep_type="Interpolating")
+hfss.create_linear_count_sweep(setupname="setup1", unit="GHz", freqstart=1e-3, freqstop=50, num_of_freq_points=451,
+                               sweep_type="Interpolating")
 hfss.save_project()
 hfss.analyze_all()
 
@@ -174,8 +170,7 @@ Q_formula = "im(Y(1,1))/re(Y(1,1))"
 # Plot the calculated values in Matplotlib.
 
 x = hfss.post.get_solution_data([L_formula, Q_formula])
-x.plot([L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
-
+x.plot(curves=[L_formula, Q_formula], math_formula="re", xlabel="Freq", ylabel="L and Q")
 
 ################################################################
 # Save project and close AEDT

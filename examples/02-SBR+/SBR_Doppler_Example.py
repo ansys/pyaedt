@@ -48,7 +48,6 @@ app = pyaedt.Hfss(
     non_graphical=non_graphical
 )
 
-
 app.autosave_disable()
 
 ###############################################################################
@@ -58,7 +57,6 @@ app.autosave_disable()
 
 app.save_project()
 app.rename_design(designname)
-
 
 ###############################################################################
 # Set up library paths

@@ -18,11 +18,13 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 ###############################################################################
 # Common Properties
 # ~~~~~~~~~~~~~~~~~
+# Set common properties.
+
 trace_width = 0.6
 trace_length = 30
 diel_height = "121mil"
 sig_height = "5mil"
-max_steps =  3
+max_steps = 3
 freq = "3GHz"
 desktop_version = "2022.2"
 new_session = True
@@ -31,8 +33,8 @@ new_session = True
 # 3D Component Definition
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # File to be used in the example
+
 component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcomp",)
-component3d
 
 ###############################################################################
 # Hfss Example
@@ -40,11 +42,10 @@ component3d
 # This example will create a stackup in Hfss place a 3d component, build a ground plane, a trace,
 # create excitation and solve it in Hfss.
 
-
 ###############################################################################
 # Launch Hfss
 # ~~~~~~~~~~~
-#
+# Launch HFSS application
 
 hfss = pyaedt.Hfss(new_desktop_session=True, specified_version="2022.2", non_graphical=non_graphical)
 
@@ -56,7 +57,6 @@ hfss.solution_type = "Terminal"
 # To insert a 3d component we need to read parameters and then import in Hfss.
 
 comp_param = hfss.get_components3d_vars(component3d)
-comp_param
 hfss.modeler.primitives.insert_3d_component(component3d, comp_param)
 
 ###############################################################################
@@ -74,7 +74,6 @@ g1 = stackup.add_ground_layer("G1", thickness=sig_height)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define stackup elevation and size. Defines also the stackup origin.
 
-
 stackup.start_position = "-131mil"
 stackup.dielectric_width = "20mm"
 stackup.dielectric_length = "40mm"
@@ -86,7 +85,6 @@ stackup.dielectric_x_position = "-dielectric_length/4"
 # ~~~~~~~~~~~~~~~~~~~
 # Padstacks are needed to create a clearance around 3d component since
 # intersections are not allowed. There will be 1 padstack for Gnd and 1 for pin.
-
 
 p1 = stackup.add_padstack("gnd_via", material="cloned_copper")
 p1.set_start_layer("L1")
@@ -141,6 +139,7 @@ setup1.props["MaximumPasses"] = max_steps
 ###############################################################################
 # Solve Setup
 # ~~~~~~~~~~~
+# Save the project first and then solve the setup.
 
 hfss.save_project()
 hfss.analyze_nominal()
@@ -148,6 +147,7 @@ hfss.analyze_nominal()
 ###############################################################################
 # Plot results
 # ~~~~~~~~~~~~
+# Plot the results when analysis is completed.
 
 traces = hfss.get_traces_for_plot(category="S")
 solutions = hfss.post.get_solution_data(traces)
@@ -159,11 +159,10 @@ solutions.plot(traces, math_formula="db20")
 # Previous example will be repeated this time in Hfss 3d Layout.
 # Small differences are expected in layout but results should be similar.
 
-
 ###############################################################################
 # Launch Hfss3dLayout
 # ~~~~~~~~~~~~~~~~~~~
-#
+# Launch HFSS3dLayout application
 
 h3d = pyaedt.Hfss3dLayout(new_desktop_session=new_session, specified_version=desktop_version)
 
@@ -179,9 +178,11 @@ h3d.modeler.layers.add_layer("G1", "signal", thickness=sig_height, isnegative=Tr
 ###############################################################################
 # Place 3d Component
 # ~~~~~~~~~~~~~~~~~~
+# Place a 3d component by specifying the .a3dcomp file path.
 
 comp = h3d.modeler.place_3d_component(
-    component3d, 1, placement_layer="G1", component_name="my_connector", pos_x=0.000, pos_y=0.000
+    component_path=component3d, number_of_terminals=1, placement_layer="G1", component_name="my_connector",
+    pos_x=0.000, pos_y=0.000
 )
 
 ###############################################################################
@@ -197,14 +198,14 @@ h3d.create_edge_port(line, h3d.modeler[line].top_edge_x, iswave=True, wave_horiz
 ###############################################################################
 # Create void on Ground plane for pin
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
+# Create a void.
+
 h3d.modeler.create_circle("G1", 0, 0, 0.5)
 
 ###############################################################################
 # Create Setup
 # ~~~~~~~~~~~~
 # Iterations will be reduced to reduce simulation time.
-
 
 h3d.set_meshing_settings(mesh_method="PhiPlus", enable_intersections_check=False)
 h3d.edit_hfss_extents(diel_extent_horizontal_padding="0.2", air_vertical_positive_padding="0",

@@ -10,6 +10,7 @@ This example shows how you can use PyAEDT to perform advanced postprocessing of 
 # Perform required imports and set the local path to the path for PyAEDT.
 
 # sphinx_gallery_thumbnail_path = 'Resources/spectrum_plot.png'
+
 import os
 from matplotlib import pyplot as plt
 import numpy as np
@@ -19,7 +20,6 @@ import pyaedt
 # Set local path to path for PyAEDT
 temp_folder = pyaedt.generate_unique_folder_name()
 project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folder)
-
 
 ###############################################################################
 # Launch AEDT
@@ -31,7 +31,7 @@ desktopVersion = "2022.2"
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
@@ -49,7 +49,7 @@ NewThread = True
 
 pyaedt.settings.enable_pandas_output = True
 cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_graphical,
-              specified_version=desktopVersion, new_desktop_session=NewThread)
+                     specified_version=desktopVersion, new_desktop_session=NewThread)
 
 ###############################################################################
 # Solve AMI setup
@@ -76,6 +76,7 @@ print(original_data_value)
 # Plot data
 # ~~~~~~~~~
 # Create a plot based on solution data.
+
 fig = original_data.plot()
 
 ###############################################################################
@@ -102,9 +103,9 @@ sample_waveform = cir.post.sample_ami_waveform(setupname=setup_name, probe_name=
 tstop = 55e-9
 tstart = 50e-9
 scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
-                                 output_units=original_data.units_sweeps["Time"])
+                                             output_units=original_data.units_sweeps["Time"])
 scale_data = pyaedt.constants.unit_converter(1, unit_system="Voltage", input_units="V",
-                                 output_units=original_data.units_data[plot_name])
+                                             output_units=original_data.units_data[plot_name])
 
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart
@@ -188,14 +189,14 @@ waveform_sweep_unit = original_data.units_sweeps["Time"]
 tics = np.arange(20e-9, 100e-9, 1e-10, dtype=float)
 
 sample_waveform = cir.post.sample_waveform(
-                waveform_data=original_data_value,
-                waveform_sweep=original_data_sweep,
-                waveform_unit=waveform_unit,
-                waveform_sweep_unit=waveform_sweep_unit,
-                unit_interval=unit_interval,
-                clock_tics=tics,
-                pandas_enabled=False,
-            )
+    waveform_data=original_data_value,
+    waveform_sweep=original_data_sweep,
+    waveform_unit=waveform_unit,
+    waveform_sweep_unit=waveform_sweep_unit,
+    unit_interval=unit_interval,
+    clock_tics=tics,
+    pandas_enabled=False,
+)
 
 ###############################################################################
 # Plot waveform and samples
@@ -205,9 +206,9 @@ sample_waveform = cir.post.sample_waveform(
 tstop = 40.0e-9
 tstart = 25.0e-9
 scale_time = pyaedt.constants.unit_converter(1, unit_system="Time", input_units="s",
-                                 output_units=waveform_sweep_unit)
+                                             output_units=waveform_sweep_unit)
 scale_data = pyaedt.constants.unit_converter(1, unit_system="Voltage", input_units="V",
-                                 output_units=waveform_unit)
+                                             output_units=waveform_unit)
 
 tstop_ns = scale_time * tstop
 tstart_ns = scale_time * tstart

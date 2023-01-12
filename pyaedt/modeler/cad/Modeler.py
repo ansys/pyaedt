@@ -2216,9 +2216,12 @@ class GeometryModeler(Modeler, object):
 
         >>> oModule.GetBoundaries
         """
-        list_names = list(self._app.oboundary.GetBoundaries())
-        del list_names[1::2]
-        return list_names
+        if self._app.design_type == "Icepak":
+            return list(self._app.odesign.GetChildObject("Thermal").GetChildNames())
+        else:
+            list_names = list(self._app.oboundary.GetBoundaries())
+            del list_names[1::2]
+            return list_names
 
     @pyaedt_function_handler()
     def set_object_model_state(self, obj_list, model=True):
@@ -3492,8 +3495,8 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        type
-            Plane string
+        str
+            Name of the plane. It can be "XY", "XZ" or "YZ".
 
         """
 
@@ -4661,6 +4664,37 @@ class GeometryModeler(Modeler, object):
                 for face in oFaceIDs:
                     sel.append(int(face))
         return sel
+
+    @pyaedt_function_handler()
+    def scale(self, obj_list, x=2.0, y=2.0, z=2.0):
+        """Scale a list of objects.
+
+        Parameters
+        ----------
+        obj_list : list
+            List of objects IDs or names.
+        x : float, optional
+            Scale factor for X.
+        y : float, optional
+            Scale factor for Y.
+        z : float, optional
+            Scale factor for Z.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.Scale
+        """
+        selections = self.convert_to_selections(obj_list, True)
+        arg1 = ["NAME:Selections", "Selections:=", ", ".join(selections), "NewPartsModelFlag:=", "Model"]
+        arg2 = ["NAME:ScaleParameters", "ScaleX:=", str(x), "ScaleY:=", str(y), "ScaleZ:=", str(z)]
+        self.oeditor.Scale(arg1, arg2)
+        return True
 
     @pyaedt_function_handler()
     def select_allfaces_fromobjects(self, elements):

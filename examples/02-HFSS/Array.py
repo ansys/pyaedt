@@ -16,8 +16,8 @@ import pyaedt
 ##########################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed
-# to generate documentation only.
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
+# documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
@@ -56,7 +56,6 @@ dict_in = pyaedt.data_handler.json_to_dict(os.path.join(example_path, "array_sim
 dict_in["Circ_Patch_5GHz1"] = os.path.join(example_path, "Circ_Patch_5GHz.a3dcomp")
 dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
 hfss.add_3d_component_array_from_json(dict_in)
-
 
 ##########################################################
 # Set up simulation

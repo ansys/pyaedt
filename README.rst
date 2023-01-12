@@ -1,7 +1,7 @@
 PyAEDT
 ======
 
-|pyansys| |pypi| |PyPIact| |PythonVersion| |GH-CI| |codecov| |MIT| |black| |Anaconda|
+|pyansys| |pypi| |PyPIact| |PythonVersion| |GH-CI| |codecov| |MIT| |black| |Anaconda| |pre-commit|
 
 .. |pyansys| image:: https://img.shields.io/badge/Py-Ansys-ffc107.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAABDklEQVQ4jWNgoDfg5mD8vE7q/3bpVyskbW0sMRUwofHD7Dh5OBkZGBgW7/3W2tZpa2tLQEOyOzeEsfumlK2tbVpaGj4N6jIs1lpsDAwMJ278sveMY2BgCA0NFRISwqkhyQ1q/Nyd3zg4OBgYGNjZ2ePi4rB5loGBhZnhxTLJ/9ulv26Q4uVk1NXV/f///////69du4Zdg78lx//t0v+3S88rFISInD59GqIH2esIJ8G9O2/XVwhjzpw5EAam1xkkBJn/bJX+v1365hxxuCAfH9+3b9/+////48cPuNehNsS7cDEzMTAwMMzb+Q2u4dOnT2vWrMHu9ZtzxP9vl/69RVpCkBlZ3N7enoDXBwEAAA+YYitOilMVAAAAAElFTkSuQmCC
    :target: https://docs.pyansys.com/
@@ -32,6 +32,10 @@ PyAEDT
 .. |Anaconda| image:: https://anaconda.org/conda-forge/pyaedt/badges/version.svg
   :target: https://anaconda.org/conda-forge/pyaedt
 
+.. |pre-commit| image:: https://results.pre-commit.ci/badge/github/pyansys/pyaedt/main.svg
+   :target: https://results.pre-commit.ci/latest/github/pyansys/pyaedt/main
+   :alt: pre-commit.ci status
+
 Introduction
 ------------
 PyAEDT is part of the larger `PyAnsys <https://docs.pyansys.com>`_
@@ -40,7 +44,25 @@ effort to facilitate the use of Ansys technologies directly from Python.
 PyAEDT is intended to consolidate and extend all existing
 functionalities around scripting for Ansys Electronics Desktop (AEDT)
 to allow reuse of existing code, sharing of best practices, and increased
-collaboration. PyAEDT is licensed under the `MIT License
+collaboration.
+
+The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
+`AEDT <https://www.ansys.com/products/electronics>`_ provides access to the Ansys gold-standard
+electro-magnetics simulation solutions such as Ansys HFSS,
+Ansys Maxwell, Ansys Q3D Extractor, Ansys Siwave, and Ansys Icepak using electrical CAD (ECAD) and
+Mechanical CAD (MCAD) workflows.
+In addition, it includes direct links to the complete Ansys portfolio of thermal, fluid,
+and Mechanical solvers for comprehensive multiphysics analysis.
+Tight integration among these solutions provides unprecedented ease of use for setup and
+faster resolution of complex simulations for design and optimization.
+
+.. image:: ../pyaedt/doc/source/Resources/aedt.png
+  :width: 800
+  :alt: AEDT Applications
+  :target: https://www.ansys.com/products/electronics
+
+
+PyAEDT is licensed under the `MIT License
 <https://github.com/pyansys/PyAEDT/blob/main/LICENSE>`_.
 
 PyAEDT includes functionality for interacting with the following AEDT tools and Ansys products:
@@ -68,9 +90,9 @@ as much as possible across the API.
 Documentation and issues
 ------------------------
 In addition to installation and usage information, the PyAEDT
-documentation provides `API reference <https://aedt.docs.pyansys.com/API/>`_,
-`Examples <https://aedt.docs.pyansys.com/examples/index.html>`_, and `Contribute 
-<https://aedt.docs.pyansys.com/Contributing.html>`_ sections.
+documentation provides `API reference <https://aedt.docs.pyansys.com/release/0.6/API/index.html>`_,
+`Examples <https://aedt.docs.pyansys.com/release/0.6/examples/index.html>`_, and `Contribute 
+<https://aedt.docs.pyansys.com/release/0.6/Contributing.html>`_ sections.
 
 On the `PyAEDT Issues <https://github.com/pyansys/PyAEDT/issues>`_ page, you can
 create issues to submit questions, report bugs, and request new features. To reach

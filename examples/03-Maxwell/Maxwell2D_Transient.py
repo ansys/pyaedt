@@ -26,11 +26,10 @@ Install these libraries with:
 import os
 import pyaedt
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
-# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"`` is needed to generate
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
@@ -42,7 +41,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 # Insert a Maxwell 2D design and save the project.
 
 maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="2022.2", non_graphical=non_graphical,
-                       new_desktop_session=True, projectname=pyaedt.generate_unique_project_name())
+                              new_desktop_session=True, projectname=pyaedt.generate_unique_project_name())
 
 ###############################################################################
 # Create rectangle and duplicate it
@@ -68,14 +67,12 @@ region = maxwell_2d.modeler.create_region([100, 100, 100, 100, 100, 100])
 maxwell_2d.assign_winding([rect1.name, rect2.name], name="PHA")
 maxwell_2d.assign_balloon(region.edges)
 
-
 ###############################################################################
 # Plot model
 # ~~~~~~~~~~
 # Plot the model.
 
 maxwell_2d.plot(show=False, export_path=os.path.join(maxwell_2d.working_directory, "Image.jpg"), plot_air_objects=True)
-
 
 ###############################################################################
 # Create setup
@@ -139,7 +136,7 @@ animatedGif.animate()
 ###############################################################################
 # Generate plot outside of AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generate the same plot outside of AEDT.
+# Generate the same plot outside AEDT.
 
 solutions = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", primary_sweep_variable="Time")
 solutions.plot()

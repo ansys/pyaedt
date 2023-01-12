@@ -331,12 +331,12 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def get_all_sparameter_list(self, excitation_names=[]):
-        """List of all S parameters for a list of exctitations.
+        """List of all S parameters for a list of excitations.
 
         Parameters
         ----------
         excitation_names : list, optional
-            List of excitations. The default is ``[]``, in which case
+            List of excitations. The default value is ``[]``, in which case
             the S parameters for all excitations are to be provided.
             For example, ``["1", "2"]``.
 
@@ -375,7 +375,7 @@ class FieldAnalysisCircuit(Analysis):
         -------
         list of str
             List of strings representing the return losses of the excitations.
-            For example ``["S(1, 1)", S(2, 2)]``
+            For example ``["S(1, 1)", S(2, 2)]``.
 
         References
         ----------

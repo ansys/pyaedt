@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import random
 import re
+import warnings
 from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
@@ -39,7 +40,7 @@ class UserDefinedComponentProps(OrderedDict):
         if self._pyaedt_user_defined_component.auto_update:
             res = self._pyaedt_user_defined_component.update_native()
             if not res:
-                self._pyaedt_user_defined_component._logger.warning("Update of %s Failed. Check needed arguments", key)
+                self._pyaedt_user_defined_component._logger.warning("Update of %s failed. Check needed arguments", key)
 
     def __init__(self, user_defined_components, props):
         OrderedDict.__init__(self)
@@ -62,7 +63,12 @@ class UserDefinedComponent(object):
     ----------
     primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
         Inherited parent object.
-    name : str
+    name : str, optional
+        Name of the component. The default value is ``None``.
+    props : dict, optional
+        Dictionary of properties. The default value is ``None``.
+    component_type : str, optional
+        Type of the component. The default value is ``None``.
 
     Examples
     --------
@@ -72,23 +78,13 @@ class UserDefinedComponent(object):
     >>> aedtapp = Hfss()
     >>> prim = aedtapp.modeler.user_defined_components
 
-    Obtain user defined component names, to return an :class:`pyaedt.modeler.Object3d.UserDefinedComponent`.
+    Obtain user defined component names, to return a :class:`pyaedt.modeler.cad.components_3d.UserDefinedComponent`.
 
     >>> component_names = aedtapp.modeler.user_defined_components
-    >>> component = aedtapp.modeler[component_names[0]]
+    >>> component = aedtapp.modeler[component_names["3DC_Cell_Radome_In1"]]
     """
 
     def __init__(self, primitives, name=None, props=None, component_type=None):
-        """
-        Parameters
-        ----------
-        primitives : :class:`pyaedt.modeler.Primitives3D.Primitives3D`
-            Inherited parent object.
-        name : str, optional
-            The default is ``None``.
-        props : dict, optional
-            Dictionary of properties. The default is ``None``.
-        """
         self._fix_udm_props = [
             "General[Name]",
             "Group",
@@ -327,7 +323,7 @@ class UserDefinedComponent(object):
         Returns
         -------
         dict
-            :class:`pyaedt.modeler.Object3d.UserDefinedComponentParameters`
+            :class:`pyaedt.modeler.cad.components_3d.UserDefinedComponentParameters`.
 
         References
         ----------
@@ -441,7 +437,7 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        position : int or float
+        position : list, Position
             List of the ``[x, y, z]`` coordinates or
             the Application.Position object for the selection.
         vector : float
@@ -450,7 +446,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.UserDefinedComponent, bool
+        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -484,7 +480,7 @@ class UserDefinedComponent(object):
 
         Returns
         -------
-        pyaedt.modeler.Object3d.UserDefinedComponent, bool
+        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -507,15 +503,13 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        objid : list, Position object
-            List of object IDs.
         vector : list
             Vector of the direction move. It can be a list of the ``[x, y, z]``
-            coordinates or a Position object.
+            coordinates or a ``Position`` object.
 
         Returns
         -------
-        pyaedt.modeler.Object3d.UserDefinedComponent, bool
+        pyaedt.modeler.cad.components_3d.UserDefinedComponent, bool
             3D object when successful, ``False`` when failed.
 
         References
@@ -567,17 +561,17 @@ class UserDefinedComponent(object):
         return False
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, attachObject=False):
+    def duplicate_along_line(self, vector, nclones=2, attach_object=False, **kwargs):
         """Duplicate the object along a line.
 
         Parameters
         ----------
         vector : list
             List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        attachObject : bool, optional
-            Whether to attach the object. The default is ``False``.
         nclones : int, optional
             Number of clones. The default is ``2``.
+        attach_object : bool, optional
+            Whether to attach the object. The default is ``False``.
 
         Returns
         -------
@@ -590,9 +584,16 @@ class UserDefinedComponent(object):
         >>> oEditor.DuplicateAlongLine
 
         """
+        if "attachObject" in kwargs:
+            warnings.warn(
+                "``attachObject`` is deprecated. Use ``attach_object`` instead.",
+                DeprecationWarning,
+            )
+            attach_object = kwargs["attachObject"]
+
         if self.is3dcomponent:
             _, added_objects = self._primitives.modeler.duplicate_along_line(
-                self.name, vector, nclones, attachObject, True
+                self.name, vector, nclones, attach_object, True
             )
             return added_objects
         self._logger.warning("User-defined models do not support this operation.")
@@ -609,7 +610,6 @@ class UserDefinedComponent(object):
 
         """
 
-        # self.name = "EditNativeComponentDefinitionData"
         self.update_props = OrderedDict({})
         self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
@@ -662,7 +662,7 @@ class UserDefinedComponent(object):
     @property
     def _m_Editor(self):
         """Pointer to the oEditor object in the AEDT API. This property is
-        intended primarily for use by FacePrimitive, EdgePrimitive, and
+        intended primarily to be used by FacePrimitive, EdgePrimitive, and
         VertexPrimitive child objects.
 
         Returns
@@ -700,7 +700,7 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         password : str, optional
-            Password for encrypted models.
+            Password for encrypted models. The default value is ``""``.
 
         Returns
         -------
@@ -715,7 +715,7 @@ class UserDefinedComponent(object):
                 ["NAME:DefinitionAndPassword", "Definition:=", self.definition_name, "Password:=", password],
             ]
         )
-        proj = self._primitives._app.odesktop.GetActiveProject()
-        proj_name = proj.GetName()
-        des_name = proj.GetActiveDesign().GetName()
-        return get_pyaedt_app(proj_name, des_name)
+        project = self._primitives._app.odesktop.GetActiveProject()
+        project_name = project.GetName()
+        design_name = project.GetActiveDesign().GetName()
+        return get_pyaedt_app(project_name, design_name)
