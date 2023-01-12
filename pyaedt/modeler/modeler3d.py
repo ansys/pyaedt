@@ -91,15 +91,15 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         variables_to_include : list, optional
              List of variables to include. The default is ``[]``.
         object_list : list, optional
-            List of Objects names to export. The default is all objects
+            List of Objects names to export. The default is all objects.
         boundaries_list : list, optional
-            List of Boundaries names to export. The default is all boundaries
+            List of Boundaries names to export. The default is all boundaries.
         excitation_list : list, optional
-            List of Excitation names to export. The default is all excitations
+            List of Excitation names to export. The default is all excitations.
         included_cs : list, optional
-            List of Coordinate Systems to export. The default is all coordinate systems
+            List of Coordinate Systems to export. The default is all coordinate systems.
         reference_cs : str, optional
-
+            The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
             Whether the component has encrypted protection. The default is ``False``.
         allow_edit : bool, optional
@@ -132,13 +132,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             The default is ``False``.
         monitor_objects
             List of monitor objects names to export. The default is all monitor objects. This argument is relevant only
-            if ``auxiliary_dict_file`` is not set to ``False``
+            if ``auxiliary_dict_file`` is not set to ``False``.
         datasets
             List of dataset names to export. The default is all datasets. This argument is relevant only if
-            ``auxiliary_dict_file`` is not set to ``False``
+            ``auxiliary_dict_file`` is not set to ``False``.
         native_components
             List of native_components names to export. The default is all native_components. This argument is relevant
-            only if ``auxiliary_dict_file`` is not set to ``False``
+            only if ``auxiliary_dict_file`` is not set to ``False``.
 
         Returns
         -------

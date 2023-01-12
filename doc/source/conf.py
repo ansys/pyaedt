@@ -104,6 +104,7 @@ numpydoc_validation_checks = {
 
 numpydoc_validation_exclude = {  # set of regex
     r"\.AEDTMessageManager.add_message$",  # bad SS05
+    r"\.Primitives3D.create_choke$",  # bad RT05
 }
 
 # Favicon
