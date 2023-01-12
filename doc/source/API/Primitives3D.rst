@@ -1,4 +1,4 @@
-3D Modeler
+3D modeler
 ==========
 
 This section lists the core AEDT Modeler modules with 3D solvers (HFSS, Maxwell,

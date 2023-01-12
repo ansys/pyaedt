@@ -1,4 +1,4 @@
-2D Modeler
+2D modeler
 ===========
 
 This section lists the core AEDT Modeler modules for 2D and 3D solvers (Maxwell 2D, 2D Extractor).

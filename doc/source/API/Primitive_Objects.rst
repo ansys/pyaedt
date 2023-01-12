@@ -1,7 +1,7 @@
 Primitives
 ==========
 
-This section lists the core AEDT Modeler primitives valids with both 2D and 3D solvers (HFSS, Maxwell,
+This section lists the core AEDT Modeler primitives that are supported both in 2D and 3D solvers (HFSS, Maxwell,
 Icepak, Q3D, and Mechanical):
 
 * Primitives
