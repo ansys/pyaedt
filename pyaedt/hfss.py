@@ -656,7 +656,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create two cylinders at the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
+        Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
         outer face.
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
