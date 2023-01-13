@@ -1299,6 +1299,23 @@ class Object3d(object):
         self._wireframe = fWireframe
 
     @property
+    def history(self):
+        """Object history.
+
+        Returns
+        -------
+            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        try:
+            child_object = self.m_Editor.GetChildObject(self.name)
+            parent = BinaryTreeNode(self.name, child_object, True)
+            return parent
+        except:
+            return False
+
+    @property
     def model(self):
         """Part Model/Non-model property.
 
@@ -1896,12 +1913,3 @@ class Object3d(object):
             self.display_wireframe,
             self.part_coordinate_system,
         )
-
-    @property
-    def history(self):
-        try:
-            child_object = self.m_Editor.GetChildObject(self.name)
-            parent = BinaryTreeNode(self.name, child_object, True)
-            return parent
-        except:
-            return False

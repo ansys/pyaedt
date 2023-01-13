@@ -1315,7 +1315,34 @@ class Plane(object):
 
 
 class HistoryProps(OrderedDict):
-    """AEDT Boundary Component Internal Parameters."""
+    """Manages objects history properties.
+
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> modeler = aedtapp.modeler
+
+    Create a box, to return a :class:`pyaedt.modeler.Object3d.Object3d`
+    And a cylinder to return a :class:`pyaedt.modeler.object3d.Object3d`
+
+    >>> box = modeler.create_box([10, 10, 10], [15, 15, 15], "box_history", matname="Copper")
+    >>> cylinder = cylinder = hfss.modeler.create_cylinder(cs_axis="Y", position=[10, 10, 10], radius=5, height=20,
+    >>>                                                     numSides=4, name="cylinder_history", matname="Copper")
+
+    Perform some actions on the geometries
+
+    >>> box_clone = box.clone()
+    >>> box_subtract = box_clone.subtract(cylinder)
+    >>> box_subtract.rotate(cs_axis="Y", angle=180)
+    >>> box_subtract.split("XY")
+
+    Get the history of the cloned box
+
+    >>> box_history = hfss.modeler["box_history1"].history
+    """
 
     def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
