@@ -25,6 +25,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import rgb_color_codes
 from pyaedt.generic.general_methods import settings
+from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 from pyaedt.modeler.cad.elements3d import VertexPrimitive
@@ -1895,3 +1896,12 @@ class Object3d(object):
             self.display_wireframe,
             self.part_coordinate_system,
         )
+
+    @property
+    def history(self):
+        try:
+            child_object = self.m_Editor.GetChildObject(self.name)
+            parent = BinaryTreeNode(self.name, child_object, True)
+            return parent
+        except:
+            return False
