@@ -1361,6 +1361,20 @@ class BinaryTreeNode:
         self.command = self.props.get("Command", "")
 
     def update_property(self, prop_name, prop_value):
+        """Update BinaryTreeNode property.
+
+        Parameters
+        ----------
+        prop_name : str
+             Name of the property.
+        prop_value : str
+             Value of the property.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         try:
             self.child_object.SetPropValue(prop_name, prop_value)
             return True
