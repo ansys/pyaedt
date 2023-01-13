@@ -1212,7 +1212,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def residual_copper_area_per_layer(self):
-        """Report residual copper are per layer in percentage.
+        """Report residual coppera are per layer in percentage.
 
         Returns
         -------
@@ -1505,7 +1505,7 @@ class EdbStackup(object):
     @pyaedt_function_handler()
     def duplicate_material(self, material_name, new_material_name):
         """Duplicate a material from the database.
-        It duplicates these five properties: ``permittivity``, ``permeability``, ` conductivity,``
+        It duplicates these five properties: ``permittivity``, ``permeability``, ``conductivity``, 
         ``dielectriclosstangent``, and ``magneticlosstangent``.
 
         .. deprecated:: 0.6.27
