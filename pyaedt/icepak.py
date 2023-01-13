@@ -3182,3 +3182,447 @@ class Icepak(FieldAnalysis3D):
             self.modeler.primitives[object_name].solve_inside = False
             return boundary
         return None
+
+    @pyaedt_function_handler()
+    def assign_stationary_wall(
+        self,
+        geometry,
+        ext_condition,
+        bc_name=None,
+        temperature="0cel",
+        heat_flux="0irrad_W_per_m2",
+        thickness="0mm",
+        htc="0w_per_m2kel",
+        htc_dataset=None,
+        ref_temperature="AmbientTemp",
+        material="Al-Extruded",  # relevant if th>0
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",  # relevant if radiate = False
+        ht_correlation=False,
+        ht_correlation_type="Natural Convection",
+        ht_correlation_fluid="air",
+        ht_correlation_flow_type="Turbulent",
+        ht_correlation_flow_direction="X",
+        ht_correlation_value_type="Average Values",  # "Local Values"
+        ht_correlation_free_stream_velocity="1m_per_sec",
+        ht_correlation_surface="Vertical",  # Top, Bottom, Vertical
+        ht_correlation_amb_temperature="AmbientTemp",
+        shell_conduction=False,
+        ext_surf_rad=False,
+        ext_surf_rad_material="Stainless-steel-cleaned",
+        ext_surf_rad_ref_temp="AmbientTemp",
+        ext_surf_rad_view_factor="1",
+    ):
+        """Function to assign surface wall boundary condition.
+
+        Parameters
+        ----------
+        geometry : str or int
+            name of the surface object or id of the face
+        ext_condition : str
+            Type of boundary condition. ``"Temperature"``, ``"Heat Flux"`` or ``"Heat Transfer Coefficient"``.
+        bc_name : str
+            Name of the boundary condition. The default is ``None``.
+        temperature : str or float, optional
+            Temperature assigned to the wall. Relevant if ``ext_condition="Temperature"``.
+            If a float is used, degree Celsius unit will be used. The default is ``"0cel"``.
+        heat_flux : str or float, optional
+            Heat flux assigned to the wall. Relevant if ``ext_condition="Temperature"``.
+            If a float is used, irrad_W_per_m2 unit will be used. The default is ``"0irrad_W_per_m2"``.
+        htc : str or float, optional
+            Heat transfer coefficient assigned to the wall.  Relevant if ``ext_condition="Heat Transfer Coefficient"``.
+            If a float is used, w_per_m2kel unit will be used. The default is ``"0w_per_m2kel"``.
+        thickness : str or float, optional
+            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
+            The default is ``"0mm"``.
+        htc_dataset : str, optional
+            Dataset that represents htc dependency on temperature. Relevant if
+            ``ext_condition="Heat Transfer Coefficient"``. The default is ``None``.
+        ref_temperature : str or float, optional
+            Reference temperature for the definition of the htc. Relevant if
+            ``ext_condition="Heat Transfer Coefficient"``.The default is ``"AmbientTemp"``.
+        material : str, optional
+            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+        radiate : bool, optional
+            Whether to enable the inner surface radiation option. The default is ``False``.
+        radiate_surf_mat : str, optional
+            Surface material used for inner surface radiation. Relevant if it is enables.
+            The default is ``"Steel-oxidised-surface``.
+        ht_correlation : bool, optional
+            Whether to use the correlation option to compute the htc. The default is ``False``.
+        ht_correlation_type : str, optional
+            Choose between "Natural Convection" or "Forced Convection" for the correlation option.
+            Relevant if ``ht_correlation=True``. The default is ``"Natural Convection"``.
+        ht_correlation_fluid : str, optional
+            Fluid used for the correlation option. Relevant if ``ht_correlation=True``. The default is ``"air"``.
+        ht_correlation_flow_type : str, optional
+            Type of flow used for the correlation option. The choice is between ``"Turbulent"`` and ``"Laminar"``.
+            Relevant if ``ht_correlation=True``. The default is ``"Turbulent"``.
+        ht_correlation_flow_direction : str, optional
+            Flow direction used for the correlation option. Relevant if ``ht_correlation_type="Forced Convection"``.
+            The default is ``"X"``.
+        ht_correlation_value_type : str, optional
+             Choose between "Average Values" and "Local Values" for the forced convection correlation option.
+             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"Average Values"``.
+        ht_correlation_free_stream_velocity : str or float, optional
+             Free stream flow velocity. If a float is used, m/s will be the default unit.
+             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"1m_per_sec"``.
+        ht_correlation_surface : str, optional
+            Choose between "Top", "Bottom" and "Vertical" for the natural convection correlation option.
+            Relevant if ``ht_correlation_type="Natural Convection"``. The default is ``"Vertical"``.
+        ht_correlation_amb_temperature : str or float, optional
+            Ambient temperature for the natural convection correlation option.
+            Relevant if ``ht_correlation_type="Natural Convection"``. If a float is used, cel will be the default unit.
+            The default is ``"AmbientTemp"``.
+        shell_conduction : bool, optional
+            Whether to use the shell conduction option. The default is ``False``.
+        ext_surf_rad : bool, optional
+            Whether to use the external surface radiation option. Relevant if
+            ``ext_condition="Heat Transfer Coefficient"``. The default is ``False``.
+        ext_surf_rad_material : str, optional
+            Surface material for the external surface radiation option. Relevant if
+            ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
+        ext_surf_rad_ref_temp : str or float, optional
+             Reference temperature for the external surface radiation option. Relevant if
+            ``ext_surf_rad=True``.  If a float is used, cel will be the default unit. The default is ``"AmbientTemp"``.
+        ext_surf_rad_view_factor : str or float, optional
+            View factor for the external surface radiation option. The default is ``"1"``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignStationaryWallBoundary
+        """
+        if not bc_name:
+            bc_name = generate_unique_name("StationaryWall")
+        if isinstance(geometry, str):
+            geometry = [geometry]
+        elif isinstance(geometry, int):
+            geometry = [geometry]
+        if not isinstance(thickness, str):
+            thickness = "{}{}".format(thickness, self.modeler.model_units)
+        if not isinstance(heat_flux, str):
+            heat_flux = "{}irrad_W_per_m2".format(heat_flux)
+        if not isinstance(temperature, str):
+            temperature = "{}cel".format(temperature)
+        if not isinstance(htc, str):
+            htc = "{}w_per_m2kel".format(htc)
+        if not isinstance(ref_temperature, str):
+            ref_temperature = "{}cel".format(ref_temperature)
+        if not isinstance(ht_correlation_free_stream_velocity, str):
+            ht_correlation_free_stream_velocity = "{}m_per_sec".format(ht_correlation_free_stream_velocity)
+        if not isinstance(ht_correlation_amb_temperature, str):
+            ht_correlation_amb_temperature = "{}cel".format(ht_correlation_amb_temperature)
+        if not isinstance(ext_surf_rad_view_factor, str):
+            ext_surf_rad_view_factor = str(ext_surf_rad_view_factor)
+
+        props = {}
+        if isinstance(geometry[0], int):
+            props["Faces"] = geometry
+        else:
+            props["Objects"] = geometry
+        props["Thickness"] = (thickness,)
+        props["Solid Material"] = material
+        props["External Condition"] = ext_condition
+        props["Heat Flux"] = heat_flux
+        props["Temperature"] = temperature
+        if htc_dataset is None:
+            props["Heat Transfer Coefficient"] = htc
+        else:
+            props["Heat Transfer Coefficient Variation Data"] = {
+                "Variation Type": "Temp Dep",
+                "Variation Function": "Piecewise Linear",
+                "Variation Value": '["1w_per_m2kel", "pwl({},Temp)"]'.format(htc_dataset),
+            }
+        props["Reference Temperature"] = ref_temperature
+        props["Heat Transfer Data"] = {
+            "Heat Transfer Correlation": ht_correlation,
+            "Heat Transfer Convection Type": "Forced Convection",
+        }
+        if ht_correlation:
+            props["Heat Transfer Data"].update(
+                {
+                    "Heat Transfer Correlation": True,
+                    "Heat Transfer Convection Type": ht_correlation_type,
+                    "Heat Transfer Convection Fluid Material": ht_correlation_fluid,
+                }
+            )
+            if ht_correlation_type == "Forced Convection":
+                props["Heat Transfer Data"].update(
+                    {
+                        "Flow Type": ht_correlation_flow_type,
+                        "Flow Direction": ht_correlation_flow_direction,
+                        "Heat Transfer Coeff Value Type": ht_correlation_value_type,
+                        "Stream Velocity": ht_correlation_free_stream_velocity,
+                    }
+                )
+            elif ht_correlation_type == "Natural Convection":
+                props["Heat Transfer Data"].update(
+                    {"Surface": ht_correlation_surface, "Ambient Temperature": ht_correlation_amb_temperature}
+                )
+        props["Radiation"] = {"Radiate": radiate, "RadiateTo": "AllObjects", "Surface Material": radiate_surf_mat}
+        props["Shell Conduction"] = shell_conduction
+        props["External Surface Radiation"] = ext_surf_rad
+        props["External Material"] = ext_surf_rad_material
+        props["External Radiation Reference Temperature"] = ext_surf_rad_ref_temp
+        props["External Radiation View Factor"] = ext_surf_rad_view_factor
+        bound = BoundaryObject(self, bc_name, props, "Stationary Wall")
+        if bound.create():
+            self.boundaries.append(bound)
+        return bound
+
+    @pyaedt_function_handler()
+    def assign_stationary_wall_with_heat_flux(
+        self,
+        geometry,
+        bc_name=None,
+        heat_flux="0irrad_W_per_m2",
+        thickness="0mm",
+        material="Al-Extruded",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=False,
+    ):
+        """Function to assign surface wall boundary condition with heat flux thermal assignment.
+
+        Parameters
+        ----------
+        geometry : str or int
+            name of the surface object or id of the face
+        bc_name : str
+            Name of the boundary condition. The default is ``None``.
+        heat_flux : str or float, optional
+            Heat flux assigned to the wall.
+            If a float is used, irrad_W_per_m2 unit will be used. The default is ``"0irrad_W_per_m2"``.
+        thickness : str or float, optional
+            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
+            The default is ``"0mm"``.
+        material : str, optional
+            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+        radiate : bool, optional
+            Whether to enable the inner surface radiation option. The default is ``False``.
+        radiate_surf_mat : str, optional
+            Surface material used for inner surface radiation. Relevant if it is enables.
+            The default is ``"Steel-oxidised-surface``.
+        shell_conduction : bool, optional
+            Whether to use the shell conduction option. The default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignStationaryWallBoundary
+        """
+        return self.assign_stationary_wall(
+            geometry,
+            "Heat Flux",
+            bc_name=bc_name,
+            heat_flux=heat_flux,
+            thickness=thickness,
+            material=material,
+            radiate=radiate,
+            radiate_surf_mat=radiate_surf_mat,
+            shell_conduction=shell_conduction,
+        )
+
+    @pyaedt_function_handler()
+    def assign_stationary_wall_with_temperature(
+        self,
+        geometry,
+        bc_name=None,
+        temperature="0cel",
+        thickness="0mm",
+        material="Al-Extruded",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=False,
+    ):
+        """Function to assign surface wall boundary condition with temperature thermal assignment.
+
+        Parameters
+        ----------
+        geometry : str or int
+            name of the surface object or id of the face
+        bc_name : str
+            Name of the boundary condition. The default is ``None``.
+        temperature : str or float, optional
+            Temperature assigned to the wall.
+            If a float is used, degree Celsius unit will be used. The default is ``"0cel"``.
+        thickness : str or float, optional
+            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
+            The default is ``"0mm"``.
+        material : str, optional
+            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+        radiate : bool, optional
+            Whether to enable the inner surface radiation option. The default is ``False``.
+        radiate_surf_mat : str, optional
+            Surface material used for inner surface radiation. Relevant if it is enables.
+            The default is ``"Steel-oxidised-surface``.
+        shell_conduction : bool, optional
+            Whether to use the shell conduction option. The default is ``False``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignStationaryWallBoundary
+        """
+        return self.assign_stationary_wall(
+            geometry,
+            "Temperature",
+            bc_name=bc_name,
+            temperature=temperature,
+            thickness=thickness,
+            material=material,
+            radiate=radiate,
+            radiate_surf_mat=radiate_surf_mat,
+            shell_conduction=shell_conduction,
+        )
+
+    @pyaedt_function_handler()
+    def assign_stationary_wall_with_htc(
+        self,
+        geometry,
+        bc_name=None,
+        thickness="0mm",
+        material="Al-Extruded",
+        htc="0w_per_m2kel",
+        htc_dataset=None,
+        ref_temperature="AmbientTemp",
+        ht_correlation=False,
+        ht_correlation_type="Natural Convection",
+        ht_correlation_fluid="air",
+        ht_correlation_flow_type="Turbulent",
+        ht_correlation_flow_direction="X",
+        ht_correlation_value_type="Average Values",
+        ht_correlation_free_stream_velocity="1m_per_sec",
+        ht_correlation_surface="Vertical",
+        ht_correlation_amb_temperature="AmbientTemp",
+        ext_surf_rad=False,
+        ext_surf_rad_material="Stainless-steel-cleaned",
+        ext_surf_rad_ref_temp="AmbientTemp",
+        ext_surf_rad_view_factor="1",
+        radiate=False,
+        radiate_surf_mat="Steel-oxidised-surface",
+        shell_conduction=False,
+    ):
+        """Function to assign surface wall boundary condition.
+
+        Parameters
+        ----------
+        geometry : str or int
+            name of the surface object or id of the face
+        bc_name : str
+            Name of the boundary condition. The default is ``None``.
+
+        htc : str or float, optional
+            Heat transfer coefficient assigned to the wall.
+            If a float is used, w_per_m2kel unit will be used. The default is ``"0w_per_m2kel"``.
+        thickness : str or float, optional
+            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
+            The default is ``"0mm"``.
+        htc_dataset : str, optional
+            Dataset that represents htc dependency on temperature. Relevant if
+            ``ext_condition="Heat Transfer Coefficient"``. The default is ``None``.
+        ref_temperature : str or float, optional
+            Reference temperature for the definition of the htc. Relevant if
+            ``ext_condition="Heat Transfer Coefficient"``.The default is ``"AmbientTemp"``.
+        material : str, optional
+            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+        radiate : bool, optional
+            Whether to enable the inner surface radiation option. The default is ``False``.
+        radiate_surf_mat : str, optional
+            Surface material used for inner surface radiation. Relevant if it is enables.
+            The default is ``"Steel-oxidised-surface``.
+        ht_correlation : bool, optional
+            Whether to use the correlation option to compute the htc. The default is ``False``.
+        ht_correlation_type : str, optional
+            Choose between "Natural Convection" or "Forced Convection" for the correlation option.
+            Relevant if ``ht_correlation=True``. The default is ``"Natural Convection"``.
+        ht_correlation_fluid : str, optional
+            Fluid used for the correlation option. Relevant if ``ht_correlation=True``. The default is ``"air"``.
+        ht_correlation_flow_type : str, optional
+            Type of flow used for the correlation option. The choice is between ``"Turbulent"`` and ``"Laminar"``.
+            Relevant if ``ht_correlation=True``. The default is ``"Turbulent"``.
+        ht_correlation_flow_direction : str, optional
+            Flow direction used for the correlation option. Relevant if ``ht_correlation_type="Forced Convection"``.
+            The default is ``"X"``.
+        ht_correlation_value_type : str, optional
+             Choose between "Average Values" and "Local Values" for the forced convection correlation option.
+             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"Average Values"``.
+        ht_correlation_free_stream_velocity : str or float, optional
+             Free stream flow velocity. If a float is used, m/s will be the default unit.
+             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"1m_per_sec"``.
+        ht_correlation_surface : str, optional
+            Choose between "Top", "Bottom" and "Vertical" for the natural convection correlation option.
+            Relevant if ``ht_correlation_type="Natural Convection"``. The default is ``"Vertical"``.
+        ht_correlation_amb_temperature : str or float, optional
+            Ambient temperature for the natural convection correlation option.
+            Relevant if ``ht_correlation_type="Natural Convection"``. If a float is used, cel will be the default unit.
+            The default is ``"AmbientTemp"``.
+        shell_conduction : bool, optional
+            Whether to use the shell conduction option. The default is ``False``.
+        ext_surf_rad : bool, optional
+            Whether to use the external surface radiation option. Relevant if
+            ``ext_condition="Heat Transfer Coefficient"``. The default is ``False``.
+        ext_surf_rad_material : str, optional
+            Surface material for the external surface radiation option. Relevant if
+            ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
+        ext_surf_rad_ref_temp : str or float, optional
+             Reference temperature for the external surface radiation option. Relevant if
+            ``ext_surf_rad=True``.  If a float is used, cel will be the default unit. The default is ``"AmbientTemp"``.
+        ext_surf_rad_view_factor : str or float, optional
+            View factor for the external surface radiation option. The default is ``"1"``.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignStationaryWallBoundary
+        """
+        return self.assign_stationary_wall(
+            geometry,
+            "Heat Transfer Coefficient",
+            bc_name=bc_name,
+            thickness=thickness,
+            material=material,
+            htc=htc,
+            htc_dataset=htc_dataset,
+            ref_temperature=ref_temperature,
+            ht_correlation=ht_correlation,
+            ht_correlation_type=ht_correlation_type,
+            ht_correlation_fluid=ht_correlation_fluid,
+            ht_correlation_flow_type=ht_correlation_flow_type,
+            ht_correlation_flow_direction=ht_correlation_flow_direction,
+            ht_correlation_value_type=ht_correlation_value_type,
+            ht_correlation_free_stream_velocity=ht_correlation_free_stream_velocity,
+            ht_correlation_surface=ht_correlation_amb_temperature,
+            ht_correlation_amb_temperature=ht_correlation_surface,
+            ext_surf_rad=ext_surf_rad,
+            ext_surf_rad_material=ext_surf_rad_material,
+            ext_surf_rad_ref_temp=ext_surf_rad_ref_temp,
+            ext_surf_rad_view_factor=ext_surf_rad_view_factor,
+            radiate=radiate,
+            radiate_surf_mat=radiate_surf_mat,
+            shell_conduction=shell_conduction,
+        )
