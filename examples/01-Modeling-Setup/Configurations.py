@@ -91,7 +91,7 @@ ipk.save_project(r"C:\temp\Graphic_card.aedt")
 
 filename = ipk.design_name
 file_path = os.path.join(ipk.working_directory, filename + ".step")
-ipk.export_3d_model(filename=filename, filePath=ipk.working_directory, fileFormat=".step", object_list=[],
+ipk.export_3d_model(file_name=filename, file_path=ipk.working_directory, file_format=".step", object_list=[],
                     removed_objects=[])
 
 ###############################################################################

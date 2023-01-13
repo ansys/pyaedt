@@ -1469,7 +1469,7 @@ class ConfigurationsIcepak(Configurations):
         pass
 
     @pyaedt_function_handler()
-    def _update_monitor(self, m_case, m_object, m_quantity, m_name):
+    def update_monitor(self, m_case, m_object, m_quantity, m_name):
         if m_case == "Point":
             self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
         elif m_case == "Face":
@@ -1492,6 +1492,6 @@ class ConfigurationsIcepak(Configurations):
                 m_obj = dict_in["monitor"][monitor_obj]["ID"]
                 if m_type == "Point":
                     m_obj = dict_in["monitor"][monitor_obj]["Location"]
-                if not self._update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
+                if not self.update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
                     self.results.import_monitor = False
         return dict_in

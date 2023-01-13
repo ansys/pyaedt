@@ -1793,7 +1793,7 @@ class Object3d(object):
         Returns
         -------
         list of :class:`pyaedt.modeler.elements3d.FacePrimitive`
-            list of face primitives.
+            List of face primitives.
         """
 
         filters = ["==", "<=", ">=", "<", ">"]
@@ -1837,7 +1837,7 @@ class Object3d(object):
         Returns
         -------
         list of :class:`pyaedt.modeler.elements3d.EdgePrimitive`
-            list of edge primitives.
+            List of edge primitives.
         """
         filters = ["==", "<=", ">=", "<", ">"]
         if length_filter not in filters:
