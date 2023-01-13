@@ -702,3 +702,51 @@ class TestClass(BasisTest, object):
             input_power="1W",
             thickness="1mm",
         )
+
+    def test_54_assign_stationary_wall(self):
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
+
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            bc_name=None,
+            thickness="0mm",
+            material="Al-Extruded",
+            htc=10,
+            htc_dataset=None,
+            ref_temperature="AmbientTemp",
+            ht_correlation=True,
+            ht_correlation_type="Forced Convection",
+            ht_correlation_fluid="air",
+            ht_correlation_flow_type="Turbulent",
+            ht_correlation_flow_direction="X",
+            ht_correlation_value_type="Average Values",
+            ht_correlation_free_stream_velocity=1,
+        )
+        assert self.aedtapp.assign_stationary_wall_with_temperature(
+            "surf1",
+            bc_name=None,
+            temperature=30,
+            thickness="0mm",
+            material="Al-Extruded",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
+        )
+        assert self.aedtapp.assign_stationary_wall_with_heat_flux(
+            geometry=box.faces[0].id,
+            bc_name="bcTest",
+            heat_flux=10,
+            thickness=1,
+            material="Al-Extruded",
+            radiate=True,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=True,
+        )
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            ext_surf_rad=True,
+            ext_surf_rad_material="Stainless-steel-cleaned",
+            ext_surf_rad_ref_temp=0,
+            ext_surf_rad_view_factor=0.5,
+        )
