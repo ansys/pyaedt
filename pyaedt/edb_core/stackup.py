@@ -1212,7 +1212,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def residual_copper_area_per_layer(self):
-        """Report residual coppera are per layer in percentage.
+        """Report residual copper area per layer in percentage.
 
         Returns
         -------
