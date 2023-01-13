@@ -1805,7 +1805,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        List of
+        List
+            Three parameters output
             bool
                 ``True`` when successful, ``False`` when failed.
             :class:`pyaedt.modeler.cad.object3d.Object3d`
@@ -1826,7 +1827,7 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
-        >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
+        >>> my_choke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
 
         with open_file(json_file, "r") as read_file:

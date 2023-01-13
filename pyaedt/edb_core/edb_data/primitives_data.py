@@ -185,8 +185,8 @@ class EDBPrimitives(object):
 
         Returns
         -------
-        list, list
-            x and y list of points.
+        tuple
+            The tuple contains 2 lists made of X and Y points coordinates.
         """
         try:
             my_net_points = list(self.primitive_object.GetPolygonData().Points)
@@ -314,7 +314,7 @@ class EDBPrimitives(object):
 
     @pyaedt_function_handler()
     def delete(self):
-        """Delete this primtive."""
+        """Delete this primitive."""
         return self.primitive_object.Delete()
 
     @pyaedt_function_handler()
