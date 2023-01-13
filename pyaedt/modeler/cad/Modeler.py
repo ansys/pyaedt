@@ -561,6 +561,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             props.append(["NAME:Psi", "Value:=", self._dim_arg(self.props["Psi"], "deg")])
 
         self._change_property(self.name, props)
+        self._quaternion = None
         return True
 
     @pyaedt_function_handler()
@@ -846,6 +847,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         -------
         list
         """
+        if self._quaternion:
+            return self._quaternion
         self._modeler._app.variable_manager["temp_var"] = 0
         if self.mode == "axis" or self.mode == "view":
             x1 = self.props["XAxisXvec"]
@@ -889,6 +892,37 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
             del self._modeler._app.variable_manager["temp_var"]
         return self._quaternion
+
+    @property
+    def origin(self):
+        """Returns the Coordinate System origin in model units.
+
+        Returns
+        -------
+        list
+        """
+        self._modeler._app.variable_manager["temp_var"] = self.props["OriginX"]
+        x = self._modeler._app.variable_manager["temp_var"].numeric_value
+        self._modeler._app.variable_manager["temp_var"] = self.props["OriginY"]
+        y = self._modeler._app.variable_manager["temp_var"].numeric_value
+        self._modeler._app.variable_manager["temp_var"] = self.props["OriginZ"]
+        z = self._modeler._app.variable_manager["temp_var"].numeric_value
+        del self._modeler._app.variable_manager["temp_var"]
+        return [x, y, z]
+
+    @origin.setter
+    def origin(self, origin):
+        """Set the Coordinate System origin in model units."""
+        legacy_update = self.auto_update
+        self.auto_update = False
+        origin_x = self._dim_arg(origin[0], self.model_units)
+        origin_y = self._dim_arg(origin[1], self.model_units)
+        origin_z = self._dim_arg(origin[2], self.model_units)
+        self.props["OriginX"] = origin_x
+        self.props["OriginY"] = origin_y
+        self.props["OriginZ"] = origin_z
+        self.update()
+        self.auto_update = legacy_update
 
     @property
     def _orientation(self):
@@ -1613,10 +1647,8 @@ class GeometryModeler(Modeler, object):
             * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
             Parameters not needed by the specified mode are ignored.
-            For back compatibility, ``view="rotate"`` is the same as
-            ``mode="axis"``.  The default mode, ``"axisrotation"``, is
-            a coordinate system parallel to the global coordinate
-            system centered in the global origin.
+            The default mode, ``"axis"``, is a coordinate system parallel to the
+            global coordinate system centered in the global origin.
 
         view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
@@ -1625,8 +1657,9 @@ class GeometryModeler(Modeler, object):
             Enumerator ``pyaedt.generic.constants.VIEW`` can be used.
 
             .. note::
-               Because the ``"rotate"`` option is obsolete, use
-               ``mode="axis"`` instead.
+              For back compatibility, ``mode="view"`` and ``view="rotate"`` is the same as
+              ``mode="axis"``. Because the "rotate" option in the "view" mode is obsolete, use
+              ``mode="axis"`` instead.
 
         x_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the X axis
@@ -1761,8 +1794,8 @@ class GeometryModeler(Modeler, object):
         ----------
         point : list
             List of the ``[x, y, z]`` coordinates to transform.
-        ref_cs : str
-            Name of the destination reference system.
+        ref_cs : str, CoordinateSystem
+            Name of the destination reference system. The CoordinateSystem object can also be used.
 
         Returns
         -------
@@ -1776,10 +1809,16 @@ class GeometryModeler(Modeler, object):
             point = [float(i) for i in point]
         except:
             raise AttributeError("Point must be in format [x, y, z].")
-        if ref_cs == "Global":
+        if isinstance(ref_cs, BaseCoordinateSystem):
+            ref_cs_name = ref_cs.name
+        elif isinstance(ref_cs, str):
+            ref_cs_name = ref_cs
+        else:
+            raise AttributeError("ref_cs must be in either a string or a CoordinateSystem object.")
+        if ref_cs_name == "Global":
             return point
         cs_names = [i.name for i in self.coordinate_systems]
-        if ref_cs not in cs_names:
+        if ref_cs_name not in cs_names:
             raise AttributeError("Specified coordinate system does not exist in the design.")
 
         def get_total_transformation(p, cs):
@@ -1809,7 +1848,7 @@ class GeometryModeler(Modeler, object):
             p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
             return p2
 
-        return get_total_transformation(point, ref_cs)
+        return get_total_transformation(point, ref_cs_name)
 
     @pyaedt_function_handler()
     def set_working_coordinate_system(self, name):
@@ -1818,7 +1857,7 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         name : str, FaceCoordinateSystem, CoordinateSystem
-            Name of the coordinate system to set as the working coordinate system.
+            Name of the coordinate system or CoordinateSystem object to set as the working coordinate system.
 
         Returns
         -------
@@ -1839,6 +1878,77 @@ class GeometryModeler(Modeler, object):
                 ["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False]
             )
         return True
+
+    @pyaedt_function_handler()
+    def duplicate_coordinate_system_to_global(self, coordinate_system, invert=False):
+        """Creates a duplicate of the coordinate system referenced to global.
+        It is useful have the same coordinate system referenced to global removing all nested coordinate
+        system dependencies.
+
+        Parameters
+        ----------
+        coordinate_system : str, CoordinateSystem
+            Name of the destination reference system. The CoordinateSystem object can also be used.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+            Created Coordinate System Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRelativeCS
+        """
+        # resolve the input coordinate system
+        cs_names = [i.name for i in self.coordinate_systems]
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            cs = coordinate_system
+        elif isinstance(coordinate_system, str):
+            if coordinate_system not in cs_names:
+                raise AttributeError("Specified coordinate system does not exist in the design.")
+            idx = cs_names.index(coordinate_system)
+            cs = self.coordinate_systems[idx]
+        else:
+            raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
+
+        # get the origin and the quaternions and evaluate the axis from them
+        q = cs.quaternion
+        o = cs.origin
+        ref_cs_name = cs.ref_cs
+        while ref_cs_name != "Global":
+            ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
+            q_ref = ref_cs.quaternion
+            q = GeometryOperators.q_prod(q, q_ref)
+            o_ref = ref_cs.origin
+            o = GeometryOperators.v_sum(o_ref, GeometryOperators.q_rotation(o, q_ref))
+            ref_cs_name = ref_cs.ref_cs
+
+        x, y, z = GeometryOperators.quaternion_to_axis(q)
+
+        # set the other parameters
+        reference_cs = "Global"
+        name = cs.name + "_RefToGlobal"
+        if name in cs_names:
+            name = cs.name + generate_unique_name("_RefToGlobal")
+        mode = "axis"
+        x_pointing = x
+        y_pointing = y
+
+        # create the CS
+        cs = CoordinateSystem(self)
+        if cs:
+            result = cs.create(
+                origin=o,
+                reference_cs=reference_cs,
+                name=name,
+                mode=mode,
+                x_pointing=x_pointing,
+                y_pointing=y_pointing,
+            )
+            if result:
+                return cs
+        return False
 
     @pyaedt_function_handler()
     def set_objects_deformation(self, objects):
