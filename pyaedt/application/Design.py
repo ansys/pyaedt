@@ -538,6 +538,9 @@ class Design(AedtObjects):
         old_time = settings._project_time_stamp
         return old_time != self.project_time_stamp
 
+
+    _project_file = None
+
     @property
     def project_file(self):
         """Project name and path.
@@ -548,7 +551,9 @@ class Design(AedtObjects):
             Full absolute name and path for the project.
 
         """
-        return os.path.join(self.project_path, self.project_name + ".aedt")
+        if self._project_file == None:
+            self._project_file = os.path.join(self.project_path, self.project_name + ".aedt")
+        return self._project_file
 
     @property
     def lock_file(self):
