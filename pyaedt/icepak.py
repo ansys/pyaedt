@@ -3188,7 +3188,7 @@ class Icepak(FieldAnalysis3D):
         self,
         geometry,
         ext_condition,
-        bc_name=None,
+        name=None,
         temperature="0cel",
         heat_flux="0irrad_W_per_m2",
         thickness="0mm",
@@ -3221,7 +3221,7 @@ class Icepak(FieldAnalysis3D):
             Name of the surface object or id of the face.
         ext_condition : str
             Type of boundary condition. ``"Temperature"``, ``"Heat Flux"`` or ``"Heat Transfer Coefficient"``.
-        bc_name : str
+        name : str
             Name of the boundary condition. The default is ``None``.
         temperature : str or float, optional
             Temperature assigned to the wall. Relevant if ``ext_condition="Temperature"``.
@@ -3299,8 +3299,8 @@ class Icepak(FieldAnalysis3D):
 
         >>> oModule.AssignStationaryWallBoundary
         """
-        if not bc_name:
-            bc_name = generate_unique_name("StationaryWall")
+        if not name:
+            name = generate_unique_name("StationaryWall")
         if isinstance(geometry, str):
             geometry = [geometry]
         elif isinstance(geometry, int):
@@ -3372,7 +3372,7 @@ class Icepak(FieldAnalysis3D):
         props["External Material"] = ext_surf_rad_material
         props["External Radiation Reference Temperature"] = ext_surf_rad_ref_temp
         props["External Radiation View Factor"] = ext_surf_rad_view_factor
-        bound = BoundaryObject(self, bc_name, props, "Stationary Wall")
+        bound = BoundaryObject(self, name, props, "Stationary Wall")
         if bound.create():
             self.boundaries.append(bound)
         return bound
@@ -3381,7 +3381,7 @@ class Icepak(FieldAnalysis3D):
     def assign_stationary_wall_with_heat_flux(
         self,
         geometry,
-        bc_name=None,
+        name=None,
         heat_flux="0irrad_W_per_m2",
         thickness="0mm",
         material="Al-Extruded",
@@ -3395,7 +3395,7 @@ class Icepak(FieldAnalysis3D):
         ----------
         geometry : str or int
             name of the surface object or id of the face
-        bc_name : str
+        name : str
             Name of the boundary condition. The default is ``None``.
         heat_flux : str or float, optional
             Heat flux assigned to the wall.
@@ -3426,7 +3426,7 @@ class Icepak(FieldAnalysis3D):
         return self.assign_stationary_wall(
             geometry,
             "Heat Flux",
-            bc_name=bc_name,
+            name=name,
             heat_flux=heat_flux,
             thickness=thickness,
             material=material,
@@ -3439,7 +3439,7 @@ class Icepak(FieldAnalysis3D):
     def assign_stationary_wall_with_temperature(
         self,
         geometry,
-        bc_name=None,
+        name=None,
         temperature="0cel",
         thickness="0mm",
         material="Al-Extruded",
@@ -3453,7 +3453,7 @@ class Icepak(FieldAnalysis3D):
         ----------
         geometry : str or int
             Name of the surface object or id of the face.
-        bc_name : str
+        name : str
             Name of the boundary condition. The default is ``None``.
         temperature : str or float, optional
             Temperature assigned to the wall.
@@ -3485,7 +3485,7 @@ class Icepak(FieldAnalysis3D):
         return self.assign_stationary_wall(
             geometry,
             "Temperature",
-            bc_name=bc_name,
+            name=name,
             temperature=temperature,
             thickness=thickness,
             material=material,
@@ -3498,7 +3498,7 @@ class Icepak(FieldAnalysis3D):
     def assign_stationary_wall_with_htc(
         self,
         geometry,
-        bc_name=None,
+        name=None,
         thickness="0mm",
         material="Al-Extruded",
         htc="0w_per_m2kel",
@@ -3527,7 +3527,7 @@ class Icepak(FieldAnalysis3D):
         ----------
         geometry : str or int
             Name of the surface object or id of the face.
-        bc_name : str
+        name : str
             Name of the boundary condition. The default is ``None``.
         htc : str or float, optional
             Heat transfer coefficient assigned to the wall.
@@ -3602,7 +3602,7 @@ class Icepak(FieldAnalysis3D):
         return self.assign_stationary_wall(
             geometry,
             "Heat Transfer Coefficient",
-            bc_name=bc_name,
+            name=name,
             thickness=thickness,
             material=material,
             htc=htc,

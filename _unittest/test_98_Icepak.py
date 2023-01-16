@@ -709,7 +709,7 @@ class TestClass(BasisTest, object):
 
         assert self.aedtapp.assign_stationary_wall_with_htc(
             "surf1",
-            bc_name=None,
+            name=None,
             thickness="0mm",
             material="Al-Extruded",
             htc=10,
@@ -725,7 +725,7 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.assign_stationary_wall_with_temperature(
             "surf1",
-            bc_name=None,
+            name=None,
             temperature=30,
             thickness="0mm",
             material="Al-Extruded",
@@ -735,7 +735,7 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.assign_stationary_wall_with_heat_flux(
             geometry=box.faces[0].id,
-            bc_name="bcTest",
+            name="bcTest",
             heat_flux=10,
             thickness=1,
             material="Al-Extruded",
