@@ -778,7 +778,7 @@ class Components(object):
                 if not p.IsLayoutPin():
                     p.SetIsLayoutPin(True)
             if len(ref_pins) == 0:
-                self._logger.info("No reference pin found on component".format(component.GetName()))
+                self._logger.info("No reference pin found on component {}.".format(component.GetName()))
             if do_pingroup:
                 if len(ref_pins) == 1:
                     self.create_terminal = self._create_terminal(ref_pins[0])

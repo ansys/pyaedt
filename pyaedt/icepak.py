@@ -28,7 +28,7 @@ from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import NativeComponentObject
-from pyaedt.modules.MonitorIcepak import Monitor
+from pyaedt.modules.monitor_icepak import Monitor
 
 
 class Icepak(FieldAnalysis3D):
@@ -198,7 +198,7 @@ class Icepak(FieldAnalysis3D):
 
         Returns
         -------
-        :class:`pyaedt.modules.MonitorIcepak.Monitor`
+        :class:`pyaedt.modules.monitor_icepak.Monitor`
         """
         self._monitor._delete_removed_monitors()  # force update. some operations may delete monitors
         return self._monitor
