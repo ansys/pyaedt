@@ -542,7 +542,7 @@ class Edb(object):
         """Create an XML IPC2581 file from the active EDB.
 
         .. note::
-            The method works only in CPython because of some limitations on Ironpython in XML parsing and
+           The method works only in CPython because of some limitations on Ironpython in XML parsing and
            because it's time-consuming.
            This method is still being tested and may need further debugging.
            Any feedback is welcome. Backdrills and custom pads are not supported yet.
@@ -1261,7 +1261,9 @@ class Edb(object):
             all_list = reference_list
         else:
             all_list = signal_list + reference_list
-
+        for i in self.core_nets.nets.values():
+            if i.name not in all_list:
+                i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
         for i in self.core_padstack.padstack_instances.values():
@@ -1276,10 +1278,6 @@ class Edb(object):
                 i.delete()
             elif net_name in reference_list and not i.is_void:
                 reference_prims.append(i)
-
-        for i in self.core_nets.nets.values():
-            if i.name not in all_list:
-                i.net_object.Delete()
         self.logger.info_timer("Net clean up")
         self.logger.reset_timer()
 
@@ -1407,9 +1405,8 @@ class Edb(object):
 
         Returns
         -------
-
-        Edb polygon object
-            Edb.Cell.Primitive.Polygon object
+        :class:`Edb.Cell.Primitive.Polygon`
+            Edb polygon object.
 
         """
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"

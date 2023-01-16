@@ -609,9 +609,11 @@ class TestClass(BasisTest, object):
             self.aedtapp.monitor.get_monitor_object_assignment(self.aedtapp.monitor.face_monitors["monitor_face"])
             == "box3"
         )
+        assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_faces1") == "monitor_faces1"
+        assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_faces2") == "monitor_faces2"
         assert self.aedtapp.monitor.assign_face_monitor(
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
-        ) == ["monitor_faces", "monitor_faces1"]
+        ) == ["monitor_faces", "monitor_faces3"]
         assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
 
     def test_49_delete_monitors(self):

@@ -213,7 +213,7 @@ class Setup(CommonSetup):
         Returns
         -------
         bool
-            `True` if setup is deleted. `False` if it failed.
+            ``True`` if setup is deleted. ``False`` if it failed.
         """
 
         self.omodule.DeleteSetups([self.name])
