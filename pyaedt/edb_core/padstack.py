@@ -530,10 +530,23 @@ class EdbPadstacks(object):
             return all_succeed
 
     @pyaedt_function_handler
-    def check_and_fix_via_pating(self):
+    def check_and_fix_via_pating(self, default_plating_ratio=0.2):
+        """Check and fix zero value plating ratio via definition with assigning default value.
+
+        Parameters
+        ----------
+        default_plating_ratio : float
+            default value used for plating ratio.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` if an anti-pad value fails to be assigned.
+        """
         for padstack_def in list(self.padstacks.values()):
             if padstack_def.hole_plating_ratio == 0.0:
-                padstack_def.hole_plating_ratio = 0.2
+                padstack_def.hole_plating_ratio = default_plating_ratio
                 self._logger.info(
                     "Padstack definition with zero plating ratio, defaulting to 20%".format(padstack_def.name)
                 )
