@@ -89,7 +89,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
-             List of variables to include. The default is ``[]``.
+            List of variables to include. The default is ``[]``.
         object_list : list, optional
             List of Objects names to export. The default is all objects.
         boundaries_list : list, optional
@@ -117,9 +117,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         password_type : str, optional
             Password type. Value can either be ``UserSuppliedPassword`` or ``InternalPassword``.
             The default value is ``UserSuppliedPassword``.
-        hide_contents : bool, optionale
-            Whether to hide contents.
-            The default is ``False``.
+        hide_contents : bool, optional
+            Whether to hide contents. The default is ``False``.
         replace_names : bool, optional
             Whether to replace objects and materials names.
             The default is ``False``.
@@ -128,7 +127,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             The default is ``BoundingBox``.
         auxiliary_dict_file : bool or str, optional
             Whether to export or not the auxiliary file containing information about defined datasets and Icepak monitor
-             objects. A destination file can be specified using a string.
+            objects. A destination file can be specified using a string.
             The default is ``False``.
         monitor_objects : list, optional
             List of monitor objects names to export. The default is all monitor objects. This argument is relevant only
