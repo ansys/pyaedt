@@ -120,7 +120,7 @@ def setChannelSampling(radio, percentage):
             "PercentageChannels": "{}".format(percentage)
             })
         
-# Enable the HR-DSSS WiFi band, reduce
+# Enable the HR-DSSS wifi band, reduce
 # its transmit power, and reduce its sampling
 setChannelSampling(wifi, 50)
 for band in wifi.bands():
