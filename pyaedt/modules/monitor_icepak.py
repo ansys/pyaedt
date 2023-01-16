@@ -518,7 +518,7 @@ class Monitor:
     @pyaedt_function_handler()
     def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
         """
-        Get the object that the monitor is applied to.
+        Insert a monitor.
 
         Parameters
         ----------
