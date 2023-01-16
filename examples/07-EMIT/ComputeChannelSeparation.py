@@ -93,7 +93,7 @@ wifi = addAndConnectRadio("WiFi - 802.11-2012", "WiFi")
 
 ###############################################################################
 # Configure the radios
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # Enable the HR-DSSS bands for the WiFi Radio and set the power level
 # for all Transmit bands to simulate coupling
 def setBandPowerLevel(band, power):
