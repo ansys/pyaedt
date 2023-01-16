@@ -1294,7 +1294,7 @@ class Components(object):
         Returns
         -------
         tuple
-            (bool, pingroup)
+            The tuple is structured as: (bool, pingroup).
 
         Examples
         --------

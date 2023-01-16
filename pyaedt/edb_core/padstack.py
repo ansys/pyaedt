@@ -373,8 +373,8 @@ class EdbPadstacks(object):
 
         Returns
         -------
-        string
-            terminal name.
+        str
+            Terminal name.
 
         """
         if isinstance(padstackinstance, int):
@@ -464,7 +464,7 @@ class EdbPadstacks(object):
         Returns
         -------
         tuple
-            Tuple of (GeometryType, ParameterList, OffsetX, OffsetY, Rot)
+            Tuple of (GeometryType, ParameterList, OffsetX, OffsetY, Rot).
         """
 
         if "PadstackDef" in str(type(pin)):
@@ -542,7 +542,7 @@ class EdbPadstacks(object):
         Returns
         -------
         list of Edb.Cell.Primitive.PadstackInstance
-            list of EDB vias.
+            List of EDB vias.
         """
         if net_list == None:
             net_list = []

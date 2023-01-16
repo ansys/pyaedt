@@ -542,7 +542,7 @@ class Edb(object):
         """Create an XML IPC2581 file from the active EDB.
 
         .. note::
-            The method works only in CPython because of some limitations on Ironpython in XML parsing and
+           The method works only in CPython because of some limitations on Ironpython in XML parsing and
            because it's time-consuming.
            This method is still being tested and may need further debugging.
            Any feedback is welcome. Backdrills and custom pads are not supported yet.
@@ -1405,9 +1405,8 @@ class Edb(object):
 
         Returns
         -------
-
-        Edb polygon object
-            Edb.Cell.Primitive.Polygon object
+        :class:`Edb.Cell.Primitive.Polygon`
+            Edb polygon object.
 
         """
         temp_edb_path = self.edbpath[:-5] + "_temp_aedb.aedb"

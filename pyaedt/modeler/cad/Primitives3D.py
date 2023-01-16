@@ -511,7 +511,7 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                                     bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
@@ -584,6 +584,15 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.CreateRectangle
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> plane = 0
+        >>> position = [0,0,0]
+        >>> dimension = [10,5]
+        >>> rect_obj = hfss.modeler.create_rectangle(plane, position, dimension)
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
@@ -1796,7 +1805,8 @@ class Primitives3D(Primitives, object):
 
         Returns
         -------
-        List of
+        List
+            Three parameters output
             bool
                 ``True`` when successful, ``False`` when failed.
             :class:`pyaedt.modeler.cad.object3d.Object3d`
@@ -1817,7 +1827,7 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
-        >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
+        >>> my_choke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
 
         with open_file(json_file, "r") as read_file:

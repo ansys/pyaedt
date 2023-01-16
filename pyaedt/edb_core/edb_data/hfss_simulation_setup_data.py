@@ -1169,9 +1169,7 @@ class AdaptiveSettings(object):
 
         Parameters
         ----------
-        low_frequency : str, float
-            Frequency with units or float frequency (in Hz).
-        high_frequency : str, float
+        frequency : str, float
             Frequency with units or float frequency (in Hz).
         max_num_passes : int, optional
             Maximum number of passes. The default is ``10``.
