@@ -529,6 +529,16 @@ class EdbPadstacks(object):
                 padstack.edb_padstack.SetData(cloned_padstack_data)
             return all_succeed
 
+    @pyaedt_function_handler
+    def check_and_fix_via_pating(self):
+        for padstack_def in list(self.padstacks.values()):
+            if padstack_def.hole_plating_ratio == 0.0:
+                padstack_def.hole_plating_ratio = 0.2
+                self._logger.info(
+                    "Padstack definition with zero plating ratio, defaulting to 20%".format(padstack_def.name)
+                )
+        return True
+
     @pyaedt_function_handler()
     def get_via_instance_from_net(self, net_list=None):
         """Get the list for Edb vias from net name list.
