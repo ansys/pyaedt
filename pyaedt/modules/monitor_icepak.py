@@ -557,6 +557,8 @@ class Monitor:
 
 
 class ObjectMonitor:
+    """Provides Icepak Monitor methods and properties."""
+
     def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
         self._name = monitor_name
         self._type = monitor_type
@@ -652,6 +654,8 @@ class ObjectMonitor:
 
 
 class PointMonitor(ObjectMonitor):
+    """Provides Icepak point monitor methods and properties."""
+
     def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
@@ -674,6 +678,8 @@ class PointMonitor(ObjectMonitor):
 
 
 class FaceMonitor(ObjectMonitor):
+    """Provides Icepak face monitor properties and methods."""
+
     def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
