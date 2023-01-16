@@ -128,7 +128,7 @@ for band in bands:
             band.enabled=True
             setBandPowerLevel(band, "-20")
 
-# Reduce the Bluetooth tranmit power
+# Reduce the bluetooth transmit power
 bands = bluetooth.bands()
 for band in bands:
     setBandPowerLevel(band, "-20")
