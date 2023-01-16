@@ -135,7 +135,7 @@ for band in bluetooth.bands():
     
 ###############################################################################
 # Load the results set
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~
 # Create a new results revision and load it for analysis
 
 rev = emitapp.analyze()
