@@ -635,7 +635,7 @@ class ObjectMonitor:
         Returns
         -------
         bool
-            True if successful.
+            ``True`` if successful.
         """
         self._app.monitor.delete_monitor(self.name)
         return True
