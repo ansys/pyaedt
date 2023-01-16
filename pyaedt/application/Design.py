@@ -538,7 +538,6 @@ class Design(AedtObjects):
         old_time = settings._project_time_stamp
         return old_time != self.project_time_stamp
 
-
     _project_file = None
 
     @property

@@ -185,16 +185,16 @@ def _parse_aedtplt(filepath):
         solution = []
         for l in drawing_lines:
             if "BoundingBox(" in l:
-                bounding = l[l.find("(") + 1: -2].split(",")
+                bounding = l[l.find("(") + 1 : -2].split(",")
                 bounding = [i.strip() for i in bounding]
             if "Elements(" in l:
-                elements = l[l.find("(") + 1: -2].split(",")
+                elements = l[l.find("(") + 1 : -2].split(",")
                 elements = [int(i.strip()) for i in elements]
             if "Nodes(" in l:
-                nodes_list = l[l.find("(") + 1: -2].split(",")
+                nodes_list = l[l.find("(") + 1 : -2].split(",")
                 nodes_list = [float(i.strip()) for i in nodes_list]
             if "ElemSolution(" in l:
-                solStr = l[l.find("(") + 1: -2].split(",")
+                solStr = l[l.find("(") + 1 : -2].split(",")
                 sols = [is_float(value) for value in solStr]
                 num_solution_per_element = int(sols[2])
                 num_elements = elements[1]
@@ -204,14 +204,14 @@ def _parse_aedtplt(filepath):
                     if num_nodes == num_solution_per_element or num_solution_per_element // num_nodes < 3:
                         # element solutions, one per element-vertex
                         sols = [
-                            sols[i: i + num_solution_per_element] for i in
-                            range(0, len(sols), num_solution_per_element)
+                            sols[i : i + num_solution_per_element]
+                            for i in range(0, len(sols), num_solution_per_element)
                         ]
                         solution = [sum(i) / num_solution_per_element for i in sols]
                     else:
                         sols = [
-                            sols[i: i + num_solution_per_element] for i in
-                            range(0, len(sols), num_solution_per_element)
+                            sols[i : i + num_solution_per_element]
+                            for i in range(0, len(sols), num_solution_per_element)
                         ]
                         solution = [
                             [sum(i[::3]) / num_solution_per_element * 3 for i in sols],
@@ -231,8 +231,7 @@ def _parse_aedtplt(filepath):
                             solution.append(0)
                         pos += n + 1
 
-        nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in
-                 range(0, len(nodes_list), 3)]
+        nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
         num_nodes = elements[0]
         num_elements = elements[1]
         elements = elements[2:]
@@ -241,8 +240,7 @@ def _parse_aedtplt(filepath):
         header_length = 5
         elements_nodes = []
         for i in range(0, len(elements), num_nodes_per_element + header_length):
-            elements_nodes.append(
-                [elements[i + header_length + n] for n in range(num_nodes_per_element)])
+            elements_nodes.append([elements[i + header_length + n] for n in range(num_nodes_per_element)])
         if solution:
             take_all_nodes = True  # solution case
         else:
