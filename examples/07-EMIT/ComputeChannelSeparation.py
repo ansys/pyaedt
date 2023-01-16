@@ -222,7 +222,7 @@ print(overlapping[0][0])
 
 ###############################################################################
 # Analyze the results
-# ~~~~~~~~~~~~~~~~~~~~~~~~  
+# ~~~~~~~~~~~~~~~~~~~
 # Consider any EMI margin of 0dB or greater an interference issue    
 verbose = False    
 threshold = 0. 
@@ -231,12 +231,12 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
     """Return the minimum separation that the Tx must be operated for interference-free
     operation of the Rx.
     Returns:
-        The separation in MHz.
+        Separation in MHz.
     Arguments:
-        rx_band - The Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
-        tx_band - The Tx band, given as a tuple: ("Tx Radio Name", "Tx Band Name").
-        emi_threshold - Tx channel separation will be determined such that the EMI
-        margin will not be at or above this level.
+        rx_band - Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
+        tx_band - Tx band, given as a tuple: ("Tx Radio Name", "Tx Band Name").
+        emi_threshold - Tx channel separation to be determined such that the EMI
+        margin is not at or above this level.
     """
     domain = Interaction_Domain()
 
@@ -299,7 +299,7 @@ separation_results = []
 
 ###############################################################################
 # Plot the channel separation data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # For each overlapping transmit/receive band combination, plot the required
 # separation for each channel.
 num=1 # current figure number
@@ -337,11 +337,11 @@ for rx_band, tx_band in tqdm(overlapping[1:]):
     separation_results.append((rx_band, tx_band, max(y)))
 
 def remove_duplicates(a_list):
-    """Removes duplicate values from a list
+    """Remove duplicate values from a list.
     Returns:
-        A list with duplicate values removed
+        List with duplicate values removed.
     Arguments: 
-        a_list - list of tuples
+        a_list - List of tuples.
     """
     ret = []
     for a in a_list:
@@ -350,11 +350,11 @@ def remove_duplicates(a_list):
     return ret
 
 def show_separation_table(separation_results, title='In-band Separation (MHz)'):
-    """Creates a scenario matrix like table to display the maximum
+    """Create a scenario matrix-like table to display the maximum
     channel separate required for each transmit/receive band combination.
     Arguments: 
-        separation_results - tuple of {Rx_Band, Tx_Band, max_channel_separation}
-        title - title of the table
+        separation_results - Tuple of {Rx_Band, Tx_Band, max_channel_separation}.
+        title - Title of the table.
     """
     rx_bands = remove_duplicates([rx_band for rx_band, tx_band, sep in separation_results])
     tx_bands = remove_duplicates([tx_band for rx_band, tx_band, sep in separation_results])
@@ -423,8 +423,8 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
     fig.show()
     
 ###############################################################################
-# Show results for Bluetooth receiver
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Show results for bluetooth receiver
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Minimum required channel separation for Bluetooth receiver
 rx2_results = [x for x in separation_results if 'Bluetooth' in x[1][0]]
 

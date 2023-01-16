@@ -1,8 +1,8 @@
 """
-EMIT: Computes receiver protection levels
----------------------------
+EMIT: Compute receiver protection levels
+----------------------------------------
 This example shows how you can use PyAEDT to open an AEDT project with
-an EMIT design, and analyze the results to determine if the received 
+an EMIT design and analyze the results to determine if the received 
 power at the input to each receiver exceeds the specified protection
 levels. 
 """
@@ -135,10 +135,10 @@ for band in bands:
 
 # Configure the first Rx band in the GPS Rx to have 0 dBm Susc
 def setProtectionBand(radio):
-    """Sets susceptibility of the Rx Band to 0 dBm
-    for all frequencies
+    """Set susceptibility of the Rx Band to 0 dBm
+    for all frequencies.
     Arguments:
-        radio: the radio to be modified
+        radio: Radio to modify.
     """
     bands = radio.bands()
     prop_list = {
@@ -153,11 +153,11 @@ def setProtectionBand(radio):
                 break # only one Rx Spectral Profile per Band
 
 def getRadioNode(radio_name):
-    """Returns the radio node that matches the
-    given radio name
+    """Get the radio node that matches the
+    given radio name.
     Arguments:
-        radio_name: string name of the radio
-    Returns: instance of the radio
+        radio_name: String name of the radio.
+    Returns: Instance of the radio.
     """
     if gps.name == radio_name:
         radio = gps
@@ -181,8 +181,8 @@ for band in bands:
     
 ###############################################################################
 # Load the results set
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create a new results revision and load it for analysis
+# ~~~~~~~~~~~~~~~~~~~~
+# Create a results revision and load it for analysis
 
 rev = emitapp.analyze()
 emitapp._load_revision(rev.path)
@@ -193,11 +193,11 @@ modeEmi = emitapp.result_type().emi
 ###############################################################################
 # Generate a legend
 # ~~~~~~~~~~~~~~~~~
-# Defines the thresholds and colors used to display the results of 
+# Define the thresholds and colors used to display the results of 
 # the protection level analysis.
 
 def create_legend_table():    
-    """Creates a table showing the defined protection levels"""
+    """Creates a table showing the defined protection levels."""
     protectionLevels = ['>{} dBm'.format(damage_threshold), '>{} dBm'.format(overload_threshold),
         '>{} dBm'.format(intermod_threshold), '>{} dBm'.format(desense_threshold)]
     fig = go.Figure(data=[go.Table(
@@ -237,9 +237,9 @@ def create_legend_table():
 # protection level thresholds defined.
 
 def create_scenario_view(emis, colors, tx_radios, rx_radios):
-    """Creates a Scenario Matrix like table with the higher received
+    """Create a scenario matrix-like table with the higher received
     power for each Tx-Rx radio combination. The colors
-    used for the Scenario Matrix view are based on the highest 
+    used for the scenario matrix view are based on the highest 
     protection level that the received power exceeds."""
     fig = go.Figure(data=[go.Table(
         header=dict(
@@ -354,10 +354,10 @@ for tx_radio in tx_radios:
     all_colors.append(rx_colors)
     emi_matrix.append(rx_emis)
 
-# create a Scenario Matrix like view for the Protection Levels
+# create a scenario matrix-like view for the protection levels
 create_scenario_view(emi_matrix, all_colors, tx_radios, rx_radios)
 
-# create a legend for the Protection Levels
+# create a legend for the protection levels
 create_legend_table()
 
 ###############################################################################
