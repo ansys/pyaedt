@@ -133,6 +133,12 @@ class Monitor:
 
     @pyaedt_function_handler
     def get_icepak_monitor_object(self, monitor_name):
+        """Get Icepak monitor object.
+
+        Returns
+        -------
+        oEditor COM Object
+        """
         return self._app.odesign.GetChildObject("Monitor").GetChildObject(monitor_name)
 
     @property
@@ -477,12 +483,12 @@ class Monitor:
     @pyaedt_function_handler()
     def get_monitor_object_assignment(self, monitor):
         """
-        Get the object that the monitor is applied to
+        Get the object that the monitor is applied to.
 
         Parameters
         ----------
         monitor : str or FaceMonitor or PointMonitor object
-           Monitor object or monitor object name
+           Monitor object or monitor object name.
 
         Returns
         -------
@@ -512,7 +518,7 @@ class Monitor:
     @pyaedt_function_handler()
     def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
         """
-        Get the object that the monitor is applied to
+        Get the object that the monitor is applied to.
 
         Parameters
         ----------
@@ -526,6 +532,7 @@ class Monitor:
 
         Returns
         -------
+        str
             Name of the monitor object.
         """
         m_case = monitor_dict["Type"]
