@@ -5,6 +5,8 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Monitor:
+    """Provides Icepak monitor methods."""
+
     def __init__(self, p_app):
         self._face_monitors = {}
         self._point_monitors = {}
@@ -515,12 +517,12 @@ class Monitor:
         Parameters
         ----------
         monitor_dict : dict
-           Dictionary containing monitor object information
+           Dictionary containing monitor object information.
         mode : int
             Integer to select the information to handle. To identify faces, vertices, surfaces and object to which the
             monitor is to be assigned it is possible to use:
-                ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity"
-                positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity"
+                ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity".
+                positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity".
 
         Returns
         -------
@@ -580,7 +582,7 @@ class ObjectMonitor:
     @property
     def name(self):
         """
-        Get the name of the monitor object
+        Get the name of the monitor object.
 
         Returns
         -------
@@ -591,7 +593,7 @@ class ObjectMonitor:
     @property
     def id(self):
         """
-        Get the name, or id of geometry assignment
+        Get the name, or id of geometry assignment.
 
         Returns
         -------
@@ -602,7 +604,7 @@ class ObjectMonitor:
     @property
     def properties(self):
         """
-        Get a dictionary of properties
+        Get a dictionary of properties.
 
         Returns
         -------
@@ -621,11 +623,12 @@ class ObjectMonitor:
     @pyaedt_function_handler
     def delete(self):
         """
-        Delete a monitor object
+        Delete a monitor object.
 
         Returns
         -------
-        True if successful
+        bool
+            True if successful.
         """
         self._app.monitor.delete_monitor(self.name)
         return True
@@ -633,18 +636,18 @@ class ObjectMonitor:
     @property
     def quantities(self):
         """
-        Get the quantities being monitored
+        Get the quantities being monitored.
 
         Returns
         -------
-        list of str
+        list
         """
         return self._quantities
 
     @property
     def type(self):
         """
-        Get the monitor type
+        Get the monitor type.
 
         Returns
         -------
@@ -662,11 +665,12 @@ class PointMonitor(ObjectMonitor):
     @property
     def location(self):
         """
-        Get the monitor point location
+        Get the monitor point location.
 
         Returns
         -------
-        list of floats
+        list
+            List of floats containing [x, y, z] position.
         """
         return [
             float(i.strip(self._app.modeler.model_units))
@@ -690,7 +694,8 @@ class FaceMonitor(ObjectMonitor):
 
         Returns
         -------
-        list of floats
+        list
+            List of floats containing [x, y, z] position.
         """
         if self.type == "Face":
             for f in self._app.modeler.get_object_from_name(self.geometry_assignment).faces:
