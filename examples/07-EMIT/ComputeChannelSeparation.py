@@ -208,7 +208,7 @@ for rx_radio in emitapp.results.get_radio_names(modeRx):
             print('    Rx Band "{}" has no overlapping Tx bands'.format(rx_band[1]))
             continue
         print(
-            '    Rx Band "{}" has the following overlapping Tx Bands:'.format(rx_band[1])
+            '    Rx band "{}" has the following overlapping Tx bands:'.format(rx_band[1])
         )
         for tx_band in tx_bands:
             overlapping.append((rx_band, tx_band))
