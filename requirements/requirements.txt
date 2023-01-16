@@ -25,7 +25,7 @@ rpyc==5.3.0; python_version > '3.6'
 # optional
 # #############################################################################
 
-matplotlib==3.6.2; python_version > '3.6'
+matplotlib==3.6.3; python_version > '3.6'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 

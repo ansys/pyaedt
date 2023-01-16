@@ -5,7 +5,7 @@ ipython==8.8.0
 ipywidgets==8.0.4
 joblib==1.2.0
 jupyterlab==3.5.2
-matplotlib==3.6.2
+matplotlib==3.6.3
 nbsphinx==0.8.11
 numpydoc==1.5.0
 osmnx
