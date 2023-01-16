@@ -1261,7 +1261,9 @@ class Edb(object):
             all_list = reference_list
         else:
             all_list = signal_list + reference_list
-
+        for i in self.core_nets.nets.values():
+            if i.name not in all_list:
+                i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
         for i in self.core_padstack.padstack_instances.values():
@@ -1276,10 +1278,6 @@ class Edb(object):
                 i.delete()
             elif net_name in reference_list and not i.is_void:
                 reference_prims.append(i)
-
-        for i in self.core_nets.nets.values():
-            if i.name not in all_list:
-                i.net_object.Delete()
         self.logger.info_timer("Net clean up")
         self.logger.reset_timer()
 
