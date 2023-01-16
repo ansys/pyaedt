@@ -109,10 +109,10 @@ def setBandPowerLevel(band, power):
             return # only one Tx Spectral Profile per Band
         
 def setChannelSampling(radio, percentage):
-    """Set the channel sampling for the radio
+    """Set the channel sampling for the radio.
     Arguments:
-        radio: the Radio to modify
-        percentage: % of channels to sample/analyze
+        radio: Radio to modify.
+        percentage: Percentage of channels to sample for the analysis.
     """
     sampling = radio.get_prop_nodes({"Type": "SamplingNode"})[0]
     sampling._set_prop_value({
