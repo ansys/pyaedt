@@ -86,7 +86,7 @@ def addAndConnectRadio(radio_name, schematic_name=""):
         ant.move_and_connect_to(rad)
     return rad
 
-# Add 3 systems to the project
+# Add three systems to the project
 bluetooth = addAndConnectRadio("Bluetooth Low Energy (LE)", "Bluetooth")
 gps = addAndConnectRadio("GPS Receiver", "GPS")
 wifi = addAndConnectRadio("WiFi - 802.11-2012", "WiFi")
