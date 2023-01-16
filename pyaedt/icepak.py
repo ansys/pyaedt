@@ -3218,7 +3218,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         geometry : str or int
-            name of the surface object or id of the face
+            Name of the surface object or id of the face.
         ext_condition : str
             Type of boundary condition. ``"Temperature"``, ``"Heat Flux"`` or ``"Heat Transfer Coefficient"``.
         bc_name : str
@@ -3452,7 +3452,7 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         geometry : str or int
-            name of the surface object or id of the face
+            Name of the surface object or id of the face.
         bc_name : str
             Name of the boundary condition. The default is ``None``.
         temperature : str or float, optional
@@ -3526,10 +3526,9 @@ class Icepak(FieldAnalysis3D):
         Parameters
         ----------
         geometry : str or int
-            name of the surface object or id of the face
+            Name of the surface object or id of the face.
         bc_name : str
             Name of the boundary condition. The default is ``None``.
-
         htc : str or float, optional
             Heat transfer coefficient assigned to the wall.
             If a float is used, w_per_m2kel unit will be used. The default is ``"0w_per_m2kel"``.
