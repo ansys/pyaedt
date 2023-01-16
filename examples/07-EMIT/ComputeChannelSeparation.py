@@ -128,7 +128,7 @@ for band in wifi.bands():
         band.enabled=True
         setBandPowerLevel(band, "-50")
 
-# Reduce the Bluetooth tranmit power
+# Reduce the bluetooth transmit power
 setChannelSampling(bluetooth, 50)
 for band in bluetooth.bands():
     setBandPowerLevel(band, "-50")
