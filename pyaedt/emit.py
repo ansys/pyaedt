@@ -65,12 +65,12 @@ class Interaction_Domain:
         >>> frequencies = []
         >>> domain.set_receiver(radios, bands, frequencies)
         """
-        interfer_radio_names = []
+        interferer_radio_names = []
         interferer_band_names = []
-        interfer_frequencies = []
+        interferer_frequencies = []
         index = 0
         for radio in radionames:
-            interfer_radio_names.append(radio)
+            interferer_radio_names.append(radio)
             if bandnames is not None:
                 if index >= len(bandnames):
                     interferer_band_names.append("")
@@ -80,13 +80,13 @@ class Interaction_Domain:
                 interferer_band_names.append("")
             if frequencies is not None:
                 if index >= len(frequencies):
-                    interfer_frequencies.append(-1)
+                    interferer_frequencies.append(-1)
                 else:
-                    interfer_frequencies.append(frequencies[index])
+                    interferer_frequencies.append(frequencies[index])
             else:
-                interfer_frequencies.append(-1)
+                interferer_frequencies.append(-1)
             index = index + 1
-        self._obj.set_interferers(interfer_radio_names, interferer_band_names, interfer_frequencies)
+        self._obj.set_interferers(interferer_radio_names, interferer_band_names, interferer_frequencies)
 
     @property
     def receiver_name(self):
@@ -400,9 +400,9 @@ class Revision:
         >>> rev.run(domain)
 
         """
-        self.emit_obj._load_revision(self.path)
+        self.emit_obj._load_result_set(self.path)
         eng = self.emit_obj._emit_api.get_engine()
-        interaction = eng.analyze(domain._obj)
+        interaction = eng.run(domain._obj)
         return interaction
 
     @pyaedt_function_handler()
@@ -604,22 +604,22 @@ class Emit(FieldAnalysisEmit, object):
             return rev
 
     @pyaedt_function_handler()
-    def _load_revision(self, path):
+    def _load_result_set(self, path):
         """
-        Load a specific revision.
+        Load a specific result set.
 
         Parameters
         ----------
         path : str
-            Path to an AEDT result file.
+            Path to an AEDT EMIT result file.
 
         Examples
         ----------
-        >>> aedtapp._load_revision(path)
+        >>> aedtapp._load_result_set(path)
 
         """
         if self.__emit_api_enabled:
-            self._emit_api.load_result(path)
+            self._emit_api.load_project(path)
             self.results.result_loaded = True
             print(self.results.result_loaded)
 
