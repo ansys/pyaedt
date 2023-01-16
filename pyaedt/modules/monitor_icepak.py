@@ -517,8 +517,7 @@ class Monitor:
 
     @pyaedt_function_handler()
     def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
-        """
-        Insert a monitor.
+        """Insert a monitor.
 
         Parameters
         ----------
@@ -527,8 +526,8 @@ class Monitor:
         mode : int
             Integer to select the information to handle. To identify faces, vertices, surfaces and object to which the
             monitor is to be assigned it is possible to use:
-                ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity".
-                positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity".
+            - ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity".
+            - positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity".
 
         Returns
         -------
