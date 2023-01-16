@@ -63,7 +63,7 @@ emitapp = Emit(pyaedt.generate_unique_project_name())
 ###############################################################################
 # Specify the protection levels
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# The protection levels are specified in dBm
+# The protection levels are specified in dBm.
 # If the damage threshold is exceeded, permanent damage to the receiver front
 # end may occur.
 # Exceeding the overload threshold severely densensitizes the receiver.
