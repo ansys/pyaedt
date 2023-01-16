@@ -13,8 +13,14 @@ import os
 import sys
 import time
 import subprocess
+import pyaedt
+from pyaedt import Emit
+from pyaedt.emit import Interaction_Domain
+from pyaedt.emit import Revision
+from pyaedt.emit import Result
+from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 
-# Check to see which python libraries have been installed
+# Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
 
@@ -23,42 +29,127 @@ def install(package):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
 
 # Install any missing libraries
-required_packages = ['tk', 'plotly', 'tqdm', 'matplotlib', 'numpy']
+required_packages = ['plotly', 'tqdm', 'matplotlib', 'numpy']
 for package in required_packages:
     if package not in installed_packages:
         install(package)
 
 # Import required modules
-from tkinter import Tk
-from tkinter.filedialog import askdirectory
 import plotly.graph_objects as go
-
-sys.path.append("D:\\AnsysDev\\workspace3\\build_output\\64Release\\Delcross")
-# Get AnsysEM installation directory
-install_dir = os.getenv("ANSYSEM_ROOT231")
-emit_dir = os.path.join(install_dir, "Delcross")
-sys.path.append(emit_dir)
-import EmitApiPython
-
-# load the API and print the version and copyright info
-api = EmitApiPython.EmitApi()
+from tqdm.notebook import tqdm
+    
+from matplotlib import pyplot as plt
+plt.ion() # enables interactive mode so plots show immediately
+plt.show()
+import numpy as np
 
 ###############################################################################
-# Select the results file to load
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Select the result file to use for this analysis. The results do not
-# need to be solved.
-Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-filename = askdirectory() # show an "open" dialog box and return the path
-api.load_project(filename)
-engine = api.get_engine()
+# Set non-graphical mode
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
+# documentation only.
+# You can set ``non_graphical`` either to ``True`` or ``False``.
+# The ``NewThread`` Boolean variable defines whether to create a new instance
+# of AEDT or try to connect to existing instance of it if one is available.
+
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+NewThread = False
+desktop_version = "2023.2"
+
+###############################################################################
+# Launch AEDT with EMIT
+# ~~~~~~~~~~~~~~~~~~~~~
+# Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
+# on the specified version and in the specified graphical mode.
+
+d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+emitapp = Emit(pyaedt.generate_unique_project_name())
+
+###############################################################################
+# Create and connect EMIT components
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Set up the scenario with radios connected to antennas
+
+def addAndConnectRadio(radio_name, schematic_name=""):
+    """Adds a radio from the EMIT library and connects
+    it to an antenna
+    Returns: 
+        instance of the radio
+    Argments:
+        radio_name - string name of the EMIT library radio
+            to add
+        schematic_name - name that appears in the schematic
+    """
+    rad = emitapp.modeler.components.create_component(radio_name, schematic_name)
+    ant = emitapp.modeler.components.create_component("Antenna")
+    if rad and ant:
+        ant.move_and_connect_to(rad)
+    return rad
+
+# Add 3 systems to the project
+bluetooth = addAndConnectRadio("Bluetooth Low Energy (LE)", "Bluetooth")
+gps = addAndConnectRadio("GPS Receiver", "GPS")
+wifi = addAndConnectRadio("WiFi - 802.11-2012", "WiFi")
+
+###############################################################################
+# Configure the radios
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Enable the HR-DSSS bands for the WiFi Radio and set the power level
+# for all Transmit bands to simulate coupling
+def setBandPowerLevel(band, power):
+    """Set the power of the fundamental for the given band
+    Arguments:
+        band: the Band being configured
+        power: the peak amplitude of the fundamental [dBm]
+    """
+    prop_list = { "FundamentalAmplitude": power}
+    for child in band.children:
+        if child.props["Type"] == "TxSpectralProfNode":
+            child._set_prop_value(prop_list)
+            return # only one Tx Spectral Profile per Band
+        
+def setChannelSampling(radio, percentage):
+    """Set the channel sampling for the radio
+    Arguments:
+        radio: the Radio to modify
+        percentage: % of channels to sample/analyze
+    """
+    sampling = radio.get_prop_nodes({"Type": "SamplingNode"})[0]
+    sampling._set_prop_value({
+            "SpecifyPercentage": "true", 
+            "PercentageChannels": "{}".format(percentage)
+            })
+        
+# Enable the HR-DSSS WiFi band, reduce
+# its transmit power, and reduce its sampling
+setChannelSampling(wifi, 50)
+for band in wifi.bands():
+    if "HR-DSSS" in band.node_name:
+        band.enabled=True
+        setBandPowerLevel(band, "-50")
+
+# Reduce the Bluetooth tranmit power
+setChannelSampling(bluetooth, 50)
+for band in bluetooth.bands():
+    setBandPowerLevel(band, "-50")
+    
+###############################################################################
+# Load the results set
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a new results revision and load it for analysis
+
+rev = emitapp.analyze()
+emitapp._load_revision(rev.path)
+modeRx = emitapp.tx_rx_mode().rx
+modeTx = emitapp.tx_rx_mode().tx
+modeEmi = emitapp.result_type().emi
 
 def get_rx_bands(rx_radio):
     """Return a list of all Rx bands in a given radio.
     Returns:
         List of ("Rx Radio Name", "Rx Band Name") tuples.
     """
-    bands = api.get_band_names(rx_radio, EmitApiPython.tx_rx_mode.rx)
+    bands = emitapp.results.get_band_names(rx_radio, modeRx)
     return [(rx_radio, band) for band in bands]
 
 def overlapping_tx_bands(rx_band):
@@ -69,17 +160,20 @@ def overlapping_tx_bands(rx_band):
        rx_band - The Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
     """
     overlapping = []
-    rx_frequencies = api.get_active_frequencies(
-        rx_band[0], rx_band[1], EmitApiPython.tx_rx_mode.rx
+    rx_frequencies = emitapp.results.get_active_frequencies(
+        rx_band[0], rx_band[1], modeRx
     )
     if len(rx_frequencies) < 1:
         return overlapping
     rx_start = min(rx_frequencies)
     rx_stop = max(rx_frequencies)
-    for tx_radio in api.get_radio_names(EmitApiPython.tx_rx_mode.tx):
-        for tx_band in api.get_band_names(tx_radio, EmitApiPython.tx_rx_mode.tx):
-            tx_frequencies = api.get_active_frequencies(
-                tx_radio, tx_band, EmitApiPython.tx_rx_mode.tx
+    for tx_radio in emitapp.results.get_radio_names(modeTx):
+        if tx_radio == rx_band[0]:
+            # skip self interaction
+            continue        
+        for tx_band in emitapp.results.get_band_names(tx_radio, modeTx):
+            tx_frequencies = emitapp.results.get_active_frequencies(
+                tx_radio, tx_band, modeTx
             )
             tx_start = min(tx_frequencies)
             tx_stop = max(tx_frequencies)
@@ -106,7 +200,7 @@ def overlapping_tx_bands(rx_band):
 # Iterates over each of the receivers in the project and finds any transmit
 # bands that contain overlapping channel frequencies.
 overlapping = []
-for rx_radio in api.get_radio_names(EmitApiPython.tx_rx_mode.rx):
+for rx_radio in emitapp.results.get_radio_names(modeRx):
     print("Potential in-band issues for Rx Radio: {}".format(rx_radio))
     for rx_band in get_rx_bands(rx_radio):
         tx_bands = overlapping_tx_bands(rx_band)
@@ -120,43 +214,11 @@ for rx_radio in api.get_radio_names(EmitApiPython.tx_rx_mode.rx):
             overlapping.append((rx_band, tx_band))
             print('        {}'.format(tx_band))
 
-
-def abbreviate(band, skip_radio=False):
-    """Return an abbreviated name for the band and receiver
-    Returns:
-       List of ("Abbreviated Radio Name", "Abbreviated Band Name") tuples
-    Argments:
-       band - The Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name")
-       skip_radio - if True, only returns the abbreviated band name.
-    """
-    radio_abbreviations = {'RF System RX - ARC-210-RT-1851A(C)':'RX1', 'RF System RX 2 - ARC-210-RT-1851A(C)':'RX2', 'RF System TX - ARC-210-RT-1851A(C)':'TX1'}
-    band_abbreviations = {'Air Traffic Control':'ATC', 'Close Air Support':'CAS', 'Maritime':'MT', 'Military-Homeland Defense':'MHD', 'Land Mobile':'LM', ' - ':'-'}
-    abbrev_radio = radio_abbreviations[band[0]]
-    abbrev_band = band[1]
-    for long, short in band_abbreviations.items():
-        abbrev_band = abbrev_band.replace(long, short)
-    if skip_radio:
-        return abbrev_band
-    else:
-        return '{} / {}'.format(abbrev_radio, abbrev_band)
-
 ###############################################################################
 # Print a list of overlapping bands
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Prints a list of overlapping receivers and bands
-print(abbreviate(overlapping[0][0]))
-print(abbreviate(overlapping[0][0], skip_radio=True))
-
-###############################################################################
-# Perform required imports
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports.
-from tqdm.notebook import tqdm
-    
-from matplotlib import pyplot as plt
-plt.ion() # enables interactive mode so plots show immediately
-plt.show()
-import numpy as np
+print(overlapping[0][0])
 
 ###############################################################################
 # Analyze the results
@@ -176,7 +238,7 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
         emi_threshold - Tx channel separation will be determined such that the EMI
         margin will not be at or above this level.
     """
-    domain = EmitApiPython.InteractionDomain()
+    domain = Interaction_Domain()
 
     domain.set_receiver(rx_band[0], rx_band[1], 0.0)
     radTx = []
@@ -186,22 +248,23 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
     bandTx.append(tx_band[1])
     chanTx.append(0.0)
     domain.set_interferers(radTx, bandTx, chanTx)
-    interaction = engine.run(domain)
-    worst = interaction.get_worst_instance(EmitApiPython.result_type.emi)
+    
+    interaction = rev.run(domain)
+    worst = interaction.get_worst_instance(modeEmi)
     # If the worst case for the band-pair is below the EMI limit, then
     # there are no interference issues and no offset is required.
     if worst.has_valid_values():
-        emi = worst.get_value(EmitApiPython.result_type.emi)
+        emi = worst.get_value(modeEmi)
         if emi < emi_threshold:
             return 0.0
     # Assess each Rx channel and see how close the Tx can be tuned while
     # keeping the EMI below the threshold.
-    rx_frequencies = api.get_active_frequencies(
-        rx_band[0], rx_band[1], EmitApiPython.tx_rx_mode.rx
+    rx_frequencies = emitapp.results.get_active_frequencies(
+        rx_band[0], rx_band[1], modeRx
     )
     rx_channel_count = len(rx_frequencies)
-    tx_frequencies = api.get_active_frequencies(
-        tx_band[0], tx_band[1], EmitApiPython.tx_rx_mode.tx
+    tx_frequencies = emitapp.results.get_active_frequencies(
+        tx_band[0], tx_band[1], modeTx
     )
     tx_channel_count = len(tx_frequencies)
     chpair = domain
@@ -213,9 +276,10 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
             chanTx = []
             chanTx.append(tx_frequency)
             chpair.set_interferers(radTx, bandTx, chanTx)
-            chpair_result = interaction.get_instance(chpair)
+            chpair_interaction = rev.run(chpair)
+            chpair_result = chpair_interaction.get_worst_instance(modeEmi)
             if chpair_result.has_valid_values():
-                emi = chpair_result.get_value(EmitApiPython.result_type.emi)
+                emi = chpair_result.get_value(modeEmi)
             else:
                 emi = 300.0
             if emi >= emi_threshold:
@@ -239,9 +303,9 @@ separation_results = []
 # For each overlapping transmit/receive band combination, plot the required
 # separation for each channel.
 num=1 # current figure number
-for rx_band, tx_band in tqdm(overlapping[2:]):
-    tx_frequencies = api.get_active_frequencies(tx_band[0], tx_band[1], EmitApiPython.tx_rx_mode.tx)
-    rx_frequencies = api.get_active_frequencies(rx_band[0], rx_band[1], EmitApiPython.tx_rx_mode.rx)
+for rx_band, tx_band in tqdm(overlapping[1:]):
+    tx_frequencies = emitapp.results.get_active_frequencies(tx_band[0], tx_band[1], modeTx)
+    rx_frequencies = emitapp.results.get_active_frequencies(rx_band[0], rx_band[1], modeRx)
     print('Rx:')
     print('    Radio:', rx_band[0])
     print('    Band:', rx_band[1])
@@ -266,7 +330,7 @@ for rx_band, tx_band in tqdm(overlapping[2:]):
     plt.plot(x, y, 'bo')
     plt.xlabel('Rx Channel (MHz)')
     plt.ylabel('Tx Separation (MHz)')
-    plt.title('Separation for {} and {}'.format(abbreviate(rx_band), abbreviate(tx_band)))
+    plt.title('Separation for {} and {}'.format(rx_band, tx_band))
     plt.grid()
     plt.draw()
     plt.pause(0.001) # needed to allow GUI events to occur
@@ -293,12 +357,10 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
         title - title of the table
     """
     rx_bands = remove_duplicates([rx_band for rx_band, tx_band, sep in separation_results])
-    rx_bands_abbrev = [abbreviate(r, skip_radio=True) for r in rx_bands]
     tx_bands = remove_duplicates([tx_band for rx_band, tx_band, sep in separation_results])
-    tx_bands_abbrev = [abbreviate(t, skip_radio=True) for t in tx_bands]
     
     header_values = ['<b>Tx / Rx</b>']
-    header_values.extend(rx_bands_abbrev)
+    header_values.extend(rx_bands)
 
     def get_separation(rx_band, tx_band):
         for rxb, txb, sep in separation_results:
@@ -326,7 +388,7 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
         rows.append(row)
         colors.append(color)
         
-    values = [tx_bands_abbrev]
+    values = [tx_bands]
     values.extend(rows)
     
     val_colors = [['white' for _ in tx_bands]]
@@ -336,14 +398,13 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
         header=dict(
             values=header_values,
             line_color='darkslategray',
-            fill_color='white',
+            fill_color='grey',
             align=['left','center'],
             font=dict(color='darkslategray',size=16)
         ),
         cells=dict(
             values=values,
             line_color='darkslategray',
-            #fill_color='white',
             fill_color=val_colors,
             align = ['left', 'center'],
             font = dict(
@@ -361,10 +422,24 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
         )
     fig.show()
     
-rx2_results = [x for x in separation_results if 'RX 2 -' in x[0][0]]
+###############################################################################
+# Show results for Bluetooth receiver
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Minimum required channel separation for Bluetooth receiver
+rx2_results = [x for x in separation_results if 'Bluetooth' in x[1][0]]
 
 # Create a table
-show_separation_table(rx2_results, title='Separation for RX 2 and TX 1 (MHz)')
+show_separation_table(rx2_results, title='Separation for Bluetooth and WiFi (MHz)')
 
 # Need this to ensure plots don't close
 input("Press [enter] to continue.")
+
+###############################################################################
+# Save project and close AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# After the simulation completes, you can close AEDT or release it using the
+# :func:`pyaedt.Desktop.force_close_desktop` method.
+# All methods provide for saving the project before closing.
+
+emitapp.save_project()
+emitapp.release_desktop(close_projects=True, close_desktop=True)
