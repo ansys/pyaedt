@@ -71,14 +71,14 @@ emitapp = Emit(pyaedt.generate_unique_project_name())
 # Set up the scenario with radios connected to antennas
 
 def addAndConnectRadio(radio_name, schematic_name=""):
-    """Adds a radio from the EMIT library and connects
-    it to an antenna
+    """Add a radio from the EMIT library and connect
+    it to an antenna.
     Returns: 
-        instance of the radio
+        Instance of the radio.
     Argments:
-        radio_name - string name of the EMIT library radio
-            to add
-        schematic_name - name that appears in the schematic
+        radio_name - String name of the EMIT library radio
+            to add.
+        schematic_name - Name that appears in the schematic.
     """
     rad = emitapp.modeler.components.create_component(radio_name, schematic_name)
     ant = emitapp.modeler.components.create_component("Antenna")
