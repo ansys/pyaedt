@@ -3213,40 +3213,49 @@ class Icepak(FieldAnalysis3D):
         ext_surf_rad_ref_temp="AmbientTemp",
         ext_surf_rad_view_factor="1",
     ):
-        """Function to assign surface wall boundary condition.
+        """Assign surface wall boundary condition.
 
         Parameters
         ----------
         geometry : str or int
-            Name of the surface object or id of the face.
+            Name of the surface object or ID of the face.
         ext_condition : str
-            Type of boundary condition. ``"Temperature"``, ``"Heat Flux"`` or ``"Heat Transfer Coefficient"``.
-        name : str
+            Type of the boundary condition. Options are ``"Temperature"``, ``"Heat Flux"``,
+            or ``"Heat Transfer Coefficient"``.
+        name : str, optional
             Name of the boundary condition. The default is ``None``.
         temperature : str or float, optional
-            Temperature assigned to the wall. Relevant if ``ext_condition="Temperature"``.
-            If a float is used, degree Celsius unit will be used. The default is ``"0cel"``.
+            Temperature to assign to the wall. This parameter is relevant if
+            ``ext_condition="Temperature"``. If a float value is specified, the
+            unit is degrees Celsius. The default is ``"0cel"``.
         heat_flux : str or float, optional
-            Heat flux assigned to the wall. Relevant if ``ext_condition="Temperature"``.
-            If a float is used, irrad_W_per_m2 unit will be used. The default is ``"0irrad_W_per_m2"``.
+            Heat flux to assign to the wall. This parameter is relevant if
+            ``ext_condition="Temperature"``. If a float value is specified,
+            the unit is irrad_W_per_m2. The default is ``"0irrad_W_per_m2"``.
         htc : str or float, optional
-            Heat transfer coefficient assigned to the wall.  Relevant if ``ext_condition="Heat Transfer Coefficient"``.
-            If a float is used, w_per_m2kel unit will be used. The default is ``"0w_per_m2kel"``.
+            Heat transfer coefficient to assign to the wall. This parameter
+            is relevant if ``ext_condition="Heat Transfer Coefficient"``. If a
+            float value is specified, the unit is w_per_m2kel. The default
+            is ``"0w_per_m2kel"``.
         thickness : str or float, optional
-            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
-            The default is ``"0mm"``.
+            Thickness of the wall. If a float value is specified, the unit is
+            the current unit system set in Icepak. The default is ``"0mm"``.
         htc_dataset : str, optional
-            Dataset that represents htc dependency on temperature. Relevant if
+            Dataset that represents the dependency of the heat transfer
+            coefficient on temperature. This parameter is relevant if
             ``ext_condition="Heat Transfer Coefficient"``. The default is ``None``.
         ref_temperature : str or float, optional
-            Reference temperature for the definition of the htc. Relevant if
-            ``ext_condition="Heat Transfer Coefficient"``.The default is ``"AmbientTemp"``.
+            Reference temperature for the definition of the heat transfer
+            coefficient. This parameter is relevant if
+            ``ext_condition="Heat Transfer Coefficient"``. The default
+            is ``"AmbientTemp"``.
         material : str, optional
-            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+            Solid material of the wall. This parameter is relevant if
+            the thickness is a non-zero value. The default is ``"Al-Extruded"``.
         radiate : bool, optional
             Whether to enable the inner surface radiation option. The default is ``False``.
         radiate_surf_mat : str, optional
-            Surface material used for inner surface radiation. Relevant if it is enables.
+            Surface material used for inner surface radiation. Relevant if it is enabled.
             The default is ``"Steel-oxidised-surface``.
         ht_correlation : bool, optional
             Whether to use the correlation option to compute the htc. The default is ``False``.
