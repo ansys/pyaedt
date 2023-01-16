@@ -94,13 +94,13 @@ wifi = addAndConnectRadio("WiFi - 802.11-2012", "WiFi")
 ###############################################################################
 # Configure the radios
 # ~~~~~~~~~~~~~~~~~~~~
-# Enable the HR-DSSS bands for the WiFi Radio and set the power level
-# for all Transmit bands to simulate coupling
+# Enable the HR-DSSS bands for the wifi radio and set the power level
+# for all transmit bands to simulate coupling.
 def setBandPowerLevel(band, power):
-    """Set the power of the fundamental for the given band
+    """Set the power of the fundamental for the given band.
     Arguments:
-        band: the Band being configured
-        power: the peak amplitude of the fundamental [dBm]
+        band: Band being configured.
+        power: Peak amplitude of the fundamental [dBm].
     """
     prop_list = { "FundamentalAmplitude": power}
     for child in band.children:
