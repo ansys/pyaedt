@@ -216,7 +216,7 @@ for rx_radio in emitapp.results.get_radio_names(modeRx):
 
 ###############################################################################
 # Print a list of overlapping bands
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Prints a list of overlapping receivers and bands
 print(overlapping[0][0])
 
