@@ -999,7 +999,7 @@ class EDBPadstackInstance(object):
         if comp_name in self._pedb.core_components.components:
             return self._pedb.core_components.components[comp_name]
         else:  # pragma: no cover
-            return
+            return ""
 
     @property
     def pin(self):
@@ -1234,10 +1234,10 @@ class EDBPadstackInstance(object):
         """
         self._position = []
         out = self._edb_padstackinstance.GetPositionAndRotationValue()
-        if self._edb_padstackinstance.IsLayoutPin():
+        if self._edb_padstackinstance.GetComponent():
             out2 = self._edb_padstackinstance.GetComponent().GetTransform().TransformPoint(out[1])
             self._position = [out2.X.ToDouble(), out2.Y.ToDouble()]
-        if out[0]:
+        elif out[0]:
             self._position = [out[1].X.ToDouble(), out[1].Y.ToDouble()]
         return self._position
 
