@@ -1485,7 +1485,7 @@ class ConfigurationsIcepak(Configurations):
         Returns
         -------
         bool
-            ``True`` if successful
+            ``True`` if successful.
         """
         if m_case == "Point":
             self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
