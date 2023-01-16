@@ -2144,6 +2144,6 @@ class HfssSimulationSetup(object):
         self.adaptive_settings.adaptive_settings.AdaptiveFrequencyDataList.Clear()
         if not self.adaptive_settings.add_broadband_adaptive_frequency_data(
             low_frequency, high_frequency, max_num_passes, max_delta_s
-        ):
+        ):  # pragma no cover
             return False
         return True

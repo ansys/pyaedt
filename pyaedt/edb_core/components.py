@@ -751,7 +751,7 @@ class Components(object):
         cmp_pins = [
             p for p in list(component.LayoutObjs) if int(p.GetObjType()) == 1 and p.GetNet().GetName() in net_list
         ]
-        for p in cmp_pins:
+        for p in cmp_pins:  # pragma no cover
             if not p.IsLayoutPin():
                 p.SetIsLayoutPin(True)
         if len(cmp_pins) == 0:
@@ -768,7 +768,7 @@ class Components(object):
             for pin in cmp_pins:
                 self._padstack.create_coax_port(pin)
 
-        elif port_type == SourceType.CircPort:
+        elif port_type == SourceType.CircPort:  # pragma no cover
             ref_pins = [
                 p
                 for p in list(component.LayoutObjs)
