@@ -133,7 +133,7 @@ bands = bluetooth.bands()
 for band in bands:
     setBandPowerLevel(band, "-20")
 
-# Configure the first Rx Band in the GPS Rx to have 0 dBm Susc
+# Configure the first Rx band in the GPS Rx to have 0 dBm Susc
 def setProtectionBand(radio):
     """Sets susceptibility of the Rx Band to 0 dBm
     for all frequencies
