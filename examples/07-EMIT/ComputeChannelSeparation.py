@@ -155,7 +155,7 @@ def get_rx_bands(rx_radio):
 def overlapping_tx_bands(rx_band):
     """Return a list of all Tx bands overlapping a given Rx band.
     Returns:
-       List of ("Tx Radio Name", "Tx Band Name") tuples
+       List of ("Tx Radio Name", "Tx Band Name") tuples.
     Argments:
        rx_band - The Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
     """
