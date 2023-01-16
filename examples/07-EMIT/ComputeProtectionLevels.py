@@ -119,7 +119,7 @@ def setBandPowerLevel(band, power):
     for child in band.children:
         if child.props["Type"] == "TxSpectralProfNode":
             child._set_prop_value(prop_list)
-            return # only one Tx Spectral Profile per Band
+            return # only one Tx spectral profile per band
         
 bands = wifi.bands()
 for band in bands:
