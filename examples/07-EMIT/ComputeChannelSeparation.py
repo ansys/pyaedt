@@ -157,7 +157,7 @@ def overlapping_tx_bands(rx_band):
     Returns:
        List of ("Tx Radio Name", "Tx Band Name") tuples.
     Argments:
-       rx_band - The Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
+       rx_band - Rx band, given as a tuple ("Rx Radio Name", "Rx Band Name").
     """
     overlapping = []
     rx_frequencies = emitapp.results.get_active_frequencies(
