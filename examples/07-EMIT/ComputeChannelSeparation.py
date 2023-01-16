@@ -1,8 +1,8 @@
 """
-EMIT: Computes required channel separation
----------------------------
+EMIT: Compute required channel separation
+-------------------------------------------
 This example shows how you can use PyAEDT to open an AEDT project with
-an EMIT design, and analyze the results to determine the required channel
+an EMIT design and analyze the results to determine the required channel
 separation for overlapping bands. 
 """
 ###############################################################################
