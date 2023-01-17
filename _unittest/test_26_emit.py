@@ -3,7 +3,7 @@ import os
 import sys
 
 # get aedt delcross python from custom path
-delcross_python_path = os.environ.get('ANSYS_DELCROSS_PYTHON_PATH')
+delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
 if delcross_python_path:
     sys.path.append(delcross_python_path)
 
@@ -395,9 +395,9 @@ class TestClass(BasisTest, object):
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0
         assert len(domain.interferer_names) == 1
-        assert domain.interferer_names[0] == 'MD400C'
+        assert domain.interferer_names[0] == "MD400C"
         assert len(domain.interferer_band_names) == 1
-        assert domain.interferer_band_names[0] == 'Tx'
+        assert domain.interferer_band_names[0] == "Tx"
         assert len(domain.interferer_channel_frequencies) == 1
         assert domain.interferer_channel_frequencies[0] == -1.0
         assert domain.instance_count() == 31626

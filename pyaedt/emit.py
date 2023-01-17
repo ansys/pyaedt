@@ -11,6 +11,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 # global variable used to store module import
 mod = None
 
+
 class Result:
     """
     Provides the ``Result`` object.
