@@ -120,7 +120,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         hide_contents : bool, optional
             Whether to hide contents. The default is ``False``.
         replace_names : bool, optional
-            Whether to replace objects and materials names.
+            Whether to replace objects and material names.
             The default is ``False``.
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
