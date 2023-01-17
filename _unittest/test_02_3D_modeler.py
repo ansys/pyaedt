@@ -670,3 +670,20 @@ class TestClass(BasisTest, object):
 
     def test_55_scale(self):
         assert self.aedtapp.modeler.scale([self.aedtapp.modeler.object_list[0], "Second_airbox"])
+
+    def test_56_global_to_cs(self):
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[-1, -2.6, 1],
+            name="CS_Test1",
+            x_pointing=[-0.70710678118655, -0.70710678118655, 0],
+            y_pointing=[-0.70710678118655, 0.70710678118655, 0],
+        )
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[-5.4, 1.4, -8],
+            name="CS_Test2",
+            reference_cs="CS_Test1",
+            x_pointing=[0.83205029433784, 0.55470019622523, 0],
+            y_pointing=[-0.55470019622523, 0.83205029433784, 0],
+        )
+        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1") == [-2.5455844122716, 1.1313708498985, 1.0]
+        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2") == [2.2260086876588, -1.8068578500310, 9.0]
