@@ -126,7 +126,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
         auxiliary_dict_file : bool or str, optional
-            Whether to export or not the auxiliary file containing information about defined datasets and Icepak monitor
+            Whether to export the auxiliary file containing information about defined datasets and Icepak monitor
             objects. A destination file can be specified using a string.
             The default is ``False``.
         monitor_objects : list, optional
