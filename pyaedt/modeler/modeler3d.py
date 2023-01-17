@@ -115,7 +115,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Edit password.
             The default value is an empty string.
         password_type : str, optional
-            Password type. Value can either be ``UserSuppliedPassword`` or ``InternalPassword``.
+            Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
             The default value is ``UserSuppliedPassword``.
         hide_contents : bool, optional
             Whether to hide contents. The default is ``False``.
