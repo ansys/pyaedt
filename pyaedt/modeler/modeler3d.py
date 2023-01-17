@@ -91,7 +91,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         variables_to_include : list, optional
             List of variables to include. The default is ``[]``.
         object_list : list, optional
-            List of Objects names to export. The default is all objects.
+            List of object names to export. The default is all object names.
         boundaries_list : list, optional
             List of Boundaries names to export. The default is all boundaries.
         excitation_list : list, optional
