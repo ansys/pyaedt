@@ -2138,3 +2138,6 @@ if not config["skip_edb"]:
             assert setup1.snap_length_threshold == "3.5um"
             assert not setup1.use_si_settings
             assert setup1.xtalk_threshold == "-44"
+
+        def test_132_via_plating_ratio_check(self):
+            assert self.edbapp.core_padstack.check_and_fix_via_pating()
