@@ -11,197 +11,6 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 # global variable used to store module import
 mod = None
 
-
-class Interaction_Domain:
-    """
-    Provides the ``Interaction_Domain`` object.
-
-    Examples
-    --------
-    Create an instance of the ``Interaction_Domain`` object.
-
-    >>> domain = Interaction_Domain()
-    >>> domain.set_receivers("Radio", "Tx-Band")
-    >>> interaction = self.aedtapp.results.revisions_list[-1].run(domain)
-    """
-
-    def __init__(self):
-        self.emit_api = mod.EmitApi()
-        self._obj = mod.InteractionDomain()
-        print(str(type(self._obj)))
-        try:
-            self._obj = mod.InteractionDomain()
-        except NameError:
-            raise ValueError("An Emit object must be initialized before an Interaction_Domain object is generated.")
-
-    def set_receiver(self, radioname, bandname="", frequency=-1):
-        """
-        Set the receiver, with optionality to specify the following:
-            > radio name
-            > radio name and a band name
-            > radio name, band name and a channel frequency
-
-        Examples
-        ----------
-        >>> domain.set_receiver("Radio1", "Rx-Band", 2000)
-        """
-        self._obj.set_receiver(radioname, bandname, frequency)
-
-    @pyaedt_function_handler()
-    def set_interferers(self, radionames, bandnames=None, frequencies=None):
-        """
-        Set the interferers, with optionality to specify the following:
-            > radio name
-            > radio name and a band name
-            > radio name, band name and a channel frequency
-
-        Returns
-        -------
-
-        Examples
-        ----------
-        >>> radios = ["Radio1", "Radio2", "Bluetooth"]
-        >>> bands = ["Rx-Band", "Rx-Band", "Rx-Band"]
-        >>> frequencies = []
-        >>> domain.set_receiver(radios, bands, frequencies)
-        """
-        interferer_radio_names = []
-        interferer_band_names = []
-        interferer_frequencies = []
-        index = 0
-        for radio in radionames:
-            interferer_radio_names.append(radio)
-            if bandnames is not None:
-                if index >= len(bandnames):
-                    interferer_band_names.append("")
-                else:
-                    interferer_band_names.append(bandnames[index])
-            else:
-                interferer_band_names.append("")
-            if frequencies is not None:
-                if index >= len(frequencies):
-                    interferer_frequencies.append(-1)
-                else:
-                    interferer_frequencies.append(frequencies[index])
-            else:
-                interferer_frequencies.append(-1)
-            index = index + 1
-        self._obj.set_interferers(interferer_radio_names, interferer_band_names, interferer_frequencies)
-
-    @property
-    def receiver_name(self):
-        """
-        Get the receiver name from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        receiver_name : str
-            Receiver name associated with a domain.
-
-        Examples
-        ----------
-        >>> rx_name = domain.receiver_name
-        """
-        return self._obj.receiver_name
-
-    @property
-    def receiver_band_name(self):
-        """
-        Get the receiver band name from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        receiver_band_name : str
-            Receiver band name associated with a domain.
-
-        Examples
-        ----------
-        >>> rx_band_name = domain.receiver_band_name
-        """
-        return self._obj.receiver_band_name
-
-    @property
-    def receiver_channel_frequency(self):
-        """
-        Get the receiver channel frequency from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        receiver_channel_frequency : float
-            Receiver channel frequency associated with a domain.
-
-        Examples
-        ----------
-        >>> rx_freq = domain.receiver_channel_frequency
-        """
-        return self._obj.receiver_channel
-
-    @property
-    def interferer_names(self):
-        """
-        Get the interferer names from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        interferer_names : list(str)
-            Interferer names associated with a domain.
-
-        Examples
-        ----------
-        >>> tx_names = domain.interferer_names
-        """
-        return list(self._obj.interferer_names)
-
-    @property
-    def interferer_band_names(self):
-        """
-        Get the interferer band names from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        interferer_band_names : list(str)
-            Interferer band names associated with a domain.
-
-        Examples
-        ----------
-        >>> tx_band_names = domain.interferer_band_names
-        """
-        return list(self._obj.interferer_band_names)
-
-    @property
-    def interferer_channel_frequencies(self):
-        """
-        Get the interferer channel frequencies from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        interferer_channel_frequencies : list(float)
-            Interferer channel frequencies associated with a domain.
-
-        Examples
-        ----------
-        >>> tx_frequencies = domain.interferer_channel_frequencies
-        """
-
-        return list(self._obj.interferer_channel_frequencies)
-
-    @property
-    def instance_count(self):
-        """
-        Get the instance count from the ``Interaction_Domain`` object.
-
-        Returns
-        -------
-        instance_count: int
-            Instance count associated with a domain
-
-        Examples
-        ----------
-        >>> rx_name = domain.instance_count
-        """
-        return self._obj.instance_count()
-
-
 class Result:
     """
     Provides the ``Result`` object.
@@ -357,7 +166,7 @@ class Revision:
 
     >>> aedtapp = Emit()
     >>> rev = Revision(aedtapp, "Revision 1")
-    >>> domain = Interaction_Domain()
+    >>> domain = aedtapp.interaction_domain()
     >>> rev.run(domain)
     """
 
@@ -396,20 +205,20 @@ class Revision:
 
         Examples
         ----------
-        >>> domain = Interaction_Domain()
+        >>> domain = aedtapp.interaction_domain()
         >>> rev.run(domain)
 
         """
         self.emit_obj._load_result_set(self.path)
         eng = self.emit_obj._emit_api.get_engine()
-        interaction = eng.run(domain._obj)
+        interaction = eng.run(domain)
         return interaction
 
     @pyaedt_function_handler()
-    def get_max_simultaneous_frequencies(self):
+    def get_max_simultaneous_interferers(self):
 
         """
-        Get the number of maximum simultaneous frequencies
+        Get the number of maximum simultaneous interferers
 
         Returns
         -------
@@ -418,21 +227,21 @@ class Revision:
 
         Examples
         ----------
-        >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
+        >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
         eng = self.emit_obj._emit_api.get_engine()
         max_interferers = eng.max_simultaneous_interferers
         return max_interferers
 
     @pyaedt_function_handler()
-    def set_max_simultaneous_frequencies(self, val):
+    def set_max_simultaneous_interferers(self, val):
 
         """
-        Set the number of maximum simultaneous frequencies
+        Set the number of maximum simultaneous interferers
 
         Examples
         ----------
-        >>> max_num = aedtapp.results.get_max_simultaneous_frequencies()
+        >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
         eng = self.emit_obj._emit_api.get_engine()
         eng.max_simultaneous_interferers = val
@@ -515,7 +324,7 @@ class Emit(FieldAnalysisEmit, object):
     A revision within PyAEDT is analogous to a revision in AEDT. An interaction domain must
     be defined and then used as the input to the run command used on that revision.
 
-    >>> domain = Interaction_Domain()
+    >>> domain = aedtapp.interaction_domain()
     >>> domain.rx_radio_name = "UE - HandHeld"
     >>> interaction = aedtapp.revisions_list[0].run(domain)
 
@@ -598,7 +407,7 @@ class Emit(FieldAnalysisEmit, object):
                 self.results.revisions_list.append(Revision(self))
                 self.results.current_design = design.GetRevision()
                 print("checkpoint - revision generated successfully")
-            domain = Interaction_Domain()
+            domain = Emit.interaction_domain()
             self.results.revisions_list[revision_num].run(domain)
             rev = self.results.revisions_list[revision_num]
             return rev
@@ -668,6 +477,29 @@ class Emit(FieldAnalysisEmit, object):
                 "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
             )
         return tx_rx
+
+    @staticmethod
+    def interaction_domain():
+        """
+        Get an ``InteractionDomain`` object.
+
+        Returns
+        -------
+        :class:`Emit.InteractionDomain`
+            Domain used to define a set of interacting interferers and receivers
+
+        Examples
+        --------
+        >>> domain = Emit.InteractionDomain()
+
+        """
+        try:
+            domain = mod.InteractionDomain()
+        except NameError:
+            raise ValueError(
+                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
+            )
+        return domain
 
     @pyaedt_function_handler()
     def version(self, detailed=False):
