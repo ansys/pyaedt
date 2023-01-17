@@ -487,7 +487,7 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         :class:`Emit.InteractionDomain`
-            Domain used to define a set of interacting interferers and receivers
+            Domain used to define a set of interacting interferers and receivers.
 
         Examples
         --------
