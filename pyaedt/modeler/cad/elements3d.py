@@ -1361,7 +1361,7 @@ class BinaryTreeNode:
         self.command = self.props.get("Command", "")
 
     def update_property(self, prop_name, prop_value):
-        """Update BinaryTreeNode property.
+        """Update the property of the binary tree node.
 
         Parameters
         ----------
