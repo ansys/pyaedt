@@ -530,7 +530,7 @@ class EdbPadstacks(object):
             return all_succeed
 
     @pyaedt_function_handler
-    def check_and_fix_via_pating(self, minimum_value_to_replace=0.0, default_plating_ratio=0.2):
+    def check_and_fix_via_plating(self, minimum_value_to_replace=0.0, default_plating_ratio=0.2):
         """Check and fix zero value plating ratio via definition with assigning default value.
 
         Parameters
