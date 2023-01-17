@@ -1334,7 +1334,7 @@ class HistoryProps(OrderedDict):
 
 
 class BinaryTreeNode:
-    """Manages objects history structure."""
+    """Manages an object's history structure."""
 
     def __init__(self, node, child_object, first_level=False):
         self.node = node
