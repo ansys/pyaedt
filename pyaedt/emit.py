@@ -593,10 +593,10 @@ class Emit(FieldAnalysisEmit, object):
         """
         if self.__emit_api_enabled:
             design = self.odesktop.GetActiveProject().GetActiveDesign()
-            if not self.results.current_design == design.getRevision():
+            if not self.results.current_design == design.GetRevision():
                 design.AddResult()
                 self.results.revisions_list.append(Revision(self))
-                self.results.current_design = design.getRevision()
+                self.results.current_design = design.GetRevision()
                 print("checkpoint - revision generated successfully")
             domain = Interaction_Domain()
             self.results.revisions_list[revision_num].run(domain)
