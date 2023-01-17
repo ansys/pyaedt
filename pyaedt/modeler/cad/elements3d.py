@@ -1315,7 +1315,7 @@ class Plane(object):
 
 
 class HistoryProps(OrderedDict):
-    """Manages objects history properties."""
+    """Manages an object's history properties."""
 
     def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
