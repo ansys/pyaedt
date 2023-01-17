@@ -869,8 +869,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
             self._modeler._app.variable_manager["temp_var"] = y3
             y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            x, y, z = GeometryOperators.pointing_to_axis(x_pointing_num, y_pointing_num)
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
+            z = GeometryOperators.v_cross(x_pointing_num, y_pointing_num)
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x_pointing_num, y_pointing_num, z)
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
             del self._modeler._app.variable_manager["temp_var"]
         elif self.mode == "zxz":
@@ -1848,7 +1848,8 @@ class GeometryModeler(Modeler, object):
             p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
             return p2
 
-        return get_total_transformation(point, ref_cs_name)
+        p = get_total_transformation(point, ref_cs_name)
+        return [round(p[i], 13) for i in range(3)]
 
     @pyaedt_function_handler()
     def set_working_coordinate_system(self, name):
