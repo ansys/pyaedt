@@ -57,9 +57,9 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            Center point for the box in a list of ``[x, y, z]`` coordinates.
+            Anchor point for the box in Cartesian``[x, y, z]`` coordinates.
         dimensions_list : list
-           Dimensions for the box in a list of ``[x, y, z]`` coordinates.
+           Length of the box edges in Cartesian``[x, y, z]`` coordinates.
         name : str, optional
             Name of the box. The default is ``None``, in which case the
             default name is assigned.
@@ -1796,12 +1796,12 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def create_choke(self, json_file):
-        """Create a chock from json setting file.
+        """Create an inductive choke using parameters defined in a json file.
 
         Parameters
         ----------
         json_file : str
-            Full path of the json file return for the function check_choke_values.
+            Full path of the json file. The file is returned fby the function ``check_choke_values``.
 
         Returns
         -------
@@ -1822,7 +1822,7 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        Json file has to be like the following example.
+        Json file has to be like the following example.  #TODO Look into using a schema for the json file.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
