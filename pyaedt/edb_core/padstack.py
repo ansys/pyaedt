@@ -531,13 +531,14 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler
     def check_and_fix_via_plating(self, minimum_value_to_replace=0.0, default_plating_ratio=0.2):
-        """Check and fix zero value plating ratio via definition with assigning default value.
+        """Check for minimum via plating ration value, values found below the minimum one are replaced by default
+        plating ratio.
 
         Parameters
         ----------
         minimum_value_to_replace : float
             Plating ratio that is below or equal to this value is to be replaced
-            with the value specified for the next parameter.
+            with the value specified for the next parameter. Default value ``0.0``.
         default_plating_ratio : float
             Default value to use for plating ratio. The default value is ``0.2``.
 
