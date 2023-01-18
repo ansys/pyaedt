@@ -1881,9 +1881,90 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
-    def duplicate_coordinate_system_to_global(self, coordinate_system, invert=False):
+    def invert_cs(self, coordinate_system, to_global=False):
+        """
+        Gets the origin and quaternion of the inverse transformation of that which defines the
+        input coordinate system. By defining a coordinate system with this information, the
+        Reference CS of the input one is obtained.
+
+        Parameters
+        ----------
+        coordinate_system : str, CoordinateSystem
+            Name of the destination reference system. A CoordinateSystem object can also be used.
+        to_global : bool, optional
+            The inverse transformation of the input coordinate system is computed with respect to
+             the "Global" one. Default is ``False``.
+
+        Returns
+        -------
+        list
+            Origin coordinates
+        list
+            Quaternion
+        """
+        cs_names = [i.name for i in self.coordinate_systems]
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            cs = coordinate_system
+        elif isinstance(coordinate_system, str):
+            if coordinate_system not in cs_names:
+                raise AttributeError("Specified coordinate system does not exist in the design.")
+            idx = cs_names.index(coordinate_system)
+            cs = self.coordinate_systems[idx]
+        else:
+            raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
+
+        if to_global:
+            o, q = self.reference_cs_to_global(coordinate_system)
+            o = [-i for i in GeometryOperators.q_rotation(o, q)]
+            q = [q[0]] + [-i for i in q[1:]]
+        else:
+            q = cs.quaternion
+            q = [q[0]] + [-i for i in q[1:]]
+            o = [-i for i in GeometryOperators.q_rotation(cs.origin, q)]
+        return o, q
+
+    @pyaedt_function_handler()
+    def reference_cs_to_global(self, coordinate_system):
+        """Get the origin and quaternion that define the input coordinate system using "Global" as the reference one.
+
+        Parameters
+        ----------
+        coordinate_system : str, CoordinateSystem
+            Name of the destination reference system. The CoordinateSystem object can also be used.
+
+        Returns
+        -------
+        list
+            Origin coordinates
+        list
+            Quaternion
+        """
+        cs_names = [i.name for i in self.coordinate_systems]
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            cs = coordinate_system
+        elif isinstance(coordinate_system, str):
+            if coordinate_system not in cs_names:
+                raise AttributeError("Specified coordinate system does not exist in the design.")
+            idx = cs_names.index(coordinate_system)
+            cs = self.coordinate_systems[idx]
+        else:
+            raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
+        q = cs.quaternion
+        o = cs.origin
+        ref_cs_name = cs.ref_cs
+        while ref_cs_name != "Global":
+            ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
+            q_ref = ref_cs.quaternion
+            q = GeometryOperators.q_prod(q_ref, q)
+            o_ref = ref_cs.origin
+            o = GeometryOperators.v_sum(o_ref, GeometryOperators.q_rotation(o, q_ref))
+            ref_cs_name = ref_cs.ref_cs
+        return o, q
+
+    @pyaedt_function_handler()
+    def duplicate_coordinate_system_to_global(self, coordinate_system):
         """Creates a duplicate of the coordinate system referenced to global.
-        It is useful have the same coordinate system referenced to global removing all nested coordinate
+        It is useful have the same coordinate system referenced to Global, removing all nested coordinate
         system dependencies.
 
         Parameters
@@ -1901,7 +1982,6 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.CreateRelativeCS
         """
-        # resolve the input coordinate system
         cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
@@ -1912,40 +1992,21 @@ class GeometryModeler(Modeler, object):
             cs = self.coordinate_systems[idx]
         else:
             raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
-
-        # get the origin and the quaternions and evaluate the axis from them
-        q = cs.quaternion
-        o = cs.origin
-        ref_cs_name = cs.ref_cs
-        while ref_cs_name != "Global":
-            ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
-            q_ref = ref_cs.quaternion
-            q = GeometryOperators.q_prod(q, q_ref)
-            o_ref = ref_cs.origin
-            o = GeometryOperators.v_sum(o_ref, GeometryOperators.q_rotation(o, q_ref))
-            ref_cs_name = ref_cs.ref_cs
-
-        x, y, z = GeometryOperators.quaternion_to_axis(q)
-
-        # set the other parameters
+        o, q = self.reference_cs_to_global(coordinate_system)
+        x, y, _ = GeometryOperators.quaternion_to_axis(q)
         reference_cs = "Global"
         name = cs.name + "_RefToGlobal"
         if name in cs_names:
             name = cs.name + generate_unique_name("_RefToGlobal")
-        mode = "axis"
-        x_pointing = x
-        y_pointing = y
-
-        # create the CS
         cs = CoordinateSystem(self)
         if cs:
             result = cs.create(
                 origin=o,
                 reference_cs=reference_cs,
                 name=name,
-                mode=mode,
-                x_pointing=x_pointing,
-                y_pointing=y_pointing,
+                mode="axis",
+                x_pointing=x,
+                y_pointing=y,
             )
             if result:
                 return cs
