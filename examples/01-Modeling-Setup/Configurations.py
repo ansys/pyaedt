@@ -1,14 +1,14 @@
 """
 General: configuration files
 ----------------------------
-This example shows how you can use PyAEDT to export configuration files and reuse
-them to import in a new project. A configuration file is supported by these apps:
+This example shows how you can use PyAEDT to export configuration files and re-use
+them to import in a new project. A configuration file is supported by these applications:
 
 * HFSS
 * 2D Extractor and Q3D Extractor
 * Maxwell
-* Icepak
-* Mechanical
+* Icepak (in AEDT)
+* Mechanical (in AEDT)
 
 The following sections are covered:
 
