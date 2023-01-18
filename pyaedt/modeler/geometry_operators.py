@@ -784,13 +784,14 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
+        x1 = round(x[0], 13)
+        x2 = round(x[1], 13)
+        x3 = round(x[2], 13)
+        y3 = round(y[2], 13)
+        z1 = round(z[0], 13)
+        z2 = round(z[1], 13)
+        z3 = round(z[2], 13)
+        z = [z1, z2, z3]
         if z == [0, 0, 1]:
             phi = GeometryOperators.atan2(x2, x1)
             theta = 0.0
@@ -809,7 +810,6 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def axis_to_euler_zyz(x, y, z):
         """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
-
         Provides assumption for the gimbal lock problem.
 
         Parameters
@@ -840,7 +840,7 @@ class GeometryOperators(object):
             theta = 0.0
             psi = math.pi / 2
         elif z == [0, 0, -1]:
-            phi = GeometryOperators.atan2(-x2, x1)
+            phi = GeometryOperators.atan2(-x1, x2)
             theta = math.pi
             psi = math.pi / 2
         else:
