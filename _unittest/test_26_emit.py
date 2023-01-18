@@ -2,11 +2,6 @@
 import os
 import sys
 
-# get aedt delcross python from custom path
-delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
-if delcross_python_path:
-    sys.path.append(delcross_python_path)
-
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython

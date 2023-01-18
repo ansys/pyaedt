@@ -2,6 +2,12 @@ from __future__ import absolute_import
 
 import os
 import sys
+
+# get aedt delcross python from custom path
+delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
+if delcross_python_path:
+    sys.path.append(delcross_python_path)
+
 from importlib import import_module
 
 from pyaedt import generate_unique_project_name
@@ -219,7 +225,7 @@ class Revision:
     def get_max_simultaneous_interferers(self):
 
         """
-        Get the number of maximum simultaneous interferers
+        Get the number of maximum simultaneous interferers.
 
         Returns
         -------
@@ -238,7 +244,7 @@ class Revision:
     def set_max_simultaneous_interferers(self, val):
 
         """
-        Set the number of maximum simultaneous interferers
+        Set the number of maximum simultaneous interferers.
 
         Examples
         ----------
@@ -487,7 +493,7 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         :class:`Emit.InteractionDomain`
-            Domain used to define a set of interacting interferers and receivers.
+            Defines a set of interacting interferers and receivers.
 
         Examples
         --------
