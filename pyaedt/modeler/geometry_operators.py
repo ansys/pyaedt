@@ -765,8 +765,8 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zxz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following the rotation sequence ZXZ.
-
+        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following the rotation
+        sequence ZXZ.
         Provides assumption for the gimbal lock problem.
 
         Parameters
@@ -809,8 +809,8 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zyz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
-        Provides assumption for the gimbal lock problem.
+        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation
+        sequence ZYZ. Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------
@@ -901,8 +901,8 @@ class GeometryOperators(object):
         Returns
         -------
         tuple
-            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of the unit vector ``u``
-            and the rotation angle theta expressed in radians.
+            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of
+            the unit vector ``u`` and the rotation angle theta expressed in radians.
 
         """
         q1 = q[0]

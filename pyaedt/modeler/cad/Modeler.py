@@ -1925,7 +1925,8 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def reference_cs_to_global(self, coordinate_system):
-        """Get the origin and quaternion that define the input coordinate system using "Global" as the reference one.
+        """Get the origin and quaternion that define the input coordinate system using "Global" as
+        the reference one.
 
         Parameters
         ----------
@@ -1964,8 +1965,8 @@ class GeometryModeler(Modeler, object):
     @pyaedt_function_handler()
     def duplicate_coordinate_system_to_global(self, coordinate_system):
         """Creates a duplicate of the coordinate system referenced to global.
-        It is useful have the same coordinate system referenced to Global, removing all nested coordinate
-        system dependencies.
+        It is useful have the same coordinate system referenced to Global, removing all nested
+        coordinate system dependencies.
 
         Parameters
         ----------
