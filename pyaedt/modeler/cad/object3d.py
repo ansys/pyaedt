@@ -1317,7 +1317,7 @@ class Object3d(object):
 
     @property
     def model(self):
-        """Part Model/Non-model property.
+        """Part model or non-model property.
 
         Returns
         -------
