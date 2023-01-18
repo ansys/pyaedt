@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 import os
 import sys
-
 from importlib import import_module
 
 from pyaedt import generate_unique_project_name
@@ -381,7 +380,7 @@ class Emit(FieldAnalysisEmit, object):
         desktop_path = self.desktop_install_dir
         path = os.path.join(desktop_path, "Delcross")
         sys.path.append(path)
-        
+
         if self._aedt_version >= "2023.1":
             global mod
             mod = import_module("EmitApiPython")
