@@ -248,13 +248,12 @@ class TestClass(BasisTest, object):
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             self.aedtapp._emit_api.load_project(file.path)
             assert self.aedtapp.results.result_loaded
-            rev = Revision(self.aedtapp, "Revision 1")
-            assert rev is not None
+            assert Revision(self.aedtapp, "Revision 1") is not None
             domain = Interaction_Domain()
             assert domain is not None
-            eng = self.aedtapp._emit_api.get_engine()
-            assert eng is not None
-            interaction = eng.run(domain._obj)
+            engine = self.aedtapp._emit_api.get_engine()
+            assert engine is not None
+            interaction = engine.run(domain._obj)
             assert interaction is not None
 
     @pytest.mark.skipif(
@@ -305,7 +304,7 @@ class TestClass(BasisTest, object):
         assert instance.get_value(self.aedtapp.result_type().emi) == 76.02
         assert instance.get_value(self.aedtapp.result_type().desense) == 3.01
         assert instance.get_value(self.aedtapp.result_type().sensitivity) == -66.99
-        instance = None
+
         instance = interaction.get_instance(domain._obj)
         assert instance.get_value(self.aedtapp.result_type().emi) == 76.02
         assert instance.get_value(self.aedtapp.result_type().desense) == 3.01
@@ -365,10 +364,8 @@ class TestClass(BasisTest, object):
         tx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
         )
-        radtx = []
-        bandtx = []
-        radtx.append(radiosTX[0])
-        bandtx.append(bandsTX[0])
+        radtx = [radiosTX[0]]
+        bandtx = [bandsTX[0]]
         domain.set_interferers(radtx, bandtx)
         assert len(self.aedtapp.results.revisions_list) == 2
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
@@ -382,10 +379,8 @@ class TestClass(BasisTest, object):
         tx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
         )
-        radtx = []
-        bandtx = []
-        radtx.append(radiosTX[0])
-        bandtx.append(bandsTX[0])
+        radtx = [radiosTX[0]]
+        bandtx = [bandsTX[0]]
         domain.set_interferers(radtx, bandtx)
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
