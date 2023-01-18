@@ -536,7 +536,8 @@ class EdbPadstacks(object):
         Parameters
         ----------
         minimum_value_to_replace : float
-            Plating ratio below or equal to this value will be replaced by the default one.
+            Plating ratio that is below or equal to this value is to be replaced
+            with the value specified for the next parameter.
         default_plating_ratio : float
             Default value to use for plating ratio. The default value is ``0.2``.
 
