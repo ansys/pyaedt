@@ -836,7 +836,7 @@ class GeometryOperators(object):
         z3 = round(z[2], 13)
         z = [z1, z2, z3]
         if z == [0, 0, 1]:
-            phi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(-x1, x2)
             theta = 0.0
             psi = math.pi / 2
         elif z == [0, 0, -1]:
