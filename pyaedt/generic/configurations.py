@@ -1469,7 +1469,25 @@ class ConfigurationsIcepak(Configurations):
         pass
 
     @pyaedt_function_handler()
-    def _update_monitor(self, m_case, m_object, m_quantity, m_name):
+    def update_monitor(self, m_case, m_object, m_quantity, m_name):
+        """
+        Generic method for inserting monitor object
+
+        Parameters
+        ----------
+        m_case : str
+            Type of monitored geometry object. "Point", "Face", "Vertex", "Surface" or "Object".
+        m_object : lost or str or int
+            Name or id (or list of these) of the geometry object being monitored.
+        m_quantity : list or str
+            Name or list of names of the quantity being monitored.
+        m_name : str
+            Name of the monitor object.
+        Returns
+        -------
+        bool
+            ``True`` if successful.
+        """
         if m_case == "Point":
             self._app.monitor.assign_point_monitor(m_object, monitor_quantity=m_quantity, monitor_name=m_name)
         elif m_case == "Face":
@@ -1492,6 +1510,6 @@ class ConfigurationsIcepak(Configurations):
                 m_obj = dict_in["monitor"][monitor_obj]["ID"]
                 if m_type == "Point":
                     m_obj = dict_in["monitor"][monitor_obj]["Location"]
-                if not self._update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
+                if not self.update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
                     self.results.import_monitor = False
         return dict_in

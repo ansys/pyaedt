@@ -540,6 +540,7 @@ class TestClass(BasisTest, object):
         result2 = self.aedtapp.create_two_resistor_network_block("network_box2", "board", "10W", 2.5, 5)
         assert result1.props["Nodes"]["Internal"][0] == "5W"
         assert result2.props["Nodes"]["Internal"][0] == "10W"
+
         self.aedtapp.create_ipk_3dcomponent_pcb(
             "RadioBoard1", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
         )
@@ -608,9 +609,11 @@ class TestClass(BasisTest, object):
             self.aedtapp.monitor.get_monitor_object_assignment(self.aedtapp.monitor.face_monitors["monitor_face"])
             == "box3"
         )
+        assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_faces1") == "monitor_faces1"
+        assert self.aedtapp.monitor.assign_face_monitor(face_1.id, monitor_name="monitor_faces2") == "monitor_faces2"
         assert self.aedtapp.monitor.assign_face_monitor(
             [face_1.id, face_2.id], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_faces"
-        ) == ["monitor_faces", "monitor_faces1"]
+        ) == ["monitor_faces", "monitor_faces3"]
         assert isinstance(self.aedtapp.monitor.face_monitors["monitor_faces1"].properties, dict)
 
     def test_49_delete_monitors(self):
@@ -698,4 +701,52 @@ class TestClass(BasisTest, object):
             thermal_specification="Thickness",
             input_power="1W",
             thickness="1mm",
+        )
+
+    def test_54_assign_stationary_wall(self):
+        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
+
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            name=None,
+            thickness="0mm",
+            material="Al-Extruded",
+            htc=10,
+            htc_dataset=None,
+            ref_temperature="AmbientTemp",
+            ht_correlation=True,
+            ht_correlation_type="Forced Convection",
+            ht_correlation_fluid="air",
+            ht_correlation_flow_type="Turbulent",
+            ht_correlation_flow_direction="X",
+            ht_correlation_value_type="Average Values",
+            ht_correlation_free_stream_velocity=1,
+        )
+        assert self.aedtapp.assign_stationary_wall_with_temperature(
+            "surf1",
+            name=None,
+            temperature=30,
+            thickness="0mm",
+            material="Al-Extruded",
+            radiate=False,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=False,
+        )
+        assert self.aedtapp.assign_stationary_wall_with_heat_flux(
+            geometry=box.faces[0].id,
+            name="bcTest",
+            heat_flux=10,
+            thickness=1,
+            material="Al-Extruded",
+            radiate=True,
+            radiate_surf_mat="Steel-oxidised-surface",
+            shell_conduction=True,
+        )
+        assert self.aedtapp.assign_stationary_wall_with_htc(
+            "surf1",
+            ext_surf_rad=True,
+            ext_surf_rad_material="Stainless-steel-cleaned",
+            ext_surf_rad_ref_temp=0,
+            ext_surf_rad_view_factor=0.5,
         )

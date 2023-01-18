@@ -1787,12 +1787,12 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def create_choke(self, json_file):
-        """Create an inductive choke using parameters defined in a json file.
+        """Create a chock from json setting file.
 
         Parameters
         ----------
         json_file : str
-            Full path of the json file. The file is returned fby the function ``check_choke_values``.
+            Full path of the json file return for the function check_choke_values.
 
         Returns
         -------
@@ -1812,7 +1812,7 @@ class Primitives3D(Primitives, object):
 
         Examples
         --------
-        Json file has to be like the following example.  #TODO Look into using a schema for the json file.
+        Json file has to be like the following example.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
