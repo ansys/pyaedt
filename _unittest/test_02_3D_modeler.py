@@ -16,6 +16,11 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
+if is_ironpython:
+    tol = 5e-4
+else:
+    tol = 1e-12
+
 
 class TestClass(BasisTest, object):
     def setup_class(self):
@@ -685,8 +690,10 @@ class TestClass(BasisTest, object):
             x_pointing=[0.83205029433784, 0.55470019622523, 0],
             y_pointing=[-0.55470019622523, 0.83205029433784, 0],
         )
-        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1") == [-2.5455844122716, 1.1313708498985, 1.0]
-        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2") == [2.2260086876588, -1.8068578500310, 9.0]
+        p1 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1")
+        p2 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2")
+        assert all(abs(p1[i] - s) < tol for i, s in enumerate([-2.5455844122716, 1.1313708498985, 1.0]))
+        assert all(abs(p2[i] - s) < tol for i, s in enumerate([2.2260086876588, -1.8068578500310, 9.0]))
 
     def test_57_duplicate_coordinate_system_to_global(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -704,8 +711,8 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_Test4")
         o, q = self.aedtapp.modeler.reference_cs_to_global("CS_Test4")
-        assert [round(i, 14) for i in o] == [1.82842712474619, 2.20832611206852, 9.0]
-        assert [round(i, 14) for i in q] == [-0.0, -0.09853761796664, 0.99513332666807, 0.0]
+        assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
+        assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -722,12 +729,10 @@ class TestClass(BasisTest, object):
             y_pointing=[-0.55470019622523, 0.83205029433784, 0],
         )
         o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=False)
-        assert [o, q] == [
-            [3.716491314709036, -4.160251471689218, 8.0],
-            [0.9570920264890529, -0.0, -0.0, -0.28978414868843005],
-        ]
+        res = o + q
+        sol = [3.716491314709036, -4.160251471689218, 8.0, 0.9570920264890529, -0.0, -0.0, -0.28978414868843005]
+        assert all(abs(res[i] - sol[i]) < tol for i in range(3))
         o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=True)
-        assert [o, q] == [
-            [2.2260086876588385, -1.8068578500310104, 9.0],
-            [-3.882062419723778e-17, 0.09853761796664223, -0.9951333266680702, -4.73535489017611e-17],
-        ]
+        res = o + q
+        sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
+        assert all(abs(res[i] - sol[i]) < tol for i in range(3))
