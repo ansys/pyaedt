@@ -869,6 +869,10 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
             self._modeler._app.variable_manager["temp_var"] = y3
             y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
+            yn = GeometryOperators.v_norm(y_pointing_num)
+            y_pointing_num = [i / yn for i in y_pointing_num]
+            xn = GeometryOperators.v_norm(x_pointing_num)
+            x_pointing_num = [i / xn for i in x_pointing_num]
             z = GeometryOperators.v_cross(x_pointing_num, y_pointing_num)
             a, b, g = GeometryOperators.axis_to_euler_zyz(x_pointing_num, y_pointing_num, z)
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
