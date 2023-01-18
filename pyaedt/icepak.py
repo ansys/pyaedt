@@ -3187,7 +3187,7 @@ class Icepak(FieldAnalysis3D):
     def assign_stationary_wall(
         self,
         geometry,
-        ext_condition,
+        boundary_condition,
         name=None,
         temperature="0cel",
         heat_flux="0irrad_W_per_m2",
@@ -3219,7 +3219,7 @@ class Icepak(FieldAnalysis3D):
         ----------
         geometry : str or int
             Name of the surface object or ID of the face.
-        ext_condition : str
+        boundary_condition : str
             Type of the boundary condition. Options are ``"Temperature"``, ``"Heat Flux"``,
             or ``"Heat Transfer Coefficient"``.
         name : str, optional
@@ -3258,45 +3258,56 @@ class Icepak(FieldAnalysis3D):
             Surface material used for inner surface radiation. Relevant if it is enabled.
             The default is ``"Steel-oxidised-surface``.
         ht_correlation : bool, optional
-            Whether to use the correlation option to compute the htc. The default is ``False``.
+            Whether to use the correlation option to compute the heat transfer coefficient.
+            The default is ``False``.
         ht_correlation_type : str, optional
-            Choose between "Natural Convection" or "Forced Convection" for the correlation option.
-            Relevant if ``ht_correlation=True``. The default is ``"Natural Convection"``.
+            The correlation type for the heat transfer coefficient. Options are
+            "Natural Convection" and "Forced Convection". This parameter is
+            relevant if ``ht_correlation=True``. The default is ``"Natural Convection"``.
         ht_correlation_fluid : str, optional
-            Fluid used for the correlation option. Relevant if ``ht_correlation=True``. The default is ``"air"``.
+            Fluid for the correlation option. This parameter is relevant if
+            ``ht_correlation=True``. The default is ``"air"``.
         ht_correlation_flow_type : str, optional
-            Type of flow used for the correlation option. The choice is between ``"Turbulent"`` and ``"Laminar"``.
-            Relevant if ``ht_correlation=True``. The default is ``"Turbulent"``.
+            Type of flow for the correlation option. This parameter
+            is relevant if ``ht_correlation=True``. Options are ``"Turbulent"``
+            and ``"Laminar"``. The default is ``"Turbulent"``.
         ht_correlation_flow_direction : str, optional
-            Flow direction used for the correlation option. Relevant if ``ht_correlation_type="Forced Convection"``.
-            The default is ``"X"``.
+            Flow direction for the correlation option. This parameter is relevant if
+            ``ht_correlation_type="Forced Convection"``. The default is ``"X"``.
         ht_correlation_value_type : str, optional
-             Choose between "Average Values" and "Local Values" for the forced convection correlation option.
-             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"Average Values"``.
+             Value type for the forced convection correlation option.
+             This parameter is relevant if ``ht_correlation_type="Forced Convection"``.
+             Options are "Average Values" and "Local Values". The default is
+             ``"Average Values"``.
         ht_correlation_free_stream_velocity : str or float, optional
-             Free stream flow velocity. If a float is used, m/s will be the default unit.
-             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"1m_per_sec"``.
+             Free stream flow velocity. This parameter is relevant if
+             ``ht_correlation_type="Forced Convection"``. If a float value
+             is specified, the default unit is ``m_per_sec``. The default is
+             ``"1m_per_sec"``.
         ht_correlation_surface : str, optional
-            Choose between "Top", "Bottom" and "Vertical" for the natural convection correlation option.
-            Relevant if ``ht_correlation_type="Natural Convection"``. The default is ``"Vertical"``.
+            Surface type for the natural convection correlation option.
+            This parameter is relevant if ``ht_correlation_type="Natural Convection"``.
+            Options are "Top", "Bottom", and "Vertical". The default is ``"Vertical"``.
         ht_correlation_amb_temperature : str or float, optional
             Ambient temperature for the natural convection correlation option.
-            Relevant if ``ht_correlation_type="Natural Convection"``. If a float is used, cel will be the default unit.
+            This parameter is relevant if ``ht_correlation_type="Natural Convection"``.
+            If a float value is specified, the default unit is degrees Celsius.
             The default is ``"AmbientTemp"``.
         shell_conduction : bool, optional
             Whether to use the shell conduction option. The default is ``False``.
         ext_surf_rad : bool, optional
-            Whether to use the external surface radiation option. Relevant if
-            ``ext_condition="Heat Transfer Coefficient"``. The default is ``False``.
+            Whether to use the external surface radiation option. This parameter
+            is relevant if ``ext_condition="Heat Transfer Coefficient"``. The
+            default is ``False``.
         ext_surf_rad_material : str, optional
-            Surface material for the external surface radiation option. Relevant if
-            ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
+            Surface material for the external surface radiation option. This parameter
+            is relevant if ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
         ext_surf_rad_ref_temp : str or float, optional
-             Reference temperature for the external surface radiation option. Relevant if
-            ``ext_surf_rad=True``.  If a float is used, cel will be the default unit. The default is ``"AmbientTemp"``.
+             Reference temperature for the external surface radiation option. This parameter
+             is relevant if  ``ext_surf_rad=True``.  If a float value is specified, the default
+             unit is degrees Celsius. The default is ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
-
 
         Returns
         -------
@@ -3338,7 +3349,7 @@ class Icepak(FieldAnalysis3D):
             props["Objects"] = geometry
         props["Thickness"] = (thickness,)
         props["Solid Material"] = material
-        props["External Condition"] = ext_condition
+        props["External Condition"] = boundary_condition
         props["Heat Flux"] = heat_flux
         props["Temperature"] = temperature
         if htc_dataset is None:
@@ -3398,27 +3409,29 @@ class Icepak(FieldAnalysis3D):
         radiate_surf_mat="Steel-oxidised-surface",
         shell_conduction=False,
     ):
-        """Function to assign surface wall boundary condition with heat flux thermal assignment.
+        """Assign a surface wall boundary condition with specified heat flux.
 
         Parameters
         ----------
         geometry : str or int
-            name of the surface object or id of the face
-        name : str
+            Name of the surface object or ID of the face.
+        name : str, optional
             Name of the boundary condition. The default is ``None``.
         heat_flux : str or float, optional
-            Heat flux assigned to the wall.
-            If a float is used, irrad_W_per_m2 unit will be used. The default is ``"0irrad_W_per_m2"``.
+            Heat flux to assign to the wall. If a float value is
+            specified, the unit is ``irrad_W_per_m2``. The default is
+            ``"0irrad_W_per_m2"``.
         thickness : str or float, optional
-            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
-            The default is ``"0mm"``.
+            Thickness of the wall. If a float value is specified, the unit is the
+            current unit system set in Icepak. The default is ``"0mm"``.
         material : str, optional
-            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+            Solid material of the wall. This parameter is relevant if the thickness
+            is non-zero. The default is ``"Al-Extruded"``.
         radiate : bool, optional
             Whether to enable the inner surface radiation option. The default is ``False``.
         radiate_surf_mat : str, optional
-            Surface material used for inner surface radiation. Relevant if it is enables.
-            The default is ``"Steel-oxidised-surface``.
+            Surface material for the inner surface radiation. This parameter is
+            relevant if ``radiate`` is enabled. The default is ``"Steel-oxidised-surface``.
         shell_conduction : bool, optional
             Whether to use the shell conduction option. The default is ``False``.
 
@@ -3456,27 +3469,28 @@ class Icepak(FieldAnalysis3D):
         radiate_surf_mat="Steel-oxidised-surface",
         shell_conduction=False,
     ):
-        """Function to assign surface wall boundary condition with temperature thermal assignment.
+        """Assign a surface wall boundary condition with specified temperature.
 
         Parameters
         ----------
         geometry : str or int
-            Name of the surface object or id of the face.
-        name : str
+            Name of the surface object or ID of the face.
+        name : str, optional
             Name of the boundary condition. The default is ``None``.
         temperature : str or float, optional
-            Temperature assigned to the wall.
-            If a float is used, degree Celsius unit will be used. The default is ``"0cel"``.
+            Temperature to assign to the wall. If a float value is specified,
+            the unit is degrees Celsius. The default is ``"0cel"``.
         thickness : str or float, optional
-            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
-            The default is ``"0mm"``.
+            Thickness of the wall. If a float value is specified used, the unit is the
+            current unit system set in Icepak. The default is ``"0mm"``.
         material : str, optional
-            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+            Solid material of the wall. This parameter is relevant if the
+            thickness is a non-zero value. The default is ``"Al-Extruded"``.
         radiate : bool, optional
             Whether to enable the inner surface radiation option. The default is ``False``.
         radiate_surf_mat : str, optional
-            Surface material used for inner surface radiation. Relevant if it is enables.
-            The default is ``"Steel-oxidised-surface``.
+            Surface material to use for inner surface radiation. This parameter is relevant
+            if ``radiate`` is enabled. The default is ``"Steel-oxidised-surface``.
         shell_conduction : bool, optional
             Whether to use the shell conduction option. The default is ``False``.
 
@@ -3530,70 +3544,87 @@ class Icepak(FieldAnalysis3D):
         radiate_surf_mat="Steel-oxidised-surface",
         shell_conduction=False,
     ):
-        """Function to assign surface wall boundary condition.
+        """Assign a surface wall boundary condition with specified heat transfer coefficient.
 
         Parameters
         ----------
         geometry : str or int
             Name of the surface object or id of the face.
-        name : str
+        name : str, optional
             Name of the boundary condition. The default is ``None``.
         htc : str or float, optional
-            Heat transfer coefficient assigned to the wall.
-            If a float is used, w_per_m2kel unit will be used. The default is ``"0w_per_m2kel"``.
+            Heat transfer coefficient to assign to the wall. If a float value
+            is specified, the unit is ``w_per_m2kel``. The default is
+            ``"0w_per_m2kel"``.
         thickness : str or float, optional
-            Thickness of the wall. If a float is used, current unit system set in Icepak is used.
-            The default is ``"0mm"``.
+            Thickness of the wall. If a float value is specified, the unit is the
+            current unit system set in Icepak. The default is ``"0mm"``.
         htc_dataset : str, optional
-            Dataset that represents htc dependency on temperature. Relevant if
+            Dataset that represents the dependency of the heat transfer
+            coefficient on temperature. This parameter is relevant if
             ``ext_condition="Heat Transfer Coefficient"``. The default is ``None``.
         ref_temperature : str or float, optional
-            Reference temperature for the definition of the htc. Relevant if
-            ``ext_condition="Heat Transfer Coefficient"``.The default is ``"AmbientTemp"``.
+            Reference temperature for the definition of the heat transfer
+            coefficient. This parameter is relevant if
+            ``ext_condition="Heat Transfer Coefficient"``. The default is ``"AmbientTemp"``.
         material : str, optional
-            Solid material of the wall. Relevant if the thickness is non-zero. The default is ``"Al-Extruded"``.
+            Solid material of the wall. This parameter is relevant if the thickness
+            is non-zero. The default is ``"Al-Extruded"``.
         radiate : bool, optional
             Whether to enable the inner surface radiation option. The default is ``False``.
         radiate_surf_mat : str, optional
-            Surface material used for inner surface radiation. Relevant if it is enables.
-            The default is ``"Steel-oxidised-surface``.
+            Surface material for inner surface radiation. This parameter is relevant
+            if ``radiate`` is enabled. The default is ``"Steel-oxidised-surface``.
         ht_correlation : bool, optional
-            Whether to use the correlation option to compute the htc. The default is ``False``.
+            Whether to use the correlation option to compute the heat transfer
+            coefficient. The default is ``False``.
         ht_correlation_type : str, optional
-            Choose between "Natural Convection" or "Forced Convection" for the correlation option.
-            Relevant if ``ht_correlation=True``. The default is ``"Natural Convection"``.
+            Correlation type for the correlation option. This parameter is
+            relevant if ``ht_correlation=True``. Options are "Natural Convection"
+            and "Forced Convection". The default is ``"Natural Convection"``.
         ht_correlation_fluid : str, optional
-            Fluid used for the correlation option. Relevant if ``ht_correlation=True``. The default is ``"air"``.
+            Fluid for the correlation option. This parameter is relevant if
+            ``ht_correlation=True``. The default is ``"air"``.
         ht_correlation_flow_type : str, optional
-            Type of flow used for the correlation option. The choice is between ``"Turbulent"`` and ``"Laminar"``.
-            Relevant if ``ht_correlation=True``. The default is ``"Turbulent"``.
+            Type of flow for the correlation option. This parameter is relevant
+            if ``ht_correlation=True``. Options are ``"Turbulent"`` and ``"Laminar"``.
+            The default is ``"Turbulent"``.
         ht_correlation_flow_direction : str, optional
-            Flow direction used for the correlation option. Relevant if ``ht_correlation_type="Forced Convection"``.
-            The default is ``"X"``.
+            Flow direction for the correlation option. This parameter is relevant
+            if ``ht_correlation_type="Forced Convection"``. The default is ``"X"``.
         ht_correlation_value_type : str, optional
-             Choose between "Average Values" and "Local Values" for the forced convection correlation option.
-             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"Average Values"``.
+             Value type for the forced convection correlation option. This
+             parameter is relevant if ``ht_correlation_type="Forced Convection"``.
+             Options are "Average Values" and "Local Values". The default
+             is ``"Average Values"``.
         ht_correlation_free_stream_velocity : str or float, optional
-             Free stream flow velocity. If a float is used, m/s will be the default unit.
-             Relevant if ``ht_correlation_type="Forced Convection"``. The default is ``"1m_per_sec"``.
+             Free stream flow velocity. This parameter is relevant if
+             ``ht_correlation_type="Forced Convection"``.  If a float
+             value is specified, ``m_per_sec`` is the unit. The default
+             is ``"1m_per_sec"``.
         ht_correlation_surface : str, optional
-            Choose between "Top", "Bottom" and "Vertical" for the natural convection correlation option.
-            Relevant if ``ht_correlation_type="Natural Convection"``. The default is ``"Vertical"``.
+            Surface for the natural convection correlation option. This parameter is
+            relevant if ``ht_correlation_type="Natural Convection"``. Options are "Top",
+            "Bottom", and "Vertical". The default is ``"Vertical"``.
         ht_correlation_amb_temperature : str or float, optional
             Ambient temperature for the natural convection correlation option.
-            Relevant if ``ht_correlation_type="Natural Convection"``. If a float is used, cel will be the default unit.
-            The default is ``"AmbientTemp"``.
+            This parameter is relevant if ``ht_correlation_type="Natural Convection"``.
+            If a float value is specified, the default unit is degrees Celsius. The
+            default is ``"AmbientTemp"``.
         shell_conduction : bool, optional
             Whether to use the shell conduction option. The default is ``False``.
         ext_surf_rad : bool, optional
-            Whether to use the external surface radiation option. Relevant if
-            ``ext_condition="Heat Transfer Coefficient"``. The default is ``False``.
+            Whether to use the external surface radiation option. This parameter
+            is relevant if ``ext_condition="Heat Transfer Coefficient"``. The default
+            is ``False``.
         ext_surf_rad_material : str, optional
-            Surface material for the external surface radiation option. Relevant if
-            ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
+            Surface material for the external surface radiation option. This parameter is
+            relevant if ``ext_surf_rad=True``. The default is ``"Stainless-steel-cleaned"``.
         ext_surf_rad_ref_temp : str or float, optional
-             Reference temperature for the external surface radiation option. Relevant if
-            ``ext_surf_rad=True``.  If a float is used, cel will be the default unit. The default is ``"AmbientTemp"``.
+             Reference temperature for the external surface radiation option. This
+             parameter is relevant if ``ext_surf_rad=True``. If a float value is
+             specified, the default unit is degrees Celsius. The default is
+             ``"AmbientTemp"``.
         ext_surf_rad_view_factor : str or float, optional
             View factor for the external surface radiation option. The default is ``"1"``.
 

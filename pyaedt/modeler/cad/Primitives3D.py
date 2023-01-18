@@ -57,9 +57,9 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            Anchor point for the box in Cartesian``[x, y, z]`` coordinates.
+            Anchor point for the box in Cartesian ``[x, y, z]`` coordinates.
         dimensions_list : list
-           Length of the box edges in Cartesian``[x, y, z]`` coordinates.
+           Length of the box edges in Cartesian ``[x, y, z]`` coordinates.
         name : str, optional
             Name of the box. The default is ``None``, in which case the
             default name is assigned.
@@ -1801,7 +1801,7 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         json_file : str
-            Full path of the json file. The file is returned fby the function ``check_choke_values``.
+            Full path of the json file. The file is returned by the function ``check_choke_values``.
 
         Returns
         -------
