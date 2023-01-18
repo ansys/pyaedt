@@ -493,16 +493,18 @@ class Hfss(FieldAnalysis3D, object):
     ):
         start = None
         stop = None
-        if int_line_start and int_line_stop:
-            start = [str(i) + self.modeler.model_units for i in int_line_start]
-            stop = [str(i) + self.modeler.model_units for i in int_line_stop]
+        if int_line_start and int_line_stop:  # TODO: Allow non-numeric arguments
+            start = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_start]
+            stop = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_stop]
             useintline = True
         else:
             useintline = False
 
-        props = OrderedDict({})
-        if isinstance(objectname, int):
+        props = OrderedDict({})  # Used to create the argument to pass to native api: oModule.AssignWavePort()
+        if isinstance(objectname, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [objectname]
+        elif isinstance(objectname, list):  # Assume [x, y, z] point is passed in objectname
+            props["Faces"] = self.modeler.get_faceid_from_position(objectname)
         else:
             props["Objects"] = [objectname]
         props["NumModes"] = nummodes
@@ -2471,7 +2473,7 @@ class Hfss(FieldAnalysis3D, object):
             Name of the coordinate system for the U coordinates. The
             default is ``"Global"``.
         primary_name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``.  # TODO: Add names of allowed values to docstring.
 
         Returns
         -------
@@ -3190,6 +3192,126 @@ class Hfss(FieldAnalysis3D, object):
             else:
                 int_start = int_stop = None
             portname = self._get_unique_source_name(portname, "Port")
+
+            return self._create_waveport_driven(
+                sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
+            )
+        else:
+            if isinstance(sheet, int):
+                faces = sheet
+            else:
+                faces = self.modeler.get_object_faces(sheet)[0]
+            if not faces:  # pragma: no cover
+                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                return False
+            if not portname:
+                portname = generate_unique_name("Port")
+            elif portname in self.excitations:
+                portname = generate_unique_name(portname)
+            if terminal_references:
+                if deemb == 0:
+                    deembed = None
+                else:
+                    deembed = deemb
+                return self._create_port_terminal(
+                    faces,
+                    terminal_references,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
+                )
+            else:
+                self.logger.error("Reference conductors are missing.")
+                return False
+
+    @pyaedt_function_handler()
+    def create_wave_port(
+        self,
+        port_item,  # Item to use for wave port creation
+        deemb=0,
+        axisdir=None,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        terminal_references=None,
+    ):
+        """Assign a wave port to a face given a point on the face.
+
+        Parameters
+        ----------
+        port_item : defines where to create the port.
+            If a list is passed, then Cartesian [x,y,z] coordinates of a point on the face are expected.
+            If an integer is passed, this is assumed to be a Face ID.
+        deemb : float, optional
+            Deembedding value distance in model units. The default is ``0``.
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. It is used to auto evaluate the integration line.
+            If set to ``None`` the integration line is not defined.
+            It should be one of the values for ``Application.AxisDir``,
+            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
+            The default is ``None`` and no integration line is defined.
+        impedance : float, optional
+            Port impedance. The default is ``50``.
+        nummodes : int, optional
+            Number of modes. The default is ``1``.
+        portname : str, optional
+            Name of the port. The default is ``None``.
+        renorm : bool, optional
+            Whether to renormalize the mode. The default is ``True``.
+        terminal_references : list, optional
+            For a driven-terminal simulation, list of conductors for port terminal definitions.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
+        Examples
+        --------
+
+        Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
+
+        >>> hfss["a"] = "0.4in"
+        >>> hfss["b"] = "0.9in"
+        >>> hfss["wg_len"] == "1.5in"
+        >>> hfss.modeler.create_box(["-b/2", 0, "-wg_len/2"], ["b", "a", "wg_len"], name="WG", matname="vacuum")
+        >>> setup = hfss.create_setup("Setup1")
+        >>> setup["Frequency"] = "10GHz"
+        >>> ports = hfss.create_wave_port([0, "a/2", "-wg_len/2"], portname="Port1")
+        >>> ports.append(hfss.create_wave_port([0, "a/2", "wg_len/2"], portname="Port2"))
+        >>> [print(name) for p.name in ports]
+        'WavePortFromSheet'
+
+        """
+
+        # sheet = self.modeler.convert_to_selections(sheet, True)[0]
+        if terminal_references:
+            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
+        if isinstance(port_item, int):
+            try:
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
+            except:
+                oname = ""
+        else:
+            oname = ""
+        if "Modal" in self.solution_type:
+            if axisdir:
+                try:
+                    _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
+                except (IndexError, TypeError):
+                    int_start = int_stop = None
+            else:
+                int_start = int_stop = None
+            if portname is None:
+                portname = self._get_unique_source_name(portname, "Port")
 
             return self._create_waveport_driven(
                 sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
@@ -4276,7 +4398,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_scattering(
         self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
-        """Create a scattering report.
+        """Create a s-parameter report.
 
         Parameters
         ----------

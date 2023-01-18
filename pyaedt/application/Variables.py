@@ -699,7 +699,7 @@ class VariableManager(object):
         return self._variables
 
     @pyaedt_function_handler()
-    def get_expression(self, variable_name):
+    def get_expression(self, variable_name):  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
         References
