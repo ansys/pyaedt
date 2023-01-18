@@ -3,11 +3,6 @@ from __future__ import absolute_import
 import os
 import sys
 
-# get aedt delcross python from custom path
-delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
-if delcross_python_path:
-    sys.path.append(delcross_python_path)
-
 from importlib import import_module
 
 from pyaedt import generate_unique_project_name
@@ -378,9 +373,15 @@ class Emit(FieldAnalysisEmit, object):
             port=port,
             aedt_process_id=aedt_process_id,
         )
+        # aedt delcross python from custom path if any (for developers)
+        delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
+        if delcross_python_path:
+            sys.path.append(delcross_python_path)
+        # installed aedt delcross python path
         desktop_path = self.desktop_install_dir
         path = os.path.join(desktop_path, "Delcross")
         sys.path.append(path)
+        
         if self._aedt_version >= "2023.1":
             global mod
             mod = import_module("EmitApiPython")

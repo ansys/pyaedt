@@ -1,6 +1,5 @@
 # Import required modules
 import os
-import sys
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
