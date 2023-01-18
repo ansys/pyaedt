@@ -555,7 +555,7 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler()
     def get_via_instance_from_net(self, net_list=None):
-        """Get the list for Edb vias from net name list.
+        """Get the list for EDB vias from a net name list.
 
         Parameters
         ----------
