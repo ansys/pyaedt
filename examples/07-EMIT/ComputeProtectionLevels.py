@@ -83,7 +83,7 @@ desense_threshold = -104
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set up the scenario with radios connected to antennas
 
-def addAndConnectRadio(radio_name, schematic_name=""):
+def add_and_connect_radio(radio_name, schematic_name=""):
     """Add a radio from the EMIT library and connect
     it to an antenna.
     Returns: 
@@ -100,16 +100,16 @@ def addAndConnectRadio(radio_name, schematic_name=""):
     return rad
 
 # Add 3 systems to the project
-bluetooth = addAndConnectRadio("Bluetooth Low Energy (LE)", "Bluetooth")
-gps = addAndConnectRadio("GPS Receiver", "GPS")
-wifi = addAndConnectRadio("WiFi - 802.11-2012", "WiFi")
+bluetooth = add_and_connect_radio("Bluetooth Low Energy (LE)", "Bluetooth")
+gps = add_and_connect_radio("GPS Receiver", "GPS")
+wifi = add_and_connect_radio("WiFi - 802.11-2012", "WiFi")
 
 ###############################################################################
 # Configure the radios
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Enable the HR-DSSS bands for the WiFi Radio and set the power level
 # for all Transmit bands to -20 dBm
-def setBandPowerLevel(band, power):
+def set_band_power_level(band, power):
     """Set the power of the fundamental for the given band.
     Arguments:
         band: Band being configured.
@@ -126,15 +126,15 @@ for band in bands:
     if "HR-DSSS" in band.node_name:
         if "Ch 1-13" in band.node_name:
             band.enabled=True
-            setBandPowerLevel(band, "-20")
+            set_band_power_level(band, "-20")
 
 # Reduce the bluetooth transmit power
 bands = bluetooth.bands()
 for band in bands:
-    setBandPowerLevel(band, "-20")
+    set_band_power_level(band, "-20")
 
 # Configure the first Rx band in the GPS Rx to have 0 dBm Susc
-def setProtectionBand(radio):
+def set_protection_band(radio):
     """Set susceptibility of the Rx Band to 0 dBm
     for all frequencies.
     Arguments:
@@ -152,7 +152,7 @@ def setProtectionBand(radio):
                 child._set_prop_value(prop_list)
                 break # only one Rx Spectral Profile per Band
 
-def getRadioNode(radio_name):
+def get_radio_node(radio_name):
     """Get the radio node that matches the
     given radio name.
     Arguments:
@@ -166,9 +166,9 @@ def getRadioNode(radio_name):
     else:
         radio = wifi
     return radio
-setProtectionBand(bluetooth)            
-setProtectionBand(gps)
-setProtectionBand(wifi)
+set_protection_band(bluetooth)            
+set_protection_band(gps)
+set_protection_band(wifi)
 
 bands = gps.bands()
 for band in bands:
@@ -305,7 +305,7 @@ for tx_radio in tx_radios:
             #     # skip 'normal' Rx bands
             #     continue
             # check for enabled Bands
-            cur_rx_radio = getRadioNode(rx_radio)
+            cur_rx_radio = get_radio_node(rx_radio)
             bands = cur_rx_radio.bands()
             for band in bands:
                 if rx_band in band.node_name:
@@ -314,7 +314,7 @@ for tx_radio in tx_radios:
             if not bandEnabled:
                 continue
             # get enabled tx band
-            cur_tx_radio = getRadioNode(tx_radio)
+            cur_tx_radio = get_radio_node(tx_radio)
             bands = cur_tx_radio.bands()
             for band in bands:
                 if band.enabled:

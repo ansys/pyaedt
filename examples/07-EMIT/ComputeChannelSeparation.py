@@ -70,7 +70,7 @@ emitapp = Emit(pyaedt.generate_unique_project_name())
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set up the scenario with radios connected to antennas
 
-def addAndConnectRadio(radio_name, schematic_name=""):
+def add_and_connect_radio(radio_name, schematic_name=""):
     """Add a radio from the EMIT library and connect
     it to an antenna.
     Returns: 
@@ -87,16 +87,16 @@ def addAndConnectRadio(radio_name, schematic_name=""):
     return rad
 
 # Add three systems to the project
-bluetooth = addAndConnectRadio("Bluetooth Low Energy (LE)", "Bluetooth")
-gps = addAndConnectRadio("GPS Receiver", "GPS")
-wifi = addAndConnectRadio("WiFi - 802.11-2012", "WiFi")
+bluetooth = add_and_connect_radio("Bluetooth Low Energy (LE)", "Bluetooth")
+gps = add_and_connect_radio("GPS Receiver", "GPS")
+wifi = add_and_connect_radio("WiFi - 802.11-2012", "WiFi")
 
 ###############################################################################
 # Configure the radios
 # ~~~~~~~~~~~~~~~~~~~~
 # Enable the HR-DSSS bands for the wifi radio and set the power level
 # for all transmit bands to simulate coupling.
-def setBandPowerLevel(band, power):
+def set_band_power_level(band, power):
     """Set the power of the fundamental for the given band.
     Arguments:
         band: Band being configured.
@@ -108,7 +108,7 @@ def setBandPowerLevel(band, power):
             child._set_prop_value(prop_list)
             return # only one Tx Spectral Profile per Band
         
-def setChannelSampling(radio, percentage):
+def set_channel_sampling(radio, percentage):
     """Set the channel sampling for the radio.
     Arguments:
         radio: Radio to modify.
@@ -122,16 +122,16 @@ def setChannelSampling(radio, percentage):
         
 # Enable the HR-DSSS wifi band, reduce
 # its transmit power, and reduce its sampling
-setChannelSampling(wifi, 50)
+set_channel_sampling(wifi, 50)
 for band in wifi.bands():
     if "HR-DSSS" in band.node_name:
         band.enabled=True
-        setBandPowerLevel(band, "-50")
+        set_band_power_level(band, "-50")
 
 # Reduce the bluetooth transmit power
-setChannelSampling(bluetooth, 50)
+set_channel_sampling(bluetooth, 50)
 for band in bluetooth.bands():
-    setBandPowerLevel(band, "-50")
+    set_band_power_level(band, "-50")
     
 ###############################################################################
 # Load the results set
