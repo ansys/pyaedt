@@ -1883,7 +1883,7 @@ class GeometryModeler(Modeler, object):
     @pyaedt_function_handler()
     def invert_cs(self, coordinate_system, to_global=False):
         """
-        Gets the origin and quaternion of the inverse transformation of that which defines the
+        Get the origin and quaternion of the inverse transformation of that which defines the
         input coordinate system. By defining a coordinate system with this information, the
         Reference CS of the input one is obtained.
 
@@ -1898,9 +1898,9 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            Origin coordinates
+            Origin coordinates.
         list
-            Quaternion
+            Quaternion.
         """
         cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
@@ -1936,9 +1936,9 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         list
-            Origin coordinates
+            Origin coordinates.
         list
-            Quaternion
+            Quaternion.
         """
         cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
@@ -1964,7 +1964,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def duplicate_coordinate_system_to_global(self, coordinate_system):
-        """Creates a duplicate of the coordinate system referenced to global.
+        """Create a duplicate of the coordinate system referenced to global.
         It is useful have the same coordinate system referenced to Global, removing all nested
         coordinate system dependencies.
 

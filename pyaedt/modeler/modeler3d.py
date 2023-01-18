@@ -147,7 +147,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         References
         ----------
-
         >>> oEditor.Create3DComponent
         """
         if not component_name:
