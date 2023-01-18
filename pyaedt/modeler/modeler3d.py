@@ -130,8 +130,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             objects. A destination file can be specified using a string.
             The default is ``False``.
         monitor_objects : list, optional
-            List of monitor objects' names to export. The default is the names of all monitor objects. This argument is relevant only
-            if ``auxiliary_dict_file`` is not set to ``False``.
+            List of monitor objects' names to export. The default is the names of all monitor objects. This argument is
+            relevant only if ``auxiliary_dict_file`` is not set to ``False``.
         datasets : list, optional
             List of dataset names to export. The default is all datasets. This argument is relevant only if
             ``auxiliary_dict_file`` is not set to ``False``.
