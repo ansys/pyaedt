@@ -64,6 +64,8 @@ They contain all getters and setters to simplify object manipulation.
    cad.components_3d.UserDefinedComponent
    cad.elements3d.Point
    cad.elements3d.Plane
+   cad.elements3d.HistoryProps
+   cad.elements3d.BinaryTreeNode
 
 
 .. code:: python

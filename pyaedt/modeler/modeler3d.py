@@ -89,9 +89,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
-             List of variables to include. The default is ``[]``.
+            List of variables to include. The default is ``[]``.
         object_list : list, optional
-            List of Objects names to export. The default is all objects.
+            List of object names to export. The default is all object names.
         boundaries_list : list, optional
             List of Boundaries names to export. The default is all boundaries.
         excitation_list : list, optional
@@ -115,24 +115,23 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Edit password.
             The default value is an empty string.
         password_type : str, optional
-            Password type. Value can either be ``UserSuppliedPassword`` or ``InternalPassword``.
-            The default value is ``UserSuppliedPassword``.
-        hide_contents : bool, optionale
-            Whether to hide contents.
-            The default is ``False``.
+            Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
+            The default is ``UserSuppliedPassword``.
+        hide_contents : bool, optional
+            Whether to hide contents. The default is ``False``.
         replace_names : bool, optional
-            Whether to replace objects and materials names.
+            Whether to replace objects and material names.
             The default is ``False``.
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
         auxiliary_dict_file : bool or str, optional
-            Whether to export or not the auxiliary file containing information about defined datasets and Icepak monitor
-             objects. A destination file can be specified using a string.
+            Whether to export the auxiliary file containing information about defined datasets and Icepak monitor
+            objects. A destination file can be specified using a string.
             The default is ``False``.
         monitor_objects : list, optional
-            List of monitor objects names to export. The default is all monitor objects. This argument is relevant only
-            if ``auxiliary_dict_file`` is not set to ``False``.
+            List of monitor objects' names to export. The default is the names of all monitor objects. This argument is
+            relevant only if ``auxiliary_dict_file`` is not set to ``False``.
         datasets : list, optional
             List of dataset names to export. The default is all datasets. This argument is relevant only if
             ``auxiliary_dict_file`` is not set to ``False``.
