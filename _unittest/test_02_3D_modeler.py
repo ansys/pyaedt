@@ -427,7 +427,7 @@ class TestClass(BasisTest, object):
         cs1.props["OriginY"] = 20
         cs1.props["OriginZ"] = 10
         assert cs1.update()
-        cs1.origin([10, 10, 10])
+        cs1.origin = [10, 10, 10]
         assert cs2.change_cs_mode(2)
         cs2.props["Phi"] = 30
         cs2.props["Theta"] = 30
