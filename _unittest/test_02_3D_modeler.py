@@ -424,9 +424,10 @@ class TestClass(BasisTest, object):
         cs2.ref_cs = "CS1"
         assert cs2.update()
         cs1.props["OriginX"] = 10
-        cs1.props["OriginY"] = 10
+        cs1.props["OriginY"] = 20
         cs1.props["OriginZ"] = 10
         assert cs1.update()
+        cs1.origin([10, 10, 10])
         assert cs2.change_cs_mode(2)
         cs2.props["Phi"] = 30
         cs2.props["Theta"] = 30
@@ -683,7 +684,7 @@ class TestClass(BasisTest, object):
             x_pointing=[-0.70710678118655, -0.70710678118655, 0],
             y_pointing=[-0.70710678118655, 0.70710678118655, 0],
         )
-        self.aedtapp.modeler.create_coordinate_system(
+        cs2 = self.aedtapp.modeler.create_coordinate_system(
             origin=[-5.4, 1.4, -8],
             name="CS_Test2",
             reference_cs="CS_Test1",
@@ -692,8 +693,11 @@ class TestClass(BasisTest, object):
         )
         p1 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1")
         p2 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2")
+        p3 = self.aedtapp.modeler.global_to_cs([0, 0, 0], cs2)
         assert all(abs(p1[i] - s) < tol for i, s in enumerate([-2.5455844122716, 1.1313708498985, 1.0]))
         assert all(abs(p2[i] - s) < tol for i, s in enumerate([2.2260086876588, -1.8068578500310, 9.0]))
+        assert p2 == p3
+        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "Global") == [0, 0, 0]
 
     def test_57_duplicate_coordinate_system_to_global(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -702,7 +706,7 @@ class TestClass(BasisTest, object):
             x_pointing=[-0.70710678118655, -0.70710678118655, 0],
             y_pointing=[-0.70710678118655, 0.70710678118655, 0],
         )
-        self.aedtapp.modeler.create_coordinate_system(
+        cs4 = self.aedtapp.modeler.create_coordinate_system(
             origin=[-5.4, 1.4, -8],
             name="CS_Test4",
             reference_cs="CS_Test3",
@@ -710,9 +714,15 @@ class TestClass(BasisTest, object):
             y_pointing=[-0.55470019622523, 0.83205029433784, 0],
         )
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_Test4")
+        assert self.aedtapp.modeler.duplicate_coordinate_system_to_global(cs4)
+        assert not self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_non_existent")
+        assert not self.aedtapp.modeler.duplicate_coordinate_system_to_global(1)
         o, q = self.aedtapp.modeler.reference_cs_to_global("CS_Test4")
         assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
         assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
+        assert self.aedtapp.modeler.reference_cs_to_global(cs4)
+        assert not self.aedtapp.modeler.reference_cs_to_global(1)
+        assert not self.aedtapp.modeler.reference_cs_to_global("CS_non_existent")
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -721,7 +731,7 @@ class TestClass(BasisTest, object):
             x_pointing=[-0.70710678118655, -0.70710678118655, 0],
             y_pointing=[-0.70710678118655, 0.70710678118655, 0],
         )
-        self.aedtapp.modeler.create_coordinate_system(
+        cs6 = self.aedtapp.modeler.create_coordinate_system(
             origin=[-5.4, 1.4, -8],
             name="CS_Test6",
             reference_cs="CS_Test5",
@@ -736,3 +746,6 @@ class TestClass(BasisTest, object):
         res = o + q
         sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
         assert all(abs(res[i] - sol[i]) < tol for i in range(3))
+        assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)
+        assert not self.aedtapp.modeler.invert_cs("CS_Test7", to_global=True)
+        assert not self.aedtapp.modeler.invert_cs(1, to_global=True)
