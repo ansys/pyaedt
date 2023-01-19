@@ -775,14 +775,14 @@ class EDBPrimitives(object):
             )
             if cloned_path:
                 # forcing primitives dictionary update
-                self._app.core_primitives.primitives
+                self._app.core_primitives.primitives  # pragma no cover
                 return cloned_path
         cloned_poly = self._app.edb.Cell.Primitive.Polygon.Create(
             self._app.active_layout, self.layer_name, self.net, self.polygon_data
         )
         if cloned_poly:
             # forcing primitives dictionary update
-            self._app.core_primitives.primitives
+            self._app.core_primitives.primitives  # pragma no cover
             return cloned_poly
         return False
 
