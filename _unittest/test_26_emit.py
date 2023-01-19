@@ -385,12 +385,9 @@ class TestClass(BasisTest, object):
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0
-        assert len(domain.interferer_names) == 1
-        assert domain.interferer_names[0] == "MD400C"
-        assert len(domain.interferer_band_names) == 1
-        assert domain.interferer_band_names[0] == "Tx"
-        assert len(domain.interferer_channel_frequencies) == 1
-        assert domain.interferer_channel_frequencies[0] == -1.0
+        assert domain.interferer_names == ["MD400C"]
+        assert domain.interferer_band_names == ["Tx"]
+        assert domain.interferer_channel_frequencies == [-1.0]
         assert domain.instance_count() == 31626
         interaction = self.aedtapp.results.revisions_list[0].run(domain)
         available_warning = interaction.get_availability_warning(domain)
