@@ -15,7 +15,6 @@ import time
 import subprocess
 import pyaedt
 from pyaedt import Emit
-from pyaedt.emit import Interaction_Domain
 from pyaedt.emit import Revision
 from pyaedt.emit import Result
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
@@ -139,7 +138,6 @@ for band in bluetooth.bands():
 # Create a results revision and load it for analysis
 
 rev = emitapp.analyze()
-emitapp._load_revision(rev.path)
 modeRx = emitapp.tx_rx_mode().rx
 modeTx = emitapp.tx_rx_mode().tx
 modeEmi = emitapp.result_type().emi
@@ -238,8 +236,8 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
         emi_threshold - Tx channel separation to be determined such that the EMI
         margin is not at or above this level.
     """
-    domain = Interaction_Domain()
 
+    domain = emitapp.interaction_domain()
     domain.set_receiver(rx_band[0], rx_band[1], 0.0)
     radTx = []
     bandTx = []

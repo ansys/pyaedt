@@ -16,7 +16,6 @@ import time
 import subprocess
 import pyaedt
 from pyaedt import Emit
-from pyaedt.emit import Interaction_Domain
 from pyaedt.emit import Revision
 from pyaedt.emit import Result
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
@@ -185,7 +184,6 @@ for band in bands:
 # Create a results revision and load it for analysis
 
 rev = emitapp.analyze()
-emitapp._load_revision(rev.path)
 modeRx = emitapp.tx_rx_mode().rx
 modeTx = emitapp.tx_rx_mode().tx
 modeEmi = emitapp.result_type().emi
@@ -280,7 +278,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 
 rx_radios = emitapp.results.get_radio_names(modeRx)
 tx_radios = emitapp.results.get_radio_names(modeTx)
-domain = Interaction_Domain()
+domain = emitapp.interaction_domain()
 
 ###############################################################################
 # Iterate over all the radios
@@ -326,8 +324,8 @@ for tx_radio in tx_radios:
 
             # find the highest power level at the Rx input due
             # to each Tx Radio
-            domain.set_receiver(rx_radio, rx_band)
-            domain.set_interferers([tx_radio],[tx_band_shortname])
+            domain.set_receiver(rx_radio, rx_band, -1)
+            domain.set_interferers([tx_radio],[tx_band_shortname],[-1])
             interaction = rev.run(domain)
             worst = interaction.get_worst_instance(modeEmi)
 
