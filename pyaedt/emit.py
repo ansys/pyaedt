@@ -261,6 +261,7 @@ class Revision:
         eng = self.emit_obj._emit_api.get_engine()
         return eng.is_domain_valid(domain)
 
+
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.
 
