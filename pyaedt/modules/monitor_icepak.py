@@ -524,8 +524,8 @@ class Monitor:
         monitor_dict : dict
            Dictionary containing monitor object information.
         mode : int
-            Integer to select the information to handle. To identify the faces, vertices, surfaces, and object to which to
-            assign the monitor to, you can use:
+            Integer to select the information to handle. To identify the faces, vertices,
+            surfaces, and object to which to assign the monitor to, you can use:
             - ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity".
             - positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity".
 
