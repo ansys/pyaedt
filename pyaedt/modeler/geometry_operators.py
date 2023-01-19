@@ -765,8 +765,8 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zxz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following the rotation
-        sequence ZXZ.
+        """Retrieve Euler angles of a frame following the rotation sequence ZXZ.
+
         Provides assumption for the gimbal lock problem.
 
         Parameters
@@ -809,8 +809,9 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zyz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation
-        sequence ZYZ. Provides assumption for the gimbal lock problem.
+        """Retrieve Euler angles of a frame following the rotation sequence ZYZ.
+
+        Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------

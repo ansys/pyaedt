@@ -899,7 +899,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
     @property
     def origin(self):
-        """Returns the Coordinate System origin in model units.
+        """Coordinate system origin in model units.
 
         Returns
         -------
@@ -1661,7 +1661,7 @@ class GeometryModeler(Modeler, object):
             Enumerator ``pyaedt.generic.constants.VIEW`` can be used.
 
             .. note::
-              For back compatibility, ``mode="view"`` and ``view="rotate"`` is the same as
+              For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
               ``mode="axis"``. Because the "rotate" option in the "view" mode is obsolete, use
               ``mode="axis"`` instead.
 
@@ -1799,7 +1799,8 @@ class GeometryModeler(Modeler, object):
         point : list
             List of the ``[x, y, z]`` coordinates to transform.
         ref_cs : str, CoordinateSystem
-            Name of the destination reference system. The CoordinateSystem object can also be used.
+            Name of the destination reference system. The ``CoordinateSystem`` object can also be
+            used.
 
         Returns
         -------
@@ -1818,7 +1819,7 @@ class GeometryModeler(Modeler, object):
         elif isinstance(ref_cs, str):
             ref_cs_name = ref_cs
         else:
-            raise AttributeError("ref_cs must be in either a string or a CoordinateSystem object.")
+            raise AttributeError("ref_cs must be either a string or a CoordinateSystem object.")
         if ref_cs_name == "Global":
             return point
         cs_names = [i.name for i in self.coordinate_systems]
@@ -1862,7 +1863,8 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         name : str, FaceCoordinateSystem, CoordinateSystem
-            Name of the coordinate system or CoordinateSystem object to set as the working coordinate system.
+            Name of the coordinate system or ``CoordinateSystem`` object to set as the working
+            coordinate system.
 
         Returns
         -------
@@ -1886,18 +1888,19 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def invert_cs(self, coordinate_system, to_global=False):
-        """
-        Get the origin and quaternion of the inverse transformation of that which defines the
-        input coordinate system. By defining a coordinate system with this information, the
-        Reference CS of the input one is obtained.
+        """Get the inverse translation and the conjugate quaternion of the input coordinate system.
+
+        By defining a new coordinate system with this information, the reference coordinate system
+        of the input coordinate system is obtained.
 
         Parameters
         ----------
         coordinate_system : str, CoordinateSystem
-            Name of the destination reference system. A CoordinateSystem object can also be used.
+            Name of the destination reference system. A ``CoordinateSystem`` object can also be
+            used.
         to_global : bool, optional
-            The inverse transformation of the input coordinate system is computed with respect to
-             the "Global" one. Default is ``False``.
+            Whether to compute the inverse transformation of the input coordinate system with
+            respect to the global coordinate system. The default is ``False``.
 
         Returns
         -------
@@ -1929,8 +1932,7 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def reference_cs_to_global(self, coordinate_system):
-        """Get the origin and quaternion that define the input coordinate system using "Global" as
-        the reference one.
+        """Get the origin and quaternion defining the coordinate system in the global coordinates.
 
         Parameters
         ----------
@@ -1968,14 +1970,15 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def duplicate_coordinate_system_to_global(self, coordinate_system):
-        """Create a duplicate of the coordinate system referenced to global.
-        It is useful have the same coordinate system referenced to Global, removing all nested
-        coordinate system dependencies.
+        """Create a duplicate coordinate system referenced to the global coordinate system.
+
+        It is useful to have this coordinate system referenced to the global coordinate
+        system, removing all nested coordinate system dependencies.
 
         Parameters
         ----------
         coordinate_system : str, CoordinateSystem
-            Name of the destination reference system. The CoordinateSystem object can also be used.
+            Name of the destination reference system. The ``CoordinateSystem`` object can also be used.
 
         Returns
         -------
