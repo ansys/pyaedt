@@ -749,6 +749,43 @@ class EDBPrimitives(object):
         else:
             return False
 
+    @pyaedt_function_handler
+    def clone(self):
+        """Clone a primitive object with keeping same definition and location.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.type == "Path":
+            center_line = self.primitive_object.GetCenterLine()
+            width = self.primitive_object.GetWidthValue()
+            corner_style = self.primitive_object.GetCornerStyle()
+            end_cap_style = self.primitive_object.GetEndCapStyle()
+            cloned_path = self._app.edb.Cell.Primitive.Path.Create(
+                self._app.active_layout,
+                self.layer_name,
+                self.net,
+                width,
+                end_cap_style[1],
+                end_cap_style[2],
+                corner_style,
+                center_line,
+            )
+            if cloned_path:
+                # forcing primitives dictionary update
+                self._app.core_primitives.primitives
+                return cloned_path
+        cloned_poly = self._app.edb.Cell.Primitive.Polygon.Create(
+            self._app.active_layout, self.layer_name, self.net, self.polygon_data
+        )
+        if cloned_poly:
+            # forcing primitives dictionary update
+            self._app.core_primitives.primitives
+            return cloned_poly
+        return False
+
 
 class EDBArcs(object):
     """Manages EDB Arc Data functionalities.
