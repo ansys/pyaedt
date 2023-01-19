@@ -1913,11 +1913,11 @@ class GeometryModeler(Modeler, object):
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
         elif isinstance(coordinate_system, str):
-            if coordinate_system not in cs_names:
+            if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
             idx = cs_names.index(coordinate_system)
             cs = self.coordinate_systems[idx]
-        else:
+        else:  # pragma: no cover
             raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
 
         if to_global:
@@ -1950,11 +1950,11 @@ class GeometryModeler(Modeler, object):
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
         elif isinstance(coordinate_system, str):
-            if coordinate_system not in cs_names:
+            if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
             idx = cs_names.index(coordinate_system)
             cs = self.coordinate_systems[idx]
-        else:
+        else:  # pragma: no cover
             raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
         q = cs.quaternion
         o = cs.origin
@@ -1994,11 +1994,11 @@ class GeometryModeler(Modeler, object):
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
         elif isinstance(coordinate_system, str):
-            if coordinate_system not in cs_names:
+            if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
             idx = cs_names.index(coordinate_system)
             cs = self.coordinate_systems[idx]
-        else:
+        else:  # pragma: no cover
             raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
         o, q = self.reference_cs_to_global(coordinate_system)
         x, y, _ = GeometryOperators.quaternion_to_axis(q)

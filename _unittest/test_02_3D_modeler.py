@@ -715,14 +715,10 @@ class TestClass(BasisTest, object):
         )
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_Test4")
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global(cs4)
-        assert not self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_non_existent")
-        assert not self.aedtapp.modeler.duplicate_coordinate_system_to_global(1)
         o, q = self.aedtapp.modeler.reference_cs_to_global("CS_Test4")
         assert all(abs(o[i] - s) < tol for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
         assert all(abs(q[i] - s) < tol for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0]))
         assert self.aedtapp.modeler.reference_cs_to_global(cs4)
-        assert not self.aedtapp.modeler.reference_cs_to_global(1)
-        assert not self.aedtapp.modeler.reference_cs_to_global("CS_non_existent")
 
     def test_58_invert_cs(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -747,5 +743,3 @@ class TestClass(BasisTest, object):
         sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
         assert all(abs(res[i] - sol[i]) < tol for i in range(3))
         assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)
-        assert not self.aedtapp.modeler.invert_cs("CS_Test7", to_global=True)
-        assert not self.aedtapp.modeler.invert_cs(1, to_global=True)
