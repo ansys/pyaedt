@@ -5,7 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
-from pyaedt.emit import Interaction_Domain
 from pyaedt.emit import Revision
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
@@ -169,16 +168,16 @@ class TestClass(BasisTest, object):
         )
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
-        assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_frequencies() == 1
-        self.aedtapp.results.revisions_list[-1].set_max_simultaneous_frequencies(10)
-        assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_frequencies() == 10
+        assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 1
+        self.aedtapp.results.revisions_list[-1].set_max_simultaneous_interferers(10)
+        assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 10
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_static_type_generation(self):
-        domain = Interaction_Domain()
-        assert str(type(domain._obj)) == "<class 'EmitApiPython.InteractionDomain'>"
+        domain = self.aedtapp.interaction_domain()
+        assert str(type(domain)) == "<class 'EmitApiPython.InteractionDomain'>"
 
         mode = self.aedtapp.tx_rx_mode()
         mode_rx = self.aedtapp.tx_rx_mode().rx
@@ -213,9 +212,8 @@ class TestClass(BasisTest, object):
     )
     def test_InteractionDomain(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
-        testable_id = Interaction_Domain()
-        assert str(type(testable_id.emit_api)) == "<class 'EmitApiPython.EmitApi'>"
-        assert str(type(testable_id._obj)) == "<class 'EmitApiPython.InteractionDomain'>"
+        testable_id = self.aedtapp.interaction_domain()
+        assert str(type(testable_id)) == "<class 'EmitApiPython.InteractionDomain'>"
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
@@ -248,13 +246,12 @@ class TestClass(BasisTest, object):
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             self.aedtapp._emit_api.load_project(file.path)
             assert self.aedtapp.results.result_loaded
-            rev = Revision(self.aedtapp, "Revision 1")
-            assert rev is not None
-            domain = Interaction_Domain()
+            assert Revision(self.aedtapp, "Revision 1") is not None
+            domain = self.aedtapp.interaction_domain()
             assert domain is not None
-            eng = self.aedtapp._emit_api.get_engine()
-            assert eng is not None
-            interaction = eng.run(domain._obj)
+            engine = self.aedtapp._emit_api.get_engine()
+            assert engine is not None
+            interaction = engine.run(domain)
             assert interaction is not None
 
     @pytest.mark.skipif(
@@ -287,7 +284,7 @@ class TestClass(BasisTest, object):
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
         )
-        domain = Interaction_Domain()
+        domain = self.aedtapp.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
         radiosTX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().tx)
         tx_freqs = []
@@ -305,18 +302,17 @@ class TestClass(BasisTest, object):
         assert instance.get_value(self.aedtapp.result_type().emi) == 76.02
         assert instance.get_value(self.aedtapp.result_type().desense) == 3.01
         assert instance.get_value(self.aedtapp.result_type().sensitivity) == -66.99
-        instance = None
-        instance = interaction.get_instance(domain._obj)
+        instance = interaction.get_instance(domain)
         assert instance.get_value(self.aedtapp.result_type().emi) == 76.02
         assert instance.get_value(self.aedtapp.result_type().desense) == 3.01
         assert instance.get_value(self.aedtapp.result_type().sensitivity) == -66.99
-        available_warning = interaction.get_availability_warning(domain._obj)
+        available_warning = interaction.get_availability_warning(domain)
         assert available_warning == "Availability only defined for 1 to 1 runs."
-        valid_availability = interaction.has_valid_availability(domain._obj)
+        valid_availability = interaction.has_valid_availability(domain)
         assert valid_availability is False
         exception_raised = False
         try:
-            availability = interaction.get_availability(domain._obj)
+            availability = interaction.get_availability(domain)
         except RuntimeError as e:
             exception_raised = True
             assert e.args[0] == "ERROR: Availability only defined for 1 to 1 runs."
@@ -353,7 +349,7 @@ class TestClass(BasisTest, object):
 
         self.aedtapp.analyze(0)
 
-        domain = Interaction_Domain()
+        domain = self.aedtapp.interaction_domain()
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
@@ -365,10 +361,8 @@ class TestClass(BasisTest, object):
         tx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
         )
-        radtx = []
-        bandtx = []
-        radtx.append(radiosTX[0])
-        bandtx.append(bandsTX[0])
+        radtx = [radiosTX[0]]
+        bandtx = [bandsTX[0]]
         domain.set_interferers(radtx, bandtx)
         assert len(self.aedtapp.results.revisions_list) == 2
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
@@ -382,24 +376,25 @@ class TestClass(BasisTest, object):
         tx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
         )
-        radtx = []
-        bandtx = []
-        radtx.append(radiosTX[0])
-        bandtx.append(bandsTX[0])
+        radtx = [radiosTX[0]]
+        bandtx = [bandsTX[0]]
         domain.set_interferers(radtx, bandtx)
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0
-        assert domain.interferer_names == ["MD400C"]
-        assert domain.interferer_band_names == ["Tx"]
-        assert domain.interferer_channel_frequencies == [-1.0]
-        assert domain.instance_count == 31626
+        assert len(domain.interferer_names) == 1
+        assert domain.interferer_names[0] == "MD400C"
+        assert len(domain.interferer_band_names) == 1
+        assert domain.interferer_band_names[0] == "Tx"
+        assert len(domain.interferer_channel_frequencies) == 1
+        assert domain.interferer_channel_frequencies[0] == -1.0
+        assert domain.instance_count() == 31626
         interaction = self.aedtapp.results.revisions_list[0].run(domain)
-        available_warning = interaction.get_availability_warning(domain._obj)
+        available_warning = interaction.get_availability_warning(domain)
         assert available_warning == ""
-        availability = interaction.get_availability(domain._obj)
+        availability = interaction.get_availability(domain)
         assert availability == 1.0
-        valid_availability = interaction.has_valid_availability(domain._obj)
+        valid_availability = interaction.has_valid_availability(domain)
         assert valid_availability
 
         self.aedtapp.analyze(-1)

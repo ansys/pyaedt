@@ -7,7 +7,7 @@ numpy==1.24.1; python_version > '3.7'
 openpyxl==3.0.10
 osmnx
 pandas==1.5.2
-pytest==7.2.0
+pytest==7.2.1
 pytest-cov==4.0.0
 pytest-xdist==3.1.0
 pyvista==0.37.0
