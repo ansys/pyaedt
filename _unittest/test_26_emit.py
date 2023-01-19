@@ -251,8 +251,11 @@ class TestClass(BasisTest, object):
             assert domain is not None
             engine = self.aedtapp._emit_api.get_engine()
             assert engine is not None
+            assert engine.is_domain_valid(domain)
             interaction = engine.run(domain)
             assert interaction is not None
+            domain.set_receiver("dummy")
+            assert not engine.is_domain_valid(domain)
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"

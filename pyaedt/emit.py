@@ -12,9 +12,9 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 mod = None
 
 
-class Result:
+class Results:
     """
-    Provides the ``Result`` object.
+    Provides the ``Results`` object.
 
     Parameters
     ----------
@@ -25,7 +25,7 @@ class Result:
     --------
     Create an instance of the ``Result`` object.
 
-    >>> aedtapp.results = Result()
+    >>> aedtapp.results = Results()
     >>> mode = Emit.tx_rx_mode().rx
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
     """
@@ -247,6 +247,19 @@ class Revision:
         eng = self.emit_obj._emit_api.get_engine()
         eng.max_simultaneous_interferers = val
 
+    @pyaedt_function_handler()
+    def is_domain_valid(self, ret_val, domain):
+
+        """
+        Return true if the given domain is valid for the current Revision
+
+        Examples
+        ----------
+        >>> domain = aedtapp.interaction_domain()
+        >>> if aedtapp.results.is_domain_valid(domain):
+        """
+        eng = self.emit_obj._emit_api.get_engine()
+        return eng.is_domain_valid(domain)
 
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.
@@ -385,7 +398,7 @@ class Emit(FieldAnalysisEmit, object):
             global mod
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
-            self.results = Result(self)
+            self.results = Results(self)
             self.__emit_api_enabled = True
 
     @pyaedt_function_handler()
