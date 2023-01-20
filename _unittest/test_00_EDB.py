@@ -101,6 +101,7 @@ if not config["skip_edb"]:
             assert len(self.edbapp.core_primitives.polygons_by_layer["UNNAMED_000"]) == 0
             assert self.edbapp.core_primitives.polygons[0].is_void == self.edbapp.core_primitives.polygons[0].IsVoid()
             poly0 = self.edbapp.core_primitives.polygons[0]
+            assert self.edbapp.core_primitives.polygons[0].clone()
             poly1 = self.edbapp.core_primitives.polygons[0]
             assert isinstance(poly0.voids, list)
             assert isinstance(poly0.points_raw(), list)
@@ -110,6 +111,7 @@ if not config["skip_edb"]:
             assert poly0.points_raw()[0].X.ToDouble() >= 0.0
             assert poly0.type == "Polygon"
             assert self.edbapp.core_primitives.paths[0].type == "Path"
+            assert self.edbapp.core_primitives.paths[0].clone()
             assert self.edbapp.core_primitives.rectangles[0].type == "Rectangle"
             assert self.edbapp.core_primitives.circles[0].type == "Circle"
             assert not poly0.is_arc(poly0.points_raw()[0])
