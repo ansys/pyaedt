@@ -1116,8 +1116,9 @@ class ParametricSetups(object):
                         table_line.append(line[var_name])
                 table.append(table_line)
 
-            for point in table:
-                setup.props["Sweep Operations"]["add"].append(point)
+            if len(table) > 1:
+                for point in table[1:]:
+                    setup.props["Sweep Operations"]["add"].append(point)
 
         cont = 0
         for data in args:
