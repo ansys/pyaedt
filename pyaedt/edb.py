@@ -2148,7 +2148,7 @@ class Edb(object):
                     self.core_components.create_port_on_component(
                         cmp,
                         net_list=simulation_setup.signal_nets,
-                        do_pingroup=True,
+                        do_pingroup=simulation_setup.do_pingroup,
                         reference_net=simulation_setup.power_nets,
                         port_type=SourceType.CircPort,
                     )
