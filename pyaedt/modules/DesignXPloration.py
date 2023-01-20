@@ -245,7 +245,7 @@ class CommonOptimetrics(PropsManager, object):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
 
-        if self.soltype == "OptiParametric" and len(arg[8]) == 2:
+        if self.soltype == "OptiParametric" and len(arg[8]) == 3:
             arg[8] = ["NAME:Sweep Operations"]
             for variation in self.props["Sweep Operations"].get("add", []):
                 arg[8].append("add:=")
