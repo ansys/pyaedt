@@ -211,8 +211,8 @@ class Revision:
 
         """
         self.emit_obj._load_result_set(self.path)
-        eng = self.emit_obj._emit_api.get_engine()
-        interaction = eng.run(domain)
+        engine = self.emit_obj._emit_api.get_engine()
+        interaction = engine.run(domain)
         return interaction
 
     @pyaedt_function_handler()
@@ -230,8 +230,8 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
-        eng = self.emit_obj._emit_api.get_engine()
-        max_interferers = eng.max_simultaneous_interferers
+        engine = self.emit_obj._emit_api.get_engine()
+        max_interferers = engine.max_simultaneous_interferers
         return max_interferers
 
     @pyaedt_function_handler()
@@ -244,22 +244,22 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
-        eng = self.emit_obj._emit_api.get_engine()
-        eng.max_simultaneous_interferers = val
+        engine = self.emit_obj._emit_api.get_engine()
+        engine.max_simultaneous_interferers = val
 
     @pyaedt_function_handler()
     def is_domain_valid(self, ret_val, domain):
-
         """
-        Return true if the given domain is valid for the current Revision
+        Return ``True`` if the given domain is valid for the current Revision
 
         Examples
         ----------
         >>> domain = aedtapp.interaction_domain()
-        >>> if aedtapp.results.is_domain_valid(domain):
+        >>> aedtapp.results.is_domain_valid(domain)
+        True
         """
-        eng = self.emit_obj._emit_api.get_engine()
-        return eng.is_domain_valid(domain)
+        engine = self.emit_obj._emit_api.get_engine()
+        return engine.is_domain_valid(domain)
 
 
 class Emit(FieldAnalysisEmit, object):
