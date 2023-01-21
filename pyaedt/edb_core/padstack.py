@@ -530,17 +530,17 @@ class EdbPadstacks(object):
             return all_succeed
 
     @pyaedt_function_handler
-    def check_and_fix_via_pating(self, minimum_value_to_replace=0.0, default_plating_ratio=0.2):
-        """Check and fix zero value plating ratio via definition with assigning default value.
+    def check_and_fix_via_plating(self, minimum_value_to_replace=0.0, default_plating_ratio=0.2):
+        """Check for minimum via plating ration value, values found below the minimum one are replaced by default
+        plating ratio.
 
         Parameters
         ----------
         minimum_value_to_replace : float
-            Plating ratio below or equal to this value will be replaced by the default one.
-
+            Plating ratio that is below or equal to this value is to be replaced
+            with the value specified for the next parameter. Default value ``0.0``.
         default_plating_ratio : float
-            Default value used for plating ratio. Fefault value is 0.2.
-
+            Default value to use for plating ratio. The default value is ``0.2``.
 
         Returns
         -------
@@ -557,7 +557,7 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler()
     def get_via_instance_from_net(self, net_list=None):
-        """Get the list for Edb vias from net name list.
+        """Get the list for EDB vias from a net name list.
 
         Parameters
         ----------
