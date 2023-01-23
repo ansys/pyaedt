@@ -12,9 +12,9 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 mod = None
 
 
-class Result:
+class Results:
     """
-    Provides the ``Result`` object.
+    Provides the ``Results`` object.
 
     Parameters
     ----------
@@ -25,7 +25,7 @@ class Result:
     --------
     Create an instance of the ``Result`` object.
 
-    >>> aedtapp.results = Result()
+    >>> aedtapp.results = Results()
     >>> mode = Emit.tx_rx_mode().rx
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
     """
@@ -211,8 +211,8 @@ class Revision:
 
         """
         self.emit_obj._load_result_set(self.path)
-        eng = self.emit_obj._emit_api.get_engine()
-        interaction = eng.run(domain)
+        engine = self.emit_obj._emit_api.get_engine()
+        interaction = engine.run(domain)
         return interaction
 
     @pyaedt_function_handler()
@@ -230,8 +230,8 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
-        eng = self.emit_obj._emit_api.get_engine()
-        max_interferers = eng.max_simultaneous_interferers
+        engine = self.emit_obj._emit_api.get_engine()
+        max_interferers = engine.max_simultaneous_interferers
         return max_interferers
 
     @pyaedt_function_handler()
@@ -244,8 +244,22 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
-        eng = self.emit_obj._emit_api.get_engine()
-        eng.max_simultaneous_interferers = val
+        engine = self.emit_obj._emit_api.get_engine()
+        engine.max_simultaneous_interferers = val
+
+    @pyaedt_function_handler()
+    def is_domain_valid(self, ret_val, domain):
+        """
+        Return ``True`` if the given domain is valid for the current Revision
+
+        Examples
+        ----------
+        >>> domain = aedtapp.interaction_domain()
+        >>> aedtapp.results.is_domain_valid(domain)
+        True
+        """
+        engine = self.emit_obj._emit_api.get_engine()
+        return engine.is_domain_valid(domain)
 
 
 class Emit(FieldAnalysisEmit, object):
@@ -385,7 +399,7 @@ class Emit(FieldAnalysisEmit, object):
             global mod
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
-            self.results = Result(self)
+            self.results = Results(self)
             self.__emit_api_enabled = True
 
     @pyaedt_function_handler()
