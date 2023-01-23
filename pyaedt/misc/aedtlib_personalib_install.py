@@ -56,7 +56,7 @@ with Desktop(version, True) as d:
 
         if not os.path.exists(tool_dir):
             os.makedirs(tool_dir)
-        files_to_copy = ["cpython_console", "Run_PyAEDT_Script"]
+        files_to_copy = ["Console", "Run_PyAEDT_Script"]
         for file_name in files_to_copy:
             with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
                 with open(os.path.join(tool_dir, file_name + ".py"), "w") as out_file:
