@@ -22,11 +22,13 @@ pd = None
 if not is_ironpython:
     try:
         import numpy as np
+    except ImportError:
+        np = None
+
+    try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
-        )
+        pd = None
 
 
 logger = logging.getLogger(__name__)
@@ -124,6 +126,9 @@ class Stackup(object):
         -------
         bool
         """
+        if not np:
+            self._pedb.logger.error("Numpy is needed. Install it.")
+            return False
         if not layer_count % 2 == 0:
             return False
 
@@ -524,6 +529,9 @@ class Stackup(object):
         fpath : str
             File path to csv or json file.
         """
+        if not pd:
+            self._pedb.logger.error("Pandas is needed. Install it.")
+            return False
         if os.path.splitext(fpath)[1] == ".json":
             return self._import_layer_stackup(fpath)
         if is_ironpython:
@@ -582,6 +590,9 @@ class Stackup(object):
         file_format : str, optional
             The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
         """
+        if not pd:
+            self._pedb.logger.error("Pandas is needed. Install it.")
+            return False
         if is_ironpython:
             return
         data = {

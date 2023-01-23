@@ -57,7 +57,7 @@ def _retrieve_file(url, filename, directory, destination=None):
     elif is_ironpython:
         versions = list_installed_ansysem()
         if versions:
-            cpython = os.listdir(os.path.join(os.getenv(versions[0]), "commonfiles", "CPython"))
+            cpython = os.listdir(os.path.join(os.getenv(versions[0]), "common", "commonfiles", "CPython"))
             command = (
                 '"'
                 + os.path.join(

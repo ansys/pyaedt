@@ -1,0 +1,31 @@
+"""
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
+
+It looks for a reference to a python interpreter in python_interpreter.bat
+
+This script executes the "hidden" CPython script console_setup (hidden because the .py was omitted)
+This hidden script sets up the hfss variable based on the command line arguments and kicks off the interactive python
+shell.
+
+"""
+
+import ScriptEnv
+
+import os
+import subprocess
+oProject = oDesktop.GetActiveProject()
+oDesign = oProject.GetActiveDesign()
+#choose file to launch
+
+#launch file
+win64_dir = oDesktop.GetExeDir()
+pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
+python_exe = r'''##PYTHON_EXE##'''
+pyaedt_script = os.path.join(pyaedt_toolkit_dir,'console_setup')
+command = [
+    python_exe,
+    pyaedt_script,
+    str(oDesktop.GetProcessID()),
+    oDesktop.GetVersion()[:6],  # "2022.1.0" is returned but this makes PyAEDT fail a float conversion
+           ]
+subprocess.Popen(command)

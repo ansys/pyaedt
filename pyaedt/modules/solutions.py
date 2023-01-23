@@ -3,7 +3,6 @@ import math
 import os
 import sys
 import time
-import warnings
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
@@ -23,31 +22,19 @@ from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
-pd = None
-np = None
-pv = None
 if not is_ironpython:
     try:
         import numpy as np
     except ImportError:
-        warnings.warn(
-            "The NumPy module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install numpy\n"
-        )
+        np = None
     try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install pandas\n"
-        )
+        pd = None
     try:
         import pyvista as pv
     except ImportError:
-        warnings.warn(
-            "The pyvista module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install pyvista\n"
-        )
+        pv = None
 
 
 class SolutionData(object):

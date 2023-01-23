@@ -10,7 +10,6 @@ import json
 import math
 import os
 import re
-import warnings
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -29,9 +28,7 @@ if not is_ironpython:
     try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
-        )
+        pd = None
 
 
 class Materials(object):
@@ -782,6 +779,9 @@ class Materials(object):
         List of :class:`pyaedt.modules.Material.Material`
 
         """
+        if not pd:
+            self.logger.error("Pandas is needed. Install it.")
+            return False
         materials_added = []
         props = {}
         if is_ironpython:
