@@ -245,7 +245,7 @@ class CommonOptimetrics(PropsManager, object):
         arg = ["NAME:" + self.name]
         _dict2arg(self.props, arg)
 
-        if self.soltype == "OptiParametric" and len(arg[8]) == 2:
+        if self.soltype == "OptiParametric" and len(arg[8]) == 3:
             arg[8] = ["NAME:Sweep Operations"]
             for variation in self.props["Sweep Operations"].get("add", []):
                 arg[8].append("add:=")
@@ -1116,8 +1116,9 @@ class ParametricSetups(object):
                         table_line.append(line[var_name])
                 table.append(table_line)
 
-            for point in table:
-                setup.props["Sweep Operations"]["add"].append(point)
+            if len(table) > 1:
+                for point in table[1:]:
+                    setup.props["Sweep Operations"]["add"].append(point)
 
         cont = 0
         for data in args:
