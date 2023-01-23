@@ -430,7 +430,7 @@ class Desktop(object):
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
         self._set_logger_file()
-        self._init_desktop()
+        self._init_desktop(non_graphical)
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
         if not settings.remote_api:
             self._logger.info("Python version %s", sys.version)
@@ -551,12 +551,15 @@ class Desktop(object):
                 return version_key
         return ""
 
-    def _init_desktop(self):
+    def _init_desktop(self, non_graphical):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
+        try:
+            settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
+        except AttributeError:
+            settings.enable_desktop_logs = not non_graphical
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False
