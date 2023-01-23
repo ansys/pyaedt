@@ -42,6 +42,10 @@ class Stackup(object):
         self._pedb = pedb
 
     @property
+    def _logger(self):
+        return self._pedb.logger
+
+    @property
     def layer_types(self):
         """Layer types.
 
@@ -572,16 +576,30 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath, file_format="csv"):
-        """Export stackup definition to csv file.
+    def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
+        """Export stackup definition to csv or json file.
 
         Parameters
         ----------
         fpath : str
-            File path to csv file.
+            File path to csv or json file.
         file_format : str, optional
             The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
+            ``"json"``.
+        include_material_with_layer : bool, optional.
+            Only used when json file are exported. ``True`` will include material definition inside layer ones.
+            ``False`` will keep the material definition section in the json file. Default value is ``False``.
+
         """
+        if file_format.lower() == "csv" or "xlsx":
+            self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+        elif file_format.lower() == "json":
+            self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+        else:
+            self._logger.warning("layer stackup format not supported, skipping import.")
+
+    @pyaedt_function_handler()
+    def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
         if is_ironpython:
             return
         data = {
