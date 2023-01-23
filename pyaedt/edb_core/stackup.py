@@ -592,11 +592,12 @@ class Stackup(object):
 
         """
         if file_format.lower() == "csv" or "xlsx":
-            self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
         elif file_format.lower() == "json":
             self._export_layer_stackup_to_json(fpath, include_material_with_layer)
         else:
             self._logger.warning("layer stackup format not supported, skipping import.")
+            return False
 
     @pyaedt_function_handler()
     def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
