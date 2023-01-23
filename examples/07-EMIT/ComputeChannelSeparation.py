@@ -1,6 +1,6 @@
 """
 EMIT: Compute required channel separation
--------------------------------------------
+-----------------------------------------
 This example shows how you can use PyAEDT to open an AEDT project with
 an EMIT design and analyze the results to determine the required channel
 separation for overlapping bands. 
@@ -38,7 +38,7 @@ import plotly.graph_objects as go
 from tqdm.notebook import tqdm
     
 from matplotlib import pyplot as plt
-plt.ion() # enables interactive mode so plots show immediately
+plt.ion() # Enables interactive mode so plots show immediately
 plt.show()
 import numpy as np
 
@@ -75,9 +75,9 @@ def add_and_connect_radio(radio_name, schematic_name=""):
     Returns: 
         Instance of the radio.
     Argments:
-        radio_name - String name of the EMIT library radio
+        radio_name: String name of the EMIT library radio
             to add.
-        schematic_name - Name that appears in the schematic.
+        schematic_name: Name that is to appear in the schematic.
     """
     rad = emitapp.modeler.components.create_component(radio_name, schematic_name)
     ant = emitapp.modeler.components.create_component("Antenna")
@@ -135,7 +135,7 @@ for band in bluetooth.bands():
 ###############################################################################
 # Load the results set
 # ~~~~~~~~~~~~~~~~~~~~
-# Create a results revision and load it for analysis
+# Create a results revision and load it for analysis.
 
 rev = emitapp.analyze()
 modeRx = emitapp.tx_rx_mode().rx
@@ -155,7 +155,7 @@ def overlapping_tx_bands(rx_band):
     Returns:
        List of ("Tx Radio Name", "Tx Band Name") tuples.
     Argments:
-       rx_band - Rx band, given as a tuple ("Rx Radio Name", "Rx Band Name").
+       rx_band: Rx band, given as a tuple ("Rx Radio Name", "Rx Band Name").
     """
     overlapping = []
     rx_frequencies = emitapp.results.get_active_frequencies(
@@ -215,25 +215,25 @@ for rx_radio in emitapp.results.get_radio_names(modeRx):
 ###############################################################################
 # Print a list of overlapping bands
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Prints a list of overlapping receivers and bands
+# Prints a list of overlapping receivers and bands.
 print(overlapping[0][0])
 
 ###############################################################################
 # Analyze the results
 # ~~~~~~~~~~~~~~~~~~~
-# Consider any EMI margin of 0dB or greater an interference issue    
+# Consider any EMI margin of 0dB or greater an interference issue.
 verbose = False    
 threshold = 0. 
 
 def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
-    """Return the minimum separation that the Tx must be operated for interference-free
+    """Return the minimum separation the Tx must be operated at for interference-free
     operation of the Rx.
     Returns:
         Separation in MHz.
     Arguments:
-        rx_band - Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
-        tx_band - Tx band, given as a tuple: ("Tx Radio Name", "Tx Band Name").
-        emi_threshold - Tx channel separation to be determined such that the EMI
+        rx_band: Rx band, given as a tuple: ("Rx Radio Name", "Rx Band Name").
+        tx_band: Tx band, given as a tuple: ("Tx Radio Name", "Tx Band Name").
+        emi_threshold: Tx channel separation to be determined such that the EMI
         margin is not at or above this level.
     """
 
@@ -300,7 +300,7 @@ separation_results = []
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # For each overlapping transmit/receive band combination, plot the required
 # separation for each channel.
-num=1 # current figure number
+num=1 # Current figure number
 for rx_band, tx_band in tqdm(overlapping[1:]):
     tx_frequencies = emitapp.results.get_active_frequencies(tx_band[0], tx_band[1], modeTx)
     rx_frequencies = emitapp.results.get_active_frequencies(rx_band[0], rx_band[1], modeRx)
@@ -339,7 +339,7 @@ def remove_duplicates(a_list):
     Returns:
         List with duplicate values removed.
     Arguments: 
-        a_list - List of tuples.
+        a_list: List of tuples.
     """
     ret = []
     for a in a_list:
@@ -351,8 +351,8 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
     """Create a scenario matrix-like table to display the maximum
     channel separate required for each transmit/receive band combination.
     Arguments: 
-        separation_results - Tuple of {Rx_Band, Tx_Band, max_channel_separation}.
-        title - Title of the table.
+        separation_results: Tuple of {Rx_Band, Tx_Band, max_channel_separation}.
+        title: Title of the table.
     """
     rx_bands = remove_duplicates([rx_band for rx_band, tx_band, sep in separation_results])
     tx_bands = remove_duplicates([tx_band for rx_band, tx_band, sep in separation_results])
@@ -423,7 +423,7 @@ def show_separation_table(separation_results, title='In-band Separation (MHz)'):
 ###############################################################################
 # Show results for bluetooth receiver
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Minimum required channel separation for Bluetooth receiver
+# Show the minimum required channel separation for the Bluetooth receiver.
 rx2_results = [x for x in separation_results if 'Bluetooth' in x[1][0]]
 
 # Create a table

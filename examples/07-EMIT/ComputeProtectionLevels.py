@@ -66,8 +66,8 @@ emitapp = Emit(pyaedt.generate_unique_project_name())
 # If the damage threshold is exceeded, permanent damage to the receiver front
 # end may occur.
 # Exceeding the overload threshold severely densensitizes the receiver.
-# Exceeding the intermod threshold may drive the victim receiver into non-
-# linear operation where it operates as a mixer. 
+# Exceeding the intermod threshold can drive the victim receiver into non-
+# linear operation, where it operates as a mixer. 
 # Exceeding the desense threshold reduces the signal-to-noise ratio and can 
 # reduce the maximum range, maximum bandwidth, and/or the overall link quality.
 
@@ -80,7 +80,7 @@ desense_threshold = -104
 ###############################################################################
 # Create and connect EMIT components
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Set up the scenario with radios connected to antennas
+# Set up the scenario with radios connected to antennas.
 
 def add_and_connect_radio(radio_name, schematic_name=""):
     """Add a radio from the EMIT library and connect
@@ -88,9 +88,9 @@ def add_and_connect_radio(radio_name, schematic_name=""):
     Returns: 
         Instance of the radio.
     Argments:
-        radio_name - String name of the EMIT library radio
+        radio_name: String name of the EMIT library radio
             to add.
-        schematic_name - Name that appears in the schematic.
+        schematic_name: Name that is to appear in the schematic.
     """
     rad = emitapp.modeler.components.create_component(radio_name, schematic_name)
     ant = emitapp.modeler.components.create_component("Antenna")
@@ -98,16 +98,16 @@ def add_and_connect_radio(radio_name, schematic_name=""):
         ant.move_and_connect_to(rad)
     return rad
 
-# Add 3 systems to the project
+# Add three systems to the project
 bluetooth = add_and_connect_radio("Bluetooth Low Energy (LE)", "Bluetooth")
 gps = add_and_connect_radio("GPS Receiver", "GPS")
 wifi = add_and_connect_radio("WiFi - 802.11-2012", "WiFi")
 
 ###############################################################################
 # Configure the radios
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Enable the HR-DSSS bands for the WiFi Radio and set the power level
-# for all Transmit bands to -20 dBm
+# ~~~~~~~~~~~~~~~~~~~~
+# Enable the HR-DSSS bands for the Wi-Fi radio and set the power level
+# for all transmit bands to -20 dBm.
 def set_band_power_level(band, power):
     """Set the power of the fundamental for the given band.
     Arguments:
@@ -181,7 +181,7 @@ for band in bands:
 ###############################################################################
 # Load the results set
 # ~~~~~~~~~~~~~~~~~~~~
-# Create a results revision and load it for analysis
+# Create a results revision and load it for analysis.
 
 rev = emitapp.analyze()
 modeRx = emitapp.tx_rx_mode().rx
@@ -195,7 +195,7 @@ modeEmi = emitapp.result_type().emi
 # the protection level analysis.
 
 def create_legend_table():    
-    """Creates a table showing the defined protection levels."""
+    """Create a table showing the defined protection levels."""
     protectionLevels = ['>{} dBm'.format(damage_threshold), '>{} dBm'.format(overload_threshold),
         '>{} dBm'.format(intermod_threshold), '>{} dBm'.format(desense_threshold)]
     fig = go.Figure(data=[go.Table(
@@ -229,7 +229,7 @@ def create_legend_table():
 ###############################################################################
 # Create a scenario matrix view
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Creates a scenario matrix view with the transmitters defined across the top
+# Create a scenario matrix view with the transmitters defined across the top
 # and receivers down the left-most column. The power at the input to each
 # receiver is shown in each cell of the matrix and color-coded based on the
 # protection level thresholds defined.
@@ -274,7 +274,7 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 ###############################################################################
 # Get all the radios in the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Generates lists of all the transmitters and receivers in the project.
+# Get lists of all transmitters and receivers in the project.
 
 rx_radios = emitapp.results.get_radio_names(modeRx)
 tx_radios = emitapp.results.get_radio_names(modeTx)
@@ -283,7 +283,7 @@ domain = emitapp.interaction_domain()
 ###############################################################################
 # Iterate over all the radios
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Iterates over all the transmitters and receivers and computes the power
+# Iterate over all the transmitters and receivers and compute the power
 # at the input to each receiver due to each of the transmitters. Computes
 # which, if any, protection levels are exceeded by these power levels.
 emi_matrix=[]
@@ -322,7 +322,7 @@ for tx_radio in tx_radios:
                 if tx_band_shortname in tx_band:
                     break
 
-            # find the highest power level at the Rx input due
+            # Find the highest power level at the Rx input due
             # to each Tx Radio
             domain.set_receiver(rx_radio, rx_band, -1)
             domain.set_interferers([tx_radio],[tx_band_shortname],[-1])
@@ -352,10 +352,10 @@ for tx_radio in tx_radios:
     all_colors.append(rx_colors)
     emi_matrix.append(rx_emis)
 
-# create a scenario matrix-like view for the protection levels
+# Create a scenario matrix-like view for the protection levels
 create_scenario_view(emi_matrix, all_colors, tx_radios, rx_radios)
 
-# create a legend for the protection levels
+# Create a legend for the protection levels
 create_legend_table()
 
 ###############################################################################
