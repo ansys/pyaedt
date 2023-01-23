@@ -493,7 +493,7 @@ class Hfss(FieldAnalysis3D, object):
     ):
         start = None
         stop = None
-        if int_line_start and int_line_stop:  # TODO: Allow non-numeric arguments
+        if int_line_start and int_line_stop:  # Allow non-numeric arguments
             start = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_start]
             stop = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_stop]
             useintline = True
@@ -3252,6 +3252,8 @@ class Hfss(FieldAnalysis3D, object):
     def create_wave_port(
         self,
         port_item,  # Item to use for wave port creation
+        int_start,
+        int_stop,
         deemb=0,
         axisdir=None,
         impedance=50,
@@ -3301,20 +3303,16 @@ class Hfss(FieldAnalysis3D, object):
 
         Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
 
-        >>> hfss["a"] = "0.4in"
-        >>> hfss["b"] = "0.9in"
-        >>> hfss["wg_len"] == "1.5in"
-        >>> hfss.modeler.create_box(["-b/2", 0, "-wg_len/2"], ["b", "a", "wg_len"], name="WG", matname="vacuum")
+        >>> hfss.modeler.model_units("in")
+        >>> hfss.modeler.create_box([-0.2, -0.45, -1], [0.4, 0.9, 2], name="Xband_WG", matname="vacuum")
         >>> setup = hfss.create_setup("Setup1")
         >>> setup["Frequency"] = "10GHz"
-        >>> ports = hfss.create_wave_port([0, "a/2", "-wg_len/2"], portname="Port1")
-        >>> ports.append(hfss.create_wave_port([0, "a/2", "wg_len/2"], portname="Port2"))
+        >>> ports = [ hfss.create_wave_port([0, "a/2", "-wg_len/2"], portname="Port1", deembed=False),
+        >>>  ...      hfss.create_wave_port([0, "a/2", "wg_len/2"], portname="Port2", deembed=False) ]
         >>> [print(name) for p.name in ports]
-        'WavePortFromSheet'
 
         """
-
-        # sheet = self.modeler.convert_to_selections(sheet, True)[0]
+        # TODO: check that port_item is a planar sheet
         if terminal_references:
             terminal_references = self.modeler.convert_to_selections(terminal_references, True)
         if isinstance(port_item, int):
@@ -3325,18 +3323,11 @@ class Hfss(FieldAnalysis3D, object):
         else:
             oname = ""
         if "Modal" in self.solution_type:
-            if axisdir:
-                try:
-                    _, int_start, int_stop = self._get_reference_and_integration_points(sheet, axisdir, oname)
-                except (IndexError, TypeError):
-                    int_start = int_stop = None
-            else:
-                int_start = int_stop = None
             if portname is None:
                 portname = self._get_unique_source_name(portname, "Port")
 
             return self._create_waveport_driven(
-                sheet, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
+                port_item, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
             )
         else:
             if isinstance(sheet, int):
