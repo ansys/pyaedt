@@ -18,14 +18,37 @@ pyaedt.settings.use_grpc_api=False
 
 aedt_process_id = sys.argv[1]
 version = sys.argv[2]
-with Desktop( #context manager will handle releasing the desktop under **most** circumstances
+print("\n")
+print("\n")
+
+with Desktop(
 			specified_version= version,
 			aedt_process_id = aedt_process_id,
 			new_desktop_session=False,
 			non_graphical=False,
 			close_on_exit=False,
 		) as desktop:
-	IPython.embed(colors='neutral')
+    desktop.logger.info(" ")
+    desktop.logger.info("Desktop class has been correctly initialized and connected to Desktop.")
+    desktop.logger.info(" ")
 
-
+    desktop.logger.info("===============================================================")
+    desktop.logger.info("ElectronicsDesktop 2023.1.0")
+    desktop.logger.info("Cpython {}".format(sys.version))
+    desktop.logger.info("---------------------------------------------------------------")
+    desktop.logger.info(" - With Tab completion                                         ")
+    desktop.logger.info(" - dir()      - lists all available methods and objects       ")
+    desktop.logger.info(" - dir(obj)   - lists all available attributes/methods on obj  ")
+    desktop.logger.info(" - help(obj)  - provides available help on a method or object  ")
+    desktop.logger.info("Example: hfss = Hfss()  ")
+    desktop.logger.info("Example: m2d = Maxwell2d() ")
+    desktop.logger.info("Type exit() to close the console and release the desktop.  ")
+    desktop.logger.info("desktop object is initialized and available. Example: ")
+    desktop.logger.info("desktop.logger.info('Hello world')")
+    desktop.logger.info("===============================================================")
+    desktop.logger.info(" ")
+    desktop.logger.info(" ")
+    desktop.logger.info(" ")
+    IPython.embed(colors='neutral')
+    desktop.logger.info("Goodbye from PyAEDT Console")
 

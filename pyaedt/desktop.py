@@ -452,8 +452,7 @@ class Desktop(object):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
-        if self.close_on_exit:
-            self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+        self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
 
     @pyaedt_function_handler()
     def __getitem__(self, project_design_name):
