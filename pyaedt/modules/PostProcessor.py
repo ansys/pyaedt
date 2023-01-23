@@ -1631,7 +1631,7 @@ class PostProcessorCommon(object):
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
-            if context in self.modeler.line_names:
+            if context in self.modeler.line_names or context in self.modeler.point_names:
                 report.polyline = context
 
         result = report.create(plotname)
