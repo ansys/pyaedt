@@ -557,7 +557,7 @@ class Desktop(object):
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
         try:
-            settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
+            settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
         except AttributeError:
             settings.enable_desktop_logs = not non_graphical
 
