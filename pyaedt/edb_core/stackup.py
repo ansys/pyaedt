@@ -592,7 +592,7 @@ class Stackup(object):
             The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
         """
         if not pd:
-            self._pedb.logger.error("Pandas is needed. Install it.")
+            self._pedb.logger.error("Pandas is needed. Please, install it first.")
             return False
         if is_ironpython:
             return
