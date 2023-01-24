@@ -592,7 +592,7 @@ class Stackup(object):
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
         """
-        if file_format.lower() == "csv" or "xlsx":
+        if file_format.lower() in ["csv", "xlsx"]:
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
         elif file_format.lower() == "json":
             self._export_layer_stackup_to_json(fpath, include_material_with_layer)
