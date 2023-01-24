@@ -1046,7 +1046,7 @@ def parse_excitation_file(
         Frequency, magnitude and phase.
     """
     if not np:
-        logging.error("Numpy is not available. Install it.")
+        logging.error("Numpy is not available. Please, install it first.")
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
