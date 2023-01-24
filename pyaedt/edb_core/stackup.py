@@ -128,7 +128,7 @@ class Stackup(object):
         bool
         """
         if not np:
-            self._pedb.logger.error("Numpy is needed. Install it.")
+            self._pedb.logger.error("Numpy is needed. Please, install it first.")
             return False
         if not layer_count % 2 == 0:
             return False
