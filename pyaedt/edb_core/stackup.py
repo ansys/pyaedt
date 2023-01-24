@@ -577,26 +577,27 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
-        """Export stackup definition to csv or json file.
+        """Export stackup definition to a CSV or JSON file.
 
         Parameters
         ----------
         fpath : str
             File path to csv or json file.
         file_format : str, optional
-            The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``,
             ``"json"``.
         include_material_with_layer : bool, optional.
-            Only used when json file are exported. ``True`` will include material definition inside layer ones.
-            ``False`` will keep the material definition section in the json file. Default value is ``False``.
+            Whether to include the material definition inside layer ones. This parameter is only used
+            when a JSON file is exported. The default is ``False``, which keeps the material definition
+            section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
         """
-        if file_format.lower() in ["csv" or "xlsx"]:
+        if file_format.lower() in ["csv", "xlsx"]:
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
         elif file_format.lower() == "json":
             self._export_layer_stackup_to_json(fpath, include_material_with_layer)
         else:
-            self._logger.warning("layer stackup format not supported, skipping import.")
+            self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
 
     @pyaedt_function_handler()
