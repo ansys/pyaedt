@@ -22,6 +22,9 @@ from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
+np = None
+pd = None
+pv = None
 if not is_ironpython:
     try:
         import numpy as np
