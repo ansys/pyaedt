@@ -266,6 +266,10 @@ class Material(object):
     @pyaedt_function_handler()
     def _json_format(self):
         out_dict = {}
+        if self.permittivity == 0:
+            self.permittivity = 1.0
+        if self.permeability == 0:
+            self.permeability = 1.0
         self._name = self.name
         self._conductivity = self.conductivity
         self._loss_tangent = self.loss_tangent
