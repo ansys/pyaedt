@@ -125,7 +125,7 @@ if [%install_pyaedt%]==[y] (
 		pip install psutil
 		pip install pandas
         pip install pyaedt --no-deps
-        pip install jupyterlab
+        pip install jupyterlab -I
         if [%install_spyder%]==[y] pip install spyder
         pip install ipython -I
         pip install ipyvtklink
