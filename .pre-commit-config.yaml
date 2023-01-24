@@ -30,7 +30,7 @@ repos:
       args: ['--force-single-line-imports', '--profile', 'black']
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 5.0.4
+  rev: 6.0.0
   hooks:
   - id: flake8
     args:

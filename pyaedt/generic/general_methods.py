@@ -931,6 +931,8 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
         keys = ["ansysedt.exe"]
     if version and "." in version:
         version = version[-4:].replace(".", "")
+    if version < "222":
+        version = version[:2] + "." + version[2]
     sessions = []
     for p in psutil.process_iter():
         try:
