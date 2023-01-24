@@ -452,7 +452,8 @@ class Desktop(object):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
-        self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
+        if self.close_on_exit or not is_ironpython:
+            self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
 
     @pyaedt_function_handler()
     def __getitem__(self, project_design_name):

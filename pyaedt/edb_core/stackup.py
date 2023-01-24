@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 pd = None
+np = None
 if not is_ironpython:
     try:
         import numpy as np
