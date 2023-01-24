@@ -19,7 +19,6 @@ import sys
 import tempfile
 import time
 import traceback
-import warnings
 from collections import OrderedDict
 from functools import update_wrapper
 
@@ -44,17 +43,12 @@ if not is_ironpython:
     try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
-        )
+
         pd = None
     try:
         import numpy as np
     except ImportError:
-        warnings.warn(
-            "The NumPy module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install numpy\n"
-        )
+        np = None
 
 try:
     import xml.etree.cElementTree as ET
@@ -1002,7 +996,8 @@ def compute_fft(time_vals, value):
     tuple
         Frequency and Values.
     """
-
+    if not np:
+        logging.error("Numpy is not available. Please, install it first.")
     deltaT = time_vals[-1] - time_vals[0]
     num_points = len(time_vals)
     valueFFT = np.fft.fft(value, num_points)
@@ -1050,6 +1045,8 @@ def parse_excitation_file(
     tuple
         Frequency, magnitude and phase.
     """
+    if not np:
+        logging.error("Numpy is not available. Please, install it first.")
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
