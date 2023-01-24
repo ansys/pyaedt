@@ -49,6 +49,6 @@ with Desktop(
     desktop.logger.info(" ")
     desktop.logger.info(" ")
     desktop.logger.info(" ")
-    IPython.embed(colors='neutral')
+    IPython.embed(colors='Linux')
     desktop.logger.info("Goodbye from PyAEDT Console")
 
