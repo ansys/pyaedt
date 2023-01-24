@@ -452,7 +452,7 @@ class Desktop(object):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
-        if self.close_on_exit:
+        if self.close_on_exit or not is_ironpython:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
 
     @pyaedt_function_handler()
@@ -557,7 +557,7 @@ class Desktop(object):
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
         try:
-            settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
+            settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
         except AttributeError:
             settings.enable_desktop_logs = not non_graphical
 
