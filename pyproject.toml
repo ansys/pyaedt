@@ -1,39 +1,15 @@
 [build-system]
-# Uncomment this line, the `meson-python` requires line, and the [project] and
-# [project.urls] tables below in order to build with Meson by default
-#build-backend = "mesonpy"
+build-backend = "setuptools.build_meta"
 requires = [
-    # setuptools, wheel and Cython are needed for the setup.py based build
-    "setuptools==59.2.0",
-    # `wheel` is needed for non-isolated builds, given that `meson-python`
-    # doesn't list it as a runtime requirement (at least in 0.11.0) - it's
-    # likely to be removed as a dependency in meson-python 0.12.0.
-    "wheel==0.37.0",
-    "Cython>=0.29.30,<3.0",
-#    "meson-python>=0.10.0",
+    "setuptools",
+    "setuptools-scm",
+    "wheel",
 ]
 
-[project]
-name = "my_package"
-authors = [
-    {name = "Josiah Carberry", email = "josiah_carberry@brown.edu"},
-]
-description = "My package description"
-readme = "README.rst"
-requires-python = ">=3.7"
-keywords = ["one", "two"]
-license = {text = "BSD-3-Clause"}
-classifiers = [
-    "Framework :: Django",
-    "Programming Language :: Python :: 3",
-]
-dependencies = [
-    "requests",
-    'importlib-metadata; python_version<"3.8"',
-]
-dynamic = ["version"]
-
-
+# dependencies = [
+#     "requests",
+#     'importlib-metadata; python_version<"3.8"',
+# ]
 
 
 [project]
@@ -55,7 +31,6 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
 ]
 
 [project.optional-dependencies]
