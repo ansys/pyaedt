@@ -19,14 +19,17 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 pd = None
+np = None
 if not is_ironpython:
     try:
         import numpy as np
+    except ImportError:
+        np = None
+
+    try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
-        )
+        pd = None
 
 
 logger = logging.getLogger(__name__)
@@ -40,6 +43,10 @@ class Stackup(object):
 
     def __init__(self, pedb):
         self._pedb = pedb
+
+    @property
+    def _logger(self):
+        return self._pedb.logger
 
     @property
     def layer_types(self):
@@ -124,6 +131,9 @@ class Stackup(object):
         -------
         bool
         """
+        if not np:
+            self._pedb.logger.error("Numpy is needed. Please, install it first.")
+            return False
         if not layer_count % 2 == 0:
             return False
 
@@ -524,6 +534,9 @@ class Stackup(object):
         fpath : str
             File path to csv or json file.
         """
+        if not pd:
+            self._pedb.logger.error("Pandas is needed. Please, install it first.")
+            return False
         if os.path.splitext(fpath)[1] == ".json":
             return self._import_layer_stackup(fpath)
         if is_ironpython:
@@ -572,16 +585,35 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath, file_format="csv"):
-        """Export stackup definition to csv file.
+    def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
+        """Export stackup definition to a CSV or JSON file.
 
         Parameters
         ----------
         fpath : str
-            File path to csv file.
+            File path to csv or json file.
         file_format : str, optional
-            The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``,
+            ``"json"``.
+        include_material_with_layer : bool, optional.
+            Whether to include the material definition inside layer ones. This parameter is only used
+            when a JSON file is exported. The default is ``False``, which keeps the material definition
+            section in the JSON file. If ``True``, the material definition is included inside the layer ones.
+
         """
+        if file_format.lower() in ["csv", "xlsx"]:
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+        elif file_format.lower() == "json":
+            self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+        else:
+            self._logger.warning("Layer stackup format is not supported. Skipping import.")
+            return False
+
+    @pyaedt_function_handler()
+    def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
+        if not pd:
+            self._pedb.logger.error("Pandas is needed. Please, install it first.")
+            return False
         if is_ironpython:
             return
         data = {
@@ -650,7 +682,7 @@ class Stackup(object):
                         self._pedb.materials._load_materials(material)
                 if k == "layers":
                     if len(list(v.values())) == len(list(self.stackup_layers.values())):
-                        imported_layers_list = list(v.keys())
+                        imported_layers_list = [l_dict["name"] for l_dict in list(v.values())]
                         layout_layer_list = list(self.stackup_layers.keys())
                         for layer_name in imported_layers_list:
                             layer_index = imported_layers_list.index(layer_name)
@@ -658,7 +690,7 @@ class Stackup(object):
                                 self.stackup_layers[layout_layer_list[layer_index]].name = layer_name
                     prev_layer = None
                     for layer_name, layer in v.items():
-                        if layer_name not in self.stackup_layers:
+                        if layer["name"] not in self.stackup_layers:
                             if not prev_layer:
                                 self.add_layer(
                                     layer_name,
@@ -1212,7 +1244,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def residual_copper_area_per_layer(self):
-        """Report residual copper are per layer in percentage.
+        """Report residual copper area per layer in percentage.
 
         Returns
         -------
@@ -1505,7 +1537,7 @@ class EdbStackup(object):
     @pyaedt_function_handler()
     def duplicate_material(self, material_name, new_material_name):
         """Duplicate a material from the database.
-        It duplicates these five properties: ``permittivity``, ``permeability``, ` conductivity,``
+        It duplicates these five properties: ``permittivity``, ``permeability``, ``conductivity``,
         ``dielectriclosstangent``, and ``magneticlosstangent``.
 
         .. deprecated:: 0.6.27

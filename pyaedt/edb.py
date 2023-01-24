@@ -1261,7 +1261,9 @@ class Edb(object):
             all_list = reference_list
         else:
             all_list = signal_list + reference_list
-
+        for i in self.core_nets.nets.values():
+            if i.name not in all_list:
+                i.net_object.Delete()
         reference_pinsts = []
         reference_prims = []
         for i in self.core_padstack.padstack_instances.values():
@@ -1276,10 +1278,6 @@ class Edb(object):
                 i.delete()
             elif net_name in reference_list and not i.is_void:
                 reference_prims.append(i)
-
-        for i in self.core_nets.nets.values():
-            if i.name not in all_list:
-                i.net_object.Delete()
         self.logger.info_timer("Net clean up")
         self.logger.reset_timer()
 
@@ -2150,7 +2148,7 @@ class Edb(object):
                     self.core_components.create_port_on_component(
                         cmp,
                         net_list=simulation_setup.signal_nets,
-                        do_pingroup=True,
+                        do_pingroup=simulation_setup.do_pingroup,
                         reference_net=simulation_setup.power_nets,
                         port_type=SourceType.CircPort,
                     )
@@ -2162,6 +2160,7 @@ class Edb(object):
                 self.core_components.create_source_on_component(simulation_setup.sources)
                 if not self.core_siwave.configure_siw_analysis_setup(simulation_setup):  # pragma: no cover
                     self.logger.error("Failed to configure Siwave simulation setup.")
+            self.core_padstack.check_and_fix_via_plating()
             self.save_edb()
             if not simulation_setup.open_edb_after_build and simulation_setup.output_aedb:
                 self.close_edb()

@@ -5,6 +5,8 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
 class Monitor:
+    """Provides Icepak monitor methods."""
+
     def __init__(self, p_app):
         self._face_monitors = {}
         self._point_monitors = {}
@@ -131,6 +133,12 @@ class Monitor:
 
     @pyaedt_function_handler
     def get_icepak_monitor_object(self, monitor_name):
+        """Get Icepak monitor object.
+
+        Returns
+        -------
+        oEditor COM Object
+        """
         return self._app.odesign.GetChildObject("Monitor").GetChildObject(monitor_name)
 
     @property
@@ -475,12 +483,12 @@ class Monitor:
     @pyaedt_function_handler()
     def get_monitor_object_assignment(self, monitor):
         """
-        Get the object that the monitor is applied to
+        Get the object that the monitor is applied to.
 
         Parameters
         ----------
         monitor : str or FaceMonitor or PointMonitor object
-           Monitor object or monitor object name
+           Monitor object or monitor object name.
 
         Returns
         -------
@@ -509,21 +517,21 @@ class Monitor:
 
     @pyaedt_function_handler()
     def insert_monitor_object_from_dict(self, monitor_dict, mode=0):
-        """
-        Get the object that the monitor is applied to
+        """Insert a monitor.
 
         Parameters
         ----------
         monitor_dict : dict
-           Dictionary containing monitor object information
+           Dictionary containing monitor object information.
         mode : int
-            Integer to select the information to handle. To identify faces, vertices, surfaces and object to which the
-            monitor is to be assigned it is possible to use:
-                ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity"
-                positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity"
+            Integer to select the information to handle. To identify the faces, vertices,
+            surfaces, and object to which to assign the monitor to, you can use:
+            - ids and names, mode=0, required dict keys: "Name", "Type", "ID", "Quantity".
+            - positions, mode=1, required dict keys: "Name", "Type", "Geometry Assignment", "Location", "Quantity".
 
         Returns
         -------
+        str
             Name of the monitor object.
         """
         m_case = monitor_dict["Type"]
@@ -557,6 +565,8 @@ class Monitor:
 
 
 class ObjectMonitor:
+    """Provides Icepak Monitor methods and properties."""
+
     def __init__(self, monitor_name, monitor_type, monitor_id, quantity, app):
         self._name = monitor_name
         self._type = monitor_type
@@ -578,7 +588,7 @@ class ObjectMonitor:
     @property
     def name(self):
         """
-        Get the name of the monitor object
+        Get the name of the monitor object.
 
         Returns
         -------
@@ -589,7 +599,7 @@ class ObjectMonitor:
     @property
     def id(self):
         """
-        Get the name, or id of geometry assignment
+        Get the name, or id of geometry assignment.
 
         Returns
         -------
@@ -600,7 +610,7 @@ class ObjectMonitor:
     @property
     def properties(self):
         """
-        Get a dictionary of properties
+        Get a dictionary of properties.
 
         Returns
         -------
@@ -619,11 +629,12 @@ class ObjectMonitor:
     @pyaedt_function_handler
     def delete(self):
         """
-        Delete a monitor object
+        Delete a monitor object.
 
         Returns
         -------
-        True if successful
+        bool
+            ``True`` if successful.
         """
         self._app.monitor.delete_monitor(self.name)
         return True
@@ -631,18 +642,18 @@ class ObjectMonitor:
     @property
     def quantities(self):
         """
-        Get the quantities being monitored
+        Get the quantities being monitored.
 
         Returns
         -------
-        list of str
+        list
         """
         return self._quantities
 
     @property
     def type(self):
         """
-        Get the monitor type
+        Get the monitor type.
 
         Returns
         -------
@@ -652,17 +663,20 @@ class ObjectMonitor:
 
 
 class PointMonitor(ObjectMonitor):
+    """Provides Icepak point monitor methods and properties."""
+
     def __init__(self, monitor_name, monitor_type, point_id, quantity, app):
         ObjectMonitor.__init__(self, monitor_name, monitor_type, point_id, quantity, app)
 
     @property
     def location(self):
         """
-        Get the monitor point location
+        Get the monitor point location.
 
         Returns
         -------
-        list of floats
+        list
+            List of floats containing [x, y, z] position.
         """
         return [
             float(i.strip(self._app.modeler.model_units))
@@ -674,6 +688,8 @@ class PointMonitor(ObjectMonitor):
 
 
 class FaceMonitor(ObjectMonitor):
+    """Provides Icepak face monitor properties and methods."""
+
     def __init__(self, monitor_name, monitor_type, face_id, quantity, app):
         ObjectMonitor.__init__(self, monitor_name, monitor_type, face_id, quantity, app)
 
@@ -684,7 +700,8 @@ class FaceMonitor(ObjectMonitor):
 
         Returns
         -------
-        list of floats
+        list
+            List of floats containing [x, y, z] position.
         """
         if self.type == "Face":
             for f in self._app.modeler.get_object_from_name(self.geometry_assignment).faces:
