@@ -40,19 +40,6 @@ if sys.version_info < (3, 0):
 # loosely from https://packaging.python.org/guides/single-sourcing-package-version/
 HERE = os.path.abspath(os.path.dirname(__file__))
 
-name = "pyaedt"
-
-with open(os.path.join(HERE, "pyaedt", "version.txt"), "r") as f:
-    version = f.readline()
-
-author = "ANSYS, Inc."
-
-maintainer = "Massimo Capodiferro"
-
-maintainer_email = "massimo.capodiferro@ansys.com"
-
-description = "Higher-Level Pythonic Ansys Electronics Desktop Framework"
-
 # Get the long description from the README file
 with open3(os.path.join(HERE, "README.rst"), encoding="utf-8") as f:
     long_description = f.read()
@@ -65,25 +52,6 @@ data_files = [
     ("License", recursive_glob(".", "*.md")),
     ("xaml", ["pyaedt/generic/wpf_template.xaml"]),
     ("version", ["pyaedt/version.txt"]),
-    ("setup-distutils", ["setup-distutils.py"]),
 ]
 
-license = "MIT"
 
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX",
-]
-
-project_urls={
-    "Bug Tracker": "https://github.com/pyansys/pyaedt/issues",
-    "Documentation": "https://aedt.docs.pyansys.com",
-    "Source Code": "https://github.com/pyansys/pyaedt",
-}

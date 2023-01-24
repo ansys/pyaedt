@@ -6,11 +6,18 @@ requires = [
     "wheel",
 ]
 
-# dependencies = [
-#     "requests",
-#     'importlib-metadata; python_version<"3.8"',
-# ]
-
+dependencies = [
+    "cffi == 1.15.0;platform_system=='Linux'",
+    "pywin32 >= 303;platform_system=='Windows'",
+    "pythonnet == 3.0.1",
+    "rpyc==5.3.0",
+    "pyvista>=0.34.1",
+    "numpy",
+    "matplotlib",
+    "psutil",
+    "pandas",
+    "dotnetcore2 ==3.1.23;platform_system=='Linux'",
+]
 
 [project]
 name = "pyaedt"
@@ -80,6 +87,11 @@ doc = [
     "utm",
 ]
 
+[project.urls]
+"Bug Tracker" = "https://github.com/pyansys/pyaedt/issues"
+"Documentation" = "https://aedt.docs.pyansys.com"
+"Source Code" = "https://github.com/pyansys/pyaedt"
+
 [tool.black]
 line-length = 120
 
@@ -102,3 +114,5 @@ addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xm
 testpaths = [
     "_unittest",
 ]
+
+

@@ -9,21 +9,6 @@ logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 log = logging.getLogger()
 
 
-from _setup_common import (
-    name,
-    version,
-    author,
-    maintainer,
-    maintainer_email,
-    description,
-    long_description,
-    packages,
-    data_files,
-    license,
-    classifiers,
-    project_urls,
-)
-
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 
 
