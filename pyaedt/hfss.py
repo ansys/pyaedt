@@ -25,6 +25,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.solutions import FfdSolutionData
 
 
@@ -722,6 +723,8 @@ class Hfss(FieldAnalysis3D, object):
             props["IsInternal"] = isInternal
         return self._create_boundary("Coating_" + listobjname[1:], props, "Finite Conductivity")
 
+    # TODO: Extract name and type from **kwargs to pass them to create_setup() as setuptype and setupname
+
     @pyaedt_function_handler()
     def insert_setup(self, **kwargs):
         """Insert a new analysis setup for HFSS.  This method is derived
@@ -730,6 +733,9 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
+        type: str
+            Type of setup. Must be a key in the dict
+            pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
         name : str
             Name of the setup. Default: "Setup1"
         SolveType : str ("Single", "MultiFrequency")
@@ -772,10 +778,22 @@ class Hfss(FieldAnalysis3D, object):
         Example demonstrating the use of the insert_setup() method.
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
+        >>> hfss.insert_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
 
         """
-
-        setup = self.create_setup(props=kwargs)
+        if "name" in kwargs.keys():
+            name = kwargs["name"]
+            del kwargs["name"]
+        else:
+            name = "MySetupAuto"
+        if "setup_type" in kwargs.keys():
+            if kwargs["setup_type"] in SetupKeys.SetupNames:
+                setup_type = kwargs["setup_type"]
+            else:
+                setup_type = None  # Revert to default
+                # TODO: Add message that invalid type was passed.
+            del kwargs["setup_type"]
+        setup = self.create_setup(setupname=name, setuptype=setup_type, props=kwargs)
         return setup
 
     @pyaedt_function_handler()

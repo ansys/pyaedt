@@ -121,9 +121,12 @@ for n, z in enumerate(wg_z):
     u_end = [0, str(parse_expr('a/2', var_mapping)) + wgparams['units'], z]
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
-setup = hfss.insert_setup(name="Setup1")
-setup.props["Frequency"] = "10GHz"
-setup.props["MaximumPasses"] = 9
+#  See pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
+#  for allowed values for type
+
+setup = hfss.insert_setup(name="Setup1", setup_type="HFSSDriven",
+                          Frequency="10GHz", MaximumPasses=15)
+
 hfss.create_linear_count_sweep(
     setupname=setup.name,
     unit="GHz",
