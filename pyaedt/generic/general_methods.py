@@ -997,7 +997,7 @@ def compute_fft(time_vals, value):
         Frequency and Values.
     """
     if not np:
-        logging.error("Numpy is not available. Install it.")
+        logging.error("Numpy is not available. Please, install it first.")
     deltaT = time_vals[-1] - time_vals[0]
     num_points = len(time_vals)
     valueFFT = np.fft.fft(value, num_points)
