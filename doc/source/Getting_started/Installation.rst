@@ -78,7 +78,12 @@ This batch file executes these steps:
 5. Creates a symbolic link from your PyAEDT installation to AEDT ``PersonalLib`` so
    that scripts can also be run within AEDT.
 6. Updates PyAEDT.
-7. Runs the tool that you choose (Spyder, Jupyter Lab, or a simple console).
+7. Install PyAEDT Toolkits in AEDT to enable PyAEDT Console and PyAEDT Run Script.
+8. Runs the tool that you choose (Spyder, Jupyter Lab, or a simple console).
+
+.. image:: ../Resources/toolkits.png
+  :width: 800
+  :alt: PyAEDT Toolkits installed after batch run
 
 Steps 1 through 5 are executed only the first time that you run the batch file or when ``-f`` is used:
 

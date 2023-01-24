@@ -23,13 +23,13 @@ pyaedtpath = os.path.join(
     local_path,
     "..",
 )
-
-with Desktop(version, True) as d:
+pid = 0
+with Desktop(version, True, new_desktop_session=True) as d:
     desktop = sys.modules["__main__"].oDesktop
     pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
-
+    pid = desktop.GetProcessID()
     if os.path.exists(pers1):
-        print("PersonalLib already mapped")
+        d.logger.info("PersonalLib already mapped")
     else:
         os.system('mklink /D "{}" "{}"'.format(pers1, pyaedtpath))
 
@@ -46,6 +46,7 @@ with Desktop(version, True) as d:
         "Maxwell3D",
         "Q3DExtractor",
         "TwinBuilder",
+        "Mechanical",
     ]
 
     for tk in toolkits:
@@ -67,3 +68,8 @@ with Desktop(version, True) as d:
         shutil.copyfile(
             os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(tool_dir, "console_setup")
         )
+if pid:
+    try:
+        os.kill(pid, 9)
+    except:
+        pass

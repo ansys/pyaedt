@@ -33,7 +33,7 @@ with Desktop(
     desktop.logger.info(" ")
 
     desktop.logger.info("===============================================================")
-    desktop.logger.info("ElectronicsDesktop 2023.1.0")
+    desktop.logger.info("ElectronicsDesktop {} Process ID {}".format(version, aedt_process_id))
     desktop.logger.info("Cpython {}".format(sys.version))
     desktop.logger.info("---------------------------------------------------------------")
     desktop.logger.info(" - With Tab completion                                         ")

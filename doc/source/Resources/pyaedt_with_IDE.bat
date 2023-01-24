@@ -76,7 +76,7 @@ set aedt_path=potato
 if [%specified_python%]==[y] (
     aedt_path=!argVec[%python_path_index%]!
 ) else (
-    set aedt_path=!%chosen_root%!\common\commonfiles\CPython\3_7\winx64\Release\python
+    set aedt_path=!%chosen_root%!\commonfiles\CPython\3_7\winx64\Release\python
     echo Built-in python is !aedt_path!
 )
 set aedt_path=!aedt_path:"=!
@@ -103,25 +103,34 @@ if [%install_pyaedt%]==[y] (
     echo Installing Pyaedt Environment in "%pyaedt_install_dir%"
 
     cd "%APPDATA%"
+
     if [%pythonpyaedt%] == [] (
-    "%aedt_path%\python.exe" -m venv "%pyaedt_install_dir%"
+    "%aedt_path%\python.exe" -m venv "%pyaedt_install_dir%" --system-site-packages
     ) ELSE (
         "%pythonpyaedt%\python.exe" -m venv "%pyaedt_install_dir%"
     )
+    call "%pyaedt_install_dir%\Scripts\activate.bat"
     if NOT [%wheelpyaedt%]==[] (
         echo Installing Pyaedt from local wheels %arg1%
-        "%pyaedt_install_dir%\Scripts\pip" install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
+        pip install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
     ) ELSE (
         echo Installing Pyaedt from pip
-        "%pyaedt_install_dir%\Scripts\python.exe" -m pip install --upgrade pip
-        "%pyaedt_install_dir%\Scripts\pip" install wheel
-        "%pyaedt_install_dir%\Scripts\pip" install pyaedt
-        "%pyaedt_install_dir%\Scripts\pip" install jupyterlab
-        if [%install_spyder%]==[y] "%pyaedt_install_dir%\Scripts\pip" install spyder
-        "%pyaedt_install_dir%\Scripts\pip" install ipython -U
-        "%pyaedt_install_dir%\Scripts\pip" install ipyvtklink
+        python -m pip install --upgrade pip
+        pip install wheel
+        pip install pywin32
+        pip install pythonnet
+        pip install rpyc
+		pip install numpy
+		pip install matplotlib
+		pip install psutil
+		pip install pandas
+        pip install pyaedt --no-deps
+        pip install jupyterlab
+        if [%install_spyder%]==[y] pip install spyder
+        pip install ipython -I
+        pip install ipyvtklink
     )
-    call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
+    call python "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
 )
 if [%update_pyaedt%]==[y] (
     echo Updating Pyaedt
