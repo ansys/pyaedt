@@ -4,7 +4,7 @@ The script allows choosing a .py script to execute
 
 It looks for a reference to a python interpreter in python_interpreter.bat
 
-uses said python interpreter to execute the script.
+It will then use this python interpreter to execute the script.
 See the declaration of the command variable to see the order in which arguments are passed to the script.
 
 The commands allow the the launched script to still reference the project and design that was active when the script
