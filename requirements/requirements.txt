@@ -13,7 +13,7 @@ pythonnet==3.0.1; python_version > '3.6'
 # https://github.com/pythonnet/pythonnet
 # License: MIT
 
-pywin32==305; python_version > '3.6'
+pywin32>=301; python_version > '3.6' and sys_platform == 'windows'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
