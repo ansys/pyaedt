@@ -577,7 +577,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
-        """Export stackup definition to csv or json file.
+        """Export stackup definition to a CSV or JSON file.
 
         Parameters
         ----------
