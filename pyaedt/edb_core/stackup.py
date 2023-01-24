@@ -584,7 +584,7 @@ class Stackup(object):
         fpath : str
             File path to csv or json file.
         file_format : str, optional
-            The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``,
             ``"json"``.
         include_material_with_layer : bool, optional.
             Only used when json file are exported. ``True`` will include material definition inside layer ones.
