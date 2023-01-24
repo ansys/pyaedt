@@ -916,7 +916,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
     @origin.setter
     def origin(self, origin):
-        """Set the Coordinate System origin in model units."""
+        """Set the coordinate system origin in model units."""
         legacy_update = self.auto_update
         self.auto_update = False
         origin_x = self._dim_arg(origin[0], self.model_units)
@@ -1689,7 +1689,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         :class:`pyaedt.modeler.Modeler.CoordinateSystem`
-            Coordinate System Object.
+            Created coordinate system.
 
         References
         ----------
@@ -1915,10 +1915,9 @@ class GeometryModeler(Modeler, object):
         elif isinstance(coordinate_system, str):
             if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
-            idx = cs_names.index(coordinate_system)
-            cs = self.coordinate_systems[idx]
+            cs = self.coordinate_systems[cs_names.index(coordinate_system)]
         else:  # pragma: no cover
-            raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
+            raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
@@ -1937,7 +1936,7 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         coordinate_system : str, CoordinateSystem
-            Name of the destination reference system. The CoordinateSystem object can also be used.
+            Name of the destination reference system. The ``CoordinateSystem`` object can also be used.
 
         Returns
         -------
@@ -1952,28 +1951,27 @@ class GeometryModeler(Modeler, object):
         elif isinstance(coordinate_system, str):
             if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
-            idx = cs_names.index(coordinate_system)
-            cs = self.coordinate_systems[idx]
+            cs = self.coordinate_systems[cs_names.index(coordinate_system)]
         else:  # pragma: no cover
-            raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
-        q = cs.quaternion
-        o = cs.origin
+            raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
+        quaternion = cs.quaternion
+        origin = cs.origin
         ref_cs_name = cs.ref_cs
         while ref_cs_name != "Global":
             ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
-            q_ref = ref_cs.quaternion
-            q = GeometryOperators.q_prod(q_ref, q)
-            o_ref = ref_cs.origin
-            o = GeometryOperators.v_sum(o_ref, GeometryOperators.q_rotation(o, q_ref))
+            quaternion_ref = ref_cs.quaternion
+            quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
+            origin_ref = ref_cs.origin
+            origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
             ref_cs_name = ref_cs.ref_cs
-        return o, q
+        return origin, quaternion
 
     @pyaedt_function_handler()
     def duplicate_coordinate_system_to_global(self, coordinate_system):
         """Create a duplicate coordinate system referenced to the global coordinate system.
 
-        It is useful to have this coordinate system referenced to the global coordinate
-        system, removing all nested coordinate system dependencies.
+        Having this coordinate system referenced to the global coordinate
+        system removes all nested coordinate system dependencies.
 
         Parameters
         ----------
@@ -1983,7 +1981,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         :class:`pyaedt.modeler.Modeler.CoordinateSystem`
-            Created Coordinate System Object.
+            Created coordinate system.
 
         References
         ----------
@@ -1996,10 +1994,9 @@ class GeometryModeler(Modeler, object):
         elif isinstance(coordinate_system, str):
             if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
-            idx = cs_names.index(coordinate_system)
-            cs = self.coordinate_systems[idx]
+            cs = self.coordinate_systems[cs_names.index(coordinate_system)]
         else:  # pragma: no cover
-            raise AttributeError("coordinate_system must be in either a string or a CoordinateSystem object.")
+            raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
         o, q = self.reference_cs_to_global(coordinate_system)
         x, y, _ = GeometryOperators.quaternion_to_axis(q)
         reference_cs = "Global"
