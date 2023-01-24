@@ -266,9 +266,9 @@ class Material(object):
     @pyaedt_function_handler()
     def _json_format(self):
         out_dict = {}
-        if self.permittivity == 0:
+        if self.permittivity == 0:  # pragma no cover
             self.permittivity = 1.0
-        if self.permeability == 0:
+        if self.permeability == 0:  # pragma no cover
             self.permeability = 1.0
         self._name = self.name
         self._conductivity = self.conductivity
