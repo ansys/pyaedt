@@ -765,7 +765,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zxz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following the rotation sequence ZXZ.
+        """Retrieve Euler angles of a frame following the rotation sequence ZXZ.
 
         Provides assumption for the gimbal lock problem.
 
@@ -784,13 +784,14 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
+        x1 = round(x[0], 13)
+        x2 = round(x[1], 13)
+        x3 = round(x[2], 13)
+        y3 = round(y[2], 13)
+        z1 = round(z[0], 13)
+        z2 = round(z[1], 13)
+        z3 = round(z[2], 13)
+        z = [z1, z2, z3]
         if z == [0, 0, 1]:
             phi = GeometryOperators.atan2(x2, x1)
             theta = 0.0
@@ -808,7 +809,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zyz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
+        """Retrieve Euler angles of a frame following the rotation sequence ZYZ.
 
         Provides assumption for the gimbal lock problem.
 
@@ -827,21 +828,22 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
-        x1 = x[0]
-        x2 = x[1]
-        x3 = x[2]
-        y3 = y[2]
-        z1 = z[0]
-        z2 = z[1]
-        z3 = z[2]
+        x1 = round(x[0], 13)
+        x2 = round(x[1], 13)
+        x3 = round(x[2], 13)
+        y3 = round(y[2], 13)
+        z1 = round(z[0], 13)
+        z2 = round(z[1], 13)
+        z3 = round(z[2], 13)
+        z = [z1, z2, z3]
         if z == [0, 0, 1]:
-            phi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(-x1, x2)
             theta = 0.0
-            psi = 0.0
+            psi = math.pi / 2
         elif z == [0, 0, -1]:
-            phi = GeometryOperators.atan2(x2, x1)
+            phi = GeometryOperators.atan2(-x1, x2)
             theta = math.pi
-            psi = 0.0
+            psi = math.pi / 2
         else:
             phi = GeometryOperators.atan2(z2, z1)
             theta = math.acos(z3)
@@ -900,8 +902,8 @@ class GeometryOperators(object):
         Returns
         -------
         tuple
-            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of the unit vector ``u``
-            and the rotation angle theta expressed in radians.
+            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of
+            the unit vector ``u`` and the rotation angle theta expressed in radians.
 
         """
         q1 = q[0]
@@ -1169,7 +1171,7 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def q_rotation(v, q):
-        """Evaluate the rotation of a vector defined by a quaternion.
+        """Evaluate the rotation of a vector, defined by a quaternion.
         Evaluated as:
         ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
         ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
