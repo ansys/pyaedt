@@ -42,6 +42,10 @@ class Stackup(object):
         self._pedb = pedb
 
     @property
+    def _logger(self):
+        return self._pedb.logger
+
+    @property
     def layer_types(self):
         """Layer types.
 
@@ -572,16 +576,32 @@ class Stackup(object):
         return True
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath, file_format="csv"):
-        """Export stackup definition to csv file.
+    def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
+        """Export stackup definition to a CSV or JSON file.
 
         Parameters
         ----------
         fpath : str
-            File path to csv file.
+            File path to csv or json file.
         file_format : str, optional
-            The format of the file to be exported. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``.
+            Format of the file to export. The default is ``"csv"``. Options are ``"csv"``, ``"xlsx"``,
+            ``"json"``.
+        include_material_with_layer : bool, optional.
+            Whether to include the material definition inside layer ones. This parameter is only used
+            when a JSON file is exported. The default is ``False``, which keeps the material definition
+            section in the JSON file. If ``True``, the material definition is included inside the layer ones.
+
         """
+        if file_format.lower() in ["csv", "xlsx"]:
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+        elif file_format.lower() == "json":
+            self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+        else:
+            self._logger.warning("Layer stackup format is not supported. Skipping import.")
+            return False
+
+    @pyaedt_function_handler()
+    def _export_layer_stackup_to_csv_xlsx(self, fpath=None, file_format=None):
         if is_ironpython:
             return
         data = {
@@ -650,7 +670,7 @@ class Stackup(object):
                         self._pedb.materials._load_materials(material)
                 if k == "layers":
                     if len(list(v.values())) == len(list(self.stackup_layers.values())):
-                        imported_layers_list = list(v.keys())
+                        imported_layers_list = [l_dict["name"] for l_dict in list(v.values())]
                         layout_layer_list = list(self.stackup_layers.keys())
                         for layer_name in imported_layers_list:
                             layer_index = imported_layers_list.index(layer_name)
@@ -658,7 +678,7 @@ class Stackup(object):
                                 self.stackup_layers[layout_layer_list[layer_index]].name = layer_name
                     prev_layer = None
                     for layer_name, layer in v.items():
-                        if layer_name not in self.stackup_layers:
+                        if layer["name"] not in self.stackup_layers:
                             if not prev_layer:
                                 self.add_layer(
                                     layer_name,
