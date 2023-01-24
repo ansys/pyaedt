@@ -1286,7 +1286,8 @@ class Analysis(Design, object):
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         props : dict, optional
-            Dictionary of analysis properties appropriate for the design and analysis.
+            Dictionary of analysis properties required by the native
+            API appropriate for the design and analysis.
             If no values are passed, default values are used.
 
         Returns

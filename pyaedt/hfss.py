@@ -723,6 +723,62 @@ class Hfss(FieldAnalysis3D, object):
         return self._create_boundary("Coating_" + listobjname[1:], props, "Finite Conductivity")
 
     @pyaedt_function_handler()
+    def insert_setup(self, **kwargs):
+        """Insert a new analysis setup for HFSS.  This method is derived
+        from pyaedt.application.analysis.Analysis.create_setup().
+        Default values are defined in pyaedt.modules.SetupTemplates
+
+        Parameters
+        ----------
+        name : str
+            Name of the setup. Default: "Setup1"
+        SolveType : str ("Single", "MultiFrequency")
+            Specify whether multiple frequencies will be solved at each adaptive
+            pass. Default: "Single"
+        Frequency : str, or float
+            Adapt Frequency, Default: "5GHz"
+        MaxDeltaS : float
+            Maximum allowed variation in delta S for adaptive refinemnt,
+            Default: 0.02
+        BasisOrder : int
+            Order of the basis functions for the FEM solution, Default: 1
+            0 - zero order
+            1 - first order
+            2 - 2nd order
+            -1 - mixed order
+        MaximumPasses : int
+            Maximum number of adaptive passes allowed for adaptive refinement.
+            Default: 6
+        IsEnabled : Boolean
+            Set to False if the Analysis should be disabled. Default: True
+        PortAccuracy : float
+            Percent accuracy of the port impedance used on the initial mesh.
+            Default 2.0
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        Example demonstrating the use of the insert_setup() method.
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+
+        """
+
+        setup = self.create_setup(props=kwargs)
+        return setup
+
+    @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
         setupname,

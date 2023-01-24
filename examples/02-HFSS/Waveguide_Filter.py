@@ -121,7 +121,7 @@ for n, z in enumerate(wg_z):
     u_end = [0, str(parse_expr('a/2', var_mapping)) + wgparams['units'], z]
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
-setup = hfss.create_setup("Setup1")
+setup = hfss.insert_setup(name="Setup1")
 setup.props["Frequency"] = "10GHz"
 setup.props["MaximumPasses"] = 9
 hfss.create_linear_count_sweep(

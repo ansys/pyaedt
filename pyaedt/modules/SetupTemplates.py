@@ -2256,7 +2256,7 @@ class SetupKeys(object):
         55: NSSM,
     }
 
-    SetupNames = [
+    SetupNames = [  # TODO: HFSSDriven appears twice. Is this correct?
         "HFSSDrivenAuto",
         "HFSSDriven",
         "HFSSEigen",
