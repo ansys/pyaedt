@@ -18,9 +18,6 @@ pyaedt.settings.use_grpc_api=False
 
 aedt_process_id = sys.argv[1]
 version = sys.argv[2]
-print("\n")
-print("\n")
-
 with Desktop(
 			specified_version= version,
 			aedt_process_id = aedt_process_id,
@@ -28,7 +25,6 @@ with Desktop(
 			non_graphical=False,
 			close_on_exit=False,
 		) as desktop:
-    desktop.logger.info(" ")
     desktop.logger.info("Desktop class has been correctly initialized and connected to Desktop.")
     desktop.logger.info(" ")
 

@@ -131,7 +131,7 @@ if [%install_pyaedt%]==[y] (
 )
 if [%update_pyaedt%]==[y] (
     echo Updating Pyaedt
-    "%pyaedt_install_dir%\Scripts\pip" install pyaedt -U
+    "%pyaedt_install_dir%\Scripts\pip" install pyaedt --no-deps -U
     call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
 
 )
