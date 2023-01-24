@@ -71,7 +71,7 @@ for writing PyAEDT scripts in Windows with a simple batch file.
 This batch file executes these steps:
 
 1. Creates a Python virtual environment in your ``%APPDATA%`` folder. To accomplish
-   this, it uses CPython in the choosen installed version of AEDT on your machine.
+   this, it uses CPython in the selected version of AEDT available on your machine.
 2. Installs PyAEDT.
 3. Optionally installs `Spyder <https://www.spyder-ide.org/>`_ with -s flag.
 4. Installs `Jupyter Lab <https://jupyter.org/>`_.

@@ -24,6 +24,22 @@ pyaedtpath = os.path.join(
     "..",
 )
 pid = 0
+
+
+def install_toolkit(tool_dir):
+    if not os.path.exists(tool_dir):
+        os.makedirs(tool_dir)
+    files_to_copy = ["Console", "Run_PyAEDT_Script"]
+    for file_name in files_to_copy:
+        with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
+            with open(os.path.join(tool_dir, file_name + ".py"), "w") as out_file:
+                print("Building to " + os.path.join(tool_dir, file_name + ".py"))
+                for line in build_file:
+                    line = line.replace("##INSTALL_DIR##", tool_dir).replace("##PYTHON_EXE##", sys.executable)
+                    out_file.write(line)
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(tool_dir, "console_setup"))
+
+
 with Desktop(version, True, new_desktop_session=True) as d:
     desktop = sys.modules["__main__"].oDesktop
     pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
@@ -50,24 +66,15 @@ with Desktop(version, True, new_desktop_session=True) as d:
     ]
 
     for tk in toolkits:
-        if os.access(d.syslib, os.W_OK) is not True:
-            tool_dir = os.path.join(d.personallib, "Toolkits", tk, "PyAEDT")
-        else:
-            tool_dir = os.path.join(d.syslib, "Toolkits", tk, "PyAEDT")
+        try:
+            sys_dir = os.path.join(d.syslib, "Toolkits", tk, "PyAEDT")
+            install_toolkit(sys_dir)
+            d.logger.info("Toolkit for {} installed in sys lib".format(tk))
 
-        if not os.path.exists(tool_dir):
-            os.makedirs(tool_dir)
-        files_to_copy = ["Console", "Run_PyAEDT_Script"]
-        for file_name in files_to_copy:
-            with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
-                with open(os.path.join(tool_dir, file_name + ".py"), "w") as out_file:
-                    print("Building to " + os.path.join(tool_dir, file_name + ".py"))
-                    for line in build_file:
-                        line = line.replace("##INSTALL_DIR##", tool_dir).replace("##PYTHON_EXE##", sys.executable)
-                        out_file.write(line)
-        shutil.copyfile(
-            os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(tool_dir, "console_setup")
-        )
+        except IOError:
+            pers_dir = os.path.join(d.personallib, "Toolkits", tk, "PyAEDT")
+            install_toolkit(pers_dir)
+            d.logger.info("Toolkit for {} installed in sys lib".format(tk))
 if pid:
     try:
         os.kill(pid, 9)

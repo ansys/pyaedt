@@ -83,9 +83,6 @@ set aedt_path=!aedt_path:"=!
 
 echo %aedt_path%
 
-set /p run=Python or Jupyter?(0=InstallOnly, 1=Jupyter, 2=Console, 3=Spyder(pip only))
-if [%run%] == [] set run=0
-if %run%==3 set install_spyder=y
 
 
 set pyaedt_install_dir=%APPDATA%\pyaedt_env_ide\v%version%
@@ -140,17 +137,4 @@ if [%update_pyaedt%]==[y] (
 )
 
 
-if %run%==1 (
-     echo Launching Jupyter Lab
-    "%pyaedt_install_dir%\Scripts\jupyter.exe" lab
-) else ( if %run%==3 (
-    echo Launching Spyder
-    "%pyaedt_install_dir%\Scripts\spyder.exe"
-    ) else ( if %run%==2 (
-    "%pyaedt_install_dir%\Scripts\ipython.exe"
-    ) else (
-	echo Activating Pyaedt environment
-	cmd /k "%pyaedt_install_dir%\Scripts\activate.bat"
-	)
-    )
-)
+cmd /k "%pyaedt_install_dir%\Scripts\activate.bat"
