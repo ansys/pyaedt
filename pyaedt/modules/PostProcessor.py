@@ -31,9 +31,8 @@ if not is_ironpython:
     try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
-        )
+        pd = None
+
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -1631,7 +1630,7 @@ class PostProcessorCommon(object):
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
-            if context in self.modeler.line_names:
+            if context in self.modeler.line_names or context in self.modeler.point_names:
                 report.polyline = context
 
         result = report.create(plotname)
