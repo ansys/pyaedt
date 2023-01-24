@@ -780,7 +780,7 @@ class Materials(object):
 
         """
         if not pd:
-            self.logger.error("Pandas is needed. Install it.")
+            self.logger.error("Pandas is needed. Please, install it first.")
             return False
         materials_added = []
         props = {}
