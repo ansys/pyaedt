@@ -519,7 +519,7 @@ class EmitComponent(object):
         List
             List of all matching nodes (EmitComponentPropNode).
         """
-        if property_filter == None:
+        if property_filter is None:
             property_filter = {}
 
         filtered_nodes = []
@@ -888,13 +888,13 @@ class EmitComponentPropNode(object):
         return emit_consts.convert_power_to_unit(float(power), units)
 
     @pyaedt_function_handler()
-    def set_channel_sampling(self, type="Uniform", percentage=None, max_channels=None, seed=None):
+    def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
         """Set the channel sampling for the radio. If a percentage is
         specified, then it will be used instead of max_channels.
 
         Parameters
         ----------
-        type : str, optional
+        sampling_type : str, optional
             Type of sampling to use: Uniform, Random, or All.
         percentage : float, optional
             Percentage of channels to sample for the analysis.
@@ -910,13 +910,14 @@ class EmitComponentPropNode(object):
         """
         if "SamplingNode" not in self.props["Type"]:
             raise TypeError("{} must be a sampling node.".format(self.node_name))
-        if type.lower() == "all":
-            type = "SampleAllChannels"
-        elif type.lower() == "random":
-            type = "RandomSampling"
+        sampling_type = sampling_type.lower()
+        if sampling_type == "all":
+            sampling_type = "SampleAllChannels"
+        elif sampling_type == "random":
+            sampling_type = "RandomSampling"
         else:
-            type = "UniformSampling"
-        sampling_props = { "SamplingType": "{}".format(type)}
+            sampling_type = "UniformSampling"
+        sampling_props = { "SamplingType": "{}".format(sampling_type)}
         if percentage is not None:
             sampling_props["SpecifyPercentage"] = "true"
             sampling_props["PercentageChannels"] = "{}".format(percentage)

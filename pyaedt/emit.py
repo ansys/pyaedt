@@ -436,7 +436,7 @@ class Emit(FieldAnalysisEmit, object):
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
             """Instance of the Emit api."""
-            
+
             self.results = Results(self)
             """''Result'' object for the selected design."""
 
@@ -597,13 +597,13 @@ class Emit(FieldAnalysisEmit, object):
         unit_value : str
             Units to use.
 
-        Power: mW, W, kW, dBm, dBW
-        Frequency: Hz, kHz, MHz, GHz, THz
-        Length: pm, nm, um, mm, cm, dm, meter, km, mil, in, ft, yd, mile
-        Time: ps, ns, us, ms, s
-        Voltage: mV, V
-        Data Rate: bps, kbps, Mbps, Gbps
-        Resistance: uOhm, mOhm, Ohm, kOhm, megOhm, GOhm
+        Power : mW, W, kW, dBm, dBW
+        Frequency : Hz, kHz, MHz, GHz, THz
+        Length : pm, nm, um, mm, cm, dm, meter, km, mil, in, ft, yd, mile
+        Time : ps, ns, us, ms, s
+        Voltage : mV, V
+        Data Rate : bps, kbps, Mbps, Gbps
+        Resistance : uOhm, mOhm, Ohm, kOhm, megOhm, GOhm
 
         Returns
         -------
@@ -614,7 +614,7 @@ class Emit(FieldAnalysisEmit, object):
         valid_system = EmitConstants.EMIT_UNIT_SYSTEM
         valid_units = EmitConstants.EMIT_VALID_UNITS
 
-        if type(unit_system) is list:
+        if isinstance(unit_system, list):
             for t, v in zip(unit_system, unit_value):
                 if t not in valid_system:
                     print("[{}] units are not supported by EMIT. The options are: {}: ".format(t, valid_system))
@@ -647,7 +647,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         Str or Tuple
             If unit_type is specified returns the units for that type
-            and if unit_type="", returns a Tuple of all units 
+            and if unit_type="", returns a Tuple of all units. 
         """
         if not unit_system:
             units = [(k, v) for k, v in self.units.items()]
