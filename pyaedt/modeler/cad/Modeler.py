@@ -1917,12 +1917,12 @@ class GeometryModeler(Modeler, object):
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
-            o = [-i for i in GeometryOperators.q_rotation(o, q)]
-            q = [q[0]] + [-i for i in q[1:]]
+            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
+            q = [q[0], -q[1], -q[2], -q[3]]
         else:
             q = cs.quaternion
-            q = [q[0]] + [-i for i in q[1:]]
-            o = [-i for i in GeometryOperators.q_rotation(cs.origin, q)]
+            q = [q[0], -q[1], -q[2], -q[3]]
+            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
         return o, q
 
     @pyaedt_function_handler()
