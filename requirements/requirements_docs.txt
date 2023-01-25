@@ -1,10 +1,10 @@
-ansys-sphinx-theme==0.8.0
-imageio==2.24.0
+ansys-sphinx-theme==0.8.1
+imageio==2.25.0
 imageio-ffmpeg==0.4.8
 ipython==8.8.0
 ipywidgets==8.0.4
 joblib==1.2.0
-jupyterlab==3.5.2
+jupyterlab==3.5.3
 matplotlib==3.6.3
 nbsphinx==0.8.12
 numpydoc==1.5.0
@@ -13,7 +13,7 @@ pypandoc==1.10
 pytest-sphinx==0.5.0
 pyvista==0.37.0
 recommonmark==0.7.1
-scikit-learn==1.2.0
+scikit-learn==1.2.1
 Sphinx==5.3.0
 sphinx-autobuild==2021.3.14
 sphinx-autodoc-typehints==1.21.7

@@ -237,6 +237,16 @@ class TestClass(BasisTest, object):
         assert abs(phi - (-2.0344439357957027)) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - 1.9590019609437583) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
+        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        assert abs(phi - (-2.158798930342464)) < tol
+        assert abs(theta - 3.141592653589793) < tol
+        assert abs(psi - 0) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
+        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        assert abs(phi - (-1.9513027039072295)) < tol
+        assert abs(theta - 0) < tol
+        assert abs(psi - 0) < tol
 
     def test_axis_to_euler_zyz(self):
         x, y, z = go.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
@@ -244,6 +254,16 @@ class TestClass(BasisTest, object):
         assert abs(phi - 2.677945044588987) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - (-2.7533870194409316)) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
+        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        assert abs(phi - 2.553590050042222) < tol
+        assert abs(theta - 3.141592653589793) < tol
+        assert abs(psi - 1.5707963267948966) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
+        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        assert abs(phi - 2.7610862764774597) < tol
+        assert abs(theta - 0) < tol
+        assert abs(psi - 1.5707963267948966) < tol
 
     def test_quaternion_to_axis(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]

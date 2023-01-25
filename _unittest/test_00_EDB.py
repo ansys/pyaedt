@@ -1570,14 +1570,19 @@ if not config["skip_edb"]:
             assert layer.name in layers.layers
 
         def test_122_build_hfss_project_from_config_file(self):
-            cfg_file = os.path.join(os.path.dirname(self.edbapp.edbpath), "test.cfg")
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_0122.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            cfg_file = os.path.join(os.path.dirname(edbapp.edbpath), "test.cfg")
             with open(cfg_file, "w") as f:
                 f.writelines("SolverType = 'Hfss3dLayout'\n")
                 f.writelines("PowerNets = ['GND']\n")
                 f.writelines("Components = ['U2A5', 'U1B5']")
 
             sim_config = SimulationConfiguration(cfg_file)
-            assert self.edbapp.build_simulation_project(sim_config)
+            assert edbapp.build_simulation_project(sim_config)
+            edbapp.close_edb()
 
         def test_123_set_all_antipad_values(self):
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
