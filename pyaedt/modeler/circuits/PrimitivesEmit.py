@@ -921,7 +921,7 @@ class EmitComponentPropNode(object):
             sampling_type = "RandomSampling"
         else:
             sampling_type = "UniformSampling"
-        sampling_props = { "SamplingType": "{}".format(sampling_type)}
+        sampling_props = {"SamplingType": "{}".format(sampling_type)}
         if percentage is not None:
             sampling_props["SpecifyPercentage"] = "true"
             sampling_props["PercentageChannels"] = "{}".format(percentage)

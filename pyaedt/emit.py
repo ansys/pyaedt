@@ -649,7 +649,7 @@ class Emit(FieldAnalysisEmit, object):
         -------
         Str or Tuple
             If unit_type is specified returns the units for that type
-            and if unit_type="", returns a Tuple of all units. 
+            and if unit_type="", returns a Tuple of all units.
         """
         if not unit_system:
             units = [(k, v) for k, v in self.units.items()]
