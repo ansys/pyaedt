@@ -1858,6 +1858,56 @@ class Maxwell(object):
             self.logger.error("Simplify objects failed.")
             return False
 
+    @pyaedt_function_handler
+    def edit_external_circuit(self, netlist_file_path, schematic_design_name):
+        """
+        Edits the external circuit for the winding.
+
+        Parameters
+        ----------
+        netlist_file_path : str
+            Circuit netlist file path.
+        schematic_design_name : str
+            Name of the schematic design
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if schematic_design_name not in self.design_list:
+            return False
+        odesign = self.oproject.SetActiveDesign(schematic_design_name)
+        oeditor = odesign.SetActiveEditor("SchematicEditor")
+        comps = oeditor.GetAllComponents()
+        sources_array = []
+        sources_type_array = []
+        for comp in comps:
+            if "Voltage Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
+                comp_id = "V" + comp.split("@")[1].split(";")[1]
+            elif "Current Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
+                comp_id = "I" + comp.split("@")[1].split(";")[1]
+            else:
+                continue
+            sources_array.append(comp_id)
+            refdes = oeditor.GetPropertyValue("ComponentTab", comp, "RefDes")
+            comp_instance = oeditor.GetCompInstanceFromRefDes(refdes)
+            if "DC" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
+                sources_type_array.append(1)
+            else:
+                source_type = comp_instance.GetPropHost().GetText("Type")
+                if source_type == "TIME":
+                    sources_type_array.append(1)
+                elif source_type == "POS":
+                    sources_type_array.append(2)
+                elif source_type == "SPEED":
+                    sources_type_array.append(3)
+        try:
+            self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, [], [])
+            return True
+        except:
+            return False
+
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 3D application interface.
