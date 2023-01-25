@@ -4,11 +4,11 @@ import os
 import sys
 from importlib import import_module
 
+import pyaedt.generic.constants as consts
 from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
-from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.emit_core import EmitConstants
-import pyaedt.generic.constants as consts
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 # global variable used to store module import
 mod = None
@@ -421,13 +421,13 @@ class Emit(FieldAnalysisEmit, object):
         sys.path.append(path)
 
         self.units = {
-            "Power":        "dBm",
-            "Frequency":    "MHz",
-            "Length":       "meter",
-            "Time":         "ns",
-            "Voltage":      "mV",
-            "Data Rate":     "bps",
-            "Resistance":   "ohm"
+            "Power": "dBm",
+            "Frequency": "MHz",
+            "Length": "meter",
+            "Time": "ns",
+            "Voltage": "mV",
+            "Data Rate": "bps",
+            "Resistance": "ohm",
         }
         """Default Emit units"""
 
@@ -589,7 +589,7 @@ class Emit(FieldAnalysisEmit, object):
     @pyaedt_function_handler()
     def set_units(self, unit_system, unit_value):
         """Set units for the component.
-        
+
         Parameters
         ----------
         unit_system : str
@@ -628,15 +628,17 @@ class Emit(FieldAnalysisEmit, object):
                 print("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_system, valid_system))
                 return False
             if unit_value not in valid_units[unit_system]:
-                print("[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_system]))
+                print(
+                    "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_system])
+                )
                 return False
             self.units[unit_system] = unit_value
         return True
-    
+
     @pyaedt_function_handler()
     def get_units(self, unit_system=""):
         """Get units for the component.
-        
+
         Parameters
         ----------
         unit_system : str
@@ -653,6 +655,10 @@ class Emit(FieldAnalysisEmit, object):
             units = [(k, v) for k, v in self.units.items()]
             return units
         if unit_system not in EmitConstants.EMIT_UNIT_SYSTEM:
-            print("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_system, EmitConstants.EMIT_UNIT_SYSTEM))
+            print(
+                "[{}] units are not supported by EMIT. The options are: {}: ".format(
+                    unit_system, EmitConstants.EMIT_UNIT_SYSTEM
+                )
+            )
             return None
         return self.units[unit_system]
