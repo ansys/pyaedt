@@ -804,8 +804,12 @@ class Components(object):
                         self._logger.info("No pins found on component {} for the net {}".format(component, net))
 
             else:
+                ref_pin_group = self.create_pingroup_from_pins(ref_pins)
+                if not ref_pin_group:
+                    self._logger.warning("failed to create reference pin group")
+                    return False
                 for net in net_list:
-                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName().lower() == net]
+                    pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
                     for pin in pins:
                         ref_pin = self._get_closest_pin_from(pin, ref_pins)
                         ref_pin_term = self._create_terminal(ref_pin)

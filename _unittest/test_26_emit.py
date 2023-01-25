@@ -251,8 +251,11 @@ class TestClass(BasisTest, object):
             assert domain is not None
             engine = self.aedtapp._emit_api.get_engine()
             assert engine is not None
+            assert engine.is_domain_valid(domain)
             interaction = engine.run(domain)
             assert interaction is not None
+            domain.set_receiver("dummy")
+            assert not engine.is_domain_valid(domain)
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
@@ -382,12 +385,9 @@ class TestClass(BasisTest, object):
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0
-        assert len(domain.interferer_names) == 1
-        assert domain.interferer_names[0] == "MD400C"
-        assert len(domain.interferer_band_names) == 1
-        assert domain.interferer_band_names[0] == "Tx"
-        assert len(domain.interferer_channel_frequencies) == 1
-        assert domain.interferer_channel_frequencies[0] == -1.0
+        assert domain.interferer_names == ["MD400C"]
+        assert domain.interferer_band_names == ["Tx"]
+        assert domain.interferer_channel_frequencies == [-1.0]
         assert domain.instance_count() == 31626
         interaction = self.aedtapp.results.revisions_list[0].run(domain)
         available_warning = interaction.get_availability_warning(domain)
