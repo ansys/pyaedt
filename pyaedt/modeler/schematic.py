@@ -206,8 +206,21 @@ class ModelerNexxim(ModelerCircuit):
         return None
 
     @property
+    def schematic_units(self):
+        """Schematic units. Defaults are ``"meter"``. Options are ``"mm"``, ``"mil"``, ``"cm"``."""
+        return self._schematic_units
+
+    @schematic_units.setter
+    def schematic_units(self, value):
+        """Schematic units. Defaults are ``"meter"``. Options are ``"mm"``, ``"mil"``, ``"cm"``."""
+        if value in list(AEDT_UNITS["Length"].keys()):
+            self._schematic_units = value
+        else:
+            self.logger.error("Wrong younit")
+
+    @property
     def model_units(self):
-        """Model units.
+        """Layout Model units.
 
         References
         ----------
