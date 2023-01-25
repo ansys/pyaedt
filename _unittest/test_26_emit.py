@@ -71,6 +71,13 @@ class TestClass(BasisTest, object):
         connected_comp, connected_port = radio2.port_connection(radio2_port)
         assert connected_comp is None
         assert connected_port is None
+        # Test create_radio_antenna
+        radio3, antenna3 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+        ant3_port = antenna3.port_names()[0]
+        rad3_port = radio3.port_names()[0]
+        connected_comp, connected_port = antenna3.port_connection(ant3_port)
+        assert connected_comp == radio3.name
+        assert connected_port == rad3_port
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
@@ -87,6 +94,36 @@ class TestClass(BasisTest, object):
         assert band.enabled
         band.enabled = False
         assert not band.enabled
+        # test band.set_band_power_level
+        band.set_band_power_level(100)
+        power = band.get_band_power_level()
+        assert power == 100.0
+        # test band.set_band_power_level
+        band.set_band_power_level(10, 'W')
+        power = band.get_band_power_level('mW')
+        assert power == 10000.0
+        # test frequency unit conversions 
+        start_freq = radio.band_start_frequency(band)
+        assert start_freq == 100.0
+        start_freq = radio.band_start_frequency(band, "Hz")
+        assert start_freq == 100000000.0
+        start_freq = radio.band_start_frequency(band, "kHz")
+        assert start_freq == 100000.0
+        start_freq = radio.band_start_frequency(band, "GHz")
+        assert start_freq == 0.1
+        start_freq = radio.band_start_frequency(band, "THz")
+        assert start_freq == 0.0001
+        # test power unit conversions
+        band_power = radio.band_tx_power(band)
+        assert band_power == 40.0
+        band_power = radio.band_tx_power(band, "dBW")
+        assert band_power == 10.0
+        band_power = radio.band_tx_power(band, "mW")
+        assert band_power == 10000.0
+        band_power = radio.band_tx_power(band, "W")
+        assert band_power == 10.0
+        band_power = radio.band_tx_power(band, "kW")
+        assert band_power == 0.01
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021 R2."
@@ -101,7 +138,7 @@ class TestClass(BasisTest, object):
         orientation = antenna.get_orientation_rpy()
         assert orientation == (0.0, 0.0, 0.0)
         # Default position is 0 0 0
-        position = antenna.get_position()
+        position = antenna.get_position()        
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
@@ -156,6 +193,9 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
+        # Change the sampling
+        sampling = rad3.get_sampling()
+        sampling.set_channel_sampling(percentage=25)
         self.aedtapp.analyze()
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         assert radiosRX[0] == "Bluetooth"
@@ -166,8 +206,62 @@ class TestClass(BasisTest, object):
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
         )
+        assert rx_frequencies[0] == 2402.0
+        assert rx_frequencies[1] == 2403.0
+        # Change the units globally
+        self.aedtapp.set_units("Frequency", "GHz")
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert rx_frequencies[0] == 2.402
+        assert rx_frequencies[1] == 2.403
+        # Change the return units only
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx, "Hz"
+        )
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
+
+        # Test set_sampling 
+        bandsRX = self.aedtapp.results.get_band_names(radiosRX[1], self.aedtapp.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )        
+        assert len(rx_frequencies) == 20
+        
+        sampling.set_channel_sampling(max_channels=500)        
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )   
+        assert len(rx_frequencies) == 79
+
+        sampling.set_channel_sampling("Random", max_channels=75)
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )   
+        assert len(rx_frequencies) == 75
+        assert rx_frequencies[0] == 2.402
+        assert rx_frequencies[1] == 2.403
+
+        sampling.set_channel_sampling("Random", percentage=25, seed=100)
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )   
+        assert len(rx_frequencies) == 19
+        assert rx_frequencies[0] == 2.402
+        assert rx_frequencies[1] == 2.411
+
+        sampling.set_channel_sampling("all")
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )   
+        assert len(rx_frequencies) == 79
+
+        # Test number of interferers
         assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 1
         self.aedtapp.results.revisions_list[-1].set_max_simultaneous_interferers(10)
         assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 10

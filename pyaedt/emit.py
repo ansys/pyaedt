@@ -7,6 +7,8 @@ from importlib import import_module
 from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.emit_core import EmitConstants
+import pyaedt.generic.constants as consts
 
 # global variable used to store module import
 mod = None
@@ -32,10 +34,22 @@ class Results:
 
     def __init__(self, emit_obj):
         self._result_loaded = False
+        """''True'' if the results are loaded and ''False'' if they are not."""
+
         self.emit_api = mod.EmitApi()
+        """Instance of the Emit api."""
+
         self.revisions_list = []
+        """List of all loaded result revisions."""
+
         self.location = emit_obj.oproject.GetPath()
+        """Path to the current project."""
+
         self.current_design = 0
+        """Initial revision of the Emit design."""
+
+        self.units = emit_obj.units
+        """Project units."""
 
     @property
     def result_loaded(self):
@@ -118,7 +132,7 @@ class Results:
         return bands
 
     @pyaedt_function_handler()
-    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode):
+    def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
 
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio.
@@ -131,11 +145,13 @@ class Results:
            Name of the band.
         tx_rx : tx_rx_mode object
             Used for determining whether to get ``rx`` or ``tx`` radio names.
+        units : str
+            Units for the frequencies.
 
         Returns
         -------
         freq:class:`list of float`
-            list of tx or or rx radio frequencies
+            List of tx or or rx radio frequencies.
 
         Examples
         ----------
@@ -143,6 +159,10 @@ class Results:
         """
         if self.result_loaded:
             freq = self.emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode)
+            # Emit api returns freqs in Hz, convert to user's desired units.
+            if not units or units not in EmitConstants.EMIT_VALID_UNITS["Frequency"]:
+                units = self.units["Frequency"]
+            freq = consts.unit_converter(freq, "Freq", "Hz", units)
         else:
             freq = None
             Result.result_mode_error()
@@ -186,8 +206,13 @@ class Revision:
         else:
             full = subfolder + "/{}.emit".format(name)
         self.name = name
+        """Name of the revision."""
+
         self.path = full
+        """Full path of the revision."""
+
         self.emit_obj = emit_obj
+        """''Emit'' object associated with the revision."""
 
     @pyaedt_function_handler()
     def run(self, domain):
@@ -395,11 +420,26 @@ class Emit(FieldAnalysisEmit, object):
         path = os.path.join(desktop_path, "Delcross")
         sys.path.append(path)
 
+        self.units = {
+            "Power":        "dBm",
+            "Frequency":    "MHz",
+            "Length":       "meter",
+            "Time":         "ns",
+            "Voltage":      "mV",
+            "Data Rate":     "bps",
+            "Resistance":   "ohm"
+        }
+        """Default Emit units"""
+
         if self._aedt_version >= "2023.1":
             global mod
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
+            """Instance of the Emit api."""
+            
             self.results = Results(self)
+            """''Result'' object for the selected design."""
+
             self.__emit_api_enabled = True
 
     @pyaedt_function_handler()
@@ -545,3 +585,74 @@ class Emit(FieldAnalysisEmit, object):
         if self.__emit_api_enabled:
             ver = self._emit_api.get_version(detailed)
             return ver
+
+    @pyaedt_function_handler()
+    def set_units(self, unit_system, unit_value):
+        """Set units for the component.
+        
+        Parameters
+        ----------
+        unit_system : str
+            System of units.
+        unit_value : str
+            Units to use.
+
+        Power: mW, W, kW, dBm, dBW
+        Frequency: Hz, kHz, MHz, GHz, THz
+        Length: pm, nm, um, mm, cm, dm, meter, km, mil, in, ft, yd, mile
+        Time: ps, ns, us, ms, s
+        Voltage: mV, V
+        Data Rate: bps, kbps, Mbps, Gbps
+        Resistance: uOhm, mOhm, Ohm, kOhm, megOhm, GOhm
+
+        Returns
+        -------
+        Bool
+            ''True'' if the units were successfully changed and ''False''
+            if there was an error.
+        """
+        valid_system = EmitConstants.EMIT_UNIT_SYSTEM
+        valid_units = EmitConstants.EMIT_VALID_UNITS
+
+        if type(unit_system) is list:
+            for t, v in zip(unit_system, unit_value):
+                if t not in valid_system:
+                    print("[{}] units are not supported by EMIT. The options are: {}: ".format(t, valid_system))
+                    return False
+                if v not in valid_units[t]:
+                    print("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
+                    return False
+                self.units[t] = v
+        else:
+            if unit_system not in valid_system:
+                print("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_system, valid_system))
+                return False
+            if unit_value not in valid_units[unit_system]:
+                print("[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_system]))
+                return False
+            self.units[unit_system] = unit_value
+        return True
+    
+    @pyaedt_function_handler()
+    def get_units(self, unit_system=""):
+        """Get units for the component.
+        
+        Parameters
+        ----------
+        unit_system : str
+            System of units: options are power, frequency,
+                length, time, voltage, data rate, or resistance.
+
+        Returns
+        -------
+        Str or Tuple
+            If unit_type is specified returns the units for that type
+            and if unit_type="", returns a Tuple of all units 
+        """
+        if not unit_system:
+            units = [(k, v) for k, v in self.units.items()]
+            return units
+        if unit_system not in EmitConstants.EMIT_UNIT_SYSTEM:
+            print("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_system, EmitConstants.EMIT_UNIT_SYSTEM))
+            return None
+        return self.units[unit_system]

@@ -16,7 +16,7 @@ import subprocess
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit import Revision
-from pyaedt.emit import Result
+from pyaedt.emit import Results
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 
 # Check to see which Python libraries have been installed
@@ -67,70 +67,30 @@ emitapp = Emit(pyaedt.generate_unique_project_name())
 ###############################################################################
 # Create and connect EMIT components
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Set up the scenario with radios connected to antennas
+# Set up the scenario with radios connected to antennas.
 
-def add_and_connect_radio(radio_name, schematic_name=""):
-    """Add a radio from the EMIT library and connect
-    it to an antenna.
-    Returns: 
-        Instance of the radio.
-    Argments:
-        radio_name: String name of the EMIT library radio
-            to add.
-        schematic_name: Name that is to appear in the schematic.
-    """
-    rad = emitapp.modeler.components.create_component(radio_name, schematic_name)
-    ant = emitapp.modeler.components.create_component("Antenna")
-    if rad and ant:
-        ant.move_and_connect_to(rad)
-    return rad
-
-# Add three systems to the project
-bluetooth = add_and_connect_radio("Bluetooth Low Energy (LE)", "Bluetooth")
-gps = add_and_connect_radio("GPS Receiver", "GPS")
-wifi = add_and_connect_radio("WiFi - 802.11-2012", "WiFi")
+bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
+gps, gps_ant = emitapp.modeler.components.create_radio_antenna("GPS Receiver", "GPS")
+wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012", "WiFi")
 
 ###############################################################################
 # Configure the radios
 # ~~~~~~~~~~~~~~~~~~~~
 # Enable the HR-DSSS bands for the wifi radio and set the power level
 # for all transmit bands to simulate coupling.
-def set_band_power_level(band, power):
-    """Set the power of the fundamental for the given band.
-    Arguments:
-        band: Band being configured.
-        power: Peak amplitude of the fundamental [dBm].
-    """
-    prop_list = { "FundamentalAmplitude": power}
-    for child in band.children:
-        if child.props["Type"] == "TxSpectralProfNode":
-            child._set_prop_value(prop_list)
-            return # only one Tx Spectral Profile per Band
-        
-def set_channel_sampling(radio, percentage):
-    """Set the channel sampling for the radio.
-    Arguments:
-        radio: Radio to modify.
-        percentage: Percentage of channels to sample for the analysis.
-    """
-    sampling = radio.get_prop_nodes({"Type": "SamplingNode"})[0]
-    sampling._set_prop_value({
-            "SpecifyPercentage": "true", 
-            "PercentageChannels": "{}".format(percentage)
-            })
-        
-# Enable the HR-DSSS wifi band, reduce
-# its transmit power, and reduce its sampling
-set_channel_sampling(wifi, 50)
+
+wifi_sampling = wifi.get_sampling()
+wifi_sampling.set_channel_sampling(percentage=25)
 for band in wifi.bands():
     if "HR-DSSS" in band.node_name:
         band.enabled=True
-        set_band_power_level(band, "-50")
+        band.set_band_power_level(-50)
 
 # Reduce the bluetooth transmit power
-set_channel_sampling(bluetooth, 50)
+blue_sampling = bluetooth.get_sampling()
+blue_sampling.set_channel_sampling(percentage=50)
 for band in bluetooth.bands():
-    set_band_power_level(band, "-50")
+    band.set_band_power_level(-50)
     
 ###############################################################################
 # Load the results set
@@ -257,12 +217,13 @@ def minimum_tx_channel_separation(rx_band, tx_band, emi_threshold):
             return 0.0
     # Assess each Rx channel and see how close the Tx can be tuned while
     # keeping the EMI below the threshold.
+    # Freqs are used to set the domain, so they need to be in Hz
     rx_frequencies = emitapp.results.get_active_frequencies(
-        rx_band[0], rx_band[1], modeRx
+        rx_band[0], rx_band[1], modeRx, "Hz"
     )
     rx_channel_count = len(rx_frequencies)
     tx_frequencies = emitapp.results.get_active_frequencies(
-        tx_band[0], tx_band[1], modeTx
+        tx_band[0], tx_band[1], modeTx, "Hz"
     )
     tx_channel_count = len(tx_frequencies)
     chpair = domain

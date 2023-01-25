@@ -17,7 +17,7 @@ import subprocess
 import pyaedt
 from pyaedt import Emit
 from pyaedt.emit import Revision
-from pyaedt.emit import Result
+from pyaedt.emit import Results
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 
 # Check to see which Python libraries have been installed
@@ -82,55 +82,27 @@ desense_threshold = -104
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Set up the scenario with radios connected to antennas.
 
-def add_and_connect_radio(radio_name, schematic_name=""):
-    """Add a radio from the EMIT library and connect
-    it to an antenna.
-    Returns: 
-        Instance of the radio.
-    Argments:
-        radio_name: String name of the EMIT library radio
-            to add.
-        schematic_name: Name that is to appear in the schematic.
-    """
-    rad = emitapp.modeler.components.create_component(radio_name, schematic_name)
-    ant = emitapp.modeler.components.create_component("Antenna")
-    if rad and ant:
-        ant.move_and_connect_to(rad)
-    return rad
-
-# Add three systems to the project
-bluetooth = add_and_connect_radio("Bluetooth Low Energy (LE)", "Bluetooth")
-gps = add_and_connect_radio("GPS Receiver", "GPS")
-wifi = add_and_connect_radio("WiFi - 802.11-2012", "WiFi")
+bluetooth, blue_ant = emitapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
+gps, gps_ant = emitapp.modeler.components.create_radio_antenna("GPS Receiver", "GPS")
+wifi, wifi_ant = emitapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012", "WiFi")
 
 ###############################################################################
 # Configure the radios
 # ~~~~~~~~~~~~~~~~~~~~
 # Enable the HR-DSSS bands for the Wi-Fi radio and set the power level
 # for all transmit bands to -20 dBm.
-def set_band_power_level(band, power):
-    """Set the power of the fundamental for the given band.
-    Arguments:
-        band: Band being configured.
-        power: Peak amplitude of the fundamental [dBm].
-    """
-    prop_list = { "FundamentalAmplitude": power}
-    for child in band.children:
-        if child.props["Type"] == "TxSpectralProfNode":
-            child._set_prop_value(prop_list)
-            return # only one Tx spectral profile per band
         
 bands = wifi.bands()
 for band in bands:
     if "HR-DSSS" in band.node_name:
         if "Ch 1-13" in band.node_name:
             band.enabled=True
-            set_band_power_level(band, "-20")
+            band.set_band_power_level(-20)
 
 # Reduce the bluetooth transmit power
 bands = bluetooth.bands()
 for band in bands:
-    set_band_power_level(band, "-20")
+    band.set_band_power_level(-20)
 
 # Configure the first Rx band in the GPS Rx to have 0 dBm Susc
 def set_protection_band(radio):
