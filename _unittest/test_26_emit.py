@@ -99,10 +99,10 @@ class TestClass(BasisTest, object):
         power = band.get_band_power_level()
         assert power == 100.0
         # test band.set_band_power_level
-        band.set_band_power_level(10, 'W')
-        power = band.get_band_power_level('mW')
+        band.set_band_power_level(10, "W")
+        power = band.get_band_power_level("mW")
         assert power == 10000.0
-        # test frequency unit conversions 
+        # test frequency unit conversions
         start_freq = radio.band_start_frequency(band)
         assert start_freq == 100.0
         start_freq = radio.band_start_frequency(band, "Hz")
@@ -138,7 +138,7 @@ class TestClass(BasisTest, object):
         orientation = antenna.get_orientation_rpy()
         assert orientation == (0.0, 0.0, 0.0)
         # Default position is 0 0 0
-        position = antenna.get_position()        
+        position = antenna.get_position()
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
@@ -222,25 +222,25 @@ class TestClass(BasisTest, object):
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
 
-        # Test set_sampling 
+        # Test set_sampling
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[1], self.aedtapp.tx_rx_mode().rx)
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
-        )        
+        )
         assert len(rx_frequencies) == 20
-        
-        sampling.set_channel_sampling(max_channels=500)        
+
+        sampling.set_channel_sampling(max_channels=500)
         self.aedtapp.analyze()
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
-        )   
+        )
         assert len(rx_frequencies) == 79
 
         sampling.set_channel_sampling("Random", max_channels=75)
         self.aedtapp.analyze()
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
-        )   
+        )
         assert len(rx_frequencies) == 75
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
@@ -249,7 +249,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.analyze()
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
-        )   
+        )
         assert len(rx_frequencies) == 19
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.411
@@ -258,7 +258,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.analyze()
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
-        )   
+        )
         assert len(rx_frequencies) == 79
 
         # Test number of interferers

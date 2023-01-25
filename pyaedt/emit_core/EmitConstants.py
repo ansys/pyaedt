@@ -4,13 +4,13 @@ import warnings
 
 def convert_power_to_unit(values, to_unit):
     """Convert power from dBm to specified unit.
-    
+
     Parameters
     ----------
     values : list
         List of powers in dBm.
     to_unit : str
-        Units for the output powers.        
+        Units for the output powers.
 
     Returns
     -------
@@ -34,7 +34,7 @@ def convert_power_to_unit(values, to_unit):
             elif to_unit == "kW":
                 value = math.pow(10.0, value / 10.0 - 6.0)
         return converted_values
-    
+
     if to_unit == "dBm":
         return values
     elif to_unit == "dBW":
@@ -45,17 +45,17 @@ def convert_power_to_unit(values, to_unit):
         return math.pow(10.0, values / 10.0 - 3.0)
     elif to_unit == "kW":
         return math.pow(10.0, values / 10.0 - 6.0)
-        
+
 
 def convert_power_dbm(values, from_unit):
     """Convert power to dBm.
-    
+
     Parameters
     ----------
     values : list
         List of powers to convert to dBm.
     from_unit : str
-        Units for the input powers.        
+        Units for the input powers.
 
     Returns
     -------
@@ -79,9 +79,9 @@ def convert_power_dbm(values, from_unit):
             elif from_unit == "kW":
                 value = max(-1000.0, 10.0 * (math.log10(value) + 6.0))
             converted_values.append(value)
-            
+
         return converted_values
-    
+
     if from_unit == "dBm":
         return values
     elif from_unit == "dBW":
@@ -93,8 +93,9 @@ def convert_power_dbm(values, from_unit):
     elif from_unit == "kW":
         return max(-1000.0, 10.0 * (math.log10(values) + 6.0))
 
-EMIT_UNIT_SYSTEM = ['Power', 'Frequency', 'Length', 'Time', 'Voltage', 'Data Rate', 'Resistance']  
-"""Valid unit system."""      
+
+EMIT_UNIT_SYSTEM = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+"""Valid unit system."""
 
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
@@ -103,7 +104,6 @@ EMIT_VALID_UNITS = {
     "Time": ["ps", "ns", "us", "ms", "s"],
     "Voltage": ["mV", "V"],
     "Data Rate": ["bps", "kbps", "Mbps", "Gbps"],
-    "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"]
+    "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
 """Valid units for each unit type."""
-
