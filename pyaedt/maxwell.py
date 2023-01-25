@@ -1868,7 +1868,7 @@ class Maxwell(object):
         netlist_file_path : str
             Circuit netlist file path.
         schematic_design_name : str
-            Name of the schematic design
+            Name of the schematic design.
 
         Returns
         -------
