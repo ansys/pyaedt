@@ -100,7 +100,7 @@ class Results:
             radios = self.emit_api.get_radio_names(tx_rx)
         else:
             radios = None
-            Result.result_mode_error()
+            Results.result_mode_error()
         return radios
 
     @pyaedt_function_handler()
@@ -128,7 +128,7 @@ class Results:
             bands = self.emit_api.get_band_names(radio_name, tx_rx_mode)
         else:
             bands = None
-            Result.result_mode_error()
+            Results.result_mode_error()
         return bands
 
     @pyaedt_function_handler()
@@ -165,7 +165,7 @@ class Results:
             freq = consts.unit_converter(freq, "Freq", "Hz", units)
         else:
             freq = None
-            Result.result_mode_error()
+            Results.result_mode_error()
         return freq
 
 
@@ -429,7 +429,7 @@ class Emit(FieldAnalysisEmit, object):
             "Data Rate": "bps",
             "Resistance": "ohm",
         }
-        """Default Emit units"""
+        """Default Emit units."""
 
         if self._aedt_version >= "2023.1":
             global mod
