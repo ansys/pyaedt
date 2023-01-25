@@ -751,14 +751,12 @@ class GeometryOperators(object):
             ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
         """
 
+        zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
+        ypt = GeometryOperators.v_cross(zpt, x_pointing)
+
         xp = GeometryOperators.normalize_vector(x_pointing)
-
-        tp = GeometryOperators.v_dot(y_pointing, xp)
-        ypt = GeometryOperators.v_sub(y_pointing, GeometryOperators.v_prod(tp, xp))
-        yp = GeometryOperators.normalize_vector(ypt)
-
-        zpt = GeometryOperators.v_cross(xp, yp)
         zp = GeometryOperators.normalize_vector(zpt)
+        yp = GeometryOperators.normalize_vector(ypt)
 
         return xp, yp, zp
 
