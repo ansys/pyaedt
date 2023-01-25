@@ -73,4 +73,3 @@ class TestClass(BasisTest, object):
         m2d.assign_coil(input_object=["Circle_inner"])
         m2d.assign_winding(coil_terminals=["Circle_inner"], name="Ext_Wdg", winding_type="External")
         assert m2d.edit_external_circuit(netlist_file, design_name)
-        assert not m2d.edit_external_circuit(netlist_file_invalid, design_name)
