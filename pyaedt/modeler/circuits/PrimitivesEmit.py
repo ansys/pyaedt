@@ -892,7 +892,7 @@ class EmitComponentPropNode(object):
         """Set the channel sampling for the radio. If a percentage is
         specified, then it will be used instead of max_channels.
 
-        Paramaters
+        Parameters
         ----------
         type : str, optional
             Type of sampling to use: Uniform, Random, or All.
@@ -900,7 +900,7 @@ class EmitComponentPropNode(object):
             Percentage of channels to sample for the analysis.
         max_channels : float, optional
             Maximum number of channels to sample for the analysis.
-        seed : float, optioanl
+        seed : float, optional
             Seed used for the random channel generator. Applies to
             random sampling only.
 
