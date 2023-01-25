@@ -190,7 +190,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         Returns
         -------
         str
-            netlist file path and design name when successful, ``False`` when failed.
+            Netlist file path and design name when successful, ``False`` when failed.
 
         """
         if os.path.splitext(file_to_export)[1] != ".sph":

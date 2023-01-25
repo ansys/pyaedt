@@ -1861,7 +1861,7 @@ class Maxwell(object):
     @pyaedt_function_handler
     def edit_external_circuit(self, netlist_file_path, schematic_design_name):
         """
-        Edits the external circuit for the winding.
+        Edit the external circuit for the winding.
 
         Parameters
         ----------
