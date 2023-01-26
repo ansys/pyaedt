@@ -90,9 +90,9 @@ class CircuitPins(object):
         Parameters
         ----------
         component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
-           Component Pin to attach
+           Component Pin to attach.
         name : str, optional
-            page port name.
+            Page port name. Default value is ``None``.
         use_wire : bool, optional
             Either if use wires or page port to connect the pins.
             Note that wire could generate shorts if not well placed.
