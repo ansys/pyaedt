@@ -1366,26 +1366,30 @@ class GeometryOperators(object):
         Use this function to change the orientation.
         The polygon is represented by its vertices coordinates.
 
+
         Parameters
         ----------
-        x : list
-            List of x coordinates of the vertices. Length must be >= 3.
-        y : list
+        x : List
+            List of x coordinates of the vertices. Length must be >= 1.
+            Degenerate polygon with only 2 points is also accepted, in this case the points are returned unchanged.
+        y : List
             List of y coordinates of the vertices. Must be of the same length as x.
         clockwise : bool
-            If ``True`` the polygon is oriented colckwise, if ``False`` it is oriented counterclockwise.
+            If ``True`` the polygon is oriented clockwise, if ``False`` it is oriented counterclockwise.
             Default is ``True``.
 
         Returns
         -------
-        list of list
+        List of List
             Lists of oriented vertices.
         """
         # select a vertex on the hull
-        if len(x) < 3:  # pragma: no cover
-            raise ValueError("'x' length must be >= 3")
+        if len(x) < 2:  # pragma: no cover
+            raise ValueError("'x' length must be >= 2")
         if len(y) != len(x):  # pragma: no cover
-            raise ValueError("'y' must be same length as 'x'.")
+            raise ValueError("'y' must be same length as 'x'")
+        if len(x) == 2:
+            return x, y
         # fmt: off
         xmin = min(x)
         ixmin = [i for i, el in enumerate(x) if xmin == el]
