@@ -36,6 +36,11 @@ def install_toolkit(tool_dir):
                 print("Building to " + os.path.join(tool_dir, file_name + ".py"))
                 for line in build_file:
                     line = line.replace("##INSTALL_DIR##", tool_dir).replace("##PYTHON_EXE##", sys.executable)
+                    jupyter_executable = sys.executable.replace("python.exe", "jupyter.exe")
+                    ipython_executable = sys.executable.replace("python,exe", "ipython.exe")
+                    line = line.replace("##IPYTHON_EXE##", ipython_executable).replace(
+                        "##JUPYTER_EXE##", jupyter_executable
+                    )
                     out_file.write(line)
     shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(tool_dir, "console_setup"))
     shutil.copyfile(

@@ -30,8 +30,8 @@ def generate_unique_name(rootname, suffix="", n=6):
 proj_dir = oDesktop.GetProjectDirectory()
 os.chdir(proj_dir)
 
-pyaedt_toolkit_dir = r'''C:\Program Files\AnsysEM\v222\Win64\syslib\Toolkits\HFSS\PyAEDT'''
-jupyter_exe = r'''C:\Users\mcapodif\AppData\Roaming\pyaedt_env_ide\v222\Scripts\jupyter.exe'''
+pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
+jupyter_exe = r'''##JUPYTER_EXE##'''
 pyaedt_script = os.path.join(pyaedt_toolkit_dir,'console_setup')
 template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
 target = os.path.join(proj_dir, generate_unique_name("pyaedt",".ipynb", n=3))
