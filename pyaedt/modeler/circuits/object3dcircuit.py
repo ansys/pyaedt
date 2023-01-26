@@ -9,7 +9,6 @@ from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
-from pyaedt.generic.constants import MILS2METER
 from pyaedt.generic.general_methods import _arg2dict
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.cad.elements3d import _dict2arg
@@ -22,6 +21,11 @@ class CircuitPins(object):
         self._circuit_comp = circuit_comp
         self.name = pinname
         self.m_Editor = circuit_comp.m_Editor
+
+    @property
+    def units(self):
+        """Length units."""
+        return self._circuit_comp.units
 
     @property
     def location(self):
@@ -45,12 +49,23 @@ class CircuitPins(object):
                 pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
                 if "GPort" in self._circuit_comp.composed_name:
                     pos1[1] += 0.00254
+                pos1 = [round(i / AEDT_UNITS["Length"][self.units], 8) for i in pos1]
                 return pos1
             return []
         return [
-            _retry_ntimes(30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True),
-            _retry_ntimes(
-                30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
+            round(
+                _retry_ntimes(
+                    30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, True
+                )
+                / AEDT_UNITS["Length"][self.units],
+                8,
+            ),
+            round(
+                _retry_ntimes(
+                    30, self.m_Editor.GetComponentPinLocation, self._circuit_comp.composed_name, self.name, False
+                )
+                / AEDT_UNITS["Length"][self.units],
+                8,
             ),
         ]
 
@@ -69,15 +84,18 @@ class CircuitPins(object):
         return ""
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, page_name=None):
+    def connect_to_component(self, component_pin, page_name=None, use_wire=False):
         """Connect schematic components.
 
         Parameters
         ----------
-        component_pin : :class:`pyaedt.modeler.PrimitivesNexxim.CircuitPins`
+        component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
            Component Pin to attach
         name : str, optional
             page port name.
+        use_wire : bool, optional
+            Either if use wires or page port to connect the pins.
+            Note that wire could generate shorts if not well placed.
 
         Returns
         -------
@@ -89,8 +107,15 @@ class CircuitPins(object):
 
         >>> oPadstackManager.CreatePagePort
         """
+        tol = 1e-8
         if not isinstance(component_pin, list):
             component_pin = [component_pin]
+        if use_wire:
+            points = [self.location]
+            for cpin in component_pin:
+                points.append(cpin.location)
+            self._circuit_comp._circuit_components.create_wire(points)
+            return True
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
             comp_angle += math.pi / 2
@@ -205,7 +230,7 @@ class CircuitComponent(object):
         else:
             return self.name + ";" + str(self.schematic_id)
 
-    def __init__(self, circuit_components, units="mm", tabname="PassedParameterTab", custom_editor=None):
+    def __init__(self, circuit_components, tabname="PassedParameterTab", custom_editor=None):
         self.name = ""
         self._circuit_components = circuit_components
         if custom_editor:
@@ -223,13 +248,17 @@ class CircuitComponent(object):
         self._location = []
         self._mirror = None
         self.usesymbolcolor = True
-        self.units = units
         self.tabname = tabname
         self.InstanceName = None
         self._pins = None
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+
+    @property
+    def units(self):
+        """Length units."""
+        return self._circuit_components.schematic_units
 
     @property
     def _property_data(self):
@@ -358,13 +387,17 @@ class CircuitComponent(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        if self._location:
-            return self._location
+        self._location = []
         try:
             loc = _retry_ntimes(
                 10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Location"
             )
-            self._location = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
+            loc = [loc.split(",")[0].strip(), loc.split(",")[1].strip()]
+            loc = [decompose_variable_value(i) for i in loc]
+
+            self._location = [
+                round(i[0] * AEDT_UNITS["Length"][i[1]] / AEDT_UNITS["Length"][self.units], 10) for i in loc
+            ]
         except:
             self._location = []
         return self._location
@@ -376,32 +409,16 @@ class CircuitComponent(object):
         Parameters
         ----------
         location_xy : list
-            List of x and y coordinates. If float is provided, ``mils`` will be used.
+            List of x and y coordinates. If float is provided, default units will be used.
         """
-        decomposed = decompose_variable_value(location_xy[0])
-        try:
-            if decomposed[1] != "":
-                x_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
-            else:
-                x_location = round(float(decomposed[0]), -2)
+        x, y = [
+            int(i / AEDT_UNITS["Length"]["mil"]) for i in self._circuit_components._convert_point_to_meter(location_xy)
+        ]
+        x_location = _dim_arg(x, "mil")
+        y_location = _dim_arg(y, "mil")
 
-            x_location = _dim_arg(x_location, "mil")
-
-        except:
-            x_location = location_xy[0]
-        decomposed = decompose_variable_value(location_xy[1])
-        try:
-            if decomposed[1] != "":
-                y_location = round(AEDT_UNITS["Length"][decomposed[1]] * float(decomposed[0]) * MILS2METER, -2)
-            else:
-                y_location = round(float(decomposed[0]), -2)
-            y_location = _dim_arg(y_location, "mil")
-
-        except:
-            y_location = location_xy[1]
         vMaterial = ["NAME:Component Location", "X:=", x_location, "Y:=", y_location]
         self.change_property(vMaterial)
-        self._location = [x_location, y_location]
 
     @property
     def angle(self):
@@ -585,6 +602,7 @@ class CircuitComponent(object):
         self.__dict__[property_name] = property_value
         return True
 
+    @pyaedt_function_handler()
     def change_property(self, vPropChange, names_list=None):
         """Modify a property.
 
@@ -613,14 +631,18 @@ class CircuitComponent(object):
         else:
             vPropServers = ["NAME:PropServers", self.composed_name]
         tabname = None
-        if vPropChange[0][5:] in list(self.m_Editor.GetProperties(self.tabname, self.composed_name)):
+        if vPropChange[0][5:] in _retry_ntimes(10, self.m_Editor.GetProperties, self.tabname, self.composed_name):
             tabname = self.tabname
-        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("PassedParameterTab", self.composed_name)):
+        elif vPropChange[0][5:] in _retry_ntimes(
+            10, self.m_Editor.GetProperties, "PassedParameterTab", self.composed_name
+        ):
             tabname = "PassedParameterTab"
-        elif vPropChange[0][5:] in list(self.m_Editor.GetProperties("BaseElementTab", self.composed_name)):
+        elif vPropChange[0][5:] in _retry_ntimes(10, self.m_Editor.GetProperties, "BaseElementTab", self.composed_name):
             tabname = "BaseElementTab"
         if tabname:
             vGeo3dlayout = ["NAME:" + tabname, vPropServers, vChangedProps]
             vOut = ["NAME:AllTabs", vGeo3dlayout]
+            if "NAME:Component Location" in str(vChangedProps) and "PagePort" not in self.composed_name:
+                _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
             return _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
         return False

@@ -33,6 +33,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
+        self.aedtapp.modeler.schematic_untis = "mil"
         self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
         netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
         netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
@@ -162,7 +163,7 @@ class TestClass(BasisTest, object):
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
         assert len(self.aedtapp.excitations) > 0
         assert "Port1" in portname.name
-        assert myind.pins[0].connect_to_component(portname.pins[0])
+        assert myind.pins[0].connect_to_component(portname.pins[0], use_wire=True)
         assert myind.pins[1].connect_to_component(myres.pins[1])
         assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
@@ -185,8 +186,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
-        assert self.aedtapp.modeler.move("L100", [0, -0.00508])
-        assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
+        self.aedtapp.modeler.schematic_units = "mil"
+        myind = self.aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
+        self.aedtapp.modeler.schematic_units = "meter"
+        assert self.aedtapp.modeler.move("L14", [0, -0.00508])
+        assert myind.location == [0.01016, 0.00508]
+        self.aedtapp.modeler.schematic_units = "mil"
+        assert self.aedtapp.modeler.move(
+            "L14",
+            [0, 200],
+        )
+        assert myind.location == [400.0, 400.0]
 
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
@@ -384,8 +394,8 @@ class TestClass(BasisTest, object):
         assert type(subcircuit.location) is list
         assert type(subcircuit.id) is int
         assert subcircuit.component_info
-        assert subcircuit.location[0] == "0.0mil"
-        assert subcircuit.location[1] == "0.0mil"
+        assert subcircuit.location[0] == 0.0
+        assert subcircuit.location[1] == 0.0
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(

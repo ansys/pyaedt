@@ -152,6 +152,7 @@ class ModelerNexxim(ModelerCircuit):
 
     def __init__(self, app):
         self._app = app
+        self._schematic_units = "meter"
         ModelerCircuit.__init__(self, app)
         self._schematic = NexximComponents(self)
         self._layouteditor = None
@@ -175,7 +176,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -188,7 +189,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -264,7 +265,7 @@ class ModelerNexxim(ModelerCircuit):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @pyaedt_function_handler()
-    def move(self, selections, pos, units="meter"):
+    def move(self, selections, pos, units=None):
         """Move the selections by ``[x, y]``.
 
         Parameters
@@ -274,7 +275,7 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Offset for the Y axis.
+            Units of the movement. If ``None`` `schematic_units` will be used.
 
         Returns
         -------
@@ -290,9 +291,12 @@ class ModelerNexxim(ModelerCircuit):
         if not sels:
             self.logger.error("No Component Found.")
             return False
-        x_location = AEDT_UNITS["Length"][units] * float(pos[0])
-        y_location = AEDT_UNITS["Length"][units] * float(pos[1])
-
+        if units:
+            x_location = AEDT_UNITS["Length"][units] * float(pos[0])
+            y_location = AEDT_UNITS["Length"][units] * float(pos[1])
+        else:
+            x_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[0])
+            y_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[1])
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
             [

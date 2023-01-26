@@ -41,7 +41,7 @@ new_thread = True
 
 desktop = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
 aedt_app = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name())
-
+aedt_app.modeler.schematic.schematic_units = "mil"
 ###############################################################################
 # Create circuit setup
 # ~~~~~~~~~~~~~~~~~~~~
@@ -56,8 +56,8 @@ setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 10001"
 # Create components, such as an inductor, resistor, and capacitor.
 
 inductor = aedt_app.modeler.schematic.create_inductor(compname="L1", value=1e-9, location=[0, 0])
-resistor = aedt_app.modeler.schematic.create_resistor(compname="R1", value=50, location=[0.0254, 0])
-capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-12)
+resistor = aedt_app.modeler.schematic.create_resistor(compname="R1", value=50, location=[500, 0])
+capacitor = aedt_app.modeler.schematic.create_capacitor(compname="C1", value=1e-12, location=[1000, 0])
 
 ###############################################################################
 # Get all pins
@@ -71,18 +71,18 @@ pins_resistor = resistor.pins
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Create a port and a ground, which are needed for the circuit analysis.
 
-port = aedt_app.modeler.components.create_interface_port(name="myport")
-gnd = aedt_app.modeler.components.create_gnd()
+port = aedt_app.modeler.components.create_interface_port(name="myport", location=[-200, 0] )
+gnd = aedt_app.modeler.components.create_gnd(location=[1200, -100])
 
 ###############################################################################
 # Connect components
 # ~~~~~~~~~~~~~~~~~~
 # Connect components with wires.
 
-port.pins[0].connect_to_component(component_pin=inductor.pins[0])
-inductor.pins[1].connect_to_component(component_pin=resistor.pins[0])
-resistor.pins[1].connect_to_component(component_pin=capacitor.pins[0])
-capacitor.pins[1].connect_to_component(component_pin=gnd.pins[0])
+port.pins[0].connect_to_component(component_pin=inductor.pins[0], use_wire=True)
+inductor.pins[1].connect_to_component(component_pin=resistor.pins[1], use_wire=True)
+resistor.pins[0].connect_to_component(component_pin=capacitor.pins[0], use_wire=True)
+capacitor.pins[1].connect_to_component(component_pin=gnd.pins[0], use_wire=True)
 
 ###############################################################################
 # Create transient setup
