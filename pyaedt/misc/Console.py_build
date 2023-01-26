@@ -4,8 +4,8 @@
 It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
 
 This script executes the CPython script ``Lib/console_setup.py``.
-The ``console_setup.py`` script sets up the HFSS variable based on the command line arguments and kicks off the
-interactive Python.
+The ``console_setup.py`` script sets up the HFSS variable based on the command line arguments and kicks off an
+interactive Python session.
 
 """
 

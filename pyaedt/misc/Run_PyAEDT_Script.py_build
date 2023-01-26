@@ -1,10 +1,10 @@
 """
 * * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
-The script allows choosing a .py script to execute.
+The script provides for choosing the Python script to execute.
 
-It looks for a reference to a Python interpreter in python_interpreter.bat
+It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
 
-It will then use this Python interpreter to execute the script.
+It then uses this Python interpreter to execute the script.
 See the declaration of the command variable to see the order in which arguments are passed to the script.
 
 The commands allow the launched script to still reference the project and design that was active when the script

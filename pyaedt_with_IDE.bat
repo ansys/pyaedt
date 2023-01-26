@@ -71,14 +71,14 @@ if [%chosen_index%] == [] set chosen_index=1
 
 set chosen_root=!root_var[%chosen_index%]!
 set version=!versions[%chosen_index%]!
-echo Selected %version% at !%chosen_root%!
+echo Selected %version% at !%chosen_root%!.
 
 set aedt_path=potato
 if [%specified_python%]==[y] (
     aedt_path=!argVec[%python_path_index%]!
 ) else (
     set aedt_path=!%chosen_root%!\commonfiles\CPython\3_7\winx64\Release\python
-    echo Built-in python is !aedt_path!
+    echo Built-in python is !aedt_path!.
 )
 set aedt_path=!aedt_path:"=!
 
@@ -95,10 +95,10 @@ setlocal enableDelayedExpansion
 
 if [%install_pyaedt%]==[y] (
     if exist "%pyaedt_install_dir%" (
-        echo Removing existing PyAEDT Environment.
+        echo Removing existing PyAEDT environment.
         @RD /S /Q "%pyaedt_install_dir%"
     )
-    echo Installing PyAEDT Environment in "%pyaedt_install_dir%"
+    echo Installing PyAEDT environment in "%pyaedt_install_dir%".
 
     cd "%APPDATA%"
 
@@ -109,11 +109,11 @@ if [%install_pyaedt%]==[y] (
     )
     call "%pyaedt_install_dir%\Scripts\activate.bat"
     if NOT [%wheelpyaedt%]==[] (
-        echo Installing PyAEDT from local wheels %arg1%
+        echo Installing PyAEDT from local wheels %arg1%.
         pip install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
     ) ELSE (
         IF EXIST %current_dir%.git (
-            echo Installing PyAEDT from local clone %current_dir%
+            echo Installing PyAEDT from local clone "%current_dir%".
         ) ELSE (
             echo Installing PyAEDT from pip.
         )
