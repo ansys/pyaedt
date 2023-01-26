@@ -16,12 +16,14 @@ if config["desktopVersion"] > "2022.2":
     cs1 = "Coordinate_System1_231"
     cs2 = "Coordinate_System2_231"
     cs3 = "Coordinate_System3_231"
+    image_f = "Coax_HFSS_v231.jpg"
 else:
     test_project_name = "Coax_HFSS_t13"
     cs = "Coordinate_System"
     cs1 = "Coordinate_System1"
     cs2 = "Coordinate_System2"
     cs3 = "Coordinate_System3"
+    image_f = "Coax_HFSS.jpg"
 
 
 def _write_jpg(design_info, scratch):
@@ -67,7 +69,7 @@ class TestClass(BasisTest, object):
         assert design_info["DesignName"] == "HFSSDesign"
         assert design_info["IsSolved"] == False
         jpg_file = _write_jpg(design_info, self.local_scratch.path)
-        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, "Coax_HFSS.jpg"))
+        assert filecmp.cmp(jpg_file, os.path.join(local_path, "example_models", test_subfolder, image_f))
 
     def test_03_check_can_load_aedt_file_with_binary_content(self):
         aedt_file = os.path.join(local_path, "example_models", test_subfolder, "assembly.aedt")
