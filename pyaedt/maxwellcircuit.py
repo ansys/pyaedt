@@ -2,6 +2,7 @@
 from __future__ import absolute_import  # noreorder
 
 import math
+import os
 
 from pyaedt.application.AnalysisMaxwellCircuit import AnalysisMaxwellCircuit
 from pyaedt.generic.general_methods import open_file
@@ -175,6 +176,31 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
                         xpos += delta
                         ypos = 0
         return True
+
+    @pyaedt_function_handler
+    def export_netlist_from_schematic(self, file_to_export):
+        """
+        Create netlist from schematic circuit.
+
+        Parameters
+        ----------
+        file_to_export : str
+            File path to export the netlist to.
+
+        Returns
+        -------
+        str
+            Netlist file path when successful, ``False`` when failed.
+
+        """
+        if os.path.splitext(file_to_export)[1] != ".sph":
+            self.logger.error("Invalid file extension. It must be ``.sph``.")
+            return False
+        try:
+            self.odesign.ExportNetlist("", file_to_export)
+            return file_to_export
+        except:
+            return False
 
     def __enter__(self):
         return self
