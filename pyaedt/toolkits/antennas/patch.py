@@ -174,7 +174,7 @@ class Patch(CommonAntenna):
             if new_name not in self._app.variable_manager.variables:
                 self._app[new_name] = str(parameters[param]) + self.length_unit
                 self.parameters.append(new_name)
-
+        self.parameters = sorted(self.parameters)
         if new_name_lst == self.parameters and self.object_list:
             self._app.logger.warning("Please use method duplicate_along_line to duplicate antenna " + self.antenna_name)
             return True
@@ -184,22 +184,22 @@ class Patch(CommonAntenna):
             self.antenna_name = group_name
 
         # Map parameter list to understand code
-        patch_x = self.parameters[0]
-        patch_y = self.parameters[1]
-        feed_x = self.parameters[2]
-        feed_y = self.parameters[3]
-        sub_h = self.parameters[4]
-        sub_x = self.parameters[5]
-        sub_y = self.parameters[6]
+        patch_x = self.parameters[7]
+        patch_y = self.parameters[8]
+        feed_x = self.parameters[3]
+        feed_y = self.parameters[4]
+        sub_h = self.parameters[12]
+        sub_x = self.parameters[13]
+        sub_y = self.parameters[14]
 
-        coax_inner_rad = self.parameters[7]
-        coax_outer_rad = self.parameters[8]
-        feed_length = self.parameters[9]
-        gnd_x = self.parameters[10]
-        gnd_y = self.parameters[11]
-        pos_x = self.parameters[12]
-        pos_y = self.parameters[13]
-        pos_z = self.parameters[14]
+        coax_inner_rad = self.parameters[0]
+        coax_outer_rad = self.parameters[1]
+        feed_length = self.parameters[2]
+        gnd_x = self.parameters[5]
+        gnd_y = self.parameters[6]
+        pos_x = self.parameters[9]
+        pos_y = self.parameters[10]
+        pos_z = self.parameters[11]
 
         # Substrate
         sub = self._app.modeler.create_box(
@@ -490,4 +490,4 @@ class Patch(CommonAntenna):
             parameters["pos_y"] = self.position[1]
             parameters["pos_z"] = self.position[2]
 
-        return parameters
+        return dict(sorted(parameters.items()))
