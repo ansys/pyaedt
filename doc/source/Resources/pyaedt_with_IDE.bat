@@ -78,7 +78,7 @@ if [%specified_python%]==[y] (
     aedt_path=!argVec[%python_path_index%]!
 ) else (
     set aedt_path=!%chosen_root%!\commonfiles\CPython\3_7\winx64\Release\python
-    echo Built-in python is !aedt_path!.
+    echo Built-in Python is !aedt_path!.
 )
 set aedt_path=!aedt_path:"=!
 
