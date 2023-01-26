@@ -2160,4 +2160,4 @@ if not config["skip_edb"]:
             edbapp.build_simulation_project(simconfig)
             setup = list(edbapp.active_cell.SimulationSetups)[0]
             setup_str = [t.strip("\n\t") for t in setup.ToString().split("\r")]
-            assert next(f for f in setup_str if "MeshFrequency" in f).split("=")[-1].strip("'") == simconfig.mesh_freq
+            assert [f for f in setup_str if "MeshFrequency" in f][0].split("=")[-1].strip("'") == simconfig.mesh_freq
