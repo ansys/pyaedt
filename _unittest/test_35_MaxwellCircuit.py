@@ -61,15 +61,14 @@ class TestClass(BasisTest, object):
         gnd.pins[0].connect_to_component(i_source.pins[0])
         i_source.pins[1].connect_to_component(res.pins[1])
         netlist_file = os.path.join(self.local_scratch.path, "export_netlist.sph")
-        assert self.aedtapp.create_netlist_from_schematic(netlist_file)[0] == netlist_file
-        assert self.aedtapp.create_netlist_from_schematic(netlist_file)[1] == design_name
+        assert self.aedtapp.export_netlist_from_schematic(netlist_file) == netlist_file
         assert os.path.exists(netlist_file)
         netlist_file_invalid = os.path.join(self.local_scratch.path, "export_netlist.sh")
-        assert not self.aedtapp.create_netlist_from_schematic(netlist_file_invalid)
+        assert not self.aedtapp.export_netlist_from_schematic(netlist_file_invalid)
         m2d = Maxwell2d(designname="test")
         m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
         m2d.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
         m2d.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
         m2d.assign_coil(input_object=["Circle_inner"])
         m2d.assign_winding(coil_terminals=["Circle_inner"], name="Ext_Wdg", winding_type="External")
-        assert m2d.edit_external_circuit(netlist_file, design_name)
+        assert m2d.edit_external_circuit(netlist_file, self.aedtapp.design_name)

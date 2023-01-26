@@ -178,7 +178,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         return True
 
     @pyaedt_function_handler
-    def create_netlist_from_schematic(self, file_to_export):
+    def export_netlist_from_schematic(self, file_to_export):
         """
         Create netlist from schematic circuit.
 
@@ -190,7 +190,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         Returns
         -------
         str
-            Netlist file path and design name when successful, ``False`` when failed.
+            Netlist file path when successful, ``False`` when failed.
 
         """
         if os.path.splitext(file_to_export)[1] != ".sph":
@@ -198,7 +198,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             return False
         try:
             self.odesign.ExportNetlist("", file_to_export)
-            return file_to_export, self.odesign.GetName().split(";")[1]
+            return file_to_export
         except:
             return False
 
