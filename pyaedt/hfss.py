@@ -181,6 +181,9 @@ class Hfss(FieldAnalysis3D, object):
             aedt_process_id,
         )
         self._field_setups = []
+        from pyaedt.toolkits.antennas import Antennas
+
+        self.antennas = Antennas(self)
 
     def __enter__(self):
         return self
@@ -1090,7 +1093,7 @@ class Hfss(FieldAnalysis3D, object):
         thin_sources=True,
         power_fraction="0.95",
     ):
-        """Create a linked antenna.
+        """Create a linked antennas.
 
         Parameters
         ----------
@@ -1381,12 +1384,12 @@ class Hfss(FieldAnalysis3D, object):
         is_array=False,
         antenna_name=None,
     ):
-        """Create a parametric beam antenna in SBR+.
+        """Create a parametric beam antennas in SBR+.
 
         Parameters
         ----------
         antenna_type : str, `SbrAntennas.ConicalHorn`
-            Name of the antenna type. The enumerator ``SbrAntennas`` can also be used.
+            Name of the antennas type. The enumerator ``SbrAntennas`` can also be used.
             The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
@@ -1402,7 +1405,7 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``False``.
         antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
-            name is auto-generated based on the antenna type.
+            name is auto-generated based on the antennas type.
 
         Returns
         -------
@@ -1495,7 +1498,7 @@ class Hfss(FieldAnalysis3D, object):
         model_units=None,
         antenna_name=None,
     ):
-        """Create a linked antenna.
+        """Create a linked antennas.
 
         Parameters
         ----------
@@ -1506,7 +1509,7 @@ class Hfss(FieldAnalysis3D, object):
         antenna_impedance : str, optional
             Antenna impedance with units. The default is ``"50ohm"``.
         representation_type : str, optional
-            Type of the antenna. Options are ``"Far Field"`` and ``"Near Field"``.
+            Type of the antennas. Options are ``"Far Field"`` and ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case the
@@ -1516,7 +1519,7 @@ class Hfss(FieldAnalysis3D, object):
             ``None``, in which case the active modeler units are applied.
         antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case
-            the name is auto-generated based on the antenna type.
+            the name is auto-generated based on the antennas type.
 
         Returns
         -------
@@ -1556,7 +1559,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def set_sbr_txrx_settings(self, txrx_settings):
-        """Set SBR+ TX RX antenna settings.
+        """Set SBR+ TX RX antennas settings.
 
         Parameters
         ----------
@@ -5697,7 +5700,7 @@ class Hfss(FieldAnalysis3D, object):
     def get_antenna_ffd_solution_data(
         self, frequencies, setup_name=None, sphere_name=None, variations=None, overwrite=True, taper="flat"
     ):
-        """Export antenna parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
 
         Parameters
         ----------
