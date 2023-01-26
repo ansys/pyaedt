@@ -34,11 +34,11 @@ print("ret: " + repr(ret))
 try:
     if ret == ret.OK:
         # launch file
-        pyaedt_toolkit_dir = r"""##INSTALL_DIR##"""
+        pyaedt_toolkit_dir = r"##INSTALL_DIR##"
         config_file = open(
             os.path.join(pyaedt_toolkit_dir, "python_interpreter.bat"), "r"
         )  # will fail with a file not found error if it isn't here
-        python_exe = r"""##PYTHON_EXE##"""
+        python_exe = r"##PYTHON_EXE##"
         print("python.exe: " + python_exe)
         pyaedt_script = file_dialog.FileName
         print("pyaedt_script: " + str(pyaedt_script))

@@ -19,8 +19,8 @@ oDesign = oProject.GetActiveDesign()
 
 # launch file
 win64_dir = oDesktop.GetExeDir()
-pyaedt_toolkit_dir = r"""##INSTALL_DIR##"""
-python_exe = r"""##PYTHON_EXE##"""
+pyaedt_toolkit_dir = r"##INSTALL_DIR##"
+python_exe = r"##PYTHON_EXE##"
 pyaedt_script = os.path.join(pyaedt_toolkit_dir, "Lib", "console_setup.py")
 command = [
     python_exe,
