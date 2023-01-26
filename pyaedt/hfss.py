@@ -726,17 +726,20 @@ class Hfss(FieldAnalysis3D, object):
     # TODO: Extract name and type from **kwargs to pass them to create_setup() as setuptype and setupname
 
     @pyaedt_function_handler()
-    def insert_setup(self, **kwargs):
-        """Insert a new analysis setup for HFSS.  This method is derived
-        from pyaedt.application.analysis.Analysis.create_setup().
-        Default values are defined in pyaedt.modules.SetupTemplates
+    def create_setup(self, setupname="MySetupAuto", **kwargs):
+        """Create a new analysis setup for HFSS.
+        Named arguments are passed along with ``setuptype`` and ``setupname``.  The
+        named arguments are identical to those values for the appropriate ``setuptype``
+        defined in the native Electronics Desktop API.
 
         Parameters
         ----------
-        type: str
-            Type of setup. Must be a key in the dict
-            pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
-        name : str
+        setuptype: str
+            Type of setup. Must be one of the following:
+            "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
+            "HFSSSBR" based on the solution type.
+            Default: "HFSSDrivenAuto"
+        setupname : str
             Name of the setup. Default: "Setup1"
         SolveType : str ("Single", "MultiFrequency")
             Specify whether multiple frequencies will be solved at each adaptive
@@ -778,22 +781,20 @@ class Hfss(FieldAnalysis3D, object):
         Example demonstrating the use of the insert_setup() method.
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
-        >>> hfss.insert_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
+        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
 
         """
-        if "name" in kwargs.keys():
-            name = kwargs["name"]
-            del kwargs["name"]
-        else:
-            name = "MySetupAuto"
-        if "setup_type" in kwargs.keys():
-            if kwargs["setup_type"] in SetupKeys.SetupNames:
-                setup_type = kwargs["setup_type"]
+
+        if "setuptype" in kwargs.keys():
+            if kwargs["setuptype"] in SetupKeys.SetupNames[0:5]:
+                setuptype = kwargs["setuptype"]
             else:
-                setup_type = None  # Revert to default
+                setuptype = SetupKeys.SetupNames[0]  # Revert to default
                 # TODO: Add message that invalid type was passed.
-            del kwargs["setup_type"]
-        setup = self.create_setup(setupname=name, setuptype=setup_type, props=kwargs)
+            del kwargs["setuptype"]
+        else:
+            setuptype = SetupKeys.SetupNames[0]  # Default
+        setup = self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs)
         return setup
 
     @pyaedt_function_handler()

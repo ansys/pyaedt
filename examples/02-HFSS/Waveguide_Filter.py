@@ -1,19 +1,22 @@
 """
 HFSS: Inductive Iris waveguide filter
 ----------------------------------------
-This example shows how to create a simple waveguide filter.
+This example shows how to build and analyze a 4-pole
+X-Band waveguide filter using inductive irises.
+
+Note that this example uses the Python package SymPy to
+evaluate expressions.
 """
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports.
 
-# sphinx_gallery_thumbnail_path = 'Resources/circuit.png'
+# sphinx_gallery_thumbnail_path = 'Resources/wgf.png'
 
 import pyaedt
 from pyaedt import general_methods
 from sympy.parsing.sympy_parser import parse_expr
-import os
 
 ###############################################################################
 # Launch AEDT
@@ -33,10 +36,9 @@ wgparams = {'l': [0.7428, 0.82188],
             't': 0.15,
             'units': 'in'}
 
-non_graphical = False
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 new_thread = False
-project_folder = r'C:\Ansoft\Projects\Examples\HFSS\Filters\Eplane WG Filter\test'
-project_name = project_folder + "\\" + general_methods.generate_unique_name("wgf", n=2)
+project_name = pyaedt.generate_unique_project_name(project_name="wgf")
 
 # Connect to an existing instance if it exits.
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
@@ -108,8 +110,8 @@ hfss.modeler.create_box(["-b/2", "-a/2", wg_z_start], ["b", "a", wg_length],
 # hfss.create_wave_port_from_sheet()
 
 ###############################################################################
-# Use parse_expr() to evaluate the numerical values of the integration line
-# and a point on the port surface.
+# Use parse_expr() to evaluate the numerical coordinates needed to specify
+# start and end points of the port integration line.
 # ~~~~~~~~~~~~~~~~~~~~~~
 wg_z = [str(parse_expr(wg_z_start, var_mapping)) + wgparams['units'],
         str(parse_expr(wg_z_start + "+" + wg_length, var_mapping)) + wgparams['units']]
@@ -122,13 +124,12 @@ for n, z in enumerate(wg_z):
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
 #  See pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
-#  for allowed values for type
+#  for allowed values for setuptype.
 
-setup = hfss.insert_setup(name="Setup1", setup_type="HFSSDriven",
-                          Frequency="10GHz", MaximumPasses=15)
+setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
+                          Frequency="10GHz", MaximumPasses=10)
 
-hfss.create_linear_count_sweep(
-    setupname=setup.name,
+setup.create_linear_count_sweep(
     unit="GHz",
     freqstart=9.5,
     freqstop=10.5,
@@ -139,5 +140,7 @@ hfss.create_linear_count_sweep(
     interpolation_max_solutions=255,
     save_fields=False,
 )
+
+setup.analyze()
 
 hfss.release_desktop(close_desktop=False, close_projects=False)

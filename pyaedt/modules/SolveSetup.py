@@ -548,6 +548,33 @@ class Setup(CommonSetup):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def analyze(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+        """Analyze a design setup.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores. The default is ``None.``
+        num_tasks : int, optional
+            Number of simulation tasks. The default is ``None.``
+        num_gpu : int, optional
+            Number of simulation graphics processing units. The default is ``None.``
+        acf_file : str, optional
+            Full path to custom ACF file. The default is ``None.``
+        use_auto_settings : bool, optional
+            Either if use or not auto settings in task/cores. It is not supported by all Setup.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        """
+        self._app.analyze_setup(self.name, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
+
 
 class SetupCircuit(CommonSetup):
     """Initializes, creates, and updates a circuit setup.
@@ -1894,6 +1921,10 @@ class SetupHFSS(Setup, object):
             i += 1
         self.auto_update = True
         return self.update()
+
+    @pyaedt_function_handler()
+    def analyze_nominal(self):
+        pass
 
 
 class SetupHFSSAuto(Setup, object):

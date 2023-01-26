@@ -1236,7 +1236,8 @@ class Analysis(Design, object):
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
-            Either if use or not auto settings in task/cores. It is not supported by all Setup.
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
 
         Returns
         -------
@@ -1334,6 +1335,11 @@ class Analysis(Design, object):
         >>> sw1.props["RangeStep"] = "5MHz"
         >>> sw1.update()
         """
+        return self._create_setup(setupname=setupname, setuptype=setuptype, props=props)
+
+    @pyaedt_function_handler()
+    def _create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
+
         if props is None:
             props = {}
 
