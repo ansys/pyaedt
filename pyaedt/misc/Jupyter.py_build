@@ -1,0 +1,48 @@
+"""
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
+
+It looks for a reference to a python interpreter in python_interpreter.bat
+
+This script executes the "hidden" CPython script console_setup (hidden because the .py was omitted)
+This hidden script sets up the hfss variable based on the command line arguments and kicks off the interactive python
+shell.
+
+"""
+
+
+import os
+import subprocess
+import shutil
+import random
+import string
+#choose file to launch
+
+def generate_unique_name(rootname, suffix="", n=6):
+
+    char_set = string.ascii_uppercase + string.digits
+    uName = "".join(random.choice(char_set) for _ in range(n))
+    unique_name = rootname + "_" + uName
+    if suffix:
+        unique_name += suffix
+    return unique_name
+
+#launch file
+proj_dir = oDesktop.GetProjectDirectory()
+os.chdir(proj_dir)
+
+pyaedt_toolkit_dir = r'''C:\Program Files\AnsysEM\v222\Win64\syslib\Toolkits\HFSS\PyAEDT'''
+jupyter_exe = r'''C:\Users\mcapodif\AppData\Roaming\pyaedt_env_ide\v222\Scripts\jupyter.exe'''
+pyaedt_script = os.path.join(pyaedt_toolkit_dir,'console_setup')
+template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
+target = os.path.join(proj_dir, generate_unique_name("pyaedt",".ipynb", n=3))
+with open(template,'r') as source:
+    with open(target,"w") as t:
+        for line in source:
+            line = line.replace("PROCESSID",str(oDesktop.GetProcessID())).replace("AEDTVERSION", oDesktop.GetVersion()[:6])
+            t.write(line)
+command = [
+    '"{}"'.format(jupyter_exe),
+    "lab",
+    target
+           ]
+subprocess.Popen(" ".join(command))
