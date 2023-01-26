@@ -1,4 +1,5 @@
 @echo off
+set current_dir=%~dp0
 setlocal enabledelayedexpansion
 set argCount=0
 for %%x in (%*) do (
@@ -33,7 +34,7 @@ if NOT [%usewheel%]==[] (
 	set wheelpyaedt="!argVec[%usewheel%]!"
 	if [%usepython%]==[] (
 	    echo ----------------------------------------------------------------------
-	    echo WheelHouse has been spefified. Make sure you are using version 3_7
+	    echo WheelHouse has been specified. Make sure you are using version 3_7
 	 	echo ----------------------------------------------------------------------
 
 	) ELSE (
@@ -54,7 +55,7 @@ for %%c in (%env_vars%) do (
         set version=!env_var_name:ANSYSEM_ROOT=!
         set versions[!choice_index!]=!version!
         set version_pretty=20!version:~0,2! R!version:~2,1!
-        echo [!choice_index!]!version_pretty!
+        echo [!choice_index!] !version_pretty!
 	    set /A choice_index=!choice_index!+1
     )
 )
@@ -111,10 +112,23 @@ if [%install_pyaedt%]==[y] (
         echo Installing Pyaedt from local wheels %arg1%
         pip install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
     ) ELSE (
-        echo Installing Pyaedt from pip
+        IF EXIST %current_dir%.git (
+            echo Installing Pyaedt from local clone %current_dir%
+        ) ELSE (
+            echo Installing Pyaedt from pip
+        )
+
         python -m pip install --upgrade pip
         pip install wheel
-        pip install pyaedt
+
+        IF EXIST %current_dir%.git (
+            pushd %current_dir%
+            pip install .
+            popd
+        ) ELSE (
+            pip install pyaedt
+        )
+
         pip install jupyterlab -I
         if [%install_spyder%]==[y] pip install spyder
         pip install ipython -U

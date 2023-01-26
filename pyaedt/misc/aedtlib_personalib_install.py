@@ -34,10 +34,14 @@ def install_toolkit(tool_dir):
         with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
             with open(os.path.join(tool_dir, file_name + ".py"), "w") as out_file:
                 print("Building to " + os.path.join(tool_dir, file_name + ".py"))
-                for line in build_file:
-                    line = line.replace("##INSTALL_DIR##", tool_dir).replace("##PYTHON_EXE##", sys.executable)
-                    out_file.write(line)
-    shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(tool_dir, "console_setup"))
+                build_file_data = build_file.read()
+                build_file_data = build_file_data.replace("##INSTALL_DIR##", tool_dir).replace(
+                    "##PYTHON_EXE##", sys.executable
+                )
+                out_file.write(build_file_data)
+    lib_dir = os.path.join(tool_dir, "Lib")
+    os.makedirs(lib_dir, exist_ok=True)
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(lib_dir, "console_setup.py"))
 
 
 with Desktop(version, True, new_desktop_session=True) as d:
@@ -69,12 +73,12 @@ with Desktop(version, True, new_desktop_session=True) as d:
         try:
             sys_dir = os.path.join(d.syslib, "Toolkits", tk, "PyAEDT")
             install_toolkit(sys_dir)
-            d.logger.info("Toolkit for {} installed in sys lib".format(tk))
+            d.logger.info("Installed toolkit for {} in sys lib".format(tk))
 
         except IOError:
             pers_dir = os.path.join(d.personallib, "Toolkits", tk, "PyAEDT")
             install_toolkit(pers_dir)
-            d.logger.info("Toolkit for {} installed in sys lib".format(tk))
+            d.logger.info("Installed toolkit for {} in personal lib".format(tk))
 if pid:
     try:
         os.kill(pid, 9)
