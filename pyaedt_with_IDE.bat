@@ -34,7 +34,7 @@ if NOT [%usewheel%]==[] (
 	set wheelpyaedt="!argVec[%usewheel%]!"
 	if [%usepython%]==[] (
 	    echo ----------------------------------------------------------------------
-	    echo WheelHouse has been specified. Make sure you are using version 3_7
+	    echo WheelHouse has been specified. Make sure you are using version 3_7.
 	 	echo ----------------------------------------------------------------------
 
 	) ELSE (
@@ -95,10 +95,10 @@ setlocal enableDelayedExpansion
 
 if [%install_pyaedt%]==[y] (
     if exist "%pyaedt_install_dir%" (
-        echo Removing existing Pyaedt Environment
+        echo Removing existing PyAEDT Environment.
         @RD /S /Q "%pyaedt_install_dir%"
     )
-    echo Installing Pyaedt Environment in "%pyaedt_install_dir%"
+    echo Installing PyAEDT Environment in "%pyaedt_install_dir%"
 
     cd "%APPDATA%"
 
@@ -109,13 +109,13 @@ if [%install_pyaedt%]==[y] (
     )
     call "%pyaedt_install_dir%\Scripts\activate.bat"
     if NOT [%wheelpyaedt%]==[] (
-        echo Installing Pyaedt from local wheels %arg1%
+        echo Installing PyAEDT from local wheels %arg1%
         pip install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
     ) ELSE (
         IF EXIST %current_dir%.git (
-            echo Installing Pyaedt from local clone %current_dir%
+            echo Installing PyAEDT from local clone %current_dir%
         ) ELSE (
-            echo Installing Pyaedt from pip
+            echo Installing PyAEDT from pip.
         )
 
         python -m pip install --upgrade pip
@@ -141,7 +141,7 @@ if [%install_pyaedt%]==[y] (
     call python "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
 )
 if [%update_pyaedt%]==[y] (
-    echo Updating Pyaedt
+    echo Updating PyAEDT.
     "%pyaedt_install_dir%\Scripts\pip" install pythonnet  -U
     "%pyaedt_install_dir%\Scripts\pip" install pyaedt --no-deps -U
     call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%

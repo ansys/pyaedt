@@ -1,11 +1,11 @@
 """
 * * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
 
-It looks for a reference to a python interpreter in python_interpreter.bat
+It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
 
-This script executes the CPython script Lib/console_setup.py
-console_setup.py sets up the hfss variable based on the command line arguments and kicks off the interactive python
-shell.
+This script executes the CPython script ``Lib/console_setup.py``.
+The ``console_setup.py`` script sets up the HFSS variable based on the command line arguments and kicks off the
+interactive Python.
 
 """
 
@@ -17,7 +17,7 @@ import ScriptEnv
 oProject = oDesktop.GetActiveProject()
 oDesign = oProject.GetActiveDesign()
 
-# launch file
+# Launch file
 win64_dir = oDesktop.GetExeDir()
 pyaedt_toolkit_dir = r"##INSTALL_DIR##"
 python_exe = r"##PYTHON_EXE##"

@@ -1,10 +1,10 @@
 """
 * * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
-The script allows choosing a .py script to execute
+The script allows choosing a .py script to execute.
 
-It looks for a reference to a python interpreter in python_interpreter.bat
+It looks for a reference to a Python interpreter in python_interpreter.bat
 
-It will then use this python interpreter to execute the script.
+It will then use this Python interpreter to execute the script.
 See the declaration of the command variable to see the order in which arguments are passed to the script.
 
 The commands allow the launched script to still reference the project and design that was active when the script
@@ -24,7 +24,7 @@ from System.Windows.Forms import OpenFileDialog
 oProject = oDesktop.GetActiveProject()
 oDesign = oProject.GetActiveDesign()
 
-# choose file to launch
+# Choose file to launch
 file_dialog = OpenFileDialog()
 file_dialog.InitialDirectory = oProject.GetPath()
 file_dialog.Filter = "python files(*.py)|*.py"
