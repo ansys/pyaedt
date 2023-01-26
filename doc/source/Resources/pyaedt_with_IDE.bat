@@ -114,23 +114,21 @@ if [%install_pyaedt%]==[y] (
         echo Installing Pyaedt from pip
         python -m pip install --upgrade pip
         pip install wheel
-        pip install pywin32
-        pip install pythonnet
-        pip install rpyc
-		pip install numpy
-		pip install matplotlib
-		pip install psutil
-		pip install pandas
-        pip install pyaedt --no-deps
+        pip install pyaedt
         pip install jupyterlab -I
         if [%install_spyder%]==[y] pip install spyder
-        pip install ipython -I
-        pip install ipyvtklink
+        pip install ipython -U
+		pip install ipyvtklink
     )
+	if [%pythonpyaedt%]==[] (
+        if %version% geq 231 pip uninstall -y pywin32
+	)
+
     call python "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
 )
 if [%update_pyaedt%]==[y] (
     echo Updating Pyaedt
+    "%pyaedt_install_dir%\Scripts\pip" install pythonnet  -U
     "%pyaedt_install_dir%\Scripts\pip" install pyaedt --no-deps -U
     call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
 
