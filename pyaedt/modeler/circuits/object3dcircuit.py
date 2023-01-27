@@ -114,8 +114,33 @@ class CircuitPins(object):
             component_pin = [component_pin]
         if use_wire:
             points = [self.location]
+            cangles = [self._circuit_comp.angle]
             for cpin in component_pin:
-                points.append(cpin.location)
+                prev = [i for i in points[-1]]
+                act = [i for i in cpin.location]
+                act_bb = [i for i in self._circuit_comp.bounding_box]
+                if abs(points[-1][0] - cpin.location[0]) < tol or abs(points[-1][1] - cpin.location[1]) < tol:
+                    points.append(cpin.location)
+                elif cangles[-1] in [0.0, 180.0]:
+                    if prev[0] <= act_bb[2] <= act[0] or prev[0] > act_bb[2] > act[0]:
+                        bb = act_bb[2]
+                    else:
+                        bb = act_bb[0]
+
+                    points.append([prev[0], (prev[1] + act[1]) / 2])
+                    points.append([bb, (prev[1] + act[1]) / 2])
+                    points.append([bb, act[1]])
+                    points.append(act)
+                else:
+                    if prev[1] <= act_bb[3] <= act[1] or prev[1] > act_bb[3] > act[1]:
+                        bb = act_bb[3]
+                    else:
+                        bb = act_bb[1]
+                    points.append([(prev[0] + act[0]) / 2, prev[1]])
+                    points.append([(prev[0] + act[0]) / 2, bb])
+                    points.append([act[0], bb])
+                    points.append(act)
+                cangles.append(cpin._circuit_comp.angle)
             self._circuit_comp._circuit_components.create_wire(points)
             return True
         comp_angle = self._circuit_comp.angle * math.pi / 180
@@ -348,6 +373,33 @@ class CircuitComponent(object):
             _component_info[j] = propval
         self._component_info = ComponentParameters(self, tab, _component_info)
         return self._component_info
+
+    @property
+    def bounding_box(self):
+        """Component bounding box."""
+        comp_info = self.m_Editor.GetComponentInfo(self.composed_name)
+        if not comp_info:
+            if len(self.pins) == 1:
+                return [
+                    self.pins[0].location[0] - 0.00254 / AEDT_UNITS["Length"][self._circuit_components.schematic_units],
+                    self.pins[0].location[-1]
+                    + 0.00254 / AEDT_UNITS["Length"][self._circuit_components.schematic_units],
+                    self.pins[0].location[0] + 0.00254 / AEDT_UNITS["Length"][self._circuit_components.schematic_units],
+                    self.pins[0].location[1] + 0.00254 / AEDT_UNITS["Length"][self._circuit_components.schematic_units],
+                ]
+            return [0, 0, 0, 0]
+        i = 0
+        for cp in comp_info:
+            if "BBoxLLx" in cp:
+                break
+            i += 1
+        bounding_box = [
+            float(comp_info[i + 1][8:]),
+            float(comp_info[i + 2][8:]),
+            float(comp_info[i + 3][8:]),
+            float(comp_info[i][8:]),
+        ]
+        return [i / AEDT_UNITS["Length"][self._circuit_components.schematic_units] for i in bounding_box]
 
     @property
     def pins(self):
