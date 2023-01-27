@@ -105,13 +105,12 @@ class CircuitComponents(object):
 
     @property
     def schematic_units(self):
-        """Model units."""
+        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
+        The default is ``"meter"``."""
         return self._modeler.schematic_units
 
     @schematic_units.setter
     def schematic_units(self, value):
-        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
-        The default is ``"meter"``."""
         self._modeler.schematic_units = value
 
     @property
@@ -132,7 +131,8 @@ class CircuitComponents(object):
 
     @pyaedt_function_handler()
     def _convert_point_to_meter(self, point):
-        """Convert numbers automatically to mils, rounding to the nearest 100 mil  which is minimum schematic snap unit."""
+        """Convert numbers automatically to mils, rounding to the nearest 100 mil
+        which is minimum schematic snap unit."""
         xpos = point[0]
         ypos = point[1]
 
