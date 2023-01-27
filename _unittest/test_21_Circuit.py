@@ -58,12 +58,12 @@ class TestClass(BasisTest, object):
         assert myres.parameters["R"] == "50"
 
     def test_03_create_capacitor(self):
-        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
+        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == "1e-12"
         tol = 1e-12
-        assert abs(mycap.pins[0].location[1] - 0.20066) < tol
-        assert abs(mycap.pins[0].location[0] - 0.5943600000000001) < tol
+        assert abs(mycap.pins[0].location[1] - 2000) < tol
+        assert abs(mycap.pins[0].location[0] - 800) < tol
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)

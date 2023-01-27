@@ -83,6 +83,21 @@ class CircuitPins(object):
                     return net
         return ""
 
+    @property
+    def angle(self):
+        """Pin angle."""
+        props = list(self.m_Editor.GetComponentPinInfo(self._circuit_comp.composed_name, self.name))
+        for i in props:
+            if "Angle=" in i:
+                return round(float(i[6:]))
+        return 0.0
+
+    def _is_inside_point(self, plist, pa, pb):
+        for p in plist:
+            if pa < p < pb or pa > p > pb:
+                return True
+        return False
+
     @pyaedt_function_handler()
     def connect_to_component(self, component_pin, page_name=None, use_wire=False):
         """Connect schematic components.
@@ -91,7 +106,7 @@ class CircuitPins(object):
         ----------
         component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
            Component pin to attach.
-        name : str, optional
+        page_name : str, optional
             Page port name. The default value is ``None``, in which case
             a name is automatically generated.
         use_wire : bool, optional
@@ -104,7 +119,7 @@ class CircuitPins(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
-        References
+        ReferencesCircuit Design_58N
         ----------
 
         >>> oPadstackManager.CreatePagePort
@@ -113,33 +128,75 @@ class CircuitPins(object):
         if not isinstance(component_pin, list):
             component_pin = [component_pin]
         if use_wire:
+            direction = (180 + self.angle + self._circuit_comp.angle) * math.pi / 180
             points = [self.location]
             cangles = [self._circuit_comp.angle]
             for cpin in component_pin:
                 prev = [i for i in points[-1]]
                 act = [i for i in cpin.location]
-                act_bb = [i for i in self._circuit_comp.bounding_box]
-                if abs(points[-1][0] - cpin.location[0]) < tol or abs(points[-1][1] - cpin.location[1]) < tol:
-                    points.append(cpin.location)
-                elif cangles[-1] in [0.0, 180.0]:
-                    if prev[0] <= act_bb[2] <= act[0] or prev[0] > act_bb[2] > act[0]:
-                        bb = act_bb[2]
+                prev_bb = [i for i in self._circuit_comp.bounding_box]
+                act_bb = [i for i in cpin._circuit_comp.bounding_box]
+                pins_x = [i.location[0] for i in self._circuit_comp.pins if i.name != self.name]
+                pins_x += [i.location[0] for i in cpin._circuit_comp.pins if i.name != cpin.name]
+                pins_y = [i.location[1] for i in self._circuit_comp.pins if i.name != self.name]
+                pins_y += [i.location[1] for i in cpin._circuit_comp.pins if i.name != cpin.name]
+                if abs(points[-1][0] - cpin.location[0]) < tol:
+                    deltay = prev[1]
+                    if 0.0 >= direction >= (math.pi):
+                        deltax = (
+                            prev_bb[0]
+                            - 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
+                        )
                     else:
-                        bb = act_bb[0]
+                        deltax = (
+                            prev_bb[2]
+                            + 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
+                        )
 
-                    points.append([prev[0], (prev[1] + act[1]) / 2])
-                    points.append([bb, (prev[1] + act[1]) / 2])
-                    points.append([bb, act[1]])
-                    points.append(act)
-                else:
-                    if prev[1] <= act_bb[3] <= act[1] or prev[1] > act_bb[3] > act[1]:
-                        bb = act_bb[3]
+                    if not self._is_inside_point(pins_y, points[-1][1], cpin.location[1]):
+                        points.append(cpin.location)
                     else:
-                        bb = act_bb[1]
-                    points.append([(prev[0] + act[0]) / 2, prev[1]])
-                    points.append([(prev[0] + act[0]) / 2, bb])
-                    points.append([act[0], bb])
+                        points.append([deltax, deltay])
+                        points.append([deltax, act[1]])
+                        points.append(act)
+                elif abs(points[-1][1] - cpin.location[1]) < tol:
+                    deltax = prev[0]
+                    if 0.0 >= direction >= (math.pi):
+                        deltay = (
+                            prev_bb[1]
+                            - 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
+                        )
+                    else:
+                        deltay = (
+                            prev_bb[3]
+                            + 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
+                        )
+                    if not self._is_inside_point(pins_x, points[-1][0], cpin.location[0]):
+                        points.append(cpin.location)
+                    else:
+                        points.append([deltax, deltay])
+                        points.append([act[0], deltay])
+                        points.append(act)
+                elif cangles[-1] in [0.0, 180.0]:
+                    if prev[0] <= prev_bb[2] <= act[0] or prev[0] > prev_bb[2] > act[0]:
+                        bbx = act_bb[2]
+                    else:
+                        bbx = act_bb[0]
+                    points.append([prev[0], act_bb[1]])
+                    points.append([bbx, act_bb[1]])
+                    points.append([bbx, act[1]])
                     points.append(act)
+
+                else:
+                    if prev[1] <= prev_bb[3] <= act[1] or prev[1] > prev_bb[3] > act[1]:
+                        bby = act_bb[3]
+                    else:
+                        bby = act_bb[1]
+                    points.append([act_bb[0], prev[1]])
+                    points.append([act_bb[0], bby])
+                    points.append([act[0], bby])
+                    points.append(act)
+
                 cangles.append(cpin._circuit_comp.angle)
             self._circuit_comp._circuit_components.create_wire(points)
             return True
@@ -344,7 +401,10 @@ class CircuitComponent(object):
             tab = "PassedParameterTab"
         else:
             tab = "Quantities"
-        proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+        try:
+            proparray = self.m_Editor.GetProperties(tab, self.composed_name)
+        except:
+            proparray = []
 
         for j in proparray:
             propval = _retry_ntimes(10, self.m_Editor.GetPropertyValue, tab, self.composed_name, j)
@@ -394,10 +454,10 @@ class CircuitComponent(object):
                 break
             i += 1
         bounding_box = [
+            float(comp_info[i][8:]),
             float(comp_info[i + 1][8:]),
             float(comp_info[i + 2][8:]),
             float(comp_info[i + 3][8:]),
-            float(comp_info[i][8:]),
         ]
         return [i / AEDT_UNITS["Length"][self._circuit_components.schematic_units] for i in bounding_box]
 
