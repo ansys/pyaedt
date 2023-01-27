@@ -1,13 +1,95 @@
 import math
 
 import pyaedt.generic.constants as constants
-from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.toolkits.antennas.common import CommonAntenna
 
 
-class Patch(CommonAntenna):
-    """Manages patch antennas.
+class CommonPatch(object):
+    """Base methods common to Patch antennas."""
+
+    def __init__(self, *args, **kwargs):
+        self._old_material = None
+        self.material = kwargs["material"]
+        self.substrate_height = kwargs["substrate_height"]
+        self._app = args[0]
+        self.object_list = {}
+        self.parameters = []
+        self._length_unit = kwargs["length_unit"]
+
+    @property
+    def material(self):
+        """Substrate material.
+
+        Returns
+        -------
+        str
+        """
+        return self._material
+
+    @material.setter
+    def material(self, value):
+        if (
+            value
+            and value not in self._app._materials.mat_names_aedt
+            and value not in self._app._materials.mat_names_aedt_lower
+        ):
+            self._app.logger.warning("Material not found. Create new material before assign")
+        else:
+            self._material = value
+            old_material = None
+            if value != self._old_material:
+                old_material = self._old_material
+                self._old_material = self._material
+
+            if old_material and self.object_list:
+                parameters = self._synthesis()
+                parameters_map = {}
+                cont = 0
+                for param in parameters:
+                    parameters_map[self.parameters[cont]] = parameters[param]
+                    cont += 1
+                self._update_parameters(parameters_map, self._length_unit)
+                for antenna_obj in self.object_list:
+                    if (
+                        self.object_list[antenna_obj].material_name == old_material.lower()
+                        and "coax" not in antenna_obj
+                    ):
+                        self.object_list[antenna_obj].material_name = value
+
+    @property
+    def substrate_height(self):
+        """Substrate height.
+
+        Returns
+        -------
+        float
+        """
+        return self._substrate_height
+
+    @substrate_height.setter
+    def substrate_height(self, value):
+        self._substrate_height = value
+        parameters = self._synthesis()
+        if self.object_list:
+            parameters_map = {}
+            cont = 0
+            for param in parameters:
+                parameters_map[self.parameters[cont]] = parameters[param]
+                cont += 1
+            self._update_parameters(parameters_map, self._length_unit)
+
+    @pyaedt_function_handler()
+    def _synthesis(self):
+        pass
+
+    @pyaedt_function_handler()
+    def _update_parameters(self):
+        pass
+
+
+class RectangularPatchProbe(CommonAntenna, CommonPatch):
+    """Manages rectangular patch antenna with coaxial probe.
 
     This class is accessible through the app hfss object.
 
@@ -43,143 +125,20 @@ class Patch(CommonAntenna):
     """
 
     def __init__(self, *args, **kwargs):
-        self._app = args[0]
-        self.parameters = []
-        super(Patch, self).__init__(*args, **kwargs)
-        self._old_material = None
-        self.material = kwargs["material"]
-        self.substrate_height = kwargs["substrate_height"]
+        super(RectangularPatchProbe, self).__init__(*args, **kwargs)
 
-    @property
-    def material(self):
-        """Substrate material.
-
-        Returns
-        -------
-        str
-        """
-        return self._material
-
-    @material.setter
-    def material(self, value):
-        if (
-            value
-            and value not in self._app._materials.mat_names_aedt
-            and value not in self._app._materials.mat_names_aedt_lower
-        ):
-            self._app.logger.warning("Material not found. Create new material before assign")
-        else:
-            self._material = value
-            old_material = None
-            if value != self._old_material:
-                old_material = self._old_material
-                self._old_material = self._material
-
-            if old_material and self.object_list:
-                parameters = self._rectangular_patch_w_probe_synthesis()
-                parameters_map = {}
-                cont = 0
-                for param in parameters:
-                    parameters_map[self.parameters[cont]] = parameters[param]
-                    cont += 1
-                self._update_parameters(parameters_map, self._length_unit)
-                for antenna_obj in self.object_list:
-                    if (
-                        self.object_list[antenna_obj].material_name == old_material.lower()
-                        and "coax" not in antenna_obj
-                    ):
-                        self.object_list[antenna_obj].material_name = value
-
-    @property
-    def substrate_height(self):
-        """Substrate height.
-
-        Returns
-        -------
-        float
-        """
-        return self._substrate_height
-
-    @substrate_height.setter
-    def substrate_height(self, value):
-        self._substrate_height = value
-        parameters = self._rectangular_patch_w_probe_synthesis()
+    @pyaedt_function_handler()
+    def draw(self):
+        """Draw rectangular patch antenna. Once the antenna is created, this method will not be used."""
         if self.object_list:
-            parameters_map = {}
-            cont = 0
-            for param in parameters:
-                parameters_map[self.parameters[cont]] = parameters[param]
-                cont += 1
-            self._update_parameters(parameters_map, self._length_unit)
-
-    @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, independent_parameters=True):
-        """Duplicate the object along a line.
-
-        Parameters
-        ----------
-        vector : list
-            List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        nclones : int, optional
-            Number of clones. The default is ``2``.
-        independent_parameters: bool, optional
-            New parameters independent of the original design. The default is ``True``.
-
-        Returns
-        -------
-        list
-            List of patch objects.
-
-        Examples
-        --------
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> patch = hfss.antennas.rectangular_patch_w_probe()
-        >>> new_patch = patch.duplicate_along_line([10, 0, 0], 2)
-        """
-
-        new_patches = []
-        current_position = self.position
-        for new in range(1, nclones):
-            current_position = [x + y for x, y in zip(current_position, vector)]
-            new_patches.append(
-                self._app.antennas.rectangular_patch_w_probe(
-                    frequency=self.frequency,
-                    frequency_unit=self.frequency_unit,
-                    material=self.material,
-                    outer_boundary=self.outer_boundary,
-                    huygens_box=self.huygens_box,
-                    substrate_height=self.substrate_height,
-                    length_unit=self.length_unit,
-                    coordinate_system=self.coordinate_system,
-                    antenna_name=self.antenna_name + "_" + str(new) + generate_unique_name(""),
-                    position=current_position,
-                )
-            )
-            if not independent_parameters:
-                cont = 0
-                for param in new_patches[new - 1].parameters:
-                    # Position is always independent
-                    if not new_patches[new - 1].parameters.index(param) in [9, 10, 11]:
-                        self._app[param] = self.parameters[cont]
-                    cont += 1
-
-        return new_patches
-
-    @pyaedt_function_handler()
-    def _draw(self):
-        parameters = self._rectangular_patch_w_probe_synthesis()
-        new_name_lst = []
+            self._app.logger.warning("This antenna already exists")
+            return False
+        parameters = self._synthesis()
         for param in parameters:
             new_name = param + "_" + self.antenna_name
-            new_name_lst.append(new_name)
             if new_name not in self._app.variable_manager.variables:
                 self._app[new_name] = str(parameters[param]) + self.length_unit
                 self.parameters.append(new_name)
-        self.parameters = sorted(self.parameters)
-        if new_name_lst == self.parameters and self.object_list:
-            self._app.logger.warning("Please use method duplicate_along_line to duplicate antenna " + self.antenna_name)
-            return True
 
         # Map parameter list to understand code
         patch_x = self.parameters[7]
@@ -375,117 +334,103 @@ class Patch(CommonAntenna):
         return True
 
     @pyaedt_function_handler()
-    def _rectangular_patch_w_probe_synthesis(self):
+    def _synthesis(self):
         parameters = {}
-        l1 = [
-            "_frequency",
-            "_frequency_unit",
-            "_material",
-            "_length_unit",
-            "_substrate_height",
-            "_position",
-            "_antenna_name",
-        ]
-        l2 = set(list(self.__dict__.keys()))
+        lightSpeed = constants.SpeedOfLight  # m/s
+        freq_hz = constants.unit_converter(self.frequency, "Freq", self.frequency_unit, "Hz")
+        wavelength = lightSpeed / freq_hz
 
-        match = [i for i, el in enumerate(l1) if el in l2]
+        if (
+            self.material in self._app._materials.mat_names_aedt
+            or self.material in self._app._materials.mat_names_aedt_lower
+        ):
+            mat_props = self._app._materials[self.material]
+        else:
+            self._app.logger.warning("Material not found. Create new material before assign.")
+            return parameters
 
-        if len(match) == 7:
-            lightSpeed = constants.SpeedOfLight  # m/s
-            freq_hz = constants.unit_converter(self.frequency, "Freq", self.frequency_unit, "Hz")
-            wavelength = lightSpeed / freq_hz
+        subPermittivity = float(mat_props.permittivity.value)
 
-            if (
-                self.material in self._app._materials.mat_names_aedt
-                or self.material in self._app._materials.mat_names_aedt_lower
-            ):
-                mat_props = self._app._materials[self.material]
-            else:
-                self._app.logger.warning("Material not found. Create new material before assign.")
-                return parameters
+        sub_meters = constants.unit_converter(self.substrate_height, "Length", self.length_unit, "meter")
 
-            subPermittivity = float(mat_props.permittivity.value)
+        patch_width = 3.0e8 / ((2.0 * freq_hz) * math.sqrt((subPermittivity + 1.0) / 2.0))
 
-            sub_meters = constants.unit_converter(self.substrate_height, "Length", self.length_unit, "meter")
+        eff_Permittivity = (subPermittivity + 1.0) / 2.0 + (subPermittivity - 1.0) / 2.0 * math.pow(
+            1.0 + 12.0 * sub_meters / patch_width, -0.5
+        )
 
-            patch_width = 3.0e8 / ((2.0 * freq_hz) * math.sqrt((subPermittivity + 1.0) / 2.0))
+        effective_length = 3.0e8 / (2.0 * freq_hz * math.sqrt(eff_Permittivity))
 
-            eff_Permittivity = (subPermittivity + 1.0) / 2.0 + (subPermittivity - 1.0) / 2.0 * math.pow(
-                1.0 + 12.0 * sub_meters / patch_width, -0.5
-            )
+        top = (eff_Permittivity + 0.3) * (patch_width / sub_meters + 0.264)
+        bottom = (eff_Permittivity - 0.258) * (patch_width / sub_meters + 0.8)
 
-            effective_length = 3.0e8 / (2.0 * freq_hz * math.sqrt(eff_Permittivity))
+        delta_length = 0.412 * sub_meters * top / bottom
 
-            top = (eff_Permittivity + 0.3) * (patch_width / sub_meters + 0.264)
-            bottom = (eff_Permittivity - 0.258) * (patch_width / sub_meters + 0.8)
+        patch_length = effective_length - 2.0 * delta_length
 
-            delta_length = 0.412 * sub_meters * top / bottom
+        # eff_WL_meters = wavelength / math.sqrt(eff_Permittivity)
 
-            patch_length = effective_length - 2.0 * delta_length
+        k = 2.0 * math.pi / eff_Permittivity
+        G = math.pi * patch_width / (120.0 * math.pi * wavelength) * (1.0 - math.pow(k * sub_meters, 2) / 24)
 
-            # eff_WL_meters = wavelength / math.sqrt(eff_Permittivity)
+        # ;impedance at edge of patch
+        Res = 1.0 / (2.0 * G)
+        offset_pin_pos = patch_length / math.pi * math.asin(math.sqrt(50.0 / Res))
 
-            k = 2.0 * math.pi / eff_Permittivity
-            G = math.pi * patch_width / (120.0 * math.pi * wavelength) * (1.0 - math.pow(k * sub_meters, 2) / 24)
+        patch_x = constants.unit_converter(patch_width, "Length", "meter", self.length_unit)
+        parameters["patch_x"] = patch_x
 
-            # ;impedance at edge of patch
-            Res = 1.0 / (2.0 * G)
-            offset_pin_pos = patch_length / math.pi * math.asin(math.sqrt(50.0 / Res))
+        patch_y = constants.unit_converter(patch_length, "Length", "meter", self.length_unit)
+        parameters["patch_y"] = patch_y
 
-            patch_x = constants.unit_converter(patch_width, "Length", "meter", self.length_unit)
-            parameters["patch_x"] = patch_x
+        feed_x = 0.0
+        parameters["feed_x"] = feed_x
 
-            patch_y = constants.unit_converter(patch_length, "Length", "meter", self.length_unit)
-            parameters["patch_y"] = patch_y
+        feed_y = round(constants.unit_converter(offset_pin_pos, "Length", "meter", self.length_unit), 2)
+        parameters["feed_y"] = feed_y
 
-            feed_x = 0.0
-            parameters["feed_x"] = feed_x
+        sub_h = self.substrate_height
+        parameters["sub_h"] = sub_h
 
-            feed_y = round(constants.unit_converter(offset_pin_pos, "Length", "meter", self.length_unit), 2)
-            parameters["feed_y"] = feed_y
+        sub_x = round(
+            constants.unit_converter(1.5 * patch_width + 6.0 * sub_meters, "Length", "meter", self.length_unit), 1
+        )
+        parameters["sub_x"] = sub_x
 
-            sub_h = self.substrate_height
-            parameters["sub_h"] = sub_h
+        sub_y = round(
+            constants.unit_converter(1.5 * patch_length + 6.0 * sub_meters, "Length", "meter", self.length_unit), 1
+        )
+        parameters["sub_y"] = sub_y
 
-            sub_x = round(
-                constants.unit_converter(1.5 * patch_width + 6.0 * sub_meters, "Length", "meter", self.length_unit), 1
-            )
-            parameters["sub_x"] = sub_x
+        coax_inner_rad = round(
+            constants.unit_converter(0.025 * (1e8 / freq_hz), "Length", "meter", self.length_unit), 3
+        )
+        parameters["coax_inner_rad"] = coax_inner_rad
 
-            sub_y = round(
-                constants.unit_converter(1.5 * patch_length + 6.0 * sub_meters, "Length", "meter", self.length_unit), 1
-            )
-            parameters["sub_y"] = sub_y
+        coax_outer_rad = round(
+            constants.unit_converter(0.085 * (1e8 / freq_hz), "Length", "meter", self.length_unit), 3
+        )
+        parameters["coax_outer_rad"] = coax_outer_rad
 
-            coax_inner_rad = round(
-                constants.unit_converter(0.025 * (1e8 / freq_hz), "Length", "meter", self.length_unit), 3
-            )
-            parameters["coax_inner_rad"] = coax_inner_rad
+        feed_length = round(constants.unit_converter(wavelength / 6.0, "Length", "meter", self.length_unit), 2)
+        parameters["feed_length"] = feed_length
 
-            coax_outer_rad = round(
-                constants.unit_converter(0.085 * (1e8 / freq_hz), "Length", "meter", self.length_unit), 3
-            )
-            parameters["coax_outer_rad"] = coax_outer_rad
+        if self.huygens_box:
+            gnd_x = constants.unit_converter((299792458 / (freq_hz) / 4), "Length", "meter", self.length_unit) + sub_x
+            gnd_y = constants.unit_converter((299792458 / (freq_hz) / 4), "Length", "meter", self.length_unit) + sub_y
+        else:
+            gnd_x = sub_x
+            gnd_y = sub_y
 
-            feed_length = round(constants.unit_converter(wavelength / 6.0, "Length", "meter", self.length_unit), 2)
-            parameters["feed_length"] = feed_length
+        parameters["gnd_x"] = gnd_x
+        parameters["gnd_y"] = gnd_y
 
-            if self.huygens_box:
-                gnd_x = (
-                    constants.unit_converter((299792458 / (freq_hz) / 4), "Length", "meter", self.length_unit) + sub_x
-                )
-                gnd_y = (
-                    constants.unit_converter((299792458 / (freq_hz) / 4), "Length", "meter", self.length_unit) + sub_y
-                )
-            else:
-                gnd_x = sub_x
-                gnd_y = sub_y
+        parameters["pos_x"] = self.position[0]
+        parameters["pos_y"] = self.position[1]
+        parameters["pos_z"] = self.position[2]
 
-            parameters["gnd_x"] = gnd_x
-            parameters["gnd_y"] = gnd_y
+        myKeys = list(parameters.keys())
+        myKeys.sort()
+        parameters = {i: parameters[i] for i in myKeys}
 
-            parameters["pos_x"] = self.position[0]
-            parameters["pos_y"] = self.position[1]
-            parameters["pos_z"] = self.position[2]
-
-        return dict(sorted(parameters.items()))
+        return parameters

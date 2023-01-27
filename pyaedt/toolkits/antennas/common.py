@@ -8,6 +8,7 @@ class CommonAntenna(object):
 
     def __init__(self, *args, **kwargs):
         self._app = args[0]
+        self.parameters = []
         self.object_list = {}
         self.boundaries = {}
         self.excitations = {}
@@ -21,6 +22,7 @@ class CommonAntenna(object):
         self._old_antenna_name = None
         self.antenna_name = kwargs["antenna_name"]
         self.position = kwargs["position"]
+        super(CommonAntenna, self).__init__(*args, **kwargs)
 
     @property
     def frequency(self):
@@ -35,8 +37,8 @@ class CommonAntenna(object):
     @frequency.setter
     def frequency(self, value):
         self._frequency = value
-        parameters = self._rectangular_patch_w_probe_synthesis()
         if self.object_list:
+            parameters = self._synthesis()
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -57,8 +59,8 @@ class CommonAntenna(object):
     @frequency_unit.setter
     def frequency_unit(self, value):
         self._frequency_unit = value
-        parameters = self._rectangular_patch_w_probe_synthesis()
         if self.object_list:
+            parameters = self._synthesis()
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -107,8 +109,8 @@ class CommonAntenna(object):
     @length_unit.setter
     def length_unit(self, value):
         self._length_unit = value
-        parameters = self._rectangular_patch_w_probe_synthesis()
         if self.object_list:
+            parameters = self._synthesis()
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -167,14 +169,18 @@ class CommonAntenna(object):
     @position.setter
     def position(self, value):
         self._position = value
-        parameters = self._rectangular_patch_w_probe_synthesis()
         if self.object_list:
+            parameters = self._synthesis()
             parameters_map = {}
             cont = 0
             for param in parameters:
-                parameters_map[self.parameters[cont]] = parameters[param]
+                if param[0:4] == "pos_":
+                    parameters_map[self.parameters[cont]] = parameters[param]
                 cont += 1
-            self._update_parameters(parameters_map, self._length_unit)
+            if parameters_map:
+                self._update_parameters(parameters_map, self._length_unit)
+            else:
+                self._app.logger.error("Variable with suffix 'pos' not found.")
 
     @pyaedt_function_handler()
     def create_3dcomponent(self, component_file=None, component_name=None, replace=False):
@@ -236,7 +242,65 @@ class CommonAntenna(object):
         return True
 
     @pyaedt_function_handler()
+    def duplicate_along_line(self, vector, nclones=2, independent_parameters=True):
+        """Duplicate the object along a line.
+
+        Parameters
+        ----------
+        vector : list
+            List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
+        nclones : int, optional
+            Number of clones. The default is ``2``.
+        independent_parameters: bool, optional
+            New parameters independent of the original design. The default is ``True``.
+
+        Returns
+        -------
+        list
+            List of patch objects.
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> patch = hfss.antennas.rectangular_patch_w_probe()
+        >>> new_patch = patch.duplicate_along_line([10, 0, 0], 2)
+        """
+
+        new_patches = []
+        current_position = self.position
+        for new in range(1, nclones):
+            current_position = [x + y for x, y in zip(current_position, vector)]
+            new_patches.append(
+                self._app.antennas.rectangular_patch_w_probe(
+                    frequency=self.frequency,
+                    frequency_unit=self.frequency_unit,
+                    material=self.material,
+                    outer_boundary=self.outer_boundary,
+                    huygens_box=self.huygens_box,
+                    substrate_height=self.substrate_height,
+                    length_unit=self.length_unit,
+                    coordinate_system=self.coordinate_system,
+                    antenna_name=self.antenna_name + "_" + str(new) + generate_unique_name(""),
+                    position=current_position,
+                )
+            )
+            if not independent_parameters:
+                cont = 0
+                for param in new_patches[new - 1].parameters:
+                    # Position is always independent
+                    if not new_patches[new - 1].parameters.index(param) in [9, 10, 11]:
+                        self._app[param] = self.parameters[cont]
+                    cont += 1
+
+        return new_patches
+
+    @pyaedt_function_handler()
     def _update_parameters(self, parameters, length_unit):
         for param in parameters:
             self._app[param] = str(parameters[param]) + length_unit
         return True
+
+    @pyaedt_function_handler()
+    def _synthesis(self):
+        pass
