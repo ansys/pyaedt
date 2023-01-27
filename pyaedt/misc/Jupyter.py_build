@@ -14,7 +14,7 @@ import subprocess
 import shutil
 import random
 import string
-#choose file to launch
+#Choose file to launch
 
 def generate_unique_name(rootname, suffix="", n=6):
 
