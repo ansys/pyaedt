@@ -231,6 +231,32 @@ class EDBPrimitives(object):
         except:
             return points
 
+    @property
+    def bbox(self):
+        """Return the primitive bounding box points. Lower left corner, upper right corner.
+
+        Returns
+        -------
+        list
+            [lower_left x, lower_left y, upper right x, upper right y]
+
+        """
+        bbox = self.polygon_data.GetBBox()
+        return [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble(), bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
+
+    @property
+    def center(self):
+        """return the primitive center coordinate.
+
+        Returns
+        -------
+        list
+            [x, y]
+
+        """
+        bbox = self.bbox
+        return [bbox[2] - bbox[0], bbox[3] - bbox[1]]
+
     @pyaedt_function_handler()
     def is_arc(self, point):
         """Either if a point is an arc or not.
