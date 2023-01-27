@@ -196,11 +196,11 @@ class CircuitComponents(object):
             ``"Segment0"``.
             Default value is ``"NetName"``.
         visibility : str
-            Visibility type. Choices are ``Name``, ``Value``, ``Both``, ``Evaluated Value``, ``Evaluated Both``.
-            Default value is ``Name``.
+            Visibility type. Choices are ``"Name"``, ``"Value"``, ``"Both"``, ``"Evaluated Value"``, ``"Evaluated Both"``.
+            Default value is ``"Name"``.
         location : str
-            Wire name location. Choices are ``Left``, ``Top``, ``Right``, ``Bottom``, ``Center``.
-            Default value is ``Top``.
+            Wire name location. Choices are ``"Left"``, ``"Top"``, ``"Right"``, ``"Bottom"``, ``"Center"``.
+            Default value is ``"Top"``.
 
         Returns
         -------
