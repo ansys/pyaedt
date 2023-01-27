@@ -27,24 +27,25 @@ pid = 0
 
 
 def install_toolkit(toolkit_dir, product):
-    lib_dir = os.path.join(toolkit_dir, "Lib", "PyAEDT")
+    toolkit_rel_lib_dir = os.path.join("Lib", "PyAEDT")
+    lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
     tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
+    jupyter_executable = sys.executable.replace("python.exe", "jupyter.exe")
+    ipython_executable = sys.executable.replace("python.exe", "ipython.exe")
     for file_name in files_to_copy:
         with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
             file_name_dest = file_name.replace("_", " ") + ".py"
             with open(os.path.join(tool_dir, file_name_dest), "w") as out_file:
                 print("Building to " + os.path.join(tool_dir, file_name_dest))
                 build_file_data = build_file.read()
-                build_file_data = build_file_data.replace("##INSTALL_DIR##", lib_dir).replace(
-                    "##PYTHON_EXE##", sys.executable
-                )
-                jupyter_executable = sys.executable.replace("python.exe", "jupyter.exe")
-                ipython_executable = sys.executable.replace("python,exe", "ipython.exe")
-                build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable).replace(
-                    "##JUPYTER_EXE##", jupyter_executable
+                build_file_data = (
+                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                    .replace("##PYTHON_EXE##", sys.executable)
+                    .replace("##IPYTHON_EXE##", ipython_executable)
+                    .replace("##JUPYTER_EXE##", jupyter_executable)
                 )
                 out_file.write(build_file_data)
     shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(lib_dir, "console_setup.py"))

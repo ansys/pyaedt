@@ -8,8 +8,6 @@ The ``console_setup.py`` script sets up the HFSS variable based on the command l
 interactive Python session.
 
 """
-
-
 import os
 import random
 import string
@@ -18,8 +16,7 @@ import subprocess
 
 def generate_unique_name(rootname, suffix="", n=6):
     char_set = string.ascii_uppercase + string.digits
-    uName = "".join(random.choice(char_set) for _ in range(n))
-    unique_name = rootname + "_" + uName
+    unique_name = rootname + "_" + "".join(random.choice(char_set) for _ in range(n))
     if suffix:
         unique_name += suffix
     return unique_name
@@ -29,9 +26,9 @@ def generate_unique_name(rootname, suffix="", n=6):
 proj_dir = oDesktop.GetProjectDirectory()
 os.chdir(proj_dir)
 
-pyaedt_toolkit_dir = r"##INSTALL_DIR##"
+current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
 jupyter_exe = r"##JUPYTER_EXE##"
-pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup")
 template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
 target = os.path.join(proj_dir, generate_unique_name("pyaedt", ".ipynb", n=3))
 with open(template, "r") as source:
@@ -41,5 +38,5 @@ with open(template, "r") as source:
                 "AEDTVERSION", oDesktop.GetVersion()[:6]
             )
             t.write(line)
-command = ['"{}"'.format(jupyter_exe), "lab", target]
+command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
 subprocess.Popen(" ".join(command))
