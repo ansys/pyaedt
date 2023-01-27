@@ -90,12 +90,14 @@ class CircuitPins(object):
         Parameters
         ----------
         component_pin : :class:`pyaedt.modeler.circuits.PrimitivesNexxim.CircuitPins`
-           Component Pin to attach.
+           Component pin to attach.
         name : str, optional
-            Page port name. Default value is ``None``.
+            Page port name. The default value is ``None``, in which case
+            a name is automatically generated.
         use_wire : bool, optional
-            Either if use wires or page port to connect the pins.
-            Note that wire could generate shorts if not well placed.
+            Whether to use wires or a page port to connect the pins.
+            The default is ``False``, in which case a page port is used. Note
+            that if wires are used but not well placed, shorts can result.
 
         Returns
         -------
@@ -409,7 +411,7 @@ class CircuitComponent(object):
         Parameters
         ----------
         location_xy : list
-            List of x and y coordinates. If float is provided, default units will be used.
+            List of x and y coordinates. If float values are provided, the default units are used.
         """
         x, y = [
             int(i / AEDT_UNITS["Length"]["mil"]) for i in self._circuit_components._convert_point_to_meter(location_xy)

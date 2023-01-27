@@ -221,7 +221,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def model_units(self):
-        """Layout Model units.
+        """Layout model units.
 
         References
         ----------
@@ -275,7 +275,8 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Units of the movement. If ``None`` `schematic_units` will be used.
+            Units of the movement. The default is ``"meter"``. If ``None``,
+            ``schematic_units` are used.
 
         Returns
         -------

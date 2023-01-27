@@ -195,8 +195,9 @@ class NexximComponents(CircuitComponents):
         components_to_connect : list of :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
         use_wire : bool, optional
-            Either if use wires or page port to connect the pins.
-            Note that wire could generate shorts if not well placed.
+            Whether to use wires or a page port to connect the pins.
+            The default is ``True``, in which case wires are used. Note
+            that if wires are not well placed, shorts can result.
 
         Returns
         -------
