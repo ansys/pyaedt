@@ -5,7 +5,7 @@ This example shows how you can use PyAEDT to open an AEDT project with
 an EMIT design and analyze the results to determine if the received 
 power at the input to each receiver exceeds the specified protection
 levels.
-This example requires Ansys AEDT 2023 R2. Uncomment it and run on correct version.
+This example requires Ansys AEDT 2023 R2 or later. Uncomment it and run on correct version.
 """
 ###############################################################################
 # Perform required imports
