@@ -66,7 +66,7 @@ from pyaedt import Emit
 # ###############################################################################
 # # Create and connect EMIT components
 # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# # Set up the scenario with radios connected to antennas
+# # Set up the scenario with radios connected to antennas.
 #
 # def add_and_connect_radio(radio_name, schematic_name=""):
 #     """Add a radio from the EMIT library and connect
