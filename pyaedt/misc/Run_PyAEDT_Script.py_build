@@ -1,5 +1,5 @@
 """
-* * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 The script provides for choosing the Python script to execute.
 
 It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.

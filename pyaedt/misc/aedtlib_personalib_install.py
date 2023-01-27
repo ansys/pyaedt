@@ -34,7 +34,7 @@ def install_toolkit(toolkit_dir, tk):
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
     for file_name in files_to_copy:
         with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
-            with open(os.path.join(tool_dir, file_name + ".py"), "w") as out_file:
+            with open(os.path.join(tool_dir, file_name.replace("_", " ") + ".py"), "w") as out_file:
                 print("Building to " + os.path.join(tool_dir, file_name + ".py"))
                 build_file_data = build_file.read()
                 build_file_data = build_file_data.replace("##INSTALL_DIR##", lib_dir).replace(

@@ -1,23 +1,22 @@
 """
-* * * This script is meant to run in IronPython within Ansys Electronics Desktop. * * *
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 
 It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
 
-This script executes the "hidden" CPython ``console_setup`` script (hidden because the PY file was omitted).
-This hidden script sets up the HFSS variable based on the command line arguments and kicks off the interactive Python shell.
+This script executes the CPython script ``Lib/console_setup.py``.
+The ``console_setup.py`` script sets up the HFSS variable based on the command line arguments and kicks off an
+interactive Python session.
 
 """
 
 
 import os
-import subprocess
-import shutil
 import random
 import string
-#Choose file to launch
+import subprocess
+
 
 def generate_unique_name(rootname, suffix="", n=6):
-
     char_set = string.ascii_uppercase + string.digits
     uName = "".join(random.choice(char_set) for _ in range(n))
     unique_name = rootname + "_" + uName
@@ -25,23 +24,22 @@ def generate_unique_name(rootname, suffix="", n=6):
         unique_name += suffix
     return unique_name
 
-#Launch file
+
+# Launch file
 proj_dir = oDesktop.GetProjectDirectory()
 os.chdir(proj_dir)
 
-pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
-jupyter_exe = r'''##JUPYTER_EXE##'''
-pyaedt_script = os.path.join(pyaedt_toolkit_dir,'console_setup')
+pyaedt_toolkit_dir = r"##INSTALL_DIR##"
+jupyter_exe = r"##JUPYTER_EXE##"
+pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup")
 template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
-target = os.path.join(proj_dir, generate_unique_name("pyaedt",".ipynb", n=3))
-with open(template,'r') as source:
-    with open(target,"w") as t:
+target = os.path.join(proj_dir, generate_unique_name("pyaedt", ".ipynb", n=3))
+with open(template, "r") as source:
+    with open(target, "w") as t:
         for line in source:
-            line = line.replace("PROCESSID",str(oDesktop.GetProcessID())).replace("AEDTVERSION", oDesktop.GetVersion()[:6])
+            line = line.replace("PROCESSID", str(oDesktop.GetProcessID())).replace(
+                "AEDTVERSION", oDesktop.GetVersion()[:6]
+            )
             t.write(line)
-command = [
-    '"{}"'.format(jupyter_exe),
-    "lab",
-    target
-           ]
+command = ['"{}"'.format(jupyter_exe), "lab", target]
 subprocess.Popen(" ".join(command))
