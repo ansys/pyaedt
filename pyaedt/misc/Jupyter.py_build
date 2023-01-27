@@ -26,7 +26,7 @@ def generate_unique_name(rootname, suffix="", n=6):
         unique_name += suffix
     return unique_name
 
-#launch file
+#Launch file
 proj_dir = oDesktop.GetProjectDirectory()
 os.chdir(proj_dir)
 
