@@ -86,7 +86,7 @@ class Results:
             radios = self.emit_api.get_radio_names(tx_rx)
         else:
             radios = None
-            Result.result_mode_error()
+            Results.result_mode_error()
         return radios
 
     @pyaedt_function_handler()
@@ -114,7 +114,7 @@ class Results:
             bands = self.emit_api.get_band_names(radio_name, tx_rx_mode)
         else:
             bands = None
-            Result.result_mode_error()
+            Results.result_mode_error()
         return bands
 
     @pyaedt_function_handler()
@@ -145,7 +145,7 @@ class Results:
             freq = self.emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode)
         else:
             freq = None
-            Result.result_mode_error()
+            Results.result_mode_error()
         return freq
 
 
@@ -211,6 +211,7 @@ class Revision:
 
         """
         self.emit_obj._load_result_set(self.path)
+        self.path = self.emit_obj._emit_api.get_project_path()  # making sure format matches
         engine = self.emit_obj._emit_api.get_engine()
         interaction = engine.run(domain)
         return interaction
@@ -230,6 +231,7 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
+        self.emit_obj._load_result_set(self.path)
         engine = self.emit_obj._emit_api.get_engine()
         max_interferers = engine.max_simultaneous_interferers
         return max_interferers
@@ -244,6 +246,7 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.get_max_simultaneous_interferers()
         """
+        self.emit_obj._load_result_set(self.path)
         engine = self.emit_obj._emit_api.get_engine()
         engine.max_simultaneous_interferers = val
 
@@ -258,6 +261,7 @@ class Revision:
         >>> aedtapp.results.is_domain_valid(domain)
         True
         """
+        self.emit_obj._load_result_set(self.path)
         engine = self.emit_obj._emit_api.get_engine()
         return engine.is_domain_valid(domain)
 
@@ -449,9 +453,10 @@ class Emit(FieldAnalysisEmit, object):
 
         """
         if self.__emit_api_enabled:
-            self._emit_api.load_project(path)
-            self.results.result_loaded = True
-            print(self.results.result_loaded)
+            if not self.results.result_loaded or path != self._emit_api.get_project_path():
+                self._emit_api.load_project(path)
+                self.results.result_loaded = True
+                print(self.results.result_loaded)
 
     @staticmethod
     def result_type():
