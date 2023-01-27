@@ -451,9 +451,9 @@ class TestClass(BasisTest, object):
 
         # Get sampling node
         sampling = rad.get_sampling()
-        assert sampling.node_name == 'NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Sampling'
-        #props = sampling_node.get_node_properties()
-        #assert sampling_node.get_type() == "SamplingNode"
+        assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Sampling"
+        # props = sampling_node.get_node_properties()
+        # assert sampling_node.get_type() == "SamplingNode"
 
         # Test sampling params
         sampling.set_channel_sampling("All")
