@@ -7,6 +7,7 @@ separation for overlapping bands.
 This example requires Ansys AEDT 2023 R2. Uncomment it and run on correct version.
 
 """
+
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,14 +134,13 @@ from pyaedt import Emit
 #             )
 #             tx_start = min(tx_frequencies)
 #             tx_stop = max(tx_frequencies)
-
+#
 #             def fuzzy_in_range(val, range_start, range_stop):
 #                 return (
 #                     (val >= range_start and val <= range_stop)
 #                     or abs(val - range_start) < 1.0
 #                     or abs(val - range_stop) < 1.0
 #                 )
-
 #             if (
 #                 fuzzy_in_range(tx_start, rx_start, rx_stop)
 #                 or fuzzy_in_range(tx_stop, rx_start, rx_stop)
@@ -180,6 +180,7 @@ from pyaedt import Emit
 # # Analyze the results
 # # ~~~~~~~~~~~~~~~~~~~
 # # Consider any EMI margin of 0dB or greater an interference issue.
+
 # verbose = False    
 # threshold = 0. 
 
@@ -204,7 +205,7 @@ from pyaedt import Emit
 #     bandTx.append(tx_band[1])
 #     chanTx.append(0.0)
 #     domain.set_interferers(radTx, bandTx, chanTx)
-    
+
 #     interaction = rev.run(domain)
 #     worst = interaction.get_worst_instance(modeEmi)
 #     # If the worst case for the band-pair is below the EMI limit, then
@@ -253,7 +254,6 @@ from pyaedt import Emit
 
 # separation_results = []
 
-
 # ###############################################################################
 # # Plot the channel separation data
 # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -273,13 +273,10 @@ from pyaedt import Emit
 #     print('    Channels: {} [{}, {}]'.format(len(tx_frequencies), min(tx_frequencies), max(tx_frequencies)))
 #     channel_pairs = len(tx_frequencies)*len(rx_frequencies)
 #     print('Channel pairs: ', channel_pairs)
-
 #     if (channel_pairs > 10000):
 #         print('--- Skipping large band pair ---')
-#         continue
-    
+#         continue    
 #     separation = minimum_tx_channel_separation(rx_band, tx_band, threshold)
-   
 #     rx_separation_pairs = sorted(separation.items())
 #     x, y = zip(*rx_separation_pairs)
 #     plt.figure(num)
@@ -297,7 +294,6 @@ from pyaedt import Emit
 #     """Remove duplicate values from a list.
 #     Returns:
 #         List with duplicate values removed.
-#     Arguments: 
 #         a_list: List of tuples.
 #     """
 #     ret = []
@@ -314,8 +310,7 @@ from pyaedt import Emit
 #         title: Title of the table.
 #     """
 #     rx_bands = remove_duplicates([rx_band for rx_band, tx_band, sep in separation_results])
-#     tx_bands = remove_duplicates([tx_band for rx_band, tx_band, sep in separation_results])
-    
+#     tx_bands = remove_duplicates([tx_band for rx_band, tx_band, sep in separation_results])    
 #     header_values = ['<b>Tx / Rx</b>']
 #     header_values.extend(rx_bands)
 
@@ -324,7 +319,7 @@ from pyaedt import Emit
 #             if txb==tx_band and rxb==rx_band:
 #                 return sep
 #         return 'N/A'
-    
+
 #     rows = []
 #     colors = []
 #     for tx_band in tx_bands:
@@ -343,14 +338,12 @@ from pyaedt import Emit
 #             else:
 #                 color.append('white')
 #         rows.append(row)
-#         colors.append(color)
-        
+#         colors.append(color)        
 #     values = [tx_bands]
 #     values.extend(rows)
     
 #     val_colors = [['white' for _ in tx_bands]]
 #     val_colors.extend(colors)
-    
 #     fig = go.Figure(data=[go.Table(
 #         header=dict(
 #             values=header_values,
@@ -378,7 +371,7 @@ from pyaedt import Emit
 #         width = 800
 #         )
 #     fig.show()
-    
+
 # ###############################################################################
 # # Show results for bluetooth receiver
 # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

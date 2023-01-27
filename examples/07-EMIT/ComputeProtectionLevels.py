@@ -5,6 +5,7 @@ This example shows how you can use PyAEDT to open an AEDT project with
 an EMIT design and analyze the results to determine if the received 
 power at the input to each receiver exceeds the specified protection
 levels. 
+
 This example requires Ansys AEDT 2023 R2 or later. Uncomment it and run on correct version.
 """
 ###############################################################################
@@ -20,20 +21,21 @@ from pyaedt import Emit
 # # Check to see which Python libraries have been installed
 # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
-
+#
+#
 # # Install required packages if they are not installed
-# def install(package): 
+# def install(package):
 #     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
-
+#
 # # Install any missing libraries
 # required_packages = ['plotly']
 # for package in required_packages:
 #     if package not in installed_packages:
 #         install(package)
-
+#
 # # Import required modules
 # import plotly.graph_objects as go
-
+#
 # ###############################################################################
 # # Set non-graphical mode
 # # ~~~~~~~~~~~~~~~~~~~~~~
@@ -52,10 +54,10 @@ from pyaedt import Emit
 # # ~~~~~~~~~~~~~~~~~~~~~
 # # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # # on the specified version and in the specified graphical mode.
-
+#
 # d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
 # emitapp = Emit(pyaedt.generate_unique_project_name())
-
+#
 # ###############################################################################
 # # Specify the protection levels
 # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,7 +90,7 @@ from pyaedt import Emit
 # # ~~~~~~~~~~~~~~~~~~~~
 # # Enable the HR-DSSS bands for the Wi-Fi radio and set the power level
 # # for all transmit bands to -20 dBm.
-        
+
 # bands = wifi.bands()
 # for band in bands:
 #     if "HR-DSSS" in band.node_name:
@@ -134,6 +136,7 @@ from pyaedt import Emit
 #     else:
 #         radio = wifi
 #     return radio
+
 # set_protection_band(bluetooth)            
 # set_protection_band(gps)
 # set_protection_band(wifi)
@@ -146,7 +149,6 @@ from pyaedt import Emit
 #         else:
 #             band.enabled=False
 
-    
 # ###############################################################################
 # # Load the results set
 # # ~~~~~~~~~~~~~~~~~~~~
@@ -237,7 +239,6 @@ from pyaedt import Emit
 #         ),
 #         width = 600
 #         )
-
 #     fig.show()
 
 # ###############################################################################
@@ -255,6 +256,7 @@ from pyaedt import Emit
 # # Iterate over all the transmitters and receivers and compute the power
 # # at the input to each receiver due to each of the transmitters. Computes
 # # which, if any, protection levels are exceeded by these power levels.
+
 # emi_matrix=[]
 # all_colors=[]
 # for tx_radio in tx_radios:
