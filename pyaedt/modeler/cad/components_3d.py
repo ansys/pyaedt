@@ -7,8 +7,8 @@ from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
-from pyaedt.modeler.cad.elements3d import _dict2arg
 from pyaedt.modeler.cad.elements3d import BinaryTreeNode
+from pyaedt.modeler.cad.elements3d import _dict2arg
 
 
 class UserDefinedComponentParameters(dict):
