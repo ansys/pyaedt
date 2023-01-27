@@ -48,9 +48,9 @@ class TestClass(BasisTest, object):
         patch2.frequency_unit = "MHz"
         patch2.frequency_unit = "GHz"
 
-        patches = patch.duplicate_along_line([5, 0, 0], 3, False)
+        patches = patch.duplicate_along_line([5, 0, 0], 3)
         assert len(patches) == 2
         patches2 = patch2.duplicate_along_line([5, 0, 0], 2)
         assert len(patches2) == 1
         assert patch.create_3dcomponent()
-        assert patches[0].create_3dcomponent(replace=True)
+        assert patch2.create_3dcomponent(replace=True)
