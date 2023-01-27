@@ -63,7 +63,7 @@ with Desktop(version, True, new_desktop_session=True) as d:
     else:
         os.system('mklink /D "{}" "{}"'.format(pers1, pyaedtpath))
 
-    products = [
+    toolkits = [
         "2DExtractor",
         "CircuitDesign",
         "Emit",
@@ -78,7 +78,7 @@ with Desktop(version, True, new_desktop_session=True) as d:
         "Mechanical",
     ]
 
-    for product in products:
+    for product in toolkits:
         try:
             sys_dir = os.path.join(d.syslib, "Toolkits")
             install_toolkit(sys_dir, product)
