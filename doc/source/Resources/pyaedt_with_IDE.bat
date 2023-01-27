@@ -1,4 +1,5 @@
 @echo off
+set current_dir=%~dp0
 setlocal enabledelayedexpansion
 set argCount=0
 for %%x in (%*) do (
@@ -33,7 +34,7 @@ if NOT [%usewheel%]==[] (
 	set wheelpyaedt="!argVec[%usewheel%]!"
 	if [%usepython%]==[] (
 	    echo ----------------------------------------------------------------------
-	    echo WheelHouse has been spefified. Make sure you are using version 3_7
+	    echo WheelHouse has been specified. Make sure you are using version 3_7.
 	 	echo ----------------------------------------------------------------------
 
 	) ELSE (
@@ -54,7 +55,7 @@ for %%c in (%env_vars%) do (
         set version=!env_var_name:ANSYSEM_ROOT=!
         set versions[!choice_index!]=!version!
         set version_pretty=20!version:~0,2! R!version:~2,1!
-        echo [!choice_index!]!version_pretty!
+        echo [!choice_index!] !version_pretty!
 	    set /A choice_index=!choice_index!+1
     )
 )
@@ -70,14 +71,14 @@ if [%chosen_index%] == [] set chosen_index=1
 
 set chosen_root=!root_var[%chosen_index%]!
 set version=!versions[%chosen_index%]!
-echo Selected %version% at !%chosen_root%!
+echo Selected %version% at !%chosen_root%!.
 
 set aedt_path=potato
 if [%specified_python%]==[y] (
     aedt_path=!argVec[%python_path_index%]!
 ) else (
     set aedt_path=!%chosen_root%!\commonfiles\CPython\3_7\winx64\Release\python
-    echo Built-in python is !aedt_path!
+    echo Built-in Python is !aedt_path!.
 )
 set aedt_path=!aedt_path:"=!
 
@@ -94,10 +95,10 @@ setlocal enableDelayedExpansion
 
 if [%install_pyaedt%]==[y] (
     if exist "%pyaedt_install_dir%" (
-        echo Removing existing Pyaedt Environment
+        echo Removing existing PyAEDT environment.
         @RD /S /Q "%pyaedt_install_dir%"
     )
-    echo Installing Pyaedt Environment in "%pyaedt_install_dir%"
+    echo Installing PyAEDT environment in "%pyaedt_install_dir%".
 
     cd "%APPDATA%"
 
@@ -108,17 +109,30 @@ if [%install_pyaedt%]==[y] (
     )
     call "%pyaedt_install_dir%\Scripts\activate.bat"
     if NOT [%wheelpyaedt%]==[] (
-        echo Installing Pyaedt from local wheels %arg1%
+        echo Installing PyAEDT from local wheels %arg1%.
         pip install --no-cache-dir --no-index --find-links=%wheelpyaedt% pyaedt
     ) ELSE (
-        echo Installing Pyaedt from pip
+        IF EXIST %current_dir%.git (
+            echo Installing PyAEDT from local clone "%current_dir%".
+        ) ELSE (
+            echo Installing PyAEDT from pip.
+        )
+
         python -m pip install --upgrade pip
-        pip install wheel
-        pip install pyaedt
-        pip install jupyterlab -I
-        if [%install_spyder%]==[y] pip install spyder
-        pip install ipython -U
-		pip install ipyvtklink
+        pip --default-timeout=1000 install wheel
+
+        IF EXIST %current_dir%.git (
+            pushd %current_dir%
+            pip install .
+            popd
+        ) ELSE (
+            pip --default-timeout=1000 install pyaedt
+        )
+
+        pip --default-timeout=1000 install jupyterlab -I
+        if [%install_spyder%]==[y] pip --default-timeout=1000 install spyder
+        pip --default-timeout=1000 install ipython -U
+		pip --default-timeout=1000 install ipyvtklink
     )
 	if [%pythonpyaedt%]==[] (
         if %version% geq 231 pip uninstall -y pywin32
@@ -127,7 +141,7 @@ if [%install_pyaedt%]==[y] (
     call python "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
 )
 if [%update_pyaedt%]==[y] (
-    echo Updating Pyaedt
+    echo Updating PyAEDT.
     "%pyaedt_install_dir%\Scripts\pip" install pythonnet  -U
     "%pyaedt_install_dir%\Scripts\pip" install pyaedt --no-deps -U
     call "%pyaedt_install_dir%\Scripts\python" "%pyaedt_install_dir%\Lib\site-packages\pyaedt\misc\aedtlib_personalib_install.py" %version%
