@@ -24,15 +24,15 @@ def convert_power_to_unit(values, to_unit):
         converted_values = []
         for value in values:
             if to_unit == "dBm":
-                value = value
+                converted_values.append(value)
             elif to_unit == "dBW":
-                value = value - 30
+                converted_values.append(value - 30)
             elif to_unit == "mW":
-                value = math.pow(10.0, value / 10.0)
+                converted_values.append(math.pow(10.0, value / 10.0))
             elif to_unit == "W":
-                value = math.pow(10.0, value / 10.0 - 3.0)
+                converted_values.append(math.pow(10.0, value / 10.0 - 3.0))
             elif to_unit == "kW":
-                value = math.pow(10.0, value / 10.0 - 6.0)
+                converted_values.append(math.pow(10.0, value / 10.0 - 6.0))
         return converted_values
 
     if to_unit == "dBm":
