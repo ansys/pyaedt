@@ -149,7 +149,7 @@ class CircuitComponents(object):
         return id
 
     @pyaedt_function_handler()
-    def create_wire(self, points_array):
+    def create_wire(self, points_array, wire_name=""):
         """Create a wire.
 
         Parameters
@@ -157,6 +157,9 @@ class CircuitComponents(object):
         points_array : list
             A nested list of point coordinates. For example,
             ``[[x1, y1], [x2, y2], ...]``.
+        wire_name : str
+            Wire name to display.
+            Default value is ````.
 
         Returns
         -------
@@ -169,11 +172,71 @@ class CircuitComponents(object):
         >>> oEditor.CreateWire
         """
         pointlist = [str(tuple(i)) for i in points_array]
-        self.oeditor.CreateWire(
-            ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
-            ["NAME:Attributes", "Page:=", 1],
-        )
-        return True
+        try:
+            self.oeditor.CreateWire(
+                ["NAME:WireData", "Name:=", wire_name, "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
+                ["NAME:Attributes", "Page:=", 1],
+            )
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
+        """
+        Display wire properties.
+
+        Parameters
+        ----------
+        wire_name : str
+            Wire name to display.
+            Default value is ````.
+        property_to_display : str
+            Property to display. Choices are: ``NetName``, ``PinCount``, ``AlignMicrowavePorts``, ``SchematicID``,
+            ``Segment0``.
+            Default value is ``NetName``.
+        visibility : str
+            Visibility type. Choices are ``Name``, ``Value``, ``Both``, ``Evaluated Value``, ``Evaluated Both``.
+            Default value is ``Name``.
+        location : str
+            Wire name location. Choices are ``Left``, ``Top``, ``Right``, ``Bottom``, ``Center``.
+            Default value is ``Top``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            for el in self.oeditor.GetAllElements():
+                if "Wire" in el:
+                    if wire_name == el.split("@")[1].split(";")[0]:
+                        wire_id = el.split("@")[1].split(";")[1].split(":")[0]
+                        wire_exists = True
+                        break
+                    else:
+                        wire_exists = False
+                        continue
+            if not wire_exists:
+                raise ValueError("Invalid wire name provided.")
+
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:PropDisplayPropTab",
+                        ["NAME:PropServers", "Wire@{};{};{}".format(wire_name, wire_id, 1)],
+                        [
+                            "NAME:NewProps",
+                            ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except ValueError as e:
+            self.logger.error(str(e))
+            return False
 
     @pyaedt_function_handler()
     def add_pin_iports(self, name, id_num):

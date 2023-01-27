@@ -692,3 +692,23 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_42_create_wire(self):
+        self.aedtapp.insert_design("CreateWireTest")
+        myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
+        myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+        assert self.aedtapp.modeler.schematic.create_wire(
+            [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
+        )
+        assert self.aedtapp.modeler.schematic.nets[0] == "wire_name_test"
+
+    def test_43_display_wire_properties(self):
+        assert self.aedtapp.modeler.schematic.display_wire_properties(
+            wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
+        )
+        assert not self.aedtapp.modeler.schematic.display_wire_properties(
+            wire_name="invalid", property_to_display="NetName", visibility="Value", location="Top"
+        )
+        assert not self.aedtapp.modeler.schematic.display_wire_properties(
+            wire_name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
+        )
