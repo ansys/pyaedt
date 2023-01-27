@@ -18,6 +18,7 @@ class CommonAntenna(object):
         self.huygens_box = kwargs["huygens_box"]
         self.length_unit = kwargs["length_unit"]
         self.coordinate_system = kwargs["coordinate_system"]
+        self._old_antenna_name = None
         self.antenna_name = kwargs["antenna_name"]
         self.position = kwargs["position"]
 
@@ -35,7 +36,7 @@ class CommonAntenna(object):
     def frequency(self, value):
         self._frequency = value
         parameters = self._rectangular_patch_w_probe_synthesis()
-        if "object_list" in set(list(self.__dict__.keys())) and self.object_list:
+        if self.object_list:
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -57,7 +58,7 @@ class CommonAntenna(object):
     def frequency_unit(self, value):
         self._frequency_unit = value
         parameters = self._rectangular_patch_w_probe_synthesis()
-        if "object_list" in set(list(self.__dict__.keys())) and self.object_list:
+        if self.object_list:
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -107,7 +108,7 @@ class CommonAntenna(object):
     def length_unit(self, value):
         self._length_unit = value
         parameters = self._rectangular_patch_w_probe_synthesis()
-        if "object_list" in set(list(self.__dict__.keys())) and self.object_list:
+        if self.object_list:
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -143,11 +144,12 @@ class CommonAntenna(object):
 
     @antenna_name.setter
     def antenna_name(self, value):
-        old_name = None
-        if "_antenna_name" in set(list(self.__dict__.keys())):
-            old_name = self._antenna_name
         self._antenna_name = value
-        if old_name:
+        old_name = None
+        if value != self._old_antenna_name:
+            old_name = self._old_antenna_name
+            self._old_antenna_name = self._antenna_name
+        if old_name and self.object_list:
             for antenna_obj in self.object_list:
                 self.object_list[antenna_obj].group_name = self._antenna_name
             self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", old_name])
@@ -166,7 +168,7 @@ class CommonAntenna(object):
     def position(self, value):
         self._position = value
         parameters = self._rectangular_patch_w_probe_synthesis()
-        if "object_list" in set(list(self.__dict__.keys())) and self.object_list:
+        if self.object_list:
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -207,18 +209,6 @@ class CommonAntenna(object):
         included_cs = None
         if self.coordinate_system != "Global":
             included_cs = self.coordinate_system
-
-        # # Check independent variables
-        # variables_to_add = []
-        # dependent_variables = []
-        # ind_variables = self._app._variable_manager.independent_variable_names
-        # dep_variables = self._app._variable_manager.dependent_variable_names
-        # for param in self.parameters:
-        #     if self._app[param] in ind_variables:
-        #         variables_to_add.append(self._app[param])
-        #         dependent_variables.append(param)
-        #     elif self._app[param] not in dep_variables:
-        #         variables_to_add.append(param)
 
         self._app.modeler.create_3dcomponent(
             component_file=component_file,

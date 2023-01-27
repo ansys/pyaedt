@@ -44,10 +44,11 @@ class Patch(CommonAntenna):
 
     def __init__(self, *args, **kwargs):
         self._app = args[0]
-        self.material = kwargs["material"]
-        self.substrate_height = kwargs["substrate_height"]
         self.parameters = []
         super(Patch, self).__init__(*args, **kwargs)
+        self._old_material = None
+        self.material = kwargs["material"]
+        self.substrate_height = kwargs["substrate_height"]
 
     @property
     def material(self):
@@ -68,21 +69,25 @@ class Patch(CommonAntenna):
         ):
             self._app.logger.warning("Material not found. Create new material before assign")
         else:
-            old_material = None
-            if "_material" in set(list(self.__dict__.keys())):
-                old_material = self._material
             self._material = value
-            if old_material:
+            old_material = None
+            if value != self._old_material:
+                old_material = self._old_material
+                self._old_material = self._material
+
+            if old_material and self.object_list:
                 parameters = self._rectangular_patch_w_probe_synthesis()
-                if "object_list" in set(list(self.__dict__.keys())) and self.object_list:
-                    parameters_map = {}
-                    cont = 0
-                    for param in parameters:
-                        parameters_map[self.parameters[cont]] = parameters[param]
-                        cont += 1
-                    self._update_parameters(parameters_map, self._length_unit)
+                parameters_map = {}
+                cont = 0
+                for param in parameters:
+                    parameters_map[self.parameters[cont]] = parameters[param]
+                    cont += 1
+                self._update_parameters(parameters_map, self._length_unit)
                 for antenna_obj in self.object_list:
-                    if self.object_list[antenna_obj].material_name == old_material.lower():
+                    if (
+                        self.object_list[antenna_obj].material_name == old_material.lower()
+                        and "coax" not in antenna_obj
+                    ):
                         self.object_list[antenna_obj].material_name = value
 
     @property
@@ -99,7 +104,7 @@ class Patch(CommonAntenna):
     def substrate_height(self, value):
         self._substrate_height = value
         parameters = self._rectangular_patch_w_probe_synthesis()
-        if "object_list" in set(list(self.__dict__.keys())) and self.object_list:
+        if self.object_list:
             parameters_map = {}
             cont = 0
             for param in parameters:
@@ -147,25 +152,22 @@ class Patch(CommonAntenna):
                     substrate_height=self.substrate_height,
                     length_unit=self.length_unit,
                     coordinate_system=self.coordinate_system,
-                    antenna_name=self.antenna_name + "_" + str(new),
+                    antenna_name=self.antenna_name + "_" + str(new) + generate_unique_name(""),
                     position=current_position,
                 )
             )
             if not independent_parameters:
+                cont = 0
                 for param in new_patches[new - 1].parameters:
-                    for original_param in self.parameters[:-3]:
-                        if original_param + "_" + str(new) == param:
-                            self._app[param] = original_param
-                            break
+                    # Position is always independent
+                    if not new_patches[new - 1].parameters.index(param) in [9, 10, 11]:
+                        self._app[param] = self.parameters[cont]
+                    cont += 1
 
         return new_patches
 
     @pyaedt_function_handler()
     def _draw(self):
-        if not self.antenna_name:
-            group_name = generate_unique_name("Patch")
-            self.antenna_name = group_name
-
         parameters = self._rectangular_patch_w_probe_synthesis()
         new_name_lst = []
         for param in parameters:
@@ -178,10 +180,6 @@ class Patch(CommonAntenna):
         if new_name_lst == self.parameters and self.object_list:
             self._app.logger.warning("Please use method duplicate_along_line to duplicate antenna " + self.antenna_name)
             return True
-
-        if not self.antenna_name:
-            group_name = generate_unique_name("Patch")
-            self.antenna_name = group_name
 
         # Map parameter list to understand code
         patch_x = self.parameters[7]
@@ -346,16 +344,20 @@ class Patch(CommonAntenna):
 
         # Assign coating
         ant_bound = self._app.assign_perfecte_to_sheets(ant.name)
+        ant_bound.name = "PerfE_antenna_" + self.antenna_name
         self.boundaries[ant_bound.name] = ant_bound
         gnd_bound = self._app.assign_perfecte_to_sheets(gnd.name)
+        gnd_bound.name = "PerfE_gnd_" + self.antenna_name
         self.boundaries[gnd_bound.name] = gnd_bound
 
+        face_id = coax.faces[0].edges[0].id
         for face in coax.faces:
             if len(face.edges) == 2:
                 face_id = face.id
                 break
 
         coax_bound = self._app.assign_perfecte_to_sheets(face_id)
+        coax_bound.name = "PerfE_coax_" + self.antenna_name
         self.boundaries[coax_bound.name] = coax_bound
 
         # Excitation
@@ -389,12 +391,8 @@ class Patch(CommonAntenna):
         match = [i for i, el in enumerate(l1) if el in l2]
 
         if len(match) == 7:
-            if not self.antenna_name:
-                group_name = generate_unique_name("Patch")
-                self.antenna_name = group_name
             lightSpeed = constants.SpeedOfLight  # m/s
             freq_hz = constants.unit_converter(self.frequency, "Freq", self.frequency_unit, "Hz")
-            freq_ghz = constants.unit_converter(self.frequency, "Freq", self.frequency_unit, "GHz")
             wavelength = lightSpeed / freq_hz
 
             if (

@@ -18,6 +18,8 @@ class TestClass(BasisTest, object):
     def test_01_create_rectangular_patch_w_probe(self):
         patch = self.aedtapp.antennas.rectangular_patch_w_probe()
         assert patch.frequency == 10.0
+        patch.position = [10, 20, 0]
+        assert patch.position == [10, 20, 0]
 
         patch2 = self.aedtapp.antennas.rectangular_patch_w_probe(
             material="Duroid (tm)", huygens_box=True, outer_boundary="Radiation", position=[10, 20, 30]
@@ -42,9 +44,9 @@ class TestClass(BasisTest, object):
         )
         patch2.coordinate_system = cs1.name
         patch2.antenna_name = "Patch_Samuel"
-
-        # Change frequency
         patch2.frequency = 18.0
+        patch2.frequency_unit = "MHz"
+        patch2.frequency_unit = "GHz"
 
         patches = patch.duplicate_along_line([5, 0, 0], 3, False)
         assert len(patches) == 2

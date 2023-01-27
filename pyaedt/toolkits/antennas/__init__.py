@@ -1,3 +1,4 @@
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.toolkits.antennas.patch import Patch
 
 
@@ -16,8 +17,14 @@ class Antennas(object):
         length_unit="cm",
         coordinate_system="Global",
         antenna_name=None,
-        position=[0, 0, 0],
+        position=None,
     ):
+        if not position:
+            position = [0, 0, 0]
+
+        if not antenna_name:
+            antenna_name = generate_unique_name("Patch")
+
         rect_patch = Patch(
             self._app,
             frequency=frequency,

@@ -357,7 +357,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
     def replace_3dcomponent(
         self,
         component_name=None,
-        variables_to_include=[],
+        variables_to_include=None,
         object_list=None,
         boundaries_list=None,
         excitation_list=None,
@@ -371,7 +371,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
-            List of variables to include. The default is ``[]``.
+            List of variables to include. The default is ``None``.
         object_list : list, optional
             List of object names to export. The default is all object names.
         boundaries_list : list, optional
@@ -393,6 +393,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         >>> oEditor.ReplaceWith3DComponent
         """
+        if not variables_to_include:
+            variables_to_include = []
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
