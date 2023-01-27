@@ -8,24 +8,20 @@ This hidden script sets up the hfss variable based on the command line arguments
 shell.
 
 """
-
-import ScriptEnv
-
 import os
 import subprocess
-oProject = oDesktop.GetActiveProject()
-oDesign = oProject.GetActiveDesign()
-#choose file to launch
+
+#Choose file to launch
 
 #launch file
-win64_dir = oDesktop.GetExeDir()
 pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
-python_exe = r'''##PYTHON_EXE##'''
+python_exe = r'''##IPYTHON_EXE##'''
 pyaedt_script = os.path.join(pyaedt_toolkit_dir,'console_setup')
 command = [
-    python_exe,
-    pyaedt_script,
+    '"{}"'.format(python_exe),
+    "-i",
+    '"{}"'.format(pyaedt_script),
     str(oDesktop.GetProcessID()),
     oDesktop.GetVersion()[:6],  # "2022.1.0" is returned but this makes PyAEDT fail a float conversion
            ]
-subprocess.Popen(command)
+subprocess.Popen(" ".join(command))
