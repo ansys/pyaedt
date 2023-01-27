@@ -37,7 +37,7 @@ from pyaedt import Emit
 # import plotly.graph_objects as go
 # from tqdm.notebook import tqdm
 #
-# from matplotlib import pyplot as plt
+# From matplotlib import pyplot as plt
 # plt.ion() # Enables interactive mode so plots show immediately
 # plt.show()
 #
