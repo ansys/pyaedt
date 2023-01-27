@@ -333,7 +333,7 @@ from pyaedt import Emit
 #                     break
 #
 #             # Find the highest power level at the Rx input due
-#             # to each Tx Radio
+#             # to each Tx radio
 #             domain.set_receiver(rx_radio, rx_band, -1)
 #             domain.set_interferers([tx_radio], [tx_band_shortname], [-1])
 #             interaction = rev.run(domain)
