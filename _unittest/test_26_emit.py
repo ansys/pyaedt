@@ -204,10 +204,13 @@ class TestClass(BasisTest, object):
         assert units == "Hz"
 
         # Test bad unit input
-        units = self.aedtapp.get_units("Frequncy")
+        units = self.aedtapp.get_units("Bad units")
         assert units == None
 
-        valid = self.aedtapp.set_units("Freqncy", "Hz")
+        valid = self.aedtapp.set_units("Bad units", "Hz")
+        assert valid is False
+
+        valid = self.aedtapp.set_units("Frequency", "hertz")
         assert valid is False
 
         # Set a list of units
@@ -387,6 +390,12 @@ class TestClass(BasisTest, object):
         rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
         rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
 
+        # Check type
+        rad_type = rad1.get_type()
+        assert rad_type == "RadioNode"
+        ant_type = ant1.get_type()
+        assert ant_type == "AntennaNode"
+
         # Check antenna connections
         ants = rad1.get_connected_antennas()
         assert ants[0].name == "Antenna"
@@ -417,7 +426,65 @@ class TestClass(BasisTest, object):
 
         # Get the Freqs
         freqs = self.aedtapp.results.get_active_frequencies(radios[0], bands[0], self.aedtapp.tx_rx_mode().rx)
-        assert freqs == [100.0]
+        assert freqs == 100.0
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
+    )
+    def test_sampling_getters(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+
+        # Check type
+        rad_type = rad.get_type()
+        assert rad_type == "RadioNode"
+        ant_type = ant.get_type()
+        assert ant_type == "AntennaNode"
+
+        # Check sampling
+        exception_raised = False
+        try:
+            rad.set_channel_sampling()
+        except:
+            exception_raised = True
+        assert exception_raised
+
+        # Get sampling node
+        sampling = rad.get_sampling()
+        assert sampling.node_name == 'NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Sampling'
+        #props = sampling_node.get_node_properties()
+        #assert sampling_node.get_type() == "SamplingNode"
+
+        # Test sampling params
+        sampling.set_channel_sampling("All")
+        assert sampling.props["SamplingType"] == "SampleAllChannels"
+
+        sampling.set_channel_sampling("Uniform", percentage=25)
+        assert sampling.props["SamplingType"] == "UniformSampling"
+        assert sampling.props["SpecifyPercentage"] == "true"
+        assert sampling.props["PercentageChannels"] == "25"
+
+        sampling.set_channel_sampling("Uniform", max_channels=50)
+        assert sampling.props["SamplingType"] == "UniformSampling"
+        assert sampling.props["SpecifyPercentage"] == "false"
+        assert sampling.props["NumberChannels"] == "50"
+
+        sampling.set_channel_sampling("Random", percentage=33)
+        assert sampling.props["SamplingType"] == "RandomSampling"
+        assert sampling.props["SpecifyPercentage"] == "true"
+        assert sampling.props["PercentageChannels"] == "33"
+        assert sampling.props["RandomSeed"] == "0"
+
+        sampling.set_channel_sampling("Random", max_channels=75, seed=37)
+        assert sampling.props["SamplingType"] == "RandomSampling"
+        assert sampling.props["SpecifyPercentage"] == "false"
+        assert sampling.props["NumberChannels"] == "75"
+        assert sampling.props["RandomSeed"] == "37"
+
+        sampling.set_channel_sampling("Uniform")
+        assert sampling.props["SamplingType"] == "UniformSampling"
+        assert sampling.props["SpecifyPercentage"] == "false"
+        assert sampling.props["NumberChannels"] == "1000"
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
