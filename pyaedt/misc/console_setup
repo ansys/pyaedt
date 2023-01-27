@@ -19,7 +19,7 @@ version = sys.argv[2]
 print("Loading PyAEDT Console")
 
 def release(d):
-    d.logger.info("Goodbye from PyAEDT Console")
+    d.logger.info("Exiting the PyAEDT Console.")
 
     d.release_desktop(False,False)
 
