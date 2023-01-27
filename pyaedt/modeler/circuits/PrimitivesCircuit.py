@@ -192,8 +192,8 @@ class CircuitComponents(object):
             Wire name to display.
             Default value is ``""``.
         property_to_display : str
-            Property to display. Choices are: ``NetName``, ``PinCount``, ``AlignMicrowavePorts``, ``SchematicID``,
-            ``Segment0``.
+            Property to display. Choices are: ``"NetName"``, ``"PinCount"``, ``"AlignMicrowavePorts"``, ``"SchematicID"``,
+            ``"Segment0"``.
             Default value is ``NetName``.
         visibility : str
             Visibility type. Choices are ``Name``, ``Value``, ``Both``, ``Evaluated Value``, ``Evaluated Both``.
