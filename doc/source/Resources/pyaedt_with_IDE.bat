@@ -113,12 +113,12 @@ if [%install_pyaedt%]==[y] (
     ) ELSE (
         echo Installing Pyaedt from pip
         python -m pip install --upgrade pip
-        pip install wheel
-        pip install pyaedt
-        pip install jupyterlab -I
-        if [%install_spyder%]==[y] pip install spyder
-        pip install ipython -U
-		pip install ipyvtklink
+        pip --default-timeout=1000 install wheel
+        pip --default-timeout=1000 install pyaedt
+        pip --default-timeout=1000 install jupyterlab -I
+        if [%install_spyder%]==[y] pip --default-timeout=1000 install spyder
+        pip --default-timeout=1000 install ipython -U
+		pip --default-timeout=1000 install ipyvtklink
     )
 	if [%pythonpyaedt%]==[] (
         if %version% geq 231 pip uninstall -y pywin32
