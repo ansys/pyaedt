@@ -16,12 +16,12 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01_create_rectangular_patch_w_probe(self):
-        patch = self.aedtapp.antennas.rectangular_patch_w_probe()
+        patch = self.aedtapp.antennas.rectangular_patch_probe()
         assert patch.frequency == 10.0
         patch.position = [10, 20, 0]
         assert patch.position == [10, 20, 0]
 
-        patch2 = self.aedtapp.antennas.rectangular_patch_w_probe(
+        patch2 = self.aedtapp.antennas.rectangular_patch_probe(
             material="Duroid (tm)", huygens_box=True, outer_boundary="Radiation", position=[10, 20, 30]
         )
         assert len(patch2.boundaries) == 3
@@ -30,7 +30,7 @@ class TestClass(BasisTest, object):
         patch.coordinate_system = cs1.name
         assert len(patch2.object_list) == 9
         # New Patch
-        patch2 = self.aedtapp.antennas.rectangular_patch_w_probe(
+        patch2 = self.aedtapp.antennas.rectangular_patch_probe(
             frequency=20.0,
             frequency_unit="GHz",
             material="Duroid (tm)",

@@ -154,7 +154,8 @@ class CommonAntenna(object):
         if old_name and self.object_list:
             for antenna_obj in self.object_list:
                 self.object_list[antenna_obj].group_name = self._antenna_name
-            self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", old_name])
+            if self._app.modeler.oeditor.GetObjectsInGroup(old_name).count == 0:
+                self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", old_name])
 
     @property
     def position(self):
@@ -212,9 +213,9 @@ class CommonAntenna(object):
         if not component_name:
             component_name = self.antenna_name
 
-        included_cs = None
+        included_cs = []
         if self.coordinate_system != "Global":
-            included_cs = self.coordinate_system
+            included_cs = [self.coordinate_system]
 
         self._app.modeler.create_3dcomponent(
             component_file=component_file,
@@ -223,7 +224,7 @@ class CommonAntenna(object):
             object_list=list(self.object_list.keys()),
             boundaries_list=list(self.boundaries.keys()),
             excitation_list=list(self.excitations.keys()),
-            included_cs=[included_cs],
+            included_cs=included_cs,
             reference_cs=self.coordinate_system,
             component_outline="None",
         )
@@ -238,26 +239,28 @@ class CommonAntenna(object):
                 included_cs=[included_cs],
                 reference_cs=self.coordinate_system,
             )
-            self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antenna_name])
+            if self._app.modeler.oeditor.GetObjectsInGroup(self.antenna_name).count == 0:
+                self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antenna_name])
+
+            self._app.modeler.add_new_user_defined_component()
+
         return True
 
     @pyaedt_function_handler()
-    def duplicate_along_line(self, vector, nclones=2, independent_parameters=True):
+    def duplicate_along_line(self, vector, num_clones=2):
         """Duplicate the object along a line.
 
         Parameters
         ----------
         vector : list
-            List of ``[x1 ,y1, z1]`` coordinates for the vector or the Application.Position object.
-        nclones : int, optional
+            List of ``[x1 ,y1, z1]`` coordinates for the vector.
+        num_clones : int, optional
             Number of clones. The default is ``2``.
-        independent_parameters: bool, optional
-            New parameters independent of the original design. The default is ``True``.
 
         Returns
         -------
-        list
-            List of patch objects.
+        dict
+            Dictionary with the list of new objects.
 
         Examples
         --------
@@ -266,34 +269,15 @@ class CommonAntenna(object):
         >>> patch = hfss.antennas.rectangular_patch_w_probe()
         >>> new_patch = patch.duplicate_along_line([10, 0, 0], 2)
         """
+        new_objects = {}
+        for i in range(0, num_clones - 1):
+            new_objects["antenna" + str(i)] = []
+        for component in self.object_list:
+            _, output = self._app.modeler.duplicate_along_line(component, vector, num_clones)
+            for i in range(0, num_clones - 1):
+                new_objects["antenna" + str(i)].append(output[i])
 
-        new_patches = []
-        current_position = self.position
-        for new in range(1, nclones):
-            current_position = [x + y for x, y in zip(current_position, vector)]
-            new_patches.append(
-                self._app.antennas.rectangular_patch_w_probe(
-                    frequency=self.frequency,
-                    frequency_unit=self.frequency_unit,
-                    material=self.material,
-                    outer_boundary=self.outer_boundary,
-                    huygens_box=self.huygens_box,
-                    substrate_height=self.substrate_height,
-                    length_unit=self.length_unit,
-                    coordinate_system=self.coordinate_system,
-                    antenna_name=self.antenna_name + "_" + str(new) + generate_unique_name(""),
-                    position=current_position,
-                )
-            )
-            if not independent_parameters:
-                cont = 0
-                for param in new_patches[new - 1].parameters:
-                    # Position is always independent
-                    if not new_patches[new - 1].parameters.index(param) in [9, 10, 11]:
-                        self._app[param] = self.parameters[cont]
-                    cont += 1
-
-        return new_patches
+        return new_objects
 
     @pyaedt_function_handler()
     def _update_parameters(self, parameters, length_unit):
