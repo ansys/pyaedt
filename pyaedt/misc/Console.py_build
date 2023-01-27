@@ -11,7 +11,7 @@ shell.
 import os
 import subprocess
 
-#choose file to launch
+#Choose file to launch
 
 #launch file
 pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
