@@ -26,16 +26,17 @@ pyaedtpath = os.path.join(
 pid = 0
 
 
-def install_toolkit(toolkit_dir, tk):
+def install_toolkit(toolkit_dir, product):
     lib_dir = os.path.join(toolkit_dir, "Lib", "PyAEDT")
-    tool_dir = os.path.join(toolkit_dir, tk, "PyAEDT")
+    tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
     for file_name in files_to_copy:
         with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
-            with open(os.path.join(tool_dir, file_name.replace("_", " ") + ".py"), "w") as out_file:
-                print("Building to " + os.path.join(tool_dir, file_name + ".py"))
+            file_name_dest = file_name.replace("_", " ") + ".py"
+            with open(os.path.join(tool_dir, file_name_dest), "w") as out_file:
+                print("Building to " + os.path.join(tool_dir, file_name_dest))
                 build_file_data = build_file.read()
                 build_file_data = build_file_data.replace("##INSTALL_DIR##", lib_dir).replace(
                     "##PYTHON_EXE##", sys.executable
@@ -62,7 +63,7 @@ with Desktop(version, True, new_desktop_session=True) as d:
     else:
         os.system('mklink /D "{}" "{}"'.format(pers1, pyaedtpath))
 
-    toolkits = [
+    products = [
         "2DExtractor",
         "CircuitDesign",
         "Emit",
@@ -77,16 +78,16 @@ with Desktop(version, True, new_desktop_session=True) as d:
         "Mechanical",
     ]
 
-    for tk in toolkits:
+    for product in products:
         try:
             sys_dir = os.path.join(d.syslib, "Toolkits")
-            install_toolkit(sys_dir, tk)
-            d.logger.info("Installed toolkit for {} in sys lib".format(tk))
+            install_toolkit(sys_dir, product)
+            d.logger.info("Installed toolkit for {} in sys lib".format(product))
 
         except IOError:
-            pers_dir = os.path.join(d.personallib, "Toolkits", tk, "PyAEDT")
-            install_toolkit(pers_dir, tk)
-            d.logger.info("Installed toolkit for {} in personal lib".format(tk))
+            pers_dir = os.path.join(d.personallib, "Toolkits")
+            install_toolkit(pers_dir, product)
+            d.logger.info("Installed toolkit for {} in personal lib".format(product))
 if pid:
     try:
         os.kill(pid, 9)
