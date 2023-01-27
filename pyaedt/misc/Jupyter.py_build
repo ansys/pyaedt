@@ -32,7 +32,7 @@ os.chdir(proj_dir)
 pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
 jupyter_exe = r'''##JUPYTER_EXE##'''
 pyaedt_script = os.path.join(pyaedt_toolkit_dir,'console_setup')
-template = os.path.join(pyaedt_toolkit_dir, "Lib", "jupyter_template.ipynb")
+template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
 target = os.path.join(proj_dir, generate_unique_name("pyaedt",".ipynb", n=3))
 with open(template,'r') as source:
     with open(target,"w") as t:
