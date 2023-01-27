@@ -9,6 +9,7 @@ from pyaedt.generic.general_methods import isclose
 from pyaedt.generic.general_methods import time_fn
 from pyaedt.modeler.cad.elements3d import EdgePrimitive
 from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt import Icepak
 
 try:
     import pytest
@@ -578,6 +579,20 @@ class TestClass(BasisTest, object):
             for child in subtract_child.keys():
                 assert subtract_child[child].command == subtract_child[child].props["Command"]
                 assert len(subtract_child[child].children) == 0
+
+        self.aedtapps.append(Icepak(self.aedtapp.project_name+"_ipk"))
+        self.aedtapp = self.aedtapps[-1]
+        fan = self.aedtapp.create_fan("test_fan")
+        self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
+        duplicate_fans = self.aedtapp.modeler.user_defined_components[fan.name].duplicate_along_line([4,5,6])
+        duplicate_fans.remove(fan.name)
+        fan2_name = duplicate_fans[0]
+        fan_1_history = self.aedtapp.modeler.user_defined_components[fan.name].history()
+        assert fan_1_history.command == "Move"
+        assert all(fan_1_history.props['Move Vector/'+i] == j+"mm" for i, j in [("X", "1"), ("Y", "2"), ("Z", "3")])
+        assert fan_1_history.children['DuplicateAlongLine:1'].command == 'DuplicateAlongLine'
+        assert all(fan_1_history.children['DuplicateAlongLine:1'].props["Vector/"+i] == j + "mm"
+                   for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")])
 
     def test_28_set_object_history_properties(self):
         assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "10meter"
