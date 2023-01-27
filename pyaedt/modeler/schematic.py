@@ -29,6 +29,7 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._app = app
+        self._schematic_units = "meter"
         self.o_def_manager = self._app.odefinition_manager
         Modeler.__init__(self, app)
 
@@ -165,7 +166,6 @@ class ModelerNexxim(ModelerCircuit):
 
     def __init__(self, app):
         self._app = app
-        self._schematic_units = "meter"
         ModelerCircuit.__init__(self, app)
         self._schematic = NexximComponents(self)
         self._layouteditor = None
