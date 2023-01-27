@@ -43,11 +43,11 @@ from pyaedt import Emit
 # # Set non-graphical mode. ``"PYAEDT_NON_GRAPHICAL"``` is needed to generate
 # # documentation only.
 # # You can set ``non_graphical`` either to ``True`` or ``False``.
-# # The ``NewThread`` Boolean variable defines whether to create a new instance
+# # The ``new_thread`` Boolean variable defines whether to create a new instance
 # # of AEDT or try to connect to existing instance of it if one is available.
 #
 # non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-# NewThread = False
+# new_thread = False
 # desktop_version = "2023.2"
 #
 # ###############################################################################
@@ -56,7 +56,7 @@ from pyaedt import Emit
 # # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # # on the specified version and in the specified graphical mode.
 #
-# d = pyaedt.launch_desktop(desktop_version, non_graphical, NewThread)
+# d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
 # emitapp = Emit(pyaedt.generate_unique_project_name())
 #
 # ###############################################################################
