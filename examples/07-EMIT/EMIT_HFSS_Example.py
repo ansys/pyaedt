@@ -29,7 +29,7 @@ from pyaedt.generic.filesystem import Scratch
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = True
-desktop_version = "2023.2"
+desktop_version = "2022.2"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################
@@ -103,21 +103,24 @@ for link in aedtapp.couplings.coupling_names:
 # Run EMIT simulation
 # ~~~~~~~~~~~~~~~~~~~
 # Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
+#
+# This part of the example requires Ansys AEDT 2023 R2. 
+# Uncomment it and run on correct version.
 
-rev = aedtapp.analyze()
-modeRx = aedtapp.tx_rx_mode().rx
-modeTx = aedtapp.tx_rx_mode().tx
-modeEmi = aedtapp.result_type().emi
-rx_bands = aedtapp.results.get_band_names(rad1.name, modeRx) 
-tx_bands = aedtapp.results.get_band_names(rad2.name, modeTx) 
-domain = aedtapp.interaction_domain()
-domain.set_receiver(rad1.name, rx_bands[0], -1)
-domain.set_interferers([rad2.name],[tx_bands[0]],[-1])
-interaction = rev.run(domain)
-worst = interaction.get_worst_instance(modeEmi)
-if worst.has_valid_values():
-    emi = worst.get_value(modeEmi)
-    print("Worst case interference is: {} dB".format(emi))
+# rev = aedtapp.analyze()
+# modeRx = aedtapp.tx_rx_mode().rx
+# modeTx = aedtapp.tx_rx_mode().tx
+# modeEmi = aedtapp.result_type().emi
+# rx_bands = aedtapp.results.get_band_names(rad1.name, modeRx) 
+# tx_bands = aedtapp.results.get_band_names(rad2.name, modeTx) 
+# domain = aedtapp.interaction_domain()
+# domain.set_receiver(rad1.name, rx_bands[0], -1)
+# domain.set_interferers([rad2.name],[tx_bands[0]],[-1])
+# interaction = rev.run(domain)
+# worst = interaction.get_worst_instance(modeEmi)
+# if worst.has_valid_values():
+#     emi = worst.get_value(modeEmi)
+#     print("Worst case interference is: {} dB".format(emi))
 
 ###############################################################################
 # Save project and close AEDT
