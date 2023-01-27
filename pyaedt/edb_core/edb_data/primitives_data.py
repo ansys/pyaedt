@@ -255,7 +255,7 @@ class EDBPrimitives(object):
 
         """
         bbox = self.bbox
-        return [bbox[2] - bbox[0], bbox[3] - bbox[1]]
+        return [(bbox[2] - bbox[0]) / 2, (bbox[3] - bbox[1]) / 2]
 
     @pyaedt_function_handler()
     def is_arc(self, point):
