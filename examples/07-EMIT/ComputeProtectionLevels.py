@@ -310,9 +310,9 @@ from pyaedt import Emit
 #         print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio, rx=rx_radio))
 #         for rx_band in emitapp.results.get_band_names(rx_radio, modeRx):
 #             # if "L2 P(Y)" not in rx_band:
-#             #     # skip 'normal' Rx bands
-#             #     continue
-#             # check for enabled Bands
+#             #     # Skip 'normal' Rx bands
+#             #     Continue
+#             # Check for enabled Bands
 #             cur_rx_radio = get_radio_node(rx_radio)
 #             bands = cur_rx_radio.bands()
 #             for band in bands:
