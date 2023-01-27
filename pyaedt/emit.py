@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 import os
 import sys
-from importlib import import_module
 import warnings
+from importlib import import_module
 
 import pyaedt.generic.constants as consts
 from pyaedt import generate_unique_project_name
@@ -626,7 +626,9 @@ class Emit(FieldAnalysisEmit, object):
                 self.units[t] = v
         else:
             if unit_type not in valid_type:
-                warnings.warn("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, valid_type))
+                warnings.warn(
+                    "[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, valid_type)
+                )
                 return False
             if unit_value not in valid_units[unit_type]:
                 warnings.warn(

@@ -6,10 +6,10 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit import Revision
+from pyaedt.emit_core import EmitConstants as econsts
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
-from pyaedt.emit_core import EmitConstants as econsts
 
 try:
     import pytest
@@ -97,14 +97,14 @@ class TestClass(BasisTest, object):
         assert not band.enabled
         # Try set band power from the radio
         exception_raised = False
-        try:            
+        try:
             radio.set_band_power_level(100)
         except:
             exception_raised = True
         assert exception_raised
         # Try getting band power from the radio
         exception_raised = False
-        try:            
+        try:
             radio.get_band_power_level()
         except:
             exception_raised = True
@@ -197,7 +197,7 @@ class TestClass(BasisTest, object):
     def test_units_getters(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
 
-        # Set a single unit 
+        # Set a single unit
         valid = self.aedtapp.set_units("Frequency", "Hz")
         units = self.aedtapp.get_units("Frequency")
         assert valid
@@ -217,9 +217,13 @@ class TestClass(BasisTest, object):
         updated_units = self.aedtapp.get_units()
         assert valid
         assert updated_units == [
-            ("Power","mW"), ("Frequency","GHz"), ("Length","nm"),
-            ("Time","ps"),("Voltage","mV"), ("Data Rate","Gbps"), 
-            ("Resistance","uOhm")
+            ("Power", "mW"),
+            ("Frequency", "GHz"),
+            ("Length", "nm"),
+            ("Time", "ps"),
+            ("Voltage", "mV"),
+            ("Data Rate", "Gbps"),
+            ("Resistance", "uOhm"),
         ]
 
         # Set a bad list of units
@@ -303,7 +307,7 @@ class TestClass(BasisTest, object):
             ant3.move_and_connect_to(rad3)
         # Change the sampling
         sampling = rad3.get_sampling()
-        assert sampling.node_name == 'NODE-*-RF Systems-*-RF System-*-Radios-*-Bluetooth-*-Sampling'
+        assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Bluetooth-*-Sampling"
         sampling.set_channel_sampling(percentage=25)
         self.aedtapp.analyze()
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
@@ -385,9 +389,9 @@ class TestClass(BasisTest, object):
 
         # Check antenna connections
         ants = rad1.get_connected_antennas()
-        assert ants[0].name == 'Antenna'
+        assert ants[0].name == "Antenna"
         ants = rad2.get_connected_antennas()
-        assert ants[0].name == 'Antenna 2'
+        assert ants[0].name == "Antenna 2"
 
         # Try to access the radios before creating results set
         radios = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().both)
