@@ -150,15 +150,20 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
             warnings.warn("No units found")
             return values
         else:
-            if isinstance(values, list):
-                converted_values = []
-                for value in values:
-                    converted_values.append(
-                        value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
-                    )
-                return converted_values
+            if not isinstance(values, list):
+                values = [values]
+            converted_values = []
+            for value in values:
+                if unit_system == "Temperature":
+                    value = AEDT_UNITS[unit_system][input_units][0](value, False)
+                    value = AEDT_UNITS[unit_system][output_units][0](value, output_units != "kel")
+                else:
+                    value = value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                converted_values.append(value)
+            if len(converted_values) == 1:
+                return converted_values[0]
             else:
-                return values * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                return converted_values
     warnings.warn("No system unit found")
     return values
 
@@ -347,7 +352,7 @@ AEDT_UNITS = {
         "gV": 1e9,
         "dBV": (db20,),
     },
-    "Temperature": {"kel": 1.0, "cel": (cel2kel,), "fah": (fah2kel,)},
+    "Temperature": {"kel": lambda x, y: x, "cel": (cel2kel,), "fah": (fah2kel,)},
     "Power": {
         "fW": 1e-15,
         "pW": 1e-12,
