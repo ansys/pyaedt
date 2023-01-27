@@ -16,7 +16,7 @@ pyaedt.settings.use_grpc_api=False
 
 aedt_process_id = sys.argv[1]
 version = sys.argv[2]
-print("Loading PyAEDT Console")
+print("Loading the PyAEDT Console.")
 
 def release(d):
     d.logger.info("Exiting the PyAEDT Console.")
