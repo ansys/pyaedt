@@ -94,12 +94,40 @@ class CircuitPins(object):
 
     def _is_inside_point(self, plist, pa, pb):
         for p in plist:
-            if pa < p < pb or pa > p > pb:
+            if pa <= p <= pb or pa >= p >= pb:
                 return True
         return False
 
+    def _add_point(self, pins, points, deltax, deltay, target, orient=0):
+
+        if (orient == 0 and not self._is_inside_point(pins, points[-1][1], target[1])) or (
+            orient == 1 and not self._is_inside_point(pins, points[-1][0], target[0])
+        ):
+            points.append(target)
+        elif orient == 0:
+            points.append([deltax, points[-1][1]])
+            points.append([deltax, deltay])
+        else:
+            points.append([points[-1][0], deltay])
+            points.append([deltax, deltay])
+
+    def _get_deltas(self, point, move_x=True, move_y=True, positive=True, units=1):
+        if positive:
+            delta = +units * 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
+        else:
+            delta = -units * 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
+        if move_x:
+            deltax = point[0] + delta
+        else:
+            deltax = point[0]
+        if move_y:
+            deltay = point[1] + delta
+        else:
+            deltay = point[1]
+        return deltax, deltay
+
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, page_name=None, use_wire=False):
+    def connect_to_component(self, component_pin, page_name=None, use_wire=False, clearance_units=1):
         """Connect schematic components.
 
         Parameters
@@ -113,6 +141,8 @@ class CircuitPins(object):
             Whether to use wires or a page port to connect the pins.
             The default is ``False``, in which case a page port is used. Note
             that if wires are used but not well placed, shorts can result.
+        clearance_units : int, optional
+            Number of snap units (100mil each) around the object to overcome pins and wires.
 
         Returns
         -------
@@ -131,71 +161,101 @@ class CircuitPins(object):
             direction = (180 + self.angle + self._circuit_comp.angle) * math.pi / 180
             points = [self.location]
             cangles = [self._circuit_comp.angle]
+            dir = 0.0 >= direction >= (math.pi)
             for cpin in component_pin:
                 prev = [i for i in points[-1]]
                 act = [i for i in cpin.location]
-                prev_bb = [i for i in self._circuit_comp.bounding_box]
-                act_bb = [i for i in cpin._circuit_comp.bounding_box]
                 pins_x = [i.location[0] for i in self._circuit_comp.pins if i.name != self.name]
                 pins_x += [i.location[0] for i in cpin._circuit_comp.pins if i.name != cpin.name]
                 pins_y = [i.location[1] for i in self._circuit_comp.pins if i.name != self.name]
                 pins_y += [i.location[1] for i in cpin._circuit_comp.pins if i.name != cpin.name]
-                if abs(points[-1][0] - cpin.location[0]) < tol:
-                    deltay = prev[1]
-                    if 0.0 >= direction >= (math.pi):
-                        deltax = (
-                            prev_bb[0]
-                            - 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
-                        )
-                    else:
-                        deltax = (
-                            prev_bb[2]
-                            + 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
-                        )
 
-                    if not self._is_inside_point(pins_y, points[-1][1], cpin.location[1]):
-                        points.append(cpin.location)
-                    else:
-                        points.append([deltax, deltay])
-                        points.append([deltax, act[1]])
+                if abs(points[-1][0] - cpin.location[0]) < tol:
+                    dx = round((prev[0] + act[0]) / 2, -2)
+
+                    deltax, deltay = self._get_deltas(
+                        [dx, prev[1]], move_y=False, positive=not dir, units=clearance_units
+                    )
+
+                    self._add_point(pins_y, points, deltax, deltay, act)
+                    if points[-1][0] != act[0] and points[-1][1] != act[1]:
+                        points.append([points[-1][0], act[1]])
                         points.append(act)
+
+                    if points[-1][0] != act[0] or points[-1][1] != act[1]:
+                        points.append(act)
+
                 elif abs(points[-1][1] - cpin.location[1]) < tol:
-                    deltax = prev[0]
-                    if 0.0 >= direction >= (math.pi):
-                        deltay = (
-                            prev_bb[1]
-                            - 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
-                        )
-                    else:
-                        deltay = (
-                            prev_bb[3]
-                            + 0.00254 / AEDT_UNITS["Length"][self._circuit_comp._circuit_components.schematic_units]
-                        )
-                    if not self._is_inside_point(pins_x, points[-1][0], cpin.location[0]):
-                        points.append(cpin.location)
-                    else:
-                        points.append([deltax, deltay])
-                        points.append([act[0], deltay])
+                    dy = round((prev[1] + act[1]) / 2, -2)
+
+                    deltax, deltay = self._get_deltas(
+                        [prev[0], dy], move_x=False, positive=not dir, units=clearance_units
+                    )
+
+                    self._add_point(pins_x, points, deltax, deltay, act, 1)
+                    if points[-1][0] != act[0] and points[-1][1] != act[1]:
+                        points.append([act[0], points[-1][1]])
                         points.append(act)
+                    if points[-1][0] != act[0] or points[-1][1] != act[1]:
+                        points.append(act)
+
                 elif cangles[-1] in [0.0, 180.0]:
-                    if prev[0] <= prev_bb[2] <= act[0] or prev[0] > prev_bb[2] > act[0]:
-                        bbx = act_bb[2]
+                    dx = round((prev[0] + act[0]) / 2, -2)
+                    p2 = act[1]
+                    deltax, deltay = self._get_deltas(
+                        [prev[0], p2], move_x=False, positive=True if p2 - prev[1] > 0 else False, units=clearance_units
+                    )
+                    self._add_point(
+                        pins_y,
+                        points,
+                        deltax,
+                        deltay,
+                        [prev[0], p2],
+                    )
+                    p2 = points[-1][1]
+
+                    deltax, deltay = self._get_deltas(
+                        [dx, p2], move_y=False, positive=True if dx - prev[0] > 0 else False, units=clearance_units
+                    )
+                    self._add_point(pins_x, points, deltax, deltay, [dx, p2], 1)
+                    if points[-1][0] != dx:
+                        dx = points[-1][0]
+                    deltax, deltay = self._get_deltas(
+                        act, move_y=False, positive=True if act[0] - dx > 0 else False, units=clearance_units
+                    )
+                    if p2 == act[1]:
+                        self._add_point(pins_x, points, deltax, deltay, [act[0], p2], 1)
                     else:
-                        bbx = act_bb[0]
-                    points.append([prev[0], act_bb[1]])
-                    points.append([bbx, act_bb[1]])
-                    points.append([bbx, act[1]])
-                    points.append(act)
+                        points.append([act[0], p2])
+                    if points[-1][0] != act[0] or points[-1][1] != act[1]:
+                        points.append(act)
 
                 else:
-                    if prev[1] <= prev_bb[3] <= act[1] or prev[1] > prev_bb[3] > act[1]:
-                        bby = act_bb[3]
+
+                    dy = round((prev[1] + act[1]) / 2, -2)
+                    p1 = act[0]
+
+                    deltax, deltay = self._get_deltas(
+                        [p1, prev[1]], move_y=False, positive=True if p1 - prev[0] > 0 else False, units=clearance_units
+                    )
+                    self._add_point(pins_y, points, deltax, deltay, [p1, prev[1]], 1)
+                    p1 = points[-1][0]
+
+                    deltax, deltay = self._get_deltas(
+                        [p1, dy], move_x=False, positive=True if dy - prev[1] > 0 else False, units=clearance_units
+                    )
+                    self._add_point(pins_x, points, deltax, deltay, [act[0], dy], 1)
+                    if points[-1][1] != dy:
+                        dy = points[-1][0]
+                    deltax, deltay = self._get_deltas(
+                        act, move_x=False, positive=True if act[1] - dy > 0 else False, units=clearance_units
+                    )
+                    if p1 == act[0]:
+                        self._add_point(pins_x, points, deltax, deltay, [p1, act[1]], 1)
                     else:
-                        bby = act_bb[1]
-                    points.append([act_bb[0], prev[1]])
-                    points.append([act_bb[0], bby])
-                    points.append([act[0], bby])
-                    points.append(act)
+                        points.append([p1, act[1]])
+                    if points[-1][0] != act[0] or points[-1][1] != act[1]:
+                        points.append(act)
 
                 cangles.append(cpin._circuit_comp.angle)
             self._circuit_comp._circuit_components.create_wire(points)
