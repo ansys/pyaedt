@@ -307,7 +307,7 @@ from pyaedt import Emit
 #             rx_emis.append('N/A')
 #             rx_colors.append('green')
 #             continue
-#         print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio, rx=rx_radio))
+#         print("Power thresholds for {tx} vs {rx}".format(tx=tx_radio, rx=rx_radio))
 #         for rx_band in emitapp.results.get_band_names(rx_radio, modeRx):
 #             # if "L2 P(Y)" not in rx_band:
 #             #     # Skip 'normal' Rx bands
