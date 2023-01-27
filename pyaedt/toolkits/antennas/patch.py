@@ -84,7 +84,7 @@ class CommonPatch(object):
         pass
 
     @pyaedt_function_handler()
-    def _update_parameters(self):
+    def _update_parameters(self, parameters, length_unit):
         pass
 
 

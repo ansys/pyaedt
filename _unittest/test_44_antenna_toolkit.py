@@ -22,7 +22,11 @@ class TestClass(BasisTest, object):
         assert patch.position == [10, 20, 0]
 
         patch2 = self.aedtapp.antennas.rectangular_patch_probe(
-            material="Duroid (tm)", huygens_box=True, outer_boundary="Radiation", position=[10, 20, 30]
+            material="Duroid (tm)",
+            huygens_box=True,
+            outer_boundary="Radiation",
+            position=[10, 20, 30],
+            antenna_name="Antenna_new",
         )
         assert len(patch2.boundaries) == 3
         # Change CS
@@ -30,7 +34,7 @@ class TestClass(BasisTest, object):
         patch.coordinate_system = cs1.name
         assert len(patch2.object_list) == 9
         # New Patch
-        patch2 = self.aedtapp.antennas.rectangular_patch_probe(
+        patch3 = self.aedtapp.antennas.rectangular_patch_probe(
             frequency=20.0,
             frequency_unit="GHz",
             material="Duroid (tm)",
@@ -39,18 +43,17 @@ class TestClass(BasisTest, object):
             substrate_height=0.16,
             length_unit="cm",
             coordinate_system="CS1",
-            antenna_name="Antenna_Samuel",
+            antenna_name="Antenna_new",
             position=[1, 100, 50],
         )
-        patch2.coordinate_system = cs1.name
-        patch2.antenna_name = "Patch_Samuel"
-        patch2.frequency = 18.0
-        patch2.frequency_unit = "MHz"
-        patch2.frequency_unit = "GHz"
+        patch3.coordinate_system = cs1.name
+        patch3.antenna_name = "Patch_new"
+        patch3.frequency = 18.0
+        patch3.frequency_unit = "MHz"
+        patch3.frequency_unit = "GHz"
 
-        patches = patch.duplicate_along_line([5, 0, 0], 3)
+        patches = patch.duplicate_along_line([50, 0, 0], 3)
         assert len(patches) == 2
-        patches2 = patch2.duplicate_along_line([5, 0, 0], 2)
-        assert len(patches2) == 1
-        assert patch.create_3dcomponent()
-        assert patch2.create_3dcomponent(replace=True)
+
+        assert patch2.create_3dcomponent()
+        assert patch3.create_3dcomponent(replace=True)

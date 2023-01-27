@@ -42,8 +42,8 @@ class Antennas(object):
 
     def _check_antenna_name(self, antenna_name=None):
         """Check if antenna name is repeated or assign a random antenna name."""
-        if not antenna_name or self._app.modeler.oeditor.GetObjectsInGroup(antenna_name).count > 0:
+        if not antenna_name or len(list(self._app.modeler.oeditor.GetObjectsInGroup(antenna_name))) > 0:
             antenna_name = generate_unique_name("Patch")
-            while self._app.modeler.oeditor.GetObjectsInGroup(antenna_name).count > 0:
+            while len(list(self._app.modeler.oeditor.GetObjectsInGroup(antenna_name))) > 0:
                 antenna_name = generate_unique_name("Patch")
         return antenna_name

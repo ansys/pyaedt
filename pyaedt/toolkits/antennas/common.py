@@ -154,7 +154,8 @@ class CommonAntenna(object):
         if old_name and self.object_list:
             for antenna_obj in self.object_list:
                 self.object_list[antenna_obj].group_name = self._antenna_name
-            if self._app.modeler.oeditor.GetObjectsInGroup(old_name).count == 0:
+
+            if len(list(self._app.modeler.oeditor.GetObjectsInGroup(old_name))) == 0:
                 self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", old_name])
 
     @property
@@ -213,10 +214,6 @@ class CommonAntenna(object):
         if not component_name:
             component_name = self.antenna_name
 
-        included_cs = []
-        if self.coordinate_system != "Global":
-            included_cs = [self.coordinate_system]
-
         self._app.modeler.create_3dcomponent(
             component_file=component_file,
             component_name=component_name,
@@ -224,7 +221,7 @@ class CommonAntenna(object):
             object_list=list(self.object_list.keys()),
             boundaries_list=list(self.boundaries.keys()),
             excitation_list=list(self.excitations.keys()),
-            included_cs=included_cs,
+            included_cs=[self.coordinate_system],
             reference_cs=self.coordinate_system,
             component_outline="None",
         )
@@ -236,7 +233,7 @@ class CommonAntenna(object):
                 object_list=list(self.object_list.keys()),
                 boundaries_list=list(self.boundaries.keys()),
                 excitation_list=list(self.excitations.keys()),
-                included_cs=[included_cs],
+                included_cs=[self.coordinate_system],
                 reference_cs=self.coordinate_system,
             )
             if self._app.modeler.oeditor.GetObjectsInGroup(self.antenna_name).count == 0:
