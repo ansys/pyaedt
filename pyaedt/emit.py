@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os
 import sys
 from importlib import import_module
+import warnings
 
 import pyaedt.generic.constants as consts
 from pyaedt import generate_unique_project_name
@@ -34,7 +35,7 @@ class Results:
 
     def __init__(self, emit_obj):
         self._result_loaded = False
-        """''True'' if the results are loaded and ''False'' if they are not."""
+        """``True`` if the results are loaded and ``False`` if they are not."""
 
         self.emit_api = mod.EmitApi()
         """Instance of the Emit api."""
@@ -587,12 +588,12 @@ class Emit(FieldAnalysisEmit, object):
             return ver
 
     @pyaedt_function_handler()
-    def set_units(self, unit_system, unit_value):
+    def set_units(self, unit_type, unit_value):
         """Set units for the component.
 
         Parameters
         ----------
-        unit_system : str
+        unit_type : str
             System of units.
         unit_value : str
             Units to use.
@@ -608,40 +609,40 @@ class Emit(FieldAnalysisEmit, object):
         Returns
         -------
         Bool
-            ''True'' if the units were successfully changed and ''False''
+            ``True`` if the units were successfully changed and ``False``
             if there was an error.
         """
-        valid_system = EmitConstants.EMIT_UNIT_SYSTEM
+        valid_type = EmitConstants.EMIT_UNIT_TYPE
         valid_units = EmitConstants.EMIT_VALID_UNITS
 
-        if isinstance(unit_system, list):
-            for t, v in zip(unit_system, unit_value):
-                if t not in valid_system:
-                    print("[{}] units are not supported by EMIT. The options are: {}: ".format(t, valid_system))
+        if isinstance(unit_type, list):
+            for t, v in zip(unit_type, unit_value):
+                if t not in valid_type:
+                    warnings.warn("[{}] units are not supported by EMIT. The options are: {}: ".format(t, valid_type))
                     return False
                 if v not in valid_units[t]:
-                    print("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
+                    warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
                     return False
                 self.units[t] = v
         else:
-            if unit_system not in valid_system:
-                print("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_system, valid_system))
+            if unit_type not in valid_type:
+                warnings.warn("[{}] units are not supported by EMIT. The options are: {}: ".format(unit_type, valid_type))
                 return False
-            if unit_value not in valid_units[unit_system]:
-                print(
-                    "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_system])
+            if unit_value not in valid_units[unit_type]:
+                warnings.warn(
+                    "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_type])
                 )
                 return False
-            self.units[unit_system] = unit_value
+            self.units[unit_type] = unit_value
         return True
 
     @pyaedt_function_handler()
-    def get_units(self, unit_system=""):
+    def get_units(self, unit_type=""):
         """Get units for the component.
 
         Parameters
         ----------
-        unit_system : str
+        unit_type : str
             System of units: options are power, frequency,
                 length, time, voltage, data rate, or resistance.
 
@@ -651,14 +652,14 @@ class Emit(FieldAnalysisEmit, object):
             If unit_type is specified returns the units for that type
             and if unit_type="", returns a Tuple of all units.
         """
-        if not unit_system:
+        if not unit_type:
             units = [(k, v) for k, v in self.units.items()]
             return units
-        if unit_system not in EmitConstants.EMIT_UNIT_SYSTEM:
-            print(
+        if unit_type not in EmitConstants.EMIT_UNIT_TYPE:
+            warnings.warn(
                 "[{}] units are not supported by EMIT. The options are: {}: ".format(
-                    unit_system, EmitConstants.EMIT_UNIT_SYSTEM
+                    unit_type, EmitConstants.EMIT_UNIT_TYPE
                 )
             )
             return None
-        return self.units[unit_system]
+        return self.units[unit_type]

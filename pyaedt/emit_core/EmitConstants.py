@@ -94,8 +94,8 @@ def convert_power_dbm(values, from_unit):
         return max(-1000.0, 10.0 * (math.log10(values) + 6.0))
 
 
-EMIT_UNIT_SYSTEM = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
-"""Valid unit system."""
+EMIT_UNIT_TYPE = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+"""Valid unit type."""
 
 EMIT_VALID_UNITS = {
     "Power": ["mW", "W", "kW", "dBm", "dBW"],
