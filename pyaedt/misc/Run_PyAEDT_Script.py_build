@@ -18,7 +18,7 @@ import subprocess
 import ScriptEnv
 
 # import clr
-# clr.AddReference('System.Windows.Forms')
+# clr.AddReference("System.Windows.Forms")
 from System.Windows.Forms import OpenFileDialog
 
 oProject = oDesktop.GetActiveProject()

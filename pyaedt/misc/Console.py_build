@@ -11,11 +11,9 @@ interactive Python session.
 import os
 import subprocess
 
-#Choose file to launch
-
-#launch file
-pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
-python_exe = r'''##IPYTHON_EXE##'''
+# Launch file
+pyaedt_toolkit_dir = r"##INSTALL_DIR##"
+python_exe = r"##IPYTHON_EXE##"
 pyaedt_script = os.path.join(pyaedt_toolkit_dir, 'console_setup.py')
 command = [
     '"{}"'.format(python_exe),
