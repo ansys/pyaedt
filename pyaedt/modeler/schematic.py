@@ -266,7 +266,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @pyaedt_function_handler()
     def move(self, selections, pos, units=None):
-        """Move the selections by ``[x, y]``.
+        """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
         ----------
