@@ -33,6 +33,19 @@ class ModelerCircuit(Modeler):
         Modeler.__init__(self, app)
 
     @property
+    def schematic_units(self):
+        """Schematic units. Defaults are ``"meter"``. Options are ``"mm"``, ``"mil"``, ``"cm"``."""
+        return self._schematic_units
+
+    @schematic_units.setter
+    def schematic_units(self, value):
+        """Schematic units. Defaults are ``"meter"``. Options are ``"mm"``, ``"mil"``, ``"cm"``."""
+        if value in list(AEDT_UNITS["Length"].keys()):
+            self._schematic_units = value
+        else:
+            self.logger.error("Wrong unit")
+
+    @property
     def o_component_manager(self):
         """Component manager object."""
         return self._app.o_component_manager
@@ -205,19 +218,6 @@ class ModelerNexxim(ModelerCircuit):
         """
         # TODO Check why it crashes when multiple circuits are created
         return None
-
-    @property
-    def schematic_units(self):
-        """Schematic units. Defaults are ``"meter"``. Options are ``"mm"``, ``"mil"``, ``"cm"``."""
-        return self._schematic_units
-
-    @schematic_units.setter
-    def schematic_units(self, value):
-        """Schematic units. Defaults are ``"meter"``. Options are ``"mm"``, ``"mil"``, ``"cm"``."""
-        if value in list(AEDT_UNITS["Length"].keys()):
-            self._schematic_units = value
-        else:
-            self.logger.error("Wrong younit")
 
     @property
     def model_units(self):
