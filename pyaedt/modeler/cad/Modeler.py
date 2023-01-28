@@ -4743,8 +4743,8 @@ class GeometryModeler(Modeler, object):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def break_spaceclaim_connection(self):
-        """Break the connection with SpaceClaim.
+    def break_spaceclaim_connection(self):  # TODO: Need to change this name. Don't use "break".
+        """Disconnect from the running SpaceClaim instance.
 
         Returns
         -------

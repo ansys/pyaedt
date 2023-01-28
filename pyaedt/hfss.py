@@ -728,20 +728,23 @@ class Hfss(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", **kwargs):
         """Create a new analysis setup for HFSS.
-        Named arguments are passed along with ``setuptype`` and ``setupname``.  The
-        named arguments are identical to those values for the appropriate ``setuptype``
-        defined in the native Electronics Desktop API.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keyword here is not exhaustive.
+
+        Note: This method overrides Analysis.setup() for the Hfss app.
 
         Parameters
         ----------
-        setuptype: str
+        setuptype: str, optional
             Type of setup. Must be one of the following:
             "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
             "HFSSSBR" based on the solution type.
             Default: "HFSSDrivenAuto"
-        setupname : str
+        setupname : str, optional
             Name of the setup. Default: "Setup1"
-        SolveType : str ("Single", "MultiFrequency")
+        SolveType : str ("Single", "MultiFrequency"), optional
             Specify whether multiple frequencies will be solved at each adaptive
             pass. Default: "Single"
         Frequency : str, or float
@@ -794,6 +797,47 @@ class Hfss(FieldAnalysis3D, object):
             del kwargs["setuptype"]
         else:
             setuptype = SetupKeys.SetupNames[0]  # Default
+
+        # If MultipleAdaptiveFreqsSetup is passed, then AdaptMultipleFreqs is implied.
+        if "MultipleAdaptiveFreqsSetup" in kwargs.keys():
+            if "AdaptMultipleFreqs" not in kwargs.keys():
+                kwargs["AdaptMultipleFreqs"] = True
+
+        # Need to update "SolveType" if "AdaptiveMultipleFreqs" == True
+        if "AdaptMultipleFreqs" in kwargs.keys():
+            if kwargs["AdaptMultipleFreqs"] == True:
+                if "MultipleAdaptiveFreqsSetup" in kwargs.keys():
+                    kwargs["SolveType"] = "MultiFrequency"
+
+                    #  Allow for a list of frequencies to be
+                    #  passed for multi-frequency adaptive refinement.
+                    #  Set the MaxDeltaS for each frequency value passed
+                    #  to MaxDeltaS.
+
+                    if type(kwargs["MultipleAdaptiveFreqsSetup"]) == list:
+                        new_dict = {}
+                        if "MaxDeltaS" in kwargs.items():
+                            ds = kwargs["MaxDeltaS"]
+                        else:
+                            ds = 0.02
+                        for f in kwargs["MultipleAdaptiveFreqsSetup"]:
+                            new_dict[f] = [ds]  # List type is required by native API.
+                        kwargs["MultipleAdaptiveFreqsSetup"] = new_dict
+
+                    #  Check the values passed in kwargs["MultipleAdaptiveFreqsSetup"]. If
+                    #  float is passed, convert it to a one-item list to be compatible with the
+                    #  native API.
+
+                    elif type(kwargs["MultipleAdaptiveFreqsSetup"] == dict):
+                        for key in kwargs["MultipleAdaptiveFreqsSetup"]:
+                            if type(kwargs["MultipleAdaptiveFreqsSetup"][key]) == float:  # convert to list
+                                kwargs["MultipleAdaptiveFreqsSetup"][key] = [kwargs["MultipleAdaptiveFreqsSetup"][key]]
+                else:
+                    kwargs["AdaptiveMultipleFreqs"] = False
+                    self.logger.warning(
+                        'Named argument "MultipleAdaptiveFreqsSetup not defined. Reverting'
+                        "to default analysis settings."
+                    )
         setup = self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs)
         return setup
 
@@ -844,7 +888,7 @@ class Hfss(FieldAnalysis3D, object):
         unit,
         freqstart,
         freqstop,
-        num_of_freq_points,
+        num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -866,6 +910,8 @@ class Hfss(FieldAnalysis3D, object):
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
+            Default is 401 for sweep_type = "Interpolating" or "Fast" and 5
+            for "Discrete"
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
@@ -907,7 +953,13 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+        if sweep_type in ["Interpolating", "Fast"]:
+            if num_of_freq_points == None:
+                num_of_freq_points = 401
+        elif sweep_type == "Discrete":
+            if num_of_freq_points == None:
+                num_of_freq_points = 5
+        else:
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )

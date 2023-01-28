@@ -1469,12 +1469,12 @@ class SetupHFSS(Setup, object):
         return self.update()
 
     @pyaedt_function_handler()
-    def create_linear_count_sweep(
+    def create_frequency_sweep(
         self,
         unit,
         freqstart,
         freqstop,
-        num_of_freq_points,
+        num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -1493,7 +1493,8 @@ class SetupHFSS(Setup, object):
         freqstop : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
-            Number of frequency points in the range.
+            Number of frequency points in the range. Default is 401 for
+            sweep types "Interpolating" or "Fast", and is 5 for "Discrete".
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
@@ -1535,7 +1536,16 @@ class SetupHFSS(Setup, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+
+        # Set default values for num_of_freq_points if a value was not passed. Also,
+        # check that sweep_type is valid.
+        if sweep_type in ["Interpolating", "Fast"]:
+            if num_of_freq_points == None:
+                num_of_freq_points = 401
+        elif sweep_type == "Discrete":
+            if num_of_freq_points == None:
+                num_of_freq_points = 5
+        else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:

@@ -1356,6 +1356,9 @@ class Analysis(Design, object):
             setup = SetupHFSS(self, setuptype, name)
 
         if self.design_type == "HFSS":
+
+            # Handle the situation when ports have not been defined.
+
             if not self.excitations and "MaxDeltaS" in setup.props:
                 new_dict = OrderedDict()
                 setup.auto_update = False

@@ -10,7 +10,10 @@ evaluate expressions.
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports.
+# Perform required imports. Note the dependence on
+# SymPy is used to evaluate expressions. SymPy is not
+# a default requirement in PyAedt and is only compatible
+# with CPython > 3.6.
 
 # sphinx_gallery_thumbnail_path = 'Resources/wgf.png'
 
@@ -28,7 +31,6 @@ from sympy.parsing.sympy_parser import parse_expr
 # Define values for the waveguide iris filter.
 # ~~~~~~~~~~~~~~~~~~~~~~
 
-# hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
 wgparams = {'l': [0.7428, 0.82188],
             'w': [0.50013, 0.3642, 0.3458],
             'a': 0.4,
@@ -36,9 +38,14 @@ wgparams = {'l': [0.7428, 0.82188],
             't': 0.15,
             'units': 'in'}
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+# non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 new_thread = False
-project_name = pyaedt.generate_unique_project_name(project_name="wgf")
+
+# project_name = pyaedt.generate_unique_project_name(project_name="wgf")
+
+project_folder = r'C:\Ansoft\Projects\Examples\HFSS\Filters\Eplane WG Filter\test'
+project_name = project_folder + "\\" + general_methods.generate_unique_name("wgf", n=2)
 
 # Connect to an existing instance if it exits.
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
@@ -46,7 +53,10 @@ hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    designname="filter",
                    non_graphical=non_graphical,
                    close_on_exit=True)
-var_mapping = dict()  # Used to parse expressions.
+
+# hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
+
+var_mapping = dict()  # Used by parse_expr to parse expressions.
 
 ###############################################################################
 # Initialize design parameters in HFSS.
@@ -63,8 +73,6 @@ for key in wgparams:
             hfss[this_key] = str(v) + wgparams['units']
             var_mapping[this_key] = v  # Used to parse expressions and generate numerical values.
             count += 1
-    else:
-        pass
 
 if len(wgparams['l']) % 2 == 0:
     zstart = "-t/2"  # Even number of cavities, odd number of irises.
@@ -73,18 +81,25 @@ else:
     zstart = "l1/2 - t/2"  # Odd number of cavities, even number of irises.
     is_even = False
 
-
-# Define a function to place a single iris given the longitudinal (z) position, thickness and an iterator, n.
+###############################################################################
+# Draw the parametric waveguide filter.
+# ~~~~~~~~~~~~~~~~~~~~~~
+# Define a function that places a single iris given the longitudinal (z) position,
+# thickness and an integer, n, defining which iris is being placed.  Numbering
+# will go from the largest value (interior of the filter) to 1, which is the first
+# iris nearest the waveguide ports.
 def place_iris(zpos, dz, n):
-    w_str = "w" + str(n)  # Iris width as a string.
-    this_name = "iris_a_"+str(n)
-    iris = []
+    w_str = "w" + str(n)  # Iris width parameter as a string.
+    this_name = "iris_a_"+str(n)  # Iris object name
+    iris = []  # Return a list of the two iris objects.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
     iris.append(hfss.modeler.primitives.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a',  dz],
                                                      name=this_name , matname="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
+
+# Place irises from inner (highest integer) to outer, 1
 
 
 for count in reversed(range(1, len(wgparams['w']) + 1)):
@@ -99,6 +114,12 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
         if not is_even:
             iris = place_iris("-(" + zpos + ")", "-t", count)
 
+###############################################################################
+# Draw the full waveguide with ports.
+# ~~~~~~~~~~~~~~~~~~~~~~
+# parse_expr() is used to determine the numerical position
+# of the integration line endpoints on the waveguide port.
+
 
 var_mapping['port_extension'] = 1.5 * wgparams['l'][0]  # Used to evaluate expression with parse_expr()
 hfss['port_extension'] = str(var_mapping['port_extension']) + wgparams['units']
@@ -107,11 +128,9 @@ wg_length = "2*(" + zpos + " + port_extension )"
 hfss.modeler.create_box(["-b/2", "-a/2", wg_z_start], ["b", "a", wg_length],
                         name="waveguide", matname="vacuum")
 
-# hfss.create_wave_port_from_sheet()
-
 ###############################################################################
 # Use parse_expr() to evaluate the numerical coordinates needed to specify
-# start and end points of the port integration line.
+# start and end points of the integration line on the port surfaces.
 # ~~~~~~~~~~~~~~~~~~~~~~
 wg_z = [str(parse_expr(wg_z_start, var_mapping)) + wgparams['units'],
         str(parse_expr(wg_z_start + "+" + wg_length, var_mapping)) + wgparams['units']]
@@ -127,20 +146,23 @@ for n, z in enumerate(wg_z):
 #  for allowed values for setuptype.
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
-                          Frequency="10GHz", MaximumPasses=10)
+                          AdaptMultipleFreqs=True,
+                          Frequency="10GHz",
+                          MaxDeltaS=0.02,
+                          MaximumPasses=10)
 
-setup.create_linear_count_sweep(
+setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
+                          MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
+                          MaximumPasses=5)
+
+setup.create_frequency_sweep(
     unit="GHz",
+    sweepname="Sweep1"
     freqstart=9.5,
     freqstop=10.5,
-    num_of_freq_points=251,
-    sweepname="sweep1",
     sweep_type="Interpolating",
-    interpolation_tol=0.5,
-    interpolation_max_solutions=255,
-    save_fields=False,
-)
+    )
 
-setup.analyze()
+setup.analyze(num_tasks=2)  # Each frequency point will be solved simultaneously.
 
 hfss.release_desktop(close_desktop=False, close_projects=False)
