@@ -276,11 +276,8 @@ def decompose_variable_value(variable_value, full_variables={}):
             float_value = float(variable_value)
         except ValueError:
             # search for a valid units string at the end of the variable_value
-            loc = re.search("[\d.]+[e][-\d.]+", variable_value)
-            if not loc:
-                loc = re.search("[\d.]+", variable_value)
+            loc = re.search("[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?", variable_value)
             units = _find_units_in_dependent_variables(variable_value, full_variables)
-
             if loc:
                 loc_units = loc.span()[1]
                 extract_units = variable_value[loc_units:]
