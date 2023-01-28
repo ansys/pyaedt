@@ -99,8 +99,9 @@ def place_iris(zpos, dz, n):
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
 
+###############################################################################
 # Place irises from inner (highest integer) to outer, 1
-
+# ~~~~~~~~~~~~~~~~~~~~~~
 
 for count in reversed(range(1, len(wgparams['w']) + 1)):
     if count < len(wgparams['w']):  # Update zpos
@@ -129,8 +130,9 @@ hfss.modeler.create_box(["-b/2", "-a/2", wg_z_start], ["b", "a", wg_length],
                         name="waveguide", matname="vacuum")
 
 ###############################################################################
-# Use parse_expr() to evaluate the numerical coordinates needed to specify
-# start and end points of the integration line on the port surfaces.
+# Use parse_expr() to evaluate the numerical Cartesian coordinates
+# needed to specify start and end points of the integration line
+# on the port surfaces.
 # ~~~~~~~~~~~~~~~~~~~~~~
 wg_z = [str(parse_expr(wg_z_start, var_mapping)) + wgparams['units'],
         str(parse_expr(wg_z_start + "+" + wg_length, var_mapping)) + wgparams['units']]
@@ -144,12 +146,6 @@ for n, z in enumerate(wg_z):
 
 #  See pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
 #  for allowed values for setuptype.
-
-setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
-                          AdaptMultipleFreqs=True,
-                          Frequency="10GHz",
-                          MaxDeltaS=0.02,
-                          MaximumPasses=10)
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
                           MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
