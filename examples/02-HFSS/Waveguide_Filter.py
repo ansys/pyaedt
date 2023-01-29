@@ -153,12 +153,23 @@ setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
 
 setup.create_frequency_sweep(
     unit="GHz",
-    sweepname="Sweep1"
+    sweepname="Sweep1",
     freqstart=9.5,
     freqstop=10.5,
     sweep_type="Interpolating",
     )
 
 setup.analyze(num_tasks=2)  # Each frequency point will be solved simultaneously.
+
+# Plot S21 and S11 in AEDT
+hfss.create_scattering("Spars", port_names=["P2", "P1"], port_excited=["P1", "P1"])
+
+#  The following commands fetch solution data from HFSS for plotting directly
+#  from the Python interpreter. Caution: The syntax for expressions must be identical to that used
+#  in HFSS:
+
+spar_rpt = hfss.post.reports_by_category.standard("dB(S(P1,P1));dB(S(P2,P1))", "Setup1 : Sweep1")
+solution_data = spar_rpt.get_solution_data()
+solution_data.plot()
 
 hfss.release_desktop(close_desktop=False, close_projects=False)

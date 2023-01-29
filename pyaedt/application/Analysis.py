@@ -2035,7 +2035,8 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def value_with_units(self, value, units=None):
-        """Combine a number and a string containing the unit in a single string e.g. "1.2mm".
+        """Combine a number and a string containing the modeler length unit in a single
+        string e.g. "1.2mm".
         If the units are not specified, the model units are used.
         If value is a string (like containing an expression), it is returned as is.
 
@@ -2044,7 +2045,17 @@ class Analysis(Design, object):
         value : float, int, str
             Value of the number or string containing an expression.
         units : str, optional
-            Units to combine with value.
+            Units to combine with value.  Valid values are defined in the native API documentation.
+            Some common examples are:
+            "in" - inches
+            "cm" - centimeter
+            "um" - micron
+            "mm" - millimeter
+            "meter" - meters
+            "mil" - 0.001 inches (i.e. mils)
+            "km" - kilometer
+            "ft" - feet
+
 
         Returns
         -------

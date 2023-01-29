@@ -4538,7 +4538,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_scattering(
         self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
-        """Create a s-parameter report.
+        """Create a S-parameter report.
 
         Parameters
         ----------
@@ -4547,9 +4547,11 @@ class Hfss(FieldAnalysis3D, object):
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
         port_names : list, optional
-             List of port names. The default is ``None``.
+             List of port names. The first index, i, in S[i,j].
+             The default is ``None``. (include only self-terms)
         port_excited : list or str, optional
-             The default is ``None``.
+             List of port names. The seconds index, j in S[i,j].
+             The default is ``None``. (include only self-terms)
         variations : str, optional
              The default is ``None``.
 
@@ -4566,10 +4568,10 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a scattering named ``"S Parameter Plot Nominal"`` using
-        the default parameters.
+        Create a S-Parameter plot named ``"S Parameter Plot Nominal"`` for a 3 port network
+        plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
-        >>> hfss.create_scattering()
+        >>> hfss.create_scattering(port_names=["P1", "P2", "P3"], port_excited=["P1", "P1", "P1"])
         True
 
         """
