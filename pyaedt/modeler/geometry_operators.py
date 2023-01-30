@@ -1383,8 +1383,8 @@ class GeometryOperators(object):
         List of List
             Lists of oriented vertices.
         """
-        x_ret = x.copy()
-        y_ret = y.copy()
+        x_ret = x[:]
+        y_ret = y[:]
         if len(x) < 2:  # pragma: no cover
             raise ValueError("'x' length must be >= 2")
         if len(y) != len(x):  # pragma: no cover
