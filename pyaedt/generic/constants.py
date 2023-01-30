@@ -11,8 +11,8 @@ INV2PI = 0.5 / math.pi
 V2PI = 2.0 * math.pi
 METER2IN = 0.0254
 METER2MILES = 1609.344051499
-
 MILS2METER = 39370.078740157
+SpeedOfLight = 299792458.0
 
 
 def db20(x, inverse=True):

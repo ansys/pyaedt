@@ -181,6 +181,9 @@ class Hfss(FieldAnalysis3D, object):
             aedt_process_id,
         )
         self._field_setups = []
+        from pyaedt.toolkits.antennas import Antennas
+
+        self.antennas = Antennas(self)
 
     def __enter__(self):
         return self
@@ -1090,7 +1093,7 @@ class Hfss(FieldAnalysis3D, object):
         thin_sources=True,
         power_fraction="0.95",
     ):
-        """Create a linked antenna.
+        """Create a linked antennas.
 
         Parameters
         ----------
@@ -1381,12 +1384,12 @@ class Hfss(FieldAnalysis3D, object):
         is_array=False,
         antenna_name=None,
     ):
-        """Create a parametric beam antenna in SBR+.
+        """Create a parametric beam antennas in SBR+.
 
         Parameters
         ----------
         antenna_type : str, `SbrAntennas.ConicalHorn`
-            Name of the antenna type. The enumerator ``SbrAntennas`` can also be used.
+            Name of the antennas type. The enumerator ``SbrAntennas`` can also be used.
             The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
@@ -1402,7 +1405,7 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``False``.
         antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
-            name is auto-generated based on the antenna type.
+            name is auto-generated based on the antennas type.
 
         Returns
         -------
@@ -1495,7 +1498,7 @@ class Hfss(FieldAnalysis3D, object):
         model_units=None,
         antenna_name=None,
     ):
-        """Create a linked antenna.
+        """Create a linked antennas.
 
         Parameters
         ----------
@@ -1506,7 +1509,7 @@ class Hfss(FieldAnalysis3D, object):
         antenna_impedance : str, optional
             Antenna impedance with units. The default is ``"50ohm"``.
         representation_type : str, optional
-            Type of the antenna. Options are ``"Far Field"`` and ``"Near Field"``.
+            Type of the antennas. Options are ``"Far Field"`` and ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case the
@@ -1516,7 +1519,7 @@ class Hfss(FieldAnalysis3D, object):
             ``None``, in which case the active modeler units are applied.
         antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case
-            the name is auto-generated based on the antenna type.
+            the name is auto-generated based on the antennas type.
 
         Returns
         -------
@@ -1556,7 +1559,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def set_sbr_txrx_settings(self, txrx_settings):
-        """Set SBR+ TX RX antenna settings.
+        """Set SBR+ TX RX antennas settings.
 
         Parameters
         ----------
@@ -1740,11 +1743,20 @@ class Hfss(FieldAnalysis3D, object):
 
         The two objects must have two adjacent, parallel, and identical faces.
         The faces must be a polygon (not a circle).
+        The closest faces must be aligned with the main planes of the reference system.
 
         Parameters
         ----------
         start_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+            First solid connected to the spiral port.
+
         end_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+            Second object connected to the spiral port.
+
+        port_width : float, optional
+            Width of the spiral port.
+            If not specified the width will be calculated based on the object dimensions.
+            The default is ``None``.
 
         Returns
         -------
@@ -1752,11 +1764,12 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object.
 
         """
-        # fmt: off
         if not "Terminal" in self.solution_type:
             raise Exception("This method can be used only in Terminal solutions.")
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
+
+        # find the closest faces (based on face center)
         closest_distance = 1e9
         closest_faces = []
         for face1 in self.modeler[start_object].faces:
@@ -1766,20 +1779,29 @@ class Hfss(FieldAnalysis3D, object):
                     closest_distance = facecenter_distance
                     closest_faces = [face1, face2]
 
+        # check if the faces are parallel
         if not GeometryOperators.is_collinear(closest_faces[0].normal, closest_faces[1].normal):
-            raise AttributeError('The two objects must have parallel adjacent faces.')
+            raise AttributeError("The two objects must have parallel adjacent faces.")
         if GeometryOperators.is_collinear(closest_faces[0].normal, [1, 0, 0]):
-            plane = 0
+            plane = "X"
         elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 1, 0]):
-            plane = 1
+            plane = "Y"
         elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 0, 1]):
-            plane = 2
+            plane = "Z"
         else:
-            raise AttributeError('The two object must have the adjacent faces aligned with the main planes.')
+            raise AttributeError(
+                "The closest faces of the two objects must be aligned with the main planes of the reference system."
+            )
 
+        # check if the faces are identical (actually checking only the area, not the shape)
+        if abs(closest_faces[0].area - closest_faces[1].area) > 1e-10:
+            raise AttributeError("The closest faces of the two objects must be identical in shape.")
+
+        # evaluate the vector to move from face0 to the middle distance between the faces
         move_vector = GeometryOperators.v_sub(closest_faces[1].center, closest_faces[0].center)
-        move_vector = GeometryOperators.v_prod(0.5, move_vector)
+        move_vector_mid = GeometryOperators.v_prod(0.5, move_vector)
 
+        # fmt: off
         if port_width:
             spiral_width = port_width
             filling = 1.5
@@ -1806,135 +1828,86 @@ class Hfss(FieldAnalysis3D, object):
                     segments_lengths.append(GeometryOperators.points_distance(vc, closest_faces[0].center))
                 spiral_width = min(segments_lengths) / 15
                 filling = 1.5
+        # fmt: on
 
         name = generate_unique_name("P", n=3)
 
-        poly = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
-        poly.name = name
-        poly.translate(move_vector)
+        spiral = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
+        spiral.name = name
+        spiral.translate(move_vector_mid)
+        spiral_center = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
 
-        vert_position_x = []
-        vert_position_y = []
-        for vert in poly.vertices:
-            if plane == 0:
-                vert_position_x.append(vert.position[1])
-                vert_position_y.append(vert.position[2])
-            elif plane == 1:
-                vert_position_x.append(vert.position[0])
-                vert_position_y.append(vert.position[2])
-            elif plane == 2:
-                vert_position_x.append(vert.position[0])
-                vert_position_y.append(vert.position[1])
+        # get the polyline center point (before width operation). They need to be moved as well.
+        poly_points = [GeometryOperators.v_sum(i, move_vector_mid) for i in spiral.points]
 
-        x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
+        # get the vertices of the spiral created. These need to be divided in two lists, one following the external
+        # contour (p1) and one following the internal contour (p2). We use poly_points to discern the points.
+        poly_v = [[v.position[0], v.position[1], v.position[2]] for v in spiral.vertices]
 
-        list_a_val = False
-        x1 = []
-        y1 = []
-        x2 = []
-        y2 = []
-        for i in range(len(x) - 1):
-            dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
-            if list_a_val:
-                x1.append(x[i])
-                y1.append(y[i])
+        p1 = []
+        p2 = []
+        for p in poly_points:
+            cp = GeometryOperators.find_closest_points(poly_v, p)
+            if len(cp) > 2:
+                raise Exception("Internal error in spiral creation, please review the port_width parameter.")
+            if GeometryOperators.points_distance(cp[0], spiral_center) > GeometryOperators.points_distance(
+                cp[1], spiral_center
+            ):
+                p1.append(cp[0])
+                p2.append(cp[1])
             else:
-                x2.append(x[i])
-                y2.append(y[i])
-            if abs(dist - spiral_width) < 1e-6:
-                list_a_val = not list_a_val
-        # set the last point
-        if list_a_val:
-            x1.append(x[-1])
-            y1.append(y[-1])
+                p1.append(cp[1])
+                p2.append(cp[0])
+
+        # move the p1 down and the p2 up
+        move_vector_quarter = GeometryOperators.v_prod(0.25, move_vector)
+        p1_down = [GeometryOperators.v_sub(i, move_vector_quarter) for i in p1]
+        p2_up = [GeometryOperators.v_sum(i, move_vector_quarter) for i in p2]
+
+        # create first polyline to join spiral with conductor face
+        dx = abs(p1_down[0][0] - p1_down[1][0])
+        dy = abs(p1_down[0][1] - p1_down[1][1])
+        dz = abs(p1_down[0][2] - p1_down[1][2])
+        if plane == "X":
+            orient = "Y" if (dy < dz) else "Z"
+        elif plane == "Y":
+            orient = "X" if (dx < dz) else "Z"
         else:
-            x2.append(x[-1])
-            y2.append(y[-1])
+            orient = "X" if (dx < dy) else "Y"
 
-        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
-
-        x1, y1 = GeometryOperators.orient_polygon(x1, y1)
-        coords = []
-        for x, y in zip(x1, y1):
-            if plane == 0:
-                coords.append([faces_mid_point[0] - closest_distance/4, x, y])
-            elif plane == 1:
-                coords.append([x, faces_mid_point[1] - closest_distance/4, y])
-            elif plane == 2:
-                coords.append([x, y, faces_mid_point[2] - closest_distance/4])
-        dx = abs(coords[0][0] - coords[1][0])
-        dy = abs(coords[0][1] - coords[1][1])
-        dz = abs(coords[0][2] - coords[1][2])
-        v1 = GeometryOperators.v_points(coords[0], coords[1])
-        v2 = GeometryOperators.v_points(coords[0], coords[2])
-        norm = GeometryOperators.v_cross(v1, v2)
-
-        if abs(norm[0]) > 1e-12:
-            if dy < dz:
-                orient = "Y"
-            else:
-                orient = "Z"
-        elif abs(norm[1]) > 1e-12:
-            if dx < dz:
-                orient = "X"
-            else:
-                orient = "Z"
-        else:
-            if dx < dy:
-                orient = "X"
-            else:
-                orient = "Y"
         poly1 = self.modeler.create_polyline(
-            coords,
+            p1_down,
             xsection_type="Line",
             xsection_orient=orient,
             xsection_width=closest_distance / 2,
             name=start_object + "_sheet",
         )
-        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
 
-        x2, y2 = GeometryOperators.orient_polygon(x2, y2)
-        coords = []
-        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
-        for x, y in zip(x2, y2):
-            if plane == 0:
-                coords.append([faces_mid_point[0] + closest_distance/4, x, y])
-            elif plane == 1:
-                coords.append([x, faces_mid_point[1] + closest_distance/4, y])
-            elif plane == 2:
-                coords.append([x, y, faces_mid_point[2] + closest_distance/4])
-        dx = abs(coords[0][0] - coords[1][0])
-        dy = abs(coords[0][1] - coords[1][1])
-        dz = abs(coords[0][2] - coords[1][2])
-        v1 = GeometryOperators.v_points(coords[0], coords[1])
-        v2 = GeometryOperators.v_points(coords[0], coords[2])
-        norm = GeometryOperators.v_cross(v1, v2)
-        if abs(norm[0]) > 1e-12:
-            if dy < dz:
-                orient = "Y"
-            else:
-                orient = "Z"
-        elif abs(norm[1]) > 1e-12:
-            if dx < dz:
-                orient = "X"
-            else:
-                orient = "Z"
+        # create second polyline to join spiral with conductor face
+        dx = abs(p2_up[0][0] - p2_up[1][0])
+        dy = abs(p2_up[0][1] - p2_up[1][1])
+        dz = abs(p2_up[0][2] - p2_up[1][2])
+        if plane == "X":
+            orient = "Y" if (dy < dz) else "Z"
+        elif plane == "Y":
+            orient = "X" if (dx < dz) else "Z"
         else:
-            if dx < dy:
-                orient = "X"
-            else:
-                orient = "Y"
+            orient = "X" if (dx < dy) else "Y"
         poly2 = self.modeler.create_polyline(
-            coords,
+            p2_up,
             xsection_type="Line",
             xsection_orient=orient,
             xsection_width=closest_distance / 2,
             name=end_object + "_sheet",
         )
 
+        # assign pec to created polylines
+        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
         self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
-        port = self.create_lumped_port_to_sheet(poly, reference_object_list=[poly2.name], portname=name)
-        # fmt: on
+
+        # create lumped port on spiral
+        port = self.create_lumped_port_to_sheet(spiral, reference_object_list=[poly2.name], portname=name)
+
         return port
 
     @pyaedt_function_handler()
@@ -5697,7 +5670,7 @@ class Hfss(FieldAnalysis3D, object):
     def get_antenna_ffd_solution_data(
         self, frequencies, setup_name=None, sphere_name=None, variations=None, overwrite=True, taper="flat"
     ):
-        """Export antenna parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
 
         Parameters
         ----------
