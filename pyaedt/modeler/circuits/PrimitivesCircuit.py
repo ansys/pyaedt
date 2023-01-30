@@ -172,9 +172,15 @@ class CircuitComponents(object):
         >>> oEditor.CreateWire
         """
         pointlist = [str(tuple(i)) for i in points_array]
+        element_ids = []
+        for el in self.oeditor.GetAllElements():
+            element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
+        wire_id = random.randint(20000, 23000)
+        while wire_id in element_ids:
+            wire_id = random.randint(20000, 23000)
         try:
             self.oeditor.CreateWire(
-                ["NAME:WireData", "Name:=", wire_name, "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
+                ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", pointlist],
                 ["NAME:Attributes", "Page:=", 1],
             )
             return True
@@ -192,11 +198,12 @@ class CircuitComponents(object):
             Wire name to display.
             Default value is ``""``.
         property_to_display : str
-            Property to display. Choices are: ``"NetName"``, ``"PinCount"``, ``"AlignMicrowavePorts"``, ``"SchematicID"``,
-            ``"Segment0"``.
+            Property to display. Choices are: ``"NetName"``, ``"PinCount"``, ``"AlignMicrowavePorts"``,
+            ``"SchematicID"``, ``"Segment0"``.
             Default value is ``"NetName"``.
         visibility : str
-            Visibility type. Choices are ``"Name"``, ``"Value"``, ``"Both"``, ``"Evaluated Value"``, ``"Evaluated Both"``.
+            Visibility type. Choices are ``"Name"``, ``"Value"``, ``"Both"``, ``"Evaluated Value"``,
+            ``"Evaluated Both"``.
             Default value is ``"Name"``.
         location : str
             Wire name location. Choices are ``"Left"``, ``"Top"``, ``"Right"``, ``"Bottom"``, ``"Center"``.
