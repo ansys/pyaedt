@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit import Revision
+from pyaedt.emit_core import EmitConstants as econsts
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
@@ -71,6 +72,13 @@ class TestClass(BasisTest, object):
         connected_comp, connected_port = radio2.port_connection(radio2_port)
         assert connected_comp is None
         assert connected_port is None
+        # Test create_radio_antenna
+        radio3, antenna3 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+        ant3_port = antenna3.port_names()[0]
+        rad3_port = radio3.port_names()[0]
+        connected_comp, connected_port = antenna3.port_connection(ant3_port)
+        assert connected_comp == radio3.name
+        assert connected_port == rad3_port
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
@@ -87,6 +95,150 @@ class TestClass(BasisTest, object):
         assert band.enabled
         band.enabled = False
         assert not band.enabled
+        # Try set band power from the radio
+        exception_raised = False
+        try:
+            radio.set_band_power_level(100)
+        except:
+            exception_raised = True
+        assert exception_raised
+        # Try getting band power from the radio
+        exception_raised = False
+        try:
+            radio.get_band_power_level()
+        except:
+            exception_raised = True
+        assert exception_raised
+        # test band.set_band_power_level
+        band.set_band_power_level(100)
+        power = band.get_band_power_level()
+        assert power == 100.0
+        # test band.set_band_power_level
+        band.set_band_power_level(10, "W")
+        power = band.get_band_power_level("mW")
+        assert power == 10000.0
+        # test frequency unit conversions
+        start_freq = radio.band_start_frequency(band)
+        assert start_freq == 100.0
+        start_freq = radio.band_start_frequency(band, "Hz")
+        assert start_freq == 100000000.0
+        start_freq = radio.band_start_frequency(band, "kHz")
+        assert start_freq == 100000.0
+        start_freq = radio.band_start_frequency(band, "GHz")
+        assert start_freq == 0.1
+        start_freq = radio.band_start_frequency(band, "THz")
+        assert start_freq == 0.0001
+        # test power unit conversions
+        band_power = radio.band_tx_power(band)
+        assert band_power == 40.0
+        band_power = radio.band_tx_power(band, "dBW")
+        assert band_power == 10.0
+        band_power = radio.band_tx_power(band, "mW")
+        assert band_power == 10000.0
+        band_power = radio.band_tx_power(band, "W")
+        assert band_power == 10.0
+        band_power = radio.band_tx_power(band, "kW")
+        assert band_power == 0.01
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
+    )
+    def test_emit_power_conversion(self):
+        # Test power unit conversions (dBm to user_units)
+        powers = [10, 20, 30, 40, 50]
+        converted_powers = econsts.convert_power_to_unit(powers, "dBm")
+        assert converted_powers == powers
+        converted_powers = econsts.convert_power_to_unit(powers, "dBW")
+        assert converted_powers == [-20, -10, 0, 10, 20]
+        converted_powers = econsts.convert_power_to_unit(powers, "mW")
+        assert converted_powers == [10, 100, 1000, 10000, 100000]
+        converted_powers = econsts.convert_power_to_unit(powers, "W")
+        assert converted_powers == [0.01, 0.1, 1, 10, 100]
+        converted_powers = econsts.convert_power_to_unit(powers, "kW")
+        assert converted_powers == [0.00001, 0.0001, 0.001, 0.01, 0.1]
+
+        # Test power conversions (user units to dBm)
+        powers = [0.00001, 0.0001, 0.001, 0.01, 0.1]
+        converted_powers = econsts.convert_power_dbm(powers, "kW")
+        assert converted_powers == [10, 20, 30, 40, 50]
+        powers = [0.01, 0.1, 1, 10, 100]
+        converted_powers = econsts.convert_power_dbm(powers, "W")
+        assert converted_powers == [10, 20, 30, 40, 50]
+        powers = [10, 100, 1000, 10000, 100000]
+        converted_powers = econsts.convert_power_dbm(powers, "mW")
+        assert converted_powers == [10, 20, 30, 40, 50]
+        powers = [-20, -10, 0, 10, 20]
+        converted_powers = econsts.convert_power_dbm(powers, "dBW")
+        assert converted_powers == [10, 20, 30, 40, 50]
+        powers = [10, 20, 30, 40, 50]
+        converted_powers = econsts.convert_power_dbm(powers, "dBm")
+        assert converted_powers == [10, 20, 30, 40, 50]
+        power = 10
+        converted_power = econsts.convert_power_dbm(power, "dBW")
+        assert converted_power == 40
+        power = 10
+        converted_power = econsts.convert_power_dbm(power, "mW")
+        assert converted_power == 10
+        power = 0.1
+        converted_power = econsts.convert_power_dbm(power, "kW")
+        assert converted_power == 50
+
+        # Test bad units
+        power = 10
+        bad_units = econsts.convert_power_dbm(power, "dbw")
+        assert bad_units == power
+        power = 30
+        bad_units = econsts.convert_power_to_unit(power, "w")
+        assert bad_units == power
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
+    )
+    def test_units_getters(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+
+        # Set a single unit
+        valid = self.aedtapp.set_units("Frequency", "Hz")
+        units = self.aedtapp.get_units("Frequency")
+        assert valid
+        assert units == "Hz"
+
+        # Test bad unit input
+        units = self.aedtapp.get_units("Bad units")
+        assert units == None
+
+        valid = self.aedtapp.set_units("Bad units", "Hz")
+        assert valid is False
+
+        valid = self.aedtapp.set_units("Frequency", "hertz")
+        assert valid is False
+
+        # Set a list of units
+        unit_system = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+        units = ["mW", "GHz", "nm", "ps", "mV", "Gbps", "uOhm"]
+        valid = self.aedtapp.set_units(unit_system, units)
+        updated_units = self.aedtapp.get_units()
+        assert valid
+        assert updated_units == [
+            ("Power", "mW"),
+            ("Frequency", "GHz"),
+            ("Length", "nm"),
+            ("Time", "ps"),
+            ("Voltage", "mV"),
+            ("Data Rate", "Gbps"),
+            ("Resistance", "uOhm"),
+        ]
+
+        # Set a bad list of units
+        unit_system = ["Por", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+        units = ["mW", "GHz", "nm", "ps", "mV", "Gbps", "uOhm"]
+        valid = self.aedtapp.set_units(unit_system, units)
+        assert valid is False
+
+        unit_system = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
+        units = ["mW", "f", "nm", "ps", "mV", "Gbps", "uOhm"]
+        valid = self.aedtapp.set_units(unit_system, units)
+        assert valid is False
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021 R2."
@@ -156,6 +308,10 @@ class TestClass(BasisTest, object):
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         if rad3 and ant3:
             ant3.move_and_connect_to(rad3)
+        # Change the sampling
+        sampling = rad3.get_sampling()
+        assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Bluetooth-*-Sampling"
+        sampling.set_channel_sampling(percentage=25)
         self.aedtapp.analyze()
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         assert radiosRX[0] == "Bluetooth"
@@ -166,11 +322,169 @@ class TestClass(BasisTest, object):
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
         )
+        assert rx_frequencies[0] == 2402.0
+        assert rx_frequencies[1] == 2403.0
+        # Change the units globally
+        self.aedtapp.set_units("Frequency", "GHz")
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert rx_frequencies[0] == 2.402
+        assert rx_frequencies[1] == 2.403
+        # Change the return units only
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx, "Hz"
+        )
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
+
+        # Test set_sampling
+        bandsRX = self.aedtapp.results.get_band_names(radiosRX[1], self.aedtapp.tx_rx_mode().rx)
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert len(rx_frequencies) == 20
+
+        sampling.set_channel_sampling(max_channels=500)
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert len(rx_frequencies) == 79
+
+        sampling.set_channel_sampling("Random", max_channels=75)
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert len(rx_frequencies) == 75
+        assert rx_frequencies[0] == 2.402
+        assert rx_frequencies[1] == 2.403
+
+        sampling.set_channel_sampling("Random", percentage=25, seed=100)
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert len(rx_frequencies) == 19
+        assert rx_frequencies[0] == 2.402
+        assert rx_frequencies[1] == 2.411
+
+        sampling.set_channel_sampling("all")
+        self.aedtapp.analyze()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[1], bandsRX[0], self.aedtapp.tx_rx_mode().rx
+        )
+        assert len(rx_frequencies) == 79
+
+        # Test number of interferers
         assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 1
         self.aedtapp.results.revisions_list[-1].set_max_simultaneous_interferers(10)
         assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 10
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
+    )
+    def test_radio_band_getters(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+        rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+
+        # Check type
+        rad_type = rad1.get_type()
+        assert rad_type == "RadioNode"
+        ant_type = ant1.get_type()
+        assert ant_type == "AntennaNode"
+
+        # Check antenna connections
+        ants = rad1.get_connected_antennas()
+        assert ants[0].name == "Antenna"
+        ants = rad2.get_connected_antennas()
+        assert ants[0].name == "Antenna 2"
+
+        # Try to access the radios before creating results set
+        radios = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().both)
+        assert radios == None
+
+        # Try to access the Bands before creating results set
+        bands = self.aedtapp.results.get_band_names("Radio", self.aedtapp.tx_rx_mode().rx)
+        assert bands == None
+
+        freqs = self.aedtapp.results.get_active_frequencies("Radio", "Band", self.aedtapp.tx_rx_mode().rx)
+        assert freqs == None
+
+        # Set up the results
+        self.aedtapp.analyze()
+
+        # Get Tx_Rx Radios
+        radios = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().both)
+        assert radios == ["Radio", "Bluetooth Low Energy (LE)"]
+
+        # Get the Bands
+        bands = self.aedtapp.results.get_band_names(radios[0], self.aedtapp.tx_rx_mode().rx)
+        assert bands == ["Band"]
+
+        # Get the Freqs
+        freqs = self.aedtapp.results.get_active_frequencies(radios[0], bands[0], self.aedtapp.tx_rx_mode().rx)
+        assert freqs == 100.0
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
+    )
+    def test_sampling_getters(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+
+        # Check type
+        rad_type = rad.get_type()
+        assert rad_type == "RadioNode"
+        ant_type = ant.get_type()
+        assert ant_type == "AntennaNode"
+
+        # Check sampling
+        exception_raised = False
+        try:
+            rad.set_channel_sampling()
+        except:
+            exception_raised = True
+        assert exception_raised
+
+        # Get sampling node
+        sampling = rad.get_sampling()
+        assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Radio-*-Sampling"
+        # props = sampling_node.get_node_properties()
+        # assert sampling_node.get_type() == "SamplingNode"
+
+        # Test sampling params
+        sampling.set_channel_sampling("All")
+        assert sampling.props["SamplingType"] == "SampleAllChannels"
+
+        sampling.set_channel_sampling("Uniform", percentage=25)
+        assert sampling.props["SamplingType"] == "UniformSampling"
+        assert sampling.props["SpecifyPercentage"] == "true"
+        assert sampling.props["PercentageChannels"] == "25"
+
+        sampling.set_channel_sampling("Uniform", max_channels=50)
+        assert sampling.props["SamplingType"] == "UniformSampling"
+        assert sampling.props["SpecifyPercentage"] == "false"
+        assert sampling.props["NumberChannels"] == "50"
+
+        sampling.set_channel_sampling("Random", percentage=33)
+        assert sampling.props["SamplingType"] == "RandomSampling"
+        assert sampling.props["SpecifyPercentage"] == "true"
+        assert sampling.props["PercentageChannels"] == "33"
+        assert sampling.props["RandomSeed"] == "0"
+
+        sampling.set_channel_sampling("Random", max_channels=75, seed=37)
+        assert sampling.props["SamplingType"] == "RandomSampling"
+        assert sampling.props["SpecifyPercentage"] == "false"
+        assert sampling.props["NumberChannels"] == "75"
+        assert sampling.props["RandomSeed"] == "37"
+
+        sampling.set_channel_sampling("Uniform")
+        assert sampling.props["SamplingType"] == "UniformSampling"
+        assert sampling.props["SpecifyPercentage"] == "false"
+        assert sampling.props["NumberChannels"] == "1000"
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
