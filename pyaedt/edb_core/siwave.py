@@ -900,7 +900,7 @@ class EdbSiwave(object):
             simsetup_info.SimulationSettings.UseCustomSettings = True
             if simulation_setup.mesh_freq:  # pragma: no cover
                 if isinstance(simulation_setup.mesh_freq, str):
-                    simsetup_info.UseCustomSettings = True
+                    simsetup_info.SimulationSettings.UseCustomSettings = True
                     simsetup_info.SimulationSettings.AdvancedSettings.MeshAutoMatic = False
                     simsetup_info.SimulationSettings.AdvancedSettings.MeshFrequency = simulation_setup.mesh_freq
                 else:
