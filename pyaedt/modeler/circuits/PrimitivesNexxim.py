@@ -4,6 +4,7 @@ import random
 import re
 import warnings
 
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -11,6 +12,7 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modeler.circuits.PrimitivesCircuit import CircuitComponents
 from pyaedt.modeler.circuits.PrimitivesCircuit import ComponentCatalog
+from pyaedt.modules.Boundary import Excitations
 
 
 class NexximComponents(CircuitComponents):
@@ -136,7 +138,9 @@ class NexximComponents(CircuitComponents):
         for el in self.components:
             if name in self.components[el].composed_name:
                 if location:
-                    self.components[el].location = location
+                    self.components[el].location = [
+                        i / AEDT_UNITS["Length"][self.schematic_units] for i in self._get_location(location)
+                    ]
                 if angle is not None:
                     self.components[el].angle = self.arg_with_dim(angle, "°")
                 return self.components[el]
@@ -183,13 +187,17 @@ class NexximComponents(CircuitComponents):
         return False
 
     @pyaedt_function_handler()
-    def connect_components_in_series(self, components_to_connect):
+    def connect_components_in_series(self, components_to_connect, use_wire=True):
         """Connect schematic components in series.
 
         Parameters
         ----------
         components_to_connect : list of :class:`pyaedt.modeler.object3dcircuit.CircuitComponent`
            List of Components to connect. It can be a list of objects or component names.
+        use_wire : bool, optional
+            Whether to use wires or a page port to connect the pins.
+            The default is ``True``, in which case wires are used. Note
+            that if wires are not well placed, shorts can result.
 
         Returns
         -------
@@ -206,7 +214,7 @@ class NexximComponents(CircuitComponents):
         """
         comps = []
         for component in components_to_connect:
-            if isinstance(component, CircuitComponent):
+            if isinstance(component, (CircuitComponent, Excitations)):
                 comps.append(component)
             else:
                 for id, cmp in self.components.items():
@@ -216,7 +224,7 @@ class NexximComponents(CircuitComponents):
         i = 0
         assert len(comps) > 1, "At least two components have to be passed."
         while i < (len(comps) - 1):
-            comps[i].pins[-1].connect_to_component(comps[i + 1].pins[0])
+            comps[i].pins[-1].connect_to_component(comps[i + 1].pins[0], use_wire=use_wire)
             i += 1
         return True
 
@@ -1312,7 +1320,7 @@ class NexximComponents(CircuitComponents):
         """Add a subcircuit HFSS link.
 
         .. deprecated:: 0.4.27
-           Use :func:`pyaedt.modeler.PrimitivesNexxim.NexximComponents.add_subcircuit_dynamic_link.` instead.
+           Use :func:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents.add_subcircuit_dynamic_link.` instead.
 
         Parameters
         ----------
