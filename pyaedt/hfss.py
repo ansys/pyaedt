@@ -1837,31 +1837,6 @@ class Hfss(FieldAnalysis3D, object):
         # get the polyline center point (before width operation). They need to be moved as well.
         poly_points = [GeometryOperators.v_sum(i, move_vector_mid) for i in spiral.points]
 
-        # vert_position_x = []
-        # vert_position_y = []
-        # for vert in spiral.vertices:
-        #     if plane == 0:
-        #         vert_position_x.append(vert.position[1])
-        #         vert_position_y.append(vert.position[2])
-        #     elif plane == 1:
-        #         vert_position_x.append(vert.position[0])
-        #         vert_position_y.append(vert.position[2])
-        #     elif plane == 2:
-        #         vert_position_x.append(vert.position[0])
-        #         vert_position_y.append(vert.position[1])
-        #
-        # x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
-
-        # if plane == 0:
-        #     x = [v.position[1] for v in spiral.vertices]
-        #     y = [v.position[2] for v in spiral.vertices]
-        # elif plane == 1:
-        #     x = [v.position[0] for v in spiral.vertices]
-        #     y = [v.position[2] for v in spiral.vertices]
-        # else:
-        #     x = [v.position[0] for v in spiral.vertices]
-        #     y = [v.position[1] for v in spiral.vertices]
-
         # get the vertices of the spiral created. These need to be divided in two lists, one following the external
         # contour (p1) and one following the internal contour (p2). We use poly_points to discern the points.
         poly_v = [[v.position[0], v.position[1], v.position[2]] for v in spiral.vertices]
@@ -1886,29 +1861,15 @@ class Hfss(FieldAnalysis3D, object):
         p1_down = [GeometryOperators.v_sub(i, move_vector_quarter) for i in p1]
         p2_up = [GeometryOperators.v_sum(i, move_vector_quarter) for i in p2]
 
+        # create first polyline to join spiral with conductor face
         dx = abs(p1_down[0][0] - p1_down[1][0])
         dy = abs(p1_down[0][1] - p1_down[1][1])
         dz = abs(p1_down[0][2] - p1_down[1][2])
-        # v1 = GeometryOperators.v_points(p1_down[0], p1_down[1])
-        # v2 = GeometryOperators.v_points(p1_down[0], p1_down[2])
-        # norm = GeometryOperators.v_cross(v1, v2)
         if plane == "X":
-            # if dy < dz:
-            #     orient = "Y"
-            # else:
-            #     orient = "Z"
             orient = "Y" if (dy < dz) else "Z"
         elif plane == "Y":
-            # if dx < dz:
-            #     orient = "X"
-            # else:
-            #     orient = "Z"
             orient = "X" if (dx < dz) else "Z"
         else:
-            # if dx < dy:
-            #     orient = "X"
-            # else:
-            #     orient = "Y"
             orient = "X" if (dx < dy) else "Y"
 
         poly1 = self.modeler.create_polyline(
@@ -1918,31 +1879,16 @@ class Hfss(FieldAnalysis3D, object):
             xsection_width=closest_distance / 2,
             name=start_object + "_sheet",
         )
-        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
 
+        # create second polyline to join spiral with conductor face
         dx = abs(p2_up[0][0] - p2_up[1][0])
         dy = abs(p2_up[0][1] - p2_up[1][1])
         dz = abs(p2_up[0][2] - p2_up[1][2])
-        # v1 = GeometryOperators.v_points(p2_up[0], p2_up[1])
-        # v2 = GeometryOperators.v_points(p2_up[0], p2_up[2])
-        # norm = GeometryOperators.v_cross(v1, v2)
         if plane == "X":
-            # if dy < dz:
-            #     orient = "Y"
-            # else:
-            #     orient = "Z"
             orient = "Y" if (dy < dz) else "Z"
         elif plane == "Y":
-            # if dx < dz:
-            #     orient = "X"
-            # else:
-            #     orient = "Z"
             orient = "X" if (dx < dz) else "Z"
         else:
-            # if dx < dy:
-            #     orient = "X"
-            # else:
-            #     orient = "Y"
             orient = "X" if (dx < dy) else "Y"
         poly2 = self.modeler.create_polyline(
             p2_up,
@@ -1952,115 +1898,13 @@ class Hfss(FieldAnalysis3D, object):
             name=end_object + "_sheet",
         )
 
+        # assign pec to created polylines
+        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
         self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
 
+        # create lumped port on spiral
         port = self.create_lumped_port_to_sheet(spiral, reference_object_list=[poly2.name], portname=name)
 
-        # list_a_val = False
-        # x1 = []
-        # y1 = []
-        # x2 = []
-        # y2 = []
-        # for i in range(len(x) - 1):
-        #     dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
-        #     if list_a_val:
-        #         x1.append(x[i])
-        #         y1.append(y[i])
-        #     else:
-        #         x2.append(x[i])
-        #         y2.append(y[i])
-        #     if abs(dist - spiral_width) < 1e-6:
-        #         list_a_val = not list_a_val
-        # # set the last point
-        # if list_a_val:
-        #     x1.append(x[-1])
-        #     y1.append(y[-1])
-        # else:
-        #     x2.append(x[-1])
-        #     y2.append(y[-1])
-        #
-        # faces_mid_point = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
-        #
-        # x1, y1 = GeometryOperators.orient_polygon(x1, y1)
-        # coords = []
-        # for x, y in zip(x1, y1):
-        #     if plane == 0:
-        #         coords.append([faces_mid_point[0] - closest_distance/4, x, y])
-        #     elif plane == 1:
-        #         coords.append([x, faces_mid_point[1] - closest_distance/4, y])
-        #     elif plane == 2:
-        #         coords.append([x, y, faces_mid_point[2] - closest_distance/4])
-        # dx = abs(coords[0][0] - coords[1][0])
-        # dy = abs(coords[0][1] - coords[1][1])
-        # dz = abs(coords[0][2] - coords[1][2])
-        # v1 = GeometryOperators.v_points(coords[0], coords[1])
-        # v2 = GeometryOperators.v_points(coords[0], coords[2])
-        # norm = GeometryOperators.v_cross(v1, v2)
-        # if abs(norm[0]) > 1e-12:
-        #     if dy < dz:
-        #         orient = "Y"
-        #     else:
-        #         orient = "Z"
-        # elif abs(norm[1]) > 1e-12:
-        #     if dx < dz:
-        #         orient = "X"
-        #     else:
-        #         orient = "Z"
-        # else:
-        #     if dx < dy:
-        #         orient = "X"
-        #     else:
-        #         orient = "Y"
-        # poly1 = self.modeler.create_polyline(
-        #     coords,
-        #     xsection_type="Line",
-        #     xsection_orient=orient,
-        #     xsection_width=closest_distance / 2,
-        #     name=start_object + "_sheet",
-        # )
-        # self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
-        #
-        # x2, y2 = GeometryOperators.orient_polygon(x2, y2)
-        # coords = []
-        # faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
-        # for x, y in zip(x2, y2):
-        #     if plane == 0:
-        #         coords.append([faces_mid_point[0] + closest_distance/4, x, y])
-        #     elif plane == 1:
-        #         coords.append([x, faces_mid_point[1] + closest_distance/4, y])
-        #     elif plane == 2:
-        #         coords.append([x, y, faces_mid_point[2] + closest_distance/4])
-        # dx = abs(coords[0][0] - coords[1][0])
-        # dy = abs(coords[0][1] - coords[1][1])
-        # dz = abs(coords[0][2] - coords[1][2])
-        # v1 = GeometryOperators.v_points(coords[0], coords[1])
-        # v2 = GeometryOperators.v_points(coords[0], coords[2])
-        # norm = GeometryOperators.v_cross(v1, v2)
-        # if abs(norm[0]) > 1e-12:
-        #     if dy < dz:
-        #         orient = "Y"
-        #     else:
-        #         orient = "Z"
-        # elif abs(norm[1]) > 1e-12:
-        #     if dx < dz:
-        #         orient = "X"
-        #     else:
-        #         orient = "Z"
-        # else:
-        #     if dx < dy:
-        #         orient = "X"
-        #     else:
-        #         orient = "Y"
-        # poly2 = self.modeler.create_polyline(
-        #     coords,
-        #     xsection_type="Line",
-        #     xsection_orient=orient,
-        #     xsection_width=closest_distance / 2,
-        #     name=end_object + "_sheet",
-        # )
-        #
-        # self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
-        # port = self.create_lumped_port_to_sheet(spiral, reference_object_list=[poly2.name], portname=name)
         return port
 
     @pyaedt_function_handler()
