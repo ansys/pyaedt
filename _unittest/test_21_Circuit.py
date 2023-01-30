@@ -700,7 +700,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.schematic.create_wire(
             [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
         )
-        assert self.aedtapp.modeler.schematic.nets[0] == "wire_name_test"
+        assert "wire_name_test" in self.aedtapp.modeler.schematic.wires
 
     def test_43_display_wire_properties(self):
         assert self.aedtapp.modeler.schematic.display_wire_properties(

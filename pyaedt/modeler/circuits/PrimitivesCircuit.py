@@ -118,6 +118,16 @@ class CircuitComponents(object):
                 nets.append(v[0].replace("Wire@", ""))
         return nets
 
+    @property
+    def wires(self):
+        """List of all schematic wires."""
+        wires_comp = self.oeditor.GetAllElements()
+        wire_names = []
+        for wire in wires_comp:
+            if "Wire" in wire:
+                wire_names.append(wire.split("@")[1].split(";")[0])
+        return wire_names
+
     @pyaedt_function_handler()
     def _get_location(self, location=None):
         if not location:
