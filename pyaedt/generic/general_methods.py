@@ -1433,6 +1433,22 @@ class Settings(object):
         self._enable_global_log_file = True
         self._enable_local_log_file = False
         self._global_log_file_size = 10
+        self._edb_dll_path = None
+
+    @property
+    def edb_dll_path(self):
+        """Get/Set an optional path for Edb Dll.
+
+        Returns
+        -------
+        bool
+        """
+        return self._edb_dll_path
+
+    @edb_dll_path.setter
+    def edb_dll_path(self, value):
+        if os.path.exists(value):
+            self._edb_dll_path = value
 
     @property
     def global_log_file_size(self):
