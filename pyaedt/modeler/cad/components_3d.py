@@ -165,6 +165,14 @@ class UserDefinedComponent(object):
             self.auto_update = True
 
     def history(self):
+        """Component history.
+
+        Returns
+        -------
+            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
             parent = BinaryTreeNode(self.name, child_object, True, "Operations")
