@@ -1856,7 +1856,7 @@ class SweepHFSS3DLayout(object):
             elif rangetype == "LinearStep":
                 sweep_range = " LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
             elif rangetype == "LogScale":
-                sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
+                sweep_range = " DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
             elif rangetype == "SinglePoint":
                 sweep_range = " " + str(start) + unit
             else:
@@ -1899,7 +1899,7 @@ class SweepHFSS3DLayout(object):
         elif rangetype == "LinearStep":
             sweep_range = "LIN " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
         elif rangetype == "LogScale":
-            sweep_range = "DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count) + unit
+            sweep_range = "DEC " + str(start) + unit + " " + str(end) + unit + " " + str(count)
         elif rangetype == "SinglePoint":
             sweep_range = str(start) + unit
         else:
