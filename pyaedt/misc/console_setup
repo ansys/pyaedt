@@ -35,7 +35,7 @@ print(" ")
 
 print("\033[92m****************************************************************")
 print("*  ElectronicsDesktop {} Process ID {}".format(version, aedt_process_id))
-print("*  Cpython {}".format(sys.version.split(" ")[0]))
+print("*  CPython {}".format(sys.version.split(" ")[0]))
 print("*---------------------------------------------------------------")
 print("*  Example: \033[94m hfss = Hfss() \033[92m")
 print("*  Example: \033[94m m2d = Maxwell2d() \033[92m")
