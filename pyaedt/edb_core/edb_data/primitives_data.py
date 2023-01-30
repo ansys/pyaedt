@@ -246,7 +246,7 @@ class EDBPrimitives(object):
 
     @property
     def center(self):
-        """return the primitive bounding box center coordinate.
+        """Return the primitive bounding box center coordinate.
 
         Returns
         -------
