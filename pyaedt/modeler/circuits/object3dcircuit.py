@@ -149,7 +149,7 @@ class CircuitPins(object):
         bool
             ``True`` when successful, ``False`` when failed.
 
-        ReferencesCircuit Design_58N
+        References
         ----------
 
         >>> oPadstackManager.CreatePagePort
