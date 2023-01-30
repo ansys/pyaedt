@@ -367,6 +367,21 @@ class TestClass(BasisTest, object):
         yo.reverse()
         assert x == xo
         assert y == yo
+        x2 = [3, 3]
+        y2 = [1, 2]
+        xo2, yo2 = go.orient_polygon(x2, y2, clockwise=True)
+        assert x2 == xo2
+        assert y2 == yo2
+        try:
+            go.orient_polygon([1], [2], clockwise=True)
+            assert False
+        except ValueError as e:
+            assert str(e) == "'x' length must be >= 2"
+        try:
+            go.orient_polygon([1, 2, 3], [1, 2], clockwise=True)
+            assert False
+        except ValueError as e:
+            assert str(e) == "'y' must be same length as 'x'"
 
     def test_is_collinear(self):
         assert go.is_collinear([1, 0, 0], [1, 0, 0])
