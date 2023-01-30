@@ -26,18 +26,33 @@ pyaedtpath = os.path.join(
 pid = 0
 
 
-def install_toolkit(tool_dir):
-    if not os.path.exists(tool_dir):
-        os.makedirs(tool_dir)
-    files_to_copy = ["Console", "Run_PyAEDT_Script"]
+def install_toolkit(toolkit_dir, product):
+    toolkit_rel_lib_dir = os.path.join("Lib", "PyAEDT")
+    lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+    tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
+    os.makedirs(lib_dir, exist_ok=True)
+    os.makedirs(tool_dir, exist_ok=True)
+    files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
+    jupyter_executable = sys.executable.replace("python.exe", "jupyter.exe")
+    ipython_executable = sys.executable.replace("python.exe", "ipython.exe")
     for file_name in files_to_copy:
         with open(os.path.join(os.path.dirname(__file__), file_name + ".py_build"), "r") as build_file:
-            with open(os.path.join(tool_dir, file_name + ".py"), "w") as out_file:
-                print("Building to " + os.path.join(tool_dir, file_name + ".py"))
-                for line in build_file:
-                    line = line.replace("##INSTALL_DIR##", tool_dir).replace("##PYTHON_EXE##", sys.executable)
-                    out_file.write(line)
-    shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(tool_dir, "console_setup"))
+            file_name_dest = file_name.replace("_", " ") + ".py"
+            with open(os.path.join(tool_dir, file_name_dest), "w") as out_file:
+                print("Building to " + os.path.join(tool_dir, file_name_dest))
+                build_file_data = build_file.read()
+                build_file_data = (
+                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                    .replace("##PYTHON_EXE##", sys.executable)
+                    .replace("##IPYTHON_EXE##", ipython_executable)
+                    .replace("##JUPYTER_EXE##", jupyter_executable)
+                )
+                out_file.write(build_file_data)
+    shutil.copyfile(os.path.join(os.path.dirname(__file__), "console_setup"), os.path.join(lib_dir, "console_setup.py"))
+    shutil.copyfile(
+        os.path.join(os.path.dirname(__file__), "jupyter_template.ipynb"),
+        os.path.join(lib_dir, "jupyter_template.ipynb"),
+    )
 
 
 with Desktop(version, True, new_desktop_session=True) as d:
@@ -57,7 +72,6 @@ with Desktop(version, True, new_desktop_session=True) as d:
         "HFSS-IE",
         "HFSS3DLayoutDesign",
         "Icepak",
-        "Lib",
         "Maxwell2D",
         "Maxwell3D",
         "Q3DExtractor",
@@ -65,16 +79,16 @@ with Desktop(version, True, new_desktop_session=True) as d:
         "Mechanical",
     ]
 
-    for tk in toolkits:
+    for product in toolkits:
         try:
-            sys_dir = os.path.join(d.syslib, "Toolkits", tk, "PyAEDT")
-            install_toolkit(sys_dir)
-            d.logger.info("Toolkit for {} installed in sys lib".format(tk))
+            sys_dir = os.path.join(d.syslib, "Toolkits")
+            install_toolkit(sys_dir, product)
+            d.logger.info("Installed toolkit for {} in sys lib".format(product))
 
         except IOError:
-            pers_dir = os.path.join(d.personallib, "Toolkits", tk, "PyAEDT")
-            install_toolkit(pers_dir)
-            d.logger.info("Toolkit for {} installed in sys lib".format(tk))
+            pers_dir = os.path.join(d.personallib, "Toolkits")
+            install_toolkit(pers_dir, product)
+            d.logger.info("Installed toolkit for {} in personal lib".format(product))
 if pid:
     try:
         os.kill(pid, 9)

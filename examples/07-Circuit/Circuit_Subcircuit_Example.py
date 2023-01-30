@@ -32,6 +32,7 @@ circuit = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
                          non_graphical=non_graphical,
                          new_desktop_session=True
                          )
+circuit.modeler.schematic_units = "mil"
 
 ###############################################################################
 # Add subcircuit
@@ -58,7 +59,7 @@ r1 = circuit.modeler.schematic.create_resistor(value="R_val")
 l1 = circuit.modeler.schematic.create_inductor(value="L_val")
 c1 = circuit.modeler.schematic.create_capacitor(value="C_val")
 p2 = circuit.modeler.schematic.create_interface_port(name="Out")
-circuit.modeler.schematic.connect_components_in_series(components_to_connect=[p1, r1, l1, c1, p2])
+circuit.modeler.schematic.connect_components_in_series(components_to_connect=[p1, r1, l1, c1, p2], use_wire=True)
 circuit.pop_up()
 
 ###############################################################################
@@ -68,7 +69,7 @@ circuit.pop_up()
 # This works only in graphical mode.
 
 if not non_graphical:
-    new_comp = circuit.modeler.schematic.duplicate(component=subcircuit_name, location=[0.0512, 0])
+    new_comp = circuit.modeler.schematic.duplicate(component=subcircuit_name, location=[200, 0])
     new_comp.parameters["R_val"] = "75ohm"
 
 ###############################################################################
