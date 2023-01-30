@@ -593,7 +593,7 @@ class TestClass(BasisTest, object):
             fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
             for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
         )
-        self.aedtapp=self.aedtapps[0]
+        self.aedtapp = self.aedtapps[0]
 
     def test_28_set_object_history_properties(self):
         assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "10meter"
