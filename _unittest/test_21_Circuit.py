@@ -33,6 +33,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
+        self.aedtapp.modeler.schematic_units = "mil"
         self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
         netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
         netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
@@ -57,12 +58,12 @@ class TestClass(BasisTest, object):
         assert myres.parameters["R"] == "50"
 
     def test_03_create_capacitor(self):
-        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
+        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == "1e-12"
         tol = 1e-12
-        assert abs(mycap.pins[0].location[1] - 0.20066) < tol
-        assert abs(mycap.pins[0].location[0] - 0.5943600000000001) < tol
+        assert abs(mycap.pins[0].location[1] - 2000) < tol
+        assert abs(mycap.pins[0].location[0] - 800) < tol
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
@@ -162,7 +163,7 @@ class TestClass(BasisTest, object):
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
         assert len(self.aedtapp.excitations) > 0
         assert "Port1" in portname.name
-        assert myind.pins[0].connect_to_component(portname.pins[0])
+        assert myind.pins[0].connect_to_component(portname.pins[0], use_wire=True)
         assert myind.pins[1].connect_to_component(myres.pins[1])
         assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
@@ -185,8 +186,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
-        assert self.aedtapp.modeler.move("L100", [0, -0.00508])
-        assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
+        self.aedtapp.modeler.schematic_units = "mil"
+        myind = self.aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
+        self.aedtapp.modeler.schematic_units = "meter"
+        assert self.aedtapp.modeler.move("L14", [0, -0.00508])
+        assert myind.location == [0.01016, 0.00508]
+        self.aedtapp.modeler.schematic_units = "mil"
+        assert self.aedtapp.modeler.move(
+            "L14",
+            [0, 200],
+        )
+        assert myind.location == [400.0, 400.0]
 
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
@@ -384,8 +394,8 @@ class TestClass(BasisTest, object):
         assert type(subcircuit.location) is list
         assert type(subcircuit.id) is int
         assert subcircuit.component_info
-        assert subcircuit.location[0] == "0.0mil"
-        assert subcircuit.location[1] == "0.0mil"
+        assert subcircuit.location[0] == 0.0
+        assert subcircuit.location[1] == 0.0
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(
@@ -692,3 +702,21 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_42_auto_wire(self):
+        self.aedtapp.insert_design("wires")
+        self.aedtapp.modeler.schematic_units = "mil"
+        p1 = self.aedtapp.modeler.schematic.create_interface_port(name="In", location=[200, 300])
+        r1 = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[3700, "3mm"])
+        l1 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 3000], angle=90)
+        l3 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
+        l4 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
+        l2 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
+        r2 = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
+
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
+        assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
+        assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
+        assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
+        assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)

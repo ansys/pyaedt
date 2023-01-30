@@ -1,5 +1,5 @@
 """
-* * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 The script provides for choosing the Python script to execute.
 
 It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
@@ -18,7 +18,7 @@ import subprocess
 import ScriptEnv
 
 # import clr
-# clr.AddReference('System.Windows.Forms')
+# clr.AddReference("System.Windows.Forms")
 from System.Windows.Forms import OpenFileDialog
 
 oProject = oDesktop.GetActiveProject()
@@ -34,7 +34,8 @@ print("ret: " + repr(ret))
 try:
     if ret == ret.OK:
         # launch file
-        pyaedt_toolkit_dir = r"##INSTALL_DIR##"
+        current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+        pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
         config_file = open(
             os.path.join(pyaedt_toolkit_dir, "python_interpreter.bat"), "r"
         )  # will fail with a file not found error if it isn't here

@@ -3,6 +3,7 @@ import os
 import random
 import warnings
 
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import filter_string
@@ -103,6 +104,16 @@ class CircuitComponents(object):
         return self._modeler.model_units
 
     @property
+    def schematic_units(self):
+        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
+        The default is ``"meter"``."""
+        return self._modeler.schematic_units
+
+    @schematic_units.setter
+    def schematic_units(self, value):
+        self._modeler.schematic_units = value
+
+    @property
     def design_type(self):
         """Design type."""
         return self._app.design_type
@@ -119,14 +130,52 @@ class CircuitComponents(object):
         return nets
 
     @pyaedt_function_handler()
+    def _convert_point_to_meter(self, point):
+        """Convert numbers automatically to mils, rounding to the nearest 100 mil
+        which is minimum schematic snap unit."""
+        xpos = point[0]
+        ypos = point[1]
+
+        if isinstance(point[0], (float, int)):
+            xpos = (
+                round(point[0] * AEDT_UNITS["Length"][self.schematic_units] / AEDT_UNITS["Length"]["mil"], -2)
+                * AEDT_UNITS["Length"]["mil"]
+            )
+        else:
+            decomposed = decompose_variable_value(point[0])
+            if decomposed[1] != "":
+                xpos = (
+                    round(decomposed[0] * AEDT_UNITS["Length"][decomposed[1]] / AEDT_UNITS["Length"]["mil"], -2)
+                    * AEDT_UNITS["Length"]["mil"]
+                )
+        if isinstance(point[1], (float, int)):
+            ypos = (
+                round(point[1] * AEDT_UNITS["Length"][self.schematic_units] / AEDT_UNITS["Length"]["mil"], -2)
+                * AEDT_UNITS["Length"]["mil"]
+            )
+        else:
+            decomposed = decompose_variable_value(point[1])
+            if decomposed[1] != "":
+                ypos = (
+                    round(decomposed[0] * AEDT_UNITS["Length"][decomposed[1]] / AEDT_UNITS["Length"]["mil"], -2)
+                    * AEDT_UNITS["Length"]["mil"]
+                )
+        return xpos, ypos
+
+    @pyaedt_function_handler()
+    def _convert_point_to_units(self, point):
+        """Numbers are automatically converted and rounded to 100mil."""
+        return [i / AEDT_UNITS["Length"][self.schematic_units] for i in self._convert_point_to_meter(point)]
+
+    @pyaedt_function_handler()
     def _get_location(self, location=None):
         if not location:
             xpos = self.current_position[0]
             ypos = self.current_position[1]
         else:
-            xpos = location[0]
-            ypos = location[1]
-            self.current_position = location
+            xpos, ypos = self._convert_point_to_meter(location)
+            if isinstance(xpos, (float, int)) and isinstance(ypos, (float, int)):
+                self.current_position = [xpos, ypos]
         self.current_position[1] += AEDT_UNITS["Length"]["mil"] * self.increment_mils[1]
         if self.current_position[1] / AEDT_UNITS["Length"]["mil"] > self.limits_mils:
             self.current_position[1] = 0
@@ -168,7 +217,7 @@ class CircuitComponents(object):
 
         >>> oEditor.CreateWire
         """
-        pointlist = [str(tuple(i)) for i in points_array]
+        pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
         self.oeditor.CreateWire(
             ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
             ["NAME:Attributes", "Page:=", 1],
@@ -238,10 +287,8 @@ class CircuitComponents(object):
         if name in self._app.excitation_names:
             self.logger.warning("Port name already assigned.")
             return False
-        if location:
-            xpos, ypos = location[0], location[1]
-        else:
-            xpos, ypos = self._get_location(location)
+
+        xpos, ypos = self._get_location(location)
         id = self.create_unique_id()
         arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
@@ -278,10 +325,7 @@ class CircuitComponents(object):
 
         >>> oEditor.CreatePagePort
         """
-        if location:
-            xpos, ypos = location[0], location[1]
-        else:
-            xpos, ypos = self._get_location(location)
+        xpos, ypos = self._get_location(location)
 
         id = self.create_unique_id()
         id = self.oeditor.CreatePagePort(
@@ -1087,7 +1131,7 @@ class CircuitComponents(object):
             y = _retry_ntimes(
                 30, self.oeditor.GetComponentPinLocation, self.components[partid].composed_name, pinname, False
             )
-        return [x, y]
+        return self._convert_point_to_units([x, y])
 
     @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits=None):
@@ -1134,7 +1178,7 @@ class CircuitComponents(object):
         >>> oEditor.CreateLine
         """
 
-        pointlist = [str(tuple(i)) for i in points_array]
+        pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
         id = self.create_unique_id()
         return self.oeditor.CreateLine(
             ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],

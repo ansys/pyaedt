@@ -1,5 +1,5 @@
 """
-* * * This script is meant to run in IronPython within the Ansys Electronics Desktop * * *
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 
 It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
 
@@ -11,12 +11,11 @@ interactive Python session.
 import os
 import subprocess
 
-#Choose file to launch
-
-#launch file
-pyaedt_toolkit_dir = r'''##INSTALL_DIR##'''
-python_exe = r'''##IPYTHON_EXE##'''
-pyaedt_script = os.path.join(pyaedt_toolkit_dir, 'console_setup.py')
+# Launch file
+current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
+python_exe = r"##IPYTHON_EXE##"
+pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
 command = [
     '"{}"'.format(python_exe),
     "-i",
