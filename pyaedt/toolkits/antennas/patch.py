@@ -140,6 +140,7 @@ class RectangularPatchProbe(CommonAntenna, CommonPatch):
                 self._app[new_name] = str(parameters[param]) + self.length_unit
                 self.parameters.append(new_name)
 
+        self.parameters = sorted(self.parameters)
         # Map parameter list to understand code
         patch_x = self.parameters[7]
         patch_y = self.parameters[8]
