@@ -875,6 +875,8 @@ if not config["skip_edb"]:
                 assert self.edbapp.core_primitives.primitives[i].area(False) > 0
                 assert self.edbapp.core_primitives.primitives[i].area(True) > 0
                 i += 1
+            assert self.edbapp.core_primitives.primitives[i].bbox
+            assert self.edbapp.core_primitives.primitives[i].center
 
         def test_085_short_component(self):
             assert self.edbapp.core_components.short_component_pins("EU1", width=0.2e-3)
