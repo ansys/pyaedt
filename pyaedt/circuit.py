@@ -184,6 +184,8 @@ class Circuit(FieldAnalysisCircuit, object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        units = self.modeler.schematic_units
+        self.modeler.schematic_units = "meter"
         xpos = 0
         ypos = 0
         delta = 0.0508
@@ -401,6 +403,7 @@ class Circuit(FieldAnalysisCircuit, object):
                         counter = 0
         if autosave:
             self._desktop.EnableAutoSave(True)
+        self.modeler.schematic_units = units
         self.logger.info("Netlist was correctly imported into %s", self.design_name)
         return True
 
@@ -447,6 +450,8 @@ class Circuit(FieldAnalysisCircuit, object):
             ``True`` when successful, ``False`` when failed.
 
         """
+        units = self.modeler.schematic_units
+        self.modeler.schematic_units = "meter"
         xpos = 0
         ypos = 0
         delta = 0.0508
@@ -552,14 +557,14 @@ class Circuit(FieldAnalysisCircuit, object):
             if "GND" in netname.upper():
                 self.modeler.schematic.create_gnd([xpos, ypos])
                 page_pos = ypos + 0.00254
-                mod1 = self.modeler.schematic.create_page_port(netname, [xpos, ypos], 0.0)
-                mod1.location = [str(xpos) + "meter", str(page_pos) + "meter"]
+                self.modeler.schematic.create_page_port(netname, [xpos, page_pos], 0.0)
                 ypos += delta
                 if ypos > delta * column_number:
                     xpos += delta
                     ypos = 0
 
         self.logger.info("Netlist was correctly imported into %s", self.design_name)
+        self.modeler.schematic_units = units
         return True
 
     @pyaedt_function_handler()
