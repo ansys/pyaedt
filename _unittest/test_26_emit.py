@@ -309,7 +309,7 @@ class TestClass(BasisTest, object):
             instance = interaction.get_instance(domain2)
         except RuntimeError as e:
             exception_raised = True
-            assert e.args[0] == "ERROR: Instance data for multiple simultaneous interferers not available."
+            assert e.args[0] == "ERROR: Instance data for multiple simultaneous interferers is not available."
         assert exception_raised
 
     @pytest.mark.skipif(
