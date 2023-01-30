@@ -282,7 +282,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if excitations:
                 arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
-        arg2.append("MeshOperations:="), arg2.append(meshops)
+        if meshops:
+            used_mesh_ops = []
+            for mesh in range(0, len(meshops)):
+                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+        else:
+            arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         if auxiliary_dict_file:
             if isinstance(auxiliary_dict_file, bool):
@@ -504,7 +511,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if excitations:
                 arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
-        arg2.append("MeshOperations:="), arg2.append(meshops)
+        if meshops:
+            used_mesh_ops = []
+            for mesh in range(0, len(meshops)):
+                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+        else:
+            arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         return _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
 

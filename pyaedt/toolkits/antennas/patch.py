@@ -1,4 +1,5 @@
 import math
+from collections import OrderedDict
 
 import pyaedt.generic.constants as constants
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -113,6 +114,11 @@ class RectangularPatchProbe(CommonAntenna, CommonPatch):
             Substrate height. The default is ``0.1575``.
     parametrized : bool, optional
             Create a parametrized antenna. The default is ``True``.
+
+    Returns
+    -------
+    :class:`pyaedt.toolkits.antennas.CommonAntenna` and :class:`pyaedt.modules.Boundary.CommonPatch`
+            Rectangular patch with probe object.
 
     Examples
     --------
@@ -432,6 +438,6 @@ class RectangularPatchProbe(CommonAntenna, CommonPatch):
 
         myKeys = list(parameters.keys())
         myKeys.sort()
-        parameters = {i: parameters[i] for i in myKeys}
+        parameters_out = OrderedDict([(i, parameters[i]) for i in myKeys])
 
-        return parameters
+        return parameters_out
