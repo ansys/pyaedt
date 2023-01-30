@@ -92,7 +92,8 @@ class CircuitPins(object):
                 return round(float(i[6:]))
         return 0.0
 
-    def _is_inside_point(self, plist, pa, pb):
+    @staticmethod
+    def _is_inside_point(plist, pa, pb):
         for p in plist:
             if pa <= p <= pb or pa >= p >= pb:
                 return True
@@ -161,7 +162,7 @@ class CircuitPins(object):
             direction = (180 + self.angle + self._circuit_comp.angle) * math.pi / 180
             points = [self.location]
             cangles = [self._circuit_comp.angle]
-            dir = 0.0 >= direction >= (math.pi)
+            negative = 0.0 >= direction >= (math.pi)
             for cpin in component_pin:
                 prev = [i for i in points[-1]]
                 act = [i for i in cpin.location]
@@ -174,7 +175,7 @@ class CircuitPins(object):
                     dx = round((prev[0] + act[0]) / 2, -2)
 
                     deltax, deltay = self._get_deltas(
-                        [dx, prev[1]], move_y=False, positive=not dir, units=clearance_units
+                        [dx, prev[1]], move_y=False, positive=not negative, units=clearance_units
                     )
 
                     self._add_point(pins_y, points, deltax, deltay, act)
@@ -189,7 +190,7 @@ class CircuitPins(object):
                     dy = round((prev[1] + act[1]) / 2, -2)
 
                     deltax, deltay = self._get_deltas(
-                        [prev[0], dy], move_x=False, positive=not dir, units=clearance_units
+                        [prev[0], dy], move_x=False, positive=not negative, units=clearance_units
                     )
 
                     self._add_point(pins_x, points, deltax, deltay, act, 1)
@@ -604,17 +605,13 @@ class CircuitComponent(object):
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
-        if self._angle is not None:
-            return self._angle
+        comp_info = self.m_Editor.GetComponentInfo(self.composed_name)
         self._angle = 0.0
-        try:
-            self._angle = float(
-                _retry_ntimes(
-                    10, self.m_Editor.GetPropertyValue, "BaseElementTab", self.composed_name, "Component Angle"
-                ).replace("°", "")
-            )
-        except:
-            self._angle = 0.0
+        if comp_info:
+            for info in comp_info:
+                if "Angle=" in info:
+                    self._angle = float(info[6:])
+                    break
         return self._angle
 
     @angle.setter

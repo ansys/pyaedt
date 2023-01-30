@@ -702,3 +702,21 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_42_auto_wire(self):
+        self.aedtapp.insert_design("wires")
+        self.aedtapp.modeler.schematic_units = "mil"
+        p1 = self.aedtapp.modeler.schematic.create_interface_port(name="In", location=[200, 300])
+        r1 = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[3700, "3mm"])
+        l1 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 3000], angle=90)
+        l3 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
+        l4 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
+        l2 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
+        r2 = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
+
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
+        assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
+        assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
+        assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
+        assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
