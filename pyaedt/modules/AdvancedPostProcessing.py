@@ -392,6 +392,7 @@ class PostProcessor(Post):
         log_scale=True,
         export_path="",
         imageformat="jpg",
+        keep_plot_after_generation=False,
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -434,6 +435,8 @@ class PostProcessor(Post):
             Format of the image file. Options are ``"jpg"``,
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
+        keep_plot_after_generation :bool, optional
+            Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False`.
 
         Returns
         -------
@@ -471,7 +474,8 @@ class PostProcessor(Post):
             plot_cad_objs,
             log_scale,
         )
-        plotf.delete()
+        if not keep_plot_after_generation:
+            plotf.delete()
         return model
 
     @pyaedt_function_handler()
