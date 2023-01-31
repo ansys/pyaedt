@@ -1491,7 +1491,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def create_report(
         self,
-        expressions,
+        expressions=None,
         setup_sweep_name=None,
         domain="Sweep",
         variations=None,
@@ -1602,6 +1602,10 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         report = report_class(self, report_category, setup_sweep_name)
+        if not expressions:
+            expressions = [
+                i for i in self.available_report_quantities(report_category=report_category, context=context)
+            ]
         report.expressions = expressions
         report.domain = domain
         if primary_sweep_variable:
