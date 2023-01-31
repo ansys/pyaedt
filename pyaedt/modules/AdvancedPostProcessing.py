@@ -435,7 +435,7 @@ class PostProcessor(Post):
             Format of the image file. Options are ``"jpg"``,
             ``"png"``, ``"svg"``, and ``"webp"``. The default is
             ``"jpg"``.
-        keep_plot_after_generation :bool, optional
+        keep_plot_after_generation : bool, optional
             Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False`.
 
         Returns
