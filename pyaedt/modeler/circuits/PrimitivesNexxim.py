@@ -208,8 +208,9 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from pyaedt import Circuit
         >>> circuit = Circuit()
+        >>> circuit.modeler.schematic_units = "mil"
         >>> myind = circuit.modeler.schematic.create_inductor(compname="L100", value=1e-9, location=[0,0])
-        >>> myres = circuit.modeler.schematic.create_resistor(compname="R100", value=50, location=[0.002, 0.05])
+        >>> myres = circuit.modeler.schematic.create_resistor(compname="R100", value=50, location=[100, 2000])
         >>> circuit.modeler.schematic.connect_components_in_series([myind, myres])
         """
         comps = []

@@ -15,6 +15,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(
             self, project_name=project_name, design_name=design_name, application=MaxwellCircuit
         )
+        self.aedtapp.modeler.schematic_units = "mil"
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -24,11 +25,11 @@ class TestClass(BasisTest, object):
         assert id.parameters["R"] == "10"
 
     def test_02_create_inductor(self):
-        id = self.aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [0.25, 0])
+        id = self.aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
         assert id.parameters["L"] == "1.5"
 
     def test_03_create_capacitor(self):
-        id = self.aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [0.5, 0])
+        id = self.aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
         assert id.parameters["C"] == "7.5"
 
     def test_04_create_diode(self):
@@ -46,20 +47,21 @@ class TestClass(BasisTest, object):
     def test_07_export_netlist(self):
         design_name = "ExportCircuitNetlist"
         self.aedtapp.insert_design(design_name)
-        ind = self.aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [-0.02, 0.02])
-        res = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [0.02, 0.02])
+        self.aedtapp.modeler.schematic_units = "mil"
+        ind = self.aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [-1000, 1000])
+        res = self.aedtapp.modeler.schematic.create_resistor("Resistor1", 10, [1000, 1000])
         gnd = self.aedtapp.modeler.schematic.create_gnd([0.0, 0.0])
         v_source = self.aedtapp.modeler.schematic.create_component(
-            component_library="Sources", component_name="IPulse", location=[-0.04, 0.01]
+            component_library="Sources", component_name="IPulse", location=[-2000, 500]
         )
         i_source = self.aedtapp.modeler.schematic.create_component(
-            component_library="Sources", component_name="VPulse", location=[0.04, 0.01]
+            component_library="Sources", component_name="VPulse", location=[2000, 500]
         )
-        ind.pins[1].connect_to_component(res.pins[0])
-        ind.pins[0].connect_to_component(v_source.pins[1])
-        v_source.pins[0].connect_to_component(gnd.pins[0])
-        gnd.pins[0].connect_to_component(i_source.pins[0])
-        i_source.pins[1].connect_to_component(res.pins[1])
+        ind.pins[1].connect_to_component(res.pins[0], use_wire=True)
+        ind.pins[0].connect_to_component(v_source.pins[1], use_wire=True)
+        v_source.pins[0].connect_to_component(gnd.pins[0], use_wire=True)
+        gnd.pins[0].connect_to_component(i_source.pins[0], use_wire=True)
+        i_source.pins[1].connect_to_component(res.pins[1], use_wire=True)
         netlist_file = os.path.join(self.local_scratch.path, "export_netlist.sph")
         assert self.aedtapp.export_netlist_from_schematic(netlist_file) == netlist_file
         assert os.path.exists(netlist_file)

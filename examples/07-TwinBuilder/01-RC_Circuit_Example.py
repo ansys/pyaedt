@@ -40,27 +40,24 @@ tb = pyaedt.TwinBuilder(projectname=pyaedt.generate_unique_project_name(),
                         non_graphical=non_graphical,
                         new_desktop_session=new_thread
                         )
+tb.modeler.schematic_units = "mil"
 
 ###############################################################################
 # Create components for RC circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create components for an RC circuit driven by a pulse voltage source. Define
-# the grid distance for ease in calculations.
-
-G = 0.00254
-
+# Create components for an RC circuit driven by a pulse voltage source.
 # Create components, such as a voltage source, resistor, and capacitor.
 
 source = tb.modeler.schematic.create_voltage_source("E1", "EPULSE", 10, 10, [0, 0])
-resistor = tb.modeler.schematic.create_resistor("R1", 10000, [10 * G, 10 * G], 90)
-capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [20 * G, 0])
+resistor = tb.modeler.schematic.create_resistor("R1", 10000, [1000, 1000], 90)
+capacitor = tb.modeler.schematic.create_capacitor("C1", 1e-6, [2000, 0])
 
 ###############################################################################
 # Create ground
 # ~~~~~~~~~~~~~
 # Create a ground, which is needed for an analog analysis.
 
-gnd = tb.modeler.components.create_gnd([0, -10 * G])
+gnd = tb.modeler.components.create_gnd([0, -1000])
 
 ###############################################################################
 # Connect components

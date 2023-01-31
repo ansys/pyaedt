@@ -48,12 +48,12 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01a_create_inductor(self):
-        myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
+        myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
         assert type(myind.id) is int
         assert myind.parameters["L"] == "1e-09"
 
     def test_02_create_resistor(self):
-        myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[0.4, 0.2])
+        myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
         assert type(myres.id) is int
         assert myres.parameters["R"] == "50"
 
@@ -137,6 +137,7 @@ class TestClass(BasisTest, object):
 
     def test_10_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
+        self.aedtapp.modeler.schematic_units = "mils"
         ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
         ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
         numports = len(ports)
@@ -163,8 +164,8 @@ class TestClass(BasisTest, object):
         portname = self.aedtapp.modeler.schematic.create_interface_port("Port1")
         assert len(self.aedtapp.excitations) > 0
         assert "Port1" in portname.name
-        assert myind.pins[0].connect_to_component(portname.pins[0], use_wire=True)
-        assert myind.pins[1].connect_to_component(myres.pins[1])
+        assert myind.pins[0].connect_to_component(portname.pins[0])
+        assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
         assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
         assert mycap.pins[1].connect_to_component(gnd.pins[0])
