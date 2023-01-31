@@ -161,15 +161,14 @@ setup.create_frequency_sweep(
 
 setup.analyze(num_tasks=2)  # Each frequency point will be solved simultaneously.
 
-# Plot S21 and S11 in AEDT
-hfss.create_scattering("Spars", port_names=["P2", "P1"], port_excited=["P1", "P1"])
 
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter. Caution: The syntax for expressions must be identical to that used
 #  in HFSS:
 
-spar_rpt = hfss.post.reports_by_category.standard("dB(S(P1,P1));dB(S(P2,P1))", "Setup1 : Sweep1")
-solution_data = spar_rpt.get_solution_data()
-solution_data.plot()
+traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
+report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
+solution = report.get_solution_data()
+plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 
 hfss.release_desktop(close_desktop=False, close_projects=False)
