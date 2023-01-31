@@ -679,10 +679,14 @@ class TestClass(BasisTest, object):
         plot1.IsoVal = "Tone"
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
-        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plot1.name,
-            project_path=self.local_scratch.path,
-            meshplot=False,
+        plot_obj = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup_name=setup_name,
+            intrinsics=intrinsic,
+            export_path=self.local_scratch.path,
+            mesh_on_fields=False,
             imageformat="jpg",
             view="isometric",
             show=False,
