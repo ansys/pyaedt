@@ -240,6 +240,7 @@ class CommonAntenna(object):
                 self._app.modeler.oeditor.Delete(["NAME:Selections", "Selections:=", self.antenna_name])
 
             self._app.modeler.add_new_user_defined_component()
+            self._app.modeler.refresh_all_ids()
 
         return True
 
