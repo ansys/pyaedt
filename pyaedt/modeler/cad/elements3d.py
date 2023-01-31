@@ -1336,13 +1336,17 @@ class HistoryProps(OrderedDict):
 class BinaryTreeNode:
     """Manages an object's history structure."""
 
-    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=""):
+    def __init__(self, node, child_object, first_level=False, get_child_obj_arg=None):
         self.node = node
         self.child_object = child_object
         self.children = {}
         self.auto_update = True
         name = None
-        for i in list(child_object.GetChildNames(get_child_obj_arg)):
+        if get_child_obj_arg is None:
+            child_names = list(child_object.GetChildNames())
+        else:
+            child_names = list(child_object.GetChildNames(get_child_obj_arg))
+        for i in child_names:
             if not name:
                 name = i
             if not i.startswith("OperandPart_"):

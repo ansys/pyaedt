@@ -751,6 +751,7 @@ class TestClass(BasisTest, object):
             ext_surf_rad_view_factor=0.5,
         )
 
+    @pytest.mark.skipif(config["use_grpc"], reason="Bug in GRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
         self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
