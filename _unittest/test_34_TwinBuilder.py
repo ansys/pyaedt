@@ -16,6 +16,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(
             self, project_name=project_name, design_name=design_name, application=TwinBuilder
         )
+        self.aedtapp.modeler.schematic_units = "mil"
         netlist1 = os.path.join(local_path, "example_models", test_subfolder, "netlist_small.cir")
         self.netlist_file1 = self.local_scratch.copyfile(netlist1)
 
@@ -27,11 +28,11 @@ class TestClass(BasisTest, object):
         assert id.parameters["R"] == "10"
 
     def test_02_create_inductor(self):
-        id = self.aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [0.25, 0])
+        id = self.aedtapp.modeler.schematic.create_inductor("Inductor1", 1.5, [1000, 0])
         assert id.parameters["L"] == "1.5"
 
     def test_03_create_capacitor(self):
-        id = self.aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [0.5, 0])
+        id = self.aedtapp.modeler.schematic.create_capacitor("Capacitor1", 7.5, [2000, 0])
         assert id.parameters["C"] == "7.5"
 
     def test_04_create_diode(self):
@@ -70,7 +71,7 @@ class TestClass(BasisTest, object):
         assert comp_catalog["Aircraft Electrical VHDLAMS\\Basic:lowpass_filter"].place("LP1")
 
     def test_13_create_periodic_pulse_wave(self):
-        id = self.aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [0.75, 0])
+        id = self.aedtapp.modeler.schematic.create_periodic_waveform_source("P1", "PULSE", 200, 20, 0, 0, [3000, 0])
         assert id.parameters["AMPL"] == "200"
         assert id.parameters["FREQ"] == "20"
 
