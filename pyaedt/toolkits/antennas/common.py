@@ -164,7 +164,7 @@ class CommonAntenna(object):
 
         Returns
         -------
-        lst
+        list
         """
         return self._position
 
@@ -190,12 +190,12 @@ class CommonAntenna(object):
 
         Parameters
         ----------
-        component_file : str
+        component_file : str, optional
             Full path to the A3DCOMP file. The default is the pyaedt folder.
         component_name : str, optional
             Name of the component. The default is the antenna name.
         replace : bool, optional
-            Replace antenna with a 3DComponent. The default is ``False``.
+            Whether to replace antenna with a 3DComponent. The default is ``False``.
 
         Returns
         -------
