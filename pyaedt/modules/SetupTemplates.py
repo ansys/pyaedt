@@ -2378,3 +2378,8 @@ class SetupProps(OrderedDict):
             data = json.load(f)
             set_props(self, data)
         return True
+
+    def delete_all(self):
+        for item in list(self.keys()):
+            if item != "_pyaedt_setup":
+                OrderedDict.__delitem__(self, item)

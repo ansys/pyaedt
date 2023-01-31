@@ -842,6 +842,96 @@ class Hfss(FieldAnalysis3D, object):
         return setup
 
     @pyaedt_function_handler()
+    def create_setup2(self, setupname="MySetupAuto", **kwargs):
+        """Create a new analysis setup for HFSS.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keyword here is not exhaustive.
+
+        Note: This method overrides Analysis.setup() for the Hfss app.
+
+        Parameters
+        ----------
+        setuptype: str, optional
+            Type of setup. Must be one of the following:
+            "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
+            "HFSSSBR" based on the solution type.
+            Default: "HFSSDrivenAuto"
+        setupname : str, optional
+            Name of the setup. Default: "Setup1"
+        SolveType : str ("Single", "MultiFrequency"), optional
+            Specify whether multiple frequencies will be solved at each adaptive
+            pass. Default: "Single"
+        Frequency : str, or float
+            Adapt Frequency, Default: "5GHz"
+        MaxDeltaS : float
+            Maximum allowed variation in delta S for adaptive refinemnt,
+            Default: 0.02
+        BasisOrder : int
+            Order of the basis functions for the FEM solution, Default: 1
+            0 - zero order
+            1 - first order
+            2 - 2nd order
+            -1 - mixed order
+        MaximumPasses : int
+            Maximum number of adaptive passes allowed for adaptive refinement.
+            Default: 6
+        IsEnabled : Boolean
+            Set to False if the Analysis should be disabled. Default: True
+        PortAccuracy : float
+            Percent accuracy of the port impedance used on the initial mesh.
+            Default 2.0
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        Example demonstrating the use of the insert_setup() method.
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+
+        """
+        if "setuptype" in kwargs.keys():
+            if kwargs["setuptype"] in SetupKeys.SetupNames[0:5]:
+                setuptype = kwargs["setuptype"]
+            else:
+                setuptype = SetupKeys.SetupNames[0]  # Revert to default
+                # TODO: Add message that invalid type was passed.
+            del kwargs["setuptype"]
+        else:
+            setuptype = SetupKeys.SetupNames[0]  # Default
+        setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                if arg_name == "MultipleAdaptiveFreqsSetup":
+                    setup[arg_name].delete_all()
+                    if isinstance(arg_value, list):
+                        for i in arg_value:
+                            setup[arg_name][i] = [0.02]
+                    else:
+                        for i, k in arg_value.items():
+                            setup[arg_name][i] = [k]
+                    setup.props["SolveType"] = "MultiFrequency"
+                else:
+                    setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
+
+    @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
         setupname,
