@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 import re
 
 from pyaedt.generic.constants import AEDT_UNITS
@@ -154,6 +155,58 @@ class ModelerCircuit(Modeler):
             return True
         except:
             return False
+
+    @pyaedt_function_handler()
+    def create_text(self, x_origin, y_origin):
+        """Draw Text.
+
+        Parameters
+        ----------
+        x_origin : float
+            x coordinate of the t .
+
+        Returns
+        -------
+        bool
+             when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateText
+
+        """
+        element_ids = []
+        for el in self.oeditor.GetAllElements():
+            element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
+        text_id = random.randint(20000, 23000)
+        while text_id in element_ids:
+            text_id = random.randint(20000, 23000)
+        args = [
+            "NAME:TextData",
+            "X:=", 0.04572,
+            "Y:=", 0.05588,
+            "Size:=", 12,
+            "Angle:=", 0,
+            "Text:=", "this is text I want to added",
+            "Color:=", 0,
+            "Id:=", text_id,
+            "ShowRect:=", False,
+            "X1:="	, 0.0446616666666624,
+            "Y1:="	, 0.0569383333333376,
+            "X2:="	, 0.088443245614206,
+            "Y2:="	, 0.0505883333333122,
+            "RectLineWidth:", 0,
+            "RectBorderColor:", 0,
+            "RectFill:=", 0,
+            "RectColor:=", 0
+        ]
+        try:
+            self.modeler.oeditor.CreateText(args)
+            return True
+        except:
+            return False
+
 
     @pyaedt_function_handler()
     def _get_components_selections(self, selections, return_as_list=True):
