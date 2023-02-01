@@ -608,7 +608,7 @@ class TestClass(BasisTest, object):
         assert instance.get_value(self.aedtapp.result_type().desense) == 13.42
         assert instance.get_value(self.aedtapp.result_type().sensitivity) == -56.58
         assert instance.get_value(self.aedtapp.result_type().powerAtRx) == 62.03
-        assert instance.get_worst_case_category() == "Out-of-Band: Tx Fundamental"
+        assert instance.get_largest_problem_type(self.aedtapp.result_type().emi) == "Out-of-Channel: Tx Fundamental"
         domain2 = self.aedtapp.interaction_domain()
         rx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx, "Hz"
