@@ -1553,7 +1553,7 @@ class SetupHFSS(Setup, object):
         if sweepname in [sweep.name for sweep in self.sweeps]:
             oldname = sweepname
             sweepname = generate_unique_name(oldname)
-            self.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
         sweepdata = self.add_sweep(sweepname, sweep_type)
         if not sweepdata:
             return False
@@ -1570,7 +1570,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SaveFields"] = save_fields
         sweepdata.props["SaveRadFields"] = save_rad_fields
         sweepdata.update()
-        self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
+        self._app.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
         return sweepdata
 
     @pyaedt_function_handler()
@@ -1640,15 +1640,15 @@ class SetupHFSS(Setup, object):
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
-        if setupname not in self.setup_names:
+        if setupname not in self._app.setup_names:
             return False
-        for s in self.setups:
+        for s in self._app.setups:
             if s.name == setupname:
                 setupdata = s
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
+                    self._app.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
@@ -1668,7 +1668,7 @@ class SetupHFSS(Setup, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -1751,15 +1751,15 @@ class SetupHFSS(Setup, object):
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setupname not in self.setup_names:
+        if setupname not in self._app.setup_names:
             return False
-        for s in self.setups:
+        for s in self._app.setups:
             if s.name == setupname:
                 setupdata = s
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
+                    self._app.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -1774,7 +1774,7 @@ class SetupHFSS(Setup, object):
                     for f, s in zip(freq, save_single_field):
                         sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
-                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+                self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
