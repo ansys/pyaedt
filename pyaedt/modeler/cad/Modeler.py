@@ -869,12 +869,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
             self._modeler._app.variable_manager["temp_var"] = y3
             y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            yn = GeometryOperators.v_norm(y_pointing_num)
-            y_pointing_num = [i / yn for i in y_pointing_num]
-            xn = GeometryOperators.v_norm(x_pointing_num)
-            x_pointing_num = [i / xn for i in x_pointing_num]
-            z = GeometryOperators.v_cross(x_pointing_num, y_pointing_num)
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x_pointing_num, y_pointing_num, z)
+            x, y, z = GeometryOperators.pointing_to_axis(x_pointing_num, y_pointing_num)
+            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
             del self._modeler._app.variable_manager["temp_var"]
         elif self.mode == "zxz":
@@ -1921,12 +1917,12 @@ class GeometryModeler(Modeler, object):
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
-            o = [-i for i in GeometryOperators.q_rotation(o, q)]
-            q = [q[0]] + [-i for i in q[1:]]
+            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
+            q = [q[0], -q[1], -q[2], -q[3]]
         else:
             q = cs.quaternion
-            q = [q[0]] + [-i for i in q[1:]]
-            o = [-i for i in GeometryOperators.q_rotation(cs.origin, q)]
+            q = [q[0], -q[1], -q[2], -q[3]]
+            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
         return o, q
 
     @pyaedt_function_handler()

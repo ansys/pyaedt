@@ -1795,7 +1795,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of edge IDs.
 
         References
@@ -1825,7 +1825,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of edge IDs.
 
         References
@@ -1849,7 +1849,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of vertex IDs.
 
         References
@@ -1881,7 +1881,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of vertex IDs.
 
         References
@@ -1934,7 +1934,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of vertex IDs.
 
         References
@@ -1962,7 +1962,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates indicating the position.
 
         References
@@ -2014,7 +2014,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             A list of ``[x, y, z]`` coordinates for the
             planar face center position.
 

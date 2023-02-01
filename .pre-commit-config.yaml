@@ -23,7 +23,7 @@ repos:
       - --line-length=120
 
 - repo: https://github.com/pycqa/isort
-  rev: 5.11.4
+  rev: 5.12.0
   hooks:
     - id: isort
       name: isort (python)
@@ -49,7 +49,7 @@ repos:
 
 # validate GitHub workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.20.0
+  rev: 0.21.0
   hooks:
     - id: check-github-workflows
 
