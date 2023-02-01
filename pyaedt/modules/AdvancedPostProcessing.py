@@ -402,7 +402,7 @@ class PostProcessor(Post):
         Parameters
         ----------
         quantity : str
-            Quantity to plot. Example ``"Mag_E``.
+            Quantity to plot (e.g. ``"Mag_E"``).
         object_list : str
             List of objects or faces to which apply the Field Plot.
         plot_type  : str, optional
