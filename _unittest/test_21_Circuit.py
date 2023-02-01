@@ -723,4 +723,8 @@ class TestClass(BasisTest, object):
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
     def test_43_create_text(self):
+        self.aedtapp.insert_design("text")
+        self.aedtapp.modeler.schematic_units = "mil"
+        self.aedtapp.modeler.create_text(0.0, 0.0)
+        self.aedtapp.modeler.create_text(100, 100)
         pass

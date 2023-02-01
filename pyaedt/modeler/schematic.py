@@ -164,6 +164,8 @@ class ModelerCircuit(Modeler):
         ----------
         x_origin : float
             x coordinate of the t .
+        y_origin : float
+            y coordinate of the t .
 
         Returns
         -------
@@ -184,18 +186,18 @@ class ModelerCircuit(Modeler):
             text_id = random.randint(20000, 23000)
         args = [
             "NAME:TextData",
-            "X:=", 0.04572,
-            "Y:=", 0.05588,
+            "X:=", x_origin,
+            "Y:=", y_origin,
             "Size:=", 12,
             "Angle:=", 0,
             "Text:=", "this is text I want to added",
             "Color:=", 0,
             "Id:=", text_id,
             "ShowRect:=", False,
-            "X1:="	, 0.0446616666666624,
-            "Y1:="	, 0.0569383333333376,
-            "X2:="	, 0.088443245614206,
-            "Y2:="	, 0.0505883333333122,
+            "X1:=", 0.0446616666666624,
+            "Y1:=", 0.0569383333333376,
+            "X2:=", 0.088443245614206,
+            "Y2:=", 0.0505883333333122,
             "RectLineWidth:", 0,
             "RectBorderColor:", 0,
             "RectFill:=", 0,
@@ -206,7 +208,6 @@ class ModelerCircuit(Modeler):
             return True
         except:
             return False
-
 
     @pyaedt_function_handler()
     def _get_components_selections(self, selections, return_as_list=True):
