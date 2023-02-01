@@ -904,11 +904,9 @@ class Hfss(FieldAnalysis3D, object):
 
         """
         if setuptype is None:
-            setuptype = SetupKeys.SetupNames[0]  # Default
-        elif setuptype in SetupKeys.SetupNames[0:5]:
-            setuptype = kwargs["setuptype"]
-        elif not isinstance(setuptype, int):
-            setuptype = SetupKeys.SetupNames[0]  # Revert to default
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupTemplates[SetupKeys.SetupNames.index(setuptype)]
         setup = self._create_setup(setupname=setupname, setuptype=setuptype)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():

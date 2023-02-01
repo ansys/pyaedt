@@ -1153,7 +1153,7 @@ class PropsManager(object):
         matching_percentage = 1
         while matching_percentage >= 0.4:
             for item_value in item_split:
-                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
                 if found_el:
                     props = props[found_el[0]]
             if found_el:

@@ -44,6 +44,7 @@ from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
+from pyaedt.modules.SolveSweeps import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 
 
@@ -1276,7 +1277,7 @@ class Analysis(Design, object):
         return setup_name
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create a setup.
 
         Parameters
@@ -1335,7 +1336,21 @@ class Analysis(Design, object):
         >>> sw1.props["RangeStep"] = "5MHz"
         >>> sw1.update()
         """
-        return self._create_setup(setupname=setupname, setuptype=setuptype, props=props)
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupTemplates[SetupKeys.SetupNames.index(setuptype)]
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
 
     @pyaedt_function_handler()
     def _create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
