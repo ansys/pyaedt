@@ -132,4 +132,5 @@ class AnalysisTwinBuilder(Analysis):
                 setup[arg_name] = arg_value
         setup.auto_update = True
         setup.update()
+        self.setups.append(setup)
         return setup
