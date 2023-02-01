@@ -8,13 +8,14 @@ from importlib import import_module
 import pyaedt.generic.constants as consts
 from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
-from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.results.results import Results
 from pyaedt.emit_core.results.revision import Revision
+from pyaedt.generic.general_methods import pyaedt_function_handler
 
 # global variable used to store module import
 mod = None
+
 
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.
@@ -165,7 +166,7 @@ class Emit(FieldAnalysisEmit, object):
             mod = import_module("EmitApiPython")
             self._emit_api = mod.EmitApi()
             """Instance of the Emit api."""
-            
+
             self.results = Results(self)
             """''Result'' object for the selected design."""
 

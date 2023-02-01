@@ -2,6 +2,7 @@ import os
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
+
 class Revision:
     """
     Provides the ``Revision`` object.

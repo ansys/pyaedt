@@ -1,8 +1,7 @@
-
 import pyaedt.emit_core.EmitConstants
-
 import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 class Results:
     """
@@ -21,6 +20,7 @@ class Results:
     >>> mode = Emit.tx_rx_mode().rx
     >>> radio_RX = aedtapp.results.get_radio_names(mode)
     """
+
     def __init__(self, emit_obj):
         print("my class")
         self._result_loaded = False
