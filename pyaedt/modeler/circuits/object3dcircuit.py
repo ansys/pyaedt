@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 import math
+import random
 from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
@@ -624,3 +625,129 @@ class CircuitComponent(object):
             vOut = ["NAME:AllTabs", vGeo3dlayout]
             return _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
         return False
+
+
+class Wire(object):
+    """Creates and manipulates a wire."""
+
+    def __init__(self, modeler):
+        self._app = modeler._app
+        self._modeler = modeler
+
+    @property
+    def _oeditor(self):
+        return self._modeler.oeditor
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @property
+    def wires(self):
+        """List of all schematic wires in the design."""
+        wire_names = []
+        for wire in self._oeditor.GetAllElements():
+            if "Wire" in wire:
+                wire_names.append(wire)
+        return wire_names
+
+    @pyaedt_function_handler()
+    def create_wire(self, points_array, wire_name=""):
+        """Create a wire.
+
+        Parameters
+        ----------
+        points_array : list
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
+        wire_name : str, optional
+            Name of the wire. Default value is ``""``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateWire
+        """
+        pointlist = [str(tuple(i)) for i in points_array]
+        wire_id = self._generate_unique_id()
+        try:
+            self._oeditor.CreateWire(
+                ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", pointlist],
+                ["NAME:Attributes", "Page:=", 1],
+            )
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
+        """
+        Display wire properties.
+
+        Parameters
+        ----------
+        wire_name : str, optional
+            Wire name to display.
+            Default value is ``""``.
+        property_to_display : str, optional
+            Property to display. Choices are: ``"NetName"``, ``"PinCount"``, ``"AlignMicrowavePorts"``,
+            ``"SchematicID"``, ``"Segment0"``.
+            Default value is ``"NetName"``.
+        visibility : str, optional
+            Visibility type. Choices are ``"Name"``, ``"Value"``, ``"Both"``, ``"Evaluated Value"``,
+            ``"Evaluated Both"``.
+            Default value is ``"Name"``.
+        location : str, optional
+            Wire name location. Choices are ``"Left"``, ``"Top"``, ``"Right"``, ``"Bottom"``, ``"Center"``.
+            Default value is ``"Top"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            wire_exists = False
+            for wire in self.wires:
+                if wire_name == wire.split("@")[1].split(";")[0]:
+                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                    wire_exists = True
+                    break
+                else:
+                    continue
+            if not wire_exists:
+                raise ValueError("Invalid wire name provided.")
+
+            self._oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:PropDisplayPropTab",
+                        ["NAME:PropServers", "Wire@{};{};{}".format(wire_name, wire_id, 1)],
+                        [
+                            "NAME:NewProps",
+                            ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except ValueError as e:
+            self.logger.error(str(e))
+            return False
+
+    @pyaedt_function_handler()
+    def _generate_unique_id(self):
+        element_ids = []
+        for el in self._oeditor.GetAllElements():
+            element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
+        wire_id = random.randint(20000, 23000)
+        while wire_id in element_ids:
+            wire_id = random.randint(20000, 23000)
+        return wire_id

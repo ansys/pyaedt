@@ -697,18 +697,19 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("CreateWireTest")
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
-        assert self.aedtapp.modeler.schematic.create_wire(
+        assert self.aedtapp.modeler.wire.create_wire(
             [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
         )
-        assert "wire_name_test" in self.aedtapp.modeler.schematic.wires
+        wire_names = [x.split("@")[1].split(";")[0] for x in self.aedtapp.modeler.wire.wires]
+        assert "wire_name_test" in wire_names
 
     def test_43_display_wire_properties(self):
-        assert self.aedtapp.modeler.schematic.display_wire_properties(
+        assert self.aedtapp.modeler.wire.display_wire_properties(
             wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
         )
-        assert not self.aedtapp.modeler.schematic.display_wire_properties(
+        assert not self.aedtapp.modeler.wire.display_wire_properties(
             wire_name="invalid", property_to_display="NetName", visibility="Value", location="Top"
         )
-        assert not self.aedtapp.modeler.schematic.display_wire_properties(
+        assert not self.aedtapp.modeler.wire.display_wire_properties(
             wire_name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
         )
