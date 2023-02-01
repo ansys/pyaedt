@@ -52,7 +52,7 @@ class CommonSetup(PropsManager, object):
         Returns
         -------
         dict
-            It is a dictionary and keys are typically is Freq, Phase or Time."""
+            Dictionary which keys are typically Freq, Phase or Time."""
         intr = {}
         for i in self._app.design_solutions.intrinsics:
             if i == "Freq" and "Frequency" in self.props:
