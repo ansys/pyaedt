@@ -862,13 +862,17 @@ class Hfss(FieldAnalysis3D, object):
             Name of the setup. Default: "Setup1"
         **kwargs : dict, optional
             Extra arguments to `SetupCircuit`.
-            Available keys depend on setup chosen.
-
+            Available keys depend on setup chosen:
+            :data:`pyaedt.modules.SetupTemplates.HfssDrivenDefault`,
+            :data:`pyaedt.modules.SetupTemplates.HfssDrivenAuto`,
+            :data:`pyaedt.modules.SetupTemplates.HfssDrivenEigen`,
+            :data:`pyaedt.modules.SetupTemplates.Transient`,
+            :data:`pyaedt.modules.SetupTemplates.SBR`.
 
 
         Returns
         -------
-        :class:`pyaedt.modules.SolveSetup`
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`, :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
             3D Solver Setup object.
 
         References

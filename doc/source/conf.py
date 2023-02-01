@@ -38,6 +38,15 @@ else:
 release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
+
+
+from pprint import pformat
+def object_description(object) -> str:
+    return pformat(object, indent=4)
+
+from sphinx.util import inspect
+inspect.object_description = object_description
+
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx_PyAEDT extension module names here, as strings. They can be
