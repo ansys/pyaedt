@@ -860,28 +860,10 @@ class Hfss(FieldAnalysis3D, object):
             Default: "HFSSDrivenAuto"
         setupname : str, optional
             Name of the setup. Default: "Setup1"
-        SolveType : str ("Single", "MultiFrequency"), optional
-            Specify whether multiple frequencies will be solved at each adaptive
-            pass. Default: "Single"
-        Frequency : str, or float
-            Adapt Frequency, Default: "5GHz"
-        MaxDeltaS : float
-            Maximum allowed variation in delta S for adaptive refinemnt,
-            Default: 0.02
-        BasisOrder : int
-            Order of the basis functions for the FEM solution, Default: 1
-            0 - zero order
-            1 - first order
-            2 - 2nd order
-            -1 - mixed order
-        MaximumPasses : int
-            Maximum number of adaptive passes allowed for adaptive refinement.
-            Default: 6
-        IsEnabled : Boolean
-            Set to False if the Analysis should be disabled. Default: True
-        PortAccuracy : float
-            Percent accuracy of the port impedance used on the initial mesh.
-            Default 2.0
+        **kwargs : dict, optional
+            Extra arguments to `SetupCircuit`.
+            Available keys depend on setup chosen.
+
 
 
         Returns
@@ -897,7 +879,6 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Example demonstrating the use of the insert_setup() method.
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
@@ -906,7 +887,7 @@ class Hfss(FieldAnalysis3D, object):
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
         elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupTemplates[SetupKeys.SetupNames.index(setuptype)]
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         setup = self._create_setup(setupname=setupname, setuptype=setuptype)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():

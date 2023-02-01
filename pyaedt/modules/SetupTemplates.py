@@ -483,7 +483,7 @@ NexximLNA = OrderedDict(
         "NoiseOutputQuantities": NoiseOutputQuantities,
         "Name": "LinearFrequency",
         "LinearFrequencyData": [False, 0.1, False, "", False],
-        "SweepDefinition": SweepDefinition,
+        "SweepDefinition": [SweepDefinition],
     }
 )
 """Nexxim linear network setup properties and default values."""

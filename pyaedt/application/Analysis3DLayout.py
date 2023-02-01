@@ -7,6 +7,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.modelerpcb import Modeler3DLayout
 from pyaedt.modules.Mesh3DLayout import Mesh3d
 from pyaedt.modules.SolveSetup import Setup3DLayout
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 if is_ironpython:
     from pyaedt.modules.PostProcessor import PostProcessor
@@ -383,7 +384,7 @@ class FieldAnalysis3DLayout(Analysis):
         return setups
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create a setup.
 
         Parameters
@@ -393,8 +394,9 @@ class FieldAnalysis3DLayout(Analysis):
         setuptype : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
-        props : dict, optional
-            Dictionary of properties with values. The default is ``{}``.
+        **kwargs : dict, optional
+            Extra arguments to `SetupCircuit`.
+            Available keys depend on setup chosen.
 
         Returns
         -------
@@ -407,15 +409,23 @@ class FieldAnalysis3DLayout(Analysis):
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
         setup.create()
-        if props:
-            for el in props:
-                setup.props[el] = props[el]
-            setup.update()
-        self.analysis_setup = name
-        self.setups.append(setup)
+        setup.auto_update = False
+
+        if "props" in kwargs:
+            for el in kwargs["props"]:
+                setup.props[el] = kwargs["props"][el]
+        for arg_name, arg_value in kwargs.items():
+            if arg_name == "props":
+                continue
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
         return setup
 
     @pyaedt_function_handler()

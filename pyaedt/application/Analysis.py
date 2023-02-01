@@ -1287,10 +1287,9 @@ class Analysis(Design, object):
         setuptype : optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
-        props : dict, optional
-            Dictionary of analysis properties required by the native
-            API appropriate for the design and analysis.
-            If no values are passed, default values are used.
+        **kwargs : dict, optional
+            Extra arguments to `SetupCircuit`.
+            Available keys depend on setup chosen.
 
         Returns
         -------
@@ -1339,7 +1338,7 @@ class Analysis(Design, object):
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
         elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupTemplates[SetupKeys.SetupNames.index(setuptype)]
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         if "props" in kwargs:
             return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
         else:

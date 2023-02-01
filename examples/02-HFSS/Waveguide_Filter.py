@@ -146,9 +146,9 @@ for n, z in enumerate(wg_z):
 
 #  See pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
 #  for allowed values for setuptype.
-setup = hfss.create_setup2("Setup1", setuptype="HFSSDriven",
-                          MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
-                          MaximumPasses=5)
+setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
+                           MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
+                           MaximumPasses=5)
 
 setup.create_frequency_sweep(
     unit="GHz",

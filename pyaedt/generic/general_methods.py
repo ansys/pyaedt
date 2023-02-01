@@ -1153,9 +1153,11 @@ class PropsManager(object):
         matching_percentage = 1
         while matching_percentage >= 0.4:
             for item_value in item_split:
-                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                # found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
                 if found_el:
-                    props = props[found_el[0]]
+                    props = found_el[1][found_el[2]]
+                    # props = props[found_el[0]]
             if found_el:
                 return props
             else:
@@ -1215,6 +1217,11 @@ class PropsManager(object):
                     out_val = self._recursive_search(v, key, matching_percentage)
                     if out_val:
                         return out_val
+                elif isinstance(v, list) and isinstance(v[0], (dict, OrderedDict)):
+                    for val in v:
+                        out_val = self._recursive_search(val, key, matching_percentage)
+                        if out_val:
+                            return out_val
         return False
 
     @pyaedt_function_handler()

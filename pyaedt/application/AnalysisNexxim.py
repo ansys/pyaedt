@@ -14,6 +14,7 @@ from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
 from pyaedt.modules.Boundary import VoltageSinSource
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class FieldAnalysisCircuit(Analysis):
@@ -541,7 +542,7 @@ class FieldAnalysisCircuit(Analysis):
         return setup
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create a new setup.
 
         Parameters
@@ -551,12 +552,14 @@ class FieldAnalysisCircuit(Analysis):
         setuptype : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
-        props : dict, optional
-            Dictionary of properties with values. The default is ``{}``.
+        **kwargs : dict, optional
+            Extra arguments to `SetupCircuit`.
+            Available keys depend on setup chosen.
+
 
         Returns
         -------
-        SetupCircuit
+        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
             Setup object.
 
         References
@@ -568,25 +571,32 @@ class FieldAnalysisCircuit(Analysis):
         >>> oModule.AddQuickEyeAnalysis
         >>> oModule.AddVerifEyeAnalysis
         >>> oModule.AddAMIAnalysis
+
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> app = Circuit()
+        >>> app.create_setup(setupname="Setup1", setuptype=app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
         """
         if setuptype is None:
-            setuptype = self.solution_type
-
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
         setup.create()
-        if props:
-            for el in props:
-                setup.props._setitem_without_update(el, props[el])
-            setup.update()
-        self.analysis_setup = name
-        self.setups.append(setup)
-        return setup
+        setup.auto_update = False
 
-    # @property
-    # def mesh(self):
-    #     return self._mesh
-    #
-    # @property
-    # def post(self):
-    #     return self._post
+        if "props" in kwargs:
+            for el in kwargs["props"]:
+                setup.props[el] = kwargs["props"][el]
+        for arg_name, arg_value in kwargs.items():
+            if arg_name == "props":
+                continue
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
