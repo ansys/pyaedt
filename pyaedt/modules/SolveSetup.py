@@ -14,16 +14,15 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.DataHandlers import _tuple2dict
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.SetupTemplates import SetupKeys
-from pyaedt.modules.SetupTemplates import SetupProps
-from pyaedt.modules.SetupTemplates import SweepHFSS
-from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
-from pyaedt.modules.SetupTemplates import SweepMatrix
-from pyaedt.modules.SetupTemplates import identify_setup
+from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SolveSweeps import SetupProps
+from pyaedt.modules.SolveSweeps import SweepHFSS
+from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
+from pyaedt.modules.SolveSweeps import SweepMatrix
+from pyaedt.modules.SolveSweeps import identify_setup
 
 
 class CommonSetup(PropsManager, object):
@@ -52,9 +51,9 @@ class CommonSetup(PropsManager, object):
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
+            # for t in setup_template:
+            #    _tuple2dict(t, self.props)
+            self.props = SetupProps(self, setup_template)
         else:
             try:
                 setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
@@ -601,9 +600,9 @@ class SetupCircuit(CommonSetup):
         props = {}
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, props)
-            self.props = SetupProps(self, props)
+            # for t in setup_template:
+            #    _tuple2dict(t, props)
+            self.props = SetupProps(self, setup_template)
         else:
             self.props = SetupProps(self, OrderedDict())
             try:
@@ -1131,9 +1130,9 @@ class Setup3DLayout(CommonSetup):
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
+            # for t in setup_template:
+            #    _tuple2dict(t, self.props)
+            self.props = SetupProps(self, setup_template)
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -1357,7 +1356,7 @@ class Setup3DLayout(CommonSetup):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
             Sweep object.
 
         References
@@ -1513,7 +1512,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1613,7 +1612,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1706,7 +1705,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1792,7 +1791,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
             Sweep object.
 
         References

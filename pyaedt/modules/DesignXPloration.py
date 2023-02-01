@@ -13,7 +13,7 @@ from pyaedt.modules.OptimetricsTemplates import defaultoptiSetup
 from pyaedt.modules.OptimetricsTemplates import defaultparametricSetup
 from pyaedt.modules.OptimetricsTemplates import defaultsensitivitySetup
 from pyaedt.modules.OptimetricsTemplates import defaultstatisticalSetup
-from pyaedt.modules.SetupTemplates import SetupProps
+from pyaedt.modules.SolveSweeps import SetupProps
 
 
 class CommonOptimetrics(PropsManager, object):

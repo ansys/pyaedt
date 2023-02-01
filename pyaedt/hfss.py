@@ -25,8 +25,8 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
-from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.solutions import FfdSolutionData
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -726,7 +726,7 @@ class Hfss(FieldAnalysis3D, object):
     # TODO: Extract name and type from **kwargs to pass them to create_setup() as setuptype and setupname
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", **kwargs):
+    def create_setup2(self, setupname="MySetupAuto", **kwargs):
         """Create a new analysis setup for HFSS.
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
         names correspond to the ``setuptype``
@@ -842,7 +842,7 @@ class Hfss(FieldAnalysis3D, object):
         return setup
 
     @pyaedt_function_handler()
-    def create_setup2(self, setupname="MySetupAuto", **kwargs):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create a new analysis setup for HFSS.
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
         names correspond to the ``setuptype``
@@ -903,15 +903,12 @@ class Hfss(FieldAnalysis3D, object):
         >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
 
         """
-        if "setuptype" in kwargs.keys():
-            if kwargs["setuptype"] in SetupKeys.SetupNames[0:5]:
-                setuptype = kwargs["setuptype"]
-            else:
-                setuptype = SetupKeys.SetupNames[0]  # Revert to default
-                # TODO: Add message that invalid type was passed.
-            del kwargs["setuptype"]
-        else:
+        if setuptype is None:
             setuptype = SetupKeys.SetupNames[0]  # Default
+        elif setuptype in SetupKeys.SetupNames[0:5]:
+            setuptype = kwargs["setuptype"]
+        elif not isinstance(setuptype, int):
+            setuptype = SetupKeys.SetupNames[0]  # Revert to default
         setup = self._create_setup(setupname=setupname, setuptype=setuptype)
         setup.auto_update = False
         for arg_name, arg_value in kwargs.items():
@@ -1020,7 +1017,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1127,7 +1124,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1223,7 +1220,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
