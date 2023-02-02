@@ -377,7 +377,6 @@ class CircuitComponent(object):
         self.status = "Active"
         self.component = None
         self.id = 0
-        self.refdes = ""
         self.schematic_id = 0
         self.levels = 0.1
         self._angle = None
@@ -390,6 +389,14 @@ class CircuitComponent(object):
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+
+    @property
+    def refdes(self):
+        """Reference designator."""
+        try:
+            return self.m_Editor.GetPropertyValue("Component", self.composed_name, "RefDes")
+        except:
+            return ""
 
     @property
     def units(self):
