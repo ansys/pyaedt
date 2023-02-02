@@ -9,6 +9,7 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -3665,3 +3666,61 @@ class Icepak(FieldAnalysis3D):
             radiate_surf_mat=radiate_surf_mat,
             shell_conduction=shell_conduction,
         )
+
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create a new analysis setup for Icepak.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keyword here is not exhaustive.
+
+        Note: This method overrides Analysis.setup() for the Hfss app.
+
+        Parameters
+        ----------
+        setuptype : int, str, optional
+            Type of setup. Must be one of the following:
+            "IcepakSteadyState", "IcepakTransient".
+            Default: "IcepakSteadyState"
+        setupname : str, optional
+            Name of the setup. Default: "Setup1"
+        **kwargs : dict, optional
+            Extra arguments to `SetupCircuit`.
+            Available keys depend on setup chosen:
+            :data:`pyaedt.modules.SetupTemplates.SteadyTemperatureAndFlow` for ``"IcepakSteadyState"`` setup type,
+            :data:`pyaedt.modules.SetupTemplates.TransientTemperatureAndFlow` for ``"IcepakTransient"`` setup type.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup

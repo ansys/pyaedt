@@ -33,6 +33,9 @@ HFSS
    HFSSSBR
 
 
+.. pprint:: pyaedt.modules.SetupTemplates.HFSSDrivenAuto
+
+
 Maxwell 2D or 3D
 ~~~~~~~~~~~~~~~~
 

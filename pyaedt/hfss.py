@@ -853,7 +853,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        setuptype: str, optional
+        setuptype : str, optional
             Type of setup. Must be one of the following:
             "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
             "HFSSSBR" based on the solution type.
@@ -863,11 +863,11 @@ class Hfss(FieldAnalysis3D, object):
         **kwargs : dict, optional
             Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.HfssDrivenDefault`,
-            :data:`pyaedt.modules.SetupTemplates.HfssDrivenAuto`,
-            :data:`pyaedt.modules.SetupTemplates.HfssDrivenEigen`,
-            :data:`pyaedt.modules.SetupTemplates.Transient`,
-            :data:`pyaedt.modules.SetupTemplates.SBR`.
+            :data:`pyaedt.modules.SetupTemplates.HFSSDrivenDefault` for ``"HFSSDriven"`` setup type,
+            :data:`pyaedt.modules.SetupTemplates.HFSSDrivenAuto` for ``"HFSSDrivenAuto"`` setup type,
+            :data:`pyaedt.modules.SetupTemplates.HFSSEigen` for ``"HFSSEigen"`` setup type,
+            :class:`pyaedt.modules.SetupTemplates.HFSSTransient` for ``"HFSSTransient"`` setup type,
+            :const:`pyaedt.modules.SetupTemplates.HFSSSBR` for ``"HFSSSBR"`` setup type.
 
 
         Returns

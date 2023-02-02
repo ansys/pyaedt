@@ -7,6 +7,7 @@ from pyaedt.application.Analysis3D import FieldAnalysis3D
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modules.Boundary import BoundaryObject
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class Mechanical(FieldAnalysis3D, object):
@@ -615,3 +616,61 @@ class Mechanical(FieldAnalysis3D, object):
             self.boundaries.append(bound)
             return bound
         return False
+
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create a new analysis setup for Mechanical.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keyword here is not exhaustive.
+
+
+        Parameters
+        ----------
+        setuptype : int, str, optional
+            Type of setup. Must be one of the following:
+            "IcepakSteadyState", "IcepakTransient".
+            Default: "IcepakSteadyState"
+        setupname : str, optional
+            Name of the setup. Default: "Setup1"
+        **kwargs : dict, optional
+            Extra arguments to `SetupCircuit`.
+            Available keys depend on setup chosen:
+            :data:`pyaedt.modules.SetupTemplates.MechStructural` for ``"Structural"`` setup type,
+            :data:`pyaedt.modules.SetupTemplates.MechThermal` for ``"Thermal"`` setup type.
+            :data:`pyaedt.modules.SetupTemplates.MechModal` for ``"Modal"`` setup type.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup

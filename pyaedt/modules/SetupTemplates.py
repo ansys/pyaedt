@@ -808,6 +808,7 @@ TransientTemperatureAndFlow = OrderedDict(
         "Control Program Name": "",
     }
 )
+"""Icepak Transient Temperature and Flow setup properties and default values."""
 
 TransientTemperatureOnly = OrderedDict(
     {
@@ -897,6 +898,7 @@ TransientTemperatureOnly = OrderedDict(
         "Control Program Name": "",
     }
 )
+"""Icepak Transient Temperature only setup properties and default values."""
 
 TransientFlowOnly = OrderedDict(
     {
@@ -986,6 +988,7 @@ TransientFlowOnly = OrderedDict(
         "Control Program Name": "",
     }
 )
+"""Icepak Transient Flow only setup properties and default values."""
 
 HFSS3DLayout_SingleFrequencyDataList = OrderedDict(
     {"AdaptiveFrequencyData": HFSS3DLayout_AdaptiveFrequencyData("5GHz")}
@@ -1287,11 +1290,11 @@ RmxprtDefault = OrderedDict(
 """RMxprt Default setup properties and default values."""
 
 GRM = copy.deepcopy(RmxprtDefault)
+"""RMxprt GRM Generic Rotating Machine setup properties and default values."""
+
 GRM["RatedPowerFactor"] = "0.8"
 GRM["Frequency"] = "60Hz"
 GRM["CapacitivePowerFactor"] = False
-
-"""RMxprt GRM Generic Rotating Machine setup properties and default values."""
 
 DFIG = OrderedDict(
     {
