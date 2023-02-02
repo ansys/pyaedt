@@ -32,7 +32,7 @@ def db10(x, inverse=True):
 
 
 def dbw(x, inverse=True):
-    """Convert W to  to decimal and vice versa."""
+    """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x)
     else:
@@ -40,7 +40,7 @@ def dbw(x, inverse=True):
 
 
 def dbm(x, inverse=True):
-    """Convert W to  to decimal and vice versa."""
+    """Convert W to decimal and vice versa."""
     if inverse:
         return 10 * math.log10(x) + 30
     else:
