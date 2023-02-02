@@ -16,10 +16,10 @@ evaluate expressions.
 # with CPython > 3.6.
 
 # sphinx_gallery_thumbnail_path = 'Resources/wgf.png'
-
+import os
+import tempfile
 import pyaedt
 from pyaedt import general_methods
-from sympy.parsing.sympy_parser import parse_expr
 
 ###############################################################################
 # Launch AEDT
@@ -38,13 +38,12 @@ wgparams = {'l': [0.7428, 0.82188],
             't': 0.15,
             'units': 'in'}
 
-# non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-non_graphical = False
-new_thread = False
+non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+new_thread = True
 
 # project_name = pyaedt.generate_unique_project_name(project_name="wgf")
 
-project_folder = r'C:\Ansoft\Projects\Examples\HFSS\Filters\Eplane WG Filter\test'
+project_folder = tempfile.gettempdir()
 project_name = project_folder + "\\" + general_methods.generate_unique_name("wgf", n=2)
 
 # Connect to an existing instance if it exits.
@@ -124,9 +123,15 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 
 var_mapping['port_extension'] = 1.5 * wgparams['l'][0]  # Used to evaluate expression with parse_expr()
 hfss['port_extension'] = str(var_mapping['port_extension']) + wgparams['units']
-wg_z_start = "-(" + zpos + ") - port_extension"  # Add port length.
-wg_length = "2*(" + zpos + " + port_extension )"
-hfss.modeler.create_box(["-b/2", "-a/2", wg_z_start], ["b", "a", wg_length],
+hfss["wg_z_start"] = "-(" + zpos + ") - port_extension"
+hfss["wg_length"]  = "2*(" + zpos + " + port_extension )"
+wg_z_start = hfss.variable_manager["wg_z_start"]
+wg_length = hfss.variable_manager["wg_length"]
+hfss["u_start"] = "-a/2"
+hfss["u_end"]  = "a/2"
+# wg_z_start = "-(" + zpos + ") - port_extension"  # Add port length.
+# wg_length = "2*(" + zpos + " + port_extension )"
+hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
                         name="waveguide", matname="vacuum")
 
 ###############################################################################
@@ -134,14 +139,15 @@ hfss.modeler.create_box(["-b/2", "-a/2", wg_z_start], ["b", "a", wg_length],
 # needed to specify start and end points of the integration line
 # on the port surfaces.
 # ~~~~~~~~~~~~~~~~~~~~~~
-wg_z = [str(parse_expr(wg_z_start, var_mapping)) + wgparams['units'],
-        str(parse_expr(wg_z_start + "+" + wg_length, var_mapping)) + wgparams['units']]
+wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_value + wg_length.numeric_value, "in")]
+
 count = 0
 ports = []
 for n, z in enumerate(wg_z):
     face_id = hfss.modeler.get_faceid_from_position([0, 0, z], obj_name="waveguide")
-    u_start = [0, str(parse_expr('-a/2', var_mapping)) + wgparams['units'],  z]
-    u_end = [0, str(parse_expr('a/2', var_mapping)) + wgparams['units'], z]
+    u_start = [0, hfss.variable_manager["u_start"].evaluated_value,  z]
+    u_end = [0, hfss.variable_manager["u_end"].evaluated_value, z]
+
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
 #  See pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
