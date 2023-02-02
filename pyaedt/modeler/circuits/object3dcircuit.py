@@ -118,7 +118,7 @@ class CircuitPins(object):
         elif pa[0] == pb[0]:
             deltax = target[0] + delta
             points.append([deltax, points[-1][1]])
-            points.append([deltax, targe[1]])
+            points.append([deltax, target[1]])
         else:
             deltay = target[1] + delta
             points.append([points[-1][0], deltay])
