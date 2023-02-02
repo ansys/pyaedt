@@ -34,6 +34,7 @@ solutions_types = {
             "report_type": "EddyCurrent",
             "default_setup": 7,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Transient": {
             "name": "Transient",
@@ -41,6 +42,7 @@ solutions_types = {
             "report_type": "Transient",
             "default_setup": 5,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Electrostatic": {
             "name": "Electrostatic",
@@ -62,6 +64,7 @@ solutions_types = {
             "report_type": None,
             "default_setup": 8,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
     },
     "Maxwell 3D": {
@@ -78,6 +81,7 @@ solutions_types = {
             "report_type": "EddyCurrent",
             "default_setup": 7,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Transient": {
             "name": "Transient",
@@ -85,6 +89,7 @@ solutions_types = {
             "report_type": "Transient",
             "default_setup": 5,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "TransientAPhiFormulation": {
             "name": "TransientAPhiFormulation",
@@ -92,6 +97,7 @@ solutions_types = {
             "report_type": "Transient",
             "default_setup": 5,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Electrostatic": {
             "name": "Electrostatic",
@@ -106,6 +112,7 @@ solutions_types = {
             "report_type": None,
             "default_setup": None,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "DCConduction": {
             "name": None,
@@ -127,6 +134,7 @@ solutions_types = {
             "report_type": None,
             "default_setup": 10,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
     },
     "Twin Builder": {
@@ -254,6 +262,7 @@ solutions_types = {
             "report_type": "Matrix",
             "default_setup": 30,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Closed": {
             "name": "Closed",
@@ -261,6 +270,7 @@ solutions_types = {
             "report_type": "Matrix",
             "default_setup": 31,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
     },
     "Q3D Extractor": {
@@ -270,6 +280,7 @@ solutions_types = {
             "report_type": "Matrix",
             "default_setup": 14,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         }
     },
     "HFSS": {
@@ -279,6 +290,7 @@ solutions_types = {
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Terminal": {
             "name": "HFSS Terminal Network",
@@ -286,6 +298,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "DrivenModal": {
             "name": "DrivenModal",
@@ -293,6 +306,7 @@ solutions_types = {
             "report_type": "Modal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "DrivenTerminal": {
             "name": "DrivenTerminal",
@@ -300,6 +314,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 1,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
         },
         "Transient Network": {
             "name": "Transient Network",
@@ -307,6 +322,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 3,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Transient": {
             "name": "Transient",
@@ -314,6 +330,7 @@ solutions_types = {
             "report_type": "Terminal Solution Data",
             "default_setup": 3,
             "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
         },
         "Eigenmode": {
             "name": "Eigenmode",
@@ -321,6 +338,7 @@ solutions_types = {
             "report_type": "EigenMode Parameters",
             "default_setup": 2,
             "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Phase"],
         },
         "Characteristic": {
             "name": "Characteristic Mode",
@@ -406,6 +424,7 @@ solutions_types = {
             "report_type": "Standard",
             "default_setup": 29,
             "default_adaptive": None,
+            "intrinsics": ["Freq", "Phase"],
         },
         "SiwaveDC3DLayout": {
             "name": None,
@@ -564,6 +583,13 @@ class DesignSolution(object):
     def design_types(self):
         """Return the list of all available designs."""
         return list(solutions_types.keys())
+
+    @property
+    def intrinsics(self):
+        """Get list of intrinsics for that specified setup."""
+        if "intrinsics" in self._solution_options[self.solution_type]:
+            return self._solution_options[self.solution_type]["intrinsics"]
+        return []
 
 
 class HFSSDesignSolution(DesignSolution, object):
