@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 if not is_ironpython:
     try:
@@ -1852,9 +1853,9 @@ class Q3d(QExtractor, object):
         setupname : str, optional
             Name of the setup. Default: "Setup1"
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.Matrix`.
+
+            :doc:`../SetupTemplatesQ3D`.
 
         Returns
         -------
@@ -1869,9 +1870,9 @@ class Q3d(QExtractor, object):
         Examples
         --------
 
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> from pyaedt import Q3d
+        >>> app = Q3d()
+        >>> app.create_setup(setupname="Setup1", DC__MinPass=2))
 
         """
         setuptype = self.design_solutions.default_setup
@@ -2371,10 +2372,10 @@ class Q2d(QExtractor, object):
         setupname : str, optional
             Name of the setup. Default: "Setup1"
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.Open` for ``"Open"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.Close` for ``"Close"`` setup type.
+
+            :doc:`../SetupTemplatesQ3D`.
+
 
         Returns
         -------
@@ -2389,9 +2390,9 @@ class Q2d(QExtractor, object):
         Examples
         --------
 
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> from pyaedt import Q2d
+        >>> app = Q2d()
+        >>> app.create_setup(setupname="Setup1", RLDataBlock__MinPass=2))
 
         """
         if setuptype is None:

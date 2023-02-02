@@ -1148,6 +1148,8 @@ class PropsManager(object):
             Key to search
         """
         item_split = item.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
         props = self.props
         found_el = []
         matching_percentage = 1
@@ -1176,6 +1178,8 @@ class PropsManager(object):
             Value to apply.
         """
         item_split = key.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
         found_el = []
         props = self.props
         matching_percentage = 1

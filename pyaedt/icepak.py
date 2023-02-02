@@ -3686,10 +3686,9 @@ class Icepak(FieldAnalysis3D):
         setupname : str, optional
             Name of the setup. Default: "Setup1"
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.SteadyTemperatureAndFlow` for ``"IcepakSteadyState"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.TransientTemperatureAndFlow` for ``"IcepakTransient"`` setup type.
+
+            :doc:`../SetupTemplatesIcepak`.
 
         Returns
         -------
@@ -3704,9 +3703,9 @@ class Icepak(FieldAnalysis3D):
         Examples
         --------
 
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> from pyaedt import Icepak
+        >>> app = Icepak()
+        >>> app.create_setup(setupname="Setup1", setuptype="TransientTemperatureOnly", MaxIterations=20)
 
         """
         if setuptype is None:

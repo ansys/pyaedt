@@ -1929,13 +1929,9 @@ class Maxwell(object):
         setupname : str, optional
             Name of the setup. Default: "Setup1"
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.Magnetostatic` for ``"Magnetostatic"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.EddyCurrent` for ``"EddyCurrent"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.Electrostatic` for ``"Electrostatic"`` setup type,
-            :class:`pyaedt.modules.SetupTemplates.Transient` for ``"Transient"`` setup type,
-            :const:`pyaedt.modules.SetupTemplates.ElectroDCConduction` for ``"ElectroDCConduction"`` setup type.
+
+            :doc:`../SetupTemplatesMaxwell`.
 
         Returns
         -------
@@ -1950,9 +1946,9 @@ class Maxwell(object):
         Examples
         --------
 
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> from pyaedt import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
 
         """
         if setuptype is None:

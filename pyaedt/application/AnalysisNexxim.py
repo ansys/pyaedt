@@ -554,7 +554,9 @@ class FieldAnalysisCircuit(Analysis):
             the default type is applied.
         **kwargs : dict, optional
             Extra arguments to `SetupCircuit`.
-            Available keys depend on setup chosen.
+            Available keys depend on setup chosen:
+
+            :doc:`../SetupTemplatesCircuit`.
 
 
         Returns

@@ -395,8 +395,10 @@ class FieldAnalysis3DLayout(Analysis):
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
-            Available keys depend on setup chosen.
+            Extra arguments for setup settings.
+            Available keys depend on setup chosen:
+
+            :doc:`../SetupTemplates3DLayout`.
 
         Returns
         -------

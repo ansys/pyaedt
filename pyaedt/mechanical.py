@@ -635,11 +635,9 @@ class Mechanical(FieldAnalysis3D, object):
         setupname : str, optional
             Name of the setup. Default: "Setup1"
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.MechStructural` for ``"Structural"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.MechThermal` for ``"Thermal"`` setup type.
-            :data:`pyaedt.modules.SetupTemplates.MechModal` for ``"Modal"`` setup type.
+
+            :doc:`../SetupTemplatesMechanical`.
 
         Returns
         -------
@@ -654,9 +652,9 @@ class Mechanical(FieldAnalysis3D, object):
         Examples
         --------
 
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+        >>> from pyaedt import Mechanical
+        >>> app = Mechanical()
+        >>> app.create_setup(setupname="Setup1", MaxModes=6))
 
         """
         if setuptype is None:

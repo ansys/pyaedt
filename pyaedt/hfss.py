@@ -726,122 +726,6 @@ class Hfss(FieldAnalysis3D, object):
     # TODO: Extract name and type from **kwargs to pass them to create_setup() as setuptype and setupname
 
     @pyaedt_function_handler()
-    def create_setup2(self, setupname="MySetupAuto", **kwargs):
-        """Create a new analysis setup for HFSS.
-        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
-        names correspond to the ``setuptype``
-        corresponding to the native AEDT API.  The list of
-        keyword here is not exhaustive.
-
-        Note: This method overrides Analysis.setup() for the Hfss app.
-
-        Parameters
-        ----------
-        setuptype: str, optional
-            Type of setup. Must be one of the following:
-            "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
-            "HFSSSBR" based on the solution type.
-            Default: "HFSSDrivenAuto"
-        setupname : str, optional
-            Name of the setup. Default: "Setup1"
-        SolveType : str ("Single", "MultiFrequency"), optional
-            Specify whether multiple frequencies will be solved at each adaptive
-            pass. Default: "Single"
-        Frequency : str, or float
-            Adapt Frequency, Default: "5GHz"
-        MaxDeltaS : float
-            Maximum allowed variation in delta S for adaptive refinemnt,
-            Default: 0.02
-        BasisOrder : int
-            Order of the basis functions for the FEM solution, Default: 1
-            0 - zero order
-            1 - first order
-            2 - 2nd order
-            -1 - mixed order
-        MaximumPasses : int
-            Maximum number of adaptive passes allowed for adaptive refinement.
-            Default: 6
-        IsEnabled : Boolean
-            Set to False if the Analysis should be disabled. Default: True
-        PortAccuracy : float
-            Percent accuracy of the port impedance used on the initial mesh.
-            Default 2.0
-
-
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup`
-            3D Solver Setup object.
-
-        References
-        ----------
-
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-
-        Example demonstrating the use of the insert_setup() method.
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
-
-        """
-
-        if "setuptype" in kwargs.keys():
-            if kwargs["setuptype"] in SetupKeys.SetupNames[0:5]:
-                setuptype = kwargs["setuptype"]
-            else:
-                setuptype = SetupKeys.SetupNames[0]  # Revert to default
-                # TODO: Add message that invalid type was passed.
-            del kwargs["setuptype"]
-        else:
-            setuptype = SetupKeys.SetupNames[0]  # Default
-
-        # If MultipleAdaptiveFreqsSetup is passed, then AdaptMultipleFreqs is implied.
-        if "MultipleAdaptiveFreqsSetup" in kwargs.keys():
-            if "AdaptMultipleFreqs" not in kwargs.keys():
-                kwargs["AdaptMultipleFreqs"] = True
-
-        # Need to update "SolveType" if "AdaptiveMultipleFreqs" == True
-        if "AdaptMultipleFreqs" in kwargs.keys():
-            if kwargs["AdaptMultipleFreqs"] == True:
-                if "MultipleAdaptiveFreqsSetup" in kwargs.keys():
-                    kwargs["SolveType"] = "MultiFrequency"
-
-                    #  Allow for a list of frequencies to be
-                    #  passed for multi-frequency adaptive refinement.
-                    #  Set the MaxDeltaS for each frequency value passed
-                    #  to MaxDeltaS.
-
-                    if type(kwargs["MultipleAdaptiveFreqsSetup"]) == list:
-                        new_dict = {}
-                        if "MaxDeltaS" in kwargs.items():
-                            ds = kwargs["MaxDeltaS"]
-                        else:
-                            ds = 0.02
-                        for f in kwargs["MultipleAdaptiveFreqsSetup"]:
-                            new_dict[f] = [ds]  # List type is required by native API.
-                        kwargs["MultipleAdaptiveFreqsSetup"] = new_dict
-
-                    #  Check the values passed in kwargs["MultipleAdaptiveFreqsSetup"]. If
-                    #  float is passed, convert it to a one-item list to be compatible with the
-                    #  native API.
-
-                    elif type(kwargs["MultipleAdaptiveFreqsSetup"] == dict):
-                        for key in kwargs["MultipleAdaptiveFreqsSetup"]:
-                            if type(kwargs["MultipleAdaptiveFreqsSetup"][key]) == float:  # convert to list
-                                kwargs["MultipleAdaptiveFreqsSetup"][key] = [kwargs["MultipleAdaptiveFreqsSetup"][key]]
-                else:
-                    kwargs["AdaptiveMultipleFreqs"] = False
-                    self.logger.warning(
-                        'Named argument "MultipleAdaptiveFreqsSetup not defined. Reverting'
-                        "to default analysis settings."
-                    )
-        setup = self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs)
-        return setup
-
-    @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create a new analysis setup for HFSS.
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
@@ -863,11 +747,8 @@ class Hfss(FieldAnalysis3D, object):
         **kwargs : dict, optional
             Extra arguments to `SetupCircuit`.
             Available keys depend on setup chosen:
-            :data:`pyaedt.modules.SetupTemplates.HFSSDrivenDefault` for ``"HFSSDriven"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.HFSSDrivenAuto` for ``"HFSSDrivenAuto"`` setup type,
-            :data:`pyaedt.modules.SetupTemplates.HFSSEigen` for ``"HFSSEigen"`` setup type,
-            :class:`pyaedt.modules.SetupTemplates.HFSSTransient` for ``"HFSSTransient"`` setup type,
-            :const:`pyaedt.modules.SetupTemplates.HFSSSBR` for ``"HFSSSBR"`` setup type.
+
+            :doc:`../SetupTemplatesHFSS`.
 
 
         Returns
