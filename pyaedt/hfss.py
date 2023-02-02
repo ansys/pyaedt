@@ -1092,6 +1092,7 @@ class Hfss(FieldAnalysis3D, object):
         current_conformance="Disable",
         thin_sources=True,
         power_fraction="0.95",
+        visible=True,
     ):
         """Create a linked antennas.
 
@@ -1173,6 +1174,8 @@ class Hfss(FieldAnalysis3D, object):
             native_props["Current Source Conformance"] = current_conformance
             native_props["Thin Sources"] = thin_sources
             native_props["Power Fraction"] = power_fraction
+        if visible:
+            native_props["VisualizationObjects"] = source_object.modeler.solid_names
         return self._create_native_component(
             "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
         )

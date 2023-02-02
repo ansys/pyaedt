@@ -5,6 +5,7 @@ import sys
 import time
 from collections import OrderedDict
 
+from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
@@ -1091,12 +1092,23 @@ class SolutionData(object):
 class FfdSolutionData(object):
     """Contains Hfss Far Field Solution Data (ffd)."""
 
-    def __init__(self, app, sphere_name, setup_name, frequencies, variations=None, overwrite=True, taper="flat"):
+    def __init__(
+        self,
+        app,
+        sphere_name,
+        setup_name,
+        frequencies,
+        variations=None,
+        overwrite=True,
+        taper="flat",
+        sbr_3d_comp_name=None,
+    ):
         self._app = app
         self.levels = 64
         self.all_max = 1
         self.sphere_name = sphere_name
         self.setup_name = setup_name
+        self.sbr_comp = sbr_3d_comp_name
         if not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
@@ -1670,14 +1682,28 @@ class FfdSolutionData(object):
         -------
         list of float
         """
-        try:
-            lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
-            lattice_vectors = [
-                float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
-            ]
+        if self.sbr_comp and self.sbr_comp in self._app.modeler.user_defined_components:
+            project = self._app.modeler.user_defined_components[self.sbr_comp].native_properties["Project"]
+            proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+            close = False
+            if proj_name not in self._app.project_list:
+                self._app.odesktop.OpenProject(project)
+                close = True
+            comp = get_pyaedt_app(
+                proj_name, self._app.modeler.user_defined_components[sbr_comp].native_properties["Design"]
+            )
+            lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+            if close:
+                comp.close_project()
+        else:
+            try:
+                lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
+                lattice_vectors = [
+                    float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
+                ]
 
-        except:
-            lattice_vectors = [0, 0, 0, 0, 1, 0]
+            except:
+                lattice_vectors = [0, 0, 0, 0, 1, 0]
         return lattice_vectors
 
     @pyaedt_function_handler()
