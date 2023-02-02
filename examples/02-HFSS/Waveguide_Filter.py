@@ -176,4 +176,4 @@ report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
 solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 
-hfss.release_desktop(close_desktop=False, close_projects=False)
+hfss.release_desktop()
