@@ -1977,7 +1977,7 @@ class FfdSolutionData(object):
         if is_antenna_array:
             for each in data["Element_Location"]:
                 translated_mesh = duplicate_mesh.copy()
-                offset_xyz = data["Element_Location"][each] * sf
+                offset_xyz = data["Element_Location"][each] / sf
                 if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
                     xmax = offset_xyz[0] * 2
                 if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
@@ -1991,6 +1991,7 @@ class FfdSolutionData(object):
         self.all_max = np.max(np.array([xmax, ymax, zmax]))
         elapsed_time = time.time() - time_before
         self._app.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
+        new_meshes.translate([-i for i in new_meshes.center], inplace=True)
         return new_meshes
 
     @pyaedt_function_handler()
