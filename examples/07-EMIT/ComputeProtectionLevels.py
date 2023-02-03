@@ -17,6 +17,7 @@ import sys
 import subprocess
 import pyaedt
 from pyaedt import Emit
+import pyaedt.emit_core.EmitConstants as econsts
 
 # Check to see which Python libraries have been installed
 reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
@@ -130,10 +131,10 @@ for band in bands:
 # ~~~~~~~~~~~~~~~~~~~~
 # Create a results revision and load it for analysis.
 
-rev = emitapp.analyze()
-modeRx = emitapp.tx_rx_mode().rx
-modeTx = emitapp.tx_rx_mode().tx
-resultMode = emitapp.result_type().powerAtRx
+rev = emitapp.results.analyze()
+modeRx = econsts.tx_rx_mode().rx
+modeTx = econsts.tx_rx_mode().tx
+resultMode = econsts.result_type().powerAtRx
 
 ###############################################################################
 # Generate a legend
@@ -221,10 +222,10 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # Get all the radios in the project
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get lists of all transmitters and receivers in the project.
-
-rx_radios = emitapp.results.get_radio_names(modeRx)
-tx_radios = emitapp.results.get_radio_names(modeTx)
-domain = emitapp.interaction_domain()
+rev = emitapp.results.current_revision
+rx_radios = rev.get_radio_names(modeRx)
+tx_radios = rev.get_radio_names(modeTx)
+domain = emitapp.results.interaction_domain()
 
 ###############################################################################
 # Iterate over all the radios
@@ -245,7 +246,7 @@ for tx_radio in tx_radios:
             rx_colors.append('green')
             continue
         print("Power Thresholds for {tx} vs {rx}".format(tx=tx_radio,rx=rx_radio))
-        for rx_band in emitapp.results.get_band_names(rx_radio, modeRx): 
+        for rx_band in rev.get_band_names(rx_radio, modeRx): 
             # if "L2 P(Y)" not in rx_band:
             #     # skip 'normal' Rx bands
             #     continue
@@ -265,7 +266,7 @@ for tx_radio in tx_radios:
                 if band.enabled:
                     tx_band = band.node_name
                     break
-            for tx_band_shortname in emitapp.results.get_band_names(tx_radio, modeTx): 
+            for tx_band_shortname in rev.get_band_names(tx_radio, modeTx): 
                 if tx_band_shortname in tx_band:
                     break
 

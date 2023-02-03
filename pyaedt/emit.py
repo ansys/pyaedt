@@ -5,16 +5,12 @@ import sys
 import warnings
 from importlib import import_module
 
-import pyaedt.generic.constants as consts
 from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.results.results import Results
-from pyaedt.emit_core.results.revision import Revision
-
-# global variable used to store module import
-mod = None
 
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.
@@ -140,16 +136,7 @@ class Emit(FieldAnalysisEmit, object):
             port=port,
             aedt_process_id=aedt_process_id,
         )
-        # aedt delcross python from custom path if any (for developers)
-        delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
-        if delcross_python_path:
-            sys.path.append(delcross_python_path)
-        # installed aedt delcross python path
-        desktop_path = self.desktop_install_dir
-        path = os.path.join(desktop_path, "Delcross")
-        sys.path.append(path)
-
-        self.units = {
+        self._units = {
             "Power": "dBm",
             "Frequency": "MHz",
             "Length": "meter",
@@ -161,9 +148,7 @@ class Emit(FieldAnalysisEmit, object):
         """Default Emit units."""
 
         if self._aedt_version >= "2023.1":
-            global mod
-            mod = import_module("EmitApiPython")
-            self._emit_api = mod.EmitApi()
+            self._emit_api = EMIT_MODULE.EmitApi()
             """Instance of the Emit api."""
             
             self.results = Results(self)
@@ -174,124 +159,6 @@ class Emit(FieldAnalysisEmit, object):
     @pyaedt_function_handler()
     def __enter__(self):
         return self
-
-    @pyaedt_function_handler()
-    def analyze(self, revision_num=-1):
-        """
-        Analyze the active design.
-
-        Returns
-        -------
-        rev:class:`pyaedt.modules.Revision`
-            Last ``Revision`` object that was generated.
-
-        Examples
-        --------
-        >>> rev = aedtapp.analyze()
-
-        """
-        print("hi")
-        if self.__emit_api_enabled:
-            design = self.odesktop.GetActiveProject().GetActiveDesign()
-            if not self.results.current_design == design.GetRevision():
-                design.AddResult()
-                self.results.revisions_list.append(Revision(self))
-                self.results.current_design = design.GetRevision()
-                print("checkpoint - revision generated successfully")
-            domain = Emit.interaction_domain()
-            self.results.revisions_list[revision_num].run(domain)
-            rev = self.results.revisions_list[revision_num]
-            return rev
-
-    @pyaedt_function_handler()
-    def _load_result_set(self, path):
-        """
-        Load a specific result set.
-
-        Parameters
-        ----------
-        path : str
-            Path to an AEDT EMIT result file.
-
-        Examples
-        ----------
-        >>> aedtapp._load_result_set(path)
-
-        """
-        if self.__emit_api_enabled:
-            if not self.results.result_loaded or path != self._emit_api.get_project_path():
-                self._emit_api.load_project(path)
-                self.results.result_loaded = True
-                print(self.results.result_loaded)
-
-    @staticmethod
-    def result_type():
-        """
-        Get a result type.
-
-        Returns
-        -------
-        result :class:`result_type`
-            Result type object which can later be assigned a status (emi, sensitivity, desense).
-
-        Examples
-        --------
-        >>> Emit.result_type()
-
-        """
-        try:
-            result = mod.result_type()
-        except NameError:
-            raise ValueError(
-                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
-            )
-        return result
-
-    @staticmethod
-    def tx_rx_mode():
-        """
-        Get a ``tx_rx_mode`` object.
-
-        Returns
-        -------
-        :class:`Emit.tx_rx_mode`
-            Mode status which can later be assigned a status (tx, rx).
-
-        Examples
-        --------
-        >>> tx_rx = Emit.tx_rx_mode()
-
-        """
-        try:
-            tx_rx = mod.tx_rx_mode()
-        except NameError:
-            raise ValueError(
-                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
-            )
-        return tx_rx
-
-    @staticmethod
-    def interaction_domain():
-        """
-        Get an ``InteractionDomain`` object.
-
-        Returns
-        -------
-        :class:`Emit.InteractionDomain`
-            Defines a set of interacting interferers and receivers.
-
-        Examples
-        --------
-        >>> domain = Emit.InteractionDomain()
-
-        """
-        try:
-            domain = mod.InteractionDomain()
-        except NameError:
-            raise ValueError(
-                "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
-            )
-        return domain
 
     @pyaedt_function_handler()
     def version(self, detailed=False):
@@ -353,7 +220,7 @@ class Emit(FieldAnalysisEmit, object):
                 if v not in valid_units[t]:
                     warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
                     return False
-                self.units[t] = v
+                self._units[t] = v
         else:
             if unit_type not in valid_type:
                 warnings.warn(
@@ -365,7 +232,7 @@ class Emit(FieldAnalysisEmit, object):
                     "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_type])
                 )
                 return False
-            self.units[unit_type] = unit_value
+            self._units[unit_type] = unit_value
         return True
 
     @pyaedt_function_handler()
@@ -380,13 +247,12 @@ class Emit(FieldAnalysisEmit, object):
 
         Returns
         -------
-        Str or Tuple
+        Str or Dict
             If unit_type is specified returns the units for that type
-            and if unit_type="", returns a Tuple of all units.
+            and if unit_type="", returns a Dict of all units.
         """
         if not unit_type:
-            units = [(k, v) for k, v in self.units.items()]
-            return units
+            return self._units
         if unit_type not in EmitConstants.EMIT_UNIT_TYPE:
             warnings.warn(
                 "[{}] units are not supported by EMIT. The options are: {}: ".format(
@@ -394,4 +260,4 @@ class Emit(FieldAnalysisEmit, object):
                 )
             )
             return None
-        return self.units[unit_type]
+        return self._units[unit_type]

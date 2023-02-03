@@ -1,9 +1,8 @@
 from collections import defaultdict
 
+from pyaedt.generic.general_methods import pyaedt_function_handler
 import pyaedt.generic.constants as consts
 from pyaedt.emit_core import EmitConstants as emit_consts
-from pyaedt.generic.general_methods import pyaedt_function_handler
-
 
 class EmitComponents(object):
     """EmitComponents class.
@@ -153,7 +152,7 @@ class EmitComponents(object):
         o_update = self.update_object_properties(o)
         self.components[new_comp_name] = o_update
         return o_update
-
+    
     @pyaedt_function_handler()
     def create_radio_antenna(self, radio_type, radio_name=None, antenna_name=None, library=None):
         """Create a new radio and antenna and connect them.
@@ -320,7 +319,7 @@ class EmitComponent(object):
         self.root_prop_node = None
         """Root node of the component."""
 
-        self.units = components._parent.units
+        self.units = components._parent.get_units()
         """Units for the component."""
 
     @property
@@ -512,7 +511,7 @@ class EmitComponent(object):
         Parameters
         ----------
         property_filter : dict, optional
-        Only return nodes with all the property name, value pairs of this dict.
+        Only return nodes with all the property name, value pairs of this dict. 
             Defaults to ``None`` which returns all nodes.
 
         Returns
@@ -520,7 +519,7 @@ class EmitComponent(object):
         List
             List of all matching nodes (EmitComponentPropNode).
         """
-        if property_filter is None:
+        if property_filter == None:
             property_filter = {}
 
         filtered_nodes = []
@@ -543,7 +542,7 @@ class EmitComponent(object):
 
         Returns
         -------
-        List
+        List 
             List containing all EMIT components that are connected to this component.
         """
         component_names = []
@@ -577,7 +576,6 @@ class EmitComponent(object):
         properties = self.get_node_properties()
 
         return properties["Type"]
-
 
 @EmitComponent.register_subclass("Antenna")
 class EmitAntennaComponent(EmitComponent):
@@ -652,18 +650,16 @@ class EmitAntennaComponent(EmitComponent):
 
         # Build a tuple of the position
         parts = position_string.split()
-
+        
         # Check the units specified are a valid Emit length
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Length"]:
             units = self.units["Length"]
         position = (
-            consts.unit_converter(float(parts[0]), "Length", "meter", units),
-            consts.unit_converter(float(parts[1]), "Length", "meter", units),
-            consts.unit_converter(float(parts[2]), "Length", "meter", units),
-        )
+            consts.unit_converter(float(parts[0]),"Length", "meter", units), 
+            consts.unit_converter(float(parts[1]),"Length", "meter", units),
+            consts.unit_converter(float(parts[2]),"Length", "meter", units))
 
         return position
-
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
@@ -692,16 +688,16 @@ class EmitRadioComponent(EmitComponent):
         Parameters
         ----------
         band_node : Instance of the band node.
-        units : str
+        units : str 
             Units of the start frequency.
 
         Returns
         -------
-        Float
+        Float            
             Start frequency of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = self.units["Frequency"]
-        return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
+        return consts.unit_converter(float(band_node.props["StartFrequency"]),"Freq", "Hz", units) 
 
     def band_tx_power(self, band_node, units=""):
         """Get the transmit power of the band node.
@@ -709,12 +705,12 @@ class EmitRadioComponent(EmitComponent):
         Parameters
         ----------
         band_node : Instance of the band node.
-        units : str
+        units : str 
             Units of the start frequency.
 
         Returns
         -------
-        Float
+        Float            
             Transmit power of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.units["Power"]
@@ -731,8 +727,8 @@ class EmitRadioComponent(EmitComponent):
 
         Returns
         -------
-        Bool
-            ''True'' if the radio has enabled transmit channels and
+        Bool            
+            ''True'' if the radio has enabled transmit channels and 
             ''False'' if there are no enabled transmit channels."""
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
@@ -746,8 +742,8 @@ class EmitRadioComponent(EmitComponent):
 
         Returns
         -------
-        Bool
-            ''True'' if the radio has enabled receive channels and
+        Bool            
+            ''True'' if the radio has enabled receive channels and 
             ''False'' if there are no enabled receive channels."""
         nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
@@ -761,19 +757,19 @@ class EmitRadioComponent(EmitComponent):
 
         Returns
         -------
-        List
+        List            
             List of antennas connected to this radio."""
         components = super().get_connected_components()
         antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode", components)
         return list(antennas)
-
+    
     def get_sampling(self):
         """Returns the sampling for the radio.
-
+        
         Parameters
         ----------
         None
-
+        
         Return
         ------
         EmitComponentPropNode
@@ -816,7 +812,7 @@ class EmitComponentPropNode(object):
 
         Returns
         -------
-        Dict
+        Dict            
             Dictionary of all the properties for this node."""
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
         props = dict(p.split("=") for p in prop_list)
@@ -833,20 +829,20 @@ class EmitComponentPropNode(object):
 
         Returns
         -------
-        Bool
-            Returns ''True'' if the node is enabled and
+        Bool            
+            Returns ''True'' if the node is enabled and 
             ''False'' if the node is disabled."""
         return self.props["Enabled"] == "true"
-
+    
     @pyaedt_function_handler()
     def set_band_power_level(self, power, units=""):
         """Set the power of the fundamental for the given band.
-
+        
         Parameters
-        ----------
-        power : float
+        ----------            
+        power : float 
             Peak amplitude of the fundamental [dBm].
-        units : str
+        units : str 
             Units of the power.
 
         Return
@@ -859,19 +855,19 @@ class EmitComponentPropNode(object):
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
         power_string = "{}".format(emit_consts.convert_power_dbm(power, units))
-        prop_list = {"FundamentalAmplitude": power_string}
+        prop_list = { "FundamentalAmplitude": power_string}
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
                 child._set_prop_value(prop_list)
-                return  # only one Tx Spectral Profile per Band
-
+                return # only one Tx Spectral Profile per Band
+            
     @pyaedt_function_handler()
     def get_band_power_level(self, units=""):
         """Get the power of the fundamental for the given band.
-
+        
         Parameters
-        ----------
-        units : str
+        ----------            
+        units : str 
             Units of the power.
 
         Return
@@ -887,26 +883,18 @@ class EmitComponentPropNode(object):
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
                 power = child.props["FundamentalAmplitude"]
-                break  # only one Tx Spectral Profile per Band
-
+                break # only one Tx Spectral Profile per Band
+        
         return emit_consts.convert_power_to_unit(float(power), units)
 
     @pyaedt_function_handler()
-    def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
-        """Set the channel sampling for the radio. If a percentage is
-        specified, then it will be used instead of max_channels.
+    def set_channel_sampling(self, percentage):
+        """Set the channel sampling for the radio.
 
-        Parameters
+        Paramaters
         ----------
-        sampling_type : str, optional
-            Type of sampling to use: Uniform, Random, or All.
-        percentage : float, optional
+        percentage: float
             Percentage of channels to sample for the analysis.
-        max_channels : float, optional
-            Maximum number of channels to sample for the analysis.
-        seed : float, optional
-            Seed used for the random channel generator. Applies to
-            random sampling only.
 
         Returns
         -------
@@ -914,27 +902,10 @@ class EmitComponentPropNode(object):
         """
         if "SamplingNode" not in self.props["Type"]:
             raise TypeError("{} must be a sampling node.".format(self.node_name))
-        sampling_type = sampling_type.lower()
-        if sampling_type == "all":
-            sampling_type = "SampleAllChannels"
-        elif sampling_type == "random":
-            sampling_type = "RandomSampling"
-        else:
-            sampling_type = "UniformSampling"
-        sampling_props = {"SamplingType": "{}".format(sampling_type)}
-        if percentage is not None:
-            sampling_props["SpecifyPercentage"] = "true"
-            sampling_props["PercentageChannels"] = "{}".format(percentage)
-        elif max_channels is not None:
-            sampling_props["SpecifyPercentage"] = "false"
-            sampling_props["NumberChannels"] = "{}".format(max_channels)
-        else:
-            # If nothing specified for max_channels or percentage, use default
-            sampling_props["SpecifyPercentage"] = "false"
-            sampling_props["NumberChannels"] = "1000"
-        if seed is not None:
-            sampling_props["RandomSeed"] = "{}".format(seed)
-        self._set_prop_value(sampling_props)
+        self._set_prop_value({
+                "SpecifyPercentage": "true", 
+                "PercentageChannels": "{}".format(percentage)
+                })
 
     @pyaedt_function_handler()
     def _set_prop_value(self, props={}):
@@ -943,7 +914,7 @@ class EmitComponentPropNode(object):
         Parameters
         ----------
         props : dict
-            Sets the property values for this node to the
+            Sets the property values for this node to the 
             values specified in the dictionary.
 
         Returns
@@ -976,7 +947,7 @@ class EmitComponentPropNode(object):
 
         Returns
         -------
-        None
+        None   
         """
         str_value = "true" if value else "false"
         self._set_prop_value({"Enabled": str_value})
