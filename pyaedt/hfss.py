@@ -1172,6 +1172,7 @@ class Hfss(FieldAnalysis3D, object):
         current_conformance="Disable",
         thin_sources=True,
         power_fraction="0.95",
+        visible=True,
     ):
         """Create a linked antennas.
 
@@ -1195,6 +1196,8 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
+        visible : bool, optional.
+            Visualize source objects in target design. The default is ``True``.
 
         References
         ----------
@@ -1253,6 +1256,8 @@ class Hfss(FieldAnalysis3D, object):
             native_props["Current Source Conformance"] = current_conformance
             native_props["Thin Sources"] = thin_sources
             native_props["Power Fraction"] = power_fraction
+        if visible:
+            native_props["VisualizationObjects"] = source_object.modeler.solid_names
         return self._create_native_component(
             "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
         )
@@ -5861,9 +5866,16 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
-        self, frequencies, setup_name=None, sphere_name=None, variations=None, overwrite=True, taper="flat"
+        self,
+        frequencies,
+        setup_name=None,
+        sphere_name=None,
+        variations=None,
+        overwrite=True,
+        taper="flat",
     ):
-        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object. For
+        phased array cases, only one phased array will be calculated.
 
         Parameters
         ----------
@@ -5911,6 +5923,12 @@ class Hfss(FieldAnalysis3D, object):
             )
             self.logger.info("Far field sphere %s is created.", setup_name)
 
+        component_name = None
+        if self.solution_type == "SBR+" and self.modeler.modeler.user_defined_component_names:
+            antenna = self.modeler.user_defined_components[self.modeler.modeler.user_defined_component_names[0]]
+            if antenna.native_properties["Type"] == "Linked Antenna":
+                component_name = antenna.name
+
         return FfdSolutionData(
             self,
             sphere_name=sphere_name,
@@ -5919,6 +5937,7 @@ class Hfss(FieldAnalysis3D, object):
             variations=variations,
             overwrite=overwrite,
             taper=taper,
+            sbr_3d_comp_name=component_name,
         )
 
     @pyaedt_function_handler()

@@ -230,6 +230,7 @@ class PostProcessor(Post):
         clean_files=False,
         array_coordinates=None,
         view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a substet of objects.
 
@@ -257,6 +258,8 @@ class PostProcessor(Post):
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
             The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -272,6 +275,7 @@ class PostProcessor(Post):
             generate_mesh=False,
         )
 
+        model.show_legend = show_legend
         model.off_screen = not show
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
