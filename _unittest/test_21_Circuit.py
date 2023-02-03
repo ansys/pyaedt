@@ -54,6 +54,7 @@ class TestClass(BasisTest, object):
 
     def test_02_create_resistor(self):
         myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
+        assert myres.refdes != ""
         assert type(myres.id) is int
         assert myres.parameters["R"] == "50"
 
