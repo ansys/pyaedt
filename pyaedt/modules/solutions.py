@@ -12,6 +12,7 @@ from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import write_csv
@@ -1683,25 +1684,44 @@ class FfdSolutionData(object):
         list of float
         """
         if self.sbr_comp and self.sbr_comp in self._app.modeler.user_defined_components:
-            project = self._app.modeler.user_defined_components[self.sbr_comp].native_properties["Project"]
-            proj_name = os.path.splitext(os.path.split(project)[-1])[0]
-            close = False
-            if proj_name not in self._app.project_list:
-                self._app.odesktop.OpenProject(project)
-                close = True
-            comp = get_pyaedt_app(
-                proj_name, self._app.modeler.user_defined_components[sbr_comp].native_properties["Design"]
-            )
-            lattice_vectors = comp.omodelsetup.GetLatticeVectors()
-            if close:
-                comp.close_project()
+            component_props = "NativeComponentDefinitionProvider"
+            comp_obj = self._app.modeler.user_defined_components[self.sbr_comp]
+            if "Project" in list(comp_obj.native_properties.keys()):
+                # Project opened
+                project = comp_obj.native_properties["Project"]
+                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                if proj_name not in self._app.project_list:
+                    self._app.odesktop.OpenProject(project)
+                comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
+                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+                comp_units = comp.modeler.model_units
+            else:
+                # Project not opened
+                project = comp_obj.native_properties[component_props]["Project"]
+                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                if proj_name not in self._app.project_list:
+                    self._app.odesktop.OpenProject(project)
+
+                comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
+                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+                comp_units = comp.modeler.model_units
+                comp.close_project(save_project=False)
+
+            lattice_vectors = [
+                str(x)
+                for x in unit_converter(
+                    values=[float(i) for i in lattice_vectors],
+                    unit_system="Length",
+                    input_units=comp_units,
+                    output_units=self._app.modeler.model_units,
+                )
+            ]
         else:
             try:
                 lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
                 lattice_vectors = [
                     float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
                 ]
-
             except:
                 lattice_vectors = [0, 0, 0, 0, 1, 0]
         return lattice_vectors
