@@ -1729,7 +1729,7 @@ class FfdSolutionData(object):
                 comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
                 lattice_vectors = comp.omodelsetup.GetLatticeVectors()
                 source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
-                for port, p in source_names:
+                for port in source_names:
                     try:
                         str1 = port.split("[", 1)[1].split("]", 1)[0]
                         self._native_indexes.append([int(i) for i in str1.split(",")])
