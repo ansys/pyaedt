@@ -15,7 +15,6 @@ evaluate expressions.
 # a default requirement in PyAedt and is only compatible
 # with CPython > 3.6.
 
-# sphinx_gallery_thumbnail_path = 'Resources/wgf.png'
 import os
 import tempfile
 import pyaedt
