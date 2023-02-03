@@ -2113,6 +2113,7 @@ class FfdSolutionData(object):
         rotation=None,
         export_image_path=None,
         show=True,
+        show_as_standalone=False,
     ):
         """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
 
@@ -2131,7 +2132,8 @@ class FfdSolutionData(object):
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
             Either if the plot has to be shown or not. Default is `True`.
-
+        show_outside_notebook : bool, optional
+            Either if the plot has to be shown as standalone or not. Default is `True`.
         Returns
         -------
         PyVista object
@@ -2150,7 +2152,11 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
+        if show_as_standalone:
+            p = pv.Plotter(notebook=False, off_screen=not show)
+        else:
+            p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
+
         uf = UpdateBeamForm(self)
 
         p.add_slider_widget(
