@@ -201,7 +201,7 @@ class TestClass(BasisTest, object):
         ffdata2.polar_plot_3d_pyvista(
             qty_str="RealizedGain",
             convert_to_db=True,
-            show=True,
+            show=False,
             position=[-0.11749961434125, -1.68, 0.20457438854331],
             rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
             export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
