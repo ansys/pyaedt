@@ -62,15 +62,6 @@ p2 = circuit.modeler.schematic.create_interface_port(name="Out")
 circuit.modeler.schematic.connect_components_in_series(components_to_connect=[p1, r1, l1, c1, p2], use_wire=True)
 circuit.pop_up()
 
-###############################################################################
-# Duplicate subcircuit
-# ~~~~~~~~~~~~~~~~~~~~
-# Duplicate the previously created subcircuit and set a new parameter value.
-# This works only in graphical mode.
-
-if not non_graphical:
-    new_comp = circuit.modeler.schematic.duplicate(component=subcircuit_name, location=[200, 0])
-    new_comp.parameters["R_val"] = "75ohm"
 
 ###############################################################################
 # Release AEDT
