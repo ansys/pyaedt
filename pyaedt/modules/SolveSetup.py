@@ -1359,7 +1359,7 @@ class Setup3DLayout(CommonSetup):
                     obj_ind = hfss.modeler.object_id_dict[united_object]
                     hfss.modeler.objects[obj_ind].name = net
                     hfss.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
-            hfss.close_project(True)
+            hfss.close_project(save_project=True)
         return True
 
     @pyaedt_function_handler()
