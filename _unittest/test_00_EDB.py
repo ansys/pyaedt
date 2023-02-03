@@ -875,6 +875,8 @@ if not config["skip_edb"]:
                 assert self.edbapp.core_primitives.primitives[i].area(False) > 0
                 assert self.edbapp.core_primitives.primitives[i].area(True) > 0
                 i += 1
+            assert self.edbapp.core_primitives.primitives[i].bbox
+            assert self.edbapp.core_primitives.primitives[i].center
 
         def test_085_short_component(self):
             assert self.edbapp.core_components.short_component_pins("EU1", width=0.2e-3)
@@ -2148,3 +2150,16 @@ if not config["skip_edb"]:
 
         def test_132_via_plating_ratio_check(self):
             assert self.edbapp.core_padstack.check_and_fix_via_plating()
+
+        def test_133_siwave_build_ac_prject(self):
+            source_path = os.path.join(local_path, "example_models", test_subfolder, "padstacks.aedb")
+            target_path = os.path.join(self.local_scratch.path, "test_133_simconfig.aedb")
+            self.local_scratch.copyfolder(source_path, target_path)
+            edbapp = Edb(target_path, edbversion=desktop_version)
+            simconfig = edbapp.new_simulation_configuration()
+            simconfig.solver_type = SolverType.SiwaveSYZ
+            simconfig.mesh_freq = "40.25GHz"
+            edbapp.build_simulation_project(simconfig)
+            setup = list(edbapp.active_cell.SimulationSetups)[0]
+            setup_str = [t.strip("\n\t") for t in setup.ToString().split("\r")]
+            assert [f for f in setup_str if "MeshFrequency" in f][0].split("=")[-1].strip("'") == simconfig.mesh_freq

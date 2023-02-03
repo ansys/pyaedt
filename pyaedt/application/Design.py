@@ -428,7 +428,10 @@ class Design(AedtObjects):
         self.odesign.RenameDesignInstance(self.design_name, new_name)
         timeout = 5.0
         timestep = 0.1
-        while new_name not in [i.GetName() for i in list(self._oproject.GetDesigns())]:
+        while new_name not in [
+            i.GetName() if ";" not in i.GetName() else i.GetName().split(";")[1]
+            for i in list(self._oproject.GetDesigns())
+        ]:
             time.sleep(timestep)
             timeout -= timestep
             assert timeout >= 0

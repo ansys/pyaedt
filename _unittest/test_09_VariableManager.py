@@ -112,19 +112,39 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager.set_variable("$p1", expression="10mm")
 
     def test_05_variable_class(self):
-
         v = Variable("4mm")
         num_value = v.numeric_value
         assert num_value == 4.0
 
         v = v.rescale_to("meter")
-        test = v.evaluated_value
+        assert v.evaluated_value == "0.004meter"
         assert v.numeric_value == 0.004
+        assert v.value == v.numeric_value
 
         v = Variable("100cel")
+        assert v.numeric_value == 100.0
+        assert v.evaluated_value == "100.0cel"
+        assert v.value == 373.15
         v.rescale_to("fah")
         assert v.numeric_value == 212.0
-        pass
+
+        v = Variable("30dBW")
+        assert v.numeric_value == 30.0
+        assert v.evaluated_value == "30.0dBW"
+        assert v.value == 1000
+        v.rescale_to("megW")
+        assert v.numeric_value == 0.001
+        assert v.evaluated_value == "0.001megW"
+        assert v.value == 1000
+
+        v = Variable("10dBm")
+        assert v.numeric_value == 10.0
+        assert v.evaluated_value == "10.0dBm"
+        assert v.value == 0.01
+        v.rescale_to("W")
+        assert v.numeric_value == 0.01
+        assert v.evaluated_value == "0.01W"
+        assert v.value == 0.01
 
     def test_06_multiplication(self):
 

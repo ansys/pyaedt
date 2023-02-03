@@ -32,9 +32,23 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._app = app
+        self._schematic_units = "meter"
         self.o_def_manager = self._app.odefinition_manager
         Modeler.__init__(self, app)
         self.wire = Wire(self)
+
+    @property
+    def schematic_units(self):
+        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
+        The default is ``"meter"``."""
+        return self._schematic_units
+
+    @schematic_units.setter
+    def schematic_units(self, value):
+        if value in list(AEDT_UNITS["Length"].keys()):
+            self._schematic_units = value
+        else:
+            self.logger.error("The unit %s is not supported.", value)
 
     @property
     def o_component_manager(self):
@@ -193,7 +207,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -206,7 +220,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -225,7 +239,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def model_units(self):
-        """Model units.
+        """Layout model units.
 
         References
         ----------
@@ -269,8 +283,8 @@ class ModelerNexxim(ModelerCircuit):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @pyaedt_function_handler()
-    def move(self, selections, pos, units="meter"):
-        """Move the selections by ``[x, y]``.
+    def move(self, selections, pos, units=None):
+        """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
         ----------
@@ -279,7 +293,8 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Offset for the Y axis.
+            Units of the movement. The default is ``"meter"``. If ``None``,
+            ``schematic_units` are used.
 
         Returns
         -------
@@ -295,9 +310,12 @@ class ModelerNexxim(ModelerCircuit):
         if not sels:
             self.logger.error("No Component Found.")
             return False
-        x_location = AEDT_UNITS["Length"][units] * float(pos[0])
-        y_location = AEDT_UNITS["Length"][units] * float(pos[1])
-
+        if units:
+            x_location = AEDT_UNITS["Length"][units] * float(pos[0])
+            y_location = AEDT_UNITS["Length"][units] * float(pos[1])
+        else:
+            x_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[0])
+            y_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[1])
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
             [

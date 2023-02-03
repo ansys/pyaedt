@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
+from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
 
 
@@ -162,6 +163,22 @@ class UserDefinedComponent(object):
                 self._update_props(self._props["NativeComponentDefinitionProvider"], props)
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
+
+    def history(self):
+        """Component history.
+
+        Returns
+        -------
+            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        try:
+            child_object = self._primitives.oeditor.GetChildObject(self.name)
+            parent = BinaryTreeNode(self.name, child_object, True, "Operations")
+            return parent
+        except:
+            return False
 
     @property
     def group_name(self):
