@@ -1106,6 +1106,8 @@ class FfdSolutionData(object):
     ):
         self._app = app
         self.levels = 64
+        self._native_indexes = []
+        self._port_indexes = {}
         self.all_max = 1
         self.sphere_name = sphere_name
         self.setup_name = setup_name
@@ -1160,6 +1162,14 @@ class FfdSolutionData(object):
                 self.diff_area = np.radians(self.d_theta) * np.radians(self.d_phi) * np.sin(np.radians(theta_range))
                 self.num_samples = len(temp_dict["rETheta"])
                 self.all_port_names = list(self.data_dict.keys())
+                if self._native_indexes:
+                    i = 0
+                    for p in self.all_port_names:
+                        self._port_indexes[p] = self._native_indexes[i]
+                        i += 1
+                else:
+                    for p in self.all_port_names:
+                        self._port_indexes[p] = self.get_array_index(p)
                 self.solution_type = "DrivenModal"
                 self.unique_beams = None
                 self.renormalize = False
@@ -1233,9 +1243,8 @@ class FfdSolutionData(object):
             self._mag_offset = mags
             self.beamform()
 
-    @staticmethod
     @pyaedt_function_handler()
-    def get_array_index(port_name):
+    def get_array_index(self, port_name):
         """Get index of a given port.
 
         Parameters
@@ -1246,6 +1255,8 @@ class FfdSolutionData(object):
         -------
         list of int
         """
+        if self._port_indexes:
+            return self._port_indexes[port_name]
         try:
             str1 = port_name.split("[", 1)[1].split("]", 1)[0]
             index_str = [int(i) for i in str1.split(",")]
@@ -1717,19 +1728,35 @@ class FfdSolutionData(object):
                     self._app.odesktop.OpenProject(project)
                 comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
                 lattice_vectors = comp.omodelsetup.GetLatticeVectors()
-                comp_units = comp.modeler.model_units
+                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
+                for port, p in source_names:
+                    try:
+                        str1 = port.split("[", 1)[1].split("]", 1)[0]
+                        self._native_indexes.append([int(i) for i in str1.split(",")])
+                    except:
+                        self._native_indexes.append([1, 1])
                 if close:
                     comp.close_project()
             else:
                 # Project not opened
                 project = comp_obj.native_properties[component_props]["Project"]
                 proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                close = False
                 if proj_name not in self._app.project_list:
+                    close = True
                     self._app.odesktop.OpenProject(project)
                 comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
                 lattice_vectors = comp.omodelsetup.GetLatticeVectors()
                 comp_units = comp.modeler.model_units
-                comp.close_project(save_project=False)
+                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
+                for port in source_names:
+                    try:
+                        str1 = port.split("[", 1)[1].split("]", 1)[0]
+                        self._native_indexes.append([int(i) for i in str1.split(",")])
+                    except:
+                        self._native_indexes.append([1, 1])
+                if close:
+                    comp.close_project(save_project=False)
 
             lattice_vectors = [
                 str(x)
@@ -2187,14 +2214,20 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color="white", font_size=10)
-
-            slider_max = int(max([j for i in cad_mesh for j in i[0].bounds]) / self.max_gain)
+            slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
+            if slider_max > 0:
+                slider_min = 0
+                value = slider_max / 3
+            else:
+                slider_min = slider_max
+                slider_max = 0
+                value = slider_min / 3
 
             p.add_slider_widget(
                 scale,
-                [0, slider_max],
+                [slider_min, slider_max],
                 title="Scale Plot",
-                value=slider_max / 4,
+                value=value,
                 pointa=(0.7, 0.93),
                 pointb=(0.99, 0.93),
                 style="modern",
@@ -2325,9 +2358,15 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True)
             p.add_text("Show Far Fields", position=(70, 25), color="black", font_size=12)
-            max_bounding = max([j for i in cad_mesh for j in i[0].bounds])
-            slider_max = int(np.ceil(max_bounding))
-            p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=slider_max / 4)
+            slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
+            if slider_max > 0:
+                slider_min = 0
+                value = slider_max / 3
+            else:
+                slider_min = slider_max
+                slider_max = 0
+                value = slider_min / 3
+            p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=value)
 
             if "MaterialIds" in cad_mesh.array_names:
                 color_display_type = cad_mesh["MaterialIds"]
