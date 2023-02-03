@@ -1727,6 +1727,7 @@ class FfdSolutionData(object):
                     close = True
                     self._app.odesktop.OpenProject(project)
                 comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
+                comp_units = comp.modeler.model_units
                 lattice_vectors = comp.omodelsetup.GetLatticeVectors()
                 source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
                 for port in source_names:
