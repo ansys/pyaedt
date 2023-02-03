@@ -81,26 +81,26 @@ gnd = tb.modeler.components.create_gnd(location=[5 * G, -16 * G])
 
 # Wire the diode bridge.
 
-tb.modeler.wire.create_wire(points_array=[diode1.pins[0].location, diode3.pins[0].location])
-tb.modeler.wire.create_wire(points_array=[diode2.pins[1].location, diode4.pins[1].location])
-tb.modeler.wire.create_wire(points_array=[diode1.pins[1].location, diode2.pins[0].location])
-tb.modeler.wire.create_wire(points_array=[diode3.pins[1].location, diode4.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[diode1.pins[0].location, diode3.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[diode2.pins[1].location, diode4.pins[1].location])
+tb.modeler.schematic.create_wire(points_array=[diode1.pins[1].location, diode2.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[diode3.pins[1].location, diode4.pins[0].location])
 
 # Wire the AC source.
 
-tb.modeler.wire.create_wire(points_array=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
-tb.modeler.wire.create_wire(points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
+tb.modeler.schematic.create_wire(points_array=[source.pins[1].location, [0, 10 * G], [15 * G, 10 * G], [15 * G, 5 * G]])
+tb.modeler.schematic.create_wire(points_array=[source.pins[0].location, [0, -10 * G], [15 * G, -10 * G], [15 * G, -5 * G]])
 
 # Wire the filter capacitor and load resistor.
 
-tb.modeler.wire.create_wire(points_array=[resistor.pins[0].location, [40 * G, 0], [22 * G, 0]])
-tb.modeler.wire.create_wire(points_array=[capacitor.pins[0].location, [30 * G, 0]])
+tb.modeler.schematic.create_wire(points_array=[resistor.pins[0].location, [40 * G, 0], [22 * G, 0]])
+tb.modeler.schematic.create_wire(points_array=[capacitor.pins[0].location, [30 * G, 0]])
 
 # Wire the ground.
 
-tb.modeler.wire.create_wire(points_array=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
-tb.modeler.wire.create_wire(points_array=[capacitor.pins[1].location, [30 * G, -15 * G]])
-tb.modeler.wire.create_wire(points_array=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
+tb.modeler.schematic.create_wire(points_array=[resistor.pins[1].location, [40 * G, -15 * G], gnd.pins[0].location])
+tb.modeler.schematic.create_wire(points_array=[capacitor.pins[1].location, [30 * G, -15 * G]])
+tb.modeler.schematic.create_wire(points_array=[gnd.pins[0].location, [5 * G, 0], [8 * G, 0]])
 
 # Zoom to fit the schematic
 tb.modeler.zoom_to_fit()

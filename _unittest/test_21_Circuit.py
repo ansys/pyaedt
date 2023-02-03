@@ -697,11 +697,16 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("CreateWireTest")
         myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
-        assert self.aedtapp.modeler.wire.create_wire(
+        self.aedtapp.modeler.schematic.create_wire(
             [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
         )
-        wire_names = [x.split("@")[1].split(";")[0] for x in self.aedtapp.modeler.wire.wires]
+        wire_names = []
+        for key in self.aedtapp.modeler.schematic.wires.keys():
+            wire_names.append(self.aedtapp.modeler.schematic.wires[key].name)
         assert "wire_name_test" in wire_names
+        assert not self.aedtapp.modeler.schematic.create_wire(
+            [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
+        )
 
     def test_43_display_wire_properties(self):
         assert self.aedtapp.modeler.wire.display_wire_properties(

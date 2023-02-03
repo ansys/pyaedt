@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 import math
-import random
 from collections import OrderedDict
 
 from pyaedt import _retry_ntimes
@@ -633,6 +632,8 @@ class Wire(object):
     def __init__(self, modeler):
         self._app = modeler._app
         self._modeler = modeler
+        self.name = ""
+        self.id = 0
 
     @property
     def _oeditor(self):
@@ -651,39 +652,6 @@ class Wire(object):
             if "Wire" in wire:
                 wire_names.append(wire)
         return wire_names
-
-    @pyaedt_function_handler()
-    def create_wire(self, points_array, wire_name=""):
-        """Create a wire.
-
-        Parameters
-        ----------
-        points_array : list
-            A nested list of point coordinates. For example,
-            ``[[x1, y1], [x2, y2], ...]``.
-        wire_name : str, optional
-            Name of the wire. Default value is ``""``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.CreateWire
-        """
-        pointlist = [str(tuple(i)) for i in points_array]
-        wire_id = self._generate_unique_id()
-        try:
-            self._oeditor.CreateWire(
-                ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", pointlist],
-                ["NAME:Attributes", "Page:=", 1],
-            )
-            return True
-        except:
-            return False
 
     @pyaedt_function_handler()
     def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
@@ -741,13 +709,3 @@ class Wire(object):
         except ValueError as e:
             self.logger.error(str(e))
             return False
-
-    @pyaedt_function_handler()
-    def _generate_unique_id(self):
-        element_ids = []
-        for el in self._oeditor.GetAllElements():
-            element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
-        wire_id = random.randint(20000, 23000)
-        while wire_id in element_ids:
-            wire_id = random.randint(20000, 23000)
-        return wire_id
