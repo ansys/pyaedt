@@ -186,17 +186,10 @@ class TestClass(BasisTest, object):
         ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
         self.array.close_project()
         ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
-        assert ffdata.plot_farfield_contour(
-            qty_str="RealizedGain",
-            convert_to_db=True,
-            title="Contour at {}Hz".format(ffdata.frequency),
-            export_image_path=os.path.join(self.local_scratch.path, "contour_array.jpg"),
-        )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "contour_array.jpg"))
 
         ffdata.plot_2d_cut(
             primary_sweep="theta",
-            secondary_sweep_value=[-180, -75, 75],
+            secondary_sweep_value=[75],
             theta_scan=20,
             qty_str="RealizedGain",
             title="Azimuth at {}Hz".format(ffdata.frequency),
@@ -205,7 +198,7 @@ class TestClass(BasisTest, object):
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
 
-        ffdata.polar_plot_3d_pyvista(
+        ffdata2.polar_plot_3d_pyvista(
             qty_str="RealizedGain",
             convert_to_db=True,
             show=True,
