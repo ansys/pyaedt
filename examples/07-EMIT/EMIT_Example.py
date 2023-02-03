@@ -12,7 +12,6 @@ the simulation of an antenna.
 import os
 import pyaedt
 
-
 ###############################################################################
 # Set non-graphical mode
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -42,21 +41,14 @@ aedtapp = pyaedt.Emit(pyaedt.generate_unique_project_name())
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create three radios and connect an antenna to each one.
 
-rad1 = aedtapp.modeler.components.create_component("UE - Handheld")
+rad1 = aedtapp.modeler.components.create_component("New Radio")
 ant1 = aedtapp.modeler.components.create_component("Antenna")
 if rad1 and ant1:
     ant1.move_and_connect_to(rad1)
 
-rad2 = aedtapp.modeler.components.create_component("GPS Receiver")
-ant2 = aedtapp.modeler.components.create_component("Antenna")
-if rad2 and ant2:
-    ant2.move_and_connect_to(rad2)
-
-rad3 = aedtapp.modeler.components.create_component("Bluetooth")
-ant3 = aedtapp.modeler.components.create_component("Antenna")
-if rad3 and ant3:
-    ant3.move_and_connect_to(rad3)
-
+# Convenience method to create a radio and antenna connected together
+rad2, ant2 = aedtapp.modeler.components.create_radio_antenna("GPS Receiver")
+rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)", "Bluetooth")
 
 ###############################################################################
 # Define coupling among RF systems
@@ -68,8 +60,25 @@ if rad3 and ant3:
 ###############################################################################
 # Run EMIT simulation
 # ~~~~~~~~~~~~~~~~~~~
-# Run the EMIT simulation. This portion of the EMIT API is not yet implemented.
+# Run the EMIT simulation. 
+#
+# This part of the example requires Ansys AEDT 2023 R2. 
+# Uncomment it and run on correct version.
 
+# rev = aedtapp.analyze()
+# modeRx = aedtapp.tx_rx_mode().rx
+# modeTx = aedtapp.tx_rx_mode().tx
+# modeEmi = aedtapp.result_type().emi
+# rx_bands = aedtapp.results.get_band_names(rad2.name, modeRx) 
+# tx_bands = aedtapp.results.get_band_names(rad3.name, modeTx) 
+# domain = aedtapp.interaction_domain()
+# domain.set_receiver(rad2.name, rx_bands[0], -1)
+# domain.set_interferers([rad3.name],[tx_bands[0]],[-1])
+# interaction = rev.run(domain)
+# worst = interaction.get_worst_instance(modeEmi)
+# if worst.has_valid_values():
+#     emi = worst.get_value(modeEmi)
+#     print("Worst case interference is: {} dB".format(emi))
 
 ###############################################################################
 # Save project and close AEDT

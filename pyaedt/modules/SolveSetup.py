@@ -44,6 +44,24 @@ class CommonSetup(PropsManager, object):
         self._init_props(isnewsetup)
         self.auto_update = True
 
+    @property
+    def default_intrinsics(self):
+        """Retrieve default intrinsic for actual setup.
+
+        Returns
+        -------
+        dict
+            Dictionary which keys are typically Freq, Phase or Time."""
+        intr = {}
+        for i in self._app.design_solutions.intrinsics:
+            if i == "Freq" and "Frequency" in self.props:
+                intr[i] = self.props["Frequency"]
+            elif i == "Phase":
+                intr[i] = "0deg"
+            elif i == "Time":
+                intr[i] = "0s"
+        return intr
+
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 

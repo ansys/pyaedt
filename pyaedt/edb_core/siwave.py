@@ -898,6 +898,13 @@ class EdbSiwave(object):
             simsetup_info.Name = simulation_setup.setup_name
             simsetup_info.SimulationSettings.AdvancedSettings.PerformERC = False
             simsetup_info.SimulationSettings.UseCustomSettings = True
+            if simulation_setup.mesh_freq:  # pragma: no cover
+                if isinstance(simulation_setup.mesh_freq, str):
+                    simsetup_info.SimulationSettings.UseCustomSettings = True
+                    simsetup_info.SimulationSettings.AdvancedSettings.MeshAutoMatic = False
+                    simsetup_info.SimulationSettings.AdvancedSettings.MeshFrequency = simulation_setup.mesh_freq
+                else:
+                    self._logger.warning("Meshing frequency value must be a string with units")
             if simulation_setup.include_inter_plane_coupling:  # pragma: no cover
                 simsetup_info.SimulationSettings.AdvancedSettings.IncludeInterPlaneCoupling = (
                     simulation_setup.include_inter_plane_coupling
