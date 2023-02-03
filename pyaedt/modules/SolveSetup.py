@@ -1364,13 +1364,14 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_primitives_points_per_net(self):
-        net_primitives = self.p_app.modeler.edb.core_primitives.primitives_by_net
+        edb = self.p_app.modeler.edb
+        net_primitives = edb.core_primitives.primitives_by_net
         primitive_dict = {}
         for net, primitives in net_primitives.items():
             primitive_dict[net] = []
             if primitives:
                 for prim in primitives:
-                    layer = self.p_app.modeler.edb.stackup.signal_layers[prim.layer_name]
+                    layer = edb.stackup.signal_layers[prim.layer_name]
                     z = layer.lower_elevation + layer.thickness / 2
                     for arc in prim.arcs:
                         pt = self._get_polygon_centroid(arc.points)
