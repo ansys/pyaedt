@@ -32,7 +32,7 @@ aedt_file = targetfile[:-12] + "aedt"
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 NewThread = True
 
 ###############################################################################

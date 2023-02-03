@@ -38,10 +38,9 @@ wgparams = {'l': [0.7428, 0.82188],
             't': 0.15,
             'units': 'in'}
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 new_thread = True
 
-# project_name = pyaedt.generate_unique_project_name(project_name="wgf")
 
 project_folder = tempfile.gettempdir()
 project_name = project_folder + "\\" + general_methods.generate_unique_name("wgf", n=2)
@@ -59,7 +58,8 @@ var_mapping = dict()  # Used by parse_expr to parse expressions.
 
 ###############################################################################
 # Initialize design parameters in HFSS.
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 hfss.modeler.model_units = "in"  # Set to inches
 for key in wgparams:
     if type(wgparams[key]) in [int, float]:
@@ -87,6 +87,7 @@ else:
 # thickness and an integer, n, defining which iris is being placed.  Numbering
 # will go from the largest value (interior of the filter) to 1, which is the first
 # iris nearest the waveguide ports.
+
 def place_iris(zpos, dz, n):
     w_str = "w" + str(n)  # Iris width parameter as a string.
     this_name = "iris_a_"+str(n)  # Iris object name
@@ -100,7 +101,7 @@ def place_iris(zpos, dz, n):
 
 ###############################################################################
 # Place irises from inner (highest integer) to outer, 1
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 for count in reversed(range(1, len(wgparams['w']) + 1)):
     if count < len(wgparams['w']):  # Update zpos
@@ -116,7 +117,7 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 
 ###############################################################################
 # Draw the full waveguide with ports.
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # parse_expr() is used to determine the numerical position
 # of the integration line endpoints on the waveguide port.
 
@@ -129,8 +130,6 @@ wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
 hfss["u_end"]  = "a/2"
-# wg_z_start = "-(" + zpos + ") - port_extension"  # Add port length.
-# wg_length = "2*(" + zpos + " + port_extension )"
 hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
                         name="waveguide", matname="vacuum")
 
@@ -138,7 +137,7 @@ hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
 # Use parse_expr() to evaluate the numerical Cartesian coordinates
 # needed to specify start and end points of the integration line
 # on the port surfaces.
-# ~~~~~~~~~~~~~~~~~~~~~~
+#
 wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_value + wg_length.numeric_value, "in")]
 
 count = 0
@@ -150,8 +149,10 @@ for n, z in enumerate(wg_z):
 
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
-#  See pyaedt.modules.SetupTemplates.SetupKeys.SetupNames
+#################################################################################
+#  See pyaedt.modules.SetupTemplates.SolveSweeps.SetupNames
 #  for allowed values for setuptype.
+
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
                            MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
                            MaximumPasses=5)
@@ -164,11 +165,18 @@ setup.create_frequency_sweep(
     sweep_type="Interpolating",
     )
 
-setup.analyze(num_tasks=2)  # Each frequency point will be solved simultaneously.
+
+#################################################################################
+#  Solve the project with 2 tasks.
+#  Each frequency point will be solved simultaneously.
 
 
+setup.analyze(num_tasks=2)
+
+#################################################################################
 #  The following commands fetch solution data from HFSS for plotting directly
-#  from the Python interpreter. Caution: The syntax for expressions must be identical to that used
+#  from the Python interpreter.
+#  Caution: The syntax for expressions must be identical to that used
 #  in HFSS:
 
 traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")

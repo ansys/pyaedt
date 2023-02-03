@@ -1,7 +1,7 @@
-RMxprt templates and arguments
-===============================
+RMXprt templates and arguments
+==============================
 
-This section lists all setup templates with their default values and keys available in RMxprt.
+This section lists all setup templates with their default values and keys available in RMXprt.
 
 You can edit a setup after it is created. Here is an example:
 

@@ -25,7 +25,7 @@ input_dir = pyaedt.downloads.download_sherlock()
 # documentation only.
 # You can set ``non_graphical`` value either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Define variables

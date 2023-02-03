@@ -44,7 +44,6 @@ from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
-from pyaedt.modules.SolveSweeps import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 
 
@@ -1275,81 +1274,6 @@ class Analysis(Design, object):
             setup_name = setup_name + "_{}".format(index)
             index += 1
         return setup_name
-
-    @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
-        """Create a setup.
-
-        Parameters
-        ----------
-        setupname : str, optional
-            Name of the setup. The default is ``"MySetupAuto"``.
-        setuptype : optional
-            Type of the setup. The default is ``None``, in which case
-            the default type is applied.
-        **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
-            Available keys depend on setup chosen.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS` or :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
-
-        References
-        ----------
-
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-        Create a setup for SBR+ setup using advanced Doppler
-        processing for automotive radar.
-
-        >>> import pyaedt
-        >>> hfss = pyaedt.Hfss(solution_type='SBR+')
-        >>> setup1 = hfss.create_setup(setupname='Setup1')
-        >>> setup1.props["IsSbrRangeDoppler"] = True
-        >>> setup1.props["SbrRangeDopplerTimeVariable"] = "time_var"
-        >>> setup1.props["SbrRangeDopplerCenterFreq"] = "76.5GHz"
-        >>> setup1.props["SbrRangeDopplerRangeResolution"] = "0.15meter"
-        >>> setup1.props["SbrRangeDopplerRangePeriod"] = "100meter"
-        >>> setup1.props["SbrRangeDopplerVelocityResolution"] = "0.2m_per_sec"
-        >>> setup1.props["SbrRangeDopplerVelocityMin"] = "-30m_per_sec"
-        >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
-        >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
-        >>> setup1.props["MaxNumberOfBounces"] = "3"
-        ...
-        pyaedt INFO: Sweep was created correctly.
-        >>> setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=True)
-        >>> setup1.add_subrange("LinearCount", 10, 20, 10, clear=False)
-
-
-        Create a setup for Q3d and add a sweep on it.
-
-        >>> import pyaedt
-        >>> q = pyaedt.Q3d()
-        >>> setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
-        >>> sw1 = setup1.add_sweep()
-        >>> sw1.props["RangeStart"] = "1MHz"
-        >>> sw1.props["RangeEnd"] = "100MHz"
-        >>> sw1.props["RangeStep"] = "5MHz"
-        >>> sw1.update()
-        """
-        if setuptype is None:
-            setuptype = self.design_solutions.default_setup
-        elif setuptype in SetupKeys.SetupNames:
-            setuptype = SetupKeys.SetupNames.index(setuptype)
-        if "props" in kwargs:
-            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
-        else:
-            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
-        setup.auto_update = False
-        for arg_name, arg_value in kwargs.items():
-            if setup[arg_name] is not None:
-                setup[arg_name] = arg_value
-        setup.auto_update = True
-        setup.update()
-        return setup
 
     @pyaedt_function_handler()
     def _create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):

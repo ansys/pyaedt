@@ -1872,7 +1872,7 @@ class Q3d(QExtractor, object):
 
         >>> from pyaedt import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(setupname="Setup1", DC__MinPass=2))
+        >>> app.create_setup(setupname="Setup1", DC__MinPass=2)
 
         """
         setuptype = self.design_solutions.default_setup

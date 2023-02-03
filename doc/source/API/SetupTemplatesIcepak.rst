@@ -2,7 +2,7 @@ Icepak templates and arguments
 ===============================
 
 This section lists all setup templates with their default values and keys available in Icepak.
-Please note that Icepak parameters contains spaces. In order to use them as arguments of create_setup method
+Please note that Icepak parameters contains spaces. In order to use them as arguments of ``"create_setup"`` method
 same parameters have to be used without spaces.
 You can edit a setup after it is created. Here is an example:
 

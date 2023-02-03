@@ -1949,10 +1949,6 @@ class SetupHFSS(Setup, object):
         self.auto_update = True
         return self.update()
 
-    @pyaedt_function_handler()
-    def analyze_nominal(self):
-        pass
-
 
 class SetupHFSSAuto(Setup, object):
     """Initializes, creates, and updates an HFSS SBR+ or  HFSS Auto setup.

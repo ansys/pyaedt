@@ -26,7 +26,7 @@ import pyaedt
 
 desktop_version = "2022.2"
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 new_thread = True
 
 ###############################################################################
