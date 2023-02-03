@@ -421,6 +421,11 @@ class TestClass(BasisTest, object):
             10000,
         ]
         assert unit_converter(values, "Length", "m", "mm") == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        assert unit_converter(10, "Temperature", "cel", "fah") == 50
+        assert unit_converter(10, "Power", "W", "dBm") == 40
+        assert unit_converter(10, "Power", "W", "dBW") == 10
+        assert unit_converter(10, "Power", "dBm", "W") == 0.01
+        assert unit_converter(10, "Power", "dBW", "W") == 10
 
     def test_are_segments_intersecting(self):
         # crossing
