@@ -1690,18 +1690,21 @@ class FfdSolutionData(object):
                 # Project opened
                 project = comp_obj.native_properties["Project"]
                 proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                close = False
                 if proj_name not in self._app.project_list:
+                    close = True
                     self._app.odesktop.OpenProject(project)
                 comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
                 lattice_vectors = comp.omodelsetup.GetLatticeVectors()
                 comp_units = comp.modeler.model_units
+                if close:
+                    comp.close_project()
             else:
                 # Project not opened
                 project = comp_obj.native_properties[component_props]["Project"]
                 proj_name = os.path.splitext(os.path.split(project)[-1])[0]
                 if proj_name not in self._app.project_list:
                     self._app.odesktop.OpenProject(project)
-
                 comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
                 lattice_vectors = comp.omodelsetup.GetLatticeVectors()
                 comp_units = comp.modeler.model_units
