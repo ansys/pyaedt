@@ -1189,17 +1189,20 @@ class CircuitComponents(object):
         >>> oEditor.CreateWire
         """
         pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
-        id = self.create_unique_id()
-        arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", id, "Points:=", pointlist]
+        wire_id = self.create_unique_id()
+        arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", pointlist]
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
-            id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
-            id = int(id.split(";")[1])
+            wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
+            if ":" in wire_id.split(";")[1]:
+                wire_id = int(wire_id.split(";")[1].split(":")[0])
+            else:
+                wire_id = int(wire_id.split(";")[1])
             w = Wire(self._modeler)
             if not wire_name:
                 wire_name = generate_unique_name("Wire")
             w.name = wire_name
-            w.id = int(id)
+            w.id = int(wire_id)
             self.wires[w.id] = w
             return w
         except:

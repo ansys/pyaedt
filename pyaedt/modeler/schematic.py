@@ -149,7 +149,7 @@ class ModelerCircuit(Modeler):
                 pins2 = components.get_pins(secondcomponent)
                 pos2 = components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
         try:
-            self.wire.create_wire([pos1, pos2])
+            self.schematic.create_wire([pos1, pos2])
             return True
         except:
             return False
