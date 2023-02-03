@@ -2618,11 +2618,8 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.DuplicateMirror
         """
-        self.mirror(
+        return self.mirror(
             objid, position, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
-        )
-        self.logger.warning(
-            "The method .duplicate_and_mirror() will be deprecated." "Use .mirror() with duplicate=True instead."
         )
         # selections = self.convert_to_selections(objid)
 
@@ -2637,16 +2634,20 @@ class GeometryModeler(Modeler, object):
         position : int or float
             List of the ``[x, y, z]`` coordinates or the
             Application.Position object for the selection.
+        duplicate : bool, optional
+            Whether if duplicate the object before mirror or not. Default is ``False``.
+        is_3d_comp : bool, optional
+            If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
             the Application.Position object for the vector.
-        dupilcate : Bool
-            True if the mirror operation retains the original object.
+        duplicate_assignment : bool, optional
+            If True, the method duplicates selection assignments. The default value is ``True``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        bool, list
+            List of objects created or ``True`` when successful, ``False`` when failed.
 
         References
         ----------
