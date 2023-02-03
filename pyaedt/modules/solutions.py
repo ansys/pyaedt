@@ -1255,7 +1255,7 @@ class FfdSolutionData(object):
         -------
         list of int
         """
-        if self._port_indexes:
+        if self._port_indexes and port_name in self._port_indexes:
             return self._port_indexes[port_name]
         try:
             str1 = port_name.split("[", 1)[1].split("]", 1)[0]

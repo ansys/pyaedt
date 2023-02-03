@@ -1116,7 +1116,7 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
-        visible: bool, optional.
+        visible : bool, optional.
             Visualize source objects in target design. The default is ``True``.
 
         References
