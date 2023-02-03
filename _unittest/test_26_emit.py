@@ -598,41 +598,34 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.results.revisions_list) == 1
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
-        rx_frequencies = self.aedtapp.results.get_active_frequencies(
-            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx
-        )
         domain = self.aedtapp.interaction_domain()
-        domain.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
-        radiosTX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().tx)
-        tx_freqs = []
-        tx_bands = []
-        for radio in radiosTX:
-            bandsTX = self.aedtapp.results.get_band_names(radio, self.aedtapp.tx_rx_mode().tx)
-            tx_frequencies = self.aedtapp.results.get_active_frequencies(
-                radio, bandsTX[0], self.aedtapp.tx_rx_mode().tx
-            )
-            tx_bands.append(bandsTX[0])
-            tx_freqs.append(tx_frequencies[0])
-        domain.set_interferers(radiosTX, tx_bands, tx_freqs)
+        domain.set_receiver(radiosRX[0], bandsRX[0])
+        self.aedtapp.results.revisions_list[-1].set_max_simultaneous_interferers(2)
         interaction = self.aedtapp.results.revisions_list[-1].run(domain)
+        assert self.aedtapp.results.revisions_list[-1].get_max_simultaneous_interferers() == 2
         instance = interaction.get_worst_instance(self.aedtapp.result_type().sensitivity)
-        assert instance.get_value(self.aedtapp.result_type().emi) == 76.02
-        assert instance.get_value(self.aedtapp.result_type().desense) == 3.01
-        assert instance.get_value(self.aedtapp.result_type().sensitivity) == -66.99
-        instance = interaction.get_instance(domain)
-        assert instance.get_value(self.aedtapp.result_type().emi) == 76.02
-        assert instance.get_value(self.aedtapp.result_type().desense) == 3.01
-        assert instance.get_value(self.aedtapp.result_type().sensitivity) == -66.99
-        available_warning = interaction.get_availability_warning(domain)
-        assert available_warning == "Availability only defined for 1 to 1 runs."
-        valid_availability = interaction.has_valid_availability(domain)
-        assert valid_availability is False
+        assert instance.get_value(self.aedtapp.result_type().emi) == 82.04
+        assert instance.get_value(self.aedtapp.result_type().desense) == 13.42
+        assert instance.get_value(self.aedtapp.result_type().sensitivity) == -56.58
+        assert instance.get_value(self.aedtapp.result_type().powerAtRx) == 62.03
+        assert instance.get_worst_case_category() == "Out-of-Band: Tx Fundamental"
+        domain2 = self.aedtapp.interaction_domain()
+        rx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosRX[0], bandsRX[0], self.aedtapp.tx_rx_mode().rx, "Hz"
+        )
+        domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
+        radiosTX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().tx)
+        bandsTX = self.aedtapp.results.get_band_names(radiosTX[0], self.aedtapp.tx_rx_mode().tx)
+        tx_frequencies = self.aedtapp.results.get_active_frequencies(
+            radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx, "Hz"
+        )
+        domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0])
         exception_raised = False
         try:
-            availability = interaction.get_availability(domain)
+            instance = interaction.get_instance(domain2)
         except RuntimeError as e:
             exception_raised = True
-            assert e.args[0] == "ERROR: Availability only defined for 1 to 1 runs."
+            assert e.args[0] == "ERROR: Instance data for multiple simultaneous interferers not available."
         assert exception_raised
 
     @pytest.mark.skipif(
@@ -678,9 +671,7 @@ class TestClass(BasisTest, object):
         tx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
         )
-        radtx = [radiosTX[0]]
-        bandtx = [bandsTX[0]]
-        domain.set_interferers(radtx, bandtx)
+        domain.set_interferer(radiosTX[0], bandsTX[0])
         assert len(self.aedtapp.results.revisions_list) == 2
         radiosRX = self.aedtapp.results.get_radio_names(self.aedtapp.tx_rx_mode().rx)
         bandsRX = self.aedtapp.results.get_band_names(radiosRX[0], self.aedtapp.tx_rx_mode().rx)
@@ -693,9 +684,7 @@ class TestClass(BasisTest, object):
         tx_frequencies = self.aedtapp.results.get_active_frequencies(
             radiosTX[0], bandsTX[0], self.aedtapp.tx_rx_mode().tx
         )
-        radtx = [radiosTX[0]]
-        bandtx = [bandsTX[0]]
-        domain.set_interferers(radtx, bandtx)
+        domain.set_interferer(radiosTX[0], bandsTX[0])
         assert domain.receiver_name == "MD400C"
         assert domain.receiver_band_name == "Rx"
         assert domain.receiver_channel_frequency == -1.0

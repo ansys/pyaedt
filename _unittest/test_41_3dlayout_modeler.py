@@ -499,9 +499,12 @@ class TestClass(BasisTest, object):
 
     def test_19D_export_to_hfss(self):
         filename = "export_to_hfss_test"
+        filename2 = "export_to_hfss_test2"
         file_fullname = os.path.join(self.local_scratch.path, filename)
+        file_fullname2 = os.path.join(self.local_scratch.path, filename2)
         setup = self.aedtapp.get_setup(self.aedtapp.existing_analysis_setups[0])
         assert setup.export_to_hfss(file_fullname=file_fullname)
+        assert setup.export_to_hfss(file_fullname=file_fullname2, keep_net_name=True)
 
     def test_19E_export_to_q3d(self):
         filename = "export_to_q3d_test"

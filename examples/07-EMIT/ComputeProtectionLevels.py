@@ -21,21 +21,20 @@ from pyaedt import Emit
 # # Check to see which Python libraries have been installed
 # reqs = subprocess.check_output([sys.executable, '-m', 'pip', 'freeze'])
 # installed_packages = [r.decode().split('==')[0] for r in reqs.split()]
-#
-#
+
 # # Install required packages if they are not installed
 # def install(package):
 #     subprocess.check_call([sys.executable, '-m', 'pip', 'install', package])
-#
+
 # # Install any missing libraries
 # required_packages = ['plotly']
 # for package in required_packages:
 #     if package not in installed_packages:
 #         install(package)
-#
+
 # # Import required modules
 # import plotly.graph_objects as go
-#
+
 # ###############################################################################
 # # Set non-graphical mode
 # # ~~~~~~~~~~~~~~~~~~~~~~
@@ -54,10 +53,10 @@ from pyaedt import Emit
 # # ~~~~~~~~~~~~~~~~~~~~~
 # # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # # on the specified version and in the specified graphical mode.
-#
+
 # d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
 # emitapp = Emit(pyaedt.generate_unique_project_name())
-#
+
 # ###############################################################################
 # # Specify the protection levels
 # # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,25 +102,6 @@ from pyaedt import Emit
 # for band in bands:
 #     band.set_band_power_level(-20)
 
-# # Configure the first Rx band in the GPS Rx to have 0 dBm Susc
-# def set_protection_band(radio):
-#     """Set susceptibility of the Rx Band to 0 dBm
-#     for all frequencies.
-#     Arguments:
-#         radio: Radio to modify.
-#     """
-#     bands = radio.bands()
-#     prop_list = {
-#                 "InBandSensitivity": "0",
-#                 "SnrAtSensitivity": "0",
-#                 "RxMaxAttenuation": "0"
-#                 }
-#     for band in bands:
-#         for child in band.children:
-#             if child.props["Type"] == "RxSusceptibilityProfNode":
-#                 child._set_prop_value(prop_list)
-#                 break # only one Rx Spectral Profile per Band
-
 # def get_radio_node(radio_name):
 #     """Get the radio node that matches the
 #     given radio name.
@@ -136,10 +116,6 @@ from pyaedt import Emit
 #     else:
 #         radio = wifi
 #     return radio
-
-# set_protection_band(bluetooth)            
-# set_protection_band(gps)
-# set_protection_band(wifi)
 
 # bands = gps.bands()
 # for band in bands:
@@ -157,7 +133,7 @@ from pyaedt import Emit
 # rev = emitapp.analyze()
 # modeRx = emitapp.tx_rx_mode().rx
 # modeTx = emitapp.tx_rx_mode().tx
-# modeEmi = emitapp.result_type().emi
+# resultMode = emitapp.result_type().powerAtRx
 
 # ###############################################################################
 # # Generate a legend
@@ -295,15 +271,15 @@ from pyaedt import Emit
 
 #             # Find the highest power level at the Rx input due
 #             # to each Tx Radio
-#             domain.set_receiver(rx_radio, rx_band, -1)
-#             domain.set_interferers([tx_radio],[tx_band_shortname],[-1])
+#             domain.set_receiver(rx_radio, rx_band)
+#             domain.set_interferer(tx_radio,tx_band_shortname)
 #             interaction = rev.run(domain)
-#             worst = interaction.get_worst_instance(modeEmi)
+#             worst = interaction.get_worst_instance(resultMode)
 
 #             # If the worst case for the band-pair is below the EMI limit, then
 #             # there are no interference issues and no offset is required.
 #             if worst.has_valid_values():
-#                 emi = worst.get_value(modeEmi)
+#                 emi = worst.get_value(resultMode)
 #                 rx_emis.append(emi)
 #                 if (emi > damage_threshold):
 #                     rx_colors.append('red')
