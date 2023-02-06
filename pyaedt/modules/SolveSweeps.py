@@ -1025,7 +1025,7 @@ class SetupProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
     def _export_properties_to_json(self, file_path):
-        """Export all setup properties into a json file.
+        """Export all setup properties to a JSON file.
 
         Parameters
         ----------
