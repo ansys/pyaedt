@@ -454,7 +454,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    elif not is_notebook():
         fig.show()
     return fig
 
