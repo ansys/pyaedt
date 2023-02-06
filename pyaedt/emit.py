@@ -150,7 +150,7 @@ class Emit(FieldAnalysisEmit, object):
         if self._aedt_version >= "2023.1":
             self._emit_api = EMIT_MODULE.EmitApi()
             """Instance of the Emit api."""
-            
+
             self.results = Results(self)
             """''Result'' object for the selected design."""
 

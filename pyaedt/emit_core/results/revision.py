@@ -4,6 +4,7 @@ import pyaedt.generic.constants as consts
 import pyaedt.emit_core.EmitConstants as emitConsts
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
+
 class Revision:
     """
     Provides the ``Revision`` object.

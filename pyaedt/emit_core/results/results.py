@@ -3,6 +3,7 @@ from pyaedt.emit_core.results.revision import Revision
 from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
+
 class Results:
     """
     Provides the ``Results`` object.
@@ -21,6 +22,7 @@ class Results:
     >>> revision = aedtapp.results.analyze()
     >>> radio_RX = revision.get_radio_names(mode)
     """
+
     def __init__(self, emit_obj):
         global mod
         self.emit_project = emit_obj
