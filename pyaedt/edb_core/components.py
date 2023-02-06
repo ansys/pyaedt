@@ -807,23 +807,18 @@ class Components(object):
                                 pin_group_term.SetReferenceTerminal(ref_pin_group_term)
                     else:
                         self._logger.info("No pins found on component {} for the net {}".format(component, net))
-
             else:
                 ref_pin_group = self.create_pingroup_from_pins(ref_pins)
                 if not ref_pin_group:
                     self._logger.warning("failed to create reference pin group")
                     return False
+                ref_pin_group_term = self._create_pin_group_terminal(ref_pin_group, component, isref=True)
                 for net in net_list:
                     pins = [pin for pin in cmp_pins if pin.GetNet().GetName() == net]
                     for pin in pins:
-                        ref_pin = self._get_closest_pin_from(pin, ref_pins)
-                        ref_pin_term = self._create_terminal(ref_pin)
-                        term = self._create_terminal(pin)
-                        ref_pin_term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                        ref_pin_term.SetIsCircuitPort(True)
-                        term.SetBoundaryType(self._edb.Cell.Terminal.BoundaryType.PortBoundary)
-                        term.SetIsCircuitPort(True)
-                        term.SetReferenceTerminal(ref_pin_term)
+                        pin_group = self.create_pingroup_from_pins([pin])
+                        pin_group_term = self._create_pin_group_terminal(pin_group, component, isref=False)
+                        pin_group_term.SetReferenceTerminal(ref_pin_group_term)
         return True
 
     @pyaedt_function_handler()
