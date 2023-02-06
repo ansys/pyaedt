@@ -204,7 +204,6 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
-
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
 
@@ -217,7 +216,6 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.rdat"))
 
     def test_07_export_fields_from_Calculator(self):
-
         self.aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",

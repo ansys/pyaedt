@@ -848,7 +848,6 @@ class Cable:
                         self.straight_wire_insulation_thickness = "0.25mm"
                         self.insulation_material = "PVC plastic"
                     else:
-
                         if cable_st_wire_properties["StWireParams"]["WireStandard"] == "ISO":
                             self.wire_standard = cable_st_wire_properties["StWireParams"]["WireStandard"]
                         else:

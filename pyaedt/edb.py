@@ -1001,7 +1001,6 @@ class Edb(object):
         use_pyaedt_extent=False,
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
-
             if use_pyaedt_extent:
                 _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
             else:

@@ -2462,7 +2462,6 @@ class VoltageFrequencyDependentSource(Sources, object):
 
     @fds_filename.setter
     def fds_filename(self, name):
-
         if not name:
             self._props["fds_filename"] = None
             self._update_prop()

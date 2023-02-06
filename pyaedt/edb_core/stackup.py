@@ -761,7 +761,6 @@ class Stackup(object):
             new_lc.SetMode(lc_mode)
             max_elevation = 0.0
             for layer in lc.Layers(self._pedb.edb.Cell.LayerTypeSet.StackupLayerSet):
-
                 if "RadBox" not in layer.GetName():  # Ignore RadBox
                     lower_elevation = layer.Clone().GetLowerElevation() * 1.0e6
                     upper_elevation = layer.Clone().GetUpperElevation() * 1.0e6
