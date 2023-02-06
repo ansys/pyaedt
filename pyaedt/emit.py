@@ -52,6 +52,9 @@ class Results:
         self.units = emit_obj.units
         """Project units."""
 
+        self.design = emit_obj._odesign
+        """Emit Design"""
+
     @property
     def result_loaded(self):
         """
@@ -169,6 +172,27 @@ class Results:
             Results.result_mode_error()
         return freq
 
+    @pyaedt_function_handler()
+    def delete_revision(self, revision_name):
+
+        """
+        Delete one revision from the results
+
+        Parameters
+        ----------
+        revision_name : str
+            Name of the revision.
+
+        Examples
+        ----------
+        >>> self.aedtapp.results.delete_revision("Revision 10")
+        """
+        if revision_name in self.design.GetResultList():
+            self.design.DeleteResult(revision_name)
+            if self.result_loaded:
+                self.emit_api.close()
+        else:
+            print("The revision specified does not exist")
 
 class Revision:
     """

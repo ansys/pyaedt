@@ -560,14 +560,13 @@ class TestClass(BasisTest, object):
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
             self.aedtapp._emit_api.load_project(file.path)
             assert self.aedtapp.results.result_loaded
-            assert Revision(self.aedtapp, "Revision 1") is not None
             domain = self.aedtapp.interaction_domain()
-            assert domain is not None
             engine = self.aedtapp._emit_api.get_engine()
-            assert engine is not None
             assert engine.is_domain_valid(domain)
             interaction = engine.run(domain)
-            assert interaction is not None
+            assert interaction.is_valid() is True
+            self.aedtapp.results.delete_revision("Revision 10")
+            assert interaction.is_valid() is False
             domain.set_receiver("dummy")
             assert not engine.is_domain_valid(domain)
 
