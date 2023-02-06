@@ -815,3 +815,88 @@ class CircuitComponent(object):
                 _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
             return _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
         return False
+
+
+class Wire(object):
+    """Creates and manipulates a wire."""
+
+    def __init__(self, modeler):
+        self._app = modeler._app
+        self._modeler = modeler
+        self.name = ""
+        self.id = 0
+
+    @property
+    def _oeditor(self):
+        return self._modeler.oeditor
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @property
+    def wires(self):
+        """List of all schematic wires in the design."""
+        wire_names = []
+        for wire in self._oeditor.GetAllElements():
+            if "Wire" in wire:
+                wire_names.append(wire)
+        return wire_names
+
+    @pyaedt_function_handler()
+    def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
+        """
+        Display wire properties.
+
+        Parameters
+        ----------
+        wire_name : str, optional
+            Wire name to display.
+            Default value is ``""``.
+        property_to_display : str, optional
+            Property to display. Choices are: ``"NetName"``, ``"PinCount"``, ``"AlignMicrowavePorts"``,
+            ``"SchematicID"``, ``"Segment0"``.
+            Default value is ``"NetName"``.
+        visibility : str, optional
+            Visibility type. Choices are ``"Name"``, ``"Value"``, ``"Both"``, ``"Evaluated Value"``,
+            ``"Evaluated Both"``.
+            Default value is ``"Name"``.
+        location : str, optional
+            Wire name location. Choices are ``"Left"``, ``"Top"``, ``"Right"``, ``"Bottom"``, ``"Center"``.
+            Default value is ``"Top"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            wire_exists = False
+            for wire in self.wires:
+                if wire_name == wire.split("@")[1].split(";")[0]:
+                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                    wire_exists = True
+                    break
+                else:
+                    continue
+            if not wire_exists:
+                raise ValueError("Invalid wire name provided.")
+
+            self._oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:PropDisplayPropTab",
+                        ["NAME:PropServers", "Wire@{};{};{}".format(wire_name, wire_id, 1)],
+                        [
+                            "NAME:NewProps",
+                            ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except ValueError as e:
+            self.logger.error(str(e))
+            return False
