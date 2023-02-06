@@ -1,7 +1,7 @@
 import os
 
-import pyaedt.generic.constants as consts
 import pyaedt.emit_core.EmitConstants as emitConsts
+import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -62,7 +62,7 @@ class Revision:
         """Unique revision number from the Emit design"""
 
         # load the revision after creating it
-        self.revision_loaded = False        
+        self.revision_loaded = False
         """``True`` if the revision is loaded and ``False`` if it is not."""
         self._load_revision()
 
@@ -84,7 +84,7 @@ class Revision:
         if self.revision_loaded:
             print("Specified result already loaded.")
             return
-        
+
         self.emit_project._emit_api.load_project(self.path)
         self.revision_loaded = True
 
@@ -179,7 +179,7 @@ class Revision:
             self.emit_project._emit_api.load_project(self.path)
         engine = self.emit_project._emit_api.get_engine()
         return engine.is_domain_valid(domain)
-    
+
     @pyaedt_function_handler()
     def get_radio_names(self, tx_rx):
         """

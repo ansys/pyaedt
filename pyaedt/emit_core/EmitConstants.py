@@ -1,6 +1,8 @@
 import math
 import warnings
+
 from pyaedt.emit_core import EMIT_MODULE
+
 
 def result_type():
     """
@@ -9,7 +11,7 @@ def result_type():
     Returns
     -------
     :class:`EmitConstants.result_type`
-        Result status which can later be assigned a status 
+        Result status which can later be assigned a status
         (emi, sensitivity, desense, powerAtRx).
 
     Examples
@@ -24,6 +26,7 @@ def result_type():
             "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
         )
     return result
+
 
 def tx_rx_mode():
     """
@@ -46,6 +49,7 @@ def tx_rx_mode():
             "An Emit object must be initialized before any static member of the Result or Emit class is accessed."
         )
     return tx_rx
+
 
 def convert_power_to_unit(values, to_unit):
     """Convert power from dBm to specified unit.
