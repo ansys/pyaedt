@@ -74,12 +74,12 @@ class Results:
         except NameError:
             raise ValueError("An Emit object must be initialized before any static member of the Results.")
         return domain
-    
+
     @pyaedt_function_handler
     def _unload_revisions(self):
         """Convenience function to set all revisions
         as ``unloaded``
-        
+
         Parameters
         ----------
         None
@@ -99,8 +99,8 @@ class Results:
         Parameters
         ----------
         revision_name : str
-            Revision to analyze. If None, the most recent Revision
-            will be loaded if it matches the current design revision.
+            Revision to analyze. The default is ``None``,in which case the most recent revision
+            is loaded if it matches the current design revision.
 
         Returns
         -------
@@ -112,9 +112,9 @@ class Results:
         >>> rev = aedtapp.results.analyze()
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
-        """        
-        if revision_name is None:    
-            # analyze the current design revision 
+        """
+        if revision_name is None:
+            # analyze the current design revision
             if self.current_revision is None:
                 self.current_revision = self._add_revision()
             elif (

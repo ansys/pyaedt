@@ -213,19 +213,19 @@ class EmitComponents(object):
     @pyaedt_function_handler()
     def get_radios(self):
         """Return a dict of all the radios in the design.
-        
+
         Parameters
         ----------
         None
-        
+
         Return
         ------
         Dict : radio_name : EmitRadioComponents
             Dict of all the radio_name and EmitRadioComponents in the
             design.
         """
-        return { k:v for k,v in self.components.items() if v.get_type() == "RadioNode"}
-    
+        return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
+
     @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components."""
@@ -673,9 +673,10 @@ class EmitAntennaComponent(EmitComponent):
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Length"]:
             units = self.units["Length"]
         position = (
-            consts.unit_converter(float(parts[0]),"Length", "meter", units),
-            consts.unit_converter(float(parts[1]),"Length", "meter", units),
-            consts.unit_converter(float(parts[2]),"Length", "meter", units))
+            consts.unit_converter(float(parts[0]), "Length", "meter", units),
+            consts.unit_converter(float(parts[1]), "Length", "meter", units),
+            consts.unit_converter(float(parts[2]), "Length", "meter", units),
+        )
 
         return position
 
@@ -689,11 +690,11 @@ class EmitRadioComponent(EmitComponent):
 
     def is_emitter(self):
         """Check if the radio component is an emitter
-        
+
         Parameters
         ----------
         None
-        
+
         Return
         ------
         Bool
@@ -734,7 +735,7 @@ class EmitRadioComponent(EmitComponent):
             Start frequency of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = self.units["Frequency"]
-        return consts.unit_converter(float(band_node.props["StartFrequency"]),"Freq", "Hz", units)
+        return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
 
     def band_tx_power(self, band_node, units=""):
         """Get the transmit power of the band node.

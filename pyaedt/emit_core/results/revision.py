@@ -3,8 +3,9 @@ import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
 import pyaedt.generic.constants as consts
-from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.emit_core.EmitConstants import interferer_type
+from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 class Revision:
     """
@@ -12,7 +13,7 @@ class Revision:
 
     Parameters
     ----------
-    parent_results : 
+    parent_results :
         ``Results`` object that this revision is associated with.
     emit_obj :
          ``Emit`` object that this revision is associated with.
@@ -71,7 +72,7 @@ class Revision:
         self.revision_loaded = False
         """``True`` if the revision is loaded and ``False`` if it is not."""
         self._load_revision()
-       
+
     @pyaedt_function_handler()
     def _load_revision(self):
         """
@@ -165,7 +166,7 @@ class Revision:
     @pyaedt_function_handler()
     def is_domain_valid(self, domain):
         """
-        Return ``True`` if the given domain is valid for the current Revision.
+        Return ``True`` if the given domain is valid for the current revision.
 
         Parameters
         ----------
@@ -181,7 +182,7 @@ class Revision:
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         return engine.is_domain_valid(domain)
-        
+
     @pyaedt_function_handler()
     def get_receiver_names(self):
         """
@@ -201,15 +202,16 @@ class Revision:
         >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().rx,
-                                                                 interferer_type().transmitters_and_emitters)
+            radios = self.emit_project._emit_api.get_radio_names(
+                emitConsts.tx_rx_mode().rx, interferer_type().transmitters_and_emitters
+            )
         else:
             radios = None
             self.result_mode_error()
         if len(radios) == 0:
             warnings.warn("No valid receivers in the project.")
         return radios
-    
+
     @pyaedt_function_handler()
     def get_interferer_names(self, type=interferer_type().transmitters_and_emitters):
         """
