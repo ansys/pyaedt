@@ -257,7 +257,6 @@ class Layer(object):
 
     @is_visible_pad.setter
     def is_visible_pad(self, val):
-
         self.IsVisiblePad = val
         self.update_stackup_layer()
 
@@ -603,7 +602,6 @@ class Layer(object):
 
     @top_nodule_radius.setter
     def top_nodule_radius(self, val):
-
         self.NR = val
         self.update_stackup_layer()
 
@@ -649,7 +647,6 @@ class Layer(object):
 
     @bottom_nodule_radius.setter
     def bottom_nodule_radius(self, val):
-
         self.BNR = val
         self.update_stackup_layer()
 

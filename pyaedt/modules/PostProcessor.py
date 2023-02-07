@@ -2501,10 +2501,8 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
-
             _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
-
             _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
@@ -2904,7 +2902,6 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-
                 self.export_model_picture(
                     full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )

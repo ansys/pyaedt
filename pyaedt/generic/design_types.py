@@ -640,7 +640,6 @@ def get_pyaedt_app(project_name=None, design_name=None):
     """
     main = sys.modules["__main__"]
     if "oDesktop" in dir(main):
-
         if project_name and project_name not in main.oDesktop.GetProjectList():
             raise AttributeError("Project  {} doesn't exist in current Desktop.".format(project_name))
         if not project_name:
