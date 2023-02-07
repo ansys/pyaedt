@@ -751,7 +751,6 @@ class SetupCircuit(CommonSetup):
             sweep_points = [sweep_points]
         sweeps = []
         for el in sweep_points:
-
             if isinstance(el, (int, float)):
                 sweeps.append(str(el) + units)
             else:

@@ -44,7 +44,6 @@ if not is_ironpython:
     try:
         import pandas as pd
     except ImportError:
-
         pd = None
     try:
         import numpy as np
@@ -262,7 +261,6 @@ def _log_method(func, new_args, new_kwargs):
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
 
     else:
-
         message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
         if new_kwargs and settings.enable_debug_methods_argument_logger:
             message.append(line_begin2 + str(new_kwargs)[1:-1])

@@ -1260,7 +1260,6 @@ class Components(object):
                 return False
 
         elif model_type == "Touchstone":  # pragma: no cover
-
             nPortModelName = modelname
             edbComponentDef = edbComponent.GetComponentDef()
             nPortModel = self._edb.Definition.NPortComponentModel.FindByName(edbComponentDef, nPortModelName)
@@ -2050,11 +2049,9 @@ class Components(object):
         """
         through_comp_list = []
         for refdes, comp_obj in self.resistors.items():
-
             numpins = comp_obj.numpins
 
             if numpins == 2:
-
                 value = comp_obj.res_value
                 value = resistor_value_parser(value)
 

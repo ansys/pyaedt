@@ -908,7 +908,6 @@ class MatProperty(object):
                         "Index:"
                     ]
                 ):
-
                     self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"][smname][
                         "free_form_value"
                     ] = formula
@@ -2054,7 +2053,6 @@ class Material(CommonMaterial, object):
         out = {}
         if self._props.get("core_loss_type", None):
             if self._props["core_loss_type"].get("Choice", None) == "Electrical Steel":
-
                 out["core_loss_kh"] = self._props["core_loss_kh"]
                 out["core_loss_kc"] = self._props["core_loss_kc"]
                 out["core_loss_ke"] = self._props["core_loss_ke"]
@@ -2241,7 +2239,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @emissivity.setter
     def emissivity(self, value):
-
         self._surface_emissivity.value = value
         self._update_props("surface_emissivity", value)
 
@@ -2263,7 +2260,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @surface_diffuse_absorptance.setter
     def surface_diffuse_absorptance(self, value):
-
         self._surface_diffuse_absorptance.value = value
         self._update_props("surface_diffuse_absorptance", value)
 
@@ -2285,7 +2281,6 @@ class SurfaceMaterial(CommonMaterial, object):
 
     @surface_incident_absorptance.setter
     def surface_incident_absorptance(self, value):
-
         self._surface_incident_absorptance.value = value
         self._update_props("surface_incident_absorptance", value)
 

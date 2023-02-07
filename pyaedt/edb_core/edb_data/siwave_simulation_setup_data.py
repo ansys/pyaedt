@@ -935,11 +935,9 @@ class SiwaveDCSimulationSetup(SiwaveDCAdvancedSettings, object):
             self._edb.simsetupdata.SIwave.SIWDCIRSimulationSettings
         ]()
         if edb_siwave_sim_setup:
-
             self._edb_sim_setup_info = _get_edb_setup_info(edb_siwave_sim_setup, self._edb_sim_setup_info)
 
         else:
-
             if not name:
                 self._edb_sim_setup_info.Name = generate_unique_name("siwave")
             else:
