@@ -543,7 +543,7 @@ class FieldAnalysisCircuit(Analysis):
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
-        """Create a new setup.
+        """Create a setup.
 
         Parameters
         ----------
@@ -553,9 +553,9 @@ class FieldAnalysisCircuit(Analysis):
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
-            Available keys depend on setup chosen:
-
+            Extra arguments to set up the circuit.
+            Available keys depend on the setup chosen.
+            For more information, see
             :doc:`../SetupTemplatesCircuit`.
 
 

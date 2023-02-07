@@ -730,27 +730,27 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
-        """Create a new analysis setup for HFSS.
+        """Create an analysis setup for HFSS.
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
         names correspond to the ``setuptype``
         corresponding to the native AEDT API.  The list of
-        keyword here is not exhaustive.
+        keywords here is not exhaustive.
 
-        Note: This method overrides Analysis.setup() for the Hfss app.
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
         setuptype : str, optional
-            Type of setup. Must be one of the following:
-            "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
-            "HFSSSBR" based on the solution type.
-            Default: "HFSSDrivenAuto"
+            Type of the setup. Based on the solution type, options are
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
         setupname : str, optional
-            Name of the setup. Default: "Setup1"
+            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
-            Extra arguments to `SetupCircuit`.
-            Available keys depend on setup chosen:
-
+            Extra arguments to set up the circuit. 
+            Available keys depend on the setup chosen.
+            For more information, see 
             :doc:`../SetupTemplatesHFSS`.
 
 
@@ -864,10 +864,11 @@ class Hfss(FieldAnalysis3D, object):
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
-            Default is 401 for sweep_type = "Interpolating" or "Fast" and 5
-            for "Discrete"
+            The default is ``401`` for ``sweep_type = "Interpolating"``. The defaults
+            are "Fast"`` and ``5`` for ``sweep_type = ""Discrete"``.
         sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case the default name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -3322,17 +3323,19 @@ class Hfss(FieldAnalysis3D, object):
 
         Parameters
         ----------
-        port_item : defines where to create the port.
-            If a list is passed, then Cartesian [x,y,z] coordinates of a point on the face are expected.
-            If an integer is passed, this is assumed to be a Face ID.
+        port_item : list, int
+            Item for defining where to create the port.
+            If a list is passed, then Cartesian [x,y,z] coordinates of a point on the face are
+            expected. If an integer is passed, it is assumed to be a face ID.
         deemb : float, optional
             Deembedding value distance in model units. The default is ``0``.
         axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
-            Position of the port. It is used to auto evaluate the integration line.
-            If set to ``None`` the integration line is not defined.
-            It should be one of the values for ``Application.AxisDir``,
-            which are: ``XNeg``, ``YNeg``, ``ZNeg``, ``XPos``, ``YPos``, and ``ZPos``.
-            The default is ``None`` and no integration line is defined.
+            Position of the port. This parameter is used to automatically evaluate
+            the integration line. The default is ``None``, in which case no integration
+            line is defined. This parameter should be set to one of the values
+            for ``Application.AxisDir``,  which are: ``XNeg``, ``YNeg``, ``ZNeg``,
+            ``XPos``, ``YPos``, and ``ZPos``.
+            
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional
@@ -3391,7 +3394,7 @@ class Hfss(FieldAnalysis3D, object):
             else:
                 faces = self.modeler.get_object_faces(sheet)[0]
             if not faces:  # pragma: no cover
-                self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                self.logger.error("Input object is wrong. It must be a face ID or a sheet.")
                 return False
             if not portname:
                 portname = generate_unique_name("Port")
@@ -4467,7 +4470,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_scattering(
         self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
-        """Create a S-parameter report.
+        """Create an S-parameter report.
 
         Parameters
         ----------
@@ -4497,7 +4500,7 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a S-Parameter plot named ``"S Parameter Plot Nominal"`` for a 3 port network
+        Create ad S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
         plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
         >>> hfss.create_scattering(port_names=["P1", "P2", "P3"], port_excited=["P1", "P1", "P1"])

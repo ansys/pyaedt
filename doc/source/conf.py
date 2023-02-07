@@ -19,7 +19,7 @@ from docutils import nodes
 from sphinx import addnodes
 
 class PrettyPrintDirective(Directive):
-    """Render a constant using pprint.pformat and insert into the document"""
+    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
     required_arguments = 1
 
     def run(self):
@@ -69,7 +69,7 @@ os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
 
 # -- General configuration ---------------------------------------------------
 
-# Add any Sphinx_PyAEDT extension module names here, as strings. They can be
+# Add any Sphinx_PyAEDT extension module names here as strings. They can be
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [

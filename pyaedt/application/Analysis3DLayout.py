@@ -396,9 +396,8 @@ class FieldAnalysis3DLayout(Analysis):
             the default type is applied.
         **kwargs : dict, optional
             Extra arguments for setup settings.
-            Available keys depend on setup chosen:
-
-            :doc:`../SetupTemplates3DLayout`.
+            Available keys depend on the setup chosen. For more
+            information, see :doc:`../SetupTemplates3DLayout`.
 
         Returns
         -------

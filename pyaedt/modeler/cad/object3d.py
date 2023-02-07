@@ -1431,10 +1431,10 @@ class Object3d(object):
         ----------
         position : list of int or float
             Cartesian ``[x, y, z]`` coordinates or
-            the Application.Position object of a point in the plane used for the mirror operation.
+            the ``Application.Position`` object of a point in the plane used for the mirror operation.
         vector : list of float
             Vector in Cartesian coordinates ``[x1, y1, z1]``  or
-            the Application.Position object for the vector normal to the plane used for the mirror operation.
+            the ``Application.Position`` object for the vector normal to the plane used for the mirror operation.
 
         Returns
         -------

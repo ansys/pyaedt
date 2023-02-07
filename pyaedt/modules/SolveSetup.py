@@ -583,7 +583,8 @@ class Setup(CommonSetup):
         acf_file : str, optional
             Full path to custom ACF file. The default is ``None.``
         use_auto_settings : bool, optional
-            Either if use or not auto settings in task/cores. It is not supported by all Setup.
+            Whether to use automatic settings in tasks or cores. This parameter
+            is not supported by all setup types.
 
         Returns
         -------
@@ -1628,8 +1629,9 @@ class SetupHFSS(Setup, object):
         freqstop : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
-            Number of frequency points in the range. Default is 401 for
-            sweep types "Interpolating" or "Fast", and is 5 for "Discrete".
+            Number of frequency points in the range. The default is ``401`` for
+            a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
+            type of ``"Discrete"``.
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional

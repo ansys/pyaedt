@@ -1983,16 +1983,16 @@ class Analysis(Design, object):
         value : float, int, str
             Value of the number or string containing an expression.
         units : str, optional
-            Units to combine with value.  Valid values are defined in the native API documentation.
+            Units to combine with value. Valid values are defined in the native API documentation.
             Some common examples are:
-            "in" - inches
-            "cm" - centimeter
-            "um" - micron
-            "mm" - millimeter
-            "meter" - meters
-            "mil" - 0.001 inches (i.e. mils)
-            "km" - kilometer
-            "ft" - feet
+            "in": inches
+            "cm": centimeter
+            "um":  micron
+            "mm": millimeter
+            "meter": meters
+            "mil": 0.001 inches (mils)
+            "km": kilometer
+            "ft": feet
 
 
         Returns
