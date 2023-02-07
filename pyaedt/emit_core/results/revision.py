@@ -1,9 +1,10 @@
 import os
+import warnings
 
 import pyaedt.generic.constants as consts
 import pyaedt.emit_core.EmitConstants as emitConsts
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
+from pyaedt.emit_core.EmitConstants import interferer_type
 
 class Revision:
     """
@@ -11,7 +12,9 @@ class Revision:
 
     Parameters
     ----------
-    Emit_obj :
+    parent_results : 
+        ``Results`` object that this revision is associated with.
+    emit_obj :
          ``Emit`` object that this revision is associated with.
     name : str, optional
         Name of the revision to create. The default is ``None``, in which case a
@@ -22,12 +25,12 @@ class Revision:
     Create a ``Revision`` instance.
 
     >>> aedtapp = Emit()
-    >>> rev = Revision(aedtapp, "Revision 1")
+    >>> rev = Revision(results, aedtapp, "Revision 1")
     >>> domain = aedtapp.interaction_domain()
     >>> rev.run(domain)
     """
 
-    def __init__(self, emit_obj, name=""):
+    def __init__(self, parent_results, emit_obj, name=""):
         design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
         subfolder = ""
         proj_path = emit_obj.oproject.GetPath()
@@ -61,11 +64,14 @@ class Revision:
         self.revision_number = design.GetRevision()
         """Unique revision number from the Emit design"""
 
+        self.parent_results = parent_results
+        """Parent Results object"""
+
         # load the revision after creating it
         self.revision_loaded = False        
         """``True`` if the revision is loaded and ``False`` if it is not."""
         self._load_revision()
-
+       
     @pyaedt_function_handler()
     def _load_revision(self):
         """
@@ -84,7 +90,7 @@ class Revision:
         if self.revision_loaded:
             print("Specified result already loaded.")
             return
-        
+        self.parent_results._unload_revisions()
         self.emit_project._emit_api.load_project(self.path)
         self.revision_loaded = True
 
@@ -119,8 +125,7 @@ class Revision:
         >>> rev.run(domain)
 
         """
-        if not self.revision_loaded:
-            self.emit_project._emit_api.load_project(self.path)
+        self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         interaction = engine.run(domain)
         return interaction
@@ -139,8 +144,7 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.current_revision.get_max_simultaneous_interferers()
         """
-        if not self.revision_loaded:
-            self.emit_project._emit_api.load_project(self.path)
+        self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         max_interferers = engine.max_simultaneous_interferers
         return max_interferers
@@ -154,8 +158,7 @@ class Revision:
         ----------
         >>> max_num = aedtapp.results.current_revision.set_max_simultaneous_interferers(3)
         """
-        if not self.revision_loaded:
-            self.emit_project._emit_api.load_project(self.path)
+        self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         engine.max_simultaneous_interferers = val
 
@@ -175,57 +178,97 @@ class Revision:
         >>> aedtapp.results.current_revision.is_domain_valid(domain)
         True
         """
-        if not self.revision_loaded:
-            self.emit_project._emit_api.load_project(self.path)
+        self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         return engine.is_domain_valid(domain)
-    
+        
     @pyaedt_function_handler()
-    def get_radio_names(self, tx_rx):
+    def get_receiver_names(self):
         """
-        Get a list of all ``tx'' or ``rx`` radios in the project.
+        Get a list of all receivers in the project.
 
         Parameters
         ----------
-        tx_rx : tx_rx_mode object
-            Used for determining whether to get ``rx`` or ``tx`` radio names.
+        None
 
         Returns
         -------
         radios:class:`list of str`
-            list of tx or or rx radio names
+            List of receiver names.
 
         Examples
         ----------
-        >>> radios = aedtapp.results.current_revision.get_radio_names(Emit.tx_rx_mode.rx)
+        >>> rxs = aedtapp.results.current_revision.get_reciver_names()
         """
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(tx_rx)
+            radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().rx,
+                                                                 interferer_type().transmitters_and_emitters)
         else:
             radios = None
             self.result_mode_error()
+        if len(radios) == 0:
+            warnings.warn("No valid receivers in the project.")
+        return radios
+    
+    @pyaedt_function_handler()
+    def get_interferer_names(self, type=interferer_type().transmitters_and_emitters):
+        """
+        Get a list of all interfering transmitters/emitters in the project.
+
+        Parameters
+        ----------
+        type : interferer_type object
+            Type of interferer to return. Options are:
+                - transmitters
+                - emitters
+                - transmitters_and_emitters
+
+        Returns
+        -------
+        radios:class:`list of str`
+            List of interfering systems' names.
+
+        Examples
+        ----------
+        >>> ix_type = interferer_type().transmitters
+        >>> transmitters = aedtapp.results.current_revision.get_interferer_names(ix_type)
+        >>> ix_type = interferer_type().emitters
+        >>> emitters = aedtapp.results.current_revision.get_interferer_names(ix_type)
+        >>> ix_type = interferer_type().transmitters_and_emitters
+        >>> both = aedtapp.results.current_revision.get_interferer_names(ix_type)
+        """
+        if self.revision_loaded:
+            radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().tx, type)
+        else:
+            radios = None
+            self.result_mode_error()
+        if len(radios) == 0:
+            warnings.warn("No valid radios or emitters in the project.")
+            return None
         return radios
 
     @pyaedt_function_handler()
     def get_band_names(self, radio_name, tx_rx_mode):
         """
-        Get a list of all ``tx`` or ``rx`` bands in a given radio.
+        Get a list of all ``tx`` or ``rx`` bands (or waveforms) in
+        a given radio/emitter.
 
         Parameters
         ----------
         radio_name : str
-            Name of the radio.
+            Name of the radio/emitter.
         tx_rx : tx_rx_mode object
-            Used for determining whether to get ``rx`` or ``tx`` radio names.
+            Used for determining whether to get ``rx`` or ``tx`` band names.
 
         Returns
         -------
         bands:class:`list of str`
-            list of tx or or rx radio band names
+            List of tx or or rx band/waveform names.
 
         Examples
         ----------
         >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', Emit.tx_rx_mode.rx)
+        >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', Emit.tx_rx_mode.tx)
         """
         if self.revision_loaded:
             bands = self.emit_project._emit_api.get_band_names(radio_name, tx_rx_mode)
@@ -237,27 +280,28 @@ class Revision:
     @pyaedt_function_handler()
     def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
         """
-        Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio.
+        Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio/emitter.
 
         Parameters
         ----------
         radio_name : str
-            Name of the radio.
+            Name of the radio/emitter.
         band_name : str
            Name of the band.
         tx_rx : tx_rx_mode object
-            Used for determining whether to get ``rx`` or ``tx`` radio names.
+            Used for determining whether to get ``rx`` or ``tx`` radio freqs.
         units : str
             Units for the frequencies.
 
         Returns
         -------
         freq:class:`list of float`
-            List of tx or or rx radio frequencies.
+            List of tx or or rx radio/emitter frequencies.
 
         Examples
         ----------
-        >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
+        >>> freqs = aedtapp.results.current_revision.get_active_frequencies(
+                'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
         if self.revision_loaded:
             freq = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode)

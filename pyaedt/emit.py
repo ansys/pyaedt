@@ -1,9 +1,6 @@
 from __future__ import absolute_import
 
-import os
-import sys
 import warnings
-from importlib import import_module
 
 from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit

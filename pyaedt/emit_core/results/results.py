@@ -18,9 +18,8 @@ class Results:
     Create an instance of the ``Result`` object.
 
     >>> aedtapp.results = Results()
-    >>> mode = Emit.tx_rx_mode().rx
     >>> revision = aedtapp.results.analyze()
-    >>> radio_RX = revision.get_radio_names(mode)
+    >>> receivers = revision.get_receiver_names()
     """
 
     def __init__(self, emit_obj):
@@ -49,9 +48,10 @@ class Results:
         ``Revision`` object that was created.
         """  
         if name == None:
+            self.emit_project.odesktop.GetActiveProject().GetActiveDesign().AddResult()
             rev_num = self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision()
             name = "Revision {}".format(rev_num)
-        revision = Revision(self.emit_project, name)
+        revision = Revision(self, self.emit_project, name)
         self.revisions.append(revision)
         return revision
 
@@ -78,6 +78,22 @@ class Results:
             )
         return domain
     
+    @pyaedt_function_handler
+    def _unload_revisions(self):
+        """Convenience function to set all revisions
+        as ``unloaded``
+        
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+        """
+        for rev in self.revisions:
+            rev.revision_loaded = False
+
     @pyaedt_function_handler()
     def analyze(self, revision_name=None):
         """
@@ -97,8 +113,8 @@ class Results:
         Examples
         --------
         >>> rev = aedtapp.results.analyze()
-        >>> mode = Emit.tx_rx_mode().both
-        >>> radios = rev.get_radio_names(mode)
+        >>> interferers = rev.get_interferer_names()
+        >>> receivers = rev.get_receiver_names()
         """        
         if revision_name is None:    
             # analyze the current design revision 

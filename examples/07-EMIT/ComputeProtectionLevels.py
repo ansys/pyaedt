@@ -5,8 +5,6 @@ This example shows how you can use PyAEDT to open an AEDT project with
 an EMIT design and analyze the results to determine if the received 
 power at the input to each receiver exceeds the specified protection
 levels. 
-
-This example requires Ansys AEDT 2023 R2 or later. Uncomment it and run on correct version.
 """
 ###############################################################################
 # Perform required imports
@@ -54,6 +52,10 @@ desktop_version = "2023.2"
 # ~~~~~~~~~~~~~~~~~~~~~
 # Launch AEDT with EMIT. The ``Desktop`` class initializes AEDT and starts it
 # on the specified version and in the specified graphical mode.
+
+if desktop_version <= "2023.1":
+    print("Warning: this example requires AEDT 2023.2 or later.")
+    sys.exit()
 
 d = pyaedt.launch_desktop(desktop_version, non_graphical, new_thread)
 emitapp = Emit(pyaedt.generate_unique_project_name())
@@ -135,6 +137,7 @@ rev = emitapp.results.analyze()
 modeRx = econsts.tx_rx_mode().rx
 modeTx = econsts.tx_rx_mode().tx
 resultMode = econsts.result_type().powerAtRx
+tx_interferer = econsts.interferer_type().transmitters
 
 ###############################################################################
 # Generate a legend
@@ -223,8 +226,8 @@ def create_scenario_view(emis, colors, tx_radios, rx_radios):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Get lists of all transmitters and receivers in the project.
 rev = emitapp.results.current_revision
-rx_radios = rev.get_radio_names(modeRx)
-tx_radios = rev.get_radio_names(modeTx)
+rx_radios = rev.get_receiver_names()
+tx_radios = rev.get_interferer_names(tx_interferer)
 domain = emitapp.results.interaction_domain()
 
 ###############################################################################
