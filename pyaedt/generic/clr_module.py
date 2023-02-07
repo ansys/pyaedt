@@ -8,7 +8,6 @@ pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
 if os.name == "posix" and cpython:  # pragma: no cover
     try:
-
         if os.environ.get("DOTNET_ROOT") is None:
             try:
                 import dotnet

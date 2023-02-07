@@ -94,7 +94,6 @@ class CSVDataset:
         valid_solutions=True,
         invalid_solutions=False,
     ):
-
         self._header = []
         self._data = {}
         self._unit_dict = {}
@@ -209,7 +208,6 @@ class CSVDataset:
 
     # Called when iteration is initialized
     def __iter__(self):
-
         self._index = 0
         return self
 

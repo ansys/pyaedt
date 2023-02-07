@@ -134,7 +134,6 @@ class Results:
 
     @pyaedt_function_handler()
     def get_active_frequencies(self, radio_name, band_name, tx_rx_mode, units=""):
-
         """
         Get a list of active frequencies for a ``tx`` or ``rx`` band in a radio.
 
@@ -244,7 +243,6 @@ class Revision:
 
     @pyaedt_function_handler()
     def get_max_simultaneous_interferers(self):
-
         """
         Get the number of maximum simultaneous interferers.
 
@@ -264,7 +262,6 @@ class Revision:
 
     @pyaedt_function_handler()
     def set_max_simultaneous_interferers(self, val):
-
         """
         Set the number of maximum simultaneous interferers.
 

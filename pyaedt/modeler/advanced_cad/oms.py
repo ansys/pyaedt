@@ -108,7 +108,6 @@ class BuildingsPrep(object):
             logger.info("No Buildings Exists in Selected Geometry")
             return {"file_name": None, "mesh": None}
         else:
-
             gdf_proj = ox.project_gdf(gdf)
 
             geo = gdf_proj["geometry"]
@@ -148,7 +147,6 @@ class BuildingsPrep(object):
 
                     delta_elevation = 0
                     if terrain_mesh:
-
                         buffer = 50  # additional distance so intersection test is further away than directly on surface
                         bb_terrain = terrain_mesh.bounds
                         start_z = bb_terrain[4] - buffer
@@ -376,7 +374,6 @@ class TerrainPrep(object):
         xyz = []
         for lat_idx in range(all_data.shape[0]):
             for lon_idx in range(all_data.shape[1]):
-
                 latlat_utm_centered = all_utm[lat_idx][lon_idx][0] - utm_center[0]
                 lonlon_utm_centered = all_utm[lat_idx][lon_idx][1] - utm_center[1]
 
