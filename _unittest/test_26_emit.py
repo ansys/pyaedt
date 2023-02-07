@@ -219,13 +219,13 @@ class TestClass(BasisTest, object):
         updated_units = self.aedtapp.get_units()
         assert valid
         assert updated_units == {
-            "Power" : "mW",
-            "Frequency" : "GHz",
-            "Length" : "nm",
-            "Time" : "ps",
-            "Voltage" : "mV",
-            "Data Rate" : "Gbps",
-            "Resistance" : "uOhm",
+            "Power": "mW",
+            "Frequency": "GHz",
+            "Length": "nm",
+            "Time": "ps",
+            "Voltage": "mV",
+            "Data Rate": "Gbps",
+            "Resistance": "uOhm",
         }
 
         # Set a bad list of units
@@ -319,62 +319,46 @@ class TestClass(BasisTest, object):
         bandsRX = rev.get_band_names(radiosRX[0], modeRx)
         assert bandsRX[0] == "Rx - Base Data Rate"
         assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = rev.get_active_frequencies(
-            radiosRX[0], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx)
         assert rx_frequencies[0] == 2402.0
         assert rx_frequencies[1] == 2403.0
         # Change the units globally
         self.aedtapp.set_units("Frequency", "GHz")
-        rx_frequencies = rev.get_active_frequencies(
-            radiosRX[0], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx)
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
         # Change the return units only
-        rx_frequencies = rev.get_active_frequencies(
-            radiosRX[0], bandsRX[0], modeRx, "Hz"
-        )
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "Hz")
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
 
         # Test set_sampling
         bandsRX = rev.get_band_names(radiosRX[1], modeRx)
-        rx_frequencies = rev.get_active_frequencies(
-            radiosRX[1], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
         assert len(rx_frequencies) == 20
 
         sampling.set_channel_sampling(max_channels=10)
         rev2 = self.aedtapp.results.analyze()
-        rx_frequencies = rev2.get_active_frequencies(
-            radiosRX[1], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev2.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
         assert len(rx_frequencies) == 10
 
         sampling.set_channel_sampling("Random", max_channels=75)
         rev3 = self.aedtapp.results.analyze()
-        rx_frequencies = rev3.get_active_frequencies(
-            radiosRX[1], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
         assert len(rx_frequencies) == 75
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
 
         sampling.set_channel_sampling("Random", percentage=25, seed=100)
         rev4 = self.aedtapp.results.analyze()
-        rx_frequencies = rev4.get_active_frequencies(
-            radiosRX[1], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
         assert len(rx_frequencies) == 19
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.411
 
         sampling.set_channel_sampling("all")
         rev5 = self.aedtapp.results.analyze()
-        rx_frequencies = rev5.get_active_frequencies(
-            radiosRX[1], bandsRX[0], modeRx
-        )
+        rx_frequencies = rev5.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
         assert len(rx_frequencies) == 79
 
         # Test number of interferers
@@ -432,7 +416,6 @@ class TestClass(BasisTest, object):
         # Get all interferers
         all_ix = rev2.get_interferer_names(econsts.interferer_type().transmitters_and_emitters)
         assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "USB_3.x"]
-
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
@@ -616,15 +599,11 @@ class TestClass(BasisTest, object):
         assert instance.get_value(econsts.result_type().powerAtRx) == 62.03
         assert instance.get_largest_problem_type(econsts.result_type().emi) == "Out-of-Channel: Tx Fundamental"
         domain2 = self.aedtapp.results.interaction_domain()
-        rx_frequencies = rev.get_active_frequencies(
-            radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz"
-        )
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz")
         domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
         radiosTX = rev.get_interferer_names(econsts.interferer_type().transmitters)
         bandsTX = rev.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
-        tx_frequencies = rev.get_active_frequencies(
-            radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz"
-        )
+        tx_frequencies = rev.get_active_frequencies(radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz")
         domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0])
         exception_raised = False
         try:
@@ -703,7 +682,7 @@ class TestClass(BasisTest, object):
         assert len(radiosTX) == 3
         assert len(radiosRX) == 4
 
-        rev4 = self.aedtapp.results.analyze(rev.name)        
+        rev4 = self.aedtapp.results.analyze(rev.name)
         assert len(self.aedtapp.results.revisions) == 2
         radiosTX = rev4.get_interferer_names(econsts.interferer_type().transmitters)
         radiosRX = rev4.get_receiver_names()

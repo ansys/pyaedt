@@ -22,9 +22,7 @@ def result_type():
     try:
         result = EMIT_MODULE.result_type()
     except NameError:
-        raise ValueError(
-            "An Emit object must be initialized before any static member of EmitConstants is accessed."
-        )
+        raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return result
 
 
@@ -45,10 +43,9 @@ def tx_rx_mode():
     try:
         tx_rx = EMIT_MODULE.tx_rx_mode()
     except NameError:
-        raise ValueError(
-            "An Emit object must be initialized before any static member of EmitConstants is accessed."
-        )
+        raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return tx_rx
+
 
 def interferer_type():
     """Get an ``interferer_type`` object.
@@ -65,10 +62,9 @@ def interferer_type():
     try:
         inter_type = EMIT_MODULE.interferer_type()
     except NameError:
-        raise ValueError(
-            "An Emit object must be initialized before any static member of EmitConstants is accessed."
-        )
+        raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return inter_type
+
 
 def convert_power_to_unit(values, to_unit):
     """Convert power from dBm to specified unit.
