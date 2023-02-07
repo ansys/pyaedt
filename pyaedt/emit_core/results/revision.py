@@ -166,7 +166,7 @@ class Revision:
     @pyaedt_function_handler()
     def is_domain_valid(self, domain):
         """
-        Return ``True`` if the given domain is valid for the current Revision.
+        Return ``True`` if the given domain is valid for the current revision.
 
         Parameters
         ----------
