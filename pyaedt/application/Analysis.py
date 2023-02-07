@@ -1277,7 +1277,6 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def _create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
-
         if props is None:
             props = {}
 
@@ -1294,7 +1293,6 @@ class Analysis(Design, object):
             setup = SetupHFSS(self, setuptype, name)
 
         if self.design_type == "HFSS":
-
             # Handle the situation when ports have not been defined.
 
             if not self.excitations and "MaxDeltaS" in setup.props:

@@ -747,9 +747,9 @@ class Hfss(FieldAnalysis3D, object):
         setupname : str, optional
             Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
-            Extra arguments to set up the circuit. 
+            Extra arguments to set up the circuit.
             Available keys depend on the setup chosen.
-            For more information, see 
+            For more information, see
             :doc:`../SetupTemplatesHFSS`.
 
 
@@ -3334,7 +3334,7 @@ class Hfss(FieldAnalysis3D, object):
             line is defined. This parameter should be set to one of the values
             for ``Application.AxisDir``,  which are: ``XNeg``, ``YNeg``, ``ZNeg``,
             ``XPos``, ``YPos``, and ``ZPos``.
-            
+
         impedance : float, optional
             Port impedance. The default is ``50``.
         nummodes : int, optional

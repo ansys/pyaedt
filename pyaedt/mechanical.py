@@ -619,7 +619,7 @@ class Mechanical(FieldAnalysis3D, object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for Mechanical.
-        
+
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
         names correspond to the ``setuptype``
         corresponding to the native AEDT API.  The list of

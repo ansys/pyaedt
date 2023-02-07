@@ -1844,7 +1844,7 @@ class Q3d(QExtractor, object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", **kwargs):
         """Create an analysis setup for Q3D Extractor.
-        
+
         Optional arguments are passed along with the ``setupname`` parameter.
 
 
@@ -2357,7 +2357,7 @@ class Q2d(QExtractor, object):
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create an analysis setup for 2D Extractor.
-        
+
         Optional arguments are passed along with the ``setuptype`` and ``setupname``
         parameters.  Keyword names correspond to the ``setuptype``
         corresponding to the native AEDT API.  The list of
