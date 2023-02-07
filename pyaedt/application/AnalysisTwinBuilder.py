@@ -55,7 +55,6 @@ class AnalysisTwinBuilder(Analysis):
         port=0,
         aedt_process_id=None,
     ):
-
         Analysis.__init__(
             self,
             application,

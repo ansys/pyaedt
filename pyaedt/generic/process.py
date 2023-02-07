@@ -211,7 +211,6 @@ class SiwaveSolve(object):
         with open(scriptname, "w") as f:
             f.write("oApp.OpenProject(r'{}')\n".format(siwave_project))
             if html_report:
-
                 f.write("proj = oApp.GetActiveProject()\n")
 
                 f.write("proj.ScrExportDcSimReportColorBarProperties(14,2,False,True)\n")

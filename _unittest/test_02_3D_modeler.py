@@ -189,7 +189,6 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.translate([id1, id2], udp2)
 
     def test_24_check_plane(self):
-
         udp = [0, 0, 0]
         o1 = self.aedtapp.modeler.create_box(udp, [4, 5, 5])
         plane = self.aedtapp.modeler.check_plane(o1.id, udp)
@@ -306,13 +305,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.deactivate_variable_optimization("test_opti")
 
     def test_37_activate_variable_for_sensitivity(self):
-
         assert self.aedtapp.activate_variable_sensitivity("test_opti")
         assert self.aedtapp.activate_variable_sensitivity("$test_opti1", "1mm", "10mm")
         assert self.aedtapp.deactivate_variable_sensitivity("$test_opti1")
 
     def test_38_activate_variable_for_statistical(self):
-
         assert self.aedtapp.activate_variable_statistical("test_opti")
         assert self.aedtapp.activate_variable_statistical("$test_opti1", "1mm", "10mm", "3%", mean="2mm")
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
