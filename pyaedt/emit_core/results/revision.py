@@ -1,8 +1,8 @@
 import os
 import warnings
 
-import pyaedt.generic.constants as consts
 import pyaedt.emit_core.EmitConstants as emitConsts
+import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.emit_core.EmitConstants import interferer_type
 
@@ -68,7 +68,7 @@ class Revision:
         """Parent Results object"""
 
         # load the revision after creating it
-        self.revision_loaded = False        
+        self.revision_loaded = False
         """``True`` if the revision is loaded and ``False`` if it is not."""
         self._load_revision()
        

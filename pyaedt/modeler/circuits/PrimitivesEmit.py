@@ -1,8 +1,9 @@
 from collections import defaultdict
 
-from pyaedt.generic.general_methods import pyaedt_function_handler
 import pyaedt.generic.constants as consts
 from pyaedt.emit_core import EmitConstants as emit_consts
+from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 class EmitComponents(object):
     """EmitComponents class.
@@ -152,7 +153,7 @@ class EmitComponents(object):
         o_update = self.update_object_properties(o)
         self.components[new_comp_name] = o_update
         return o_update
-    
+
     @pyaedt_function_handler()
     def create_radio_antenna(self, radio_type, radio_name=None, antenna_name=None, library=None):
         """Create a new radio and antenna and connect them.
@@ -593,6 +594,7 @@ class EmitComponent(object):
 
         return properties["Type"]
 
+
 @EmitComponent.register_subclass("Antenna")
 class EmitAntennaComponent(EmitComponent):
     """An Antenna component in the EMIT schematic."""
@@ -666,7 +668,7 @@ class EmitAntennaComponent(EmitComponent):
 
         # Build a tuple of the position
         parts = position_string.split()
-        
+
         # Check the units specified are a valid Emit length
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Length"]:
             units = self.units["Length"]
@@ -676,6 +678,7 @@ class EmitAntennaComponent(EmitComponent):
             consts.unit_converter(float(parts[2]),"Length", "meter", units))
 
         return position
+
 
 @EmitComponent.register_subclass("Radio")
 class EmitRadioComponent(EmitComponent):
@@ -762,8 +765,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Bool
-            ''True'' if the radio has enabled transmit channels and
-            ''False'' if there are no enabled transmit channels."""
+            ``True`` if the radio has enabled transmit channels and
+            ``False`` if there are no enabled transmit channels."""
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
@@ -796,14 +799,14 @@ class EmitRadioComponent(EmitComponent):
         components = super().get_connected_components()
         antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode", components)
         return list(antennas)
-    
+
     def get_sampling(self):
         """Returns the sampling for the radio.
-        
+
         Parameters
         ----------
         None
-        
+
         Return
         ------
         EmitComponentPropNode
@@ -864,14 +867,14 @@ class EmitComponentPropNode(object):
         Returns
         -------
         Bool
-            Returns ''True'' if the node is enabled and
-            ''False'' if the node is disabled."""
+            Returns ``True`` if the node is enabled and
+            ``False`` if the node is disabled."""
         return self.props["Enabled"] == "true"
-    
+
     @pyaedt_function_handler()
     def set_band_power_level(self, power, units=""):
         """Set the power of the fundamental for the given band.
-        
+
         Parameters
         ----------
         power : float
@@ -893,12 +896,12 @@ class EmitComponentPropNode(object):
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
                 child._set_prop_value(prop_list)
-                return # only one Tx Spectral Profile per Band
-            
+                return  # only one Tx Spectral Profile per Band
+
     @pyaedt_function_handler()
     def get_band_power_level(self, units=""):
         """Get the power of the fundamental for the given band.
-        
+
         Parameters
         ----------
         units : str
@@ -917,8 +920,8 @@ class EmitComponentPropNode(object):
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
                 power = child.props["FundamentalAmplitude"]
-                break # only one Tx Spectral Profile per Band
-        
+                break  # only one Tx Spectral Profile per Band
+
         return emit_consts.convert_power_to_unit(float(power), units)
 
     @pyaedt_function_handler()

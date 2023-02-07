@@ -4,10 +4,11 @@ import warnings
 
 from pyaedt import generate_unique_project_name
 from pyaedt.application.AnalysisEmit import FieldAnalysisEmit
-from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.results.results import Results
+from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.

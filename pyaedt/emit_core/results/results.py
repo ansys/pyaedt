@@ -1,6 +1,5 @@
-
-from pyaedt.emit_core.results.revision import Revision
 from pyaedt.emit_core import EMIT_MODULE
+from pyaedt.emit_core.results.revision import Revision
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -34,9 +33,9 @@ class Results:
         """List of all result revisions. Only one loaded at a time"""
 
     @pyaedt_function_handler()
-    def _add_revision(self, name=None):      
+    def _add_revision(self, name=None):
         """Add a new revision.
-        
+
         Parameters
         ----------
         name : str, optional
@@ -46,7 +45,7 @@ class Results:
         Returns
         -------
         ``Revision`` object that was created.
-        """  
+        """
         if name == None:
             self.emit_project.odesktop.GetActiveProject().GetActiveDesign().AddResult()
             rev_num = self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision()
@@ -73,9 +72,7 @@ class Results:
         try:
             domain = EMIT_MODULE.InteractionDomain()
         except NameError:
-            raise ValueError(
-                "An Emit object must be initialized before any static member of the Results."
-            )
+            raise ValueError("An Emit object must be initialized before any static member of the Results.")
         return domain
     
     @pyaedt_function_handler
@@ -120,14 +117,17 @@ class Results:
             # analyze the current design revision 
             if self.current_revision is None:
                 self.current_revision = self._add_revision()
-            elif self.current_revision.revision_number == self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision():              
+            elif (
+                self.current_revision.revision_number
+                == self.emit_project.odesktop.GetActiveProject().GetActiveDesign().GetRevision()
+            ):
                 # Revision exists for design rev #, load if it needed
                 if not self.current_revision.revision_loaded:
                     self.current_revision._load_revision()
-            else:            
+            else:
                 # there are changes since the current revision was analyzed, create
                 # a new revision
-                self.current_revision.revision_loaded = False            
+                self.current_revision.revision_loaded = False
                 self.current_revision = self._add_revision()
         else:
             rev = [x for x in self.revisions if revision_name == x.name]
@@ -135,8 +135,7 @@ class Results:
                 # unload the current revision and load the specified revision
                 self.current_revision.revision_loaded = False
                 self.current_revision = rev[0]
-                self.current_revision._load_revision()                
+                self.current_revision._load_revision()
             else:
                 print("{} not found.".format(revision_name))
         return self.current_revision
-    

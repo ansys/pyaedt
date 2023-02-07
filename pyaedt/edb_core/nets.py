@@ -346,7 +346,7 @@ class EdbNets(object):
                 continue
             net_name = path.net_name
             layer_name = path.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             try:
                 x, y = path.points()
@@ -392,7 +392,7 @@ class EdbNets(object):
                 continue
             net_name = poly.net_name
             layer_name = poly.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             xt, yt = poly.points()
             if not xt:
@@ -454,7 +454,7 @@ class EdbNets(object):
                 continue
             net_name = circle.net_name
             layer_name = circle.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             x, y = circle.points()
             if not x:
@@ -497,7 +497,7 @@ class EdbNets(object):
                 continue
             net_name = rect.net_name
             layer_name = rect.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             x, y = rect.points()
             if not x:
@@ -577,7 +577,7 @@ class EdbNets(object):
     @pyaedt_function_handler()
     def plot(
         self,
-        nets,
+        nets=None,
         layers=None,
         color_by_net=False,
         show_legend=True,
@@ -591,7 +591,7 @@ class EdbNets(object):
 
         Parameters
         ----------
-        nets : str, list
+        nets : str, list, optional
             Name of the net or list of nets to plot. If ``None`` all nets will be plotted.
         layers : str, list, optional
             Name of the layers to include in the plot. If ``None`` all the signal layers will be considered.
