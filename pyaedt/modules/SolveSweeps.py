@@ -77,16 +77,17 @@ if sys.version_info < (3, 0):
 
 @pyaedt_function_handler()
 def identify_setup(props):
-    """Identify if a setup props is time or frequency domain.
+    """Identify if a setup's properties is based on a time or frequency domain.
 
     Parameters
     ----------
     props : dict
+        Dictionary of the properties.
 
     Returns
     -------
     bool
-        `True` if domain is Time. `False` for Frequency and Sweeps.
+        `True` if domain is a time. `False` if the domain is for a frequency and sweeps.
     """
     keys = [
         "Transient",
@@ -115,7 +116,7 @@ class SweepHFSS(object):
     Parameters
     ----------
     app : :class 'pyaedt.modules.SolveSetup.Setup'
-        Setup used for the analysis.
+        Setup to use for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
@@ -145,7 +146,7 @@ class SweepHFSS(object):
             setup = kwargs["app"]
         if "setupname" in kwargs:
             warnings.warn(
-                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                "`setupname` is deprecated since v0.6.22. It is no longer required.",
                 DeprecationWarning,
             )
 
@@ -167,13 +168,13 @@ class SweepHFSS(object):
             elif SequenceMatcher(None, sweeptype.lower(), "fast").ratio() > 0.8:
                 sweeptype = "Fast"
             else:
-                warnings.warn("Invalid sweep type. `Interpolating` will be set as default.")
+                warnings.warn("Invalid sweep type. `Interpolating` will be set as the default.")
                 sweeptype = "Interpolating"
             self.props["Type"] = sweeptype
 
     @property
     def is_solved(self):
-        """Verify if solutions are available for given sweep.
+        """Verify if solutions are available for the sweep.
 
         Returns
         -------
@@ -187,8 +188,8 @@ class SweepHFSS(object):
 
     @property
     def frequencies(self):
-        """Get the list of all frequencies of the active sweep.
-        The project has to be saved and solved in order to see values.
+        """List of all frequencies of the active sweep.
+        To see values, the project must be saved and solved.
 
         Returns
         -------
@@ -203,8 +204,8 @@ class SweepHFSS(object):
 
     @property
     def basis_frequencies(self):
-        """Get the list of all frequencies which have fields available.
-        The project has to be saved and solved in order to see values.
+        """List of all frequencies that have fields available.
+        To see values, the project must be saved and solved.
 
         Returns
         -------
@@ -248,17 +249,19 @@ class SweepHFSS(object):
         start : float
             Starting frequency.
         end : float, optional
-            Stopping frequency. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+            Stopping frequency. The default value is ``None``. A value is required for
+            ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
         count : int or float, optional
-            Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
+            Frequency count or frequency step. The default is ``None``. A value is required for
+            ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
         unit : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
         save_single_fields : bool, optional
             Whether to save the fields of the single point. The default is ``False``.
-            Used only for ``rangetype="SinglePoints"``.
+            This parameter is sed only for ``rangetype="SinglePoints"``.
         clear : boolean, optional
-            If set to ``True``, all other subranges will be suppressed except the current one under creation.
-            Default value is ``False``.
+            Whether to suppress all other subranges except the current one under creation.
+            The default value is ``False``.
 
         Returns
         -------
@@ -351,11 +354,11 @@ class SweepHFSS(object):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Retrieve arguments.
+        """Get arguments.
 
         Parameters
         ----------
-        props :dict, optional
+        props : dict, optional
              Dictionary of the properties. The default is ``None``, in which
              case the default properties are retrieved.
 
@@ -378,7 +381,7 @@ class SweepHFSS3DLayout(object):
     Parameters
     ----------
     app : :class 'pyaedt.modules.SolveSetup.Setup'
-        Setup used for the analysis.
+        Setup to use for the analysis.
     setupname : str
         Name of the setup.
     sweepname : str
@@ -403,7 +406,7 @@ class SweepHFSS3DLayout(object):
             setup = kwargs["app"]
         if "setupname" in kwargs:
             warnings.warn(
-                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                "`setupname` is deprecated since v0.6.22. It is no longer required.",
                 DeprecationWarning,
             )
 
@@ -426,7 +429,7 @@ class SweepHFSS3DLayout(object):
             elif SequenceMatcher(None, sweeptype.lower(), "kdiscrete").ratio() > 0.8:
                 sweeptype = "kDiscrete"
             else:
-                warnings.warn("Invalid sweep type. `kInterpolating` will be set as default.")
+                warnings.warn("Sweep type is invalid. `kInterpolating` is set as the default.")
                 sweeptype = "kInterpolating"
             self.props["FreqSweepType"] = sweeptype
             self.props["GenerateSurfaceCurrent"] = save_fields
@@ -443,7 +446,7 @@ class SweepHFSS3DLayout(object):
 
     @property
     def is_solved(self):
-        """Verify if solutions are available for given sweep.
+        """Verify if solutions are available for the sweep.
 
         Returns
         -------
@@ -478,12 +481,12 @@ class SweepHFSS3DLayout(object):
         elif sweeptype == "Discrete":
             self.props["FastSweep"] = False
         else:
-            raise AttributeError("Allowed sweeptype options are 'Interpolating' and 'Discrete'.")
+            raise AttributeError("Allowed sweep type options are 'Interpolating' and 'Discrete'.")
         return self.update()
 
     @pyaedt_function_handler()
     def set_save_fields(self, save_fields, save_rad_fields=False):
-        """Choose whether the fields are saved.
+        """Choose whether to save fields.
 
         Parameters
         ----------
@@ -513,11 +516,12 @@ class SweepHFSS3DLayout(object):
         start : float
             Starting frequency.
         end : float, optional
-            Stopping frequency.
-            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+            Stopping frequency. The default is ``None``. A value is
+           required for these subranges: ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
         count : int or float, optional
-            Frequency count or frequency step.
-            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+            Frequency count or frequency step. The default is ``None``.
+            A value is required for these subranges: ``"LinearCount"``, ``"LinearStep"``,
+            and ``"LogScale"``.
         unit : str
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
 
@@ -562,11 +566,12 @@ class SweepHFSS3DLayout(object):
         start : float
             Starting frequency.
         end : float, optional
-            Stopping frequency.
-            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+            Stopping frequency. The default is ``None``.  A value is required
+            for these subranges: ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
         count : int or float, optional
-            Frequency count or frequency step.
-            Mandatory for ``"LinearCount"``, ``"LinearStep"``, and ``"LogScale"``.
+            Frequency count or frequency step. The default is ``None``.
+            A value is required for these subranges: ``"LinearCount"``,
+            ``"LinearStep"``, and ``"LogScale"``.
         unit : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"GHz"``.
 
@@ -667,7 +672,7 @@ class SweepMatrix(object):
             setup = kwargs["app"]
         if "setupname" in kwargs:
             warnings.warn(
-                "`setupname` is deprecated since v0.6.22 and not required anymore.",
+                "`setupname` is deprecated since v0.6.22. It is no longer required.",
                 DeprecationWarning,
             )
         self._app = setup
@@ -718,8 +723,8 @@ class SweepMatrix(object):
 
     @property
     def frequencies(self):
-        """Get the list of all frequencies of the active sweep.
-        The project has to be saved and solved to see values.
+        """List of all frequencies of the active sweep.
+        To see values, the project must be saved and solved.
 
         Returns
         -------
@@ -779,13 +784,14 @@ class SweepMatrix(object):
         start : float
             Starting frequency.
         end : float
-            Stopping frequency.
+            Stopping frequency. The default is ``None``.
         count : int or float
-            Frequency count or frequency step.
+            Frequency count or frequency step. The default is ``None``.
         unit : str, optional
-            Frequency Units.
+            Frequency units.
         clear : bool, optional
-            Either if the subrange has to be appended to existing ones or replace them.
+            Whether to replace the subrange. The default is ``False``, in which case
+            subranges are appended.
 
         Returns
         -------
@@ -794,7 +800,7 @@ class SweepMatrix(object):
 
         """
         if "type" in kwargs:
-            warnings.warn("type has been deprecated. use rangetype.", DeprecationWarning)
+            warnings.warn("'type' has been deprecated. Use 'rangetype' instead.", DeprecationWarning)
             rangetype = kwargs["type"]
         if clear:
             self.props["RangeType"] = rangetype
@@ -855,7 +861,7 @@ class SweepMatrix(object):
 
     @pyaedt_function_handler()
     def _get_args(self, props=None):
-        """Retrieve properties.
+        """Get properties.
 
         Parameters
         ----------
@@ -999,7 +1005,7 @@ class SetupKeys(object):
 
 
 class SetupProps(OrderedDict):
-    """AEDT Boundary Component Internal Parameters."""
+    """Provides internal parameters for the AEDT boundary component."""
 
     def __setitem__(self, key, value):
         if isinstance(value, (dict, OrderedDict)):
@@ -1009,7 +1015,7 @@ class SetupProps(OrderedDict):
         if self._pyaedt_setup.auto_update:
             res = self._pyaedt_setup.update()
             if not res:
-                self._pyaedt_setup._app.logger.warning("Update of %s Failed. Check needed arguments", key)
+                self._pyaedt_setup._app.logger.warning("Update of %s failed. Check needed arguments", key)
 
     def __init__(self, setup, props):
         OrderedDict.__init__(self)
@@ -1025,12 +1031,12 @@ class SetupProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
     def _export_properties_to_json(self, file_path):
-        """Export all setup properties into a json file.
+        """Export all setup properties to a JSON file.
 
         Parameters
         ----------
         file_path : str
-            File path of the json file.
+            File path for the JSON file.
         """
         if not file_path.endswith(".json"):
             file_path = file_path + ".json"
@@ -1039,12 +1045,12 @@ class SetupProps(OrderedDict):
         return True
 
     def _import_properties_from_json(self, file_path):
-        """Import setup properties from a json file.
+        """Import setup properties from a JSON file.
 
         Parameters
         ----------
         file_path : str
-            File path of the json file.
+            File path for the JSON file.
         """
 
         def set_props(target, source):

@@ -1024,7 +1024,7 @@ class ParametricSetups(object):
             self._app.logger.error("Variable {} not found.".format(sweep_var))
             return False
         if not solution and not self._app.nominal_sweep:
-            self._app.logger.error("At least 1 setup is needed.")
+            self._app.logger.error("At least one setup is needed.")
             return False
         if not solution:
             solution = self._app.nominal_sweep
@@ -1271,7 +1271,7 @@ class OptimizationSetups(object):
         >>> oModule.InsertSetup
         """
         if not solution and not self._app.nominal_sweep:
-            self._app.logger.error("At least 1 setup is needed.")
+            self._app.logger.error("At least one setup is needed.")
             return False
         if not solution:
             solution = self._app.nominal_sweep

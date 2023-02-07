@@ -2502,7 +2502,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         str or list
-           Name of the objects corresponding to the object ID (or IDs) passed as arguments.
+           Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
         if "netref.builtins.list" in str(type(object_id)):
@@ -2632,16 +2632,17 @@ class GeometryModeler(Modeler, object):
             Name or ID of the object.
         position : int or float
             List of the ``[x, y, z]`` coordinates or the
-            Application.Position object for the selection.
+            ``Application.Position`` object for the selection.
         duplicate : bool, optional
             Whether if duplicate the object before mirror or not. Default is ``False``.
         is_3d_comp : bool, optional
-            If ``True``, the method will try to return the duplicated list of 3dcomponents. The default is ``False``.
+            Whether the component is 3D. The default is ``False``. If ``True``, the method
+            tries to return the duplicated list of 3D components.
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
-            the Application.Position object for the vector.
+            the ``Application.Position`` object for the vector.
         duplicate_assignment : bool, optional
-            If True, the method duplicates selection assignments. The default value is ``True``.
+            Whether to duplicate selection assignments. The default is ``True``.
 
         Returns
         -------

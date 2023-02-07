@@ -1787,12 +1787,12 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def create_choke(self, json_file):
-        """Create a chock from json setting file.
+        """Create a choke from a JSON setting file.
 
         Parameters
         ----------
         json_file : str
-            Full path of the json file return for the function check_choke_values.
+            Full path of the JSON file with the choke settings.
 
         Returns
         -------

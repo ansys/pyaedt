@@ -3668,25 +3668,25 @@ class Icepak(FieldAnalysis3D):
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
-        """Create a new analysis setup for Icepak.
+        """Create an analysis setup for Icepak.
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
         names correspond to the ``setuptype``
         corresponding to the native AEDT API.  The list of
-        keyword here is not exhaustive.
+        keywords here is not exhaustive.
 
-        Note: This method overrides Analysis.setup() for the Hfss app.
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of setup. Must be one of the following:
-            "IcepakSteadyState", "IcepakTransient".
-            Default: "IcepakSteadyState"
+            Type of the setup. Options are ``"IcepakSteadyState"``
+            and ``"IcepakTransient"``. The default is ``"IcepakSteadyState"``.
         setupname : str, optional
-            Name of the setup. Default: "Setup1"
+            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
-            Available keys depend on setup chosen:
-
+            Available keys depend on setup chosen.
+            For more information, see
             :doc:`../SetupTemplatesIcepak`.
 
         Returns

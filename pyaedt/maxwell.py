@@ -1911,27 +1911,27 @@ class Maxwell(object):
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
-        """Create a new analysis setup for Maxwell 3D or 2D.
+        """Create an analysis setup for Maxwell 3D or 2D.
         Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
         names correspond to the ``setuptype``
         corresponding to the native AEDT API.  The list of
-        keyword here is not exhaustive.
+        keywords here is not exhaustive.
 
-        Note: This method overrides Analysis.setup() for the Hfss app.
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
         setuptype : int, str, optional
-            Type of setup. Must be one of the following:
-            "HFSSDrivenAuto", "HFSSDrivenDefault", "HFSSEigen", "HFSSTransient",
-            "HFSSSBR" based on the solution type.
-            Default: "HFSSDrivenAuto"
+            Type of the setup. Based on the solution type, options are
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``,
+            ``"HFSSEigen"``, ``"HFSSTransient"`` and ``"HFSSSBR"``.
+            The default is ``"HFSSDrivenAuto"``.
         setupname : str, optional
-            Name of the setup. Default: "Setup1"
+            Name of the setup. The default is ``"Setup1"``.
         **kwargs : dict, optional
-            Available keys depend on setup chosen:
-
-            :doc:`../SetupTemplatesMaxwell`.
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesMaxwell`.
 
         Returns
         -------
@@ -1969,7 +1969,7 @@ class Maxwell(object):
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 3D application interface.
+    """Provides the Maxwell 3D app interface.
 
     This class allows you to connect to an existing Maxwell 3D design or create a
     new Maxwell 3D design if one does not exist.

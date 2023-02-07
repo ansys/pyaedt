@@ -1,6 +1,6 @@
 """
 HFSS: Inductive Iris waveguide filter
-----------------------------------------
+---------------------------------------
 This example shows how to build and analyze a 4-pole
 X-Band waveguide filter using inductive irises.
 
@@ -12,8 +12,8 @@ evaluate expressions.
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports. Note the dependence on
 # SymPy is used to evaluate expressions. SymPy is not
-# a default requirement in PyAedt and is only compatible
-# with CPython > 3.6.
+# a default requirement in PyAEDT and is only compatible
+# with a CPython version later than 3.6.
 
 import os
 import tempfile
@@ -27,8 +27,9 @@ from pyaedt import general_methods
 
 
 ###############################################################################
-# Define values for the waveguide iris filter.
-# ~~~~~~~~~~~~~~~~~~~~~~
+# Define values for waveguide iris filter
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define values for the wavequide iris filter.
 
 wgparams = {'l': [0.7428, 0.82188],
             'w': [0.50013, 0.3642, 0.3458],
@@ -58,6 +59,7 @@ var_mapping = dict()  # Used by parse_expr to parse expressions.
 ###############################################################################
 # Initialize design parameters in HFSS.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Initialize design parameters in HFSS.
 
 hfss.modeler.model_units = "in"  # Set to inches
 for key in wgparams:
@@ -80,11 +82,11 @@ else:
     is_even = False
 
 ###############################################################################
-# Draw the parametric waveguide filter.
-# ~~~~~~~~~~~~~~~~~~~~~~
+# Draw parametric waveguide filter
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define a function that places a single iris given the longitudinal (z) position,
-# thickness and an integer, n, defining which iris is being placed.  Numbering
-# will go from the largest value (interior of the filter) to 1, which is the first
+# thickness, and an integer, n, defining which iris is being placed.  Numbering
+# is tol go from the largest value (interior of the filter) to 1, which is the first
 # iris nearest the waveguide ports.
 
 def place_iris(zpos, dz, n):
@@ -99,8 +101,9 @@ def place_iris(zpos, dz, n):
     return iris
 
 ###############################################################################
-# Place irises from inner (highest integer) to outer, 1
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Place irises
+# ~~~~~~~~~~~~
+# Place the irises from inner (highest integer) to outer (1).
 
 for count in reversed(range(1, len(wgparams['w']) + 1)):
     if count < len(wgparams['w']):  # Update zpos
@@ -115,8 +118,9 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
             iris = place_iris("-(" + zpos + ")", "-t", count)
 
 ###############################################################################
+# Draw full waveguide with ports
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Draw the full waveguide with ports.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # parse_expr() is used to determine the numerical position
 # of the integration line endpoints on the waveguide port.
 
@@ -149,8 +153,8 @@ for n, z in enumerate(wg_z):
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
 #################################################################################
-#  See pyaedt.modules.SetupTemplates.SolveSweeps.SetupNames
-#  for allowed values for setuptype.
+#  For allowed values for ``setuptype``, see
+# ``pyaedt.modules.SetupTemplates.SolveSweeps.SetupNames.``
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
                            MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
@@ -166,8 +170,8 @@ setup.create_frequency_sweep(
 
 
 #################################################################################
-#  Solve the project with 2 tasks.
-#  Each frequency point will be solved simultaneously.
+#  Solve the project with two tasks.
+#  Each frequency point is solved simultaneously.
 
 
 setup.analyze(num_tasks=2)
@@ -176,7 +180,10 @@ setup.analyze(num_tasks=2)
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
 #  Caution: The syntax for expressions must be identical to that used
-#  in HFSS:
+#  in HFSS.
+
+Are you able to use " .. caution::" and note directives in code comments?
+
 
 traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
 report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
