@@ -99,8 +99,8 @@ class Results:
         Parameters
         ----------
         revision_name : str
-            Revision to analyze. If None, the most recent Revision
-            will be loaded if it matches the current design revision.
+            Revision to analyze. The default is ``None``,in which case the most recent revision
+            is loaded if it matches the current design revision.
 
         Returns
         -------
