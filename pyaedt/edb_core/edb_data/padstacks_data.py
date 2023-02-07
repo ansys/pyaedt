@@ -146,7 +146,6 @@ class EDBPadProperties(object):
 
     @parameters.setter
     def parameters(self, propertylist):
-
         if not isinstance(propertylist, list):
             propertylist = [self._get_edb_value(propertylist)]
         else:
@@ -170,7 +169,6 @@ class EDBPadProperties(object):
 
     @offset_x.setter
     def offset_x(self, offset_value):
-
         self._update_pad_parameters_parameters(offsetx=offset_value)
 
     @property
@@ -190,7 +188,6 @@ class EDBPadProperties(object):
 
     @offset_y.setter
     def offset_y(self, offset_value):
-
         self._update_pad_parameters_parameters(offsety=offset_value)
 
     @property
@@ -210,7 +207,6 @@ class EDBPadProperties(object):
 
     @rotation.setter
     def rotation(self, rotation_value):
-
         self._update_pad_parameters_parameters(rotation=rotation_value)
 
     @pyaedt_function_handler()
@@ -474,7 +470,6 @@ class EDBPadstack(object):
 
     @hole_properties.setter
     def hole_properties(self, propertylist):
-
         if not isinstance(propertylist, list):
             propertylist = [self._get_edb_value(propertylist)]
         else:
@@ -507,7 +502,6 @@ class EDBPadstack(object):
 
     @hole_offset_x.setter
     def hole_offset_x(self, offset):
-
         self._hole_offset_x = offset
         self._update_hole_parameters(offsetx=offset)
 
@@ -525,7 +519,6 @@ class EDBPadstack(object):
 
     @hole_offset_y.setter
     def hole_offset_y(self, offset):
-
         self._hole_offset_y = offset
         self._update_hole_parameters(offsety=offset)
 
@@ -543,7 +536,6 @@ class EDBPadstack(object):
 
     @hole_rotation.setter
     def hole_rotation(self, rotation):
-
         self._hole_rotation = rotation
         self._update_hole_parameters(rotation=rotation)
 
@@ -560,7 +552,6 @@ class EDBPadstack(object):
 
     @hole_plating_ratio.setter
     def hole_plating_ratio(self, ratio):
-
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetHolePlatingPercentage(self._get_edb_value(ratio))
@@ -619,7 +610,6 @@ class EDBPadstack(object):
 
     @material.setter
     def material(self, materialname):
-
         originalPadstackDefinitionData = self.edb_padstack.GetData()
         newPadstackDefinitionData = self._edb.Definition.PadstackDefData(originalPadstackDefinitionData)
         newPadstackDefinitionData.SetMaterial(materialname)
@@ -627,7 +617,6 @@ class EDBPadstack(object):
 
     @property
     def padstack_instances(self):
-
         """Get all the vias that belongs to active Padstack definition.
 
         Returns

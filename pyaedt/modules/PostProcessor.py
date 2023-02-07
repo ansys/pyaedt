@@ -1491,7 +1491,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def create_report(
         self,
-        expressions,
+        expressions=None,
         setup_sweep_name=None,
         domain="Sweep",
         variations=None,
@@ -1602,6 +1602,10 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         report = report_class(self, report_category, setup_sweep_name)
+        if not expressions:
+            expressions = [
+                i for i in self.available_report_quantities(report_category=report_category, context=context)
+            ]
         report.expressions = expressions
         report.domain = domain
         if primary_sweep_variable:
@@ -2497,10 +2501,8 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
-
             _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
-
             _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
@@ -2622,10 +2624,14 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
         objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
+        if not intrinsics:
+            for i in self._app.setups:
+                if i.name == setup_name.split(" : ")[0]:
+                    intrinsics = i.default_intrinsics
         self._desktop.CloseAllWindows()
         try:
             self._app._modeler.fit_all()
@@ -2643,7 +2649,7 @@ class PostProcessor(PostProcessorCommon, object):
                 cutplanelist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         elif listtype == "FacesList":
             plot = FieldPlot(
@@ -2651,7 +2657,7 @@ class PostProcessor(PostProcessorCommon, object):
                 surfacelist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         elif listtype == "ObjList":
             plot = FieldPlot(
@@ -2659,7 +2665,7 @@ class PostProcessor(PostProcessorCommon, object):
                 objlist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         elif listtype == "Line":
             plot = FieldPlot(
@@ -2667,14 +2673,14 @@ class PostProcessor(PostProcessorCommon, object):
                 linelist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         plot.name = plot_name
         plot.plotFolder = plot_name
 
         plt = plot.create()
         if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
-            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsincList["Time"])
+            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
         if plt:
             self.field_plots[plot_name] = plot
             return plot
@@ -2896,7 +2902,6 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-
                 self.export_model_picture(
                     full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )

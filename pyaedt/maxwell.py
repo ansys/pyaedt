@@ -2065,7 +2065,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             "DCConduction",
             "ElectroDCConduction",
         ]:
-
             if not insulation_name:
                 insulation_name = generate_unique_name("Insulation")
             elif insulation_name in self.modeler.get_boundaries_name():
@@ -2132,7 +2131,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             "EddyCurrent",
             "Transient",
         ]:
-
             if not impedance_name:
                 impedance_name = generate_unique_name("Impedance")
             elif impedance_name in self.modeler.get_boundaries_name():

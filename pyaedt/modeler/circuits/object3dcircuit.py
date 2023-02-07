@@ -12,6 +12,7 @@ from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _arg2dict
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.cad.elements3d import _dict2arg
+from pyaedt.modeler.geometry_operators import GeometryOperators as go
 
 
 class CircuitPins(object):
@@ -95,22 +96,33 @@ class CircuitPins(object):
     @staticmethod
     def _is_inside_point(plist, pa, pb):
         for p in plist:
-            if pa <= p <= pb or pa >= p >= pb:
+            if pa < p < pb or pa > p > pb:
                 return True
         return False
 
-    def _add_point(self, pins, points, deltax, deltay, target, orient=0):
-
-        if (orient == 0 and not self._is_inside_point(pins, points[-1][1], target[1])) or (
-            orient == 1 and not self._is_inside_point(pins, points[-1][0], target[0])
-        ):
+    def _add_point(
+        self,
+        pins,
+        points,
+        delta,
+        target,
+    ):
+        inside = False
+        pa = points[-1] + [0]
+        pb = target + [0]
+        for pin in pins:
+            if go.is_between_points(pin, pa, pb):
+                inside = True
+        if not inside:
             points.append(target)
-        elif orient == 0:
+        elif pa[0] == pb[0]:
+            deltax = target[0] + delta
             points.append([deltax, points[-1][1]])
-            points.append([deltax, deltay])
+            points.append([deltax, target[1]])
         else:
+            deltay = target[1] + delta
             points.append([points[-1][0], deltay])
-            points.append([deltax, deltay])
+            points.append([target[0], deltay])
 
     def _get_deltas(self, point, move_x=True, move_y=True, positive=True, units=1):
         if positive:
@@ -170,30 +182,21 @@ class CircuitPins(object):
                 pins_x += [i.location[0] for i in cpin._circuit_comp.pins if i.name != cpin.name]
                 pins_y = [i.location[1] for i in self._circuit_comp.pins if i.name != self.name]
                 pins_y += [i.location[1] for i in cpin._circuit_comp.pins if i.name != cpin.name]
-
+                pins = [[i, j, 0] for i, j in zip(pins_x, pins_y)]
+                delta, _ = self._get_deltas([0, 0], move_y=False, positive=not negative, units=clearance_units)
                 if abs(points[-1][0] - cpin.location[0]) < tol:
                     dx = round((prev[0] + act[0]) / 2, -2)
 
-                    deltax, deltay = self._get_deltas(
-                        [dx, prev[1]], move_y=False, positive=not negative, units=clearance_units
-                    )
-
-                    self._add_point(pins_y, points, deltax, deltay, act)
+                    self._add_point(pins, points, delta, act)
                     if points[-1][0] != act[0] and points[-1][1] != act[1]:
                         points.append([points[-1][0], act[1]])
                         points.append(act)
-
                     if points[-1][0] != act[0] or points[-1][1] != act[1]:
                         points.append(act)
 
                 elif abs(points[-1][1] - cpin.location[1]) < tol:
                     dy = round((prev[1] + act[1]) / 2, -2)
-
-                    deltax, deltay = self._get_deltas(
-                        [prev[0], dy], move_x=False, positive=not negative, units=clearance_units
-                    )
-
-                    self._add_point(pins_x, points, deltax, deltay, act, 1)
+                    self._add_point(pins, points, delta, act)
                     if points[-1][0] != act[0] and points[-1][1] != act[1]:
                         points.append([act[0], points[-1][1]])
                         points.append(act)
@@ -203,56 +206,43 @@ class CircuitPins(object):
                 elif cangles[-1] in [0.0, 180.0]:
                     dx = round((prev[0] + act[0]) / 2, -2)
                     p2 = act[1]
-                    deltax, deltay = self._get_deltas(
-                        [prev[0], p2], move_x=False, positive=True if p2 - prev[1] > 0 else False, units=clearance_units
-                    )
+
                     self._add_point(
-                        pins_y,
+                        pins,
                         points,
-                        deltax,
-                        deltay,
+                        delta,
                         [prev[0], p2],
                     )
                     p2 = points[-1][1]
 
-                    deltax, deltay = self._get_deltas(
-                        [dx, p2], move_y=False, positive=True if dx - prev[0] > 0 else False, units=clearance_units
-                    )
-                    self._add_point(pins_x, points, deltax, deltay, [dx, p2], 1)
+                    self._add_point(pins, points, delta, [dx, p2])
                     if points[-1][0] != dx:
                         dx = points[-1][0]
-                    deltax, deltay = self._get_deltas(
-                        act, move_y=False, positive=True if act[0] - dx > 0 else False, units=clearance_units
-                    )
+
                     if p2 == act[1]:
-                        self._add_point(pins_x, points, deltax, deltay, [act[0], p2], 1)
+                        self._add_point(pins, points, delta, [act[0], p2])
                     else:
                         points.append([act[0], p2])
                     if points[-1][0] != act[0] or points[-1][1] != act[1]:
                         points.append(act)
 
                 else:
-
                     dy = round((prev[1] + act[1]) / 2, -2)
                     p1 = act[0]
-
-                    deltax, deltay = self._get_deltas(
-                        [p1, prev[1]], move_y=False, positive=True if p1 - prev[0] > 0 else False, units=clearance_units
-                    )
-                    self._add_point(pins_y, points, deltax, deltay, [p1, prev[1]], 1)
+                    self._add_point(pins, points, delta, [p1, prev[1]])
                     p1 = points[-1][0]
 
-                    deltax, deltay = self._get_deltas(
-                        [p1, dy], move_x=False, positive=True if dy - prev[1] > 0 else False, units=clearance_units
+                    self._add_point(
+                        pins,
+                        points,
+                        delta,
+                        [act[0], dy],
                     )
-                    self._add_point(pins_x, points, deltax, deltay, [act[0], dy], 1)
                     if points[-1][1] != dy:
                         dy = points[-1][0]
-                    deltax, deltay = self._get_deltas(
-                        act, move_x=False, positive=True if act[1] - dy > 0 else False, units=clearance_units
-                    )
+
                     if p1 == act[0]:
-                        self._add_point(pins_x, points, deltax, deltay, [p1, act[1]], 1)
+                        self._add_point(pins, points, delta, [p1, act[1]])
                     else:
                         points.append([p1, act[1]])
                     if points[-1][0] != act[0] or points[-1][1] != act[1]:
@@ -386,7 +376,6 @@ class CircuitComponent(object):
         self.status = "Active"
         self.component = None
         self.id = 0
-        self.refdes = ""
         self.schematic_id = 0
         self.levels = 0.1
         self._angle = None
@@ -399,6 +388,14 @@ class CircuitComponent(object):
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+
+    @property
+    def refdes(self):
+        """Reference designator."""
+        try:
+            return self.m_Editor.GetPropertyValue("Component", self.composed_name, "RefDes")
+        except:
+            return ""
 
     @property
     def units(self):
@@ -817,3 +814,88 @@ class CircuitComponent(object):
                 _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
             return _retry_ntimes(10, self.m_Editor.ChangeProperty, vOut)
         return False
+
+
+class Wire(object):
+    """Creates and manipulates a wire."""
+
+    def __init__(self, modeler):
+        self._app = modeler._app
+        self._modeler = modeler
+        self.name = ""
+        self.id = 0
+
+    @property
+    def _oeditor(self):
+        return self._modeler.oeditor
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @property
+    def wires(self):
+        """List of all schematic wires in the design."""
+        wire_names = []
+        for wire in self._oeditor.GetAllElements():
+            if "Wire" in wire:
+                wire_names.append(wire)
+        return wire_names
+
+    @pyaedt_function_handler()
+    def display_wire_properties(self, wire_name="", property_to_display="NetName", visibility="Name", location="Top"):
+        """
+        Display wire properties.
+
+        Parameters
+        ----------
+        wire_name : str, optional
+            Wire name to display.
+            Default value is ``""``.
+        property_to_display : str, optional
+            Property to display. Choices are: ``"NetName"``, ``"PinCount"``, ``"AlignMicrowavePorts"``,
+            ``"SchematicID"``, ``"Segment0"``.
+            Default value is ``"NetName"``.
+        visibility : str, optional
+            Visibility type. Choices are ``"Name"``, ``"Value"``, ``"Both"``, ``"Evaluated Value"``,
+            ``"Evaluated Both"``.
+            Default value is ``"Name"``.
+        location : str, optional
+            Wire name location. Choices are ``"Left"``, ``"Top"``, ``"Right"``, ``"Bottom"``, ``"Center"``.
+            Default value is ``"Top"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            wire_exists = False
+            for wire in self.wires:
+                if wire_name == wire.split("@")[1].split(";")[0]:
+                    wire_id = wire.split("@")[1].split(";")[1].split(":")[0]
+                    wire_exists = True
+                    break
+                else:
+                    continue
+            if not wire_exists:
+                raise ValueError("Invalid wire name provided.")
+
+            self._oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:PropDisplayPropTab",
+                        ["NAME:PropServers", "Wire@{};{};{}".format(wire_name, wire_id, 1)],
+                        [
+                            "NAME:NewProps",
+                            ["NAME:" + property_to_display, "Format:=", visibility, "Location:=", location],
+                        ],
+                    ],
+                ]
+            )
+            return True
+        except ValueError as e:
+            self.logger.error(str(e))
+            return False
