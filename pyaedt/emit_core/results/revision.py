@@ -258,12 +258,12 @@ class Revision:
         radio_name : str
             Name of the radio/emitter.
         tx_rx : tx_rx_mode object
-            Used for determining whether to get ``rx`` or ``tx`` band names.
+            Specifies whether to get ``tx`` or ``rx`` band names.
 
         Returns
         -------
         bands:class:`list of str`
-            List of tx or or rx band/waveform names.
+            List of ``tx`` or ``rx`` band/waveform names.
 
         Examples
         ----------
@@ -289,14 +289,14 @@ class Revision:
         band_name : str
            Name of the band.
         tx_rx : tx_rx_mode object
-            Used for determining whether to get ``rx`` or ``tx`` radio freqs.
+            Specifies whether to get ``tx`` or ``rx`` radio freqs.
         units : str
             Units for the frequencies.
 
         Returns
         -------
         freq:class:`list of float`
-            List of tx or or rx radio/emitter frequencies.
+            List of ``tx`` or ``rx`` radio/emitter frequencies.
 
         Examples
         ----------
