@@ -1294,7 +1294,6 @@ class Icepak(FieldAnalysis3D):
         self.modeler.split(list, self.PLANE.ZX, "NegativeOnly")
 
         if symmetric:
-
             self.modeler.create_coordinate_system(
                 self.Position("(HSWidth-SymSeparation)/2", 0, 0),
                 mode="view",

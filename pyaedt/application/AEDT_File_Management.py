@@ -109,9 +109,7 @@ def change_objects_visibility(origfile, solid_list):
     newfile = os.path.join(path, "aedttmp.tmp")
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
-
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
-
             # Reading file content
             content = f.read()
 
@@ -178,10 +176,8 @@ def change_model_orientation(origfile, bottom_dir):
     }
 
     if not os.path.isfile(origfile + ".lock"):  # check if the project is closed
-
         # Opening files
         with open(origfile, "rb") as f, open(newfile, "wb") as n:
-
             # Reading file content
             content = f.read()
 

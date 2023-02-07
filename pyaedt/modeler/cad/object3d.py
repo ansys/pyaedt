@@ -258,7 +258,6 @@ class Object3d(object):
 
     @pyaedt_function_handler()
     def export_image(self, file_path=None):
-
         """Export the model to path.
 
         .. note::
@@ -1214,7 +1213,6 @@ class Object3d(object):
 
     @part_coordinate_system.setter
     def part_coordinate_system(self, sCS):
-
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS

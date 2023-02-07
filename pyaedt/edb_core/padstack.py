@@ -725,7 +725,6 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler()
     def _get_pin_layer_range(self, pin):
-
         res, fromlayer, tolayer = pin.GetLayerRange()
         if res:
             return fromlayer, tolayer

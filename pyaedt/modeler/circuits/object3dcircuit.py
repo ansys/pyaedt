@@ -227,7 +227,6 @@ class CircuitPins(object):
                         points.append(act)
 
                 else:
-
                     dy = round((prev[1] + act[1]) / 2, -2)
                     p1 = act[0]
                     self._add_point(pins, points, delta, [p1, prev[1]])

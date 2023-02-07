@@ -97,7 +97,6 @@ class MultiPartComponent(object):
         pitch="0deg",
         roll="0deg",
     ):
-
         self.comp_folder = comp_folder  # Folder where the component is defined.
         # self._name = os.path.split(comp_folder)[-1]  # Base name of multipart component.
         self._index = None  # Counter used to assign unique name.
@@ -586,7 +585,6 @@ class Actor(MultiPartComponent, object):
     """
 
     def __init__(self, actor_folder, speed="0", relative_cs_name=None):
-
         super(Actor, self).__init__(actor_folder, use_relative_cs=True, motion=True, relative_cs_name=relative_cs_name)
 
         self._speed_expression = str(speed) + "m_per_sec"  # TODO: Need error checking here.

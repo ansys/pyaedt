@@ -109,7 +109,6 @@ class Mechanical(FieldAnalysis3D, object):
         port=0,
         aedt_process_id=None,
     ):
-
         FieldAnalysis3D.__init__(
             self,
             "Mechanical",
