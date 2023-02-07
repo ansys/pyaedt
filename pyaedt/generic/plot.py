@@ -49,7 +49,6 @@ if not is_ironpython:
 
 @pyaedt_function_handler()
 def get_structured_mesh(theta, phi, ff_data):
-
     if ff_data.min() < 0:
         ff_data_renorm = ff_data + np.abs(ff_data.min())
     else:

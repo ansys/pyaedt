@@ -469,7 +469,6 @@ class Hfss(FieldAnalysis3D, object):
         )
 
         if "Modal" in self.solution_type:
-
             if renorm:
                 if isinstance(renorm_impedance, (int, float)) or "i" not in renorm_impedance:
                     renorm_imp = str(renorm_impedance) + "ohm"
@@ -3524,7 +3523,6 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
-
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
             elif sourcename in self.modeler.get_boundaries_name():
@@ -3667,7 +3665,6 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-
             if not sourcename:
                 sourcename = generate_unique_name("Imped")
             elif sourcename in self.modeler.get_boundaries_name():

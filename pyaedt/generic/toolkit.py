@@ -620,7 +620,6 @@ class ListBoxForm(Form):
             return False
 
     def __init__(self, list_items, default_item=None):
-
         self.MinimizeBox = False
         self.MaximizeBox = False
         self.Text = "Select Export Objects"
@@ -728,7 +727,6 @@ class WPFToolkit(Window):
     """
 
     def __init__(self, toolkit_file, aedt_design=None, parent_design_name=None):
-
         self.toolkit_file = toolkit_file
         self._aedtdesign = None
         self.aedtdesign = aedt_design
@@ -1649,7 +1647,6 @@ class WPFToolkit(Window):
         if not settings_data:
             return False
         with open(self.settings_file, "w") as f:
-
             for text_control in self.SetText:
                 wpf_control = self.get_ui_object(text_control)
                 settings_data[wpf_control.Name] = wpf_control.Text
@@ -1675,7 +1672,6 @@ class WPFToolkit(Window):
         return self
 
     def __exit__(self, ex_type, ex_value, ex_traceback):
-
         # write the UI data to json
         self.write_settings()
 
