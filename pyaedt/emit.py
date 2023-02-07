@@ -12,7 +12,6 @@ from pyaedt.emit_core import EmitConstants
 from pyaedt.emit_core.results.results import Results
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
-
 class Emit(FieldAnalysisEmit, object):
     """Provides the Emit application interface.
 

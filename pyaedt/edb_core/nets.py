@@ -679,7 +679,6 @@ class EdbNets(object):
         """
         temp_list = []
         for refdes, comp_obj in self._pedb.core_components.inductors.items():
-
             numpins = comp_obj.numpins
 
             if numpins == 2:

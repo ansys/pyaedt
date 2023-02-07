@@ -47,7 +47,6 @@ class PolylineSegment(object):
     """
 
     def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
-
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
         assert type in valid_types, "Segment type must be in {}.".format(valid_types)
         self.type = type
@@ -151,7 +150,6 @@ class Polyline(Object3d):
         xsection_bend_type=None,
         non_model=False,
     ):
-
         self._primitives = primitives
 
         if src_object:
@@ -162,7 +160,6 @@ class Polyline(Object3d):
                 self._id = src_object.id
                 self._m_name = src_object.name
         else:
-
             self._xsection = self._primitives._crosssection_arguments(
                 type=xsection_type,
                 orient=xsection_orient,
@@ -346,7 +343,6 @@ class Polyline(Object3d):
 
                 pos_count_incr = 0
                 for i in range(1, current_segment.num_points):
-
                     if current_segment.type == "AngularArc":
                         points_str.append(self._pl_point(current_segment.extra_points[i - 1]))
                         index_count += 1
@@ -412,7 +408,6 @@ class Polyline(Object3d):
             seg += ["NoOfSegments:=", "{}".format(segment_data.num_seg)]
 
         if segment_data.type == "AngularArc":
-
             # from start-point and angle, calculate the mid- and end-points
             # Also identify the plane of the arc ("YZ", "ZX", "XY")
             plane_axes = {"YZ": [1, 2], "ZX": [2, 0], "XY": [0, 1]}

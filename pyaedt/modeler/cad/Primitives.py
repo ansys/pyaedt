@@ -680,7 +680,6 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def create_object_from_edge(self, edge, non_model=False):
-
         """Create an object from one or multiple edges.
 
         Parameters
@@ -2912,7 +2911,6 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _default_object_attributes(self, name=None, matname=None, flags=""):
-
         if not matname:
             matname = self.defaultmaterial
 
