@@ -2,6 +2,8 @@ import os
 import sys
 from importlib import import_module
 
+EMIT_MODULE = None
+
 delcross_python_path = os.environ.get("ANSYS_DELCROSS_PYTHON_PATH")
 if delcross_python_path:
     sys.path.append(delcross_python_path)
