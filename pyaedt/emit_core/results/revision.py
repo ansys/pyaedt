@@ -212,7 +212,7 @@ class Revision:
         return radios
 
     @pyaedt_function_handler()
-    def get_interferer_names(self, type=emitConsts.interferer_type().transmitters_and_emitters):
+    def get_interferer_names(self, type=None):
         """
         Get a list of all interfering transmitters/emitters in the project.
 
@@ -238,6 +238,8 @@ class Revision:
         >>> ix_type = emitConsts.interferer_type().transmitters_and_emitters
         >>> both = aedtapp.results.current_revision.get_interferer_names(ix_type)
         """
+        if type is None:
+            type = emitConsts.interferer_type().transmitters_and_emitters
         if self.revision_loaded:
             radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().tx, type)
         else:
