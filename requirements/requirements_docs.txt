@@ -1,4 +1,4 @@
-ansys-sphinx-theme==0.8.1
+ansys-sphinx-theme==0.8.2
 imageio==2.25.0
 imageio-ffmpeg==0.4.8
 ipython==8.9.0
