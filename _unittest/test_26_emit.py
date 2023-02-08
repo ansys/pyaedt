@@ -474,6 +474,26 @@ class TestClass(BasisTest, object):
         assert sampling.props["NumberChannels"] == "1000"
 
     @pytest.mark.skipif(
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2021.2"
+    )
+    def test_radio_getters(self):
+        self.aedtapp = BasisTest.add_app(self, application=Emit)
+        rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+        rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth")
+        emitter = self.aedtapp.modeler.components.create_component("USB_3.x")
+
+        # get the radio nodes
+        radios = self.aedtapp.modeler.components.get_radios()
+        assert radios[rad.name] == rad
+        assert radios[rad2.name] == rad2
+        assert radios[emitter.name] == emitter
+
+        # validate is_emitter function
+        assert not rad.is_emitter()
+        assert not rad2.is_emitter()
+        assert emitter.is_emitter()
+
+    @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
     def test_static_type_generation(self):
