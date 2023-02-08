@@ -53,7 +53,7 @@ class Results:
         self.revisions.append(revision)
         return revision
 
-    @pyaedt_function_handler()
+    @staticmethod
     def interaction_domain():
         """
         Get an ``InteractionDomain`` object.
