@@ -3,7 +3,6 @@ import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
 import pyaedt.generic.constants as consts
-from pyaedt.emit_core.EmitConstants import interferer_type
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
@@ -203,7 +202,7 @@ class Revision:
         """
         if self.revision_loaded:
             radios = self.emit_project._emit_api.get_radio_names(
-                emitConsts.tx_rx_mode().rx, interferer_type().transmitters_and_emitters
+                emitConsts.tx_rx_mode().rx, emitConsts.interferer_type().transmitters_and_emitters
             )
         else:
             radios = None
@@ -213,7 +212,7 @@ class Revision:
         return radios
 
     @pyaedt_function_handler()
-    def get_interferer_names(self, type=interferer_type().transmitters_and_emitters):
+    def get_interferer_names(self, type=emitConsts.interferer_type().transmitters_and_emitters):
         """
         Get a list of all interfering transmitters/emitters in the project.
 
@@ -232,11 +231,11 @@ class Revision:
 
         Examples
         ----------
-        >>> ix_type = interferer_type().transmitters
+        >>> ix_type = emitConsts.interferer_type().transmitters
         >>> transmitters = aedtapp.results.current_revision.get_interferer_names(ix_type)
-        >>> ix_type = interferer_type().emitters
+        >>> ix_type = emitConsts.interferer_type().emitters
         >>> emitters = aedtapp.results.current_revision.get_interferer_names(ix_type)
-        >>> ix_type = interferer_type().transmitters_and_emitters
+        >>> ix_type = emitConsts.interferer_type().transmitters_and_emitters
         >>> both = aedtapp.results.current_revision.get_interferer_names(ix_type)
         """
         if self.revision_loaded:
