@@ -10,4 +10,4 @@ if desktop_path:
     path = os.path.join(desktop_path, "Delcross")
     sys.path.append(path)
 
-EMIT_MODULE = import_module("EmitApiPython")
+    EMIT_MODULE = import_module("EmitApiPython")
