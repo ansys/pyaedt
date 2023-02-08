@@ -33,7 +33,6 @@ class Revision:
     def __init__(self, parent_results, emit_obj, name=""):
         design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
         subfolder = ""
-        proj_path = emit_obj.oproject.GetPath()
         for f in os.scandir(emit_obj.oproject.GetPath()):
             if os.path.splitext(f.name)[1].lower() in ".aedtresults":
                 subfolder = os.path.join(f.path, "EmitDesign1")
@@ -212,13 +211,13 @@ class Revision:
         return radios
 
     @pyaedt_function_handler()
-    def get_interferer_names(self, type=None):
+    def get_interferer_names(self, interferer_type=None):
         """
         Get a list of all interfering transmitters/emitters in the project.
 
         Parameters
         ----------
-        type : interferer_type object
+        interferer_type : interferer_type object
             Type of interferer to return. Options are:
                 - transmitters
                 - emitters
@@ -238,10 +237,10 @@ class Revision:
         >>> ix_type = emitConsts.interferer_type().transmitters_and_emitters
         >>> both = aedtapp.results.current_revision.get_interferer_names(ix_type)
         """
-        if type is None:
-            type = emitConsts.interferer_type().transmitters_and_emitters
+        if interferer_type is None:
+            interferer_type = emitConsts.interferer_type().transmitters_and_emitters
         if self.revision_loaded:
-            radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().tx, type)
+            radios = self.emit_project._emit_api.get_radio_names(emitConsts.tx_rx_mode().tx, interferer_type)
         else:
             radios = None
             self.result_mode_error()

@@ -22,7 +22,6 @@ class Results:
     """
 
     def __init__(self, emit_obj):
-        global mod
         self.emit_project = emit_obj
         """Emit project."""
 
@@ -55,7 +54,7 @@ class Results:
         return revision
 
     @pyaedt_function_handler()
-    def interaction_domain(self):
+    def interaction_domain():
         """
         Get an ``InteractionDomain`` object.
 
