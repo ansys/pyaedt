@@ -3581,3 +3581,20 @@ class Design(AedtObjects):
         if destype == self._design_type:
             consistent = self._check_solution_consistency()
         return consistent
+
+    @pyaedt_function_handler()
+    def add_from_toolkit(self, toolkit_object, **kwargs):
+        """Add a new toolkit to current application.
+
+        Parameters
+        ----------
+        toolkit_object :
+            Application object from  ``"ansys.aedt.toolkits"``
+
+
+        Returns
+        -------
+
+            Application created object."""
+        app = toolkit_object(self, **kwargs)
+        return app
