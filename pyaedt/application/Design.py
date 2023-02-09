@@ -3583,7 +3583,7 @@ class Design(AedtObjects):
         return consistent
 
     @pyaedt_function_handler()
-    def add_from_toolkit(self, toolkit_object, **kwargs):
+    def add_from_toolkit(self, toolkit_object, draw=False, **kwargs):
         """Add a new toolkit to current application.
 
         Parameters
@@ -3597,5 +3597,6 @@ class Design(AedtObjects):
 
             Application created object."""
         app = toolkit_object(self, **kwargs)
-        app.draw()
+        if draw:
+            app.draw()
         return app
