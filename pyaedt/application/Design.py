@@ -3597,4 +3597,5 @@ class Design(AedtObjects):
 
             Application created object."""
         app = toolkit_object(self, **kwargs)
+        app.draw()
         return app
