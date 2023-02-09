@@ -96,7 +96,6 @@ Example with ``Desktop`` class implicit initialization:
    Configuration
    SetupTemplates
    CableModeling
-   Toolkits
 
 
 
