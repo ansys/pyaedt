@@ -3589,7 +3589,7 @@ class Design(AedtObjects):
         Parameters
         ----------
         toolkit_object :
-            Application object from  ``"ansys.aedt.toolkits"``
+            Application object from ``"ansys.aedt.toolkits"``.
 
 
         Returns
