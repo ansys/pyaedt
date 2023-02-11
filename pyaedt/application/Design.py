@@ -3584,7 +3584,7 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def add_from_toolkit(self, toolkit_object, draw=False, **kwargs):
-        """Add a new toolkit to current application.
+        """Add a new toolkit to the current application.
 
         Parameters
         ----------
