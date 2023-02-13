@@ -18,6 +18,7 @@ from __future__ import division
 
 import os
 import re
+import types
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
@@ -93,7 +94,6 @@ class CSVDataset:
         valid_solutions=True,
         invalid_solutions=False,
     ):
-
         self._header = []
         self._data = {}
         self._unit_dict = {}
@@ -208,7 +208,6 @@ class CSVDataset:
 
     # Called when iteration is initialized
     def __iter__(self):
-
         self._index = 0
         return self
 
@@ -1129,6 +1128,8 @@ class Variable(object):
                 scale = 1
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
+            elif isinstance(scale, types.FunctionType):
+                self._value = scale(self._value, False)
             else:
                 self._value = self._value * scale
 
@@ -1428,6 +1429,8 @@ class Variable(object):
                     scale = 1
                 if isinstance(scale, tuple):
                     return scale[0](self._value, True)
+                elif isinstance(scale, types.FunctionType):
+                    return scale(self._value, True)
                 else:
                     return self._value / scale
             else:  # pragma: no cover

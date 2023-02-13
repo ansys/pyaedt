@@ -1558,7 +1558,6 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def _find_perpendicular_points(self, face):
-
         if isinstance(face, str):
             vertices = [i.position for i in self[face].vertices]
         else:
@@ -3251,7 +3250,6 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def _imprint_projection(self, tool_list, keep_originals=True, normal=True, vector_direction=None, distance="1mm"):
-
         szList1 = self.convert_to_selections(tool_list)
 
         varg1 = ["NAME:Selections", "Selections:=", szList1]
@@ -4831,7 +4829,6 @@ class GeometryModeler(Modeler, object):
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
-
                 oFaceIDs = self.oeditor.GetFaceIDs(i)
 
                 for face in oFaceIDs:
@@ -4893,7 +4890,6 @@ class GeometryModeler(Modeler, object):
         sel = []
 
         for i in elements:
-
             oFaceIDs = self.oeditor.GetFaceIDs(i)
 
             for face in oFaceIDs:

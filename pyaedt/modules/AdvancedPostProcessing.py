@@ -230,6 +230,7 @@ class PostProcessor(Post):
         clean_files=False,
         array_coordinates=None,
         view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a substet of objects.
 
@@ -257,6 +258,8 @@ class PostProcessor(Post):
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
             The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -272,6 +275,7 @@ class PostProcessor(Post):
             generate_mesh=False,
         )
 
+        model.show_legend = show_legend
         model.off_screen = not show
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
@@ -368,8 +372,114 @@ class PostProcessor(Post):
         if scale_min and scale_max:
             model.range_min = scale_min
             model.range_max = scale_max
-        if show or project_path:
+        if project_path:
             model.plot(os.path.join(project_path, self._app.project_name + "." + imageformat))
+        elif show:
+            model.plot()
+        return model
+
+    @pyaedt_function_handler()
+    def plot_field(
+        self,
+        quantity,
+        object_list,
+        plot_type="Surface",
+        setup_name=None,
+        intrinsics=None,
+        mesh_on_fields=False,
+        view="isometric",
+        plot_label=None,
+        show=True,
+        scale_min=None,
+        scale_max=None,
+        plot_cad_objs=True,
+        log_scale=True,
+        export_path="",
+        imageformat="jpg",
+        keep_plot_after_generation=False,
+    ):
+        """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
+
+        .. note::
+           The PyVista module rebuilds the mesh and the overlap fields on the mesh.
+
+        Parameters
+        ----------
+        quantity : str
+            Quantity to plot (e.g. ``"Mag_E"``).
+        object_list : str
+            List of objects or faces to which apply the Field Plot.
+        plot_type  : str, optional
+            Plot type. Options are ``"Surface"``, ``"Volume"``, ``"CutPlane"``.
+        setup_name : str, optional
+            Setup and sweep name on which create the field plot. Default is None for nominal setup usage.
+        intrinsics : dict, optional.
+            Intrinsic dictionary that is needed for the export.
+            The default is ``None`` which try to retrieve intrinsics from setup.
+        mesh_on_fields : bool, optional
+            Whether to create and plot the mesh over the fields. The
+            default is ``False``.
+        view : str, optional
+           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
+        plot_label : str, optional
+            Type of the plot. The default is ``"Temperature"``.
+        show : bool, optional
+            Export Image without plotting on UI.
+        scale_min : float, optional
+            Fix the Scale Minimum value.
+        scale_max : float, optional
+            Fix the Scale Maximum value.
+        plot_cad_objs : bool, optional
+            Whether to include objects in the plot. The default is ``True``.
+        log_scale : bool, optional
+            Whether to plot fields in log scale. The default is ``True``.
+        export_path : str, optional
+            Image export path. Default is ``None`` to not export the image.
+        imageformat : str, optional
+            Format of the image file. Options are ``"jpg"``,
+            ``"png"``, ``"svg"``, and ``"webp"``. The default is
+            ``"jpg"``.
+        keep_plot_after_generation : bool, optional
+            Either to keep the Field Plot in AEDT after the generation is completed. Default is ``False``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.plot.ModelPlotter`
+            Model Object.
+        """
+        if not setup_name:
+            setup_name = self._app.existing_analysis_sweeps[0]
+        if not intrinsics:
+            for i in self._app.setups:
+                if i.name == setup_name.split(" : ")[0]:
+                    intrinsics = i.default_intrinsics
+
+        # file_to_add = []
+        if plot_type == "Surface":
+            plotf = self.create_fieldplot_surface(object_list, quantity, setup_name, intrinsics)
+        elif plot_type == "Volume":
+            plotf = self.create_fieldplot_volume(object_list, quantity, setup_name, intrinsics)
+        else:
+            plotf = self.create_fieldplot_cutplane(object_list, quantity, setup_name, intrinsics)
+        # if plotf:
+        #     file_to_add = self.export_field_plot(plotf.name, self._app.working_directory, plotf.name)
+
+        model = self.plot_field_from_fieldplot(
+            plotf.name,
+            export_path,
+            mesh_on_fields,
+            imageformat,
+            view,
+            plot_label if plot_label else quantity,
+            None,
+            show,
+            scale_min,
+            scale_max,
+            plot_cad_objs,
+            log_scale,
+        )
+        if not keep_plot_after_generation:
+            plotf.delete()
         return model
 
     @pyaedt_function_handler()

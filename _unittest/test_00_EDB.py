@@ -651,7 +651,6 @@ if not config["skip_edb"]:
             edbapp.close_edb()
 
         def test_063_create_custom_cutout(self):
-
             source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
             target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_2.aedb")
             self.local_scratch.copyfolder(source_path, target_path)
@@ -1321,7 +1320,6 @@ if not config["skip_edb"]:
             edb.close_edb()
 
         def test_108_create_dc_simulation(self):
-
             edb = Edb(
                 edbpath=os.path.join(local_path, "example_models", test_subfolder, "dc_flow.aedb"),
                 edbversion=desktop_version,

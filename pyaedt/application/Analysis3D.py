@@ -180,6 +180,7 @@ class FieldAnalysis3D(Analysis, object):
         force_opacity_value=None,
         clean_files=False,
         view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a subset of objects.
 
@@ -208,6 +209,8 @@ class FieldAnalysis3D(Analysis, object):
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
            The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -228,6 +231,7 @@ class FieldAnalysis3D(Analysis, object):
                 force_opacity_value=force_opacity_value,
                 clean_files=clean_files,
                 view=view,
+                show_legend=show_legend,
             )
 
     @pyaedt_function_handler()

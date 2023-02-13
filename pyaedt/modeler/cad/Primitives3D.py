@@ -2075,7 +2075,6 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
-
         teta_r = radians(teta)
         points_list1 = [
             [in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
@@ -2266,7 +2265,6 @@ class Primitives3D(Primitives, object):
         sr,
         sep_layer,
     ):
-
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + sr * w_dia
         out_rad_in_wind = out_rad - sr * w_dia
@@ -2307,7 +2305,6 @@ class Primitives3D(Primitives, object):
         sr,
         sep_layer,
     ):
-
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 5)
         chamf_mid_wind = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + 2 * sr * w_dia
@@ -2685,7 +2682,6 @@ class Primitives3D(Primitives, object):
 
             if values["Similar Layer"]["Different"]:
                 if values["Layer"]["Double"] or values["Layer"]["Triple"]:
-
                     if asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)) > pi / nb_wind / turns2:
                         turns2 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)))
                         values["Mid Winding"]["Turns"] = turns2
@@ -2738,7 +2734,6 @@ class Primitives3D(Primitives, object):
                     # TODO if occ2 == 100: method can be improve
 
                 if values["Layer"]["Triple"]:
-
                     if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
                         turns3 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)))
                         values["Inner Winding"]["Turns"] = turns3

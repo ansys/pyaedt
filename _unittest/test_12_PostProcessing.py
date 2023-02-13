@@ -204,7 +204,6 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["NonGraphical"] == True, reason="Not running in non-graphical mode")
     def test_05_export_report_to_jpg(self):
-
         self.aedtapp.post.export_report_to_jpg(self.local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.jpg"))
 
@@ -217,7 +216,6 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.local_scratch.path, "MyTestScattering.rdat"))
 
     def test_07_export_fields_from_Calculator(self):
-
         self.aedtapp.post.export_field_file_on_grid(
             "E",
             "Setup1 : LastAdaptive",
@@ -679,10 +677,14 @@ class TestClass(BasisTest, object):
         plot1.IsoVal = "Tone"
         assert plot1.update_field_plot_settings()
         self.aedtapp.logger.info("Generating the image")
-        plot_obj = self.aedtapp.post.plot_field_from_fieldplot(
-            plot1.name,
-            project_path=self.local_scratch.path,
-            meshplot=False,
+        plot_obj = self.aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup_name=setup_name,
+            intrinsics=intrinsic,
+            export_path=self.local_scratch.path,
+            mesh_on_fields=False,
             imageformat="jpg",
             view="isometric",
             show=False,
@@ -703,7 +705,7 @@ class TestClass(BasisTest, object):
             objlist=cutlist,
             quantityName="Mag_E",
             setup_name=self.aedtapp.nominal_adaptive,
-            intrinsincList={"Freq": "5GHz", "Phase": "0deg"},
+            intrinsics={},
             listtype="CutPlane",
         )
         assert plot

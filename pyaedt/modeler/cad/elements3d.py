@@ -1097,7 +1097,6 @@ class Point(object):
 
     @coordinate_system.setter
     def coordinate_system(self, new_coordinate_system):
-
         coordinate_system = ["NAME:Orientation", "Value:=", new_coordinate_system]
         self._change_property(coordinate_system)
         self._point_coordinate_system = new_coordinate_system
