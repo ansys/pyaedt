@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from math import asin
