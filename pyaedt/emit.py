@@ -174,7 +174,6 @@ class Results:
 
     @pyaedt_function_handler()
     def delete_revision(self, revision_name):
-
         """
         Delete one revision from the results
 
@@ -193,6 +192,7 @@ class Results:
                 self.emit_api.close()
         else:
             print("The revision specified does not exist")
+
 
 class Revision:
     """
