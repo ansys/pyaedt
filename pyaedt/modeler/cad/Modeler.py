@@ -1905,10 +1905,10 @@ class GeometryModeler(Modeler, object):
         list
             Quaternion.
         """
-        cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
         elif isinstance(coordinate_system, str):
+            cs_names = [i.name for i in self.coordinate_systems]
             if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
             cs = self.coordinate_systems[cs_names.index(coordinate_system)]
