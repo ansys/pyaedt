@@ -98,6 +98,8 @@ class TestClass(BasisTest, object):
         assert LNA_setup.name == "LNA"
 
     def test_06b_add_3dlayout_component(self):
+        setup = self.aedtapp.create_setup("LNA")
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
         ports = myedb.pins
@@ -123,6 +125,8 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
+        setup = self.aedtapp.create_setup("LNA")
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
 
