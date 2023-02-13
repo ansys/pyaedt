@@ -280,7 +280,6 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(is_ironpython, reason="stdout redirection does not work in IronPython.")
     def test_05_disable_stdout(self):
         with tempfile.TemporaryFile("w+") as fp:
-
             stream = unittest.mock.MagicMock()
             stream.write = unittest.mock.MagicMock()
 

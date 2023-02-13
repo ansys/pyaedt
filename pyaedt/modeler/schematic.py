@@ -7,6 +7,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import Wire
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
@@ -35,6 +36,7 @@ class ModelerCircuit(Modeler):
         self._schematic_units = "meter"
         self.o_def_manager = self._app.odefinition_manager
         Modeler.__init__(self, app)
+        self.wire = Wire(self)
 
     @property
     def schematic_units(self):
@@ -148,10 +150,7 @@ class ModelerCircuit(Modeler):
                 pins2 = components.get_pins(secondcomponent)
                 pos2 = components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
         try:
-            if self._app.design_type == "Maxwell Circuit":
-                self.schematic.create_wire([pos1, pos2])
-            else:
-                components.create_wire([pos1, pos2])
+            self.schematic.create_wire([pos1, pos2])
             return True
         except:
             return False

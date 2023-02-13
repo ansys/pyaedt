@@ -2622,7 +2622,6 @@ class Trace(CommonObject, object):
                     0,
                 ]
             else:
-
                 start_point = [
                     self.position_x.name + " - " + self.width.name + "/2",
                     "{}_position_y".format(self._name),

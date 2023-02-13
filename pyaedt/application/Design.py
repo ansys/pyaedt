@@ -385,7 +385,6 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-
         return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
 
     @property
@@ -428,7 +427,10 @@ class Design(AedtObjects):
         self.odesign.RenameDesignInstance(self.design_name, new_name)
         timeout = 5.0
         timestep = 0.1
-        while new_name not in [i.GetName() for i in list(self._oproject.GetDesigns())]:
+        while new_name not in [
+            i.GetName() if ";" not in i.GetName() else i.GetName().split(";")[1]
+            for i in list(self._oproject.GetDesigns())
+        ]:
             time.sleep(timestep)
             timeout -= timestep
             assert timeout >= 0
@@ -3579,3 +3581,22 @@ class Design(AedtObjects):
         if destype == self._design_type:
             consistent = self._check_solution_consistency()
         return consistent
+
+    @pyaedt_function_handler()
+    def add_from_toolkit(self, toolkit_object, draw=False, **kwargs):
+        """Add a new toolkit to the current application.
+
+        Parameters
+        ----------
+        toolkit_object :
+            Application object from ``"ansys.aedt.toolkits"``.
+
+
+        Returns
+        -------
+
+            Application-created object."""
+        app = toolkit_object(self, **kwargs)
+        if draw:
+            app.draw()
+        return app

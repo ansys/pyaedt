@@ -14,6 +14,7 @@ from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.TouchstoneParser import _parse_ports_name
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import Wire
 
 
 class CircuitComponents(object):
@@ -60,6 +61,7 @@ class CircuitComponents(object):
         self.oeditor = self._modeler.oeditor
         self._currentId = 0
         self.components = {}
+        self.wires = {}
         self.refresh_all_ids()
         self.current_position = [0, 0]
         self.increment_mils = [1000, 1000]
@@ -192,37 +194,16 @@ class CircuitComponents(object):
             Unique ID in the range of ``[1, 65535]``.
 
         """
+        element_ids = []
+        for el in self.oeditor.GetAllElements():
+            try:
+                element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
+            except (IndexError, ValueError):
+                pass
         id = random.randint(1, 65535)
-        while id in self.components:
+        while id in element_ids:
             id = random.randint(1, 65535)
         return id
-
-    @pyaedt_function_handler()
-    def create_wire(self, points_array):
-        """Create a wire.
-
-        Parameters
-        ----------
-        points_array : list
-            A nested list of point coordinates. For example,
-            ``[[x1, y1], [x2, y2], ...]``.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oEditor.CreateWire
-        """
-        pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
-        self.oeditor.CreateWire(
-            ["NAME:WireData", "Name:=", "", "Id:=", random.randint(20000, 23000), "Points:=", pointlist],
-            ["NAME:Attributes", "Page:=", 1],
-        )
-        return True
 
     @pyaedt_function_handler()
     def add_pin_iports(self, name, id_num):
@@ -1184,6 +1165,48 @@ class CircuitComponents(object):
             ["NAME:LineData", "Points:=", pointlist, "LineWidth:=", line_width, "Color:=", color, "Id:=", id],
             ["NAME:Attributes", "Page:=", 1],
         )
+
+    @pyaedt_function_handler()
+    def create_wire(self, points_array, wire_name=""):
+        """Create a wire.
+
+        Parameters
+        ----------
+        points_array : list
+            A nested list of point coordinates. For example,
+            ``[[x1, y1], [x2, y2], ...]``.
+        wire_name : str, optional
+            Name of the wire. Default value is ``""``.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.object3dcircuit.Wire`
+            Wire Object.
+
+        References
+        ----------
+
+        >>> oEditor.CreateWire
+        """
+        pointlist = [str(tuple(self._convert_point_to_meter(i))) for i in points_array]
+        wire_id = self.create_unique_id()
+        arg1 = ["NAME:WireData", "Name:=", wire_name, "Id:=", wire_id, "Points:=", pointlist]
+        arg2 = ["NAME:Attributes", "Page:=", 1]
+        try:
+            wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
+            if ":" in wire_id.split(";")[1]:
+                wire_id = int(wire_id.split(";")[1].split(":")[0])
+            else:
+                wire_id = int(wire_id.split(";")[1])
+            w = Wire(self._modeler)
+            if not wire_name:
+                wire_name = generate_unique_name("Wire")
+            w.name = wire_name
+            w.id = int(wire_id)
+            self.wires[w.id] = w
+            return w
+        except:
+            return False
 
 
 class ComponentInfo(object):

@@ -122,7 +122,6 @@ class AedtLogger(object):
     """
 
     def __init__(self, level=logging.DEBUG, filename=None, to_stdout=False):
-
         self.level = level
         self.filename = filename or settings.logger_file_path
         settings.logger_file_path = self.filename
