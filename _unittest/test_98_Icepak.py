@@ -626,7 +626,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.insert_design("advanced3dcompTest")
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         box1 = self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
-        fan = self.aedtapp.create_fan("Fan", cross_section="YZ", radius="15mm", hub_radius="5mm")
+        fan = self.aedtapp.create_fan("Fan", cross_section="YZ", radius="1mm", hub_radius="0mm")
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1")
         cs1.props["OriginX"] = 10
         cs1.props["OriginY"] = 10
@@ -751,7 +751,7 @@ class TestClass(BasisTest, object):
             ext_surf_rad_view_factor=0.5,
         )
 
-    @pytest.mark.skipif(config["use_grpc"], reason="Bug in GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
         self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
