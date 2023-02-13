@@ -1398,3 +1398,36 @@ class BinaryTreeNode:
             return True
         except:
             return False
+    @pyaedt_function_handler
+    def _jsonalize_tree(self, binary_tree_node):
+        childrend_dict={}
+        for _, node in binary_tree_node.children.items():
+            childrend_dict.update(self._jsonalize_tree(node))
+        return {binary_tree_node.node: {"Props": binary_tree_node.props,
+                                           "Children": childrend_dict
+                                           }}
+
+    @pyaedt_function_handler
+    def jsonalize_tree(self):
+        return self._jsonalize_tree(binary_tree_node=self)
+
+    @pyaedt_function_handler
+    def _suppress(self, node, app, suppress):
+        if not node.command.startswith("Duplicate"):
+            app.oeditor.ChangeProperty(["NAME:AllTabs", ["NAME:Geometry3DCmdTab",
+                                                     ["NAME:PropServers",
+                                                       node.child_object.GetObjPath().split("/")[3]+":"+node.node],
+                                                     ["NAME:ChangedProps", ["NAME:Suppress Command", "Value:=", suppress]]
+                                                     ]])
+
+        for _, node in node.children.items():
+            self._suppress(node, app, suppress)
+        return True
+
+    @pyaedt_function_handler
+    def suppress_all(self, app):
+        return self._suppress(self, app, True)
+
+    @pyaedt_function_handler
+    def unsuppress_all(self, app):
+        return self._suppress(self, app, False)
