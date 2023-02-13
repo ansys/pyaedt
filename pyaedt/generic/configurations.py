@@ -1280,31 +1280,10 @@ class Configurations(object):
             )
         dict_out = {}
         self._export_general(dict_out)
-        if self.options.export_variables:
-            self._export_variables(dict_out)
-        if self.options.export_setups:
-            self._export_setups(dict_out)
-        if self.options.export_optimizations:
-            self._export_optimizations(dict_out)
-        if self.options.export_parametrics:
-            self._export_parametrics(dict_out)
-        if self.options.export_boundaries:
-            self._export_boundaries(dict_out)
-        if self.options.export_coordinate_systems:
-            self._export_coordinate_systems(dict_out)
-        # if self.options.export_face_coordinate_systems:
-        #     self._export_face_coordinate_systems(dict_out)
-        if self.options.export_object_properties:
-            self._export_objects_properties(dict_out)
-        if self.options.export_mesh_operations:
-            self._export_mesh_operations(dict_out)
-        if self.options.export_materials:
-            self._export_materials(dict_out)
-        if self.options.export_datasets:
-            self._export_datasets(dict_out)
-        if hasattr(self.options, "export_monitor"):
-            if self.options.export_monitor:
-                self._export_monitor(dict_out)
+        for key, value in vars(self.options).items():
+            if key.startswith("_export_") and value:
+                getattr(self, key)(dict_out)
+
         # update the json if it exists already
 
         if os.path.exists(config_file) and not overwrite:
