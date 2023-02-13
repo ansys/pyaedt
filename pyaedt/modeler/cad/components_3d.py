@@ -635,10 +635,11 @@ class UserDefinedComponent(object):
             attach_object = kwargs["attachObject"]
 
         if self.is3dcomponent:
+            old_component_list = self._primitives.modeler.user_defined_component_names
             _, added_objects = self._primitives.modeler.duplicate_along_line(
                 self.name, vector, nclones, attach_object, True
             )
-            return added_objects
+            return list(set(added_objects) - set(old_component_list))
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
