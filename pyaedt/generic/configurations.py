@@ -1534,11 +1534,80 @@ class ConfigurationsIcepak(Configurations):
         return True
 
     @pyaedt_function_handler()
-    def import_config(self, config_file):
+    def _monitor_assignment_finder(self, dict_in, monitor_obj, exclude_set):
+        if dict_in["monitor"][monitor_obj].get("Native Assignment", None):
+            objects_to_check = [obj for _, obj in self._app.modeler.objects.items()]
+            objects_to_check = list(set(objects_to_check) - exclude_set)
+            if dict_in["monitor"][monitor_obj]["Type"]=="Face":
+                for obj in objects_to_check:
+                    if len(obj.faces)!=1:
+                        for f in obj.faces:
+                            if GeometryOperators.v_norm(
+                                    GeometryOperators.v_sub(
+                                        f.center, dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12 and abs(
+                                f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12:
+                                dict_in["monitor"][monitor_obj]["ID"] = f.id
+                                return
+            elif dict_in["monitor"][monitor_obj]["Type"]=="Surface":
+                for obj in objects_to_check:
+                    if len(obj.faces) == 1:
+                        for f in obj.faces:
+                            if GeometryOperators.v_norm(
+                                    GeometryOperators.v_sub(
+                                        f.center, dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12 and abs(
+                                f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12:
+                                dict_in["monitor"][monitor_obj]["ID"] = obj.name
+                                return
+            elif dict_in["monitor"][monitor_obj]["Type"] == "Object":
+                for obj in objects_to_check:
+                    bb = obj.bounding_box
+                    if GeometryOperators.v_norm(
+                            GeometryOperators.v_sub(
+                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)],
+                                dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12 and abs(
+                        obj.volume - dict_in["monitor"][monitor_obj]["Volume Assignment"]) <= 1e-12:
+                        dict_in["monitor"][monitor_obj]["ID"] = obj.id
+                        return
+            elif dict_in["monitor"][monitor_obj]["Type"] == "Vertex":
+                for obj in objects_to_check:
+                    for v in obj.vertices:
+                        if GeometryOperators.v_norm(
+                                GeometryOperators.v_sub(
+                                    v.position, dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12:
+                            dict_in["monitor"][monitor_obj]["ID"] = v.id
+                            return
+
+    @pyaedt_function_handler()
+    def import_config(self, config_file, exclude_set=set()):
+        with open(config_file) as json_file:
+            dict_in = json.load(json_file)
+        self.results._reset_results()
+
+        if self.options.import_native_components and dict_in.get("native components", None):
+            result_coordinate_systems = True
+            add_cs = list(dict_in["coordinatesystems"].keys())
+            available_cs = ["Global"] + [cs.name for cs in self._app.modeler.coordinate_systems]
+            i = 0
+            while add_cs:
+                if dict_in["coordinatesystems"][add_cs[i]]["Reference CS"] in available_cs:
+                    if not self._update_coordinate_systems(add_cs[i], dict_in["coordinatesystems"][add_cs[i]]):
+                        result_coordinate_systems = False
+                    available_cs.append(add_cs[i])
+                    add_cs.pop(i)
+                    i = 0
+                else:
+                    i += 1
+            self.options.import_coordinate_systems = False
+            result_native_component = True
+            for component_name, component_dict in dict_in["native components"].items():
+                if not self._update_native_components(component_name, component_dict):
+                    result_native_component = False
+
         dict_in = Configurations.import_config(self, config_file)
         if self.options.import_monitor and dict_in.get("monitor", None):
             self.results.import_monitor = True
             for monitor_obj in dict_in["monitor"]:
+                self._monitor_assignment_finder(dict_in, monitor_obj, exclude_set)
                 m_type = dict_in["monitor"][monitor_obj]["Type"]
                 m_obj = dict_in["monitor"][monitor_obj]["ID"]
                 if m_type == "Point":
