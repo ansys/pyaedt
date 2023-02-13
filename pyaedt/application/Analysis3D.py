@@ -947,7 +947,7 @@ class FieldAnalysis3D(Analysis, object):
         bool
             `True` if succeeded.
         """
-        native_comp_names = [i.props["BasicComponentInfo"]["ComponentName"] for _, i in self.native_components.items()]
+        native_comp_names = [nc.component_name for _, nc in self.native_components.items()]
         if not component_name:
             component_name = [
                 key
@@ -961,29 +961,48 @@ class FieldAnalysis3D(Analysis, object):
                 assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
         for cmp in component_name:
             comp = self.modeler.user_defined_components[cmp]
+            target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
             app = comp.edit_definition(password=password)
             for var, val in comp.parameters.items():
                 app[var] = val
             if purge_history:
                 app.modeler.purge_history(app.modeler._all_object_names)
-            self.modeler.set_working_coordinate_system(comp.target_coordinate_system)
+            monitor_cache = {}
             if self.design_type == "Icepak":
                 objs_monitors = [part.name for _, part in comp.parts.items()]
-                monitor_cache = {}
                 for mon_name, mon_obj in self.monitor.all_monitors.items():
                     obj_name = mon_obj.properties["Geometry Assignment"]
                     if obj_name in objs_monitors:
                         monitor_cache.update({mon_obj.name: mon_obj.properties})
+                        monitor_cache[mon_obj.name]["Native Assignment"] = "placeholder"
+                        if monitor_cache[mon_obj.name]["Type"]=="Face":
+                            monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
+                                monitor_cache[mon_obj.name]["ID"])
+                        elif monitor_cache[mon_obj.name]["Type"] == "Surface":
+                            monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
+                                self.modeler.get_object_from_name(monitor_cache[mon_obj.name]["ID"]).faces[0].id)
+                        elif monitor_cache[mon_obj.name]["Type"]=="Object":
+                            monitor_cache[mon_obj.name]["Volume Assignment"] = self.modeler.get_object_from_name(
+                                                                            monitor_cache[mon_obj.name]["ID"]).volume
             oldcs = self.oeditor.GetActiveCoordinateSystem()
-            self.modeler.set_working_coordinate_system(
-                self.modeler.user_defined_components[cmp].target_coordinate_system
-            )
+            self.modeler.set_working_coordinate_system(target_cs)
             comp.delete()
+            obj_set = set(self.modeler.objects.values())
             self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
+            app.oproject.Close()
+            self.modeler.refresh_all_ids()
             self.modeler.set_working_coordinate_system(oldcs)
             if self.design_type == "Icepak":
-                for _, mon_dict in monitor_cache.items():
-                    self.monitor.insert_monitor_object_from_dict(mon_dict, mode=1)
-            app.close_project(save_project=False)
-            self.modeler.refresh_all_ids()
+                for monitor_obj, mon_dict in monitor_cache.items():
+                    if not self.monitor.insert_monitor_object_from_dict(mon_dict, mode=1):
+                        dict_in = {"monitor": {monitor_obj: mon_dict}}
+                        self.configurations._monitor_assignment_finder(dict_in, monitor_obj, obj_set)
+                        m_type = dict_in["monitor"][monitor_obj]["Type"]
+                        m_obj = dict_in["monitor"][monitor_obj]["ID"]
+                        if m_type == "Point":
+                            m_obj = dict_in["monitor"][monitor_obj]["Location"]
+                        if not self.configurations.update_monitor(
+                                m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
+                            return False
+
         return True
