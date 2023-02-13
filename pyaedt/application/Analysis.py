@@ -150,7 +150,7 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.props["SubmodelDefinitionName"]: nc for nc in self._native_components}
+        return {nc.component_name: nc for nc in self._native_components}
 
     @property
     def output_variables(self):
