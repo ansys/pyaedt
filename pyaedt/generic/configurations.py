@@ -1217,6 +1217,9 @@ class Configurations(object):
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
         dict_monitor = {}
+        native_parts = [part.name for udc_name, udc in self._app.modeler.user_defined_components.items() for
+                        part_name, part in udc.parts.items() if self._app.modeler.user_defined_components[
+                            udc_name].definition_name in self._app.native_components]
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
                 dict_monitor[mon_name] = {
@@ -1224,6 +1227,22 @@ class Configurations(object):
                     for key, val in self._app.monitor.all_monitors[mon_name].properties.items()
                     if key not in ["Name", "Object"]
                 }
+                if dict_monitor[mon_name]["Geometry Assignment"] in native_parts:
+                    dict_monitor[mon_name]["Native Assignment"] = \
+                        [name for name, dict_comp in self._app.modeler.user_defined_components.items() if
+                         dict_monitor[mon_name]["Geometry Assignment"] in [part.name for part_id, part in
+                                                                           dict_comp.parts.items()]][0]
+                    if dict_monitor[mon_name]["Type"] == "Face":
+                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
+                            dict_monitor[mon_name]["ID"])
+                    elif dict_monitor[mon_name]["Type"] == "Surface":
+                        dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
+                            self._app.modeler.objects[dict_monitor[mon_name]["ID"]].faces[0])
+                    elif dict_monitor[mon_name]["Type"] == "Object":
+                        bb = self._app.modeler.get_object_from_name([dict_monitor[mon_name]["ID"]][0]).bounding_box
+                        dict_monitor[mon_name]["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
+                        dict_monitor[mon_name]["Volume Assignment"] = self._app.modeler.get_object_from_name(
+                            dict_monitor[mon_name]["ID"]).volume
         dict_out["monitor"] = dict_monitor
 
     @pyaedt_function_handler()
