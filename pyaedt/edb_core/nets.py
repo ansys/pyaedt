@@ -303,15 +303,15 @@ class EdbNets(object):
             codes.append(79)
             objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
             n_label += 1
-        top_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
-        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[0]
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[0]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
             for comp in self._pedb.core_components.components.values():
                 if not comp.is_enabled:
                     continue
                 net_names = comp.nets
-                if not any([i in nets for i in net_names]):
+                if nets and not any([i in nets for i in net_names]):
                     continue
                 layer_name = comp.placement_layer
                 if layer_name not in layers:
