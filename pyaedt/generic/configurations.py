@@ -1184,6 +1184,10 @@ class Configurations(object):
             dict_out["objects"][val.name]["CoordinateSystem"] = val.part_coordinate_system
 
     @pyaedt_function_handler()
+    def _export_object_properties(self, dict_out):
+        self._export_objects_properties(dict_out)
+
+    @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
