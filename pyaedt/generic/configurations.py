@@ -1873,7 +1873,8 @@ class ConfigurationsIcepak(Configurations):
                 native.name = instance_names
                 if (
                     nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB"
-                    and nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
+                    and nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] not in [
+                    self._app.project_file or 'This Project*']
                 ):
                     prj = list(set(self._app.project_list) - prj_list)[0]
                     design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
