@@ -175,7 +175,7 @@ class UserDefinedComponent(object):
         """
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
-            parent = BinaryTreeNode(self.name, child_object, True, "Operations")
+            parent = BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
             return parent
         except:
             return False
