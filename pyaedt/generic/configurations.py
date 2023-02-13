@@ -1393,13 +1393,20 @@ class ConfigurationsIcepak(Configurations):
                 arg2.append(["NAME:Material", "Value:=", chr(34) + val["Material"] + chr(34)])
             if val.get("SolveInside", None):
                 arg2.append(["NAME:Solve Inside", "Value:=", val["SolveInside"]])
-            arg2.append(
-                [
-                    "NAME:Surface Material",
-                    "Value:=",
-                    chr(34) + val.get("SurfaceMaterial", "Steel-oxidised-surface") + chr(34),
-                ]
-            )
+            try:
+                arg2.append(
+                    [
+                        "NAME:Surface Material",
+                        "Value:=", chr(34) + val.get("SurfaceMaterial") + chr(34),
+                    ]
+                )
+            except:
+                arg2.append(
+                    [
+                        "NAME:Surface Material",
+                        "Value:=", chr(34) + "Steel-oxidised-surface" + chr(34),
+                    ]
+                )
             if val.get("Model", None):
                 arg2.append(["NAME:Model", "Value:=", val["Model"]])
             if val.get("Group", None):
