@@ -175,9 +175,9 @@ class TestClass(BasisTest, object):
         app = Icepak(projectname="new_proj_Ipk")
         app.modeler.import_3d_cad(file_path)
         out = app.configurations.import_config(conf_file)
-        app.close_project(save_project=False)
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
+        app.close_project(save_project=False)
 
     def test_05_hfss3dlayout_setup(self):
         setup2 = self.hfss3dl.create_setup("My_HFSS_Setup_2")
