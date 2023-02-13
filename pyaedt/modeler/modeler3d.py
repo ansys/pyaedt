@@ -1,5 +1,6 @@
 from __future__ import absolute_import  # noreorder
 
+import copy
 import datetime
 import json
 import os.path
@@ -302,6 +303,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             self._app.configurations.options.unset_all_export()
             self._app.configurations.options.export_monitor = True
             self._app.configurations.options.export_datasets = True
+            self._app.configurations.options.export_native_components = True
             self._app.configurations.options.export_coordinate_systems = True
             configfile = self._app.configurations.export_config()
             for prop in cachesettings:  # restore user settings
@@ -324,6 +326,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["monitor"][i]
                     else:
                         if out_dict["monitor"][i]["Type"] in ["Object", "Surface"]:
+                            self._app.modeler.refresh_all_ids()
                             out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(out_dict["monitor"][i]["ID"])
             if datasets:
                 out_dict["datasets"] = config_dict["datasets"]
@@ -332,30 +335,20 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["datasets"][i]
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
-                out_dict["native components"] = {}
-                coordinatesystems_set = set()
-                for _, nc in self._app.native_components.items():
-                    nc_name = nc.props["SubmodelDefinitionName"]
-                    nc_props = dict(nc.props).copy()
-                    nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
-                    if (
-                        nc_type == "PCB"
-                        and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
-                    ):
-                        nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
-                    CSs = [
-                        v.target_coordinate_system
-                        for i, v in self._app.modeler.user_defined_components.items()
-                        if v.definition_name == nc_name
-                        and "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames()
-                    ]
-                    out_dict["native components"][nc_name] = {"Type": nc_type, "Props": nc_props, "CS": CSs}
-                    for cs in CSs:
-                        while cs != "Global":
-                            coordinatesystems_set.update(cs)
-                            cs = config_dict["coordinatesystems"][cs]["Reference CS"]
-                if config_dict.get("coordinatesystems", None):
-                    out_dict["coordinatesystems"] = config_dict["coordinatesystems"]
+                out_dict["native components"] = config_dict["native components"]
+                cs_set = set()
+                for native_name, native_dict in out_dict["native components"].items():
+                    for instance_name, instance_dict in native_dict["Instances"].items():
+                        if instance_dict["CS"] and instance_dict["CS"]!="Global":
+                            cs = instance_dict["CS"]
+                            cs_set.add(cs)
+                            while config_dict["coordinatesystems"][cs]["Reference CS"]!="Global":
+                                cs = config_dict["coordinatesystems"][cs]["Reference CS"]
+                                cs_set.add(cs)
+                out_dict["coordinatesystems"] = copy.deepcopy(config_dict["coordinatesystems"])
+                for cs in list(out_dict["coordinatesystems"]):
+                    if cs not in cs_set:
+                        del out_dict["coordinatesystems"][cs]
             with open(auxiliary_dict_file, "w") as outfile:
                 json.dump(out_dict, outfile)
         return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
