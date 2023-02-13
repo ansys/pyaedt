@@ -600,10 +600,18 @@ class FacePrimitive(object):
                     eval_points = 4
                     for edge in self.edges:
                         centroid = GeometryOperators.v_sum(
-                            centroid, GeometryOperators.get_polygon_centroid(
-                                [[float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
-                                    edge.id, pos/eval_points)] for pos in range(0, eval_points, 1)]
-                            )
+                            centroid,
+                            GeometryOperators.get_polygon_centroid(
+                                [
+                                    [
+                                        float(i)
+                                        for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
+                                            edge.id, pos / eval_points
+                                        )
+                                    ]
+                                    for pos in range(0, eval_points, 1)
+                                ]
+                            ),
                         )
                     return GeometryOperators.v_prod(1 / len(self.edges), centroid)
 
@@ -1397,14 +1405,13 @@ class BinaryTreeNode:
             return True
         except:
             return False
+
     @pyaedt_function_handler
     def _jsonalize_tree(self, binary_tree_node):
-        childrend_dict={}
+        childrend_dict = {}
         for _, node in binary_tree_node.children.items():
             childrend_dict.update(self._jsonalize_tree(node))
-        return {binary_tree_node.node: {"Props": binary_tree_node.props,
-                                           "Children": childrend_dict
-                                           }}
+        return {binary_tree_node.node: {"Props": binary_tree_node.props, "Children": childrend_dict}}
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
@@ -1413,11 +1420,16 @@ class BinaryTreeNode:
     @pyaedt_function_handler
     def _suppress(self, node, app, suppress):
         if not node.command.startswith("Duplicate"):
-            app.oeditor.ChangeProperty(["NAME:AllTabs", ["NAME:Geometry3DCmdTab",
-                                                     ["NAME:PropServers",
-                                                       node.child_object.GetObjPath().split("/")[3]+":"+node.node],
-                                                     ["NAME:ChangedProps", ["NAME:Suppress Command", "Value:=", suppress]]
-                                                     ]])
+            app.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Geometry3DCmdTab",
+                        ["NAME:PropServers", node.child_object.GetObjPath().split("/")[3] + ":" + node.node],
+                        ["NAME:ChangedProps", ["NAME:Suppress Command", "Value:=", suppress]],
+                    ],
+                ]
+            )
 
         for _, node in node.children.items():
             self._suppress(node, app, suppress)

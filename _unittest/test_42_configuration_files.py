@@ -158,14 +158,17 @@ class TestClass(BasisTest, object):
         self.icepak.modeler.user_defined_components[fan.name].rotate("Y")
         fan3 = self.icepak.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
         self.icepak.monitor.assign_face_monitor(
-            list(self.icepak.modeler.user_defined_components[fan3[0]].parts.values())[0].faces[0].id)
+            list(self.icepak.modeler.user_defined_components[fan3[0]].parts.values())[0].faces[0].id
+        )
         self.icepak.modeler.user_defined_components[fan.name].move([1, 2, 3])
         fan4 = self.icepak.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
         self.icepak.monitor.assign_point_monitor_to_vertex(
-            list(self.icepak.modeler.user_defined_components[fan4[0]].parts.values())[0].vertices[0].id)
+            list(self.icepak.modeler.user_defined_components[fan4[0]].parts.values())[0].vertices[0].id
+        )
         self.icepak.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
         self.icepak.monitor.assign_point_monitor_in_object(
-            list(self.icepak.modeler.user_defined_components[fan4[0]].parts.values())[0])
+            list(self.icepak.modeler.user_defined_components[fan4[0]].parts.values())[0]
+        )
         conf_file = self.icepak.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(self.icepak.working_directory, filename + ".step")

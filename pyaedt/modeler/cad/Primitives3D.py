@@ -13,7 +13,8 @@ from math import tan
 
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
-from pyaedt.generic.general_methods import _retry_ntimes, generate_unique_name
+from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.advanced_cad.actors import Bird
@@ -1113,12 +1114,11 @@ class Primitives3D(Primitives, object):
         app = udm_obj.edit_definition(password=password)
         wcs = app.modeler.oeditor.GetActiveCoordinateSystem()
         if wcs != "Global":
-            temp_folder = os.path.join(self._app.toolkit_directory,
-                                       self._app.design_name,
-                                       generate_unique_name("temp_folder"))
+            temp_folder = os.path.join(
+                self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
+            )
             os.mkdir(os.path.join(temp_folder))
-            new_proj_name = os.path.join(temp_folder,
-                                         generate_unique_name("project") + ".aedt")
+            new_proj_name = os.path.join(temp_folder, generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
             o, q = app.modeler.invert_cs(wcs, to_global=True)
             app.oproject.Close()
@@ -1138,7 +1138,7 @@ class Primitives3D(Primitives, object):
                     reference_cs=udm_obj.target_coordinate_system,
                     psi=psi,
                     theta=theta,
-                    phi=phi
+                    phi=phi,
                 )
             return cs_name
         else:
@@ -1290,10 +1290,10 @@ class Primitives3D(Primitives, object):
                 temp_dict = {}
                 temp_dict["native components"] = copy.deepcopy(aux_dict["native components"])
                 temp_dict["coordinatesystems"] = copy.deepcopy(aux_dict["coordinatesystems"])
-                temp_dict["monitor"]={}
+                temp_dict["monitor"] = {}
                 for mon_name in list(aux_dict["monitor"].keys()):
                     if aux_dict["monitor"][mon_name].get("Native Assignment", None):
-                        temp_dict["monitor"][udm_obj.name+"_"+mon_name] = aux_dict["monitor"][mon_name]
+                        temp_dict["monitor"][udm_obj.name + "_" + mon_name] = aux_dict["monitor"][mon_name]
                         del aux_dict["monitor"][mon_name]
                 self._app.configurations.options.unset_all_import()
                 self._app.configurations.options.import_native_components = True
@@ -1306,12 +1306,12 @@ class Primitives3D(Primitives, object):
                 old_cs = set(self._app.modeler.coordinate_systems)
                 self._app.configurations.import_config(temp_dict_file, exclude_set)
                 targetCS = self._create_reference_cs_from_3dcomp(udm_obj, password)
-                if targetCS!="Global":
+                if targetCS != "Global":
                     self._app.modeler.refresh_all_ids()
-                    for udm in set(list(self._app.modeler.user_defined_components))-old_udm:
+                    for udm in set(list(self._app.modeler.user_defined_components)) - old_udm:
                         if self._app.modeler.user_defined_components[udm].target_coordinate_system == "Global":
                             self._app.modeler.user_defined_components[udm].target_coordinate_system = targetCS
-                for cs in set(self._app.modeler.coordinate_systems)-old_cs:
+                for cs in set(self._app.modeler.coordinate_systems) - old_cs:
                     if cs.ref_cs == "Global":
                         cs.ref_cs = targetCS
                         cs.update()

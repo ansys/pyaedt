@@ -979,15 +979,18 @@ class FieldAnalysis3D(Analysis, object):
                     if obj_name in objs_monitors:
                         monitor_cache.update({mon_obj.name: mon_obj.properties})
                         monitor_cache[mon_obj.name]["Native Assignment"] = "placeholder"
-                        if monitor_cache[mon_obj.name]["Type"]=="Face":
+                        if monitor_cache[mon_obj.name]["Type"] == "Face":
                             monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
-                                monitor_cache[mon_obj.name]["ID"])
+                                monitor_cache[mon_obj.name]["ID"]
+                            )
                         elif monitor_cache[mon_obj.name]["Type"] == "Surface":
                             monitor_cache[mon_obj.name]["Area Assignment"] = self.modeler.get_face_area(
-                                self.modeler.get_object_from_name(monitor_cache[mon_obj.name]["ID"]).faces[0].id)
-                        elif monitor_cache[mon_obj.name]["Type"]=="Object":
+                                self.modeler.get_object_from_name(monitor_cache[mon_obj.name]["ID"]).faces[0].id
+                            )
+                        elif monitor_cache[mon_obj.name]["Type"] == "Object":
                             monitor_cache[mon_obj.name]["Volume Assignment"] = self.modeler.get_object_from_name(
-                                                                            monitor_cache[mon_obj.name]["ID"]).volume
+                                monitor_cache[mon_obj.name]["ID"]
+                            ).volume
             oldcs = self.oeditor.GetActiveCoordinateSystem()
             self.modeler.set_working_coordinate_system(target_cs)
             comp.delete()
@@ -1006,7 +1009,8 @@ class FieldAnalysis3D(Analysis, object):
                         if m_type == "Point":
                             m_obj = dict_in["monitor"][monitor_obj]["Location"]
                         if not self.configurations.update_monitor(
-                                m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
+                            m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                        ):
                             return False
 
         return True

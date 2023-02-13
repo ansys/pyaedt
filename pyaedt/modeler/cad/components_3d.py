@@ -471,8 +471,9 @@ class UserDefinedComponent(object):
 
         >>> oEditor.DuplicateMirror
         """
-        return self._primitives.modeler.duplicate_and_mirror(self.name, position, vector,
-                                                                           is_3d_comp=True, duplicate_assignment=True)
+        return self._primitives.modeler.duplicate_and_mirror(
+            self.name, position, vector, is_3d_comp=True, duplicate_assignment=True
+        )
 
     @pyaedt_function_handler()
     def mirror(self, position, vector):
@@ -684,12 +685,12 @@ class UserDefinedComponent(object):
             List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max]
 
         """
-        x_min = float('inf')
-        y_min = float('inf')
-        z_min = float('inf')
-        x_max = float('-inf')
-        y_max = float('-inf')
-        z_max = float('-inf')
+        x_min = float("inf")
+        y_min = float("inf")
+        z_min = float("inf")
+        x_max = float("-inf")
+        y_max = float("-inf")
+        z_max = float("-inf")
         for _, obj in self.parts.items():
             bbox = obj._bounding_box_sat()
             x_min = min(x_min, bbox[0])
@@ -709,12 +710,11 @@ class UserDefinedComponent(object):
             List of floats containing [x_center, y_center, z_center]
 
         """
-        x_min, y_min, z_min, x_max, y_max, z_max= self.get_component_bounding_dimension()
+        x_min, y_min, z_min, x_max, y_max, z_max = self.get_component_bounding_dimension()
         x_center = (x_min + x_max) / 2
         y_center = (y_min + y_max) / 2
         z_center = (z_min + z_max) / 2
         return x_center, y_center, z_center
-
 
     @property
     def _logger(self):

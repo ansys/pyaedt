@@ -339,10 +339,10 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 cs_set = set()
                 for native_name, native_dict in out_dict["native components"].items():
                     for instance_name, instance_dict in native_dict["Instances"].items():
-                        if instance_dict["CS"] and instance_dict["CS"]!="Global":
+                        if instance_dict["CS"] and instance_dict["CS"] != "Global":
                             cs = instance_dict["CS"]
                             cs_set.add(cs)
-                            while config_dict["coordinatesystems"][cs]["Reference CS"]!="Global":
+                            while config_dict["coordinatesystems"][cs]["Reference CS"] != "Global":
                                 cs = config_dict["coordinatesystems"][cs]["Reference CS"]
                                 cs_set.add(cs)
                 out_dict["coordinatesystems"] = copy.deepcopy(config_dict["coordinatesystems"])

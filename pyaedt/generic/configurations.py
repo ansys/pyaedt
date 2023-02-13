@@ -4,18 +4,22 @@ import os
 from collections import OrderedDict
 from datetime import datetime
 
-from pyaedt import __version__, Icepak, get_pyaedt_app, generate_unique_folder_name
+from pyaedt import Icepak
+from pyaedt import __version__
+from pyaedt import generate_unique_folder_name
+from pyaedt import get_pyaedt_app
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.DataHandlers import _arg2dict
-from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.generic.general_methods import _create_json_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.cad.Modeler import CoordinateSystem
+from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
+from pyaedt.modeler.cad.Modeler import CoordinateSystem
 from pyaedt.modeler.geometry_operators import GeometryOperators
-from pyaedt.modules.Boundary import BoundaryObject, NativeComponentObject
+from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import BoundaryProps
+from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import SetupOpti
 from pyaedt.modules.DesignXPloration import SetupParam
 from pyaedt.modules.MaterialLib import Material
@@ -1220,9 +1224,12 @@ class Configurations(object):
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
         dict_monitor = {}
-        native_parts = [part.name for udc_name, udc in self._app.modeler.user_defined_components.items() for
-                        part_name, part in udc.parts.items() if self._app.modeler.user_defined_components[
-                            udc_name].definition_name in self._app.native_components]
+        native_parts = [
+            part.name
+            for udc_name, udc in self._app.modeler.user_defined_components.items()
+            for part_name, part in udc.parts.items()
+            if self._app.modeler.user_defined_components[udc_name].definition_name in self._app.native_components
+        ]
         if self._app.monitor.all_monitors != {}:
             for mon_name in self._app.monitor.all_monitors:
                 dict_monitor[mon_name] = {
@@ -1231,21 +1238,26 @@ class Configurations(object):
                     if key not in ["Name", "Object"]
                 }
                 if dict_monitor[mon_name]["Geometry Assignment"] in native_parts:
-                    dict_monitor[mon_name]["Native Assignment"] = \
-                        [name for name, dict_comp in self._app.modeler.user_defined_components.items() if
-                         dict_monitor[mon_name]["Geometry Assignment"] in [part.name for part_id, part in
-                                                                           dict_comp.parts.items()]][0]
+                    dict_monitor[mon_name]["Native Assignment"] = [
+                        name
+                        for name, dict_comp in self._app.modeler.user_defined_components.items()
+                        if dict_monitor[mon_name]["Geometry Assignment"]
+                        in [part.name for part_id, part in dict_comp.parts.items()]
+                    ][0]
                     if dict_monitor[mon_name]["Type"] == "Face":
                         dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            dict_monitor[mon_name]["ID"])
+                            dict_monitor[mon_name]["ID"]
+                        )
                     elif dict_monitor[mon_name]["Type"] == "Surface":
                         dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            self._app.modeler.objects[dict_monitor[mon_name]["ID"]].faces[0])
+                            self._app.modeler.objects[dict_monitor[mon_name]["ID"]].faces[0]
+                        )
                     elif dict_monitor[mon_name]["Type"] == "Object":
                         bb = self._app.modeler.get_object_from_name([dict_monitor[mon_name]["ID"]][0]).bounding_box
                         dict_monitor[mon_name]["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
                         dict_monitor[mon_name]["Volume Assignment"] = self._app.modeler.get_object_from_name(
-                            dict_monitor[mon_name]["ID"]).volume
+                            dict_monitor[mon_name]["ID"]
+                        ).volume
         dict_out["monitor"] = dict_monitor
 
     @pyaedt_function_handler()
@@ -1400,14 +1412,16 @@ class ConfigurationsIcepak(Configurations):
                 arg2.append(
                     [
                         "NAME:Surface Material",
-                        "Value:=", chr(34) + val.get("SurfaceMaterial") + chr(34),
+                        "Value:=",
+                        chr(34) + val.get("SurfaceMaterial") + chr(34),
                     ]
                 )
             except:
                 arg2.append(
                     [
                         "NAME:Surface Material",
-                        "Value:=", chr(34) + "Steel-oxidised-surface" + chr(34),
+                        "Value:=",
+                        chr(34) + "Steel-oxidised-surface" + chr(34),
                     ]
                 )
             if val.get("Model", None):
@@ -1541,42 +1555,55 @@ class ConfigurationsIcepak(Configurations):
         if dict_in["monitor"][monitor_obj].get("Native Assignment", None):
             objects_to_check = [obj for _, obj in self._app.modeler.objects.items()]
             objects_to_check = list(set(objects_to_check) - exclude_set)
-            if dict_in["monitor"][monitor_obj]["Type"]=="Face":
+            if dict_in["monitor"][monitor_obj]["Type"] == "Face":
                 for obj in objects_to_check:
-                    if len(obj.faces)!=1:
+                    if len(obj.faces) != 1:
                         for f in obj.faces:
-                            if GeometryOperators.v_norm(
-                                    GeometryOperators.v_sub(
-                                        f.center, dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12 and abs(
-                                f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12:
+                            if (
+                                GeometryOperators.v_norm(
+                                    GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
+                                )
+                                <= 1e-12
+                                and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                            ):
                                 dict_in["monitor"][monitor_obj]["ID"] = f.id
                                 return
-            elif dict_in["monitor"][monitor_obj]["Type"]=="Surface":
+            elif dict_in["monitor"][monitor_obj]["Type"] == "Surface":
                 for obj in objects_to_check:
                     if len(obj.faces) == 1:
                         for f in obj.faces:
-                            if GeometryOperators.v_norm(
-                                    GeometryOperators.v_sub(
-                                        f.center, dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12 and abs(
-                                f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12:
+                            if (
+                                GeometryOperators.v_norm(
+                                    GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
+                                )
+                                <= 1e-12
+                                and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                            ):
                                 dict_in["monitor"][monitor_obj]["ID"] = obj.name
                                 return
             elif dict_in["monitor"][monitor_obj]["Type"] == "Object":
                 for obj in objects_to_check:
                     bb = obj.bounding_box
-                    if GeometryOperators.v_norm(
+                    if (
+                        GeometryOperators.v_norm(
                             GeometryOperators.v_sub(
-                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)],
-                                dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12 and abs(
-                        obj.volume - dict_in["monitor"][monitor_obj]["Volume Assignment"]) <= 1e-12:
+                                [(bb[i] + bb[i + 3]) / 2 for i in range(3)], dict_in["monitor"][monitor_obj]["Location"]
+                            )
+                        )
+                        <= 1e-12
+                        and abs(obj.volume - dict_in["monitor"][monitor_obj]["Volume Assignment"]) <= 1e-12
+                    ):
                         dict_in["monitor"][monitor_obj]["ID"] = obj.id
                         return
             elif dict_in["monitor"][monitor_obj]["Type"] == "Vertex":
                 for obj in objects_to_check:
                     for v in obj.vertices:
-                        if GeometryOperators.v_norm(
-                                GeometryOperators.v_sub(
-                                    v.position, dict_in["monitor"][monitor_obj]["Location"])) <= 1e-12:
+                        if (
+                            GeometryOperators.v_norm(
+                                GeometryOperators.v_sub(v.position, dict_in["monitor"][monitor_obj]["Location"])
+                            )
+                            <= 1e-12
+                        ):
                             dict_in["monitor"][monitor_obj]["ID"] = v.id
                             return
 
@@ -1624,17 +1651,22 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler
     def _get_duplicate_names(self):
         # Copy project to get dictionary
-        directory = os.path.join(self._app.toolkit_directory,
-                                 self._app.design_name,
-                                 generate_unique_folder_name("config_export_temp_project"))
+        directory = os.path.join(
+            self._app.toolkit_directory,
+            self._app.design_name,
+            generate_unique_folder_name("config_export_temp_project"),
+        )
         os.makedirs(directory)
         tempproj_name = os.path.join(directory, "temp_proj.aedt")
         tempproj = Icepak(tempproj_name, specified_version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
         self._app.modeler.refresh()
-        self._app.modeler.delete(list(set([id for id, obj in self._app.modeler.objects.items() if obj.model]) -
-                                      set([id for _, obj in self._app.modeler.user_defined_components.items()
-                                           for id in obj.parts])))
+        self._app.modeler.delete(
+            list(
+                set([id for id, obj in self._app.modeler.objects.items() if obj.model])
+                - set([id for _, obj in self._app.modeler.user_defined_components.items() for id in obj.parts])
+            )
+        )
         self._app.oproject.CopyDesign(self._app.design_name)
         self._app.odesign.Undo()
         tempproj.oproject.Paste()
@@ -1650,7 +1682,7 @@ class ConfigurationsIcepak(Configurations):
         os.rmdir(directory)
         operation_dict = {"Source": {}, "Duplicate": {}}
         list_dictionaries = []
-        for key in ['NativeComponentInstanceWithParams', 'NativeComponentInstance', 'UserDefinedModel']:
+        for key in ["NativeComponentInstanceWithParams", "NativeComponentInstance", "UserDefinedModel"]:
             if dictionary.get(key, None):
                 if not isinstance(dictionary[key], list):
                     list_dictionaries.append(dictionary[key])
@@ -1676,12 +1708,16 @@ class ConfigurationsIcepak(Configurations):
                 for operation in clone_operations:
                     if operation["OperationType"] == "UDMDuplicateAlongLine":
                         counter_line += 1
-                        operation_dict["Source"][operation["ID"]] = ["DuplicateAlongLine:" + str(counter_line),
-                                                                     obj_name]
+                        operation_dict["Source"][operation["ID"]] = [
+                            "DuplicateAlongLine:" + str(counter_line),
+                            obj_name,
+                        ]
                     elif operation["OperationType"] == "UDMDuplicateAroundAxis":
                         counter_axis += 1
-                        operation_dict["Source"][operation["ID"]] = ["DuplicateAroundAxis:" + str(counter_axis),
-                                                                     obj_name]
+                        operation_dict["Source"][operation["ID"]] = [
+                            "DuplicateAroundAxis:" + str(counter_axis),
+                            obj_name,
+                        ]
                     elif operation["OperationType"] == "UDMDuplicateMirror":
                         counter_mirror += 1
                         operation_dict["Source"][operation["ID"]] = ["DuplicateMirror:" + str(counter_mirror), obj_name]
@@ -1712,8 +1748,8 @@ class ConfigurationsIcepak(Configurations):
             nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
             dict_out["native components"][instance_name]["Type"] = nc_type
             if (
-                    nc_type == "PCB"
-                    and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
+                nc_type == "PCB"
+                and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
             ):
                 nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
             dict_out["native components"][instance_name]["Properties"] = nc_props
@@ -1730,8 +1766,10 @@ class ConfigurationsIcepak(Configurations):
                             add_duplicate_dic_to_history(node_name, node, i)
                     else:
                         obj_history = None
-                    dict_out["native components"][instance_name]["Instances"][v.name] = {"CS": cs_name,
-                                                                                         "Operations": obj_history}
+                    dict_out["native components"][instance_name]["Instances"][v.name] = {
+                        "CS": cs_name,
+                        "Operations": obj_history,
+                    }
         if not self.options.export_coordinate_systems:
             self._export_coordinate_systems(dict_out)
 
@@ -1745,32 +1783,44 @@ class ConfigurationsIcepak(Configurations):
             old_objs = list(self._app.modeler.user_defined_components.keys())
             if operation_dict["Props"]["Command"] == "Move":
                 obj.move(
-                    [decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)])
+                    [decompose_variable_value(operation_dict["Props"]["Move Vector"][2 * i + 1])[0] for i in range(3)]
+                )
             elif operation_dict["Props"]["Command"] == "Rotate":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
                 obj.rotate(operation_dict["Props"]["Axis"], angle=rotation[0], unit=rotation[1])
             elif operation_dict["Props"]["Command"] == "Mirror":
-                obj.mirror([decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
-                            for i in range(3)],
-                           [decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
-                            for i in range(3)])
+                obj.mirror(
+                    [
+                        decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                    [
+                        decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                )
             elif operation_dict["Props"]["Command"] == "DuplicateAlongLine":
                 new_objs = obj.duplicate_along_line(
-                    [decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0]
-                     for i in range(3)],
+                    [decompose_variable_value(operation_dict["Props"]["Vector"][2 * i + 1])[0] for i in range(3)],
                     nclones=operation_dict["Props"]["Total Number"],
-                    attach_object=operation_dict["Props"]["Attach To Original Object"])
+                    attach_object=operation_dict["Props"]["Attach To Original Object"],
+                )
             elif operation_dict["Props"]["Command"] == "DuplicateAroundAxis":
                 rotation = decompose_variable_value(operation_dict["Props"]["Angle"])
-                new_objs = obj.duplicate_around_axis(operation_dict["Props"]["Axis"],
-                                                     angle=rotation[0],
-                                                     nclones=operation_dict["Props"]["Total Number"])
+                new_objs = obj.duplicate_around_axis(
+                    operation_dict["Props"]["Axis"], angle=rotation[0], nclones=operation_dict["Props"]["Total Number"]
+                )
             elif operation_dict["Props"]["Command"] == "DuplicateMirror":
-                new_objs = obj.duplicate_and_mirror(position=[decompose_variable_value(
-                    operation_dict["Props"]["Base Position"][2 * i + 1])[0] for i in range(3)],
-                                                    vector=[decompose_variable_value(
-                                                        operation_dict["Props"]['Normal Position'][2 * i + 1])[0] for i
-                                                            in range(3)])
+                new_objs = obj.duplicate_and_mirror(
+                    position=[
+                        decompose_variable_value(operation_dict["Props"]["Base Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                    vector=[
+                        decompose_variable_value(operation_dict["Props"]["Normal Position"][2 * i + 1])[0]
+                        for i in range(3)
+                    ],
+                )
             else:  # pragma: no cover
                 raise "Operation not supported"
             if new_objs:
@@ -1778,11 +1828,10 @@ class ConfigurationsIcepak(Configurations):
                 for new_obj in new_objs:
                     if native_dict[new_obj]["Operations"]:
                         for dup_obj in operation_dict["Props"]["Duplicate Object"]:
-                            for operation_name, operation_dict in native_dict[dup_obj][
-                                "Operations"].items():
+                            for operation_name, operation_dict in native_dict[dup_obj]["Operations"].items():
                                 apply_operations_to_native_components(
-                                    self._app.modeler.user_defined_components[new_obj],
-                                    operation_dict, native_dict)
+                                    self._app.modeler.user_defined_components[new_obj], operation_dict, native_dict
+                                )
             for operation_name, operation_dict in operation_dict["Children"].items():
                 apply_operations_to_native_components(obj, operation_dict, native_dict)
             self._app.modeler.set_working_coordinate_system(cache_cs)
@@ -1796,41 +1845,58 @@ class ConfigurationsIcepak(Configurations):
                 native = NativeComponentObject(self._app, native_dict["Type"], native_name, nc_dict)
                 prj_list = set(self._app.project_list)
                 definition_names = set(self._app.oeditor.Get3DComponentDefinitionNames())
-                instance_names = {def_name: set(self._app.oeditor.Get3DComponentInstanceNames(def_name))
-                                  for def_name in definition_names}
+                instance_names = {
+                    def_name: set(self._app.oeditor.Get3DComponentInstanceNames(def_name))
+                    for def_name in definition_names
+                }
                 if not native.create():
                     return False
                 try:
                     definition_names = list(set(self._app.oeditor.Get3DComponentDefinitionNames()) - definition_names)[
-                        0]
+                        0
+                    ]
                     instance_names = list(self._app.oeditor.Get3DComponentInstanceNames(definition_names))[0]
                 except:
-                    definition_names = [def_name for def_name in definition_names
-                                        if len(set(self._app.oeditor.Get3DComponentInstanceNames(def_name)
-                                                   ) - instance_names[def_name]) > 0][0]
+                    definition_names = [
+                        def_name
+                        for def_name in definition_names
+                        if len(set(self._app.oeditor.Get3DComponentInstanceNames(def_name)) - instance_names[def_name])
+                        > 0
+                    ][0]
                     instance_names = list(
-                        set(self._app.oeditor.Get3DComponentInstanceNames(definition_names)) - instance_names[
-                            definition_names])[0]
+                        set(self._app.oeditor.Get3DComponentInstanceNames(definition_names))
+                        - instance_names[definition_names]
+                    )[0]
                 native.component_name = definition_names
                 native.name = instance_names
-                if nc_dict['NativeComponentDefinitionProvider']['Type'] == "PCB" and nc_dict[
-                    'NativeComponentDefinitionProvider']['DefnLink']['Project']:
+                if (
+                    nc_dict["NativeComponentDefinitionProvider"]["Type"] == "PCB"
+                    and nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Project"]
+                ):
                     prj = list(set(self._app.project_list) - prj_list)[0]
-                    design = nc_dict['NativeComponentDefinitionProvider']['DefnLink']['Design']
+                    design = nc_dict["NativeComponentDefinitionProvider"]["DefnLink"]["Design"]
                     app = get_pyaedt_app(prj, design)
                     app.oproject.Close()
                 user_defined_component = UserDefinedComponent(
                     self._app.modeler, instance_names, nc_dict["NativeComponentDefinitionProvider"], native_dict["Type"]
                 )
                 self._app.modeler.user_defined_components[instance_names] = user_defined_component
-                new_name = [i for i in list(self._app.modeler.oeditor.Get3DComponentInstanceNames(
-                    user_defined_component.definition_name)) if i not in component3d_names][0]
+                new_name = [
+                    i
+                    for i in list(
+                        self._app.modeler.oeditor.Get3DComponentInstanceNames(user_defined_component.definition_name)
+                    )
+                    if i not in component3d_names
+                ][0]
                 self._app.modeler.refresh_all_ids()
                 self._app.materials._load_from_project()
                 if native.component_name not in self._app.native_components:
                     self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
                     for operation_name, operation_dict in instance_dict["Operations"].items():
-                        apply_operations_to_native_components(self._app.modeler.user_defined_components[new_name],
-                                                              operation_dict, native_dict["Instances"])
+                        apply_operations_to_native_components(
+                            self._app.modeler.user_defined_components[new_name],
+                            operation_dict,
+                            native_dict["Instances"],
+                        )
         return True
