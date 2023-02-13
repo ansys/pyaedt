@@ -1101,6 +1101,51 @@ class Primitives3D(Primitives, object):
         return p1
 
     @pyaedt_function_handler()
+    def _create_reference_cs_from_3dcomp(self, udm_obj, password):
+        """Create a new coordinate system from the 3d component reference one.
+
+        Returns
+        -------
+        str
+            Name of the created coordinate system that mirrors the reference one of the
+            3d component.
+        """
+        app = udm_obj.edit_definition(password=password)
+        wcs = app.modeler.oeditor.GetActiveCoordinateSystem()
+        if wcs != "Global":
+            temp_folder = os.path.join(self._app.toolkit_directory,
+                                       self._app.design_name,
+                                       generate_unique_name("temp_folder"))
+            os.mkdir(os.path.join(temp_folder))
+            new_proj_name = os.path.join(temp_folder,
+                                         generate_unique_name("project") + ".aedt")
+            app.save_project(new_proj_name)
+            o, q = app.modeler.invert_cs(wcs, to_global=True)
+            app.oproject.Close()
+            for root, dirs, files in os.walk(temp_folder, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(temp_folder)
+            phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
+            cs_name = udm_obj.name + "_" + wcs
+            if cs_name not in [i.name for i in self.modeler.coordinate_systems]:
+                self.modeler.create_coordinate_system(
+                    mode="zxz",
+                    origin=o,
+                    name=cs_name,
+                    reference_cs=udm_obj.target_coordinate_system,
+                    psi=psi,
+                    theta=theta,
+                    phi=phi
+                )
+            return cs_name
+        else:
+            app.oproject.Close()
+            return udm_obj.target_coordinate_system
+
+    @pyaedt_function_handler()
     def insert_3d_component(
         self,
         comp_file,
