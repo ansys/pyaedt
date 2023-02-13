@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 import re
 
 from pyaedt.generic.constants import AEDT_UNITS
@@ -150,6 +151,59 @@ class ModelerCircuit(Modeler):
                 pos2 = components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
         try:
             self.schematic.create_wire([pos1, pos2])
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def create_text(self, x_origin, y_origin):
+        """Draw Text.
+
+        Parameters
+        ----------
+        x_origin : float
+            x coordinate of the t .
+        y_origin : float
+            y coordinate of the t .
+
+        Returns
+        -------
+        bool
+             when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.CreateText
+
+        """
+        element_ids = []
+        for el in self.oeditor.GetAllElements():
+            element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
+        text_id = random.randint(20000, 23000)
+        while text_id in element_ids:
+            text_id = random.randint(20000, 23000)
+        args = [
+            "NAME:TextData",
+            "X:=", x_origin,
+            "Y:=", y_origin,
+            "Size:=", 12,
+            "Angle:=", 0,
+            "Text:=", "this is text I want to added",
+            "Color:=", 0,
+            "Id:=", text_id,
+            "ShowRect:=", False,
+            "X1:=", 0.0446616666666624,
+            "Y1:=", 0.0569383333333376,
+            "X2:=", 0.088443245614206,
+            "Y2:=", 0.0505883333333122,
+            "RectLineWidth:", 0,
+            "RectBorderColor:", 0,
+            "RectFill:=", 0,
+            "RectColor:=", 0
+        ]
+        try:
+            self.modeler.oeditor.CreateText(args)
             return True
         except:
             return False
