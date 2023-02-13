@@ -449,6 +449,32 @@ class UserDefinedComponent(object):
         self.__dict__ = {}
 
     @pyaedt_function_handler()
+    def duplicate_and_mirror(self, position, vector):
+        """Duplicate and mirror a selection.
+
+        Parameters
+        ----------
+        position : float
+            List of the ``[x, y, z]`` coordinates or
+            Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]`` coordinates or
+            Application.Position object for the vector.
+
+        Returns
+        -------
+        list
+            List of objects created or an empty list.
+
+        References
+        ----------
+
+        >>> oEditor.DuplicateMirror
+        """
+        return self._primitives.modeler.duplicate_and_mirror(self.name, position, vector,
+                                                                           is_3d_comp=True, duplicate_assignment=True)
+
+    @pyaedt_function_handler()
     def mirror(self, position, vector):
         """Mirror a selection.
 
