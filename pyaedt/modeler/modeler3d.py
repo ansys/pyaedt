@@ -337,8 +337,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if native_components:
                 out_dict["native components"] = config_dict["native components"]
                 cs_set = set()
-                for native_name, native_dict in out_dict["native components"].items():
-                    for instance_name, instance_dict in native_dict["Instances"].items():
+                for _, native_dict in out_dict["native components"].items():
+                    for _, instance_dict in native_dict["Instances"].items():
                         if instance_dict["CS"] and instance_dict["CS"] != "Global":
                             cs = instance_dict["CS"]
                             cs_set.add(cs)

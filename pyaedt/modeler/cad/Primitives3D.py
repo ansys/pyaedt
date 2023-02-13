@@ -1282,8 +1282,8 @@ class Primitives3D(Primitives, object):
                                 + "_"
                                 + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
                             )
-                for nc, ncdict in aux_dict["native components"].items():
-                    for inst, inst_dict in ncdict["Instances"].items():
+                for _, ncdict in aux_dict["native components"].items():
+                    for _, inst_dict in ncdict["Instances"].items():
                         if inst_dict["CS"]:
                             if inst_dict["CS"] != "Global":
                                 inst_dict["CS"] = udm_obj.name + "_" + inst_dict["CS"]

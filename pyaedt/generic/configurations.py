@@ -1377,7 +1377,7 @@ class ConfigurationsOptionsIcepak(ConfigurationsOptions):
     def import_native_components(self):
         return self._import_native_components
 
-    @import_monitor.setter
+    @import_native_components.setter
     def import_native_components(self, val):
         self._import_native_components = val
 
@@ -1385,7 +1385,7 @@ class ConfigurationsOptionsIcepak(ConfigurationsOptions):
     def export_native_components(self):
         return self._export_native_components
 
-    @export_monitor.setter
+    @export_native_components.setter
     def export_native_components(self, val):
         self._export_native_components = val
 
@@ -1416,7 +1416,7 @@ class ConfigurationsIcepak(Configurations):
                         chr(34) + val.get("SurfaceMaterial") + chr(34),
                     ]
                 )
-            except:
+            except TypeError:
                 arg2.append(
                     [
                         "NAME:Surface Material",
@@ -1608,7 +1608,9 @@ class ConfigurationsIcepak(Configurations):
                             return
 
     @pyaedt_function_handler()
-    def import_config(self, config_file, exclude_set=set()):
+    def import_config(self, config_file, exclude_set=None):
+        if exclude_set is None:
+            exclude_set = set()
         with open(config_file) as json_file:
             dict_in = json.load(json_file)
         self.results._reset_results()
@@ -1722,10 +1724,10 @@ class ConfigurationsIcepak(Configurations):
                         counter_mirror += 1
                         operation_dict["Source"][operation["ID"]] = ["DuplicateMirror:" + str(counter_mirror), obj_name]
         duplicate_dict = {}
-        for id, prop in operation_dict["Source"].items():
+        for operation_id, prop in operation_dict["Source"].items():
             if not duplicate_dict.get(prop[1], None):
                 duplicate_dict[prop[1]] = {}
-            duplicate_dict[prop[1]][prop[0]] = operation_dict["Duplicate"][id]
+            duplicate_dict[prop[1]][prop[0]] = operation_dict["Duplicate"][operation_id]
         return duplicate_dict
 
     @pyaedt_function_handler
@@ -1828,7 +1830,7 @@ class ConfigurationsIcepak(Configurations):
                 for new_obj in new_objs:
                     if native_dict[new_obj]["Operations"]:
                         for dup_obj in operation_dict["Props"]["Duplicate Object"]:
-                            for operation_name, operation_dict in native_dict[dup_obj]["Operations"].items():
+                            for _, operation_dict in native_dict[dup_obj]["Operations"].items():
                                 apply_operations_to_native_components(
                                     self._app.modeler.user_defined_components[new_obj], operation_dict, native_dict
                                 )
@@ -1837,7 +1839,7 @@ class ConfigurationsIcepak(Configurations):
             self._app.modeler.set_working_coordinate_system(cache_cs)
             return True
 
-        for instance_name, instance_dict in native_dict["Instances"].items():
+        for _, instance_dict in native_dict["Instances"].items():
             if instance_dict["CS"]:
                 nc_dict = copy.deepcopy(native_dict["Properties"])
                 nc_dict["TargetCS"] = instance_dict["CS"]
@@ -1893,7 +1895,7 @@ class ConfigurationsIcepak(Configurations):
                 if native.component_name not in self._app.native_components:
                     self._app._native_components.append(native)
                 if instance_dict.get("Operations", None):
-                    for operation_name, operation_dict in instance_dict["Operations"].items():
+                    for _, operation_dict in instance_dict["Operations"].items():
                         apply_operations_to_native_components(
                             self._app.modeler.user_defined_components[new_name],
                             operation_dict,
