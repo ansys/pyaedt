@@ -342,6 +342,28 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
+    def v_rotate_about_axis(vector, angle, axis='z'):
+        angle = math.radians(angle)
+        x, y, z = vector
+        axis=axis.lower()
+        if axis == 'z':
+            rotated_x = x * math.cos(angle) - y * math.sin(angle)
+            rotated_y = x * math.sin(angle) + y * math.cos(angle)
+            rotated_z = z
+        elif axis == 'y':
+            rotated_x = x * math.cos(angle) + z * math.sin(angle)
+            rotated_y = y
+            rotated_z = -x * math.sin(angle) + z * math.cos(angle)
+        elif axis == 'x':
+            rotated_x = x
+            rotated_y = y * math.cos(angle) - z * math.sin(angle)
+            rotated_z = y * math.sin(angle) + z * math.cos(angle)
+        else:
+            raise ValueError("Invalid axis. Choose 'x', 'y', or 'z'.")
+        return rotated_x, rotated_y, rotated_z
+
+    @staticmethod
+    @pyaedt_function_handler()
     def v_sub(a, b):
         """Evaluate two geometry vectors by subtracting them (a-b).
 
@@ -2014,3 +2036,13 @@ class GeometryOperators(object):
         else:
             return False
         # fmt: on
+
+    @staticmethod
+    @pyaedt_function_handler
+    def reflect_point(start, reference, vector):
+        distance = [start[i] - reference[i] for i in range(3)]
+        vector_norm = GeometryOperators.v_norm(vector)
+        vector = [vector[i]/vector_norm for i in range(3)]
+        dot_product = sum([distance[i] * vector[i] for i in range(3)])
+        reflection = [-dot_product * vector[i]*2 + start[i] for i in range(3)]
+        return reflection
