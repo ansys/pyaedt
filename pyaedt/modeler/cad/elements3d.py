@@ -571,7 +571,9 @@ class FacePrimitive(object):
         .. note::
            It returns the face centroid if number of face vertex is >1.
            It tries to get AEDT Face Center in case of single vertex face
-           and returns the vertex position otherwise.
+           and returns the vertex position otherwise. If the face has no
+           vertices, and it is not planar, the function returns the centroid
+           of the face edges.
 
         Returns
         -------
@@ -591,7 +593,19 @@ class FacePrimitive(object):
             if center:
                 return center
             else:
-                return self.vertices[0].position
+                if self.vertices:
+                    return self.vertices[0].position
+                else:
+                    centroid = [0, 0, 0]
+                    eval_points = 4
+                    for edge in self.edges:
+                        centroid = GeometryOperators.v_sum(
+                            centroid, GeometryOperators.get_polygon_centroid(
+                                [[float(i) for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
+                                    edge.id, pos/eval_points)] for pos in range(0, eval_points, 1)]
+                            )
+                        )
+                    return GeometryOperators.v_prod(1 / len(self.edges), centroid)
 
     @property
     def area(self):
