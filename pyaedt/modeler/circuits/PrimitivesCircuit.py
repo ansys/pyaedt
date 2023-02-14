@@ -1195,11 +1195,13 @@ class CircuitComponents(object):
         try:
             wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
             w = Wire(self._modeler)
+            count = 0
             for segment in self._app.oeditor.GetWireSegments(wire_id):
-                key = "Segment{}".format(segment.split(" ")[3])
+                key = "Segment{}".format(count)
                 point1 = [float(x) for x in segment.split(" ")[1].split(",")]
                 point2 = [float(x) for x in segment.split(" ")[2].split(",")]
                 w.points_in_segment[key] = [point1, point2]
+                count = count + 1
             if ":" in wire_id.split(";")[1]:
                 wire_id = int(wire_id.split(";")[1].split(":")[0])
             else:
