@@ -182,9 +182,6 @@ class Hfss(FieldAnalysis3D, object):
             aedt_process_id,
         )
         self._field_setups = []
-        from pyaedt.toolkits.antennas import Antennas
-
-        self.antennas = Antennas(self)
 
     def __enter__(self):
         return self

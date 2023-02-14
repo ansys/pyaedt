@@ -1,5 +1,5 @@
 codecov==2.1.12
-ipython==8.9.0
+ipython==8.10.0
 joblib==1.2.0
 matplotlib==3.6.3
 numpy==1.21.6; python_version <= '3.7'
@@ -9,7 +9,7 @@ osmnx
 pandas==1.5.3
 pytest==7.2.1
 pytest-cov==4.0.0
-pytest-xdist==3.1.0
+pytest-xdist==3.2.0
 pyvista==0.38.1
 scikit-learn==1.2.1
 SRTM.py
