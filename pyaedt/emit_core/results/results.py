@@ -1,4 +1,5 @@
 import warnings
+
 from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.emit_core.results.revision import Revision
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -60,16 +61,16 @@ class Results:
     @pyaedt_function_handler()
     def delete_revision(self, revision_name):
         """Delete the specified revision from the results.
-        
+
         Parameters
         ----------
         revision_name : str
             Name of the revision.
-            
+
         Returns
         -------
         None
-        
+
         Examples
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
@@ -78,13 +79,14 @@ class Results:
             self.design.DeleteResult(revision_name)
             if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
                 self.emit_project._emit_api.close()
-                self.current_revision = None            
+                self.current_revision = None
             for rev in self.revisions:
                 if revision_name in rev.name:
                     self.revisions.remove(rev)
                     break
             else:
                 warnings.warn("{} does not exist".format(revision_name))
+
     @staticmethod
     def interaction_domain():
         """
@@ -126,18 +128,18 @@ class Results:
     def revision_names(self):
         """
         Return a list of all the revision names.
-        
+
         Parameters
         ----------
         None
-        
+
         Returns
         -------
         revision_names : list str
             List of all revision names.
         """
         return [rev.name for rev in self.revisions]
-    
+
     @pyaedt_function_handler()
     def analyze(self, revision_name=None):
         """
