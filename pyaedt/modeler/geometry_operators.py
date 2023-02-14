@@ -342,8 +342,28 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def v_rotate_about_axis(vector, angle, axis="z"):
-        angle = math.radians(angle)
+    def v_rotate_about_axis(vector, angle, radians=False, axis="z"):
+        """Evaluate rotation of a vector around an axis.
+
+        Parameters
+        ----------
+        vector : list
+            List of the three component of the vector.
+        angle : float
+            Angle by which the vector is to be rotated (radians or degree).
+        radians : bool, optional
+            Whether the angle is expressed in radians. Default is ``False``.
+        axis : str, optional
+            Axis about which to rotate the vector. Default is ``"z"``.
+
+        Returns
+        -------
+        list
+            List of values for the result vector.
+
+        """
+        if not radians:
+            angle = math.radians(angle)
         x, y, z = vector
         axis = axis.lower()
         if axis == "z":
@@ -2039,7 +2059,24 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler
-    def reflect_point(start, reference, vector):
+    def mirror_point(start, reference, vector):
+        """Mirror point about a plane defining by a point on the plane and a normal point.
+
+        Parameters
+        ----------
+        start : list
+            Point to be mirrored
+        reference : list
+            The reference point. Point on the plane around which you want to mirror the object.
+        vector : list
+            Normalized vector used for the mirroring.
+
+        Returns
+        -------
+        List
+            List of the reflected point.
+
+        """
         distance = [start[i] - reference[i] for i in range(3)]
         vector_norm = GeometryOperators.v_norm(vector)
         vector = [vector[i] / vector_norm for i in range(3)]

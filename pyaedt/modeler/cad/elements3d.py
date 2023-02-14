@@ -1415,6 +1415,13 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
+        """Create dictionary from the Binary Tree
+
+        Returns
+        -------
+        dict
+            Dictionary containing the information of the Binary Three.
+        """
         return self._jsonalize_tree(binary_tree_node=self)
 
     @pyaedt_function_handler
@@ -1437,8 +1444,32 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def suppress_all(self, app):
+        """Suppress all the operations contained in the binary tree node.
+
+        Parameters
+        ----------
+        app : object
+            An AEDT application from ``pyaedt.application``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+        """
         return self._suppress(self, app, True)
 
     @pyaedt_function_handler
     def unsuppress_all(self, app):
+        """Un-suppress all the operations contained in the binary tree node.
+
+        Parameters
+        ----------
+        app : object
+            An AEDT application from ``pyaedt.application``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+        """
         return self._suppress(self, app, False)

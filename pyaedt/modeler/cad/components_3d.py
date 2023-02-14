@@ -702,12 +702,12 @@ class UserDefinedComponent(object):
         return x_min, y_min, z_min, x_max, y_max, z_max
 
     def get_component_center(self):
-        """Get center coordinates of a user defined model
+        """Get center coordinates of a user defined model.
 
         Returns
         -------
         list
-            List of floats containing [x_center, y_center, z_center]
+            List of floats containing [x_center, y_center, z_center].
 
         """
         x_min, y_min, z_min, x_max, y_max, z_max = self.get_component_bounding_dimension()
