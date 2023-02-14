@@ -579,6 +579,7 @@ class TestClass(BasisTest, object):
             assert interaction2.is_valid()
             self.aedtapp.results.delete_revision(rev.name)
             assert not interaction.is_valid() 
+            assert not interaction2.is_valid()
             domain.set_receiver("dummy")
             assert not rev.name in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
