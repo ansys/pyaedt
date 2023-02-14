@@ -4,16 +4,12 @@ HFSS: Inductive Iris waveguide filter
 This example shows how to build and analyze a 4-pole
 X-Band waveguide filter using inductive irises.
 
-Note that this example uses the Python package SymPy to
-evaluate expressions.
 """
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform required imports. Note the dependence on
-# SymPy is used to evaluate expressions. SymPy is not
-# a default requirement in PyAEDT and is only compatible
-# with a CPython version later than 3.6.
+# Perform required imports.
+#
 
 import os
 import tempfile
@@ -21,15 +17,20 @@ import pyaedt
 from pyaedt import general_methods
 
 ###############################################################################
-# Launch AEDT
-# ~~~~~~~~~~~
+# Launch Ansys Electronics Desktop (AEDT)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 
 
 ###############################################################################
-# Define values for waveguide iris filter
+# Define parameters and values for waveguide iris filter
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define values for the wavequide iris filter.
+# l: Length of the cavity from the mid-point of one iris
+#    to the midpoint of the next iris.
+# w: Width of the iris opening.
+# a: Long dimension of the waveguide cross-section (X-Band)
+# b: Short dimension of the waveguide cross-section.
+# t: Metal thickness of the iris insert.
 
 wgparams = {'l': [0.7428, 0.82188],
             'w': [0.50013, 0.3642, 0.3458],
@@ -41,11 +42,16 @@ wgparams = {'l': [0.7428, 0.82188],
 non_graphical = False
 new_thread = True
 
+###############################################################################
+# Save the project and results in the TEMP folder
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-project_folder = tempfile.gettempdir()
-project_name = project_folder + "\\" + general_methods.generate_unique_name("wgf", n=2)
+project_folder = os.path.join(tempfile.gettempdir(), "waveguide_example")
+if not os.path.exists(project_folder):
+    os.mkdir(project_folder)
+project_name = os.path.join(project_folder, general_methods.generate_unique_name("wgf", n=2))
 
-# Connect to an existing instance if it exits.
+# Instantiate the HFSS application
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    specified_version="2022.2",
                    designname="filter",
@@ -59,7 +65,6 @@ var_mapping = dict()  # Used by parse_expr to parse expressions.
 ###############################################################################
 # Initialize design parameters in HFSS.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Initialize design parameters in HFSS.
 
 hfss.modeler.model_units = "in"  # Set to inches
 for key in wgparams:
@@ -103,7 +108,7 @@ def place_iris(zpos, dz, n):
 ###############################################################################
 # Place irises
 # ~~~~~~~~~~~~
-# Place the irises from inner (highest integer) to outer (1).
+# Place the irises from inner (highest integer) to outer.
 
 for count in reversed(range(1, len(wgparams['w']) + 1)):
     if count < len(wgparams['w']):  # Update zpos
@@ -120,28 +125,32 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 ###############################################################################
 # Draw full waveguide with ports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Draw the full waveguide with ports.
-# parse_expr() is used to determine the numerical position
-# of the integration line endpoints on the waveguide port.
 
-
-var_mapping['port_extension'] = 1.5 * wgparams['l'][0]  # Used to evaluate expression with parse_expr()
+var_mapping['port_extension'] = 1.5 * wgparams['l'][0]
 hfss['port_extension'] = str(var_mapping['port_extension']) + wgparams['units']
 hfss["wg_z_start"] = "-(" + zpos + ") - port_extension"
 hfss["wg_length"]  = "2*(" + zpos + " + port_extension )"
 wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
-hfss["u_end"]  = "a/2"
+hfss["u_end"] = "a/2"
 hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
                         name="waveguide", matname="vacuum")
 
 ###############################################################################
-# Use parse_expr() to evaluate the numerical Cartesian coordinates
-# needed to specify start and end points of the integration line
-# on the port surfaces.
-#
+# Draw the waveguide "box."
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# wg_z is the total waveguide length, including port extension.
+# Note that the .evaluated_value property returns the numerical value of an
+# expression in Electronics Desktop.
+
 wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_value + wg_length.numeric_value, "in")]
+
+###############################################################################
+# Assign wave ports to the end faces of the waveguid
+# and define the calibration lines to ensure self-consistent
+# polarization between wave ports.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 count = 0
 ports = []
@@ -152,9 +161,12 @@ for n, z in enumerate(wg_z):
 
     ports.append(hfss.create_wave_port(face_id, u_start, u_end, portname="P" + str(n + 1), renorm=False))
 
-#################################################################################
-#  For allowed values for ``setuptype``, see
-# ``pyaedt.modules.SetupTemplates.SolveSweeps.SetupNames.``
+###############################################################################
+# Insert the mesh adaptation setup using refinement at two frequencies.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This approach is very useful for resonant structures as the coarse initial
+# mesh impacts the resonant frequency and hence, the field propagation through the
+# filter.
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
                            MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
@@ -176,18 +188,19 @@ setup.create_frequency_sweep(
 
 setup.analyze(num_tasks=2)
 
+###############################################################################
+# Generate S-Parameter Plots
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #################################################################################
 #  The following commands fetch solution data from HFSS for plotting directly
 #  from the Python interpreter.
 #  Caution: The syntax for expressions must be identical to that used
 #  in HFSS.
 
-Are you able to use " .. caution::" and note directives in code comments?
-
-
 traces_to_plot = hfss.get_traces_for_plot(second_element_filter="P1*")
 report = hfss.post.create_report(traces_to_plot)  # Creates a report in HFSS
 solution = report.get_solution_data()
 plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 
+hfss.save_project()
 hfss.release_desktop()
