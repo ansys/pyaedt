@@ -724,6 +724,22 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.schematic.create_wire(
             [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
         )
+        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], wire_name="wire_test1")
+        wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
+        for key in wire_keys:
+            if self.aedtapp.modeler.schematic.wires[key].name == "wire_test1":
+                assert len(self.aedtapp.modeler.schematic.wires[key].points_in_segment) == 1
+                assert self.aedtapp.modeler.schematic.wires[key].id == key
+                for seg_key in list(self.aedtapp.modeler.schematic.wires[key].points_in_segment.keys()):
+                    point_list = [
+                        round(x, 2)
+                        for y in self.aedtapp.modeler.schematic.wires[key].points_in_segment[seg_key]
+                        for x in y
+                    ]
+                    assert point_list[0] == 0.02
+                    assert point_list[1] == 0.02
+                    assert point_list[2] == 0.04
+                    assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self):
         assert self.aedtapp.modeler.wire.display_wire_properties(
