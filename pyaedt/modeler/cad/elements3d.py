@@ -1444,7 +1444,7 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def suppress_all(self, app):
-        """Suppress all the operations contained in the binary tree node.
+        """Activate suppress option for all the operations contained in the binary tree node.
 
         Parameters
         ----------
@@ -1460,7 +1460,7 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def unsuppress_all(self, app):
-        """Un-suppress all the operations contained in the binary tree node.
+        """Disable suppress option for all the operations contained in the binary tree node.
 
         Parameters
         ----------
