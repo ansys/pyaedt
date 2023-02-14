@@ -42,7 +42,7 @@ hfss.mesh.assign_initial_mesh_from_slider(applycurvilinear=True)
 # ~~~~~~~~~~~~~~~~
 # Create input variables for creating the flex cable CPWG.
 
-total_length = 300
+total_length = 500
 theta = 120
 r = 100
 width = 3
@@ -198,7 +198,7 @@ hfss.create_linear_count_sweep(
     setupname="setup1",
     unit="GHz",
     freqstart=1e-1,
-    freqstop=4,
+    freqstop=5,
     num_of_freq_points=101,
     sweepname="sweep1",
     save_fields=False,
