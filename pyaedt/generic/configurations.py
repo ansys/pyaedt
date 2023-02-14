@@ -1834,7 +1834,7 @@ class ConfigurationsIcepak(Configurations):
                                 apply_operations_to_native_components(
                                     self._app.modeler.user_defined_components[new_obj], operation_dict, native_dict
                                 )
-            for operation_name, operation_dict in operation_dict["Children"].items():
+            for _, operation_dict in operation_dict["Children"].items():
                 apply_operations_to_native_components(obj, operation_dict, native_dict)
             self._app.modeler.set_working_coordinate_system(cache_cs)
             return True
