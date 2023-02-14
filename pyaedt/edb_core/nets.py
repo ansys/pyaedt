@@ -392,7 +392,7 @@ class EdbNets(object):
                 continue
             net_name = poly.net_name
             layer_name = poly.layer_name
-            if nets and (net_name not in nets or layer_name not in layers):
+            if nets and (net_name != "" and net_name not in nets or layer_name not in layers):
                 continue
             xt, yt = poly.points()
             if not xt:
@@ -444,10 +444,16 @@ class EdbNets(object):
                     create_label = True
 
             if create_label and n_label <= max_labels:
-                objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                if layer_name == "Outline":
+                    objects_lists.append([vertices, codes, label_colors[label], label, 1.0, 2.0, "contour"])
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
                 n_label += 1
             else:
-                objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
+                if layer_name == "Outline":
+                    objects_lists.append([vertices, codes, label_colors[label], None, 1.0, 2.0, "contour"])
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
 
         for circle in self._pedb.core_primitives.circles:
             if circle.is_void:
