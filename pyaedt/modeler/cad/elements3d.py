@@ -1415,7 +1415,7 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def jsonalize_tree(self):
-        """Create dictionary from the Binary Tree
+        """Create dictionary from the Binary Tree.
 
         Returns
         -------
