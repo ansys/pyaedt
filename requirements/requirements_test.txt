@@ -10,7 +10,7 @@ pandas==1.5.3
 pytest==7.2.1
 pytest-cov==4.0.0
 pytest-xdist==3.2.0
-pyvista==0.38.1
+pyvista==0.38.2
 scikit-learn==1.2.1
 SRTM.py
 utm
