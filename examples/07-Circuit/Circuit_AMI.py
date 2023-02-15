@@ -37,7 +37,7 @@ desktopVersion = "2022.2"
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 NewThread = True
 
 ###############################################################################

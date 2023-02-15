@@ -826,6 +826,7 @@ class Wire(object):
         self._modeler = modeler
         self.name = ""
         self.id = 0
+        self.points_in_segment = {}
 
     @property
     def _oeditor(self):

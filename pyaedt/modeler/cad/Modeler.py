@@ -2486,13 +2486,13 @@ class GeometryModeler(Modeler, object):
         return bounding
 
     @pyaedt_function_handler()
-    def convert_to_selections(self, objtosplit, return_list=False):
+    def convert_to_selections(self, object_id, return_list=False):
         """Convert one or more object to selections.
 
         Parameters
         ----------
-        objtosplit : str, int, list
-            One or more objects to convert to selections. A list can contain
+        object_id : str, int, list
+            One or more object IDs whose name will be returned. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
             Whether to return a list of the selections. The default is
@@ -2502,17 +2502,17 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         str or list
-           String or list of the selections.
+           Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
-        if "netref.builtins.list" in str(type(objtosplit)):
+        if "netref.builtins.list" in str(type(object_id)):
             list_new = []
-            for i in range(len(objtosplit)):
-                list_new.append(objtosplit[i])
-        elif not isinstance(objtosplit, list):
-            objtosplit = [objtosplit]
+            for i in range(len(object_id)):
+                list_new.append(object_id[i])
+        elif not isinstance(object_id, list):
+            object_id = [object_id]
         objnames = []
-        for el in objtosplit:
+        for el in object_id:
             if isinstance(el, int) and el in list(self.objects.keys()):
                 objnames.append(self.objects[el].name)
             elif isinstance(el, int):
@@ -2581,7 +2581,7 @@ class GeometryModeler(Modeler, object):
         self.refresh_all_ids()
         return [selections] + [i for i in self.object_names if i not in all_objs]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
     def duplicate_and_mirror(
         self,
         objid,
@@ -2617,32 +2617,13 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.DuplicateMirror
         """
-        selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self._pos_with_arg(position)
-        Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
-
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:DuplicateToMirrorParameters"]
-        vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
-        vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
-        vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
-        vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
-        vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
-        vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
-        vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        if is_3d_comp:
-            orig_3d = [i for i in self.user_defined_component_names]
-        added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
-        self.add_new_objects()
-        if is_3d_comp:
-            added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
-            if added_3d_comps:
-                self.logger.info("Found 3D Components Duplication")
-                return added_3d_comps
-        return added_objs
+        return self.mirror(
+            objid, position, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
+        )
+        # selections = self.convert_to_selections(objid)
 
     @pyaedt_function_handler()
-    def mirror(self, objid, position, vector):
+    def mirror(self, objid, position, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
         """Mirror a selection.
 
         Parameters
@@ -2651,37 +2632,65 @@ class GeometryModeler(Modeler, object):
             Name or ID of the object.
         position : int or float
             List of the ``[x, y, z]`` coordinates or the
-            Application.Position object for the selection.
+            ``Application.Position`` object for the selection.
+        duplicate : bool, optional
+            Whether if duplicate the object before mirror or not. Default is ``False``.
+        is_3d_comp : bool, optional
+            Whether the component is 3D. The default is ``False``. If ``True``, the method
+            tries to return the duplicated list of 3D components.
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
-            the Application.Position object for the vector.
+            the ``Application.Position`` object for the vector.
+        duplicate_assignment : bool, optional
+            Whether to duplicate selection assignments. The default is ``True``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        bool, list
+            List of objects created or ``True`` when successful, ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Mirror
+        >>> oEditor.DuplicateMirror
         """
+
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
+        if duplicate:
+            vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            vArg2 = ["NAME:DuplicateToMirrorParameters"]
+            vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
+            vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
+            vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
+            vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
+            vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
+            vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
+            vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+            if is_3d_comp:
+                orig_3d = [i for i in self.user_defined_component_names]
+            added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
+            self.add_new_objects()
+            if is_3d_comp:
+                added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
+                if added_3d_comps:
+                    self.logger.info("Found 3D Components Duplication")
+                    return added_3d_comps
+            return added_objs
+        else:
+            vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            vArg2 = ["NAME:MirrorParameters"]
+            vArg2.append("MirrorBaseX:="), vArg2.append(Xpos)
+            vArg2.append("MirrorBaseY:="), vArg2.append(Ypos)
+            vArg2.append("MirrorBaseZ:="), vArg2.append(Zpos)
+            vArg2.append("MirrorNormalX:="), vArg2.append(Xnorm)
+            vArg2.append("MirrorNormalY:="), vArg2.append(Ynorm)
+            vArg2.append("MirrorNormalZ:="), vArg2.append(Znorm)
 
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:MirrorParameters"]
-        vArg2.append("MirrorBaseX:="), vArg2.append(Xpos)
-        vArg2.append("MirrorBaseY:="), vArg2.append(Ypos)
-        vArg2.append("MirrorBaseZ:="), vArg2.append(Zpos)
-        vArg2.append("MirrorNormalX:="), vArg2.append(Xnorm)
-        vArg2.append("MirrorNormalY:="), vArg2.append(Ynorm)
-        vArg2.append("MirrorNormalZ:="), vArg2.append(Znorm)
-
-        self.oeditor.Mirror(vArg1, vArg2)
-
-        return True
+            self.oeditor.Mirror(vArg1, vArg2)
+            return True
 
     @pyaedt_function_handler()
     def move(self, objid, vector):
@@ -4730,8 +4739,8 @@ class GeometryModeler(Modeler, object):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def break_spaceclaim_connection(self):
-        """Break the connection with SpaceClaim.
+    def break_spaceclaim_connection(self):  # TODO: Need to change this name. Don't use "break".
+        """Disconnect from the running SpaceClaim instance.
 
         Returns
         -------

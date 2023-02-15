@@ -12,6 +12,33 @@ import numpy as np
 import json
 from sphinx_gallery.sorting import FileNameSortKey
 from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_black
+from importlib import import_module
+from pprint import pformat
+from docutils.parsers.rst import Directive
+from docutils import nodes
+from sphinx import addnodes
+
+class PrettyPrintDirective(Directive):
+    """Renders a constant using ``pprint.pformat`` and inserts into the document."""
+    required_arguments = 1
+
+    def run(self):
+        module_path, member_name = self.arguments[0].rsplit('.', 1)
+
+        member_data = getattr(import_module(module_path), member_name)
+        code = pformat(member_data, 2, width=68)
+
+        literal = nodes.literal_block(code, code)
+        literal['language'] = 'python'
+
+        return [
+                addnodes.desc_name(text=member_name),
+                addnodes.desc_content('', literal)
+        ]
+
+
+def setup(app):
+    app.add_directive('pprint', PrettyPrintDirective)
 
 
 
@@ -38,9 +65,11 @@ else:
 release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
+
+
 # -- General configuration ---------------------------------------------------
 
-# Add any Sphinx_PyAEDT extension module names here, as strings. They can be
+# Add any Sphinx_PyAEDT extension module names here as strings. They can be
 # extensions coming with Sphinx_PyAEDT (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [

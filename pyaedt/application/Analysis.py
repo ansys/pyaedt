@@ -39,12 +39,12 @@ from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.MaterialLib import Materials
-from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
+from pyaedt.modules.SolveSweeps import SetupProps
 
 
 class Analysis(Design, object):
@@ -1236,7 +1236,8 @@ class Analysis(Design, object):
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
-            Either if use or not auto settings in task/cores. It is not supported by all Setup.
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
 
         Returns
         -------
@@ -1275,64 +1276,7 @@ class Analysis(Design, object):
         return setup_name
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
-        """Create a setup.
-
-        Parameters
-        ----------
-        setupname : str, optional
-            Name of the setup. The default is ``"MySetupAuto"``.
-        setuptype : optional
-            Type of the setup. The default is ``None``, in which case
-            the default type is applied.
-        props : dict, optional
-            Dictionary of analysis properties appropriate for the design and analysis.
-            If no values are passed, default values are used.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS` or :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
-
-        References
-        ----------
-
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-        Create a setup for SBR+ setup using advanced Doppler
-        processing for automotive radar.
-
-        >>> import pyaedt
-        >>> hfss = pyaedt.Hfss(solution_type='SBR+')
-        >>> setup1 = hfss.create_setup(setupname='Setup1')
-        >>> setup1.props["IsSbrRangeDoppler"] = True
-        >>> setup1.props["SbrRangeDopplerTimeVariable"] = "time_var"
-        >>> setup1.props["SbrRangeDopplerCenterFreq"] = "76.5GHz"
-        >>> setup1.props["SbrRangeDopplerRangeResolution"] = "0.15meter"
-        >>> setup1.props["SbrRangeDopplerRangePeriod"] = "100meter"
-        >>> setup1.props["SbrRangeDopplerVelocityResolution"] = "0.2m_per_sec"
-        >>> setup1.props["SbrRangeDopplerVelocityMin"] = "-30m_per_sec"
-        >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
-        >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
-        >>> setup1.props["MaxNumberOfBounces"] = "3"
-        ...
-        pyaedt INFO: Sweep was created correctly.
-        >>> setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=True)
-        >>> setup1.add_subrange("LinearCount", 10, 20, 10, clear=False)
-
-
-        Create a setup for Q3d and add a sweep on it.
-
-        >>> import pyaedt
-        >>> q = pyaedt.Q3d()
-        >>> setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
-        >>> sw1 = setup1.add_sweep()
-        >>> sw1.props["RangeStart"] = "1MHz"
-        >>> sw1.props["RangeEnd"] = "100MHz"
-        >>> sw1.props["RangeStep"] = "5MHz"
-        >>> sw1.update()
-        """
+    def _create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
         if props is None:
             props = {}
 
@@ -1349,6 +1293,8 @@ class Analysis(Design, object):
             setup = SetupHFSS(self, setuptype, name)
 
         if self.design_type == "HFSS":
+            # Handle the situation when ports have not been defined.
+
             if not self.excitations and "MaxDeltaS" in setup.props:
                 new_dict = OrderedDict()
                 setup.auto_update = False
@@ -2025,7 +1971,8 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def value_with_units(self, value, units=None):
-        """Combine a number and a string containing the unit in a single string e.g. "1.2mm".
+        """Combine a number and a string containing the modeler length unit in a single
+        string e.g. "1.2mm".
         If the units are not specified, the model units are used.
         If value is a string (like containing an expression), it is returned as is.
 
@@ -2034,7 +1981,17 @@ class Analysis(Design, object):
         value : float, int, str
             Value of the number or string containing an expression.
         units : str, optional
-            Units to combine with value.
+            Units to combine with value. Valid values are defined in the native API documentation.
+            Some common examples are:
+            "in": inches
+            "cm": centimeter
+            "um":  micron
+            "mm": millimeter
+            "meter": meters
+            "mil": 0.001 inches (mils)
+            "km": kilometer
+            "ft": feet
+
 
         Returns
         -------
