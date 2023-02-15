@@ -5,6 +5,9 @@ This example shows how to build and analyze a 4-pole
 X-Band waveguide filter using inductive irises.
 
 """
+
+# sphinx_gallery_thumbnail_path = 'Resources/wgf.png'
+
 ###############################################################################
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,19 +92,18 @@ else:
 ###############################################################################
 # Draw parametric waveguide filter
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Define a function that places a single iris given the longitudinal (z) position,
-# thickness, and an integer, n, defining which iris is being placed.  Numbering
-# is tol go from the largest value (interior of the filter) to 1, which is the first
+# Define a function to place each iris at the correct longitudinal (z) position,
+# Loop from the largest index (interior of the filter) to 1, which is the first
 # iris nearest the waveguide ports.
 
 def place_iris(zpos, dz, n):
     w_str = "w" + str(n)  # Iris width parameter as a string.
-    this_name = "iris_a_"+str(n)  # Iris object name
-    iris = []  # Return a list of the two iris objects.
+    this_name = "iris_a_"+str(n)  # Iris object name in the HFSS project.
+    iris = []  # Return a list of the two objects that make up the iris.
     if this_name in hfss.modeler.object_names:
         this_name = this_name.replace("a", "c")
     iris.append(hfss.modeler.primitives.create_box(['-b/2', '-a/2', zpos], ['(b - ' + w_str + ')/2', 'a',  dz],
-                                                     name=this_name , matname="silver"))
+                                                    name=this_name, matname="silver"))
     iris.append(iris[0].mirror([0, 0, 0], [1, 0, 0], duplicate=True))
     return iris
 
@@ -125,11 +127,16 @@ for count in reversed(range(1, len(wgparams['w']) + 1)):
 ###############################################################################
 # Draw full waveguide with ports
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Use ``hfss.variable_manager`` which acts like a dict() to return an instance of
+# the ``pyaedt.application.Variables.VariableManager`` class for any variable.
+# The ``VariableManager`` instance takes the HFSS variable name as a key.
+# ``VariableManager`` properties enable access to update, modify and
+# evaluate variables.
 
 var_mapping['port_extension'] = 1.5 * wgparams['l'][0]
 hfss['port_extension'] = str(var_mapping['port_extension']) + wgparams['units']
 hfss["wg_z_start"] = "-(" + zpos + ") - port_extension"
-hfss["wg_length"]  = "2*(" + zpos + " + port_extension )"
+hfss["wg_length"] = "2*(" + zpos + " + port_extension )"
 wg_z_start = hfss.variable_manager["wg_z_start"]
 wg_length = hfss.variable_manager["wg_length"]
 hfss["u_start"] = "-a/2"
@@ -138,11 +145,11 @@ hfss.modeler.create_box(["-b/2", "-a/2", "wg_z_start"], ["b", "a", "wg_length"],
                         name="waveguide", matname="vacuum")
 
 ###############################################################################
-# Draw the waveguide "box."
+# Draw the whole waveguide.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# wg_z is the total waveguide length, including port extension.
-# Note that the .evaluated_value property returns the numerical value of an
-# expression in Electronics Desktop.
+# wg_z is the total length of the waveguide, including port extension.
+# Note that the ``.evaluated_value`` provides access to the numerical value of
+# ``wg_z_start`` which is an expression in HFSS.
 
 wg_z = [wg_z_start.evaluated_value, hfss.value_with_units(wg_z_start.numeric_value + wg_length.numeric_value, "in")]
 
@@ -163,10 +170,11 @@ for n, z in enumerate(wg_z):
 
 ###############################################################################
 # Insert the mesh adaptation setup using refinement at two frequencies.
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# This approach is very useful for resonant structures as the coarse initial
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This approach is useful for resonant structures as the coarse initial
 # mesh impacts the resonant frequency and hence, the field propagation through the
-# filter.
+# filter.  Adaptation at multiple frequencies helps to ensure that energy propagates
+# through the resonant structure while the mesh is refined.
 
 setup = hfss.create_setup("Setup1", setuptype="HFSSDriven",
                            MultipleAdaptiveFreqsSetup=['9.8GHz', '10.2GHz'],
