@@ -123,7 +123,7 @@ class TestClass(BasisTest, object):
         assert self.q2dtest.configurations.options.import_object_properties
         assert self.q2dtest.configurations.options.import_parametrics
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config['use_grpc'], reason="Not working in 2022.2 GRPC")
     def test_04_icepak(self):
         box1 = self.icepak.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"
@@ -144,6 +144,10 @@ class TestClass(BasisTest, object):
         self.icepak.mesh.global_mesh_region.MaxLevels = 2
         self.icepak.mesh.global_mesh_region.BufferLayers = 1
         self.icepak.mesh.global_mesh_region.update()
+        cs = self.aedtapp.modeler.create_coordinate_system(name="useless")
+        cs.props["OriginX"] = 20
+        cs.props["OriginY"] = 20
+        cs.props["OriginZ"] = 20
         self.icepak.create_dataset(
             "test_dataset",
             [1, 2, 3, 4],

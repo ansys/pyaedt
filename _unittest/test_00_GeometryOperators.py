@@ -550,3 +550,17 @@ class TestClass(BasisTest, object):
         ]
         assert R[0] in results
         assert R[1] in results
+
+    def test_mirror_point(self):
+        assert go.v_norm(go.v_sub(go.mirror_point([0.6, -0.8, 1], [-0.4, -4.6, 0], [0.7, 0.7, 0]),
+                                  [-4.2, -5.6, 1])) < 1e-10
+
+    def test_v_rotate_about_axis(self):
+        assert go.v_norm(go.v_sub(go.v_rotate_about_axis([0.6, -0.8, 1], 48, radians=False, axis="z"),
+                         [0.9959942242, -0.0894175898, 1])) < 1e-10
+        assert go.v_norm(go.v_sub(go.v_rotate_about_axis([0.6, -0.8, 1], math.radians(48), radians=True, axis="z"),
+                                  [0.9959942242, -0.0894175898, 1])) < 1e-10
+        assert go.v_norm(go.v_sub(go.v_rotate_about_axis([0.6, -0.8, 1], 290, radians=False, axis="x"),
+                         [0.6, 0.6660765061, 1.09377424])) < 1e-10
+        assert go.v_norm(go.v_sub(go.v_rotate_about_axis([0.6, -0.8, 1], 290, radians=False, axis="y"),
+                         [-0.7344805348, -0.8, 0.9058357158])) < 1e-10

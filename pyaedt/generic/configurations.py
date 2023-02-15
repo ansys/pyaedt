@@ -1559,17 +1559,16 @@ class ConfigurationsIcepak(Configurations):
             objects_to_check = list(set(objects_to_check) - exclude_set)
             if dict_in["monitor"][monitor_obj]["Type"] == "Face":
                 for obj in objects_to_check:
-                    if len(obj.faces) != 1:
-                        for f in obj.faces:
-                            if (
-                                GeometryOperators.v_norm(
-                                    GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
-                                )
-                                <= 1e-12
-                                and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
-                            ):
-                                dict_in["monitor"][monitor_obj]["ID"] = f.id
-                                return
+                    for f in obj.faces:
+                        if (
+                            GeometryOperators.v_norm(
+                                GeometryOperators.v_sub(f.center, dict_in["monitor"][monitor_obj]["Location"])
+                            )
+                            <= 1e-12
+                            and abs(f.area - dict_in["monitor"][monitor_obj]["Area Assignment"]) <= 1e-12
+                        ):
+                            dict_in["monitor"][monitor_obj]["ID"] = f.id
+                            return
             elif dict_in["monitor"][monitor_obj]["Type"] == "Surface":
                 for obj in objects_to_check:
                     if len(obj.faces) == 1:
@@ -1630,7 +1629,7 @@ class ConfigurationsIcepak(Configurations):
         if len(args) == 0:
             exclude_set = set()
         elif len(args) == 1:
-            exclude_set = args[1]
+            exclude_set = args[0]
         else:
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
         with open(config_file) as json_file:

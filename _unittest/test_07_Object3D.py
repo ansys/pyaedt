@@ -579,6 +579,20 @@ class TestClass(BasisTest, object):
                 assert subtract_child[child].command == subtract_child[child].props["Command"]
                 assert len(subtract_child[child].children) == 0
 
+        box = self.aedtapp.modeler.get_object_from_name("box_history1")
+        assert box.history.suppress_all(self.aedtapp)
+        assert box.history.unsuppress_all(self.aedtapp)
+
+    def test_27b_object_suppress(self):
+        box = self.aedtapp.modeler.user_defined_components["box_history"]
+        assert box.history.suppress_all(self.aedtapp)
+        assert box.history.unsuppress_all(self.aedtapp)
+
+    def test_27c_object_suppress(self):
+        box = self.aedtapp.modeler.user_defined_components["box_history"]
+        assert box.history.jsonalize_tree
+
+
     def test_28_set_object_history_properties(self):
         assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "10meter"
         self.aedtapp.modeler["box_history1"].history.props["Position/X"] = "15meter"

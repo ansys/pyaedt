@@ -963,6 +963,7 @@ class FieldAnalysis3D(Analysis, object):
                 component_name = [component_name]
             for cmp in component_name:
                 assert cmp in self.modeler.user_defined_component_names, "Component Definition not found."
+
         for cmp in component_name:
             comp = self.modeler.user_defined_components[cmp]
             target_cs = self.modeler._create_reference_cs_from_3dcomp(comp, password=password)
@@ -991,12 +992,13 @@ class FieldAnalysis3D(Analysis, object):
                             monitor_cache[mon_obj.name]["Volume Assignment"] = self.modeler.get_object_from_name(
                                 monitor_cache[mon_obj.name]["ID"]
                             ).volume
+                for _, mon_dict in monitor_cache.items():
+                    del mon_dict["Object"]
             oldcs = self.oeditor.GetActiveCoordinateSystem()
             self.modeler.set_working_coordinate_system(target_cs)
             comp.delete()
             obj_set = set(self.modeler.objects.values())
             self.copy_solid_bodies_from(app, no_vacuum=False, no_pec=False, include_sheets=True)
-            app.oproject.Close()
             self.modeler.refresh_all_ids()
             self.modeler.set_working_coordinate_system(oldcs)
             if self.design_type == "Icepak":
@@ -1010,7 +1012,7 @@ class FieldAnalysis3D(Analysis, object):
                             m_obj = dict_in["monitor"][monitor_obj]["Location"]
                         if not self.configurations.update_monitor(
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
-                        ):
+                        ):  # pragma: no cover
                             return False
-
+            app.oproject.Close()
         return True

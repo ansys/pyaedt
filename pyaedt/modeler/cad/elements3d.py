@@ -1426,7 +1426,7 @@ class BinaryTreeNode:
 
     @pyaedt_function_handler
     def _suppress(self, node, app, suppress):
-        if not node.command.startswith("Duplicate"):
+        if not node.command.startswith("Duplicate") and 'Suppress Command' in node.props:
             app.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",

@@ -627,7 +627,11 @@ class TestClass(BasisTest, object):
         surf1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         box1 = self.aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
         fan = self.aedtapp.create_fan("Fan", cross_section="YZ", radius="1mm", hub_radius="0mm")
-        cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1")
+        cs0 = self.aedtapp.modeler.create_coordinate_system(name="CS0")
+        cs0.props["OriginX"] = 10
+        cs0.props["OriginY"] = 10
+        cs0.props["OriginZ"] = 10
+        cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", reference_cs="CS0")
         cs1.props["OriginX"] = 10
         cs1.props["OriginY"] = 10
         cs1.props["OriginZ"] = 10
@@ -663,6 +667,15 @@ class TestClass(BasisTest, object):
             auxiliary_dict_file=True,
             native_components=True,
         )
+        self.aedtapp.modeler.set_working_coordinate_system("CS1")
+        file_name = "Advanced3DComp1.a3dcomp"
+        assert self.aedtapp.modeler.create_3dcomponent(
+            os.path.join(file_path, file_name),
+            component_name="board_assembly",
+            included_cs=["Global", "CS1"],
+            auxiliary_dict_file=True,
+            native_components=True,
+        )
         fan.delete()
         fan2.delete()
         pcb.delete()
@@ -686,12 +699,22 @@ class TestClass(BasisTest, object):
         )
         assert "test_dataset" in self.aedtapp.design_datasets
         assert "board_assembly1_CS1" in [i.name for i in self.aedtapp.modeler.coordinate_systems]
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS1", auxiliary_dict=True
+        )
+        file_name = "Advanced3DComp1.a3dcomp"
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+        )
 
     def test_52_flatten_3d_components(self):
+        mon_name = self.aedtapp.monitor.assign_face_monitor(
+            list(self.aedtapp.modeler.user_defined_components["board_assembly2"].parts.values())[0].faces[0].id)
         assert self.aedtapp.flatten_3d_components()
         assert all(
             i in self.aedtapp.monitor.all_monitors
-            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
+            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor",
+                      "board_assembly1_SurfaceMonitor", mon_name]
         )
         assert "test_dataset" in self.aedtapp.design_datasets
 
@@ -751,7 +774,7 @@ class TestClass(BasisTest, object):
             ext_surf_rad_view_factor=0.5,
         )
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config['use_grpc'], reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
         self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
