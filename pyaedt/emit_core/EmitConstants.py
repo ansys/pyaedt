@@ -1,8 +1,4 @@
-import math
-import warnings
-
 from pyaedt.emit_core import EMIT_MODULE
-
 
 def result_type():
     """
