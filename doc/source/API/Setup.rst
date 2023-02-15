@@ -50,7 +50,7 @@ This section lists sweep classes and their default values:
 The ``Setup`` object is accessible through the methods available for sweep creation.
 
 
-.. currentmodule:: pyaedt.modules.SetupTemplates
+.. currentmodule:: pyaedt.modules.SolveSweeps
 
 .. autosummary::
    :toctree: _autosummary

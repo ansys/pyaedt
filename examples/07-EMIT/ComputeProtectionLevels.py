@@ -44,7 +44,7 @@ from pyaedt import Emit
 # # The ``new_thread`` Boolean variable defines whether to create a new instance
 # # of AEDT or try to connect to existing instance of it if one is available.
 
-# non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+# non_graphical = False
 # new_thread = False
 # desktop_version = "2023.2"
 

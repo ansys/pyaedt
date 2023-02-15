@@ -26,6 +26,7 @@ from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
 from pyaedt.modules.solutions import FfdSolutionData
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -492,16 +493,18 @@ class Hfss(FieldAnalysis3D, object):
     ):
         start = None
         stop = None
-        if int_line_start and int_line_stop:
-            start = [str(i) + self.modeler.model_units for i in int_line_start]
-            stop = [str(i) + self.modeler.model_units for i in int_line_stop]
+        if int_line_start and int_line_stop:  # Allow non-numeric arguments
+            start = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_start]
+            stop = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_stop]
             useintline = True
         else:
             useintline = False
 
-        props = OrderedDict({})
-        if isinstance(objectname, int):
+        props = OrderedDict({})  # Used to create the argument to pass to native api: oModule.AssignWavePort()
+        if isinstance(objectname, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [objectname]
+        elif isinstance(objectname, list):  # Assume [x, y, z] point is passed in objectname
+            props["Faces"] = self.modeler.get_faceid_from_position(objectname)
         else:
             props["Objects"] = [objectname]
         props["NumModes"] = nummodes
@@ -719,6 +722,75 @@ class Hfss(FieldAnalysis3D, object):
             props["IsInternal"] = isInternal
         return self._create_boundary("Coating_" + listobjname[1:], props, "Finite Conductivity")
 
+    # TODO: Extract name and type from **kwargs to pass them to create_setup() as setuptype and setupname
+
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create an analysis setup for HFSS.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
+
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+
+        Parameters
+        ----------
+        setuptype : str, optional
+            Type of the setup. Based on the solution type, options are
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
+        setupname : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        **kwargs : dict, optional
+            Extra arguments to set up the circuit.
+            Available keys depend on the setup chosen.
+            For more information, see
+            :doc:`../SetupTemplatesHFSS`.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`, :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                if arg_name == "MultipleAdaptiveFreqsSetup":
+                    setup[arg_name].delete_all()
+                    if isinstance(arg_value, list):
+                        for i in arg_value:
+                            setup[arg_name][i] = [0.02]
+                    else:
+                        for i, k in arg_value.items():
+                            setup[arg_name][i] = [k]
+                    setup.props["SolveType"] = "MultiFrequency"
+                else:
+                    setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
+
     @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
@@ -766,7 +838,7 @@ class Hfss(FieldAnalysis3D, object):
         unit,
         freqstart,
         freqstop,
-        num_of_freq_points,
+        num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -788,8 +860,11 @@ class Hfss(FieldAnalysis3D, object):
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
+            The default is ``401`` for ``sweep_type = "Interpolating"``. The defaults
+            are "Fast"`` and ``5`` for ``sweep_type = ""Discrete"``.
         sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case the default name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -806,7 +881,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -829,7 +904,13 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+        if sweep_type in ["Interpolating", "Fast"]:
+            if num_of_freq_points == None:
+                num_of_freq_points = 401
+        elif sweep_type == "Discrete":
+            if num_of_freq_points == None:
+                num_of_freq_points = 5
+        else:
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
@@ -907,7 +988,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1003,7 +1084,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -2467,7 +2548,7 @@ class Hfss(FieldAnalysis3D, object):
             Name of the coordinate system for the U coordinates. The
             default is ``"Global"``.
         primary_name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``.  # TODO: Add names of allowed values to docstring.
 
         Returns
         -------
@@ -3197,6 +3278,119 @@ class Hfss(FieldAnalysis3D, object):
                 faces = self.modeler.get_object_faces(sheet)[0]
             if not faces:  # pragma: no cover
                 self.logger.error("Wrong Input object. it has to be a face id or a sheet.")
+                return False
+            if not portname:
+                portname = generate_unique_name("Port")
+            elif portname in self.excitations:
+                portname = generate_unique_name(portname)
+            if terminal_references:
+                if deemb == 0:
+                    deembed = None
+                else:
+                    deembed = deemb
+                return self._create_port_terminal(
+                    faces,
+                    terminal_references,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
+                )
+            else:
+                self.logger.error("Reference conductors are missing.")
+                return False
+
+    @pyaedt_function_handler()
+    def create_wave_port(
+        self,
+        port_item,  # Item to use for wave port creation
+        int_start,
+        int_stop,
+        deemb=0,
+        axisdir=None,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        terminal_references=None,
+    ):
+        """Assign a wave port to a face given a point on the face.
+
+        Parameters
+        ----------
+        port_item : list, int
+            Item for defining where to create the port.
+            If a list is passed, then Cartesian [x,y,z] coordinates of a point on the face are
+            expected. If an integer is passed, it is assumed to be a face ID.
+        deemb : float, optional
+            Deembedding value distance in model units. The default is ``0``.
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. This parameter is used to automatically evaluate
+            the integration line. The default is ``None``, in which case no integration
+            line is defined. This parameter should be set to one of the values
+            for ``Application.AxisDir``,  which are: ``XNeg``, ``YNeg``, ``ZNeg``,
+            ``XPos``, ``YPos``, and ``ZPos``.
+
+        impedance : float, optional
+            Port impedance. The default is ``50``.
+        nummodes : int, optional
+            Number of modes. The default is ``1``.
+        portname : str, optional
+            Name of the port. The default is ``None``.
+        renorm : bool, optional
+            Whether to renormalize the mode. The default is ``True``.
+        terminal_references : list, optional
+            For a driven-terminal simulation, list of conductors for port terminal definitions.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
+        Examples
+        --------
+
+        Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
+
+        >>> hfss.modeler.model_units("in")
+        >>> hfss.modeler.create_box([-0.2, -0.45, -1], [0.4, 0.9, 2], name="Xband_WG", matname="vacuum")
+        >>> setup = hfss.create_setup("Setup1")
+        >>> setup["Frequency"] = "10GHz"
+        >>> ports = [ hfss.create_wave_port([0, "a/2", "-wg_len/2"], portname="Port1", deembed=False),
+        >>>  ...      hfss.create_wave_port([0, "a/2", "wg_len/2"], portname="Port2", deembed=False) ]
+        >>> [print(name) for p.name in ports]
+
+        """
+        # TODO: check that port_item is a planar sheet
+        if terminal_references:
+            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
+        if isinstance(port_item, int):
+            try:
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
+            except:
+                oname = ""
+        else:
+            oname = ""
+        if "Modal" in self.solution_type:
+            if portname is None:
+                portname = self._get_unique_source_name(portname, "Port")
+
+            return self._create_waveport_driven(
+                port_item, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
+            )
+        else:
+            if isinstance(sheet, int):
+                faces = sheet
+            else:
+                faces = self.modeler.get_object_faces(sheet)[0]
+            if not faces:  # pragma: no cover
+                self.logger.error("Input object is wrong. It must be a face ID or a sheet.")
                 return False
             if not portname:
                 portname = generate_unique_name("Port")
@@ -4270,7 +4464,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_scattering(
         self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
-        """Create a scattering report.
+        """Create an S-parameter report.
 
         Parameters
         ----------
@@ -4279,9 +4473,11 @@ class Hfss(FieldAnalysis3D, object):
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
         port_names : list, optional
-             List of port names. The default is ``None``.
+             List of port names. The first index, i, in S[i,j].
+             The default is ``None``. (include only self-terms)
         port_excited : list or str, optional
-             The default is ``None``.
+             List of port names. The seconds index, j in S[i,j].
+             The default is ``None``. (include only self-terms)
         variations : str, optional
              The default is ``None``.
 
@@ -4298,10 +4494,10 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a scattering named ``"S Parameter Plot Nominal"`` using
-        the default parameters.
+        Create ad S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
+        plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
-        >>> hfss.create_scattering()
+        >>> hfss.create_scattering(port_names=["P1", "P2", "P3"], port_excited=["P1", "P1", "P1"])
         True
 
         """
