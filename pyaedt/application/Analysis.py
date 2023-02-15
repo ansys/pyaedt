@@ -14,11 +14,7 @@ import time
 import warnings
 from collections import OrderedDict
 
-if os.name == "posix" and is_ironpython:
-    import subprocessdotnet as subprocess
-else:
-    import subprocess
-
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
@@ -49,6 +45,11 @@ from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
 
 
 class Analysis(Design, object):
