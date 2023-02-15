@@ -366,9 +366,6 @@ class Components(object):
     def Others(self):
         """Other core components.
 
-        Parameters
-        ----------
-
         Returns
         -------
         dict[str, :class:`pyaedt.edb_core.edb_data.components_data.EDBComponent`]

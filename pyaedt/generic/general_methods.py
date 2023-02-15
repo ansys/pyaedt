@@ -922,14 +922,22 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
         keys = ["ansysedtsv.exe"]
     else:
         keys = ["ansysedt.exe"]
+    long_version = None
+    if len(version) > 6:
+        version = version[-6:]
     if version and "." in version:
+        long_version = version
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version < "221":
         version = version[:2] + "." + version[2]
+        long_version = "20{}".format(version)
     sessions = []
     for p in psutil.process_iter():
         try:
             if p.name() in keys:
+                if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
+                    sessions.append(p.pid)
+                    continue
                 cmd = p.cmdline()
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
@@ -1402,6 +1410,34 @@ def _dim_arg(value, units):
         return str(val) + units
     except:
         return value
+
+
+@pyaedt_function_handler()
+def _check_installed_version(install_path, long_version):
+    """Check installation folder to determine if it is for specified Ansys EM version.
+
+    Parameters
+    ----------
+    install_path: str
+        Installation folder to check.  For example, ``"C:\\Program Files\\AnsysEM\\v231\\Win64"``.
+    long_version: str
+        Long form of version number.  For example, ``"2023.1"``.
+
+    Returns
+    -------
+    bool
+
+    """
+    product_list_path = os.path.join(install_path, "config", "ProductList.txt")
+    if os.path.isfile(product_list_path):
+        try:
+            with open(product_list_path, "r") as f:
+                install_version = f.readline().strip()[-6:]
+                if install_version == long_version:
+                    return True
+        except:
+            pass
+    return False
 
 
 class Settings(object):
