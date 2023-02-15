@@ -957,7 +957,7 @@ class Configurations(object):
             )
 
     @pyaedt_function_handler()
-    def import_config(self, config_file):
+    def import_config(self, config_file, *args):
         """Import configuration settings from a json file and apply it to the current design.
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
@@ -972,6 +972,8 @@ class Configurations(object):
         dict, bool
             Config dictionary.
         """
+        if len(args) > 0:
+            raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
         self.results._reset_results()
         with open(config_file) as json_file:
             dict_in = json.load(json_file)
@@ -1608,9 +1610,29 @@ class ConfigurationsIcepak(Configurations):
                             return
 
     @pyaedt_function_handler()
-    def import_config(self, config_file, exclude_set=None):
-        if exclude_set is None:
+    def import_config(self, config_file, *args):
+        """Import configuration settings from a json file and apply it to the current design.
+        The sections to be applied are defined with ``configuration.options`` class.
+        The import operation result is saved in the ``configuration.results`` class.
+
+        Parameters
+        ----------
+        config_file : str
+            Full path to json file.
+        *args : set, optional
+            Name of objects to ignore for monitor assignment.
+
+        Returns
+        -------
+        dict, bool
+            Config dictionary.
+        """
+        if len(args) == 0:
             exclude_set = set()
+        elif len(args) == 1:
+            exclude_set = args[1]
+        else:
+            raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
         with open(config_file) as json_file:
             dict_in = json.load(json_file)
         self.results._reset_results()
@@ -1858,7 +1880,7 @@ class ConfigurationsIcepak(Configurations):
                         0
                     ]
                     instance_names = list(self._app.oeditor.Get3DComponentInstanceNames(definition_names))[0]
-                except:
+                except IndexError:
                     definition_names = [
                         def_name
                         for def_name in definition_names
