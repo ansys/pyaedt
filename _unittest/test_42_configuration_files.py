@@ -123,7 +123,7 @@ class TestClass(BasisTest, object):
         assert self.q2dtest.configurations.options.import_object_properties
         assert self.q2dtest.configurations.options.import_parametrics
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config['use_grpc'], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_04_icepak(self):
         box1 = self.icepak.modeler.create_box([0, 0, 0], [10, 10, 10])
         box1.surface_material_name = "Shellac-Dull-surface"

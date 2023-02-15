@@ -378,7 +378,7 @@ class GeometryOperators(object):
             rotated_x = x
             rotated_y = y * math.cos(angle) - z * math.sin(angle)
             rotated_z = y * math.sin(angle) + z * math.cos(angle)
-        else:  #pragma: no cover
+        else:  # pragma: no cover
             raise ValueError("Invalid axis. Choose 'x', 'y', or 'z'.")
         return rotated_x, rotated_y, rotated_z
 

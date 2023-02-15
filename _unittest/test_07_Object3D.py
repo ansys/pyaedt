@@ -592,7 +592,6 @@ class TestClass(BasisTest, object):
         box = self.aedtapp.modeler.user_defined_components["box_history"]
         assert box.history.jsonalize_tree
 
-
     def test_28_set_object_history_properties(self):
         assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "10meter"
         self.aedtapp.modeler["box_history1"].history.props["Position/X"] = "15meter"

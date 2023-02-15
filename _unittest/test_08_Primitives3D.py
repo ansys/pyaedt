@@ -512,14 +512,22 @@ class TestClass(BasisTest, object):
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config['use_grpc'], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_36_get_face_center(self):
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
-        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0,0,0], radius=10, height=10)
-        assert all(min([GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center)) for
-                        ref_center in [[0,0,0], [0,10,0], [0, 5, 0]]])<1e-10 for f in cylinder.faces)
+        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0, 0, 0], radius=10, height=10)
+        assert all(
+            min(
+                [
+                    GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center))
+                    for ref_center in [[0, 0, 0], [0, 10, 0], [0, 5, 0]]
+                ]
+            )
+            < 1e-10
+            for f in cylinder.faces
+        )
 
     def test_37_get_edge_midpoint(self):
         polyline = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
@@ -1383,20 +1391,30 @@ class TestClass(BasisTest, object):
         )
 
     def test_82_get_component_bounding_dimension(self):
-        print(self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_bounding_dimension())
-        print(self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_center())
+        print(
+            self.aedtapp.modeler.user_defined_components[
+                self.aedtapp.modeler.user_defined_component_names[0]
+            ].get_component_bounding_dimension()
+        )
+        print(
+            self.aedtapp.modeler.user_defined_components[
+                self.aedtapp.modeler.user_defined_component_names[0]
+            ].get_component_center()
+        )
         assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_bounding_dimension()
+            self.aedtapp.modeler.user_defined_component_names[0]
+        ].get_component_bounding_dimension()
         assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_center()
+            self.aedtapp.modeler.user_defined_component_names[0]
+        ].get_component_center()
 
     def test_83_operations(self):
         assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].duplicate_along_line([1,1,1], nclones=2)
+            self.aedtapp.modeler.user_defined_component_names[0]
+        ].duplicate_along_line([1, 1, 1], nclones=2)
         assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].duplicate_and_mirror([0,0,0], [1,2,3])
+            self.aedtapp.modeler.user_defined_component_names[0]
+        ].duplicate_and_mirror([0, 0, 0], [1, 2, 3])
 
     def test_83_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
