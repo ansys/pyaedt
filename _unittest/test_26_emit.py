@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
 from pyaedt.emit_core import EmitConstants as econsts
+from pyaedt.generic import constants as consts
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
@@ -145,49 +146,49 @@ class TestClass(BasisTest, object):
     def test_emit_power_conversion(self):
         # Test power unit conversions (dBm to user_units)
         powers = [10, 20, 30, 40, 50]
-        converted_powers = econsts.convert_power_to_unit(powers, "dBm")
+        converted_powers = consts.unit_converter(powers, "Power", "dBm", "dBm")
         assert converted_powers == powers
-        converted_powers = econsts.convert_power_to_unit(powers, "dBW")
+        converted_powers = consts.unit_converter(powers, "Power", "dBm", "dBW")
         assert converted_powers == [-20, -10, 0, 10, 20]
-        converted_powers = econsts.convert_power_to_unit(powers, "mW")
+        converted_powers = consts.unit_converter(powers, "Power", "dBm", "mW")
         assert converted_powers == [10, 100, 1000, 10000, 100000]
-        converted_powers = econsts.convert_power_to_unit(powers, "W")
+        converted_powers = consts.unit_converter(powers, "Power", "dBm", "W")
         assert converted_powers == [0.01, 0.1, 1, 10, 100]
-        converted_powers = econsts.convert_power_to_unit(powers, "kW")
+        converted_powers = consts.unit_converter(powers, "Power", "dBm", "kW")
         assert converted_powers == [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
         # Test power conversions (user units to dBm)
         powers = [0.00001, 0.0001, 0.001, 0.01, 0.1]
-        converted_powers = econsts.convert_power_dbm(powers, "kW")
+        converted_powers = consts.unit_converter(powers, "Power", "kW", "dBm")
         assert converted_powers == [10, 20, 30, 40, 50]
         powers = [0.01, 0.1, 1, 10, 100]
-        converted_powers = econsts.convert_power_dbm(powers, "W")
+        converted_powers = consts.unit_converter(powers, "Power", "W", "dBm")
         assert converted_powers == [10, 20, 30, 40, 50]
         powers = [10, 100, 1000, 10000, 100000]
-        converted_powers = econsts.convert_power_dbm(powers, "mW")
+        converted_powers = consts.unit_converter(powers, "Power", "mW", "dBm")
         assert converted_powers == [10, 20, 30, 40, 50]
         powers = [-20, -10, 0, 10, 20]
-        converted_powers = econsts.convert_power_dbm(powers, "dBW")
+        converted_powers = consts.unit_converter(powers, "Power", "dBW", "dBm")
         assert converted_powers == [10, 20, 30, 40, 50]
         powers = [10, 20, 30, 40, 50]
-        converted_powers = econsts.convert_power_dbm(powers, "dBm")
+        converted_powers = consts.unit_converter(powers, "Power", "dBm", "dBm")
         assert converted_powers == [10, 20, 30, 40, 50]
         power = 10
-        converted_power = econsts.convert_power_dbm(power, "dBW")
+        converted_power = consts.unit_converter(power, "Power", "dBW", "dBm")
         assert converted_power == 40
         power = 10
-        converted_power = econsts.convert_power_dbm(power, "mW")
+        converted_power = consts.unit_converter(power, "Power", "mW", "dBm")
         assert converted_power == 10
         power = 0.1
-        converted_power = econsts.convert_power_dbm(power, "kW")
+        converted_power = consts.unit_converter(power, "Power", "kW", "dBm")
         assert converted_power == 50
 
         # Test bad units
         power = 10
-        bad_units = econsts.convert_power_dbm(power, "dbw")
+        bad_units = consts.unit_converter(power, "Power", "dbw", "dBm")
         assert bad_units == power
         power = 30
-        bad_units = econsts.convert_power_to_unit(power, "w")
+        bad_units = consts.unit_converter(power, "Power", "w", "dBm")
         assert bad_units == power
 
     @pytest.mark.skipif(
