@@ -10,6 +10,7 @@ import json
 import math
 import os
 import re
+import sys
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -66,7 +67,8 @@ class Materials(object):
         return len(self.material_keys)
 
     def __iter__(self):
-        return self.material_keys.itervalues()
+        return self.material_keys.values() if sys.version_info.major > 2 else self.material_keys.itervalues()
+        
 
     def __getitem__(self, item):
         matobj = self.checkifmaterialexists(item)
