@@ -27,7 +27,7 @@ from pyaedt.generic.filesystem import Scratch
 # 
 # The following code uses AEDT 2022 R2.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 NewThread = True
 desktop_version = "2022.2"
 scratch_path = pyaedt.generate_unique_folder_name()
