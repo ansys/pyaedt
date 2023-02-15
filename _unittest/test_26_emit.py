@@ -5,8 +5,8 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
 from pyaedt import Emit
-from pyaedt.generic import constants as consts
 from pyaedt.emit_core import EmitConstants as econsts
+from pyaedt.generic import constants as consts
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitAntennaComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
