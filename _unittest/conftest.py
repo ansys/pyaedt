@@ -119,7 +119,7 @@ class BasisTest(object):
             #     oDesktop.ClearMessages("", "", 3)
             # for proj in proj_list:
             #     oDesktop.CloseProject(proj)
-            self.aedtapps[0].release_desktop()
+            self.aedtapps[0].release_desktop(False)
             del self.aedtapps
 
         del self.edbapps
