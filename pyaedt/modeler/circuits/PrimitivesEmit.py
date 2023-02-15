@@ -211,6 +211,22 @@ class EmitComponents(object):
         return rad_update, ant_update
 
     @pyaedt_function_handler()
+    def get_radios(self):
+        """Return a dict of all the radios in the design.
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        Dict : radio_name : EmitRadioComponents
+            Dict of all the radio_name and EmitRadioComponents in the
+            design.
+        """
+        return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
+
+    @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs and return the number of components."""
         all_comps = self.oeditor.GetAllComponents()
@@ -320,7 +336,7 @@ class EmitComponent(object):
         self.root_prop_node = None
         """Root node of the component."""
 
-        self.units = components._parent.units
+        self.units = components._parent.get_units()
         """Units for the component."""
 
     @property
@@ -672,6 +688,24 @@ class EmitRadioComponent(EmitComponent):
     def __init__(self, components, component_name):
         super(EmitRadioComponent, self).__init__(components, component_name)
 
+    def is_emitter(self):
+        """Check if the radio component is an emitter
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        Bool
+            ``True`` if it is an emitter, ``False`` otherwise.
+        """
+        properties = self.get_node_properties()
+
+        if "IsEmitter" in properties:
+            return properties["IsEmitter"]
+        return False
+
     def bands(self):
         """Get the bands of this radio.
 
@@ -732,8 +766,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Bool
-            ''True'' if the radio has enabled transmit channels and
-            ''False'' if there are no enabled transmit channels."""
+            ``True`` if the radio has enabled transmit channels and
+            ``False`` if there are no enabled transmit channels."""
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
@@ -834,8 +868,8 @@ class EmitComponentPropNode(object):
         Returns
         -------
         Bool
-            Returns ''True'' if the node is enabled and
-            ''False'' if the node is disabled."""
+            Returns ``True`` if the node is enabled and
+            ``False`` if the node is disabled."""
         return self.props["Enabled"] == "true"
 
     @pyaedt_function_handler()
