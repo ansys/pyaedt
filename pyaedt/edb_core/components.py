@@ -839,7 +839,7 @@ class Components(object):
         cmp_name = pin.GetComponent().GetName()
         net_name = pin.GetNet().GetName()
         pin_name = pin.GetName()
-        term_name = "{}.{}.{}".format(cmp_name, net_name, pin_name)
+        term_name = "{}.{}.{}".format(cmp_name, pin_name, net_name)
         term = self._edb.Cell.Terminal.PointTerminal.Create(
             pin.GetLayout(), pin.GetNet(), term_name, pin_pos, from_layer
         )
@@ -1002,9 +1002,9 @@ class Components(object):
         net_name = pingroup.GetNet().GetName()
         pin_name = list(pingroup.GetPins())[0].GetName()  # taking first pin name as convention.
         if cmp_name:
-            term_name = "{0}.{1}.{2}".format(net_name, cmp_name, pin_name)
+            term_name = "{0}.{1}.{2}".format(cmp_name, pin_name, net_name)
         else:
-            term_name = "{0}.{1}".format(net_name, pin_name)
+            term_name = "{0}.{1}".format(pin_name, net_name)
         pingroup_term = self._edb.Cell.Terminal.PinGroupTerminal.Create(
             self._active_layout, pingroup.GetNet(), term_name, pingroup, isref
         )
