@@ -691,12 +691,12 @@ class TestClass(BasisTest, object):
             included_cs=["Global"],
             auxiliary_dict_file=True,
             native_components=True,
-            datasets=["test_dataset"]
+            datasets=["test_dataset"],
         )
         file_name = "Advanced3DComp1.a3dcomp"
         mon_list = list(self.aedtapp.monitor.all_monitors.keys())
-        self.aedtapp.monitor.assign_point_monitor([0,0,0])
-        cs_list = [cs.name for cs in self.aedtapp.modeler.coordinate_systems if cs.name!="CS0"]
+        self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
+        cs_list = [cs.name for cs in self.aedtapp.modeler.coordinate_systems if cs.name != "CS0"]
         self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
@@ -706,7 +706,7 @@ class TestClass(BasisTest, object):
             native_components=True,
             reference_cs="CS1",
             monitor_objects=mon_list,
-            datasets=["test_dataset"]
+            datasets=["test_dataset"],
         )
         fan.delete()
         fan2.delete()
@@ -715,7 +715,6 @@ class TestClass(BasisTest, object):
         box1.delete()
         surf1.delete()
         fan_obj_3d.delete()
-
 
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
