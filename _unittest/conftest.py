@@ -121,13 +121,16 @@ class BasisTest(object):
             if oDesktop and not settings.non_graphical:
                 oDesktop.ClearMessages("", "", 3)
             for proj in proj_list:
-                oDesktop.CloseProject(proj)
+                try:
+                    oDesktop.CloseProject(proj)
+                except:
+                    pass
             # self.aedtapps[0].release_desktop(False)
-            del self.aedtapps
 
-        del self.edbapps
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        del self.edbapps
+        del self.aedtapps
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(self._main):
