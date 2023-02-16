@@ -1199,9 +1199,6 @@ class TestClass(BasisTest, object):
         aedtapp = Hfss(projectname="test_54")
         aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
-        if is_ironpython:
-            assert not aedtapp.assign_symmetry(ids)
-            self.aedtapp.solution_type = "Modal"
         assert aedtapp.assign_symmetry(ids)
         assert aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
         assert not aedtapp.assign_symmetry(aedtapp.modeler.object_list[0].faces[0])
