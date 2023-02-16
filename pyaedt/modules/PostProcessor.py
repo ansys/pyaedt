@@ -1629,6 +1629,9 @@ class PostProcessorCommon(object):
                     if "Context" in context.keys() and "SourceContext" in context.keys():
                         report.far_field_sphere = context["Context"]
                         report.source_context = context["SourceContext"]
+                    if "Context" in context.keys() and "Source Group" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_group = context["Source Group"]
                 else:
                     report.far_field_sphere = context
         elif report_category == "Near Fields":

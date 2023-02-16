@@ -103,6 +103,11 @@ class BasisTest(object):
         self._main = sys.modules["__main__"]
 
     def my_teardown(self):
+        for edbapp in self.edbapps[::-1]:
+            try:
+                edbapp.close_edb()
+            except:
+                pass
         if self.aedtapps:
             try:
                 oDesktop = self._main.oDesktop
@@ -115,11 +120,7 @@ class BasisTest(object):
             for proj in proj_list:
                 oDesktop.CloseProject(proj)
             del self.aedtapps
-        for edbapp in self.edbapps[::-1]:
-            try:
-                edbapp.close_edb()
-            except:
-                pass
+
         del self.edbapps
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
@@ -128,6 +129,7 @@ class BasisTest(object):
         if "oDesktop" not in dir(self._main):
             self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
             self.desktop.disable_autosave()
+            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -191,16 +193,14 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="session", autouse=False)
 def desktop_init():
     yield
     if not is_ironpython:
         try:
             _main = sys.modules["__main__"]
             try:
-                desktop = _main.oDesktop
-                pid = desktop.GetProcessID()
-                os.kill(pid, 9)
+                os.kill(_main.desktop_pid, 9)
             except:
                 pass
             # release_desktop(close_projects=False, close_desktop=True)

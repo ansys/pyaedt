@@ -174,6 +174,8 @@ class Design(AedtObjects):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
+        self.last_run_log = ""
+        self.last_run_job = ""
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
@@ -3584,18 +3586,18 @@ class Design(AedtObjects):
 
     @pyaedt_function_handler()
     def add_from_toolkit(self, toolkit_object, draw=False, **kwargs):
-        """Add a new toolkit to current application.
+        """Add a new toolkit to the current application.
 
         Parameters
         ----------
         toolkit_object :
-            Application object from  ``"ansys.aedt.toolkits"``
+            Application object from ``"ansys.aedt.toolkits"``.
 
 
         Returns
         -------
 
-            Application created object."""
+            Application-created object."""
         app = toolkit_object(self, **kwargs)
         if draw:
             app.init_model()
