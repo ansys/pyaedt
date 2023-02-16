@@ -1414,6 +1414,7 @@ class TestClass(BasisTest, object):
     def test_82_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["NonGraphical"], reason="Not working in 2022.2")
     def test_83_get_component_bounding_dimension(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
