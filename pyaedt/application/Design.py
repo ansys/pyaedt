@@ -3476,7 +3476,7 @@ class Design(AedtObjects):
         """
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
-            return self._variable_manager.variables[expression_string]
+            return self._variable_manager.variables[expression_string].value
         else:
             try:
                 self._variable_manager.set_variable(
