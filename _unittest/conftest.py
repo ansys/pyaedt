@@ -24,6 +24,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 
 from pyaedt import pyaedt_logger
 from pyaedt import settings
@@ -93,6 +94,8 @@ if not os.path.exists(scratch_path):
 
 logger = pyaedt_logger
 
+NONGRAPHICAL = settings.non_graphical
+
 
 class BasisTest(object):
     def my_setup(self):
@@ -118,16 +121,20 @@ class BasisTest(object):
             if oDesktop and not settings.non_graphical:
                 oDesktop.ClearMessages("", "", 3)
             for proj in proj_list:
-                oDesktop.CloseProject(proj)
-            del self.aedtapps
+                try:
+                    oDesktop.CloseProject(proj)
+                except:
+                    pass
+            # self.aedtapps[0].release_desktop(False)
 
-        del self.edbapps
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        del self.edbapps
+        del self.aedtapps
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(self._main):
-            self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
         if project_name:
@@ -193,12 +200,12 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 
 
-@pytest.fixture(scope="session", autouse=False)
+@pytest.fixture(scope="session", autouse=True)
 def desktop_init():
+    _main = sys.modules["__main__"]
     yield
     if not is_ironpython:
         try:
-            _main = sys.modules["__main__"]
             try:
                 os.kill(_main.desktop_pid, 9)
             except:
@@ -211,24 +218,16 @@ def desktop_init():
         run_desktop_tests()
 
 
-@pytest.fixture
-def clean_desktop_messages(desktop_init):
-    """Clear all Desktop app messages."""
-    desktop_init.logger.clear_messages(level=3)
-
-
-@pytest.fixture
-def clean_desktop(desktop_init):
-    """Close all projects, but don't close Desktop app."""
-    desktop_init.release_desktop(close_projects=True, close_on_exit=False)
-    return desktop_init
-
-
-@pytest.fixture
-def hfss():
-    """Create a new Hfss project."""
-    # Be sure that the base class constructor "design" exposes oDesktop.
-    hfss = Hfss()
-    yield hfss
-    hfss.close_project(hfss.project_name)
+@pytest.fixture(scope="function", autouse=True)
+def method_init():
+    time.sleep(0.01)
+    yield
+    time.sleep(0.01)
     gc.collect()
+
+
+@pytest.fixture(scope="module", autouse=True)
+def class_init():
+    time.sleep(0.5)
+    yield
+    time.sleep(0.5)

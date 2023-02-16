@@ -411,13 +411,15 @@ class TestClass(BasisTest, object):
     )
     def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        self.aedtapp.modeler.schematic_units = "meter"
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
             subcircuit.composed_name, location=[0.0508, 0.0], angle=0
         )
+
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
-        assert new_subcircuit.location[0] == "1900mil"
-        assert new_subcircuit.location[1] == "-100mil"
+        assert new_subcircuit.location[0] == 0.04826
+        assert new_subcircuit.location[1] == -0.00254
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
