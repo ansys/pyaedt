@@ -231,6 +231,32 @@ class EDBPrimitives(object):
         except:
             return points
 
+    @property
+    def bbox(self):
+        """Return the primitive bounding box points. Lower left corner, upper right corner.
+
+        Returns
+        -------
+        list
+            [lower_left x, lower_left y, upper right x, upper right y]
+
+        """
+        bbox = self.polygon_data.GetBBox()
+        return [bbox.Item1.X.ToDouble(), bbox.Item1.Y.ToDouble(), bbox.Item2.X.ToDouble(), bbox.Item2.Y.ToDouble()]
+
+    @property
+    def center(self):
+        """Return the primitive bounding box center coordinate.
+
+        Returns
+        -------
+        list
+            [x, y]
+
+        """
+        bbox = self.bbox
+        return [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
+
     @pyaedt_function_handler()
     def is_arc(self, point):
         """Either if a point is an arc or not.
@@ -748,6 +774,43 @@ class EDBPrimitives(object):
             return True
         else:
             return False
+
+    @pyaedt_function_handler
+    def clone(self):
+        """Clone a primitive object with keeping same definition and location.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if self.type == "Path":
+            center_line = self.primitive_object.GetCenterLine()
+            width = self.primitive_object.GetWidthValue()
+            corner_style = self.primitive_object.GetCornerStyle()
+            end_cap_style = self.primitive_object.GetEndCapStyle()
+            cloned_path = self._app.edb.Cell.Primitive.Path.Create(
+                self._app.active_layout,
+                self.layer_name,
+                self.net,
+                width,
+                end_cap_style[1],
+                end_cap_style[2],
+                corner_style,
+                center_line,
+            )
+            if cloned_path:
+                # forcing primitives dictionary update
+                self._app.core_primitives.primitives  # pragma no cover
+                return cloned_path
+        cloned_poly = self._app.edb.Cell.Primitive.Polygon.Create(
+            self._app.active_layout, self.layer_name, self.net, self.polygon_data
+        )
+        if cloned_poly:
+            # forcing primitives dictionary update
+            self._app.core_primitives.primitives  # pragma no cover
+            return cloned_poly
+        return False
 
 
 class EDBArcs(object):

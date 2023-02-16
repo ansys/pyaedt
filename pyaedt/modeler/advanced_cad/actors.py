@@ -309,7 +309,6 @@ class Radar(MultiPartComponent, object):
         speed=0,
         relative_cs_name=None,
     ):
-
         self.aedt_antenna_names = []  # List of Antenna Names
         name = name.split(".")[0] if name else name  # remove suffix if any
         self._component_class = "radar"

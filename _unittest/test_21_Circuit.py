@@ -33,6 +33,7 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
+        self.aedtapp.modeler.schematic_units = "mil"
         self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
         netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
         netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
@@ -47,22 +48,23 @@ class TestClass(BasisTest, object):
         BasisTest.my_teardown(self)
 
     def test_01a_create_inductor(self):
-        myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[0.2, 0.2])
+        myind = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1000, 1000])
         assert type(myind.id) is int
         assert myind.parameters["L"] == "1e-09"
 
     def test_02_create_resistor(self):
-        myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[0.4, 0.2])
+        myres = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[2000, 1000])
+        assert myres.refdes != ""
         assert type(myres.id) is int
         assert myres.parameters["R"] == "50"
 
     def test_03_create_capacitor(self):
-        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[0.6, 0.2])
+        mycap = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12, location=[1000, 2000])
         assert type(mycap.id) is int
         assert mycap.parameters["C"] == "1e-12"
         tol = 1e-12
-        assert abs(mycap.pins[0].location[1] - 0.20066) < tol
-        assert abs(mycap.pins[0].location[0] - 0.5943600000000001) < tol
+        assert abs(mycap.pins[0].location[1] - 2000) < tol
+        assert abs(mycap.pins[0].location[0] - 800) < tol
 
     def test_04_getpin_names(self):
         mycap2 = self.aedtapp.modeler.schematic.create_capacitor(value=1e-12)
@@ -96,6 +98,8 @@ class TestClass(BasisTest, object):
         assert LNA_setup.name == "LNA"
 
     def test_06b_add_3dlayout_component(self):
+        setup = self.aedtapp.create_setup("test_06b_LNA")
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
         ports = myedb.pins
@@ -121,8 +125,11 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
+        setup_name = "test_07a_LNA"
+        setup = self.aedtapp.create_setup(setup_name)
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
+        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
+        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
@@ -136,6 +143,7 @@ class TestClass(BasisTest, object):
 
     def test_10_import_touchstone(self):
         self.aedtapp.insert_design("Touchstone_import")
+        self.aedtapp.modeler.schematic_units = "mils"
         ports = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone))
         ports2 = self.aedtapp.import_touchstone_solution(os.path.join(self.local_scratch.path, touchstone2))
         numports = len(ports)
@@ -163,7 +171,7 @@ class TestClass(BasisTest, object):
         assert len(self.aedtapp.excitations) > 0
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
-        assert myind.pins[1].connect_to_component(myres.pins[1])
+        assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
         assert self.aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pinnum_first=1)
         gnd = self.aedtapp.modeler.schematic.create_gnd()
         assert mycap.pins[1].connect_to_component(gnd.pins[0])
@@ -185,8 +193,17 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.model_units
 
     def test_14_move(self):
-        assert self.aedtapp.modeler.move("L100", [0, -0.00508])
-        assert self.aedtapp.modeler.move("L100", [0, 200], "mil")
+        self.aedtapp.modeler.schematic_units = "mil"
+        myind = self.aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
+        self.aedtapp.modeler.schematic_units = "meter"
+        assert self.aedtapp.modeler.move("L14", [0, -0.00508])
+        assert myind.location == [0.01016, 0.00508]
+        self.aedtapp.modeler.schematic_units = "mil"
+        assert self.aedtapp.modeler.move(
+            "L14",
+            [0, 200],
+        )
+        assert myind.location == [400.0, 400.0]
 
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
@@ -384,8 +401,8 @@ class TestClass(BasisTest, object):
         assert type(subcircuit.location) is list
         assert type(subcircuit.id) is int
         assert subcircuit.component_info
-        assert subcircuit.location[0] == "0.0mil"
-        assert subcircuit.location[1] == "0.0mil"
+        assert subcircuit.location[0] == 0.0
+        assert subcircuit.location[1] == 0.0
         assert subcircuit.angle == 0.0
 
     @pytest.mark.skipif(
@@ -394,13 +411,15 @@ class TestClass(BasisTest, object):
     )
     def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        self.aedtapp.modeler.schematic_units = "meter"
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
             subcircuit.composed_name, location=[0.0508, 0.0], angle=0
         )
+
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
-        assert new_subcircuit.location[0] == "1900mil"
-        assert new_subcircuit.location[1] == "-100mil"
+        assert new_subcircuit.location[0] == 0.04826
+        assert new_subcircuit.location[1] == -0.00254
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
@@ -692,3 +711,63 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_42_create_wire(self):
+        self.aedtapp.insert_design("CreateWireTest")
+        myind = self.aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
+        myres = self.aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
+        self.aedtapp.modeler.schematic.create_wire(
+            [myind.pins[0].location, myres.pins[1].location], wire_name="wire_name_test"
+        )
+        wire_names = []
+        for key in self.aedtapp.modeler.schematic.wires.keys():
+            wire_names.append(self.aedtapp.modeler.schematic.wires[key].name)
+        assert "wire_name_test" in wire_names
+        assert not self.aedtapp.modeler.schematic.create_wire(
+            [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
+        )
+        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], wire_name="wire_test1")
+        wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
+        for key in wire_keys:
+            if self.aedtapp.modeler.schematic.wires[key].name == "wire_test1":
+                assert len(self.aedtapp.modeler.schematic.wires[key].points_in_segment) == 1
+                assert self.aedtapp.modeler.schematic.wires[key].id == key
+                for seg_key in list(self.aedtapp.modeler.schematic.wires[key].points_in_segment.keys()):
+                    point_list = [
+                        round(x, 2)
+                        for y in self.aedtapp.modeler.schematic.wires[key].points_in_segment[seg_key]
+                        for x in y
+                    ]
+                    assert point_list[0] == 0.02
+                    assert point_list[1] == 0.02
+                    assert point_list[2] == 0.04
+                    assert point_list[3] == 0.02
+
+    def test_43_display_wire_properties(self):
+        assert self.aedtapp.modeler.wire.display_wire_properties(
+            wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
+        )
+        assert not self.aedtapp.modeler.wire.display_wire_properties(
+            wire_name="invalid", property_to_display="NetName", visibility="Value", location="Top"
+        )
+        assert not self.aedtapp.modeler.wire.display_wire_properties(
+            wire_name="invalid", property_to_display="NetName", visibility="Value", location="invalid"
+        )
+
+    def test_44_auto_wire(self):
+        self.aedtapp.insert_design("wires")
+        self.aedtapp.modeler.schematic_units = "mil"
+        p1 = self.aedtapp.modeler.schematic.create_interface_port(name="In", location=[200, 300])
+        r1 = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[3700, "3mm"])
+        l1 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 3000], angle=90)
+        l3 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
+        l4 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
+        l2 = self.aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
+        r2 = self.aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
+
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
+        assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
+        assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
+        assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
+        assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)

@@ -49,7 +49,6 @@ if not is_ironpython:
 
 @pyaedt_function_handler()
 def get_structured_mesh(theta, phi, ff_data):
-
     if ff_data.min() < 0:
         ff_data_renorm = ff_data + np.abs(ff_data.min())
     else:
@@ -471,7 +470,7 @@ def plot_2d_chart(plot_data, size=(2000, 1000), show_legend=True, xlabel="", yla
 
     if snapshot_path:
         fig.savefig(snapshot_path)
-    else:
+    elif not is_notebook():
         fig.show()
     return fig
 

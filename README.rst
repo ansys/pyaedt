@@ -69,7 +69,7 @@ PyAEDT includes functionality for interacting with the following AEDT tools and 
 
 - HFSS and HFSS 3D Layout
 - Icepak
-- Maxwell 2D, Maxwell 3D, and RMxprt
+- Maxwell 2D, Maxwell 3D, and RMXprt
 - 2D Extractor and Q3D Extractor
 - Mechanical
 - Nexxim

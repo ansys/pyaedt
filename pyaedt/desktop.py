@@ -356,6 +356,9 @@ class Desktop(object):
         aedt_process_id=None,
     ):
         """Initialize desktop."""
+        if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
+            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self.release_on_exit = close_on_exit
@@ -430,7 +433,7 @@ class Desktop(object):
                 self._main.oDesktop = oAnsoftApp.GetAppDesktop()
                 self._main.isoutsideDesktop = True
         self._set_logger_file()
-        self._init_desktop()
+        self._init_desktop(non_graphical)
         self._logger.info("pyaedt v%s", self._main.pyaedt_version)
         if not settings.remote_api:
             self._logger.info("Python version %s", sys.version)
@@ -452,7 +455,7 @@ class Desktop(object):
         # Write the trace stack to the log file if an exception occurred in the main script.
         if ex_type:
             err = self._exception(ex_value, ex_traceback)
-        if self.close_on_exit:
+        if self.close_on_exit or not is_ironpython:
             self.release_desktop(close_projects=self.close_on_exit, close_on_exit=self.close_on_exit)
 
     @pyaedt_function_handler()
@@ -551,12 +554,15 @@ class Desktop(object):
                 return version_key
         return ""
 
-    def _init_desktop(self):
+    def _init_desktop(self, non_graphical):
         self._main.AEDTVersion = self._main.oDesktop.GetVersion()[0:6]
         self._main.oDesktop.RestoreWindow()
         self._main.sDesktopinstallDirectory = self._main.oDesktop.GetExeDir()
         self._main.pyaedt_initialized = True
-        settings.enable_desktop_logs = self._main.oDesktop.GetIsNonGraphical()
+        try:
+            settings.enable_desktop_logs = not self._main.oDesktop.GetIsNonGraphical()
+        except AttributeError:
+            settings.enable_desktop_logs = not non_graphical
 
     def _set_version(self, specified_version, student_version):
         student_version_flag = False

@@ -680,7 +680,6 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def create_object_from_edge(self, edge, non_model=False):
-
         """Create an object from one or multiple edges.
 
         Parameters
@@ -1795,7 +1794,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of edge IDs.
 
         References
@@ -1825,7 +1824,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of edge IDs.
 
         References
@@ -1849,7 +1848,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of vertex IDs.
 
         References
@@ -1881,7 +1880,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of vertex IDs.
 
         References
@@ -1934,7 +1933,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of vertex IDs.
 
         References
@@ -1962,7 +1961,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates indicating the position.
 
         References
@@ -2014,7 +2013,7 @@ class Primitives(object):
 
         Returns
         -------
-        list
+        List
             A list of ``[x, y, z]`` coordinates for the
             planar face center position.
 
@@ -2912,7 +2911,6 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def _default_object_attributes(self, name=None, matname=None, flags=""):
-
         if not matname:
             matname = self.defaultmaterial
 

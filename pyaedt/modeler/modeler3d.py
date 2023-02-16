@@ -89,9 +89,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
-             List of variables to include. The default is ``[]``.
+            List of variables to include. The default is ``[]``.
         object_list : list, optional
-            List of Objects names to export. The default is all objects.
+            List of object names to export. The default is all object names.
         boundaries_list : list, optional
             List of Boundaries names to export. The default is all boundaries.
         excitation_list : list, optional
@@ -115,24 +115,23 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Edit password.
             The default value is an empty string.
         password_type : str, optional
-            Password type. Value can either be ``UserSuppliedPassword`` or ``InternalPassword``.
-            The default value is ``UserSuppliedPassword``.
-        hide_contents : bool, optionale
-            Whether to hide contents.
-            The default is ``False``.
+            Password type. Options are ``UserSuppliedPassword`` and ``InternalPassword``.
+            The default is ``UserSuppliedPassword``.
+        hide_contents : bool, optional
+            Whether to hide contents. The default is ``False``.
         replace_names : bool, optional
-            Whether to replace objects and materials names.
+            Whether to replace objects and material names.
             The default is ``False``.
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
         auxiliary_dict_file : bool or str, optional
-            Whether to export or not the auxiliary file containing information about defined datasets and Icepak monitor
-             objects. A destination file can be specified using a string.
+            Whether to export the auxiliary file containing information about defined datasets and Icepak monitor
+            objects. A destination file can be specified using a string.
             The default is ``False``.
         monitor_objects : list, optional
-            List of monitor objects names to export. The default is all monitor objects. This argument is relevant only
-            if ``auxiliary_dict_file`` is not set to ``False``.
+            List of monitor objects' names to export. The default is the names of all monitor objects. This argument is
+            relevant only if ``auxiliary_dict_file`` is not set to ``False``.
         datasets : list, optional
             List of dataset names to export. The default is all datasets. This argument is relevant only if
             ``auxiliary_dict_file`` is not set to ``False``.
@@ -147,7 +146,6 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         References
         ----------
-
         >>> oEditor.Create3DComponent
         """
         if not component_name:
@@ -226,16 +224,28 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
+        variables = []
         if variables_to_include:
-            variables = variables_to_include
+            dependent_variables = []
+
+            ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
+            dep_variables = [i for i in self._app._variable_manager.dependent_variable_names]
+            for param in variables_to_include:
+                if self._app[param] in ind_variables:
+                    variables.append(self._app[param])
+                    dependent_variables.append(param)
+                elif self._app[param] not in dep_variables:
+                    variables.append(param)
         else:
             variables = self._app._variable_manager.independent_variable_names
+            dependent_variables = self._app._variable_manager.dependent_variable_names
+
         for el in variables:
             par_description.append(el + ":=")
             par_description.append("")
         arg.append("IncludedParameters:="), arg.append(variables)
-        variables = self._app._variable_manager.dependent_variable_names
-        arg.append("IncludedDependentParameters:="), arg.append(variables)
+
+        arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
         for el in variables:
             par_description.append(el + ":=")
             par_description.append("")
@@ -272,7 +282,14 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             if excitations:
                 arg2.append("Excitations:="), arg2.append(excitations)
         meshops = [el.name for el in self._app.mesh.meshoperations]
-        arg2.append("MeshOperations:="), arg2.append(meshops)
+        if meshops:
+            used_mesh_ops = []
+            for mesh in range(0, len(meshops)):
+                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+        else:
+            arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         if auxiliary_dict_file:
             if isinstance(auxiliary_dict_file, bool):
@@ -342,6 +359,168 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             with open(auxiliary_dict_file, "w") as outfile:
                 json.dump(out_dict, outfile)
         return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
+
+    @pyaedt_function_handler()
+    def replace_3dcomponent(
+        self,
+        component_name=None,
+        variables_to_include=None,
+        object_list=None,
+        boundaries_list=None,
+        excitation_list=None,
+        included_cs=None,
+        reference_cs="Global",
+    ):
+        """Replace with 3D component.
+
+        Parameters
+        ----------
+        component_name : str, optional
+            Name of the component. The default is ``None``.
+        variables_to_include : list, optional
+            List of variables to include. The default is ``None``.
+        object_list : list, optional
+            List of object names to export. The default is all object names.
+        boundaries_list : list, optional
+            List of Boundaries names to export. The default is all boundaries.
+        excitation_list : list, optional
+            List of Excitation names to export. The default is all excitations.
+        included_cs : list, optional
+            List of Coordinate Systems to export. The default is all coordinate systems.
+        reference_cs : str, optional
+            The Coordinate System reference. The default is ``"Global"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ReplaceWith3DComponent
+        """
+        if not variables_to_include:
+            variables_to_include = []
+        if not component_name:
+            component_name = self._app.design_name
+        dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
+        arg = [
+            "NAME:CreateData",
+            "ComponentName:=",
+            component_name,
+            "Company:=",
+            "",
+            "Company URL:=",
+            "",
+            "Model Number:=",
+            "",
+            "Help URL:=",
+            "",
+            "Version:=",
+            "1.0",
+            "Notes:=",
+            "",
+            "IconType:=",
+            "",
+            "Owner:=",
+            "pyaedt",
+            "Email:=",
+            "",
+            "Date:=",
+            dt_string,
+            "HasLabel:=",
+            False,
+        ]
+        if object_list:
+            objs = object_list
+        else:
+            native_objs = [
+                obj.name for _, v in self.modeler.user_defined_components.items() for _, obj in v.parts.items()
+            ]
+            objs = [obj for obj in self.object_names if obj not in native_objs]
+            if native_objs:
+                self.logger.warning(
+                    "Native component objects cannot be exported. Use native_components argument to"
+                    " export an auxiliary dictionary file containing 3D components information"
+                )
+        for el in objs:
+            if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
+                objs.remove(el)
+        arg.append("IncludedParts:="), arg.append(objs)
+        arg.append("HiddenParts:="), arg.append([])
+        if included_cs:
+            allcs = included_cs
+        else:
+            allcs = self.oeditor.GetCoordinateSystems()
+        arg.append("IncludedCS:="), arg.append(allcs)
+        arg.append("ReferenceCS:="), arg.append(reference_cs)
+        par_description = []
+        variables = []
+        if variables_to_include:
+            dependent_variables = []
+            ind_variables = self._app._variable_manager.independent_variable_names
+            dep_variables = self._app._variable_manager.dependent_variable_names
+            for param in variables_to_include:
+                if self._app[param] in ind_variables:
+                    variables.append(self._app[param])
+                    dependent_variables.append(param)
+                elif self._app[param] not in dep_variables:
+                    variables.append(param)
+        else:
+            variables = self._app._variable_manager.independent_variable_names
+            dependent_variables = self._app._variable_manager.dependent_variable_names
+
+        for el in variables:
+            par_description.append(el + ":=")
+            par_description.append("")
+        arg.append("IncludedParameters:="), arg.append(variables)
+
+        arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
+
+        for el in variables:
+            par_description.append(el + ":=")
+            par_description.append("")
+        arg.append("ParameterDescription:="), arg.append(par_description)
+
+        arg2 = ["NAME:DesignData"]
+        if boundaries_list:
+            boundaries = boundaries_list
+        else:
+            boundaries = self.get_boundaries_name()
+        if boundaries:
+            arg2.append("Boundaries:="), arg2.append(boundaries)
+        if self._app.design_type == "Icepak":
+            meshregions = [mr.name for mr in self._app.mesh.meshregions]
+            try:
+                meshregions.remove("Global")
+            except:
+                pass
+            if meshregions:
+                arg2.append("MeshRegions:="), arg2.append(meshregions)
+        else:
+            if excitation_list:
+                excitations = excitation_list
+            else:
+                excitations = self._app.excitations
+                if self._app.design_type == "HFSS":
+                    exc = self._app.get_oo_name(self._app.odesign, "Excitations")
+                    if exc and exc[0] not in self._app.excitations:
+                        excitations.extend(exc)
+            excitations = list(set([i.split(":")[0] for i in excitations]))
+            if excitations:
+                arg2.append("Excitations:="), arg2.append(excitations)
+        meshops = [el.name for el in self._app.mesh.meshoperations]
+        if meshops:
+            used_mesh_ops = []
+            for mesh in range(0, len(meshops)):
+                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                    used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
+            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+        else:
+            arg2.append("MeshOperations:="), arg2.append(meshops)
+        arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
+        return _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
 
     @pyaedt_function_handler()
     def create_coaxial(

@@ -237,6 +237,16 @@ class TestClass(BasisTest, object):
         assert abs(phi - (-2.0344439357957027)) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - 1.9590019609437583) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
+        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        assert abs(phi - (-2.158798930342464)) < tol
+        assert abs(theta - 3.141592653589793) < tol
+        assert abs(psi - 0) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
+        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        assert abs(phi - (-1.9513027039072295)) < tol
+        assert abs(theta - 0) < tol
+        assert abs(psi - 0) < tol
 
     def test_axis_to_euler_zyz(self):
         x, y, z = go.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
@@ -244,6 +254,16 @@ class TestClass(BasisTest, object):
         assert abs(phi - 2.677945044588987) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - (-2.7533870194409316)) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
+        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        assert abs(phi - 2.553590050042222) < tol
+        assert abs(theta - 3.141592653589793) < tol
+        assert abs(psi - 1.5707963267948966) < tol
+        x, y, z = go.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
+        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        assert abs(phi - 2.7610862764774597) < tol
+        assert abs(theta - 0) < tol
+        assert abs(psi - 1.5707963267948966) < tol
 
     def test_quaternion_to_axis(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
@@ -347,6 +367,21 @@ class TestClass(BasisTest, object):
         yo.reverse()
         assert x == xo
         assert y == yo
+        x2 = [3, 3]
+        y2 = [1, 2]
+        xo2, yo2 = go.orient_polygon(x2, y2, clockwise=True)
+        assert x2 == xo2
+        assert y2 == yo2
+        try:
+            go.orient_polygon([1], [2], clockwise=True)
+            assert False
+        except ValueError as e:
+            assert str(e) == "'x' length must be >= 2"
+        try:
+            go.orient_polygon([1, 2, 3], [1, 2], clockwise=True)
+            assert False
+        except ValueError as e:
+            assert str(e) == "'y' must be same length as 'x'"
 
     def test_is_collinear(self):
         assert go.is_collinear([1, 0, 0], [1, 0, 0])
@@ -386,6 +421,11 @@ class TestClass(BasisTest, object):
             10000,
         ]
         assert unit_converter(values, "Length", "m", "mm") == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        assert unit_converter(10, "Temperature", "cel", "fah") == 50
+        assert unit_converter(10, "Power", "W", "dBm") == 40
+        assert unit_converter(10, "Power", "W", "dBW") == 10
+        assert unit_converter(10, "Power", "dBm", "W") == 0.01
+        assert unit_converter(10, "Power", "dBW", "W") == 10
 
     def test_are_segments_intersecting(self):
         # crossing

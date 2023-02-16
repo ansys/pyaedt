@@ -12,18 +12,20 @@ import os.path
 import time
 import warnings
 from collections import OrderedDict
+from random import randrange
 
+from pyaedt import Hfss
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.DataHandlers import _tuple2dict
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.SetupTemplates import SetupKeys
-from pyaedt.modules.SetupTemplates import SetupProps
-from pyaedt.modules.SetupTemplates import SweepHFSS
-from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
-from pyaedt.modules.SetupTemplates import SweepMatrix
-from pyaedt.modules.SetupTemplates import identify_setup
+from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SolveSweeps import SetupProps
+from pyaedt.modules.SolveSweeps import SweepHFSS
+from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
+from pyaedt.modules.SolveSweeps import SweepMatrix
+from pyaedt.modules.SolveSweeps import identify_setup
 
 
 class CommonSetup(PropsManager, object):
@@ -45,6 +47,24 @@ class CommonSetup(PropsManager, object):
         self._init_props(isnewsetup)
         self.auto_update = True
 
+    @property
+    def default_intrinsics(self):
+        """Retrieve default intrinsic for actual setup.
+
+        Returns
+        -------
+        dict
+            Dictionary which keys are typically Freq, Phase or Time."""
+        intr = {}
+        for i in self._app.design_solutions.intrinsics:
+            if i == "Freq" and "Frequency" in self.props:
+                intr[i] = self.props["Frequency"]
+            elif i == "Phase":
+                intr[i] = "0deg"
+            elif i == "Time":
+                intr[i] = "0s"
+        return intr
+
     def __repr__(self):
         return "SetupName " + self.name + " with " + str(len(self.sweeps)) + " Sweeps"
 
@@ -52,9 +72,9 @@ class CommonSetup(PropsManager, object):
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
+            # for t in setup_template:
+            #    _tuple2dict(t, self.props)
+            self.props = SetupProps(self, setup_template)
         else:
             try:
                 setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
@@ -548,6 +568,34 @@ class Setup(CommonSetup):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def analyze(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+        """Analyze a design setup.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores. The default is ``None.``
+        num_tasks : int, optional
+            Number of simulation tasks. The default is ``None.``
+        num_gpu : int, optional
+            Number of simulation graphics processing units. The default is ``None.``
+        acf_file : str, optional
+            Full path to custom ACF file. The default is ``None.``
+        use_auto_settings : bool, optional
+            Whether to use automatic settings in tasks or cores. This parameter
+            is not supported by all setup types.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        """
+        self._app.analyze_setup(self.name, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
+
 
 class SetupCircuit(CommonSetup):
     """Initializes, creates, and updates a circuit setup.
@@ -574,9 +622,9 @@ class SetupCircuit(CommonSetup):
         props = {}
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, props)
-            self.props = SetupProps(self, props)
+            # for t in setup_template:
+            #    _tuple2dict(t, props)
+            self.props = SetupProps(self, setup_template)
         else:
             self.props = SetupProps(self, OrderedDict())
             try:
@@ -730,7 +778,6 @@ class SetupCircuit(CommonSetup):
             sweep_points = [sweep_points]
         sweeps = []
         for el in sweep_points:
-
             if isinstance(el, (int, float)):
                 sweeps.append(str(el) + units)
             else:
@@ -1104,9 +1151,9 @@ class Setup3DLayout(CommonSetup):
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
+            # for t in setup_template:
+            #    _tuple2dict(t, self.props)
+            self.props = SetupProps(self, setup_template)
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -1251,13 +1298,16 @@ class Setup3DLayout(CommonSetup):
         return True
 
     @pyaedt_function_handler()
-    def export_to_hfss(self, file_fullname):
+    def export_to_hfss(self, file_fullname, keep_net_name=False):
         """Export the HFSS 3DLayout design to HFSS 3D design.
 
         Parameters
         ----------
         file_fullname : str
             Full path and file name for exporting the project.
+
+        keep_net_name : bool
+            Keep net name in 3D export when ``True`` or by default when ``False``. Default value is ``False``.
 
         Returns
         -------
@@ -1282,7 +1332,119 @@ class Setup3DLayout(CommonSetup):
             if os.path.exists(file_fullname):
                 timeout = 0
             time.sleep(1)
+        if keep_net_name:
+            primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
+            via_per_nets = self._get_via_position_per_net()
+            layers_elevation = {
+                lay.name: lay.lower_elevation + lay.thickness / 2
+                for lay in list(self.p_app.modeler.edb.stackup.signal_layers.values())
+            }
+            hfss = Hfss(projectname=file_fullname)
+            units = hfss.modeler.model_units
+            aedt_units = AEDT_UNITS["Length"][units]
+            self._convert_edb_to_aedt_units(input_dict=primitives_3d_pts_per_nets, output_unit=aedt_units)
+            self._convert_edb_to_aedt_units(input_dict=via_per_nets, output_unit=aedt_units)
+            self._convert_edb_layer_elevation_to_aedt_units(input_dict=layers_elevation, output_units=aedt_units)
+            metal_object = [
+                obj.name
+                for obj in hfss.modeler.solid_objects
+                if not obj.material_name in hfss.modeler.materials.dielectrics
+            ]
+            for net, primitives in primitives_3d_pts_per_nets.items():
+                obj_dict = {}
+                for position in primitives_3d_pts_per_nets[net]:
+                    hfss_objs = [p for p in hfss.modeler.get_bodynames_from_position(position) if p in metal_object]
+                    if hfss_objs:
+                        for p in hfss.modeler.get_bodynames_from_position(position, None, False):
+                            if p in metal_object:
+                                obj_ind = hfss.modeler.object_id_dict[p]
+                                if obj_ind not in obj_dict:
+                                    obj_dict[obj_ind] = hfss.modeler.objects[obj_ind]
+                if net in via_per_nets:
+                    for via_pos in via_per_nets[net]:
+                        for p in hfss.modeler.get_bodynames_from_position(via_pos, None, False):
+                            if p in metal_object:
+                                obj_ind = hfss.modeler.object_id_dict[p]
+                                if obj_ind not in obj_dict:
+                                    obj_dict[obj_ind] = hfss.modeler.objects[obj_ind]
+                            for lay_el in list(layers_elevation.values()):
+                                pad_pos = via_pos[:2]
+                                pad_pos.append(lay_el)
+                                pad_objs = hfss.modeler.get_bodynames_from_position(pad_pos, None, False)
+                                for pad_obj in pad_objs:
+                                    if pad_obj in metal_object:
+                                        pad_ind = hfss.modeler.object_id_dict[pad_obj]
+                                        if pad_ind not in obj_dict:
+                                            obj_dict[pad_ind] = hfss.modeler.objects[pad_ind]
+                obj_list = list(obj_dict.values())
+                if len(obj_list) == 1:
+                    obj_list[0].name = net
+                    obj_list[0].color = [randrange(255), randrange(255), randrange(255)]
+                elif len(obj_list) > 1:
+                    united_object = hfss.modeler.unite(obj_list, purge=True)
+                    obj_ind = hfss.modeler.object_id_dict[united_object]
+                    hfss.modeler.objects[obj_ind].name = net
+                    hfss.modeler.objects[obj_ind].color = [randrange(255), randrange(255), randrange(255)]
+            hfss.close_project(save_project=True)
         return True
+
+    @pyaedt_function_handler()
+    def _get_primitives_points_per_net(self):
+        edb = self.p_app.modeler.edb
+        net_primitives = edb.core_primitives.primitives_by_net
+        primitive_dict = {}
+        for net, primitives in net_primitives.items():
+            primitive_dict[net] = []
+            if primitives:
+                for prim in primitives:
+                    layer = edb.stackup.signal_layers[prim.layer_name]
+                    z = layer.lower_elevation + layer.thickness / 2
+                    for arc in prim.arcs:
+                        pt = self._get_polygon_centroid(arc.points)
+                        pt.append(z)
+                        primitive_dict[net].append(pt)
+        return primitive_dict
+
+    @pyaedt_function_handler()
+    def _get_polygon_centroid(self, arcs=None):
+        if arcs:
+            k = len(arcs[0])
+            x = sum(arcs[0]) / k
+            y = sum(arcs[1]) / k
+            return [x, y]
+
+    @pyaedt_function_handler()
+    def _convert_edb_to_aedt_units(self, input_dict=None, output_unit=0.001):
+        if input_dict:
+            for k, v in input_dict.items():
+                new_pts = []
+                for pt in v:
+                    new_pts.append([round(coord / output_unit, 5) for coord in pt])
+                input_dict[k] = new_pts
+
+    @pyaedt_function_handler()
+    def _get_via_position_per_net(self):
+        via_dict = {}
+        via_list = list(self.p_app.modeler.edb.core_padstack.padstack_instances.values())
+        if via_list:
+            for net in list(self.p_app.modeler.edb.core_nets.nets.keys()):
+                vias = [via for via in via_list if via.net_name == net and via.start_layer != via.stop_layer]
+                if vias:
+                    via_dict[net] = []
+                    for via in vias:
+                        via_pos = via.position
+                        z1 = self.p_app.modeler.edb.stackup.signal_layers[via.start_layer].lower_elevation
+                        z2 = self.p_app.modeler.edb.stackup.signal_layers[via.stop_layer].upper_elevation
+                        z = (z2 + z1) / 2
+                        via_pos.append(z)
+                        via_dict[net].append(via_pos)
+        return via_dict
+
+    @pyaedt_function_handler()
+    def _convert_edb_layer_elevation_to_aedt_units(self, input_dict=None, output_units=0.001):
+        if input_dict:
+            for k, v in input_dict.items():
+                input_dict[k] = round(v / output_units, 5)
 
     @pyaedt_function_handler()
     def export_to_q3d(self, file_fullname):
@@ -1330,7 +1492,7 @@ class Setup3DLayout(CommonSetup):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
             Sweep object.
 
         References
@@ -1442,12 +1604,12 @@ class SetupHFSS(Setup, object):
         return self.update()
 
     @pyaedt_function_handler()
-    def create_linear_count_sweep(
+    def create_frequency_sweep(
         self,
         unit,
         freqstart,
         freqstop,
-        num_of_freq_points,
+        num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -1466,7 +1628,9 @@ class SetupHFSS(Setup, object):
         freqstop : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
-            Number of frequency points in the range.
+            Number of frequency points in the range. The default is ``401`` for
+            a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
+            type of ``"Discrete"``.
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
@@ -1485,7 +1649,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1508,7 +1672,16 @@ class SetupHFSS(Setup, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+
+        # Set default values for num_of_freq_points if a value was not passed. Also,
+        # check that sweep_type is valid.
+        if sweep_type in ["Interpolating", "Fast"]:
+            if num_of_freq_points == None:
+                num_of_freq_points = 401
+        elif sweep_type == "Discrete":
+            if num_of_freq_points == None:
+                num_of_freq_points = 5
+        else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
@@ -1517,7 +1690,7 @@ class SetupHFSS(Setup, object):
         if sweepname in [sweep.name for sweep in self.sweeps]:
             oldname = sweepname
             sweepname = generate_unique_name(oldname)
-            self.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
         sweepdata = self.add_sweep(sweepname, sweep_type)
         if not sweepdata:
             return False
@@ -1534,7 +1707,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SaveFields"] = save_fields
         sweepdata.props["SaveRadFields"] = save_rad_fields
         sweepdata.update()
-        self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
+        self._app.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
         return sweepdata
 
     @pyaedt_function_handler()
@@ -1576,7 +1749,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1604,15 +1777,15 @@ class SetupHFSS(Setup, object):
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
-        if setupname not in self.setup_names:
+        if setupname not in self._app.setup_names:
             return False
-        for s in self.setups:
+        for s in self._app.setups:
             if s.name == setupname:
                 setupdata = s
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
+                    self._app.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
@@ -1632,7 +1805,7 @@ class SetupHFSS(Setup, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -1669,7 +1842,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1715,15 +1888,15 @@ class SetupHFSS(Setup, object):
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setupname not in self.setup_names:
+        if setupname not in self._app.setup_names:
             return False
-        for s in self.setups:
+        for s in self._app.setups:
             if s.name == setupname:
                 setupdata = s
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
+                    self._app.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -1738,7 +1911,7 @@ class SetupHFSS(Setup, object):
                     for f, s in zip(freq, save_single_field):
                         sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
-                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+                self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -1755,7 +1928,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
             Sweep object.
 
         References

@@ -180,6 +180,7 @@ class FieldAnalysis3D(Analysis, object):
         force_opacity_value=None,
         clean_files=False,
         view="isometric",
+        show_legend=True,
     ):
         """Plot the model or a subset of objects.
 
@@ -208,6 +209,8 @@ class FieldAnalysis3D(Analysis, object):
         view : str, optional
            View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
            The default is ``"isometric"``.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
 
         Returns
         -------
@@ -228,6 +231,7 @@ class FieldAnalysis3D(Analysis, object):
                 force_opacity_value=force_opacity_value,
                 clean_files=clean_files,
                 view=view,
+                show_legend=show_legend,
             )
 
     @pyaedt_function_handler()
@@ -726,12 +730,14 @@ class FieldAnalysis3D(Analysis, object):
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
-        cond = self.materials.conductors
         obj_names = []
-        for mat in cond:
-            obj_names.extend(self.modeler.get_objects_by_material(mat))
-            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
-        return list(set(obj_names))
+        for _, val in self.modeler.objects.items():
+            try:
+                if val.material_name and self.materials[val.material_name].is_conductor():
+                    obj_names.append(val.name)
+            except KeyError:
+                pass
+        return obj_names
 
     @pyaedt_function_handler()
     def get_all_dielectrics_names(self):
@@ -750,10 +756,13 @@ class FieldAnalysis3D(Analysis, object):
             self.modeler.refresh_all_ids()
         diel = self.materials.dielectrics
         obj_names = []
-        for mat in diel:
-            obj_names.extend(self.modeler.get_objects_by_material(mat))
-            obj_names.extend(self.modeler.get_objects_by_material(self.materials[mat].name))
-        return list(set(obj_names))
+        for _, val in self.modeler.objects.items():
+            try:
+                if val.material_name and self.materials[val.material_name].is_dielectric():
+                    obj_names.append(val.name)
+            except KeyError:
+                pass
+        return obj_names
 
     @pyaedt_function_handler()
     def _create_dataset_from_sherlock(self, material_string, property_name="Mass_Density"):

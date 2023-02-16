@@ -658,7 +658,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
         with open_file(all_validate, "w") as validation:
-
             # Desktop Messages
             msg = "Desktop Messages:"
             validation.writelines(msg + "\n")
@@ -837,7 +836,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
-
         """Define the settings of the mesh.
 
         Parameters
@@ -973,7 +971,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1076,7 +1074,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1155,7 +1153,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1345,7 +1343,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def import_brd(
-        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False
+        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False, control_file=None
     ):  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1360,6 +1358,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         close_active_project : bool, optional
             Whether to close the active project after loading the board file.
             The default is ''False``.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+
         Returns
         -------
         bool
@@ -1370,7 +1372,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportExtracta
         """
-        return self._import_cad(input_file, "brd", aedb_path, "", set_as_active, close_active_project)
+        return self._import_cad(input_file, "brd", aedb_path, control_file, set_as_active, close_active_project)
 
     @pyaedt_function_handler()
     def import_awr(

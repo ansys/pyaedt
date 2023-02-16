@@ -1,0 +1,58 @@
+"""
+* * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
+The script provides for choosing the Python script to execute.
+
+It looks for a reference to a Python interpreter in the ``python_interpreter.bat`` file.
+
+It then uses this Python interpreter to execute the script.
+See the declaration of the command variable to see the order in which arguments are passed to the script.
+
+The commands allow the launched script to still reference the project and design that was active when the script
+was launched as well as the AEDT instance that has them open.
+
+Author: Carlos A. Mulero Hernandez
+"""
+import os
+import subprocess
+
+import ScriptEnv
+
+# import clr
+# clr.AddReference("System.Windows.Forms")
+from System.Windows.Forms import OpenFileDialog
+
+oProject = oDesktop.GetActiveProject()
+oDesign = oProject.GetActiveDesign()
+
+# Choose file to launch
+file_dialog = OpenFileDialog()
+file_dialog.InitialDirectory = oProject.GetPath()
+file_dialog.Filter = "python files(*.py)|*.py"
+ret = file_dialog.ShowDialog()
+print("ret: " + repr(ret))
+
+try:
+    if ret == ret.OK:
+        # launch file
+        current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+        pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
+        config_file = open(
+            os.path.join(pyaedt_toolkit_dir, "python_interpreter.bat"), "r"
+        )  # will fail with a file not found error if it isn't here
+        python_exe = r"##PYTHON_EXE##"
+        print("python.exe: " + python_exe)
+        pyaedt_script = file_dialog.FileName
+        print("pyaedt_script: " + str(pyaedt_script))
+        command = [
+            python_exe,
+            pyaedt_script,
+            str(oDesktop.GetProcessID()),
+            oDesktop.GetVersion()[:6],  # "2022.1.0" is returned but this makes PyAEDT fail a float conversion
+        ]
+        subprocess.Popen(command)
+    else:
+        # exit()
+        print("ret didn't pass the equivalence")
+        print("ret:" + repr(ret))
+except Exception as e:
+    print(str(e))

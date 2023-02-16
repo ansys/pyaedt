@@ -26,6 +26,7 @@ from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
 from pyaedt.modules.solutions import FfdSolutionData
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class Hfss(FieldAnalysis3D, object):
@@ -466,7 +467,6 @@ class Hfss(FieldAnalysis3D, object):
         )
 
         if "Modal" in self.solution_type:
-
             if renorm:
                 if isinstance(renorm_impedance, (int, float)) or "i" not in renorm_impedance:
                     renorm_imp = str(renorm_impedance) + "ohm"
@@ -493,16 +493,18 @@ class Hfss(FieldAnalysis3D, object):
     ):
         start = None
         stop = None
-        if int_line_start and int_line_stop:
-            start = [str(i) + self.modeler.model_units for i in int_line_start]
-            stop = [str(i) + self.modeler.model_units for i in int_line_stop]
+        if int_line_start and int_line_stop:  # Allow non-numeric arguments
+            start = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_start]
+            stop = [str(i) + self.modeler.model_units if type(i) in (int, float) else i for i in int_line_stop]
             useintline = True
         else:
             useintline = False
 
-        props = OrderedDict({})
-        if isinstance(objectname, int):
+        props = OrderedDict({})  # Used to create the argument to pass to native api: oModule.AssignWavePort()
+        if isinstance(objectname, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [objectname]
+        elif isinstance(objectname, list):  # Assume [x, y, z] point is passed in objectname
+            props["Faces"] = self.modeler.get_faceid_from_position(objectname)
         else:
             props["Objects"] = [objectname]
         props["NumModes"] = nummodes
@@ -720,6 +722,75 @@ class Hfss(FieldAnalysis3D, object):
             props["IsInternal"] = isInternal
         return self._create_boundary("Coating_" + listobjname[1:], props, "Finite Conductivity")
 
+    # TODO: Extract name and type from **kwargs to pass them to create_setup() as setuptype and setupname
+
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create an analysis setup for HFSS.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
+
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+
+        Parameters
+        ----------
+        setuptype : str, optional
+            Type of the setup. Based on the solution type, options are
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``, ``"HFSSEigen"``, ``"HFSSTransient"``,
+            and ``"HFSSSBR"``. The default is ``"HFSSDrivenAuto"``.
+        setupname : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        **kwargs : dict, optional
+            Extra arguments to set up the circuit.
+            Available keys depend on the setup chosen.
+            For more information, see
+            :doc:`../SetupTemplatesHFSS`.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`, :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss
+        >>> hfss = Hfss()
+        >>> hfss.create_setup(setupname="Setup1", setuptype="HFSSDriven", Frequency="10GHz")
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                if arg_name == "MultipleAdaptiveFreqsSetup":
+                    setup[arg_name].delete_all()
+                    if isinstance(arg_value, list):
+                        for i in arg_value:
+                            setup[arg_name][i] = [0.02]
+                    else:
+                        for i, k in arg_value.items():
+                            setup[arg_name][i] = [k]
+                    setup.props["SolveType"] = "MultiFrequency"
+                else:
+                    setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
+
     @pyaedt_function_handler()
     def create_frequency_sweep(
         self,
@@ -767,7 +838,7 @@ class Hfss(FieldAnalysis3D, object):
         unit,
         freqstart,
         freqstop,
-        num_of_freq_points,
+        num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -789,8 +860,11 @@ class Hfss(FieldAnalysis3D, object):
             Stopping frequency of the sweep.
         num_of_freq_points : int
             Number of frequency points in the range.
+            The default is ``401`` for ``sweep_type = "Interpolating"``. The defaults
+            are "Fast"`` and ``5`` for ``sweep_type = ""Discrete"``.
         sweepname : str, optional
-            Name of the sweep. The default is ``None``.
+            Name of the sweep. The default is ``None``, in which
+            case the default name is automatically assigned.
         save_fields : bool, optional
             Whether to save the fields. The default is ``True``.
         save_rad_fields : bool, optional
@@ -807,7 +881,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -830,7 +904,13 @@ class Hfss(FieldAnalysis3D, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+        if sweep_type in ["Interpolating", "Fast"]:
+            if num_of_freq_points == None:
+                num_of_freq_points = 401
+        elif sweep_type == "Discrete":
+            if num_of_freq_points == None:
+                num_of_freq_points = 5
+        else:
             raise AttributeError(
                 "Invalid value for `sweep_type`. The value must be 'Discrete', 'Interpolating', or 'Fast'."
             )
@@ -908,7 +988,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1004,7 +1084,7 @@ class Hfss(FieldAnalysis3D, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1089,8 +1169,9 @@ class Hfss(FieldAnalysis3D, object):
         current_conformance="Disable",
         thin_sources=True,
         power_fraction="0.95",
+        visible=True,
     ):
-        """Create a linked antenna.
+        """Create a linked antennas.
 
         Parameters
         ----------
@@ -1112,6 +1193,8 @@ class Hfss(FieldAnalysis3D, object):
              The default is ``True``.
         power_fraction : str, optional
              The default is ``"0.95"``.
+        visible : bool, optional.
+            Visualize source objects in target design. The default is ``True``.
 
         References
         ----------
@@ -1170,6 +1253,8 @@ class Hfss(FieldAnalysis3D, object):
             native_props["Current Source Conformance"] = current_conformance
             native_props["Thin Sources"] = thin_sources
             native_props["Power Fraction"] = power_fraction
+        if visible:
+            native_props["VisualizationObjects"] = source_object.modeler.solid_names
         return self._create_native_component(
             "Linked Antenna", target_cs, self.modeler.model_units, native_props, uniquename
         )
@@ -1381,12 +1466,12 @@ class Hfss(FieldAnalysis3D, object):
         is_array=False,
         antenna_name=None,
     ):
-        """Create a parametric beam antenna in SBR+.
+        """Create a parametric beam antennas in SBR+.
 
         Parameters
         ----------
         antenna_type : str, `SbrAntennas.ConicalHorn`
-            Name of the antenna type. The enumerator ``SbrAntennas`` can also be used.
+            Name of the antennas type. The enumerator ``SbrAntennas`` can also be used.
             The default is ``"SbrAntennas.Conical Horn"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case
@@ -1402,7 +1487,7 @@ class Hfss(FieldAnalysis3D, object):
             The default is ``False``.
         antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case the
-            name is auto-generated based on the antenna type.
+            name is auto-generated based on the antennas type.
 
         Returns
         -------
@@ -1495,7 +1580,7 @@ class Hfss(FieldAnalysis3D, object):
         model_units=None,
         antenna_name=None,
     ):
-        """Create a linked antenna.
+        """Create a linked antennas.
 
         Parameters
         ----------
@@ -1506,7 +1591,7 @@ class Hfss(FieldAnalysis3D, object):
         antenna_impedance : str, optional
             Antenna impedance with units. The default is ``"50ohm"``.
         representation_type : str, optional
-            Type of the antenna. Options are ``"Far Field"`` and ``"Near Field"``.
+            Type of the antennas. Options are ``"Far Field"`` and ``"Near Field"``.
             The default is ``"Far Field"``.
         target_cs : str, optional
             Target coordinate system. The default is ``None``, in which case the
@@ -1516,7 +1601,7 @@ class Hfss(FieldAnalysis3D, object):
             ``None``, in which case the active modeler units are applied.
         antenna_name : str, optional
             Name of the 3D component. The default is ``None``, in which case
-            the name is auto-generated based on the antenna type.
+            the name is auto-generated based on the antennas type.
 
         Returns
         -------
@@ -1556,7 +1641,7 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def set_sbr_txrx_settings(self, txrx_settings):
-        """Set SBR+ TX RX antenna settings.
+        """Set SBR+ TX RX antennas settings.
 
         Parameters
         ----------
@@ -1740,11 +1825,20 @@ class Hfss(FieldAnalysis3D, object):
 
         The two objects must have two adjacent, parallel, and identical faces.
         The faces must be a polygon (not a circle).
+        The closest faces must be aligned with the main planes of the reference system.
 
         Parameters
         ----------
         start_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+            First solid connected to the spiral port.
+
         end_object : str or int or :class:`pyaedt.modeler.object3d.Object3d`
+            Second object connected to the spiral port.
+
+        port_width : float, optional
+            Width of the spiral port.
+            If not specified the width will be calculated based on the object dimensions.
+            The default is ``None``.
 
         Returns
         -------
@@ -1752,11 +1846,12 @@ class Hfss(FieldAnalysis3D, object):
             Boundary object.
 
         """
-        # fmt: off
         if not "Terminal" in self.solution_type:
             raise Exception("This method can be used only in Terminal solutions.")
         start_object = self.modeler.convert_to_selections(start_object)
         end_object = self.modeler.convert_to_selections(end_object)
+
+        # find the closest faces (based on face center)
         closest_distance = 1e9
         closest_faces = []
         for face1 in self.modeler[start_object].faces:
@@ -1766,20 +1861,29 @@ class Hfss(FieldAnalysis3D, object):
                     closest_distance = facecenter_distance
                     closest_faces = [face1, face2]
 
+        # check if the faces are parallel
         if not GeometryOperators.is_collinear(closest_faces[0].normal, closest_faces[1].normal):
-            raise AttributeError('The two objects must have parallel adjacent faces.')
+            raise AttributeError("The two objects must have parallel adjacent faces.")
         if GeometryOperators.is_collinear(closest_faces[0].normal, [1, 0, 0]):
-            plane = 0
+            plane = "X"
         elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 1, 0]):
-            plane = 1
+            plane = "Y"
         elif GeometryOperators.is_collinear(closest_faces[0].normal, [0, 0, 1]):
-            plane = 2
+            plane = "Z"
         else:
-            raise AttributeError('The two object must have the adjacent faces aligned with the main planes.')
+            raise AttributeError(
+                "The closest faces of the two objects must be aligned with the main planes of the reference system."
+            )
 
+        # check if the faces are identical (actually checking only the area, not the shape)
+        if abs(closest_faces[0].area - closest_faces[1].area) > 1e-10:
+            raise AttributeError("The closest faces of the two objects must be identical in shape.")
+
+        # evaluate the vector to move from face0 to the middle distance between the faces
         move_vector = GeometryOperators.v_sub(closest_faces[1].center, closest_faces[0].center)
-        move_vector = GeometryOperators.v_prod(0.5, move_vector)
+        move_vector_mid = GeometryOperators.v_prod(0.5, move_vector)
 
+        # fmt: off
         if port_width:
             spiral_width = port_width
             filling = 1.5
@@ -1806,135 +1910,86 @@ class Hfss(FieldAnalysis3D, object):
                     segments_lengths.append(GeometryOperators.points_distance(vc, closest_faces[0].center))
                 spiral_width = min(segments_lengths) / 15
                 filling = 1.5
+        # fmt: on
 
         name = generate_unique_name("P", n=3)
 
-        poly = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
-        poly.name = name
-        poly.translate(move_vector)
+        spiral = self.modeler.create_spiral_on_face(closest_faces[0], spiral_width, filling_factor=filling)
+        spiral.name = name
+        spiral.translate(move_vector_mid)
+        spiral_center = GeometryOperators.get_mid_point(closest_faces[0].center, closest_faces[1].center)
 
-        vert_position_x = []
-        vert_position_y = []
-        for vert in poly.vertices:
-            if plane == 0:
-                vert_position_x.append(vert.position[1])
-                vert_position_y.append(vert.position[2])
-            elif plane == 1:
-                vert_position_x.append(vert.position[0])
-                vert_position_y.append(vert.position[2])
-            elif plane == 2:
-                vert_position_x.append(vert.position[0])
-                vert_position_y.append(vert.position[1])
+        # get the polyline center point (before width operation). They need to be moved as well.
+        poly_points = [GeometryOperators.v_sum(i, move_vector_mid) for i in spiral.points]
 
-        x, y = GeometryOperators.orient_polygon(vert_position_x, vert_position_y)
+        # get the vertices of the spiral created. These need to be divided in two lists, one following the external
+        # contour (p1) and one following the internal contour (p2). We use poly_points to discern the points.
+        poly_v = [[v.position[0], v.position[1], v.position[2]] for v in spiral.vertices]
 
-        list_a_val = False
-        x1 = []
-        y1 = []
-        x2 = []
-        y2 = []
-        for i in range(len(x) - 1):
-            dist = GeometryOperators.points_distance([x[i], y[i], 0], [x[i + 1], y[i + 1], 0])
-            if list_a_val:
-                x1.append(x[i])
-                y1.append(y[i])
+        p1 = []
+        p2 = []
+        for p in poly_points:
+            cp = GeometryOperators.find_closest_points(poly_v, p)
+            if len(cp) > 2:
+                raise Exception("Internal error in spiral creation, please review the port_width parameter.")
+            if GeometryOperators.points_distance(cp[0], spiral_center) > GeometryOperators.points_distance(
+                cp[1], spiral_center
+            ):
+                p1.append(cp[0])
+                p2.append(cp[1])
             else:
-                x2.append(x[i])
-                y2.append(y[i])
-            if abs(dist - spiral_width) < 1e-6:
-                list_a_val = not list_a_val
-        # set the last point
-        if list_a_val:
-            x1.append(x[-1])
-            y1.append(y[-1])
+                p1.append(cp[1])
+                p2.append(cp[0])
+
+        # move the p1 down and the p2 up
+        move_vector_quarter = GeometryOperators.v_prod(0.25, move_vector)
+        p1_down = [GeometryOperators.v_sub(i, move_vector_quarter) for i in p1]
+        p2_up = [GeometryOperators.v_sum(i, move_vector_quarter) for i in p2]
+
+        # create first polyline to join spiral with conductor face
+        dx = abs(p1_down[0][0] - p1_down[1][0])
+        dy = abs(p1_down[0][1] - p1_down[1][1])
+        dz = abs(p1_down[0][2] - p1_down[1][2])
+        if plane == "X":
+            orient = "Y" if (dy < dz) else "Z"
+        elif plane == "Y":
+            orient = "X" if (dx < dz) else "Z"
         else:
-            x2.append(x[-1])
-            y2.append(y[-1])
+            orient = "X" if (dx < dy) else "Y"
 
-        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
-
-        x1, y1 = GeometryOperators.orient_polygon(x1, y1)
-        coords = []
-        for x, y in zip(x1, y1):
-            if plane == 0:
-                coords.append([faces_mid_point[0] - closest_distance/4, x, y])
-            elif plane == 1:
-                coords.append([x, faces_mid_point[1] - closest_distance/4, y])
-            elif plane == 2:
-                coords.append([x, y, faces_mid_point[2] - closest_distance/4])
-        dx = abs(coords[0][0] - coords[1][0])
-        dy = abs(coords[0][1] - coords[1][1])
-        dz = abs(coords[0][2] - coords[1][2])
-        v1 = GeometryOperators.v_points(coords[0], coords[1])
-        v2 = GeometryOperators.v_points(coords[0], coords[2])
-        norm = GeometryOperators.v_cross(v1, v2)
-
-        if abs(norm[0]) > 1e-12:
-            if dy < dz:
-                orient = "Y"
-            else:
-                orient = "Z"
-        elif abs(norm[1]) > 1e-12:
-            if dx < dz:
-                orient = "X"
-            else:
-                orient = "Z"
-        else:
-            if dx < dy:
-                orient = "X"
-            else:
-                orient = "Y"
         poly1 = self.modeler.create_polyline(
-            coords,
+            p1_down,
             xsection_type="Line",
             xsection_orient=orient,
             xsection_width=closest_distance / 2,
             name=start_object + "_sheet",
         )
-        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
 
-        x2, y2 = GeometryOperators.orient_polygon(x2, y2)
-        coords = []
-        faces_mid_point = GeometryOperators.get_mid_point(closest_faces[1].center, closest_faces[0].center)
-        for x, y in zip(x2, y2):
-            if plane == 0:
-                coords.append([faces_mid_point[0] + closest_distance/4, x, y])
-            elif plane == 1:
-                coords.append([x, faces_mid_point[1] + closest_distance/4, y])
-            elif plane == 2:
-                coords.append([x, y, faces_mid_point[2] + closest_distance/4])
-        dx = abs(coords[0][0] - coords[1][0])
-        dy = abs(coords[0][1] - coords[1][1])
-        dz = abs(coords[0][2] - coords[1][2])
-        v1 = GeometryOperators.v_points(coords[0], coords[1])
-        v2 = GeometryOperators.v_points(coords[0], coords[2])
-        norm = GeometryOperators.v_cross(v1, v2)
-        if abs(norm[0]) > 1e-12:
-            if dy < dz:
-                orient = "Y"
-            else:
-                orient = "Z"
-        elif abs(norm[1]) > 1e-12:
-            if dx < dz:
-                orient = "X"
-            else:
-                orient = "Z"
+        # create second polyline to join spiral with conductor face
+        dx = abs(p2_up[0][0] - p2_up[1][0])
+        dy = abs(p2_up[0][1] - p2_up[1][1])
+        dz = abs(p2_up[0][2] - p2_up[1][2])
+        if plane == "X":
+            orient = "Y" if (dy < dz) else "Z"
+        elif plane == "Y":
+            orient = "X" if (dx < dz) else "Z"
         else:
-            if dx < dy:
-                orient = "X"
-            else:
-                orient = "Y"
+            orient = "X" if (dx < dy) else "Y"
         poly2 = self.modeler.create_polyline(
-            coords,
+            p2_up,
             xsection_type="Line",
             xsection_orient=orient,
             xsection_width=closest_distance / 2,
             name=end_object + "_sheet",
         )
 
+        # assign pec to created polylines
+        self.assign_perfecte_to_sheets(poly1, sourcename=start_object)
         self.assign_perfecte_to_sheets(poly2, sourcename=end_object)
-        port = self.create_lumped_port_to_sheet(poly, reference_object_list=[poly2.name], portname=name)
-        # fmt: on
+
+        # create lumped port on spiral
+        port = self.create_lumped_port_to_sheet(spiral, reference_object_list=[poly2.name], portname=name)
+
         return port
 
     @pyaedt_function_handler()
@@ -2493,7 +2548,7 @@ class Hfss(FieldAnalysis3D, object):
             Name of the coordinate system for the U coordinates. The
             default is ``"Global"``.
         primary_name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the boundary. The default is ``None``.  # TODO: Add names of allowed values to docstring.
 
         Returns
         -------
@@ -3247,6 +3302,119 @@ class Hfss(FieldAnalysis3D, object):
                 return False
 
     @pyaedt_function_handler()
+    def create_wave_port(
+        self,
+        port_item,  # Item to use for wave port creation
+        int_start,
+        int_stop,
+        deemb=0,
+        axisdir=None,
+        impedance=50,
+        nummodes=1,
+        portname=None,
+        renorm=True,
+        terminal_references=None,
+    ):
+        """Assign a wave port to a face given a point on the face.
+
+        Parameters
+        ----------
+        port_item : list, int
+            Item for defining where to create the port.
+            If a list is passed, then Cartesian [x,y,z] coordinates of a point on the face are
+            expected. If an integer is passed, it is assumed to be a face ID.
+        deemb : float, optional
+            Deembedding value distance in model units. The default is ``0``.
+        axisdir : int or :class:`pyaedt.application.Analysis.Analysis.AxisDir`, optional
+            Position of the port. This parameter is used to automatically evaluate
+            the integration line. The default is ``None``, in which case no integration
+            line is defined. This parameter should be set to one of the values
+            for ``Application.AxisDir``,  which are: ``XNeg``, ``YNeg``, ``ZNeg``,
+            ``XPos``, ``YPos``, and ``ZPos``.
+
+        impedance : float, optional
+            Port impedance. The default is ``50``.
+        nummodes : int, optional
+            Number of modes. The default is ``1``.
+        portname : str, optional
+            Name of the port. The default is ``None``.
+        renorm : bool, optional
+            Whether to renormalize the mode. The default is ``True``.
+        terminal_references : list, optional
+            For a driven-terminal simulation, list of conductors for port terminal definitions.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.Boundary.BoundaryObject`
+            Boundary object.
+
+        References
+        ----------
+
+        >>> oModule.AssignWavePort
+
+        Examples
+        --------
+
+        Create a circle sheet for creating a wave port named ``'WavePortFromSheet'``.
+
+        >>> hfss.modeler.model_units("in")
+        >>> hfss.modeler.create_box([-0.2, -0.45, -1], [0.4, 0.9, 2], name="Xband_WG", matname="vacuum")
+        >>> setup = hfss.create_setup("Setup1")
+        >>> setup["Frequency"] = "10GHz"
+        >>> ports = [ hfss.create_wave_port([0, "a/2", "-wg_len/2"], portname="Port1", deembed=False),
+        >>>  ...      hfss.create_wave_port([0, "a/2", "wg_len/2"], portname="Port2", deembed=False) ]
+        >>> [print(name) for p.name in ports]
+
+        """
+        # TODO: check that port_item is a planar sheet
+        if terminal_references:
+            terminal_references = self.modeler.convert_to_selections(terminal_references, True)
+        if isinstance(port_item, int):
+            try:
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
+            except:
+                oname = ""
+        else:
+            oname = ""
+        if "Modal" in self.solution_type:
+            if portname is None:
+                portname = self._get_unique_source_name(portname, "Port")
+
+            return self._create_waveport_driven(
+                port_item, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
+            )
+        else:
+            if isinstance(sheet, int):
+                faces = sheet
+            else:
+                faces = self.modeler.get_object_faces(sheet)[0]
+            if not faces:  # pragma: no cover
+                self.logger.error("Input object is wrong. It must be a face ID or a sheet.")
+                return False
+            if not portname:
+                portname = generate_unique_name("Port")
+            elif portname in self.excitations:
+                portname = generate_unique_name(portname)
+            if terminal_references:
+                if deemb == 0:
+                    deembed = None
+                else:
+                    deembed = deemb
+                return self._create_port_terminal(
+                    faces,
+                    terminal_references,
+                    portname,
+                    renorm=renorm,
+                    deembed=deembed,
+                    iswaveport=True,
+                    impedance=impedance,
+                )
+            else:
+                self.logger.error("Reference conductors are missing.")
+                return False
+
+    @pyaedt_function_handler()
     def create_lumped_port_to_sheet(
         self, sheet_name, axisdir=0, impedance=50, portname=None, renorm=True, deemb=False, reference_object_list=[]
     ):
@@ -3546,7 +3714,6 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network", "SBR+"]:
-
             if not sourcename:
                 sourcename = generate_unique_name("PerfH")
             elif sourcename in self.modeler.get_boundaries_name():
@@ -3689,7 +3856,6 @@ class Hfss(FieldAnalysis3D, object):
         """
 
         if self.solution_type in ["Modal", "Terminal", "Transient Network"]:
-
             if not sourcename:
                 sourcename = generate_unique_name("Imped")
             elif sourcename in self.modeler.get_boundaries_name():
@@ -4298,7 +4464,7 @@ class Hfss(FieldAnalysis3D, object):
     def create_scattering(
         self, plot_name="S Parameter Plot Nominal", sweep_name=None, port_names=None, port_excited=None, variations=None
     ):
-        """Create a scattering report.
+        """Create an S-parameter report.
 
         Parameters
         ----------
@@ -4307,9 +4473,11 @@ class Hfss(FieldAnalysis3D, object):
         sweep_name : str, optional
              Name of the sweep. The default is ``None``.
         port_names : list, optional
-             List of port names. The default is ``None``.
+             List of port names. The first index, i, in S[i,j].
+             The default is ``None``. (include only self-terms)
         port_excited : list or str, optional
-             The default is ``None``.
+             List of port names. The seconds index, j in S[i,j].
+             The default is ``None``. (include only self-terms)
         variations : str, optional
              The default is ``None``.
 
@@ -4326,10 +4494,10 @@ class Hfss(FieldAnalysis3D, object):
         Examples
         --------
 
-        Create a scattering named ``"S Parameter Plot Nominal"`` using
-        the default parameters.
+        Create ad S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
+        plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
-        >>> hfss.create_scattering()
+        >>> hfss.create_scattering(port_names=["P1", "P2", "P3"], port_excited=["P1", "P1", "P1"])
         True
 
         """
@@ -5695,9 +5863,16 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
-        self, frequencies, setup_name=None, sphere_name=None, variations=None, overwrite=True, taper="flat"
+        self,
+        frequencies,
+        setup_name=None,
+        sphere_name=None,
+        variations=None,
+        overwrite=True,
+        taper="flat",
     ):
-        """Export antenna parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object.
+        """Export antennas parameters to Far Field Data (FFD) files and return the ``FfdSolutionData`` object. For
+        phased array cases, only one phased array will be calculated.
 
         Parameters
         ----------
@@ -5745,6 +5920,12 @@ class Hfss(FieldAnalysis3D, object):
             )
             self.logger.info("Far field sphere %s is created.", setup_name)
 
+        component_name = None
+        if self.solution_type == "SBR+" and self.modeler.modeler.user_defined_component_names:
+            antenna = self.modeler.user_defined_components[self.modeler.modeler.user_defined_component_names[0]]
+            if antenna.native_properties["Type"] == "Linked Antenna":
+                component_name = antenna.name
+
         return FfdSolutionData(
             self,
             sphere_name=sphere_name,
@@ -5753,6 +5934,7 @@ class Hfss(FieldAnalysis3D, object):
             variations=variations,
             overwrite=overwrite,
             taper=taper,
+            sbr_3d_comp_name=component_name,
         )
 
     @pyaedt_function_handler()

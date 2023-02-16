@@ -7,7 +7,6 @@ from pyaedt import Circuit
 # Import required modules
 test_subfolder = "T11"
 if desktop_version > "2022.2":
-
     test_project_name = "coax_setup_231"
 else:
     test_project_name = "coax_setup"

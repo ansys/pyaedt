@@ -388,13 +388,16 @@ class TestClass(BasisTest, object):
 
     def test_27_get_all_conductors(self):
         conductors = self.aedtapp.get_all_conductors_names()
-        assert sorted(conductors) == ["box", "network_box", "network_box2"]
+        assert sorted(conductors) == ["Inductor", "Paddle", "box", "network_box", "network_box2"]
 
     def test_28_get_all_dielectrics(self):
         dielectrics = self.aedtapp.get_all_dielectrics_names()
         assert sorted(dielectrics) == [
             "ADDA_AB0305MB_GA0_1_Box",
+            "Boundary",
+            "ILD",
             "Region",
+            "Substrate",
             "box2",
             "box3",
             "network_box3",
@@ -749,4 +752,18 @@ class TestClass(BasisTest, object):
             ext_surf_rad_material="Stainless-steel-cleaned",
             ext_surf_rad_ref_temp=0,
             ext_surf_rad_view_factor=0.5,
+        )
+
+    @pytest.mark.skipif(config["use_grpc"], reason="Bug in GRPC")
+    def test_55_native_components_history(self):
+        fan = self.aedtapp.create_fan("test_fan")
+        self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
+        self.aedtapp.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
+        fan_1_history = self.aedtapp.modeler.user_defined_components[fan.name].history()
+        assert fan_1_history.command == "Move"
+        assert all(fan_1_history.props["Move Vector/" + i] == j + "mm" for i, j in [("X", "1"), ("Y", "2"), ("Z", "3")])
+        assert fan_1_history.children["DuplicateAlongLine:1"].command == "DuplicateAlongLine"
+        assert all(
+            fan_1_history.children["DuplicateAlongLine:1"].props["Vector/" + i] == j + "mm"
+            for i, j in [("X", "4"), ("Y", "5"), ("Z", "6")]
         )

@@ -8,7 +8,6 @@ class EdbFrequencySweep(object):
     """Manages EDB methods for frequency sweep."""
 
     def __init__(self, sim_setup, frequency_sweep=None, name=None, edb_sweep_data=None):
-
         self._sim_setup = sim_setup
 
         if edb_sweep_data:

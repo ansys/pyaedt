@@ -11,8 +11,8 @@ INV2PI = 0.5 / math.pi
 V2PI = 2.0 * math.pi
 METER2IN = 0.0254
 METER2MILES = 1609.344051499
-
 MILS2METER = 39370.078740157
+SpeedOfLight = 299792458.0
 
 
 def db20(x, inverse=True):
@@ -29,6 +29,22 @@ def db10(x, inverse=True):
         return 10 * math.log10(x)
     else:
         return math.pow(10, x / 10.0)
+
+
+def dbw(x, inverse=True):
+    """Convert W to decimal and vice versa."""
+    if inverse:
+        return 10 * math.log10(x)
+    else:
+        return math.pow(10, x / 10.0)
+
+
+def dbm(x, inverse=True):
+    """Convert W to decimal and vice versa."""
+    if inverse:
+        return 10 * math.log10(x) + 30
+    else:
+        return math.pow(10, x / 10.0) / 1000
 
 
 def fah2kel(val, inverse=True):
@@ -150,15 +166,35 @@ def unit_converter(values, unit_system="Length", input_units="meter", output_uni
             warnings.warn("No units found")
             return values
         else:
-            if isinstance(values, list):
-                converted_values = []
-                for value in values:
-                    converted_values.append(
-                        value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
-                    )
-                return converted_values
+            if not isinstance(values, list):
+                values = [values]
+            converted_values = []
+            for value in values:
+                if unit_system == "Temperature":
+                    value = AEDT_UNITS[unit_system][input_units](value, False)
+                    value = AEDT_UNITS[unit_system][output_units](value, output_units != "kel")
+                elif not callable(AEDT_UNITS[unit_system][input_units]) and not callable(
+                    AEDT_UNITS[unit_system][output_units]
+                ):
+                    value = value * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                elif not callable(AEDT_UNITS[unit_system][input_units]) and callable(
+                    AEDT_UNITS[unit_system][output_units]
+                ):
+                    value = value * AEDT_UNITS[unit_system][input_units]
+                    value = AEDT_UNITS[unit_system][output_units](value, True)
+                elif callable(AEDT_UNITS[unit_system][input_units]) and not callable(
+                    AEDT_UNITS[unit_system][output_units]
+                ):
+                    value = AEDT_UNITS[unit_system][input_units](value, False) / AEDT_UNITS[unit_system][output_units]
+                else:
+                    value = AEDT_UNITS[unit_system][input_units](value, False)
+                    value = AEDT_UNITS[unit_system][output_units](value, True)
+
+                converted_values.append(value)
+            if len(converted_values) == 1:
+                return converted_values[0]
             else:
-                return values * AEDT_UNITS[unit_system][input_units] / AEDT_UNITS[unit_system][output_units]
+                return converted_values
     warnings.warn("No system unit found")
     return values
 
@@ -345,9 +381,9 @@ AEDT_UNITS = {
         "kV": 1e3,
         "MegV": 1e6,
         "gV": 1e9,
-        "dBV": (db20,),
+        "dBV": db20,
     },
-    "Temperature": {"kel": 1.0, "cel": (cel2kel,), "fah": (fah2kel,)},
+    "Temperature": {"kel": lambda x, y: x, "cel": cel2kel, "fah": fah2kel},
     "Power": {
         "fW": 1e-15,
         "pW": 1e-12,
@@ -360,8 +396,8 @@ AEDT_UNITS = {
         "gW": 1e9,
         "Btu_per_hr": 3.4129693,
         "Btu_per_sec": 9.48047e-4,
-        "dBm": 30,
-        "dBW": 0,
+        "dBm": dbm,
+        "dBW": dbw,
         "HP": 1.34102e-3,
         "erg_per_sec": 1e7,
     },

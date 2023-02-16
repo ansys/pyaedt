@@ -976,27 +976,78 @@ class TestClass(BasisTest, object):
         )
         assert port3.name + "_T1" in self.aedtapp.excitations
 
-    @pytest.mark.skipif(desktop_version > "2022.2", reason="To Be fixed in 23R1.")
     def test_45B_terminal_port(self):
         self.aedtapp.insert_design("Design_Terminal_2")
         self.aedtapp.solution_type = "Terminal"
-        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2", matname="copper")
-        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2", matname="copper")
+        box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", matname="copper")
+        box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", matname="copper")
         box3 = self.aedtapp.modeler.create_box([-40, -40, -20], [80, 80, 10], name="box3", matname="copper")
         box4 = self.aedtapp.modeler.create_box([-40, -40, 10], [80, 80, 10], name="box4", matname="copper")
-        boundaries = len(self.aedtapp.boundaries)
+        box1.display_wireframe = True
+        box2.display_wireframe = True
+        box3.display_wireframe = True
+        box4.display_wireframe = True
+        self.aedtapp.modeler.fit_all()
+        portz = self.aedtapp.create_spiral_lumped_port(box1, box2)
+        assert portz
 
-        assert self.aedtapp.create_spiral_lumped_port(box1, box2)
+        n_boundaries = len(self.aedtapp.boundaries)
+        assert n_boundaries == 3
 
-        # Rotate box2 so that, box3 and box4 are not collinear anymore.
+        box5 = self.aedtapp.modeler.create_box([-50, -15, 200], [150, -10, 200], name="gnd2y", matname="copper")
+        box6 = self.aedtapp.modeler.create_box([-50, 10, 200], [150, 15, 200], name="sig2y", matname="copper")
+        box5.display_wireframe = True
+        box6.display_wireframe = True
+        self.aedtapp.modeler.fit_all()
+        porty = self.aedtapp.create_spiral_lumped_port(box5, box6)
+        assert porty
+
+        n_boundaries = len(self.aedtapp.boundaries)
+        assert n_boundaries == 6
+
+        box7 = self.aedtapp.modeler.create_box([-15, 300, 0], [-10, 200, 100], name="gnd2x", matname="copper")
+        box8 = self.aedtapp.modeler.create_box([15, 300, 0], [10, 200, 100], name="sig2x", matname="copper")
+        box7.display_wireframe = True
+        box8.display_wireframe = True
+        self.aedtapp.modeler.fit_all()
+        portx = self.aedtapp.create_spiral_lumped_port(box7, box8)
+        assert portx
+
+        n_boundaries = len(self.aedtapp.boundaries)
+        assert n_boundaries == 9
+
+        # Use two boxes with different dimensions.
+        try:
+            self.aedtapp.create_spiral_lumped_port(box1, box3)
+        except AttributeError as e:
+            assert e.args[0] == "The closest faces of the two objects must be identical in shape."
+        else:
+            assert False
+
+        # Rotate box3 so that, box3 and box4 are not collinear anymore.
         # Spiral lumped port can only be created based on 2 collinear objects.
         box3.rotate(cs_axis="X", angle=90)
         try:
             self.aedtapp.create_spiral_lumped_port(box3, box4)
         except AttributeError as e:
-            exception_raised = True
             assert e.args[0] == "The two objects must have parallel adjacent faces."
-        assert exception_raised
+        else:
+            assert False
+
+        # Rotate back box3
+        # rotate them slightly so that they are still parallel, but not aligned anymore with main planes.
+        box3.rotate(cs_axis="X", angle=-90)
+        box3.rotate(cs_axis="Y", angle=5)
+        box4.rotate(cs_axis="Y", angle=5)
+        try:
+            self.aedtapp.create_spiral_lumped_port(box3, box4)
+        except AttributeError as e:
+            assert (
+                e.args[0]
+                == "The closest faces of the two objects must be aligned with the main planes of the reference system."
+            )
+        else:
+            assert False
 
     def test_46_mesh_settings(self):
         assert self.aedtapp.mesh.initial_mesh_settings
@@ -1111,61 +1162,57 @@ class TestClass(BasisTest, object):
         assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self):
-        self.aedtapp.insert_design()
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        aedtapp = Hfss(projectname="test_52")
+        udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
-        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
-        self.aedtapp.hybrid = True
-        assert self.aedtapp.assign_hybrid_region(["inner"])
-        bound = self.aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_hybrid_region(["inner"])
+        bound = aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
     def test_53_import_source_excitation(self):
-        self.aedtapp.insert_design()
-        self.aedtapp.solution_type = "Modal"
+        aedtapp = Hfss(solution_type="Modal", projectname="test_53")
         freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
 
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
-        self.aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
-        self.aedtapp.create_setup()
-        assert self.aedtapp.edit_source_from_file(
-            self.aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9
-        )
-        assert self.aedtapp.edit_source_from_file(
-            self.aedtapp.excitations[0],
+        box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
+        aedtapp.create_setup()
+        assert aedtapp.edit_source_from_file(aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9)
+        assert aedtapp.edit_source_from_file(
+            aedtapp.excitations[0],
             time_domain,
             is_time_domain=True,
             data_format="Voltage",
             x_scale=1e-6,
             y_scale=1e-3,
         )
+        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_54_assign_symmetry(self):
-        self.aedtapp.insert_design()
-        self.aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
-        ids = [i.id for i in self.aedtapp.modeler["SymmetryForFaces"].faces]
-        if is_ironpython:
-            assert not self.aedtapp.assign_symmetry(ids)
-            self.aedtapp.solution_type = "Modal"
-        assert self.aedtapp.assign_symmetry(ids)
-        assert self.aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
-        assert not self.aedtapp.assign_symmetry(self.aedtapp.modeler.object_list[0].faces[0])
-        assert self.aedtapp.assign_symmetry([self.aedtapp.modeler.object_list[0].faces[0]])
-        assert self.aedtapp.assign_symmetry(
+        aedtapp = Hfss(projectname="test_54")
+        aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
+        ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
+        assert aedtapp.assign_symmetry(ids)
+        assert aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
+        assert not aedtapp.assign_symmetry(aedtapp.modeler.object_list[0].faces[0])
+        assert aedtapp.assign_symmetry([aedtapp.modeler.object_list[0].faces[0]])
+        assert aedtapp.assign_symmetry(
             [
-                self.aedtapp.modeler.object_list[0].faces[0],
-                self.aedtapp.modeler.object_list[0].faces[1],
-                self.aedtapp.modeler.object_list[0].faces[2],
+                aedtapp.modeler.object_list[0].faces[0],
+                aedtapp.modeler.object_list[0].faces[1],
+                aedtapp.modeler.object_list[0].faces[2],
             ]
         )
-        assert not self.aedtapp.assign_symmetry(ids[0])
-        assert not self.aedtapp.assign_symmetry("test")
+        assert not aedtapp.assign_symmetry(ids[0])
+        assert not aedtapp.assign_symmetry("test")
+        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")

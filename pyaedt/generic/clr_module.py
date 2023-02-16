@@ -8,7 +8,6 @@ pyaedt_path = os.path.dirname(os.path.dirname(__file__))
 cpython = "IronPython" not in sys.version and ".NETFramework" not in sys.version
 if os.name == "posix" and cpython:  # pragma: no cover
     try:
-
         if os.environ.get("DOTNET_ROOT") is None:
             try:
                 import dotnet
@@ -52,8 +51,6 @@ try:  # work around a number formatting bug in the EDB API for non-English local
     from System.Collections.Generic import List
 
     edb_initialized = True
-    if "win32com" in modules:
-        import win32com.client as win32_client
 
 except ImportError:  # pragma: no cover
     if os.name != "posix":
@@ -72,4 +69,11 @@ except ImportError:  # pragma: no cover
     Dictionary = None
     Array = None
     edb_initialized = False
-    win32_client = None
+if "win32com" in modules:
+    try:
+        import win32com.client as win32_client
+    except ImportError:
+        try:
+            import win32com.client as win32_client
+        except ImportError:
+            win32_client = None

@@ -3,15 +3,16 @@ import math
 import os
 import sys
 import time
-import warnings
 from collections import OrderedDict
 
+from pyaedt import get_pyaedt_app
 from pyaedt import is_ironpython
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import db10
 from pyaedt.generic.constants import db20
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import check_and_download_folder
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import write_csv
@@ -23,31 +24,22 @@ from pyaedt.generic.plot import plot_contour
 from pyaedt.generic.plot import plot_polar_chart
 from pyaedt.modeler.cad.elements3d import FacePrimitive
 
-pd = None
 np = None
+pd = None
 pv = None
 if not is_ironpython:
     try:
         import numpy as np
     except ImportError:
-        warnings.warn(
-            "The NumPy module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install numpy\n"
-        )
+        np = None
     try:
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install pandas\n"
-        )
+        pd = None
     try:
         import pyvista as pv
     except ImportError:
-        warnings.warn(
-            "The pyvista module is required to run some functionalities of PostProcess.\n"
-            "Install with \n\npip install pyvista\n"
-        )
+        pv = None
 
 
 class SolutionData(object):
@@ -1075,7 +1067,6 @@ class SolutionData(object):
             output = os.path.join(csv_dir, name_str + str(frame) + ".csv")
             list_full = [["x", "y", "z", "val"]]
             for i, y in enumerate(y_c_list):
-
                 for j, x in enumerate(x_c_list):
                     y_coord = y + adj_y
                     x_coord = x + adj_x
@@ -1101,12 +1092,25 @@ class SolutionData(object):
 class FfdSolutionData(object):
     """Contains Hfss Far Field Solution Data (ffd)."""
 
-    def __init__(self, app, sphere_name, setup_name, frequencies, variations=None, overwrite=True, taper="flat"):
+    def __init__(
+        self,
+        app,
+        sphere_name,
+        setup_name,
+        frequencies,
+        variations=None,
+        overwrite=True,
+        taper="flat",
+        sbr_3d_comp_name=None,
+    ):
         self._app = app
         self.levels = 64
+        self._native_indexes = []
+        self._port_indexes = {}
         self.all_max = 1
         self.sphere_name = sphere_name
         self.setup_name = setup_name
+        self.sbr_comp = sbr_3d_comp_name
         if not isinstance(frequencies, list):
             self.frequencies = [frequencies]
         else:
@@ -1157,6 +1161,14 @@ class FfdSolutionData(object):
                 self.diff_area = np.radians(self.d_theta) * np.radians(self.d_phi) * np.sin(np.radians(theta_range))
                 self.num_samples = len(temp_dict["rETheta"])
                 self.all_port_names = list(self.data_dict.keys())
+                if self._native_indexes:
+                    i = 0
+                    for p in self.all_port_names:
+                        self._port_indexes[p] = self._native_indexes[i]
+                        i += 1
+                else:
+                    for p in self.all_port_names:
+                        self._port_indexes[p] = self.get_array_index(p)
                 self.solution_type = "DrivenModal"
                 self.unique_beams = None
                 self.renormalize = False
@@ -1171,6 +1183,7 @@ class FfdSolutionData(object):
         self.Bx = float(self.lattice_vectors[3])
         self.By = float(self.lattice_vectors[4])
         self._phase_offset = [0] * len(self.all_port_names)
+        self._mag_offset = [1] * len(self.all_port_names)
         self.beamform()
 
     @property
@@ -1211,9 +1224,26 @@ class FfdSolutionData(object):
             self._phase_offset = phases_to_rad
             self.beamform()
 
-    @staticmethod
+    @property
+    def mag_offset(self):
+        """Additional magnitude on each port. Useful when element has more than one port.
+
+        Returns
+        -------
+        list
+        """
+        return self._mag_offset
+
+    @mag_offset.setter
+    def mag_offset(self, mags):
+        if len(mags) != len(self.all_port_names):
+            self._app.logger.error("Number of magnitude must be equal to number of ports")
+        else:
+            self._mag_offset = mags
+            self.beamform()
+
     @pyaedt_function_handler()
-    def get_array_index(port_name):
+    def get_array_index(self, port_name):
         """Get index of a given port.
 
         Parameters
@@ -1224,6 +1254,8 @@ class FfdSolutionData(object):
         -------
         list of int
         """
+        if self._port_indexes and port_name in self._port_indexes:
+            return self._port_indexes[port_name]
         try:
             str1 = port_name.split("[", 1)[1].split("]", 1)[0]
             index_str = [int(i) for i in str1.split(",")]
@@ -1348,7 +1380,7 @@ class FfdSolutionData(object):
         return np.array([x_dis, y_dis, 0])
 
     @pyaedt_function_handler()
-    def assign_weight(self, a, b, taper="flat"):
+    def assign_weight(self, a, b, taper="flat", port_cont=0):
         """Assign weight to array.
 
         Parameters
@@ -1370,7 +1402,7 @@ class FfdSolutionData(object):
         a = int(a)
         b = int(b)
         if taper.lower() == "flat":  # Flat
-            return 1
+            return self.mag_offset[port_cont]
 
         cosinePow = 1
         edgeTaper_dB = -200
@@ -1424,7 +1456,7 @@ class FfdSolutionData(object):
         else:
             return 0
 
-        return w1 * w2
+        return w1 * w2 * self.mag_offset[port_cont]
 
     @pyaedt_function_handler()
     def beamform(self, phi_scan=0, theta_scan=0):
@@ -1476,7 +1508,7 @@ class FfdSolutionData(object):
             index_str = self.get_array_index(port_name)
             a = index_str[0] - 1
             b = index_str[1] - 1
-            w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
+            w_mag = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_cont)), 3)
             w_ang = self.phase_offset[port_cont] + (a * phase_shift_A_rad + b * phase_shift_B_rad)
             w_dict[port_name] = np.sqrt(w_mag) * np.exp(1j * w_ang)
             w_dict_ang[port_name] = w_ang
@@ -1597,14 +1629,15 @@ class FfdSolutionData(object):
         w_dict_ang = {}
         w_dict_mag = {}
         array_positions = {}
+        port_count = 0
         for port_name in self.all_port_names:
             index_str = self.get_array_index(port_name)
             a = index_str[0]
             b = index_str[1]
-            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
+            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_count=port_count)), 3)
             w_ang1 = a * phase_shift_A_rad1 + b * phase_shift_B_rad1
 
-            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper)), 3)
+            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_count=port_count)), 3)
             w_ang2 = a * phase_shift_A_rad2 + b * phase_shift_B_rad2
 
             w_dict[port_name] = np.sqrt(w_mag1) * np.exp(1j * w_ang1) + np.sqrt(w_mag2) * np.exp(1j * w_ang2)
@@ -1612,6 +1645,7 @@ class FfdSolutionData(object):
             w_dict_mag[port_name] = np.abs(w_dict[port_name])
 
             array_positions[port_name] = self.element_location(a, b)
+            port_count += 1
 
         length_of_ff_data = len(self.data_dict[self.all_port_names[0]]["rETheta"])
         rEtheta_fields = np.zeros((num_ports, length_of_ff_data), dtype=complex)
@@ -1680,14 +1714,67 @@ class FfdSolutionData(object):
         -------
         list of float
         """
-        try:
-            lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
-            lattice_vectors = [
-                float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
-            ]
+        if self.sbr_comp and self.sbr_comp in self._app.modeler.user_defined_components:
+            component_props = "NativeComponentDefinitionProvider"
+            comp_obj = self._app.modeler.user_defined_components[self.sbr_comp]
+            if "Project" in list(comp_obj.native_properties.keys()):
+                # Project opened
+                project = comp_obj.native_properties["Project"]
+                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                close = False
+                if proj_name not in self._app.project_list:
+                    close = True
+                    self._app.odesktop.OpenProject(project)
+                comp = get_pyaedt_app(proj_name, comp_obj.native_properties["Design"])
+                comp_units = comp.modeler.model_units
+                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
+                for port in source_names:
+                    try:
+                        str1 = port.split("[", 1)[1].split("]", 1)[0]
+                        self._native_indexes.append([int(i) for i in str1.split(",")])
+                    except:
+                        self._native_indexes.append([1, 1])
+                if close:
+                    comp.close_project()
+            else:
+                # Project not opened
+                project = comp_obj.native_properties[component_props]["Project"]
+                proj_name = os.path.splitext(os.path.split(project)[-1])[0]
+                close = False
+                if proj_name not in self._app.project_list:
+                    close = True
+                    self._app.odesktop.OpenProject(project)
+                comp = get_pyaedt_app(proj_name, comp_obj.native_properties[component_props]["Design"])
+                lattice_vectors = comp.omodelsetup.GetLatticeVectors()
+                comp_units = comp.modeler.model_units
+                source_names = [i[5:-1] for i in comp.post.available_report_quantities(quantities_category="VSWR")]
+                for port in source_names:
+                    try:
+                        str1 = port.split("[", 1)[1].split("]", 1)[0]
+                        self._native_indexes.append([int(i) for i in str1.split(",")])
+                    except:
+                        self._native_indexes.append([1, 1])
+                if close:
+                    comp.close_project(save_project=False)
 
-        except:
-            lattice_vectors = [0, 0, 0, 0, 1, 0]
+            lattice_vectors = [
+                str(x)
+                for x in unit_converter(
+                    values=[float(i) for i in lattice_vectors],
+                    unit_system="Length",
+                    input_units=comp_units,
+                    output_units=self._app.modeler.model_units,
+                )
+            ]
+        else:
+            try:
+                lattice_vectors = self._app.omodelsetup.GetLatticeVectors()
+                lattice_vectors = [
+                    float(vec) * AEDT_UNITS["Length"][self._app.modeler.model_units] for vec in lattice_vectors
+                ]
+            except:
+                lattice_vectors = [0, 0, 0, 0, 1, 0]
         return lattice_vectors
 
     @pyaedt_function_handler()
@@ -1980,28 +2067,41 @@ class FfdSolutionData(object):
         if not os.path.exists(geo_path):
             os.makedirs(geo_path)
 
-        meshes = self._app.post.get_model_plotter_geometries(plot_air_objects=False).meshes
+        model_pv = self._app.post.get_model_plotter_geometries(plot_air_objects=False)
 
-        duplicate_mesh = meshes.copy()
-        new_meshes = None
+        obj_meshes = []
+        center = []
         if is_antenna_array:
-            for each in data["Element_Location"]:
-                translated_mesh = duplicate_mesh.copy()
-                offset_xyz = data["Element_Location"][each] * sf
-                if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
-                    xmax = offset_xyz[0] * 2
-                if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
-                    ymax = offset_xyz[1] * 2
-                translated_mesh.translate(offset_xyz, inplace=True)
-                if new_meshes:
-                    new_meshes += translated_mesh
-                else:
-                    new_meshes = translated_mesh
+            i = 0
+            for obj in model_pv.objects:
+                for each in data["Element_Location"]:
+                    mesh = obj._cached_polydata
+                    translated_mesh = mesh.copy()
+                    offset_xyz = data["Element_Location"][each] / sf
+                    if np.abs(2 * offset_xyz[0]) > xmax:  # assume array is centere, factor of 2
+                        xmax = offset_xyz[0] * 2
+                    if np.abs(2 * offset_xyz[1]) > ymax:  # assume array is centere, factor of 2
+                        ymax = offset_xyz[1] * 2
+                    translated_mesh.position = offset_xyz
+                    translated_mesh.translate(offset_xyz, inplace=True)
+                    color_cad = [i / 255 for i in obj.color]
 
+                    if len(obj_meshes) > i:
+                        obj_meshes[i][0] += translated_mesh
+                    else:
+                        obj_meshes.append([translated_mesh, color_cad, obj.opacity])
+                i += 1
+                if not center:
+                    center = obj_meshes[-1][0].center
+                else:
+                    center = [i + j for i, j in zip(obj_meshes[-1][0].center, center)]
+        center = [-k / i for k in center]
         self.all_max = np.max(np.array([xmax, ymax, zmax]))
         elapsed_time = time.time() - time_before
         self._app.logger.info("Exporting Geometry...Done: %s seconds", elapsed_time)
-        return new_meshes
+        for mesh in obj_meshes:
+            mesh[0].translate(center, inplace=True)
+        return obj_meshes
 
     @pyaedt_function_handler()
     def polar_plot_3d_pyvista(
@@ -2012,6 +2112,7 @@ class FfdSolutionData(object):
         rotation=None,
         export_image_path=None,
         show=True,
+        show_as_standalone=False,
     ):
         """Create a 3d Polar Plot of Geometry with Radiation Pattern in Pyvista.
 
@@ -2030,7 +2131,8 @@ class FfdSolutionData(object):
             Default is [[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]].
         show : bool, optional
             Either if the plot has to be shown or not. Default is `True`.
-
+        show_outside_notebook : bool, optional
+            Either if the plot has to be shown as standalone or not. Default is `True`.
         Returns
         -------
         PyVista object
@@ -2049,7 +2151,11 @@ class FfdSolutionData(object):
 
         # plot everything together
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
-        p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
+        if show_as_standalone:
+            p = pv.Plotter(notebook=False, off_screen=not show)
+        else:
+            p = pv.Plotter(notebook=is_notebook(), off_screen=not show)
+
         uf = UpdateBeamForm(self)
 
         p.add_slider_widget(
@@ -2102,7 +2208,8 @@ class FfdSolutionData(object):
                 ff_mesh_inst.SetVisibility(flag)
 
             def toggle_vis_cad(flag):
-                cad.SetVisibility(flag)
+                for i in cad:
+                    i.SetVisibility(flag)
 
             def scale(value=1):
                 ff_mesh_inst.SetScale(value, value, value)
@@ -2113,7 +2220,6 @@ class FfdSolutionData(object):
 
             p.add_checkbox_button_widget(toggle_vis_ff, value=True, size=30)
             p.add_text("Show Far Fields", position=(70, 25), color="white", font_size=10)
-
             slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
             if slider_max > 0:
                 slider_min = 0
@@ -2122,6 +2228,7 @@ class FfdSolutionData(object):
                 slider_min = slider_max
                 slider_max = 0
                 value = slider_min / 3
+
             p.add_slider_widget(
                 scale,
                 [slider_min, slider_max],
@@ -2133,11 +2240,9 @@ class FfdSolutionData(object):
                 title_height=0.02,
             )
 
-            if "MaterialIds" in cad_mesh.array_names:
-                color_display_type = cad_mesh["MaterialIds"]
-            else:
-                color_display_type = None
-            cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
+            cad = []
+            for cm in cad_mesh:
+                cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
             p.add_checkbox_button_widget(toggle_vis_cad, value=True, position=(10, 70), size=30)
             p.add_text("Show Geometry", position=(70, 75), color="white", font_size=10)
         if export_image_path:
@@ -2192,7 +2297,7 @@ class FfdSolutionData(object):
         uf = Update2BeamForms(self, max_value=self.max_gain)
         rotation_euler = self._rotation_to_euler_angles(rotation) * 180 / np.pi
 
-        p = pv.Plotter(notebook=is_notebook(), off_screen=False, window_size=[1024, 768])
+        p = pv.Plotter(notebook=is_notebook(), off_screen=not show, window_size=[1024, 768])
 
         p.add_slider_widget(
             uf.update_phi1,
@@ -2247,7 +2352,8 @@ class FfdSolutionData(object):
                 ff_mesh_inst.SetVisibility(flag)
 
             def toggle_vis_cad(flag):
-                cad.SetVisibility(flag)
+                for i in cad:
+                    i.SetVisibility(flag)
 
             def scale(value=1):
                 ff_mesh_inst.SetScale(value, value, value)
@@ -2259,13 +2365,22 @@ class FfdSolutionData(object):
             p.add_checkbox_button_widget(toggle_vis_ff, value=True)
             p.add_text("Show Far Fields", position=(70, 25), color="black", font_size=12)
             slider_max = int(np.ceil(self.all_max / 2 / self.max_gain))
-            p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=slider_max / 2)
+            if slider_max > 0:
+                slider_min = 0
+                value = slider_max / 3
+            else:
+                slider_min = slider_max
+                slider_max = 0
+                value = slider_min / 3
+            p.add_slider_widget(scale, [0, slider_max], title="Scale Plot", value=value)
 
             if "MaterialIds" in cad_mesh.array_names:
                 color_display_type = cad_mesh["MaterialIds"]
             else:
                 color_display_type = None
-            cad = p.add_mesh(cad_mesh, scalars=color_display_type, show_scalar_bar=False, opacity=0.5)
+            cad = []
+            for cm in cad_mesh:
+                cad.append(p.add_mesh(cm[0], color=cm[1], show_scalar_bar=False, opacity=cm[2]))
             size = int(p.window_size[1] / 40)
             p.add_checkbox_button_widget(toggle_vis_cad, size=size, value=True, position=(10, 70))
             p.add_text("Show Geometry", position=(70, 75), color="black", font_size=12)
@@ -2287,7 +2402,6 @@ class FfdSolutionData(object):
     @staticmethod
     @pyaedt_function_handler()
     def _rotation_to_euler_angles(R):
-
         sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
         singular = sy < 1e-6
         if not singular:
