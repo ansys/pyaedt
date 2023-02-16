@@ -744,7 +744,7 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str
-            Units of the start frequency.
+            Units to use for the tx power.
 
         Returns
         -------
@@ -754,7 +754,7 @@ class EmitRadioComponent(EmitComponent):
             units = self.units["Power"]
         for child in band_node.children:
             if child.props["Type"] == "TxSpectralProfNode":
-                return emit_consts.convert_power_to_unit(float(child.props["FundamentalAmplitude"]), units)
+                return consts.unit_converter(float(child.props["FundamentalAmplitude"]), "Power", "dBm", units)
 
     def has_tx_channels(self):
         """Check the radio for enabled transmit channels.
@@ -881,7 +881,7 @@ class EmitComponentPropNode(object):
         power : float
             Peak amplitude of the fundamental [dBm].
         units : str
-            Units of the power.
+            Units of the input power.
 
         Return
         ------
@@ -892,7 +892,7 @@ class EmitComponentPropNode(object):
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
-        power_string = "{}".format(emit_consts.convert_power_dbm(power, units))
+        power_string = "{}".format(consts.unit_converter(power, "Power", units, "dBm"))
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
@@ -906,7 +906,7 @@ class EmitComponentPropNode(object):
         Parameters
         ----------
         units : str
-            Units of the power.
+            Units to use for the power.
 
         Return
         ------
@@ -923,7 +923,7 @@ class EmitComponentPropNode(object):
                 power = child.props["FundamentalAmplitude"]
                 break  # only one Tx Spectral Profile per Band
 
-        return emit_consts.convert_power_to_unit(float(power), units)
+        return consts.unit_converter(float(power), "Power", "dBm", units)
 
     @pyaedt_function_handler()
     def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):

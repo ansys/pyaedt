@@ -1162,61 +1162,57 @@ class TestClass(BasisTest, object):
         assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self):
-        self.aedtapp.insert_design()
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
+        aedtapp = Hfss(projectname="test_52")
+        udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
-        self.aedtapp.modeler.create_cylinder(self.aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
-        self.aedtapp.hybrid = True
-        assert self.aedtapp.assign_hybrid_region(["inner"])
-        bound = self.aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 3, coax_dimension, 0, "inner")
+        aedtapp.modeler.create_cylinder(aedtapp.AXIS.X, udp, 10, coax_dimension, 0, "outer")
+        aedtapp.hybrid = True
+        assert aedtapp.assign_hybrid_region(["inner"])
+        bound = aedtapp.assign_hybrid_region("outer", hybrid_region="IE", boundary_name="new_hybrid")
         assert bound.props["Type"] == "IE"
         bound.props["Type"] = "PO"
         assert bound.props["Type"] == "PO"
-        self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     @pytest.mark.skipif(is_ironpython, reason="Method usese Pandas")
     def test_53_import_source_excitation(self):
-        self.aedtapp.insert_design()
-        self.aedtapp.solution_type = "Modal"
+        aedtapp = Hfss(solution_type="Modal", projectname="test_53")
         freq_domain = os.path.join(local_path, "example_models", test_subfolder, "S Parameter Table 1.csv")
         time_domain = os.path.join(local_path, "example_models", test_subfolder, "Sinusoidal.csv")
 
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
-        self.aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
-        self.aedtapp.create_setup()
-        assert self.aedtapp.edit_source_from_file(
-            self.aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9
-        )
-        assert self.aedtapp.edit_source_from_file(
-            self.aedtapp.excitations[0],
+        box1 = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
+        aedtapp.create_wave_port_from_sheet(box1.bottom_face_x)
+        aedtapp.create_setup()
+        assert aedtapp.edit_source_from_file(aedtapp.excitations[0], freq_domain, is_time_domain=False, x_scale=1e9)
+        assert aedtapp.edit_source_from_file(
+            aedtapp.excitations[0],
             time_domain,
             is_time_domain=True,
             data_format="Voltage",
             x_scale=1e-6,
             y_scale=1e-3,
         )
+        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_54_assign_symmetry(self):
-        self.aedtapp.insert_design()
-        self.aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
-        ids = [i.id for i in self.aedtapp.modeler["SymmetryForFaces"].faces]
-        if is_ironpython:
-            assert not self.aedtapp.assign_symmetry(ids)
-            self.aedtapp.solution_type = "Modal"
-        assert self.aedtapp.assign_symmetry(ids)
-        assert self.aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
-        assert not self.aedtapp.assign_symmetry(self.aedtapp.modeler.object_list[0].faces[0])
-        assert self.aedtapp.assign_symmetry([self.aedtapp.modeler.object_list[0].faces[0]])
-        assert self.aedtapp.assign_symmetry(
+        aedtapp = Hfss(projectname="test_54")
+        aedtapp.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
+        ids = [i.id for i in aedtapp.modeler["SymmetryForFaces"].faces]
+        assert aedtapp.assign_symmetry(ids)
+        assert aedtapp.assign_symmetry([ids[0], ids[1], ids[2]])
+        assert not aedtapp.assign_symmetry(aedtapp.modeler.object_list[0].faces[0])
+        assert aedtapp.assign_symmetry([aedtapp.modeler.object_list[0].faces[0]])
+        assert aedtapp.assign_symmetry(
             [
-                self.aedtapp.modeler.object_list[0].faces[0],
-                self.aedtapp.modeler.object_list[0].faces[1],
-                self.aedtapp.modeler.object_list[0].faces[2],
+                aedtapp.modeler.object_list[0].faces[0],
+                aedtapp.modeler.object_list[0].faces[1],
+                aedtapp.modeler.object_list[0].faces[2],
             ]
         )
-        assert not self.aedtapp.assign_symmetry(ids[0])
-        assert not self.aedtapp.assign_symmetry("test")
+        assert not aedtapp.assign_symmetry(ids[0])
+        assert not aedtapp.assign_symmetry("test")
+        self.aedtapp.close_project(name=aedtapp.project_name, save_project=False)
 
     def test_55_create_near_field_sphere(self):
         air = self.aedtapp.modeler.create_box([0, 0, 0], [20, 20, 20], name="rad", matname="vacuum")
