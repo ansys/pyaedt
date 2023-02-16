@@ -674,7 +674,7 @@ class BoundaryObject(BoundaryCommon, object):
                     faces_out.append(f.id)
                 else:
                     faces_out.append(f)
-            out += [ "Faces:=", faces_out]
+            out += ["Faces:=", faces_out]
 
         if "Objects" in self.props:
             pr = []
