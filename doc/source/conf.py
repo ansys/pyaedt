@@ -37,8 +37,19 @@ class PrettyPrintDirective(Directive):
         ]
 
 
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    try:
+        exclude = True if ".. deprecated::" in obj.__doc__ else False
+    except:
+        exclude = False
+    exclude2 = True if name.startswith("_") else False
+    return True if (skip or exclude or exclude2) else None  # Can interfere with subsequent skip functions.
+    # return True if exclude else None
+
+
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
+    app.connect('autodoc-skip-member', autodoc_skip_member)
 
 
 
