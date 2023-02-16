@@ -18,90 +18,15 @@ You can edit a setup after it is created. Here is an example:
     setup.update()
 
 
-.. currentmodule:: pyaedt.modules.SetupTemplates
+.. toctree::
+   :maxdepth: 2
 
-HFSS
-~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   HFSSDrivenAuto
-   HFSSDrivenDefault
-   HFSSEigen
-   HFSSTransient
-   HFSSSBR
-
-
-Maxwell 2D or 3D
-~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   MaxwellTransient
-   Magnetostatic
-   Electrostatic
-   EddyCurrent
-   ElectricTransient
-
-
-Q3D or Q2D Extractor
-~~~~~~~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   Matrix
-   Close
-   Open
-
-Icepak
-~~~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   TransientFlowOnly
-   TransientTemperatureOnly
-   TransientTemperatureAndFlow
-
-
-Nexxim
-~~~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   NexximLNA
-   NexximDC
-   NexximTransient
-
-
-HFSS 3D Layout
-~~~~~~~~~~~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   HFSS3DLayout
-
-
-Mechanical
-~~~~~~~~~~
-
-.. autosummary::
-   :toctree: _autosummary
-
-   MechTerm
-   MechModal
-   MechStructural
-
-
-RMXprt
-======
-
-.. autosummary::
-   :toctree: _autosummary
-
-   GRM
+   SetupTemplatesHFSS
+   SetupTemplates3DLayout
+   SetupTemplatesMaxwell
+   SetupTemplatesQ3D
+   SetupTemplatesIcepak
+   SetupTemplatesMechanical
+   SetupTemplatesCircuit
+   SetupTemplatesTwinBuilder
+   SetupTemplatesRmxprt

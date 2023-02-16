@@ -21,7 +21,7 @@ import pyaedt
 # The ``NewThread`` Boolean variable defines whether to create a new instance
 # of AEDT or try to connect to existing instance of it if one is available.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 NewThread = False
 desktop_version = "2022.2"
 
@@ -63,22 +63,22 @@ rad3, ant3 = aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Ener
 # Run the EMIT simulation. 
 #
 # This part of the example requires Ansys AEDT 2023 R2. 
-# Uncomment it and run on correct version.
 
-# rev = aedtapp.analyze()
-# modeRx = aedtapp.tx_rx_mode().rx
-# modeTx = aedtapp.tx_rx_mode().tx
-# modeEmi = aedtapp.result_type().emi
-# rx_bands = aedtapp.results.get_band_names(rad2.name, modeRx) 
-# tx_bands = aedtapp.results.get_band_names(rad3.name, modeTx) 
-# domain = aedtapp.interaction_domain()
-# domain.set_receiver(rad2.name, rx_bands[0], -1)
-# domain.set_interferers([rad3.name],[tx_bands[0]],[-1])
-# interaction = rev.run(domain)
-# worst = interaction.get_worst_instance(modeEmi)
-# if worst.has_valid_values():
-#     emi = worst.get_value(modeEmi)
-#     print("Worst case interference is: {} dB".format(emi))
+if desktop_version > "2023.1":
+    rev = aedtapp.analyze()
+    modeRx = aedtapp.tx_rx_mode().rx
+    modeTx = aedtapp.tx_rx_mode().tx
+    modeEmi = aedtapp.result_type().emi
+    rx_bands = aedtapp.results.get_band_names(rad2.name, modeRx) 
+    tx_bands = aedtapp.results.get_band_names(rad3.name, modeTx) 
+    domain = aedtapp.interaction_domain()
+    domain.set_receiver(rad2.name, rx_bands[0], -1)
+    domain.set_interferers([rad3.name],[tx_bands[0]],[-1])
+    interaction = rev.run(domain)
+    worst = interaction.get_worst_instance(modeEmi)
+    if worst.has_valid_values():
+        emi = worst.get_value(modeEmi)
+        print("Worst case interference is: {} dB".format(emi))
 
 ###############################################################################
 # Save project and close AEDT
