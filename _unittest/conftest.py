@@ -111,17 +111,17 @@ class BasisTest(object):
             except:
                 pass
         if self.aedtapps:
-            # try:
-            #     oDesktop = self._main.oDesktop
-            #     proj_list = oDesktop.GetProjectList()
-            # except Exception as e:
-            #     oDesktop = None
-            #     proj_list = []
-            # if oDesktop and not settings.non_graphical:
-            #     oDesktop.ClearMessages("", "", 3)
-            # for proj in proj_list:
-            #     oDesktop.CloseProject(proj)
-            self.aedtapps[0].release_desktop(False)
+            try:
+                oDesktop = self._main.oDesktop
+                proj_list = oDesktop.GetProjectList()
+            except Exception as e:
+                oDesktop = None
+                proj_list = []
+            if oDesktop and not settings.non_graphical:
+                oDesktop.ClearMessages("", "", 3)
+            for proj in proj_list:
+                oDesktop.CloseProject(proj)
+            # self.aedtapps[0].release_desktop(False)
             del self.aedtapps
 
         del self.edbapps
