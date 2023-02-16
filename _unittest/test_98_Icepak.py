@@ -669,27 +669,92 @@ class TestClass(BasisTest, object):
         self.aedtapp.monitor.assign_face_monitor(
             list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id
         )
+        fan_obj_3d = self.aedtapp.create_fan(is_2d=False)
+        self.aedtapp.monitor.assign_point_monitor_in_object(
+            list(self.aedtapp.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
+        )
+        self.aedtapp.create_dataset(
+            "test_ignore",
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            zlist=None,
+            vlist=None,
+            is_project_dataset=False,
+            xunit="cel",
+            yunit="W",
+            zunit="",
+            vunit="",
+        )
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
             component_name="board_assembly",
             included_cs=["Global"],
             auxiliary_dict_file=True,
             native_components=True,
+            datasets=["test_dataset"]
         )
         file_name = "Advanced3DComp1.a3dcomp"
+        mon_list = list(self.aedtapp.monitor.all_monitors.keys())
+        self.aedtapp.monitor.assign_point_monitor([0,0,0])
+        cs_list = [cs.name for cs in self.aedtapp.modeler.coordinate_systems if cs.name!="CS0"]
+        self.aedtapp.modeler.create_coordinate_system()
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
             component_name="board_assembly",
-            included_cs=["Global", "CS1"],
+            included_cs=cs_list,
             auxiliary_dict_file=True,
             native_components=True,
             reference_cs="CS1",
+            monitor_objects=mon_list,
+            datasets=["test_dataset"]
         )
         fan.delete()
         fan2.delete()
+        fan_obj.delete()
         pcb.delete()
         box1.delete()
         surf1.delete()
+        fan_obj_3d.delete()
+
+
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
+        cs2.props["OriginX"] = 20
+        cs2.props["OriginY"] = 20
+        cs2.props["OriginZ"] = 20
+        file_path = self.local_scratch.path
+        file_name = "Advanced3DComp.a3dcomp"
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+        )
+        assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
+        assert all(
+            i in self.aedtapp.monitor.all_monitors
+            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
+        )
+        assert "test_dataset" in self.aedtapp.design_datasets
+        assert "board_assembly1_CS1" in [i.name for i in self.aedtapp.modeler.coordinate_systems]
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS1", auxiliary_dict=True
+        )
+        file_name = "Advanced3DComp1.a3dcomp"
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True, name="test"
+        )
+
+        mon_name = self.aedtapp.monitor.assign_face_monitor(
+            list(self.aedtapp.modeler.user_defined_components["board_assembly2"].parts.values())[0].faces[0].id
+        )
+        assert self.aedtapp.flatten_3d_components()
+        assert all(
+            i in self.aedtapp.monitor.all_monitors
+            for i in [
+                "board_assembly1_FaceMonitor",
+                "board_assembly1_BoxMonitor",
+                "board_assembly1_SurfaceMonitor",
+                mon_name,
+            ]
+        )
+        assert "test_dataset" in self.aedtapp.design_datasets
 
     def test_51_advanced3dcomp_import(self):
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
