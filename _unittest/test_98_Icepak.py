@@ -716,45 +716,6 @@ class TestClass(BasisTest, object):
         surf1.delete()
         fan_obj_3d.delete()
 
-        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
-        cs2.props["OriginX"] = 20
-        cs2.props["OriginY"] = 20
-        cs2.props["OriginZ"] = 20
-        file_path = self.local_scratch.path
-        file_name = "Advanced3DComp.a3dcomp"
-        self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
-        )
-        assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
-        assert all(
-            i in self.aedtapp.monitor.all_monitors
-            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor", "board_assembly1_SurfaceMonitor"]
-        )
-        assert "test_dataset" in self.aedtapp.design_datasets
-        assert "board_assembly1_CS1" in [i.name for i in self.aedtapp.modeler.coordinate_systems]
-        self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS1", auxiliary_dict=True
-        )
-        file_name = "Advanced3DComp1.a3dcomp"
-        self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True, name="test"
-        )
-
-        mon_name = self.aedtapp.monitor.assign_face_monitor(
-            list(self.aedtapp.modeler.user_defined_components["board_assembly2"].parts.values())[0].faces[0].id
-        )
-        assert self.aedtapp.flatten_3d_components()
-        assert all(
-            i in self.aedtapp.monitor.all_monitors
-            for i in [
-                "board_assembly1_FaceMonitor",
-                "board_assembly1_BoxMonitor",
-                "board_assembly1_SurfaceMonitor",
-                mon_name,
-            ]
-        )
-        assert "test_dataset" in self.aedtapp.design_datasets
-
     def test_51_advanced3dcomp_import(self):
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
@@ -777,7 +738,7 @@ class TestClass(BasisTest, object):
         )
         file_name = "Advanced3DComp1.a3dcomp"
         self.aedtapp.modeler.insert_3d_component(
-            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
+            comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True, name="test"
         )
 
     def test_52_flatten_3d_components(self):
