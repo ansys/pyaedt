@@ -3476,7 +3476,7 @@ class Design(AedtObjects):
         """
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
-            return self._variable_manager.variables[expression_string]
+            return self._variable_manager.variables[expression_string].value
         else:
             try:
                 self._variable_manager.set_variable(
@@ -3600,5 +3600,7 @@ class Design(AedtObjects):
             Application-created object."""
         app = toolkit_object(self, **kwargs)
         if draw:
-            app.draw()
+            app.init_model()
+            app.model_hfss()
+            app.setup_hfss()
         return app
