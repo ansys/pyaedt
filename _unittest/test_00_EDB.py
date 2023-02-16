@@ -674,7 +674,7 @@ class TestClass(BasisTest, object):
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
         self.local_scratch.copyfolder(source_path, target_path)
 
-    @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
     def test_064_create_custom_cutout(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_3.aedb")
@@ -698,7 +698,7 @@ class TestClass(BasisTest, object):
         )
         edbapp.close_edb()
 
-    @pytest.mark.skipif(is_ironpython, reason="Method works in CPython only")
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Method works in CPython only")
     def test_065_create_custom_cutout(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_4.aedb")
