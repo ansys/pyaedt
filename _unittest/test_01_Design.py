@@ -15,6 +15,7 @@ except ImportError:
 
 from pyaedt import Hfss
 from pyaedt.application.aedt_objects import AedtObjects
+from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import settings
 
@@ -144,8 +145,20 @@ class TestClass(BasisTest, object):
         assert new_design in self.aedtapp.design_list
 
     def test_16_renamedesign(self):
-        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True)
+        self.aedtapp.load_project(project_file=self.test_project, close_active_proj=True, design_name="myname")
+        assert "myname" in [
+            design["Name"]
+            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
+        ]
         self.aedtapp.rename_design("mydesign")
+        assert "myname" not in [
+            design["Name"]
+            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
+        ]
+        assert "mydesign" in [
+            design["Name"]
+            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
+        ]
         assert self.aedtapp.design_name == "mydesign"
 
     def test_17_export_proj_var(self):
