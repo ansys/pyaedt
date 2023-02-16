@@ -225,6 +225,6 @@ def method_init():
 
 @pytest.fixture(scope="module", autouse=True)
 def class_init():
+    time.sleep(0.5)
     yield
-    time.sleep(1)
-    gc.collect()
+    time.sleep(0.5)

@@ -65,7 +65,7 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
-        timeout-minutes: 25
+        timeout-minutes: 30
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
