@@ -336,7 +336,7 @@ class TestClass(BasisTest, object):
     def test_35_get_app(self):
         d = Desktop(desktop_version, new_desktop_session=False)
         assert d[[0, 0]]
-        assert d[[test_project_name, "myname"]]
+        assert not d[[test_project_name, "myname"]]
         assert d[[0, "mydesign"]]
         assert d[[test_project_name, 2]]
         assert not d[[test_project_name, 5]]
