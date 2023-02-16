@@ -20,7 +20,7 @@ import numpy as np
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Set non-graphical mode. The default is ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch EDB

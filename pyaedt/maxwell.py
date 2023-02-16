@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class Maxwell(object):
@@ -1908,9 +1909,67 @@ class Maxwell(object):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create an analysis setup for Maxwell 3D or 2D.
+        Optional arguments are passed along with ``setuptype`` and ``setupname``.  Keyword
+        names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
+
+        .. note::
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+
+        Parameters
+        ----------
+        setuptype : int, str, optional
+            Type of the setup. Based on the solution type, options are
+            ``"HFSSDrivenAuto"``, ``"HFSSDrivenDefault"``,
+            ``"HFSSEigen"``, ``"HFSSTransient"`` and ``"HFSSSBR"``.
+            The default is ``"HFSSDrivenAuto"``.
+        setupname : str, optional
+            Name of the setup. The default is ``"Setup1"``.
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesMaxwell`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupMaxwell`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> app.create_setup(setupname="Setup1", setuptype="EddyCurrent", MaximumPasses=10,PercentError=2 )
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
+
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 3D application interface.
+    """Provides the Maxwell 3D app interface.
 
     This class allows you to connect to an existing Maxwell 3D design or create a
     new Maxwell 3D design if one does not exist.

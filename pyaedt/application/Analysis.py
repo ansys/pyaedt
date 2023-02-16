@@ -10,11 +10,11 @@ from __future__ import absolute_import  # noreorder
 import os
 import shutil
 import tempfile
-import threading
 import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
@@ -39,12 +39,17 @@ from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
 from pyaedt.modules.MaterialLib import Materials
-from pyaedt.modules.SetupTemplates import SetupProps
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
+from pyaedt.modules.SolveSweeps import SetupProps
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
 
 
 class Analysis(Design, object):
@@ -1236,7 +1241,8 @@ class Analysis(Design, object):
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
-            Either if use or not auto settings in task/cores. It is not supported by all Setup.
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
 
         Returns
         -------
@@ -1275,64 +1281,7 @@ class Analysis(Design, object):
         return setup_name
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
-        """Create a setup.
-
-        Parameters
-        ----------
-        setupname : str, optional
-            Name of the setup. The default is ``"MySetupAuto"``.
-        setuptype : optional
-            Type of the setup. The default is ``None``, in which case
-            the default type is applied.
-        props : dict, optional
-            Dictionary of analysis properties appropriate for the design and analysis.
-            If no values are passed, default values are used.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.SolveSetup.SetupHFSS` or :class:`pyaedt.modules.SolveSetup.SetupHFSSAuto`
-
-        References
-        ----------
-
-        >>> oModule.InsertSetup
-
-        Examples
-        --------
-        Create a setup for SBR+ setup using advanced Doppler
-        processing for automotive radar.
-
-        >>> import pyaedt
-        >>> hfss = pyaedt.Hfss(solution_type='SBR+')
-        >>> setup1 = hfss.create_setup(setupname='Setup1')
-        >>> setup1.props["IsSbrRangeDoppler"] = True
-        >>> setup1.props["SbrRangeDopplerTimeVariable"] = "time_var"
-        >>> setup1.props["SbrRangeDopplerCenterFreq"] = "76.5GHz"
-        >>> setup1.props["SbrRangeDopplerRangeResolution"] = "0.15meter"
-        >>> setup1.props["SbrRangeDopplerRangePeriod"] = "100meter"
-        >>> setup1.props["SbrRangeDopplerVelocityResolution"] = "0.2m_per_sec"
-        >>> setup1.props["SbrRangeDopplerVelocityMin"] = "-30m_per_sec"
-        >>> setup1.props["SbrRangeDopplerVelocityMax"] = "30m_per_sec"
-        >>> setup1.props["DopplerRayDensityPerWavelength"] = "0.2"
-        >>> setup1.props["MaxNumberOfBounces"] = "3"
-        ...
-        pyaedt INFO: Sweep was created correctly.
-        >>> setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=True)
-        >>> setup1.add_subrange("LinearCount", 10, 20, 10, clear=False)
-
-
-        Create a setup for Q3d and add a sweep on it.
-
-        >>> import pyaedt
-        >>> q = pyaedt.Q3d()
-        >>> setup1 = q.create_setup(props={"AdaptiveFreq": "100MHz"})
-        >>> sw1 = setup1.add_sweep()
-        >>> sw1.props["RangeStart"] = "1MHz"
-        >>> sw1.props["RangeEnd"] = "100MHz"
-        >>> sw1.props["RangeStep"] = "5MHz"
-        >>> sw1.update()
-        """
+    def _create_setup(self, setupname="MySetupAuto", setuptype=None, props=None):
         if props is None:
             props = {}
 
@@ -1349,6 +1298,8 @@ class Analysis(Design, object):
             setup = SetupHFSS(self, setuptype, name)
 
         if self.design_type == "HFSS":
+            # Handle the situation when ports have not been defined.
+
             if not self.excitations and "MaxDeltaS" in setup.props:
                 new_dict = OrderedDict()
                 setup.auto_update = False
@@ -1776,43 +1727,59 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        inst_dir = self.desktop_install_dir
+        self.last_run_log = ""
+        self.last_run_job = ""
         if not filename:
             filename = self.project_file
+            project_name = self.project_name
             self.close_project()
+        else:
+            project_name = os.path.splitext(os.path.split(filename)[-1])[0]
+        queue_file = filename + ".q"
+        queue_file_completed = filename + ".q.completed"
+        if os.path.exists(queue_file):
+            os.unlink(queue_file)
+        if os.path.exists(queue_file_completed):
+            os.unlink(queue_file_completed)
         if machine == "local":
             # -Monitor option used as workaround for R2 BatchSolve not exiting properly at the end of the Batch job
-            options = " -ng -BatchSolve -Monitor "
+            options = ["-ng", "-BatchSolve", "-Monitor"]
         else:
-            options = " -ng -distribute -machinelist list=" + machine + " -Batchsolve "
+            options = ["-ng", "-BatchSolve", "-machinelist", "list=" + machine, "-Monitor"]
 
-        self.logger.info("Batch Solve Options: " + options)
         if os.name == "posix":
-            batch_run = os.path.join(
-                self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
-            )
+            batch_run = [inst_dir + "/ansysedt"]
+
         else:
-            batch_run = (
-                chr(34) + self.desktop_install_dir + "/ansysedt.exe" + chr(34) + options + chr(34) + filename + chr(34)
-            )
+            batch_run = [inst_dir + "/ansysedt.exe"]
+        batch_run.extend(options)
+        batch_run.append(filename)
 
         """
         check for existing solution directory and delete if present so we
         dont have old .asol files etc
         """
-
         self.logger.info("Solving model in batch mode on " + machine)
-        self.logger.info("Batch Job command:" + batch_run)
         if run_in_thread:
+            DETACHED_PROCESS = 0x00000008
+            subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
+            self.logger.info("Batch job launched.")
 
-            def thread_run():
-                """ """
-                os.system(batch_run)
-
-            x = threading.Thread(target=thread_run)
-            x.start()
         else:
-            os.system(batch_run)
-        self.logger.info("Batch job finished.")
+            subprocess.Popen(batch_run)
+            self.logger.info("Batch job finished.")
+
+        if machine == "local":
+            while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
+            with open(queue_file, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "JobID" in line:
+                        ls = line.split("=")[1].strip().strip("'")
+                        self.last_run_job = ls
+                        self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
         return True
 
     @pyaedt_function_handler()
@@ -2025,7 +1992,8 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def value_with_units(self, value, units=None):
-        """Combine a number and a string containing the unit in a single string e.g. "1.2mm".
+        """Combine a number and a string containing the modeler length unit in a single
+        string e.g. "1.2mm".
         If the units are not specified, the model units are used.
         If value is a string (like containing an expression), it is returned as is.
 
@@ -2034,7 +2002,17 @@ class Analysis(Design, object):
         value : float, int, str
             Value of the number or string containing an expression.
         units : str, optional
-            Units to combine with value.
+            Units to combine with value. Valid values are defined in the native API documentation.
+            Some common examples are:
+            "in": inches
+            "cm": centimeter
+            "um":  micron
+            "mm": millimeter
+            "meter": meters
+            "mil": 0.001 inches (mils)
+            "km": kilometer
+            "ft": feet
+
 
         Returns
         -------

@@ -25,7 +25,7 @@ rpyc==5.3.0; python_version > '3.6'
 # optional
 # #############################################################################
 
-matplotlib==3.6.3; python_version > '3.6'
+matplotlib==3.7.0; python_version > '3.6'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
@@ -39,5 +39,5 @@ pandas==1.5.3; python_version == '3.7'
 psutil==5.9.4; python_version > '3.6'
 # License: BSD-3-Clause License
 
-pyvista==0.38.1; python_version > '3.6'
+pyvista==0.38.2; python_version > '3.6'
 # License: MIT

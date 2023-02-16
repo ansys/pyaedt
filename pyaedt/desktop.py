@@ -356,6 +356,9 @@ class Desktop(object):
         aedt_process_id=None,
     ):
         """Initialize desktop."""
+        if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
+            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self.release_on_exit = close_on_exit
