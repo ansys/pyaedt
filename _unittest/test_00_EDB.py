@@ -1,13 +1,14 @@
 import os
 
+# Setup paths for module imports
+# Import required modules
+import sys
+
 from pyaedt import Edb
 from pyaedt.edb_core.components import resistor_value_parser
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
 from pyaedt.edb_core.edb_data.sources import Source
 from pyaedt.generic.constants import RadiationBoxType
-
-# Setup paths for module imports
-# Import required modules
 
 test_project_name = "Galileo_edb"
 bom_example = "bom_example.csv"
