@@ -659,7 +659,6 @@ class TestClass(BasisTest, object):
         )
         file_path = self.local_scratch.path
         file_name = "Advanced3DComp.a3dcomp"
-        self.aedtapp.modeler.set_working_coordinate_system("Global")
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
             component_name="board_assembly",
@@ -667,7 +666,6 @@ class TestClass(BasisTest, object):
             auxiliary_dict_file=True,
             native_components=True,
         )
-        self.aedtapp.modeler.set_working_coordinate_system("CS1")
         file_name = "Advanced3DComp1.a3dcomp"
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
@@ -675,6 +673,7 @@ class TestClass(BasisTest, object):
             included_cs=["Global", "CS1"],
             auxiliary_dict_file=True,
             native_components=True,
+            reference_cs="CS1"
         )
         fan.delete()
         fan2.delete()

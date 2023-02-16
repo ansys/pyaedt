@@ -1120,7 +1120,7 @@ class Primitives3D(Primitives, object):
                     os.rmdir(os.path.join(root, name))
             os.rmdir(temp_folder)
             phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
-            cs_name = udm_obj.name + "_" + wcs
+            cs_name = udm_obj.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.modeler.coordinate_systems]:
                 self.modeler.create_coordinate_system(
                     mode="zxz",
