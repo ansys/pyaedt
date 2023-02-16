@@ -3600,5 +3600,7 @@ class Design(AedtObjects):
             Application-created object."""
         app = toolkit_object(self, **kwargs)
         if draw:
-            app.draw()
+            app.init_model()
+            app.model_hfss()
+            app.setup_hfss()
         return app
