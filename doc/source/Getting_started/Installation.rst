@@ -9,7 +9,7 @@ basic support for EDB and Circuit (Nexxim).
 Requirements
 ~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, PyAEDT
-requires Ansys Electronics Desktop (AEDT) 2021 R2 or later. The AEDT Student Version is also supported.
+requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Version is also supported.
 
 
 
