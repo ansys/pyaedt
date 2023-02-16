@@ -1377,26 +1377,61 @@ class TestClass(BasisTest, object):
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
+    def test_81_operations_3dcomponent(self):
+        my_udmPairs = []
+        mypair = ["OuterRadius", "20.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Tau", "0.65"]
+        my_udmPairs.append(mypair)
+        mypair = ["Sigma", "0.81"]
+        my_udmPairs.append(mypair)
+        mypair = ["Delta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Beta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Port_Gap_Width", "8.1mm"]
+        my_udmPairs.append(mypair)
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm2",
+        )
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     def test_81_duplicate_and_mirror_3dcomponent(self):
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
         )
 
-    def test_82_get_component_bounding_dimension(self):
-        print(self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_bounding_dimension())
-        print(self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_center())
-        assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_bounding_dimension()
-        assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].get_component_center()
-
-    def test_83_operations(self):
-        assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].duplicate_along_line([1,1,1], nclones=2)
-        assert self.aedtapp.modeler.user_defined_components[
-            self.aedtapp.modeler.user_defined_component_names[0]].duplicate_and_mirror([0,0,0], [1,2,3])
-
-    def test_83_flatten_3d_components(self):
+    def test_82_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
+
+    def test_83_get_component_bounding_dimension(self):
+        my_udmPairs = []
+        mypair = ["OuterRadius", "20.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Tau", "0.65"]
+        my_udmPairs.append(mypair)
+        mypair = ["Sigma", "0.81"]
+        my_udmPairs.append(mypair)
+        mypair = ["Delta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Beta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Port_Gap_Width", "8.1mm"]
+        my_udmPairs.append(mypair)
+        self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm2",
+        )
+        assert GeometryOperators.v_norm(GeometryOperators.v_sub(
+            self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_bounding_dimension(),
+            [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0]
+        )) < 1e-10
+
+        assert GeometryOperators.v_norm(GeometryOperators.v_sub(
+            self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_center(),
+            [0.0, 1.7763568394002505e-15, 0.0]
+        )) < 1e-10
