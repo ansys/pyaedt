@@ -1405,6 +1405,7 @@ class TestClass(BasisTest, object):
             udm_library="syslib",
             name="test_udm2",
         )
+
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     def test_81_duplicate_and_mirror_3dcomponent(self):
         assert self.aedtapp.modeler.duplicate_and_mirror(
@@ -1435,12 +1436,22 @@ class TestClass(BasisTest, object):
             udm_library="syslib",
             name="test_udm2",
         )
-        assert GeometryOperators.v_norm(GeometryOperators.v_sub(
-            self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_bounding_dimension(),
-            [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0]
-        )) < 1e-10
+        assert (
+            GeometryOperators.v_norm(
+                GeometryOperators.v_sub(
+                    self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_bounding_dimension(),
+                    [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0],
+                )
+            )
+            < 1e-10
+        )
 
-        assert GeometryOperators.v_norm(GeometryOperators.v_sub(
-            self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_center(),
-            [0.0, 1.7763568394002505e-15, 0.0]
-        )) < 1e-10
+        assert (
+            GeometryOperators.v_norm(
+                GeometryOperators.v_sub(
+                    self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_center(),
+                    [0.0, 1.7763568394002505e-15, 0.0],
+                )
+            )
+            < 1e-10
+        )
