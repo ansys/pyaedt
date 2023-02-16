@@ -512,14 +512,22 @@ class TestClass(BasisTest, object):
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config['use_grpc'], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_36_get_face_center(self):
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
-        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0,0,0], radius=10, height=10)
-        assert all(min([GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center)) for
-                        ref_center in [[0,0,0], [0,10,0], [0, 5, 0]]])<1e-10 for f in cylinder.faces)
+        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0, 0, 0], radius=10, height=10)
+        assert all(
+            min(
+                [
+                    GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center))
+                    for ref_center in [[0, 0, 0], [0, 10, 0], [0, 5, 0]]
+                ]
+            )
+            < 1e-10
+            for f in cylinder.faces
+        )
 
     def test_37_get_edge_midpoint(self):
         polyline = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])

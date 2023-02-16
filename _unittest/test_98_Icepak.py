@@ -708,12 +708,17 @@ class TestClass(BasisTest, object):
 
     def test_52_flatten_3d_components(self):
         mon_name = self.aedtapp.monitor.assign_face_monitor(
-            list(self.aedtapp.modeler.user_defined_components["board_assembly2"].parts.values())[0].faces[0].id)
+            list(self.aedtapp.modeler.user_defined_components["board_assembly2"].parts.values())[0].faces[0].id
+        )
         assert self.aedtapp.flatten_3d_components()
         assert all(
             i in self.aedtapp.monitor.all_monitors
-            for i in ["board_assembly1_FaceMonitor", "board_assembly1_BoxMonitor",
-                      "board_assembly1_SurfaceMonitor", mon_name]
+            for i in [
+                "board_assembly1_FaceMonitor",
+                "board_assembly1_BoxMonitor",
+                "board_assembly1_SurfaceMonitor",
+                mon_name,
+            ]
         )
         assert "test_dataset" in self.aedtapp.design_datasets
 
@@ -773,7 +778,7 @@ class TestClass(BasisTest, object):
             ext_surf_rad_view_factor=0.5,
         )
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config['use_grpc'], reason="Not working in 2022.2 GRPC")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_55_native_components_history(self):
         fan = self.aedtapp.create_fan("test_fan")
         self.aedtapp.modeler.user_defined_components[fan.name].move([1, 2, 3])
