@@ -673,7 +673,7 @@ class TestClass(BasisTest, object):
             included_cs=["Global", "CS1"],
             auxiliary_dict_file=True,
             native_components=True,
-            reference_cs="CS1"
+            reference_cs="CS1",
         )
         fan.delete()
         fan2.delete()
