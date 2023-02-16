@@ -348,34 +348,6 @@ def download_icepak(destination=None):
 
     return _download_file("icepak", "Graphics_card.aedt", destination)
 
-def download_icepak_3d_component(destination=None):
-    """Download an example of Icepak Array and return the def path.
-
-    Examples files are downloaded to a persistent cache to avoid
-    re-downloading the same file twice.
-
-    Parameters
-    ----------
-    destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
-
-    Returns
-    -------
-    str
-        Path to the example file.
-
-    Examples
-    --------
-    Download an example result file and return the path of the file
-
-    >>> from pyaedt import examples
-    >>> path = examples.download_icepak()
-    >>> path
-    'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
-    """
-
-    return _download_file("icepak", "Graphics_card.aedt", destination)
-
 
 def download_via_wizard(destination=None):
     """Download an example of Hfss Via Wizard and return the def path.
