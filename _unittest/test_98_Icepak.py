@@ -664,9 +664,11 @@ class TestClass(BasisTest, object):
         file_name = "Advanced3DComp.a3dcomp"
         fan_obj = self.aedtapp.create_fan(is_2d=True)
         self.aedtapp.monitor.assign_surface_monitor(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].name)
+            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].name
+        )
         self.aedtapp.monitor.assign_face_monitor(
-            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id)
+            list(self.aedtapp.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id
+        )
         assert self.aedtapp.modeler.create_3dcomponent(
             os.path.join(file_path, file_name),
             component_name="board_assembly",
