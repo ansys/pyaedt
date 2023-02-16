@@ -976,7 +976,7 @@ class Configurations(object):
         dict, bool
             Config dictionary.
         """
-        if len(args) > 0:
+        if len(args) > 0:  # pragma: no cover
             raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
         self.results._reset_results()
         with open(config_file) as json_file:
@@ -1256,8 +1256,7 @@ class Configurations(object):
                         )
                     elif dict_monitor[mon_name]["Type"] == "Surface":
                         dict_monitor[mon_name]["Area Assignment"] = self._app.modeler.get_face_area(
-                            self._app.modeler.objects[dict_monitor[mon_name]["ID"]].faces[0]
-                        )
+                            self._app.modeler.get_object_from_name(dict_monitor[mon_name]["ID"]).faces[0].id)
                     elif dict_monitor[mon_name]["Type"] == "Object":
                         bb = self._app.modeler.get_object_from_name([dict_monitor[mon_name]["ID"]][0]).bounding_box
                         dict_monitor[mon_name]["Location"] = [(bb[i] + bb[i + 3]) / 2 for i in range(3)]
