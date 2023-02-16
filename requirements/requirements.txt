@@ -31,7 +31,7 @@ matplotlib==3.7.0; python_version > '3.7'
 # License: PSF
 
 numpy==1.21.6; python_version == '3.7'
-numpy==1.24.2; python_version > '3.7'
+numpy==1.22.0; python_version > '3.7'
 # License: BSD-3-Clause License
 
 pandas==1.5.3; python_version > '3.7'
