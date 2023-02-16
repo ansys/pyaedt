@@ -24,6 +24,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 
 from pyaedt import pyaedt_logger
 from pyaedt import settings
@@ -214,24 +215,16 @@ def desktop_init():
         run_desktop_tests()
 
 
-@pytest.fixture
-def clean_desktop_messages(desktop_init):
-    """Clear all Desktop app messages."""
-    desktop_init.logger.clear_messages(level=3)
+@pytest.fixture(scope="function", autouse=True)
+def method_init():
+    time.sleep(0.01)
+    yield
+    time.sleep(0.01)
+    gc.collect()
 
 
-@pytest.fixture
-def clean_desktop(desktop_init):
-    """Close all projects, but don't close Desktop app."""
-    desktop_init.release_desktop(close_projects=True, close_on_exit=False)
-    return desktop_init
-
-
-@pytest.fixture
-def hfss():
-    """Create a new Hfss project."""
-    # Be sure that the base class constructor "design" exposes oDesktop.
-    hfss = Hfss()
-    yield hfss
-    hfss.close_project(hfss.project_name)
+@pytest.fixture(scope="module", autouse=True)
+def class_init():
+    yield
+    time.sleep(1)
     gc.collect()
