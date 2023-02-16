@@ -12,11 +12,13 @@ sys.path.append(os.path.join(pyaedtpath, ".."))
 from pyaedt import Desktop
 
 if len(sys.argv) < 2:
-    version = "2021.2"
+    version = "2022.2"
 else:
     v = sys.argv[1]
     version = "20" + v[-3:-1] + "." + v[-1:]
-
+sys_lib = True
+if len(sys.argv) == 3:
+    sys_lib = True if sys.argv[2] == "1" else False
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 pyaedtpath = os.path.join(
@@ -80,12 +82,17 @@ with Desktop(version, True, new_desktop_session=True) as d:
     ]
 
     for product in toolkits:
-        try:
-            sys_dir = os.path.join(d.syslib, "Toolkits")
-            install_toolkit(sys_dir, product)
-            d.logger.info("Installed toolkit for {} in sys lib".format(product))
+        if sys_lib:
+            try:
+                sys_dir = os.path.join(d.syslib, "Toolkits")
+                install_toolkit(sys_dir, product)
+                d.logger.info("Installed toolkit for {} in sys lib".format(product))
 
-        except IOError:
+            except IOError:
+                pers_dir = os.path.join(d.personallib, "Toolkits")
+                install_toolkit(pers_dir, product)
+                d.logger.info("Installed toolkit for {} in personal lib".format(product))
+        else:
             pers_dir = os.path.join(d.personallib, "Toolkits")
             install_toolkit(pers_dir, product)
             d.logger.info("Installed toolkit for {} in personal lib".format(product))
