@@ -174,6 +174,8 @@ class Design(AedtObjects):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
+        self.last_run_log = ""
+        self.last_run_job = ""
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
@@ -3474,7 +3476,7 @@ class Design(AedtObjects):
         """
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
-            return self._variable_manager.variables[expression_string]
+            return self._variable_manager.variables[expression_string].value
         else:
             try:
                 self._variable_manager.set_variable(
