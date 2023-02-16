@@ -1403,7 +1403,7 @@ class BinaryTreeNode:
         try:
             self.child_object.SetPropValue(prop_name, prop_value)
             return True
-        except:
+        except:  # pragma: no cover
             return False
 
     @pyaedt_function_handler
