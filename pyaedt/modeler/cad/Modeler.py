@@ -3369,8 +3369,7 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
-        self.oeditor.PurgeHistory(vArg1)
-        return True
+        return _retry_ntimes(10, self.oeditor.PurgeHistory, vArg1)
 
     @pyaedt_function_handler()
     def get_model_bounding_box(self):

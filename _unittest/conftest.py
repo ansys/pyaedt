@@ -93,6 +93,8 @@ if not os.path.exists(scratch_path):
 
 logger = pyaedt_logger
 
+NONGRAPHICAL = settings.non_graphical
+
 
 class BasisTest(object):
     def my_setup(self):
@@ -128,7 +130,7 @@ class BasisTest(object):
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(self._main):
-            self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
             self.desktop.disable_autosave()
             self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
         if project_name:
@@ -194,12 +196,12 @@ desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 
 
-@pytest.fixture(scope="session", autouse=False)
+@pytest.fixture(scope="session", autouse=True)
 def desktop_init():
+    _main = sys.modules["__main__"]
     yield
     if not is_ironpython:
         try:
-            _main = sys.modules["__main__"]
             try:
                 os.kill(_main.desktop_pid, 9)
             except:

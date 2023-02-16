@@ -1,7 +1,7 @@
 name: CI_PreRelease
 
 env:
-  python.version: '3.10'
+  python.version: '3.7'
   python.venv: 'testvenv'
   # Following env vars when changed will "reset" the mentioned cache,
   # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
@@ -35,7 +35,7 @@ jobs:
     runs-on: [pre_release]
     strategy:
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.7']
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
@@ -68,10 +68,11 @@ jobs:
       #   uses: pyansys/pydpf-actions/check-licenses@v2.0
 
       - name: 'Unit testing'
+        timeout-minutes: 25
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 6 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest -o faulthandler_timeout=1800
+          pytest -n 6 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
 
       - uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.8'

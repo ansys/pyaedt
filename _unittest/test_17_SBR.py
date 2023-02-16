@@ -17,6 +17,9 @@ if desktop_version > "2022.2":
     person = "person3_231"
     vehicle = "vehicle1_231"
     bird = "bird1_231"
+    sbr_platform = "satellite_231"
+    array = "array_231"
+
 else:
     test_project_name = "Cassegrain"
     tunnel = "tunnel1"
