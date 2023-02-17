@@ -737,8 +737,12 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.insert_3d_component(
             comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True, name="test"
         )
-        self.aedtapp.modeler.user_defined_components["board_assembly2"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
-        self.aedtapp.modeler.user_defined_components["board_assembly2"].duplicate_along_line([1, 2, 0], nclones=2)
+        dup = self.aedtapp.modeler.user_defined_components["board_assembly2"].duplicate_and_mirror([0, 0, 0], [1, 2, 0])
+        self.aedtapp.modeler.refresh_all_ids()
+        self.aedtapp.modeler.user_defined_components[dup[0]].delete()
+        dup = self.aedtapp.modeler.user_defined_components["board_assembly2"].duplicate_along_line([1, 2, 0], nclones=2)
+        self.aedtapp.modeler.refresh_all_ids()
+        self.aedtapp.modeler.user_defined_components[dup[0]].delete()
 
     def test_52_flatten_3d_components(self):
         mon_name = self.aedtapp.monitor.assign_face_monitor(
