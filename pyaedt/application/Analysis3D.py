@@ -1013,8 +1013,6 @@ class FieldAnalysis3D(Analysis, object):
                         self.configurations._monitor_assignment_finder(dict_in, monitor_obj, obj_set)
                         m_type = dict_in["monitor"][monitor_obj]["Type"]
                         m_obj = dict_in["monitor"][monitor_obj]["ID"]
-                        if m_type == "Point":
-                            m_obj = dict_in["monitor"][monitor_obj]["Location"]
                         if not self.configurations.update_monitor(
                             m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
                         ):  # pragma: no cover

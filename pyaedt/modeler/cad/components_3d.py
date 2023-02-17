@@ -675,7 +675,8 @@ class UserDefinedComponent(object):
 
         return True
 
-    def get_component_bounding_dimension(self):
+    @property
+    def bounding_box(self):
         """Get bounding dimension of a user defined model.
 
         Returns
@@ -684,23 +685,14 @@ class UserDefinedComponent(object):
             List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
 
         """
-        x_min = float("inf")
-        y_min = float("inf")
-        z_min = float("inf")
-        x_max = float("-inf")
-        y_max = float("-inf")
-        z_max = float("-inf")
+        bb = [float("inf")]*3+[float("-inf")]*3
         for _, obj in self.parts.items():
-            bbox = obj._bounding_box_sat()
-            x_min = min(x_min, bbox[0])
-            y_min = min(y_min, bbox[1])
-            z_min = min(z_min, bbox[2])
-            x_max = max(x_max, bbox[3])
-            y_max = max(y_max, bbox[4])
-            z_max = max(z_max, bbox[5])
-        return x_min, y_min, z_min, x_max, y_max, z_max
+            bbox = obj.bounding_box
+            bb = [min(bb[i], bbox[i]) for i in range(3)]+[max(bb[i+3], bbox[i+3]) for i in range(3)]
+        return bb
 
-    def get_component_center(self):
+    @property
+    def center(self):
         """Get center coordinates of a user defined model.
 
         Returns
@@ -709,11 +701,11 @@ class UserDefinedComponent(object):
             List of floats containing [x_center, y_center, z_center].
 
         """
-        x_min, y_min, z_min, x_max, y_max, z_max = self.get_component_bounding_dimension()
+        x_min, y_min, z_min, x_max, y_max, z_max = self.bounding_box
         x_center = (x_min + x_max) / 2
         y_center = (y_min + y_max) / 2
         z_center = (z_min + z_max) / 2
-        return x_center, y_center, z_center
+        return [x_center, y_center, z_center]
 
     @property
     def _logger(self):

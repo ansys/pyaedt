@@ -1389,7 +1389,6 @@ class TestClass(BasisTest, object):
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
     @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_81_operations_3dcomponent(self):
         my_udmPairs = []
@@ -1418,8 +1417,7 @@ class TestClass(BasisTest, object):
     def test_82_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["NonGraphical"], reason="Not working in 2022.2")
-    def test_83_get_component_bounding_dimension(self):
+    def test_83_component_bounding_box(self):
         my_udmPairs = []
         mypair = ["OuterRadius", "20.2mm"]
         my_udmPairs.append(mypair)
@@ -1442,7 +1440,7 @@ class TestClass(BasisTest, object):
         assert (
             GeometryOperators.v_norm(
                 GeometryOperators.v_sub(
-                    self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_bounding_dimension(),
+                    self.aedtapp.modeler.user_defined_components["test_udm2"].bounding_box,
                     [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0],
                 )
             )
@@ -1452,7 +1450,7 @@ class TestClass(BasisTest, object):
         assert (
             GeometryOperators.v_norm(
                 GeometryOperators.v_sub(
-                    self.aedtapp.modeler.user_defined_components["test_udm2"].get_component_center(),
+                    self.aedtapp.modeler.user_defined_components["test_udm2"].center,
                     [0.0, 1.7763568394002505e-15, 0.0],
                 )
             )
