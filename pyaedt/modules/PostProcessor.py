@@ -1629,6 +1629,9 @@ class PostProcessorCommon(object):
                     if "Context" in context.keys() and "SourceContext" in context.keys():
                         report.far_field_sphere = context["Context"]
                         report.source_context = context["SourceContext"]
+                    if "Context" in context.keys() and "Source Group" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_group = context["Source Group"]
                 else:
                     report.far_field_sphere = context
         elif report_category == "Near Fields":
@@ -2501,10 +2504,8 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
-
             _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
-
             _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
@@ -2904,7 +2905,6 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-
                 self.export_model_picture(
                     full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )

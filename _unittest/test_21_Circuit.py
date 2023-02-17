@@ -98,6 +98,8 @@ class TestClass(BasisTest, object):
         assert LNA_setup.name == "LNA"
 
     def test_06b_add_3dlayout_component(self):
+        setup = self.aedtapp.create_setup("test_06b_LNA")
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
         ports = myedb.pins
@@ -123,8 +125,11 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
+        setup_name = "test_07a_LNA"
+        setup = self.aedtapp.create_setup(setup_name)
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
+        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
+        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
@@ -406,13 +411,15 @@ class TestClass(BasisTest, object):
     )
     def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        self.aedtapp.modeler.schematic_units = "meter"
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
             subcircuit.composed_name, location=[0.0508, 0.0], angle=0
         )
+
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
-        assert new_subcircuit.location[0] == "1900mil"
-        assert new_subcircuit.location[1] == "-100mil"
+        assert new_subcircuit.location[0] == 0.04826
+        assert new_subcircuit.location[1] == -0.00254
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
@@ -719,6 +726,22 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.schematic.create_wire(
             [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
         )
+        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], wire_name="wire_test1")
+        wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
+        for key in wire_keys:
+            if self.aedtapp.modeler.schematic.wires[key].name == "wire_test1":
+                assert len(self.aedtapp.modeler.schematic.wires[key].points_in_segment) == 1
+                assert self.aedtapp.modeler.schematic.wires[key].id == key
+                for seg_key in list(self.aedtapp.modeler.schematic.wires[key].points_in_segment.keys()):
+                    point_list = [
+                        round(x, 2)
+                        for y in self.aedtapp.modeler.schematic.wires[key].points_in_segment[seg_key]
+                        for x in y
+                    ]
+                    assert point_list[0] == 0.02
+                    assert point_list[1] == 0.02
+                    assert point_list[2] == 0.04
+                    assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self):
         assert self.aedtapp.modeler.wire.display_wire_properties(

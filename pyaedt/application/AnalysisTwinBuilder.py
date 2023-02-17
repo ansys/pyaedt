@@ -3,6 +3,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.schematic import ModelerTwinBuilder
 from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class AnalysisTwinBuilder(Analysis):
@@ -55,7 +56,6 @@ class AnalysisTwinBuilder(Analysis):
         port=0,
         aedt_process_id=None,
     ):
-
         Analysis.__init__(
             self,
             application,
@@ -93,8 +93,8 @@ class AnalysisTwinBuilder(Analysis):
         return self._modeler
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new setup.
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create a setup.
 
         Parameters
         ----------
@@ -103,24 +103,35 @@ class AnalysisTwinBuilder(Analysis):
         setuptype : str
             Type of the setup. The default is ``None``, in which case the default
             type is applied.
-        props : dict
-            Dictionary of properties with values.
+        **kwargs : dict, optional
+            Extra arguments to set up the circuit.
+            Available keys depend on the setup chosen.
+            For more information, see
+            :doc:`../SetupTemplatesCircuit`.
 
         Returns
         -------
-        pyaedt.modules.SolveSetup.SetupCircuit
+        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
             Setup object.
         """
         if setuptype is None:
-            setuptype = self.solution_type
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
-        setup.name = name
         setup.create()
-        if props:
-            for el in props:
-                setup.props[el] = props[el]
-            setup.update()
-        self.analysis_setup = name
+        setup.auto_update = False
+
+        if "props" in kwargs:
+            for el in kwargs["props"]:
+                setup.props[el] = kwargs["props"][el]
+        for arg_name, arg_value in kwargs.items():
+            if arg_name == "props":
+                continue
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
         self.setups.append(setup)
         return setup

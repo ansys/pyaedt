@@ -124,7 +124,6 @@ class EDBLayer(object):
 
     @material_name.setter
     def material_name(self, value):
-
         self._material_name = value
         self.update_layers()
 
@@ -170,7 +169,6 @@ class EDBLayer(object):
 
     @filling_material_name.setter
     def filling_material_name(self, value):
-
         if (
             self._layer_type == self._edb.Cell.LayerType.SignalLayer
             or self._layer_type == self._edb.Cell.LayerType.ConductingLayer
@@ -359,7 +357,6 @@ class EDBLayer(object):
 
     @lower_elevation.setter
     def lower_elevation(self, value):
-
         self._lower_elevation = value
         self.update_layers()
 
@@ -893,7 +890,6 @@ class EDBLayers(object):
 
     @stackup_mode.setter
     def stackup_mode(self, value):
-
         if value == 0 or value == self.layer_collection_mode.Laminate:
             self.layer_collection.SetMode(self.layer_collection_mode.Laminate)
         elif value == 1 or value == self.layer_collection_mode.Overlapping:

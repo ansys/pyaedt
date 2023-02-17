@@ -48,7 +48,6 @@ class Part(object):
     }  # Antenna only
 
     def __init__(self, part_folder, part_dict, parent=None, name=None):
-
         # Default values:
         self._compdef = dict()
         self._multiparts = parent

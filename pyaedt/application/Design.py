@@ -174,6 +174,8 @@ class Design(AedtObjects):
             t = threading.Thread(target=load_aedt_thread, args=(project_name,))
             t.start()
         self._init_variables()
+        self.last_run_log = ""
+        self.last_run_job = ""
         self._design_dictionary = None
         # Get Desktop from global Desktop Environment
         self._project_dictionary = OrderedDict()
@@ -385,7 +387,6 @@ class Design(AedtObjects):
 
     @property
     def _aedt_version(self):
-
         return _retry_ntimes(10, self.odesktop.GetVersion)[0:6]
 
     @property
@@ -3016,13 +3017,16 @@ class Design(AedtObjects):
         return proj_name
 
     @pyaedt_function_handler()
-    def rename_design(self, new_name):
+    def rename_design(self, new_name, save_after_duplicate=True):
         """Rename the active design.
 
         Parameters
         ----------
         new_name : str
             New name of the design.
+        save_after_duplicate : bool, optional
+            Save project after the duplication is completed. If ``False``, pyaedt objects like boundaries will not be
+            available.
 
         Returns
         -------
@@ -3034,7 +3038,11 @@ class Design(AedtObjects):
 
         >>> oDesign.RenameDesignInstance
         """
-        return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        if save_after_duplicate:
+            self.oproject.Save()
+            self._project_dictionary = None
+        return True
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
@@ -3475,7 +3483,7 @@ class Design(AedtObjects):
         """
         # Set the value of an internal reserved design variable to the specified string
         if expression_string in self._variable_manager.variables:
-            return self._variable_manager.variables[expression_string]
+            return self._variable_manager.variables[expression_string].value
         else:
             try:
                 self._variable_manager.set_variable(
@@ -3582,3 +3590,24 @@ class Design(AedtObjects):
         if destype == self._design_type:
             consistent = self._check_solution_consistency()
         return consistent
+
+    @pyaedt_function_handler()
+    def add_from_toolkit(self, toolkit_object, draw=False, **kwargs):
+        """Add a new toolkit to the current application.
+
+        Parameters
+        ----------
+        toolkit_object :
+            Application object from ``"ansys.aedt.toolkits"``.
+
+
+        Returns
+        -------
+
+            Application-created object."""
+        app = toolkit_object(self, **kwargs)
+        if draw:
+            app.init_model()
+            app.model_hfss()
+            app.setup_hfss()
+        return app

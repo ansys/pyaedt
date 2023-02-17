@@ -17,16 +17,15 @@ from random import randrange
 from pyaedt import Hfss
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
-from pyaedt.generic.DataHandlers import _tuple2dict
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.SetupTemplates import SetupKeys
-from pyaedt.modules.SetupTemplates import SetupProps
-from pyaedt.modules.SetupTemplates import SweepHFSS
-from pyaedt.modules.SetupTemplates import SweepHFSS3DLayout
-from pyaedt.modules.SetupTemplates import SweepMatrix
-from pyaedt.modules.SetupTemplates import identify_setup
+from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SolveSweeps import SetupProps
+from pyaedt.modules.SolveSweeps import SweepHFSS
+from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
+from pyaedt.modules.SolveSweeps import SweepMatrix
+from pyaedt.modules.SolveSweeps import identify_setup
 
 
 class CommonSetup(PropsManager, object):
@@ -73,9 +72,9 @@ class CommonSetup(PropsManager, object):
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
+            # for t in setup_template:
+            #    _tuple2dict(t, self.props)
+            self.props = SetupProps(self, setup_template)
         else:
             try:
                 setups_data = self.p_app.design_properties["AnalysisSetup"]["SolveSetups"]
@@ -569,6 +568,34 @@ class Setup(CommonSetup):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def analyze(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+        """Analyze a design setup.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores. The default is ``None.``
+        num_tasks : int, optional
+            Number of simulation tasks. The default is ``None.``
+        num_gpu : int, optional
+            Number of simulation graphics processing units. The default is ``None.``
+        acf_file : str, optional
+            Full path to custom ACF file. The default is ``None.``
+        use_auto_settings : bool, optional
+            Whether to use automatic settings in tasks or cores. This parameter
+            is not supported by all setup types.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        """
+        self._app.analyze_setup(self.name, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
+
 
 class SetupCircuit(CommonSetup):
     """Initializes, creates, and updates a circuit setup.
@@ -595,9 +622,9 @@ class SetupCircuit(CommonSetup):
         props = {}
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, props)
-            self.props = SetupProps(self, props)
+            # for t in setup_template:
+            #    _tuple2dict(t, props)
+            self.props = SetupProps(self, setup_template)
         else:
             self.props = SetupProps(self, OrderedDict())
             try:
@@ -751,7 +778,6 @@ class SetupCircuit(CommonSetup):
             sweep_points = [sweep_points]
         sweeps = []
         for el in sweep_points:
-
             if isinstance(el, (int, float)):
                 sweeps.append(str(el) + units)
             else:
@@ -1125,9 +1151,9 @@ class Setup3DLayout(CommonSetup):
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            for t in setup_template:
-                _tuple2dict(t, self.props)
-            self.props = SetupProps(self, self.props)
+            # for t in setup_template:
+            #    _tuple2dict(t, self.props)
+            self.props = SetupProps(self, setup_template)
         else:
             try:
                 setups_data = self._app.design_properties["Setup"]["Data"]
@@ -1466,7 +1492,7 @@ class Setup3DLayout(CommonSetup):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout`
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
             Sweep object.
 
         References
@@ -1578,12 +1604,12 @@ class SetupHFSS(Setup, object):
         return self.update()
 
     @pyaedt_function_handler()
-    def create_linear_count_sweep(
+    def create_frequency_sweep(
         self,
         unit,
         freqstart,
         freqstop,
-        num_of_freq_points,
+        num_of_freq_points=None,
         sweepname=None,
         save_fields=True,
         save_rad_fields=False,
@@ -1602,7 +1628,9 @@ class SetupHFSS(Setup, object):
         freqstop : float
             Stopping frequency of the sweep.
         num_of_freq_points : int
-            Number of frequency points in the range.
+            Number of frequency points in the range. The default is ``401`` for
+            a sweep type of ``"Interpolating"`` or ``"Fast"``. The default is ``5`` for a sweep
+            type of ``"Discrete"``.
         sweepname : str, optional
             Name of the sweep. The default is ``None``.
         save_fields : bool, optional
@@ -1621,7 +1649,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1644,7 +1672,16 @@ class SetupHFSS(Setup, object):
         <class 'pyaedt.modules.SetupTemplates.SweepHFSS'>
 
         """
-        if sweep_type not in ["Discrete", "Interpolating", "Fast"]:
+
+        # Set default values for num_of_freq_points if a value was not passed. Also,
+        # check that sweep_type is valid.
+        if sweep_type in ["Interpolating", "Fast"]:
+            if num_of_freq_points == None:
+                num_of_freq_points = 401
+        elif sweep_type == "Discrete":
+            if num_of_freq_points == None:
+                num_of_freq_points = 5
+        else:
             raise AttributeError("Invalid in `sweep_type`. It has to be either 'Discrete', 'Interpolating', or 'Fast'")
 
         if sweepname is None:
@@ -1653,7 +1690,7 @@ class SetupHFSS(Setup, object):
         if sweepname in [sweep.name for sweep in self.sweeps]:
             oldname = sweepname
             sweepname = generate_unique_name(oldname)
-            self.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
+            self._app.logger.warning("Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname)
         sweepdata = self.add_sweep(sweepname, sweep_type)
         if not sweepdata:
             return False
@@ -1670,7 +1707,7 @@ class SetupHFSS(Setup, object):
         sweepdata.props["SaveFields"] = save_fields
         sweepdata.props["SaveRadFields"] = save_rad_fields
         sweepdata.update()
-        self.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
+        self._app.logger.info("Linear count sweep {} has been correctly created".format(sweepname))
         return sweepdata
 
     @pyaedt_function_handler()
@@ -1712,7 +1749,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1740,15 +1777,15 @@ class SetupHFSS(Setup, object):
         if sweepname is None:
             sweepname = generate_unique_name("Sweep")
 
-        if setupname not in self.setup_names:
+        if setupname not in self._app.setup_names:
             return False
-        for s in self.setups:
+        for s in self._app.setups:
             if s.name == setupname:
                 setupdata = s
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
+                    self._app.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, sweep_type)
@@ -1768,7 +1805,7 @@ class SetupHFSS(Setup, object):
                     sweepdata.props["InterpMinSolns"] = 0
                     sweepdata.props["InterpMinSubranges"] = 1
                 sweepdata.update()
-                self.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
+                self._app.logger.info("Linear step sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -1805,7 +1842,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1851,15 +1888,15 @@ class SetupHFSS(Setup, object):
             if add_subranges:
                 save_single_field = [save0] * len(freq)
 
-        if setupname not in self.setup_names:
+        if setupname not in self._app.setup_names:
             return False
-        for s in self.setups:
+        for s in self._app.setups:
             if s.name == setupname:
                 setupdata = s
                 if sweepname in [sweep.name for sweep in setupdata.sweeps]:
                     oldname = sweepname
                     sweepname = generate_unique_name(oldname)
-                    self.logger.warning(
+                    self._app.logger.warning(
                         "Sweep %s is already present. Sweep has been renamed in %s.", oldname, sweepname
                     )
                 sweepdata = setupdata.add_sweep(sweepname, "Discrete")
@@ -1874,7 +1911,7 @@ class SetupHFSS(Setup, object):
                     for f, s in zip(freq, save_single_field):
                         sweepdata.add_subrange(rangetype="SinglePoints", start=f, unit=unit, save_single_fields=s)
                 sweepdata.update()
-                self.logger.info("Single point sweep {} has been correctly created".format(sweepname))
+                self._app.logger.info("Single point sweep {} has been correctly created".format(sweepname))
                 return sweepdata
         return False
 
@@ -1891,7 +1928,7 @@ class SetupHFSS(Setup, object):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or :class:`pyaedt.modules.SetupTemplates.SweepMatrix`
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
             Sweep object.
 
         References

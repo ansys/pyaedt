@@ -417,7 +417,6 @@ class TestClass(BasisTest, object):
         assert bound.props["Velocity"] == "1m_per_sec"
 
     def test_31_core_losses(self):
-
         m3d1 = Maxwell3d(self.file_path, specified_version=desktop_version)
         assert m3d1.set_core_losses(["PQ_Core_Bottom", "PQ_Core_Top"])
         assert m3d1.set_core_losses(["PQ_Core_Bottom"], False)

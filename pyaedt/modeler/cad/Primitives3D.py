@@ -57,9 +57,9 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            Anchor point for the box in Cartesian ``[x, y, z]`` coordinates.
+            Anchor point for the box in Cartesian``[x, y, z]`` coordinates.
         dimensions_list : list
-           Length of the box edges in Cartesian ``[x, y, z]`` coordinates.
+           Length of the box edges in Cartesian``[x, y, z]`` coordinates.
         name : str, optional
             Name of the box. The default is ``None``, in which case the
             default name is assigned.
@@ -511,7 +511,7 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                                     bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
@@ -584,15 +584,6 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.CreateRectangle
-
-        Examples
-        --------
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> plane = 0
-        >>> position = [0,0,0]
-        >>> dimension = [10,5]
-        >>> rect_obj = hfss.modeler.create_rectangle(plane, position, dimension)
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
@@ -1796,17 +1787,16 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def create_choke(self, json_file):
-        """Create an inductive choke using parameters defined in a json file.
+        """Create a choke from a JSON setting file.
 
         Parameters
         ----------
         json_file : str
-            Full path of the json file. The file is returned by the function ``check_choke_values``.
+            Full path of the JSON file with the choke settings.
 
         Returns
         -------
-        List
-            Three parameters output
+        List of
             bool
                 ``True`` when successful, ``False`` when failed.
             :class:`pyaedt.modeler.cad.object3d.Object3d`
@@ -1827,7 +1817,7 @@ class Primitives3D(Primitives, object):
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
-        >>> my_choke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
+        >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
 
         with open_file(json_file, "r") as read_file:
@@ -2023,7 +2013,6 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
-
         teta_r = radians(teta)
         points_list1 = [
             [in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
@@ -2214,7 +2203,6 @@ class Primitives3D(Primitives, object):
         sr,
         sep_layer,
     ):
-
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + sr * w_dia
         out_rad_in_wind = out_rad - sr * w_dia
@@ -2255,7 +2243,6 @@ class Primitives3D(Primitives, object):
         sr,
         sep_layer,
     ):
-
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 5)
         chamf_mid_wind = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + 2 * sr * w_dia
@@ -2633,7 +2620,6 @@ class Primitives3D(Primitives, object):
 
             if values["Similar Layer"]["Different"]:
                 if values["Layer"]["Double"] or values["Layer"]["Triple"]:
-
                     if asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)) > pi / nb_wind / turns2:
                         turns2 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)))
                         values["Mid Winding"]["Turns"] = turns2
@@ -2686,7 +2672,6 @@ class Primitives3D(Primitives, object):
                     # TODO if occ2 == 100: method can be improve
 
                 if values["Layer"]["Triple"]:
-
                     if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
                         turns3 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)))
                         values["Inner Winding"]["Turns"] = turns3

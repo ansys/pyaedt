@@ -658,7 +658,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
         with open_file(all_validate, "w") as validation:
-
             # Desktop Messages
             msg = "Desktop Messages:"
             validation.writelines(msg + "\n")
@@ -837,7 +836,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
-
         """Define the settings of the mesh.
 
         Parameters
@@ -973,7 +971,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1076,7 +1074,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1155,7 +1153,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References

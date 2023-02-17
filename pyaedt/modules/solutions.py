@@ -1067,7 +1067,6 @@ class SolutionData(object):
             output = os.path.join(csv_dir, name_str + str(frame) + ".csv")
             list_full = [["x", "y", "z", "val"]]
             for i, y in enumerate(y_c_list):
-
                 for j, x in enumerate(x_c_list):
                     y_coord = y + adj_y
                     x_coord = x + adj_x
@@ -2403,7 +2402,6 @@ class FfdSolutionData(object):
     @staticmethod
     @pyaedt_function_handler()
     def _rotation_to_euler_angles(R):
-
         sy = math.sqrt(R[0, 0] * R[0, 0] + R[1, 0] * R[1, 0])
         singular = sy < 1e-6
         if not singular:

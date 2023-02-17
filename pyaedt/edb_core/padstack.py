@@ -393,9 +393,9 @@ class EdbPadstacks(object):
         if pin_name == "":
             pin_name = "no_pin_name"
         if use_dot_separator:
-            port_name = "{0}.{1}.{2}".format(net_name, cmp_name, pin_name)
+            port_name = "{0}.{1}.{2}".format(cmp_name, pin_name, net_name)
         else:
-            port_name = "{0}_{1}_{2}".format(net_name, cmp_name, pin_name)
+            port_name = "{0}_{1}_{2}".format(cmp_name, pin_name, net_name)
         if not padstackinstance.IsLayoutPin():
             padstackinstance.SetIsLayoutPin(True)
 
@@ -725,7 +725,6 @@ class EdbPadstacks(object):
 
     @pyaedt_function_handler()
     def _get_pin_layer_range(self, pin):
-
         res, fromlayer, tolayer = pin.GetLayerRange()
         if res:
             return fromlayer, tolayer

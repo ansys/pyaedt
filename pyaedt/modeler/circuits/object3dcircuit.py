@@ -140,7 +140,7 @@ class CircuitPins(object):
         return deltax, deltay
 
     @pyaedt_function_handler()
-    def connect_to_component(self, component_pin, page_name=None, use_wire=False, clearance_units=1):
+    def connect_to_component(self, component_pin, page_name=None, use_wire=False, wire_name="", clearance_units=1):
         """Connect schematic components.
 
         Parameters
@@ -154,6 +154,8 @@ class CircuitPins(object):
             Whether to use wires or a page port to connect the pins.
             The default is ``False``, in which case a page port is used. Note
             that if wires are used but not well placed, shorts can result.
+        wire_name : str, optional
+            Wire name used only when user_wire is ``True``. Default value is ``""``.
         clearance_units : int, optional
             Number of snap units (100mil each) around the object to overcome pins and wires.
 
@@ -227,7 +229,6 @@ class CircuitPins(object):
                         points.append(act)
 
                 else:
-
                     dy = round((prev[1] + act[1]) / 2, -2)
                     p1 = act[0]
                     self._add_point(pins, points, delta, [p1, prev[1]])
@@ -250,7 +251,7 @@ class CircuitPins(object):
                         points.append(act)
 
                 cangles.append(cpin._circuit_comp.angle)
-            self._circuit_comp._circuit_components.create_wire(points)
+            self._circuit_comp._circuit_components.create_wire(points, wire_name=wire_name)
             return True
         comp_angle = self._circuit_comp.angle * math.pi / 180
         if len(self._circuit_comp.pins) == 2:
@@ -825,6 +826,7 @@ class Wire(object):
         self._modeler = modeler
         self.name = ""
         self.id = 0
+        self.points_in_segment = {}
 
     @property
     def _oeditor(self):

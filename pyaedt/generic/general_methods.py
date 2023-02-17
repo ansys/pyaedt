@@ -44,7 +44,6 @@ if not is_ironpython:
     try:
         import pandas as pd
     except ImportError:
-
         pd = None
     try:
         import numpy as np
@@ -262,7 +261,6 @@ def _log_method(func, new_args, new_kwargs):
                 message.append(line_begin2 + str(new_kwargs)[1:-1])
 
     else:
-
         message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
         if new_kwargs and settings.enable_debug_methods_argument_logger:
             message.append(line_begin2 + str(new_kwargs)[1:-1])
@@ -924,14 +922,22 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
         keys = ["ansysedtsv.exe"]
     else:
         keys = ["ansysedt.exe"]
+    long_version = None
+    if len(version) > 6:
+        version = version[-6:]
     if version and "." in version:
+        long_version = version
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version < "221":
         version = version[:2] + "." + version[2]
+        long_version = "20{}".format(version)
     sessions = []
     for p in psutil.process_iter():
         try:
             if p.name() in keys:
+                if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
+                    sessions.append(p.pid)
+                    continue
                 cmd = p.cmdline()
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
@@ -1149,14 +1155,18 @@ class PropsManager(object):
             Key to search
         """
         item_split = item.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
         props = self.props
         found_el = []
         matching_percentage = 1
         while matching_percentage >= 0.4:
             for item_value in item_split:
-                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                # found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
                 if found_el:
-                    props = props[found_el[0]]
+                    props = found_el[1][found_el[2]]
+                    # props = props[found_el[0]]
             if found_el:
                 return props
             else:
@@ -1175,6 +1185,8 @@ class PropsManager(object):
             Value to apply.
         """
         item_split = key.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
         found_el = []
         props = self.props
         matching_percentage = 1
@@ -1216,6 +1228,11 @@ class PropsManager(object):
                     out_val = self._recursive_search(v, key, matching_percentage)
                     if out_val:
                         return out_val
+                elif isinstance(v, list) and isinstance(v[0], (dict, OrderedDict)):
+                    for val in v:
+                        out_val = self._recursive_search(val, key, matching_percentage)
+                        if out_val:
+                            return out_val
         return False
 
     @pyaedt_function_handler()
@@ -1393,6 +1410,34 @@ def _dim_arg(value, units):
         return str(val) + units
     except:
         return value
+
+
+@pyaedt_function_handler()
+def _check_installed_version(install_path, long_version):
+    """Check installation folder to determine if it is for specified Ansys EM version.
+
+    Parameters
+    ----------
+    install_path: str
+        Installation folder to check.  For example, ``"C:\\Program Files\\AnsysEM\\v231\\Win64"``.
+    long_version: str
+        Long form of version number.  For example, ``"2023.1"``.
+
+    Returns
+    -------
+    bool
+
+    """
+    product_list_path = os.path.join(install_path, "config", "ProductList.txt")
+    if os.path.isfile(product_list_path):
+        try:
+            with open(product_list_path, "r") as f:
+                install_version = f.readline().strip()[-6:]
+                if install_version == long_version:
+                    return True
+        except:
+            pass
+    return False
 
 
 class Settings(object):

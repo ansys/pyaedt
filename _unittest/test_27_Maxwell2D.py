@@ -34,6 +34,8 @@ class TestClass(BasisTest, object):
             application=Maxwell2d,
             subfolder=test_subfolder,
         )
+        self.aedtapp.duplicate_design("design_for_test")
+        self.aedtapp.set_active_design("Basis_Model_For_Test")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -394,6 +396,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     def test_29_heal_objects(self):
+        self.aedtapp.set_active_design("design_for_test")
         assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1")
         assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1,Magnet1_Section1,Magnet2_Section1")
         assert self.aedtapp.heal_objects(input_objects_list="Rotor_Section1, Magnet1_Section1, Magnet2_Section1 ")

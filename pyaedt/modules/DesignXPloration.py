@@ -13,7 +13,7 @@ from pyaedt.modules.OptimetricsTemplates import defaultoptiSetup
 from pyaedt.modules.OptimetricsTemplates import defaultparametricSetup
 from pyaedt.modules.OptimetricsTemplates import defaultsensitivitySetup
 from pyaedt.modules.OptimetricsTemplates import defaultstatisticalSetup
-from pyaedt.modules.SetupTemplates import SetupProps
+from pyaedt.modules.SolveSweeps import SetupProps
 
 
 class CommonOptimetrics(PropsManager, object):
@@ -1023,6 +1023,9 @@ class ParametricSetups(object):
         if sweep_var not in self._app.variable_manager.variables:
             self._app.logger.error("Variable {} not found.".format(sweep_var))
             return False
+        if not solution and not self._app.nominal_sweep:
+            self._app.logger.error("At least one setup is needed.")
+            return False
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
@@ -1267,6 +1270,9 @@ class OptimizationSetups(object):
 
         >>> oModule.InsertSetup
         """
+        if not solution and not self._app.nominal_sweep:
+            self._app.logger.error("At least one setup is needed.")
+            return False
         if not solution:
             solution = self._app.nominal_sweep
         setupname = solution.split(" ")[0]
