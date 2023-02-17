@@ -707,7 +707,7 @@ class PostProcessorCommon(object):
             Report Setup. Default is `None` which will take first nominal_adpative solution.
         context : str, optional
             Report Category. Default is `""` which will take first default context.
-        is_siwave_dc: bool, optional
+        is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
         Returns
         -------

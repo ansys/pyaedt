@@ -1,0 +1,11 @@
+ExecDcSim
+AnsysEDT
+DesignName "Galileo_G87173_204"
+ProjectPath "C:/ansysdev/pycharm_projects/power_tree/unittest/./test_power_tree/project_out_files/2023_02_17_15_41_42/"
+SetupName "Siwave_DC_WP9QNY"
+UseHpcLicenses pool
+UseHpcLicenseVendor Ansys
+UseAutoSettings 1
+SetNumCpus 4
+SolverMemoryLimit  9.000000000000000e+01
+MpiVendor Intel

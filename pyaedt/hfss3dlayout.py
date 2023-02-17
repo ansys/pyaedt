@@ -2010,11 +2010,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Parameters
         ----------
-        setup_name: str
+        setup_name : str
             Name of the setup.
-        element_type: str
+        element_type : str
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
-        element_name: str
+        element_name : str
             Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop Resistance"``,
             ``"Path Resistance"``, ``"Resistance"``, ``"Inductance"``,v ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
         Returns
@@ -2039,7 +2039,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
         )
         if element_name not in all_categories:
-            self.logger.error("Invalid category. please select from " + ", ".join(all_categories))
             return False
 
         all_quantities = self.post.available_report_quantities(
