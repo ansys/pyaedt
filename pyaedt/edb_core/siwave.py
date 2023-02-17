@@ -266,8 +266,8 @@ class EdbSiwave(object):
 
         Returns
         -------
-        PadstackInstanceTerminal
-            return the created terminal.
+        terminal
+            Created terminal (PadsatckInstanceTerminal).
 
         """
         if pins_name:
