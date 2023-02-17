@@ -309,6 +309,7 @@ class CommonReport(object):
         if expressions:
             self.expressions = expressions
         self._is_created = True
+        self.siwave_dc_category = 0
 
     @property
     def differential_pairs(self):
@@ -1914,7 +1915,34 @@ class Standard(CommonReport):
             else:
                 ctxt = ["Context:=", self.matrix]
         elif self._post.post_solution_type in ["HFSS3DLayout"]:
-            if self.differential_pairs:
+            if self.domain == "DCIR":
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        37010,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "DCIRID",
+                        False,
+                        str(self.siwave_dc_category),
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            elif self.differential_pairs:
                 ctxt = [
                     "NAME:Context",
                     "SimValueContext:=",
