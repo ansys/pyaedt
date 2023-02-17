@@ -1040,13 +1040,13 @@ class Configurations(object):
                 newmat = Material(self._app, el, val)
                 if newmat.update():
                     self._app.materials.material_keys[newname] = newmat
-                else:
+                else:  # pragma: no cover
                     self.results.import_materials = False
 
         if self.options.import_coordinate_systems and dict_in.get("coordinatesystems", None):
             self.results.import_coordinate_systems = True
             for name, props in dict_in["coordinatesystems"].items():
-                if not self._update_coordinate_systems(name, props):
+                if not self._update_coordinate_systems(name, props):  # pragma: no cover
                     self.results.import_coordinate_systems = False
 
         # if self.options.import_face_coordinate_systems and dict_in.get("facecoordinatesystems", None):

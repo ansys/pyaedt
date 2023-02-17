@@ -62,6 +62,7 @@ class TestClass(BasisTest, object):
         assert app.configurations.results.global_import_success
 
     def test_02_q3d_export(self):
+        self.q3dtest.modeler.create_coordinate_system()
         conf_file = self.q3dtest.configurations.export_config()
         assert os.path.exists(conf_file)
         filename = self.q3dtest.design_name
@@ -163,6 +164,9 @@ class TestClass(BasisTest, object):
         filename = self.icepak_a.design_name
         self.icepak_a.export_3d_model(filename, self.icepak_a.working_directory, ".step", [], [])
         self.icepak_a.create_fan("test_fan")
+        assert self.icepak_a.configurations.export_monitor
+        assert self.icepak_a.configurations.export_native_components
+        assert self.icepak_a.configurations.export_datasets
         conf_file = self.icepak_a.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(self.icepak_a.working_directory, filename + ".step")
