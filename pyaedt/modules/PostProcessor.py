@@ -691,7 +691,9 @@ class PostProcessorCommon(object):
         return []
 
     @pyaedt_function_handler()
-    def available_quantities_categories(self, report_category=None, display_type=None, solution=None, context=""):
+    def available_quantities_categories(
+        self, report_category=None, display_type=None, solution=None, context="", is_siwave_dc=False
+    ):
         """Compute the list of all available report categories.
 
         Parameters
@@ -705,7 +707,8 @@ class PostProcessorCommon(object):
             Report Setup. Default is `None` which will take first nominal_adpative solution.
         context : str, optional
             Report Category. Default is `""` which will take first default context.
-
+        is_siwave_dc: bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
         Returns
         -------
         list
@@ -716,13 +719,34 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
+        if is_siwave_dc:
+            context = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, "0", "IDIID", False, "1"],
+            ]
+            if context:
+                id = [
+                    "RL",
+                    "Sources",
+                    "Vias",
+                    "Bondwires",
+                    "Probes",
+                ].index(context)
+                context[2][16] = str(id)
         if solution and report_category and display_type:
             return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
         return []
 
     @pyaedt_function_handler()
     def available_report_quantities(
-        self, report_category=None, display_type=None, solution=None, quantities_category=None, context=""
+        self,
+        report_category=None,
+        display_type=None,
+        solution=None,
+        quantities_category=None,
+        context="",
+        is_siwave_dc=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
 
@@ -739,7 +763,9 @@ class PostProcessorCommon(object):
             The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
             Default is ``None`` which will take first default quantity.".
         context : str, optional
-            Report Category. Default is ``""`` which will take first default context.
+            Report Context. Default is ``""`` which will take first default context.
+        is_siwave_dc: bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
         Returns
         -------
@@ -751,7 +777,25 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
-        if not context:
+        if is_siwave_dc:
+            id = "0"
+            if context:
+                id = str(
+                    [
+                        "RL",
+                        "Sources",
+                        "Vias",
+                        "Bondwires",
+                        "Probes",
+                    ].index(context)
+                )
+            context = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+            ]
+
+        elif not context:
             context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
@@ -1513,7 +1557,7 @@ class PostProcessorCommon(object):
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
         domain : str, optional
-            Plot Domain. Options are "Sweep" and "Time".
+            Plot Domain. Options are "Sweep", "Time", "DCIR".
         variations : dict, optional
             Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
         primary_sweep_variable : str, optional
@@ -1530,7 +1574,8 @@ class PostProcessorCommon(object):
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
+            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         plotname : str, optional
             Name of the plot. The default is ``None``.
@@ -1610,6 +1655,12 @@ class PostProcessorCommon(object):
         report.domain = domain
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
+        elif domain == "DCIR":
+            report.primary_sweep = "Index"
+            if variations:
+                variations["Index"] = ["All"]
+            else:
+                variations = {"Index": "All"}
         if secondary_sweep_variable:
             report.secondary_sweep = secondary_sweep_variable
         if variations:
@@ -1619,6 +1670,20 @@ class PostProcessorCommon(object):
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
+        elif context in [
+            "RL",
+            "Sources",
+            "Vias",
+            "Bondwires",
+            "Probes",
+        ]:
+            report.siwave_dc_category = [
+                "RL",
+                "Sources",
+                "Vias",
+                "Bondwires",
+                "Probes",
+            ].index(context)
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif report_category == "Far Fields":
