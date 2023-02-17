@@ -3017,13 +3017,16 @@ class Design(AedtObjects):
         return proj_name
 
     @pyaedt_function_handler()
-    def rename_design(self, new_name):
+    def rename_design(self, new_name, save_after_duplicate=True):
         """Rename the active design.
 
         Parameters
         ----------
         new_name : str
             New name of the design.
+        save_after_duplicate : bool, optional
+            Save project after the duplication is completed. If ``False``, pyaedt objects like boundaries will not be
+            available.
 
         Returns
         -------
@@ -3035,7 +3038,11 @@ class Design(AedtObjects):
 
         >>> oDesign.RenameDesignInstance
         """
-        return _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        _retry_ntimes(10, self._odesign.RenameDesignInstance, self.design_name, new_name)
+        if save_after_duplicate:
+            self.oproject.Save()
+            self._project_dictionary = None
+        return True
 
     @pyaedt_function_handler()
     def copy_design_from(self, project_fullname, design_name, save_project=True, set_active_design=True):
