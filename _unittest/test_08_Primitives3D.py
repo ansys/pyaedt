@@ -907,6 +907,46 @@ class TestClass(BasisTest, object):
             == "test_group"
         )
 
+    def test_66c_component_bounding_box(self):
+        my_udmPairs = []
+        mypair = ["OuterRadius", "20.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Tau", "0.65"]
+        my_udmPairs.append(mypair)
+        mypair = ["Sigma", "0.81"]
+        my_udmPairs.append(mypair)
+        mypair = ["Delta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Beta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Port_Gap_Width", "8.1mm"]
+        my_udmPairs.append(mypair)
+        self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm_83",
+        )
+        assert (
+            GeometryOperators.v_norm(
+                GeometryOperators.v_sub(
+                    self.aedtapp.modeler.user_defined_components["test_udm_83"].bounding_box,
+                    [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0],
+                )
+            )
+            < 1e-10
+        )
+
+        assert (
+            GeometryOperators.v_norm(
+                GeometryOperators.v_sub(
+                    self.aedtapp.modeler.user_defined_components["test_udm_83"].center,
+                    [0.0, 0.0, 0.0],
+                )
+            )
+            < 1e-10
+        )
+
     def test_67_assign_material(self):
         box1 = self.aedtapp.modeler.create_box([60, 60, 60], [4, 5, 5])
         box2 = self.aedtapp.modeler.create_box([50, 50, 50], [2, 3, 4])
@@ -1416,43 +1456,3 @@ class TestClass(BasisTest, object):
 
     def test_82_flatten_3d_components(self):
         assert self.flatten.flatten_3d_components()
-
-    def test_83_component_bounding_box(self):
-        my_udmPairs = []
-        mypair = ["OuterRadius", "20.2mm"]
-        my_udmPairs.append(mypair)
-        mypair = ["Tau", "0.65"]
-        my_udmPairs.append(mypair)
-        mypair = ["Sigma", "0.81"]
-        my_udmPairs.append(mypair)
-        mypair = ["Delta_Angle", "45deg"]
-        my_udmPairs.append(mypair)
-        mypair = ["Beta_Angle", "45deg"]
-        my_udmPairs.append(mypair)
-        mypair = ["Port_Gap_Width", "8.1mm"]
-        my_udmPairs.append(mypair)
-        self.aedtapp.modeler.create_udm(
-            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
-            udm_params_list=my_udmPairs,
-            udm_library="syslib",
-            name="test_udm2",
-        )
-        assert (
-            GeometryOperators.v_norm(
-                GeometryOperators.v_sub(
-                    self.aedtapp.modeler.user_defined_components["test_udm2"].bounding_box,
-                    [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0],
-                )
-            )
-            < 1e-10
-        )
-
-        assert (
-            GeometryOperators.v_norm(
-                GeometryOperators.v_sub(
-                    self.aedtapp.modeler.user_defined_components["test_udm2"].center,
-                    [0.0, 1.7763568394002505e-15, 0.0],
-                )
-            )
-            < 1e-10
-        )
