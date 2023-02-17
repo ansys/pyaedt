@@ -276,6 +276,7 @@ class EdbSiwave(object):
                 reference_net = self._pedb.core_nets.get_net_by_name(layer_name)
                 if not reference_net:
                     self._logger.error("reference net {} not found.".format(layer_name))
+                    return False
             else:
                 if not isinstance(reference_net, self._edb.Cell.Net):
                     reference_net = self._pedb.core_nets.get_net_by_name(reference_net)
@@ -314,6 +315,8 @@ class EdbSiwave(object):
                     negative_terminal.SetIsCircuitPort(True)
                     if positive_terminal.SetReferenceTerminal(negative_terminal):
                         self._logger.info("Port {} successfully created".format(term_name))
+                        return True
+            return False
 
     @pyaedt_function_handler()
     def create_voltage_source_on_pin(self, pos_pin, neg_pin, voltage_value=3.3, phase_value=0, source_name=""):
