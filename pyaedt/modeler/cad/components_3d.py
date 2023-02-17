@@ -175,8 +175,7 @@ class UserDefinedComponent(object):
         """
         try:
             child_object = self._primitives.oeditor.GetChildObject(self.name)
-            parent = BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
-            return parent
+            return BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
         except:
             return False
 
@@ -330,7 +329,7 @@ class UserDefinedComponent(object):
                 del self._primitives.user_defined_components[self._m_name]
                 self._project_dictionary = None
                 self._m_name = component_name
-        else:
+        else: # pragma: no cover
             self._logger.warning("Name %s already assigned in the design", component_name)
 
     @property

@@ -1758,7 +1758,6 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler
     def _export_native_components(self, dict_out):
         dict_out["native components"] = {}
-
         duplicate_dict = self._get_duplicate_names()
 
         def add_duplicate_dic_to_history(node_name, node, obj_name):
