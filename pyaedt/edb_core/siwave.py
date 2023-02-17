@@ -253,19 +253,21 @@ class EdbSiwave(object):
 
         Parameters
         ----------
-        component_name:
-            str, component name.
-        pins_name:
-            str, pin name or list of pin name.
-        layer_name:
-            str, layer name
-        reference_net:
-            str, reference net name.
-        impedance:
-            float, port impedance.
+        component_name : str
+            component name
+        pins_name : str
+            pin name or list of pin name
+        layer_name : str
+            layer name
+        reference_net : str
+            reference net name
+        impedance : float
+            port impedance
 
         Returns
         -------
+        PadstackInstanceTerminal
+            return the created terminal
 
         """
         if pins_name:
@@ -315,7 +317,7 @@ class EdbSiwave(object):
                     negative_terminal.SetIsCircuitPort(True)
                     if positive_terminal.SetReferenceTerminal(negative_terminal):
                         self._logger.info("Port {} successfully created".format(term_name))
-                        return True
+                        return positive_terminal
             return False
 
     @pyaedt_function_handler()
