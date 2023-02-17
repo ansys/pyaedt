@@ -348,8 +348,7 @@ class SimulationConfigurationBatch(object):
 
     @cutout_subdesign_expansion.setter
     def cutout_subdesign_expansion(self, value):  # pragma: no cover
-        if isinstance(value, (int, float)):
-            self._cutout_subdesign_expansion = value
+        self._cutout_subdesign_expansion = value
 
     @property
     def cutout_subdesign_round_corner(self):
@@ -2004,7 +2003,7 @@ class SimulationConfiguration(object):
                                 else:
                                     print("Unprocessed value for CutoutSubdesignType '{0}'".format(value))
                             elif i.lower().startswith("cutoutsubdesignexpansion"):
-                                self.cutout_subdesign_expansion = float(value)
+                                self.cutout_subdesign_expansion = value
                             elif i.lower().startswith("cutoutsubdesignroundcorners"):
                                 self.cutout_subdesign_round_corner = self._get_bool_value(value)
                             elif i.lower().startswith("sweepinterpolating"):
