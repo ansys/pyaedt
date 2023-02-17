@@ -164,9 +164,9 @@ class TestClass(BasisTest, object):
         filename = self.icepak_a.design_name
         self.icepak_a.export_3d_model(filename, self.icepak_a.working_directory, ".step", [], [])
         self.icepak_a.create_fan("test_fan")
-        assert self.icepak_a.configurations.export_monitor
-        assert self.icepak_a.configurations.export_native_components
-        assert self.icepak_a.configurations.export_datasets
+        assert self.icepak_a.configurations.options.export_monitor
+        assert self.icepak_a.configurations.options.export_native_components
+        assert self.icepak_a.configurations.options.export_datasets
         conf_file = self.icepak_a.configurations.export_config()
         assert os.path.exists(conf_file)
         file_path = os.path.join(self.icepak_a.working_directory, filename + ".step")
