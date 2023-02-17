@@ -2042,13 +2042,14 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             self.logger.error("Invalid category. please select from " + ", ".join(all_categories))
             return False
 
-        all_quantities = self.post.available_report_quantities(is_siwave_dc=True, context=element_type,
-                                                               quantities_category=element_name)
+        all_quantities = self.post.available_report_quantities(
+            is_siwave_dc=True, context=element_type, quantities_category=element_name
+        )
         data = self.post.oreportsetup.GetSolutionDataPerVariation(
             "Standard",
             setup_name,
             context,
-            ['Index:=', 'All'],
+            ["Index:=", "All"],
             all_quantities,
         )
         return SolutionData(list(data))
