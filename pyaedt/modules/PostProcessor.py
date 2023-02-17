@@ -764,7 +764,7 @@ class PostProcessorCommon(object):
             Default is ``None`` which will take first default quantity.".
         context : str, optional
             Report Context. Default is ``""`` which will take first default context.
-        is_siwave_dc: bool, optional
+        is_siwave_dc : bool, optional
             Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
         Returns
