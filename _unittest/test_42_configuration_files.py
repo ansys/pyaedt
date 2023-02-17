@@ -38,7 +38,7 @@ class TestClass(BasisTest, object):
         self.aedtapp = BasisTest.add_app(self, project_name=test_project_name, subfolder=test_subfolder)
         self.q3dtest = BasisTest.add_app(self, project_name=q3d_file, application=Q3d, subfolder=test_subfolder)
         self.q2dtest = Q2d(projectname=q3d_file)
-        self.icepak_a = BasisTest.add_app(self, project_name=ipk_name+"_a", application=Icepak)
+        self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
         self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
         self.hfss3dl = BasisTest.add_app(
             self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
