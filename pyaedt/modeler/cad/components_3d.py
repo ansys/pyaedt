@@ -685,10 +685,10 @@ class UserDefinedComponent(object):
             List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
 
         """
-        bb = [float("inf")]*3+[float("-inf")]*3
+        bb = [float("inf")] * 3 + [float("-inf")] * 3
         for _, obj in self.parts.items():
             bbox = obj.bounding_box
-            bb = [min(bb[i], bbox[i]) for i in range(3)]+[max(bb[i+3], bbox[i+3]) for i in range(3)]
+            bb = [min(bb[i], bbox[i]) for i in range(3)] + [max(bb[i + 3], bbox[i + 3]) for i in range(3)]
         return bb
 
     @property
