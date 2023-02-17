@@ -10,11 +10,11 @@ from __future__ import absolute_import  # noreorder
 import os
 import shutil
 import tempfile
-import threading
 import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
@@ -45,6 +45,11 @@ from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
 
 
 class Analysis(Design, object):
@@ -1722,43 +1727,59 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        inst_dir = self.desktop_install_dir
+        self.last_run_log = ""
+        self.last_run_job = ""
         if not filename:
             filename = self.project_file
+            project_name = self.project_name
             self.close_project()
+        else:
+            project_name = os.path.splitext(os.path.split(filename)[-1])[0]
+        queue_file = filename + ".q"
+        queue_file_completed = filename + ".q.completed"
+        if os.path.exists(queue_file):
+            os.unlink(queue_file)
+        if os.path.exists(queue_file_completed):
+            os.unlink(queue_file_completed)
         if machine == "local":
             # -Monitor option used as workaround for R2 BatchSolve not exiting properly at the end of the Batch job
-            options = " -ng -BatchSolve -Monitor "
+            options = ["-ng", "-BatchSolve", "-Monitor"]
         else:
-            options = " -ng -distribute -machinelist list=" + machine + " -Batchsolve "
+            options = ["-ng", "-BatchSolve", "-machinelist", "list=" + machine, "-Monitor"]
 
-        self.logger.info("Batch Solve Options: " + options)
         if os.name == "posix":
-            batch_run = os.path.join(
-                self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
-            )
+            batch_run = [inst_dir + "/ansysedt"]
+
         else:
-            batch_run = (
-                chr(34) + self.desktop_install_dir + "/ansysedt.exe" + chr(34) + options + chr(34) + filename + chr(34)
-            )
+            batch_run = [inst_dir + "/ansysedt.exe"]
+        batch_run.extend(options)
+        batch_run.append(filename)
 
         """
         check for existing solution directory and delete if present so we
         dont have old .asol files etc
         """
-
         self.logger.info("Solving model in batch mode on " + machine)
-        self.logger.info("Batch Job command:" + batch_run)
         if run_in_thread:
+            DETACHED_PROCESS = 0x00000008
+            subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
+            self.logger.info("Batch job launched.")
 
-            def thread_run():
-                """ """
-                os.system(batch_run)
-
-            x = threading.Thread(target=thread_run)
-            x.start()
         else:
-            os.system(batch_run)
-        self.logger.info("Batch job finished.")
+            subprocess.Popen(batch_run)
+            self.logger.info("Batch job finished.")
+
+        if machine == "local":
+            while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
+            with open(queue_file, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "JobID" in line:
+                        ls = line.split("=")[1].strip().strip("'")
+                        self.last_run_job = ls
+                        self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
         return True
 
     @pyaedt_function_handler()
