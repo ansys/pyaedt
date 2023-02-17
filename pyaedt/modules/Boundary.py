@@ -223,7 +223,7 @@ class NativeComponentObject(BoundaryCommon, object):
         """
         try:
             names = [i for i in self._app.excitations]
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             names = []
         self.name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:

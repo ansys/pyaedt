@@ -673,6 +673,12 @@ class TestClass(BasisTest, object):
         self.aedtapp.monitor.assign_point_monitor_in_object(
             list(self.aedtapp.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
         )
+        assert self.aedtapp.modeler.create_3dcomponent(
+            os.path.join(file_path, file_name),
+            component_name="board_assembly",
+            included_cs=["Global"],
+            auxiliary_dict_file=True
+        )
         self.aedtapp.create_dataset(
             "test_ignore",
             [1, 2, 3, 4],
@@ -685,14 +691,6 @@ class TestClass(BasisTest, object):
             zunit="",
             vunit="",
         )
-        assert self.aedtapp.modeler.create_3dcomponent(
-            os.path.join(file_path, file_name),
-            component_name="board_assembly",
-            included_cs=["Global"],
-            auxiliary_dict_file=True,
-            native_components=True,
-            datasets=["test_dataset"],
-        )
         file_name = "Advanced3DComp1.a3dcomp"
         mon_list = list(self.aedtapp.monitor.all_monitors.keys())
         self.aedtapp.monitor.assign_point_monitor([0, 0, 0])
@@ -703,7 +701,6 @@ class TestClass(BasisTest, object):
             component_name="board_assembly",
             included_cs=cs_list,
             auxiliary_dict_file=True,
-            native_components=True,
             reference_cs="CS1",
             monitor_objects=mon_list,
             datasets=["test_dataset"],
