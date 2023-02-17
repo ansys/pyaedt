@@ -732,7 +732,7 @@ class Object3d(object):
                 i = 0
                 while i < 5:
                     pos = [
-                        float(i) for i in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, i / 5)
+                        float(p) for p in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, i / 5)
                     ]
                     vertices.append(VertexPrimitive(self, -1, pos))
                     i += 1
