@@ -38,6 +38,7 @@ class TestClass(BasisTest, object):
         self.target_path = os.path.join(self.local_scratch.path, "Package_test_40.aedb")
         self.local_scratch.copyfolder(example_project, self.target_path)
         self.package_file = self.local_scratch.copyfile(src_file, dest_file)
+        self.dcir_example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo_22r2_dcir.aedt")
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -305,3 +306,21 @@ class TestClass(BasisTest, object):
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
+
+    def test_19_dcir(self):
+        lock = self.dcir_example_project + ".lock"
+        if os.path.isfile(lock):
+            os.remove(lock)
+        hfss3d = Hfss3dLayout(self.dcir_example_project, "Galileo_G87173_204", specified_version=desktop_version)
+        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
+        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
+        solution_data = hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
+        assert solution_data
+        assert solution_data.data_magnitude(solution_data.expressions[0])
+        assert hfss3d.post.available_report_quantities(is_siwave_dc=True, context="")
+        assert hfss3d.post.create_report(
+            hfss3d.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],
+            setup_sweep_name="Siwave_DC_WP9QNY",
+            domain="DCIR",
+            context="RL",
+        )

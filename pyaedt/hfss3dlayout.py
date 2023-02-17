@@ -16,6 +16,7 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
+from pyaedt.modules.solutions import SolutionData
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -1998,3 +1999,56 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return True
         self.logger.error("Port not found.")
         return False
+
+    def get_dcir_solution_data(self, setup_name, element_type, element_name):
+        """ReTrieve dcir solution data. Available element_names are dependent on element_type as below.
+        Sources ["Voltage", "Current", "Power"]
+        "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
+        "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']
+        "Bondwires" ['Current', 'Limit', 'Resistance', 'IR Drop']
+        "Probes" ['Voltage']
+
+        Parameters
+        ----------
+        setup_name: str
+            Name of the setup.
+        element_type: str
+            Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
+        element_name: str
+            Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop Resistance"``,
+            ``"Path Resistance"``, ``"Resistance"``, ``"Inductance"``,v ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
+        Returns
+        -------
+        pyaedt.modules.solutions.SolutionData
+        """
+        id = str(
+            [
+                "RL",
+                "Sources",
+                "Vias",
+                "Bondwires",
+                "Probes",
+            ].index(element_type)
+        )
+        context = [
+            "NAME:Context",
+            "SimValueContext:=",
+            [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+        ]
+        all_categories = list(
+            self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
+        )
+        if element_name not in all_categories:
+            self.logger.error("Invalid category. please select from " + ", ".join(all_categories))
+            return False
+
+        all_quantities = self.post.available_report_quantities(is_siwave_dc=True, context=element_type,
+                                                               quantities_category=element_name)
+        data = self.post.oreportsetup.GetSolutionDataPerVariation(
+            "Standard",
+            setup_name,
+            context,
+            ['Index:=', 'All'],
+            all_quantities,
+        )
+        return SolutionData(list(data))
