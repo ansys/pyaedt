@@ -677,7 +677,7 @@ class TestClass(BasisTest, object):
             os.path.join(file_path, file_name),
             component_name="board_assembly",
             included_cs=["Global"],
-            auxiliary_dict_file=True
+            auxiliary_dict_file=True,
         )
         self.aedtapp.create_dataset(
             "test_ignore",

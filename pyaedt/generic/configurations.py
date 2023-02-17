@@ -1634,7 +1634,7 @@ class ConfigurationsIcepak(Configurations):
             exclude_set = set()
         elif len(args) == 1:
             exclude_set = args[0]
-        else: # pragma: no cover
+        else:  # pragma: no cover
             raise TypeError("import_config expected at most 2 arguments, got %d" % (len(args) + 1))
         with open(config_file) as json_file:
             dict_in = json.load(json_file)
@@ -1647,8 +1647,9 @@ class ConfigurationsIcepak(Configurations):
             i = 0
             while add_cs:
                 if dict_in["coordinatesystems"][add_cs[i]]["Reference CS"] in available_cs:
-                    if not self._update_coordinate_systems(add_cs[i],
-                                                           dict_in["coordinatesystems"][add_cs[i]]):  # pragma: no cover
+                    if not self._update_coordinate_systems(
+                        add_cs[i], dict_in["coordinatesystems"][add_cs[i]]
+                    ):  # pragma: no cover
                         result_coordinate_systems = False
                     available_cs.append(add_cs[i])
                     add_cs.pop(i)
