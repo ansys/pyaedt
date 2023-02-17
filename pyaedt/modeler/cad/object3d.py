@@ -725,7 +725,17 @@ class Object3d(object):
         if self.object_type == "Unclassified":
             return []
         vertices = []
+
         v = [i for i in self._primitives.get_object_vertices(self.name)]
+        if not v:
+            for el in self.edges:
+                i = 0
+                while i < 5:
+                    pos = [
+                        float(i) for i in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, i / 5)
+                    ]
+                    vertices.append(VertexPrimitive(self, -1, pos))
+                    i += 1
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
