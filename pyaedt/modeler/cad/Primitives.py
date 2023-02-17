@@ -921,7 +921,7 @@ class Primitives(object):
         --------
         Set up the desktop environment.
 
-        >>> from pyaedt.modeler.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
+        >>> from pyaedt.modeler.cad.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.maxwell import Maxwell3d
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
