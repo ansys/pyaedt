@@ -7,8 +7,6 @@ You can edit a setup after it is created. Here is an example:
 
 .. code:: python
 
-    Launch AEDT 2021 R1 in non-graphical mode
-
     from pyaedt import Hfss
 
     hfss = Hfss()

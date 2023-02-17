@@ -3372,7 +3372,7 @@ class Hfss(FieldAnalysis3D, object):
             terminal_references = self.modeler.convert_to_selections(terminal_references, True)
         if isinstance(port_item, int):
             try:
-                oname = self.modeler.oeditor.GetObjectNameByFaceID(sheet)
+                oname = self.modeler.oeditor.GetObjectNameByFaceID(port_item)
             except:
                 oname = ""
         else:
@@ -3385,10 +3385,10 @@ class Hfss(FieldAnalysis3D, object):
                 port_item, int_start, int_stop, impedance, portname, renorm, nummodes, deemb
             )
         else:
-            if isinstance(sheet, int):
-                faces = sheet
+            if isinstance(port_item, int):
+                faces = port_item
             else:
-                faces = self.modeler.get_object_faces(sheet)[0]
+                faces = self.modeler.get_object_faces(port_item)[0]
             if not faces:  # pragma: no cover
                 self.logger.error("Input object is wrong. It must be a face ID or a sheet.")
                 return False
