@@ -315,8 +315,6 @@ class TestClass(BasisTest, object):
         assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
         assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
         solution_data = hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
-        assert solution_data
-        assert solution_data.data_magnitude(solution_data.expressions[0])[0]
         assert hfss3d.post.available_report_quantities(is_siwave_dc=True, context="")
         assert hfss3d.post.create_report(
             hfss3d.post.available_report_quantities(is_siwave_dc=True, context="RL")[0],

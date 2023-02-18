@@ -2006,7 +2006,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
         "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']
         "Bondwires" ['Current', 'Limit', 'Resistance', 'IR Drop']
-        "Probes" ['Voltage']
+        "Probes" ['Voltage'].
 
         Parameters
         ----------
