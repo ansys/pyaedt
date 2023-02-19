@@ -51,7 +51,7 @@ import numpy as np
 
 non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
 NewThread = False
-desktop_version = "2023.2"
+desktop_version = "2022.2"
 
 ###############################################################################
 # Launch AEDT with EMIT
