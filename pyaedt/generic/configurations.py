@@ -1671,8 +1671,9 @@ class ConfigurationsIcepak(Configurations):
                 m_obj = dict_in["monitor"][monitor_obj]["ID"]
                 if m_type == "Point":
                     m_obj = dict_in["monitor"][monitor_obj]["Location"]
-                if not self.update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"],
-                                           monitor_obj):  # pragma: no cover
+                if not self.update_monitor(
+                    m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj
+                ):  # pragma: no cover
                     self.results.import_monitor = False
         try:
             self.results.import_native_components = result_native_component
