@@ -165,7 +165,8 @@ class TestClass(BasisTest, object):
         self.icepak_a.export_3d_model(filename, self.icepak_a.working_directory, ".step", [], [])
         f = self.icepak_a.create_fan("test_fan")
         self.icepak_a.monitor.assign_point_monitor_to_vertex(
-            list(self.icepak_a.modeler.user_defined_components[f.name].parts.values())[0].vertices[0].id)
+            list(self.icepak_a.modeler.user_defined_components[f.name].parts.values())[0].vertices[0].id
+        )
         assert self.icepak_a.configurations.options.export_monitor
         assert self.icepak_a.configurations.options.export_native_components
         self.icepak_a.configurations.options.export_native_components = False
