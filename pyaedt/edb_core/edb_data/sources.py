@@ -269,7 +269,7 @@ class PinGroup(object):
     @property
     def net(self):
         """Net."""
-        return self._edb_pin_group.GetNet()
+        return self._net
 
     @net.setter
     def net(self, value):
