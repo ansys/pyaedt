@@ -559,7 +559,7 @@ class Monitor:
             m_object = monitor_dict["ID"]
         else:
             self._app.logger.error("Only modes supported are 0 and 1")
-        if m_object is None:
+        if m_object is None:  # pragma: no cover
             self._app.logger.error("{} monitor object could not be restored".format(m_name))
             return False
         self._app.configurations.update_monitor(m_case, m_object, m_quantity, m_name)

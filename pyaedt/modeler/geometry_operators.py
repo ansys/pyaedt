@@ -2053,7 +2053,7 @@ class GeometryOperators(object):
                 close_points = [p]
         if close_points:
             return close_points
-        else:
+        else:  # pragma: no cover
             return False
         # fmt: on
 

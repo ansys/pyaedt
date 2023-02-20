@@ -127,6 +127,7 @@ class TestClass(BasisTest, object):
 
     def test_04a_icepak(self):
         box1 = self.icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
+        self.icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
         box1.surface_material_name = "Shellac-Dull-surface"
         region = self.icepak_a.modeler["Region"]
         self.icepak_a.monitor.assign_point_monitor_in_object(box1.name)

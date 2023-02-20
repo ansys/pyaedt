@@ -723,6 +723,9 @@ class TestClass(BasisTest, object):
         self.aedtapp.modeler.insert_3d_component(
             comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True
         )
+        self.aedtapp.modeler.insert_3d_component(
+            comp_file=os.path.join(file_path, file_name), targetCS="Global", auxiliary_dict=False, name="test"
+        )
         assert all(i in self.aedtapp.native_components.keys() for i in ["Fan", "Board"])
         assert all(
             i in self.aedtapp.monitor.all_monitors

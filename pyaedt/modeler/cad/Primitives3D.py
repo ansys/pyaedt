@@ -1258,7 +1258,7 @@ class Primitives3D(Primitives, object):
                 udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_dict:
                     udm_obj.name = name
-        except:
+        except:  # pragma: no cover
             udm_obj = False
         if auxiliary_dict and udm_obj:
             mapping_dict = {}

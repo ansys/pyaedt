@@ -1671,12 +1671,13 @@ class ConfigurationsIcepak(Configurations):
                 m_obj = dict_in["monitor"][monitor_obj]["ID"]
                 if m_type == "Point":
                     m_obj = dict_in["monitor"][monitor_obj]["Location"]
-                if not self.update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
+                if not self.update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"],
+                                           monitor_obj):  # pragma: no cover
                     self.results.import_monitor = False
         try:
             self.results.import_native_components = result_native_component
             self.results.import_coordinate_systems = result_coordinate_systems
-        except Exception:
+        except UnboundLocalError:
             pass
         return dict_in
 
@@ -1801,7 +1802,7 @@ class ConfigurationsIcepak(Configurations):
                         "CS": cs_name,
                         "Operations": obj_history,
                     }
-        if not self.options.export_coordinate_systems:
+        if not self.options.export_coordinate_systems:  # pragma: no cover
             self._export_coordinate_systems(dict_out)
 
     @pyaedt_function_handler
