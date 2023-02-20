@@ -34,7 +34,7 @@ if not is_ironpython:
         from enum import Enum
     except ImportError:
         pd = None
-        Enum = None
+        Enum = object
 
 
 TEMPLATES_BY_DESIGN = {
