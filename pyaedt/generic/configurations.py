@@ -1659,7 +1659,7 @@ class ConfigurationsIcepak(Configurations):
             self.options.import_coordinate_systems = False
             result_native_component = True
             for component_name, component_dict in dict_in["native components"].items():
-                if not self._update_native_components(component_name, component_dict):
+                if not self._update_native_components(component_name, component_dict):  # pragma: no cover
                     result_native_component = False
 
         dict_in = Configurations.import_config(self, config_file)
@@ -1877,7 +1877,7 @@ class ConfigurationsIcepak(Configurations):
                     def_name: set(self._app.oeditor.Get3DComponentInstanceNames(def_name))
                     for def_name in definition_names
                 }
-                if not native.create():
+                if not native.create():  # pragma: no cover
                     return False
                 try:
                     definition_names = list(set(self._app.oeditor.Get3DComponentDefinitionNames()) - definition_names)[
