@@ -13,7 +13,6 @@ import string
 import warnings
 from collections import OrderedDict
 
-
 import pyaedt.modules.report_templates as rt
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -30,8 +29,9 @@ from pyaedt.modules.solutions import SolutionData
 
 if not is_ironpython:
     try:
-        import pandas as pd
         from enum import Enum
+
+        import pandas as pd
     except ImportError:
         pd = None
         Enum = None
