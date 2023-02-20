@@ -12,8 +12,7 @@ import random
 import string
 import warnings
 from collections import OrderedDict
-from enum import auto
-from enum import Enum
+
 
 import pyaedt.modules.report_templates as rt
 from pyaedt import is_ironpython
@@ -32,8 +31,10 @@ from pyaedt.modules.solutions import SolutionData
 if not is_ironpython:
     try:
         import pandas as pd
+        from enum import Enum
     except ImportError:
         pd = None
+        Enum = None
 
 
 TEMPLATES_BY_DESIGN = {
