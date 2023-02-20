@@ -1673,8 +1673,11 @@ class ConfigurationsIcepak(Configurations):
                     m_obj = dict_in["monitor"][monitor_obj]["Location"]
                 if not self.update_monitor(m_type, m_obj, dict_in["monitor"][monitor_obj]["Quantity"], monitor_obj):
                     self.results.import_monitor = False
-        self.results.import_native_components = result_native_component
-        self.results.import_coordinate_systems = result_coordinate_systems
+        try:
+            self.results.import_native_components = result_native_component
+            self.results.import_coordinate_systems = result_coordinate_systems
+        except Exception:
+            pass
         return dict_in
 
     @pyaedt_function_handler
