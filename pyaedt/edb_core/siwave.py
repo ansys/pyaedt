@@ -1143,6 +1143,27 @@ class EdbSiwave(object):
         return self.create_pin_group(reference_designator, pin_names, group_name)
 
     @pyaedt_function_handler
+    def get_pin_groups(self):
+        """
+
+        Returns
+        -------
+        list[PinGroup]
+            list of Pringroup objects.
+
+        """
+
+        all_layout_obj = [
+            obj.GetLayoutObj()
+            for obj in list(self._pedb.active_layout.GetLayoutInstance().GetAllLayoutObjInstances().Items)
+        ]
+        return [
+            PinGroup(obj.GetName(), obj)
+            for obj in all_layout_obj
+            if obj.GetObjType() == self._edb.Cell.LayoutObjType.PinGroup
+        ]
+
+    @pyaedt_function_handler
     def create_current_source_on_pin_group(
         self, pos_pin_group_name, neg_pin_group_name, magnitude=1, phase=0, name=None
     ):

@@ -269,7 +269,7 @@ class PinGroup(object):
     @property
     def net(self):
         """Net."""
-        return self._net
+        return self._edb_pin_group.GetNet()
 
     @net.setter
     def net(self, value):
@@ -315,6 +315,16 @@ class PinGroup(object):
         terminal.SetImpedance(self._pedb.edb_value(impedance))
         terminal.SetIsCircuitPort(True)
         return terminal
+
+    def delete(self):
+        """Delete active pingroup.
+
+        Returns
+        -------
+        None.
+
+        """
+        self._edb_pin_group.Delete()
 
 
 class CircuitPort(Source, object):
