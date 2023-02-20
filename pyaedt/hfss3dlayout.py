@@ -16,9 +16,9 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
-from pyaedt.modules.solutions import SolutionData
 from pyaedt.modules.PostProcessor import ReportDcirCategory
 from pyaedt.modules.PostProcessor import ReportDcirShow
+from pyaedt.modules.solutions import SolutionData
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
