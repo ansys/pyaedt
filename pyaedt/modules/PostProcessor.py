@@ -12,8 +12,8 @@ import random
 import string
 import warnings
 from collections import OrderedDict
-from enum import auto
 from enum import Enum
+from enum import auto
 
 import pyaedt.modules.report_templates as rt
 from pyaedt import is_ironpython
