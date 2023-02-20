@@ -135,8 +135,18 @@ class TestClass(BasisTest, object):
             self.aedtapp.PLANE.XY,
         )
 
-    def test_12_separate_Bodies(self):
-        assert self.aedtapp.modeler.separate_bodies("Poly1")
+    def test_12_separate_bodies(self):
+        self.aedtapp.modeler.create_cylinder(
+            cs_axis="Z", position=[0, -20, 15], radius=40, height=20, name="SearchCoil", matname="copper"
+        )
+        self.aedtapp.modeler.create_cylinder(
+            cs_axis="Z", position=[0, -20, 15], radius=20, height=20, name="Bore", matname="copper"
+        )
+        self.aedtapp.modeler.subtract("SearchCoil", "Bore", keep_originals=False)
+        self.aedtapp.modeler.section("SearchCoil", "YZ")
+        object_list = self.aedtapp.modeler.separate_bodies("SearchCoil_Section1")
+        assert isinstance(object_list, list)
+        assert len(object_list) == 2
 
     def test_13_rotate(self):
         assert self.aedtapp.modeler.rotate("Poly1", self.aedtapp.AXIS.X, 30)
@@ -179,7 +189,10 @@ class TestClass(BasisTest, object):
         id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
         udp = self.aedtapp.modeler.Position(0, 0, 10)
         id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [-3, 10])
-        assert self.aedtapp.modeler.connect([id1, id2])
+        objects_after_connection = self.aedtapp.modeler.connect([id1, id2])
+        assert isinstance(objects_after_connection, list)
+        assert id1.name == objects_after_connection[0].name
+        assert len(objects_after_connection) == 1
 
     def test_22_translate(self):
         udp = [0, 0, 0]

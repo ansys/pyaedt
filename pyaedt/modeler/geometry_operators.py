@@ -342,6 +342,48 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
+    def v_rotate_about_axis(vector, angle, radians=False, axis="z"):
+        """Evaluate rotation of a vector around an axis.
+
+        Parameters
+        ----------
+        vector : list
+            List of the three component of the vector.
+        angle : float
+            Angle by which the vector is to be rotated (radians or degree).
+        radians : bool, optional
+            Whether the angle is expressed in radians. Default is ``False``.
+        axis : str, optional
+            Axis about which to rotate the vector. Default is ``"z"``.
+
+        Returns
+        -------
+        list
+            List of values for the result vector.
+
+        """
+        if not radians:
+            angle = math.radians(angle)
+        x, y, z = vector
+        axis = axis.lower()
+        if axis == "z":
+            rotated_x = x * math.cos(angle) - y * math.sin(angle)
+            rotated_y = x * math.sin(angle) + y * math.cos(angle)
+            rotated_z = z
+        elif axis == "y":
+            rotated_x = x * math.cos(angle) + z * math.sin(angle)
+            rotated_y = y
+            rotated_z = -x * math.sin(angle) + z * math.cos(angle)
+        elif axis == "x":
+            rotated_x = x
+            rotated_y = y * math.cos(angle) - z * math.sin(angle)
+            rotated_z = y * math.sin(angle) + z * math.cos(angle)
+        else:  # pragma: no cover
+            raise ValueError("Invalid axis. Choose 'x', 'y', or 'z'.")
+        return rotated_x, rotated_y, rotated_z
+
+    @staticmethod
+    @pyaedt_function_handler()
     def v_sub(a, b):
         """Evaluate two geometry vectors by subtracting them (a-b).
 
@@ -2011,6 +2053,33 @@ class GeometryOperators(object):
                 close_points = [p]
         if close_points:
             return close_points
-        else:
+        else:  # pragma: no cover
             return False
         # fmt: on
+
+    @staticmethod
+    @pyaedt_function_handler
+    def mirror_point(start, reference, vector):
+        """Mirror point about a plane defining by a point on the plane and a normal point.
+
+        Parameters
+        ----------
+        start : list
+            Point to be mirrored
+        reference : list
+            The reference point. Point on the plane around which you want to mirror the object.
+        vector : list
+            Normalized vector used for the mirroring.
+
+        Returns
+        -------
+        List
+            List of the reflected point.
+
+        """
+        distance = [start[i] - reference[i] for i in range(3)]
+        vector_norm = GeometryOperators.v_norm(vector)
+        vector = [vector[i] / vector_norm for i in range(3)]
+        dot_product = sum([distance[i] * vector[i] for i in range(3)])
+        reflection = [-dot_product * vector[i] * 2 + start[i] for i in range(3)]
+        return reflection
