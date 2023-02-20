@@ -8,8 +8,8 @@ import os
 import warnings
 from collections import OrderedDict
 
-from pyaedt import settings
 from pyaedt import is_ironpython
+from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
