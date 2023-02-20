@@ -305,7 +305,7 @@ class TestClass(BasisTest, object):
         self.aedtapp.variable_manager.set_variable("var_test", expression="123")
         self.aedtapp["var_test"] = "234"
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
-        assert self.aedtapp.variable_manager.design_variables["var_test"].expresksion == "234"
+        assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     def test_19_dcir(self):
         lock = self.dcir_example_project + ".lock"
