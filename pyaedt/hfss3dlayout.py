@@ -2021,7 +2021,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pyaedt.modules.solutions.SolutionData
         """
-        id = str(
+        show_id = str(
             [
                 "RL",
                 "Sources",
@@ -2033,12 +2033,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         context = [
             "NAME:Context",
             "SimValueContext:=",
-            [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+            [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, show_id, "IDIID", False, "1"],
         ]
         all_categories = list(
             self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
         )
-        if element_name not in all_categories:
+        if element_name not in all_categories:  # pragma: no cover
             return False
 
         all_quantities = self.post.available_report_quantities(

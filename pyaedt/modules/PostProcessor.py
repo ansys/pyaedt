@@ -719,21 +719,27 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
-        if is_siwave_dc:
+        if is_siwave_dc:  # pragma: no cover
+            id = "0"
+            if context:
+                id = str(
+                    [
+                        "RL",
+                        "Sources",
+                        "Vias",
+                        "Bondwires",
+                        "Probes",
+                    ].index(context)
+                )
             context = [
                 "NAME:Context",
                 "SimValueContext:=",
-                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, "0", "IDIID", False, "1"],
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
             ]
-            if context:
-                id = [
-                    "RL",
-                    "Sources",
-                    "Vias",
-                    "Bondwires",
-                    "Probes",
-                ].index(context)
-                context[2][16] = str(id)
+
+        elif not context:  # pragma: no cover
+            context = ""
+
         if solution and report_category and display_type:
             return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
         return []
@@ -1655,11 +1661,11 @@ class PostProcessorCommon(object):
         report.domain = domain
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
-        elif domain == "DCIR":
+        elif domain == "DCIR":  # pragma: no cover
             report.primary_sweep = "Index"
             if variations:
                 variations["Index"] = ["All"]
-            else:
+            else:  # pragma: no cover
                 variations = {"Index": "All"}
         if secondary_sweep_variable:
             report.secondary_sweep = secondary_sweep_variable
