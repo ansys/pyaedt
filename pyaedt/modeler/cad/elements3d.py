@@ -595,7 +595,7 @@ class FacePrimitive(object):
             else:
                 if self.vertices:
                     return self.vertices[0].position
-                else:
+                else:  # pragma: no cover
                     centroid = [0, 0, 0]
                     eval_points = 4
                     for edge in self.edges:

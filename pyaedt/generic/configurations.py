@@ -1807,7 +1807,7 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler
     def _update_native_components(self, native_name, native_dict):
-        def apply_operations_to_native_components(obj, operation_dict, native_dict):
+        def apply_operations_to_native_components(obj, operation_dict, native_dict):  # pragma: no cover
             cache_cs = self._app.oeditor.GetActiveCoordinateSystem()
             self._app.modeler.set_working_coordinate_system(operation_dict["Props"]["Coordinate System"])
             new_objs = None
