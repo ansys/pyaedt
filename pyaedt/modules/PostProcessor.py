@@ -34,7 +34,9 @@ if not is_ironpython:
         import pandas as pd
     except ImportError:
         pd = None
-        Enum = object
+        Enum = None
+else:
+    Enum = object
 
 
 TEMPLATES_BY_DESIGN = {

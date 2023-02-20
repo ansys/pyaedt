@@ -9,6 +9,7 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt import settings
+from pyaedt import is_ironpython
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -2023,6 +2024,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pyaedt.modules.solutions.SolutionData
         """
+        if is_ironpython:
+            self._logger.error("Function is only supported in CPython.")
+            return False
         show_id = ReportDcirShow[show].value
         category = ReportDcirCategory[category].value
 
