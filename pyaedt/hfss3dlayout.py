@@ -17,6 +17,8 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 from pyaedt.modules.solutions import SolutionData
+from pyaedt.modules.PostProcessor import ReportDcirCategory
+from pyaedt.modules.PostProcessor import ReportDcirShow
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -2000,7 +2002,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.logger.error("Port not found.")
         return False
 
-    def get_dcir_solution_data(self, setup_name, element_type, element_name):
+    def get_dcir_solution_data(self, setup_name, show="RL", category="Voltage"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
@@ -2012,24 +2014,18 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         ----------
         setup_name : str
             Name of the setup.
-        element_type : str
+        show : str, optional
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
-        element_name : str
-            Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop Resistance"``,
-            ``"Path Resistance"``, ``"Resistance"``, ``"Inductance"``,v ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
+        category : str, optional
+            Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop_Resistance"``,
+            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR_Drop"``.
         Returns
         -------
         pyaedt.modules.solutions.SolutionData
         """
-        show_id = str(
-            [
-                "RL",
-                "Sources",
-                "Vias",
-                "Bondwires",
-                "Probes",
-            ].index(element_type)
-        )
+        show_id = ReportDcirShow[show].value
+        category = ReportDcirCategory[category].value
+
         context = [
             "NAME:Context",
             "SimValueContext:=",
@@ -2038,11 +2034,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         all_categories = list(
             self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
         )
-        if element_name not in all_categories:  # pragma: no cover
+        if category not in all_categories:  # pragma: no cover
             return False
 
         all_quantities = self.post.available_report_quantities(
-            is_siwave_dc=True, context=element_type, quantities_category=element_name
+            is_siwave_dc=True, context=show, quantities_category=category
         )
         data = self.post.oreportsetup.GetSolutionDataPerVariation(
             "Standard",

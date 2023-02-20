@@ -12,6 +12,8 @@ import random
 import string
 import warnings
 from collections import OrderedDict
+from enum import auto
+from enum import Enum
 
 import pyaedt.modules.report_templates as rt
 from pyaedt import is_ironpython
@@ -91,6 +93,28 @@ TEMPLATES_BY_NAME = {
     "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
 }
+
+
+class ReportDcirShow(Enum):
+    RL = "0"
+    Sources = "1"
+    Vias = "2"
+    Bondwires = "3"
+    Probes = "4"
+
+
+class ReportDcirCategory(Enum):
+    Voltage = "Voltage"
+    Current = "Current"
+    Power = "Power"
+    Loop_Resistance = "Loop Resistance"
+    Path_Resistance = "Path Resistance"
+    Resistance = "Resistance"
+    Inductor = "Inductance"
+    X = "X"
+    Y = "Y"
+    Limit = "Limit"
+    IR_Drop = "IR Drop"
 
 
 class Reports(object):
