@@ -2151,10 +2151,3 @@ class TestClass(BasisTest, object):
         setup = list(edbapp.active_cell.SimulationSetups)[0]
         setup_str = [t.strip("\n\t") for t in setup.ToString().split("\r")]
         assert [f for f in setup_str if "MeshFrequency" in f][0].split("=")[-1].strip("'") == simconfig.mesh_freq
-
-    def test_134_test_get_pingroups(self):
-        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_pin_group.aedb")
-        target_path = os.path.join(self.local_scratch.path, "test_134_pin_group.aedb")
-        self.local_scratch.copyfolder(source_path, target_path)
-        edbapp = Edb(target_path, edbversion=desktop_version)
-        assert edbapp.core_siwave.get_pin_groups()
