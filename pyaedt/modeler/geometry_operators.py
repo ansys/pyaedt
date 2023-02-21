@@ -22,12 +22,12 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        input_list : list
+        input_list : List
             C# list to convert to a Python list.
 
         Returns
         -------
-        list
+        List
             Converted Python list.
 
         """
@@ -207,14 +207,14 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        v1 : list
+        v1 : List
             List of ``[x, y, z]`` coordinates for the first point.
-        v2 : list
+        v2 : List
             List of ``[x, y, z]`` coordinates for the second point.
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates for the midpoint.
 
         """
@@ -228,11 +228,11 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        v1 : list
+        v1 : List
             List of ``[x, y, z]`` coordinates for the first vertex.
-        v2 : list
+        v2 : List
             List of ``[x, y, z]`` coordinates for the second vertex.
-        v3 : list
+        v3 : List
             List of ``[x, y, z]`` coordinates for the third vertex.
 
         Returns
@@ -257,14 +257,14 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates for the result vector.
         """
 
@@ -278,9 +278,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
@@ -304,9 +304,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
@@ -326,13 +326,13 @@ class GeometryOperators(object):
         ----------
         s : float
             Scalar value.
-        v : list
+        v : List
             List of values for the vector in the format ``[v1, v2,..., vn]``.
             The vector can be any length.
 
         Returns
         -------
-        list
+        List
             List of values for the result vector. This list is the
             same length as the list for the input vector.
 
@@ -342,19 +342,61 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
+    def v_rotate_about_axis(vector, angle, radians=False, axis="z"):
+        """Evaluate rotation of a vector around an axis.
+
+        Parameters
+        ----------
+        vector : list
+            List of the three component of the vector.
+        angle : float
+            Angle by which the vector is to be rotated (radians or degree).
+        radians : bool, optional
+            Whether the angle is expressed in radians. Default is ``False``.
+        axis : str, optional
+            Axis about which to rotate the vector. Default is ``"z"``.
+
+        Returns
+        -------
+        list
+            List of values for the result vector.
+
+        """
+        if not radians:
+            angle = math.radians(angle)
+        x, y, z = vector
+        axis = axis.lower()
+        if axis == "z":
+            rotated_x = x * math.cos(angle) - y * math.sin(angle)
+            rotated_y = x * math.sin(angle) + y * math.cos(angle)
+            rotated_z = z
+        elif axis == "y":
+            rotated_x = x * math.cos(angle) + z * math.sin(angle)
+            rotated_y = y
+            rotated_z = -x * math.sin(angle) + z * math.cos(angle)
+        elif axis == "x":
+            rotated_x = x
+            rotated_y = y * math.cos(angle) - z * math.sin(angle)
+            rotated_z = y * math.sin(angle) + z * math.cos(angle)
+        else:  # pragma: no cover
+            raise ValueError("Invalid axis. Choose 'x', 'y', or 'z'.")
+        return rotated_x, rotated_y, rotated_z
+
+    @staticmethod
+    @pyaedt_function_handler()
     def v_sub(a, b):
         """Evaluate two geometry vectors by subtracting them (a-b).
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates for the result vector.
 
         """
@@ -368,14 +410,14 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates for the result vector.
 
         """
@@ -389,7 +431,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-         a : list
+         a : List
             List of ``[x, y, z]`` coordinates for the vector.
 
         Returns
@@ -411,12 +453,12 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        v : list
+        v : List
             List of ``[x, y, z]`` coordinates for vector.
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates for the normalized vector.
 
         """
@@ -432,9 +474,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p1 : list
+        p1 : List
             Coordinates ``[x1,y1,z1]`` for the first point.
-        p2 : list
+        p2 : List
             Coordinates ``[x2,y2,z2]`` for second point.
 
         Returns
@@ -451,9 +493,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p1 : list
+        p1 : List
             List of ``[x1,y1,z1]`` coordinates for the first point.
-        p2 : list
+        p2 : List
             List of ``[x2,y2,z2]`` coordinates for the second ppint.
 
         Returns
@@ -477,14 +519,14 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        pointlists : list
+        pointlists : List
             List of points.
         direction : int, optional
              The default is ``0``.
 
         Returns
         -------
-        list
+        List
 
         """
 
@@ -511,16 +553,16 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p : list
+        p : List
             List of ``[x, y, z]`` coordinates for the reference point.
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first point of the segment.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second point of the segment.
 
         Returns
         -------
-        list
+        List
             List of ``[x, y, z]`` coordinates for the distance vector.
 
         """
@@ -539,11 +581,11 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p : list
+        p : List
             List of ``[x, y, z]`` coordinates for the reference point ``p``.
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first point of the segment.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second point of the segment.
         tol : float
             Linear tolerance. The default value is ``1e-6``.
@@ -572,13 +614,13 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a1 : list
+        a1 : List
             List of ``[x, y, z]`` coordinates for the first point of the fiirst segment.
-        a2 : list
+        a2 : List
             List of ``[x, y, z]`` coordinates for the second point of the first segment.
-        b1 : list
+        b1 : List
             List of ``[x, y, z]`` coordinates for the first point of the second segment.
-        b2 : list
+        b2 : List
             List of ``[x, y, z]`` coordinates for the second point of the second segment.
         tol : float
             Linear tolerance. The default value is ``1e-6``.
@@ -601,13 +643,13 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a1 : list
+        a1 : List
             List of ``[x, y, z]`` coordinates for the first point of the first segment.
-        a2 : list
+        a2 : List
             List of ``[x, y, z]`` coordinates for the second point of the first segment.
-        b1 : list
+        b1 : List
             List of ``[x, y, z]`` coordinates for the first point of the second segment.
-        b2 : list
+        b2 : List
             List of ``[x, y, z]`` coordinates for the second point of the second segment.
 
         Returns
@@ -629,9 +671,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
         tol : float
             Linear tolerance. The default value is ``1e-6``.
@@ -657,13 +699,13 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a1 : list
+        a1 : List
             List of ``[x, y, z]`` coordinates for the first point of the projected segment.
-        a2 : list
+        a2 : List
             List of ``[x, y, z]`` coordinates for the second point of the projected segment.
-        b1 : list
+        b1 : List
             List of ``[x, y, z]`` coordinates for the first point of the other segment.
-        b2 : list
+        b2 : List
             List of ``[x, y, z]`` coordinates for the second point of the other segment.
 
         Returns
@@ -690,9 +732,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        vertlist1 : list
+        vertlist1 : List
 
-        vertlist2 : list
+        vertlist2 : List
 
         Returns
         -------
@@ -712,9 +754,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
 
         Returns
@@ -739,10 +781,10 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        x_pointing : list
+        x_pointing : List
             List of ``[x, y, z]`` coordinates for the X axis.
 
-        y_pointing : list
+        y_pointing : List
             List of ``[x, y, z]`` coordinates for the Y pointing axis.
 
         Returns
@@ -751,31 +793,29 @@ class GeometryOperators(object):
             ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
         """
 
+        zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
+        ypt = GeometryOperators.v_cross(zpt, x_pointing)
+
         xp = GeometryOperators.normalize_vector(x_pointing)
-
-        tp = GeometryOperators.v_dot(y_pointing, xp)
-        ypt = GeometryOperators.v_sub(y_pointing, GeometryOperators.v_prod(tp, xp))
-        yp = GeometryOperators.normalize_vector(ypt)
-
-        zpt = GeometryOperators.v_cross(xp, yp)
         zp = GeometryOperators.normalize_vector(zpt)
+        yp = GeometryOperators.normalize_vector(ypt)
 
         return xp, yp, zp
 
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zxz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following the rotation sequence ZXZ.
+        """Retrieve Euler angles of a frame following the rotation sequence ZXZ.
 
         Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------
-        x : list
+        x : List
             List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
-        y : list
+        y : List
             List of ``[Yx, Yy, Yz]`` coordinates for the Y axis.
-        z : list
+        z : List
             List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
 
         Returns
@@ -784,6 +824,7 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
+        tol = 1e-16
         x1 = x[0]
         x2 = x[1]
         x3 = x[2]
@@ -791,11 +832,11 @@ class GeometryOperators(object):
         z1 = z[0]
         z2 = z[1]
         z3 = z[2]
-        if z == [0, 0, 1]:
+        if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
             phi = GeometryOperators.atan2(x2, x1)
             theta = 0.0
             psi = 0.0
-        elif z == [0, 0, -1]:
+        elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
             phi = GeometryOperators.atan2(x2, x1)
             theta = math.pi
             psi = 0.0
@@ -808,17 +849,17 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zyz(x, y, z):
-        """Retrieve the Euler angles of a frame defined by X, Y, and Z axes, following rotation sequence ZYZ.
+        """Retrieve Euler angles of a frame following the rotation sequence ZYZ.
 
         Provides assumption for the gimbal lock problem.
 
         Parameters
         ----------
-        x : list
+        x : List
             List of ``[Xx, Xy, Xz]`` coordinates for the X axis.
-        y : list
+        y : List
             List of ``[Yx, Yy, Yz]`` coordinates for the Y axis.
-        z : list
+        z : List
             List of ``[Zx, Zy, Zz]`` coordinates for the Z axis.
 
         Returns
@@ -827,6 +868,7 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
+        tol = 1e-16
         x1 = x[0]
         x2 = x[1]
         x3 = x[2]
@@ -834,14 +876,14 @@ class GeometryOperators(object):
         z1 = z[0]
         z2 = z[1]
         z3 = z[2]
-        if z == [0, 0, 1]:
-            phi = GeometryOperators.atan2(x2, x1)
+        if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
+            phi = GeometryOperators.atan2(-x1, x2)
             theta = 0.0
-            psi = 0.0
-        elif z == [0, 0, -1]:
-            phi = GeometryOperators.atan2(x2, x1)
+            psi = math.pi / 2
+        elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
+            phi = GeometryOperators.atan2(-x1, x2)
             theta = math.pi
-            psi = 0.0
+            psi = math.pi / 2
         else:
             phi = GeometryOperators.atan2(z2, z1)
             theta = math.acos(z3)
@@ -855,7 +897,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        q : list
+        q : List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
@@ -894,14 +936,14 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        q : list
+        q : List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
         tuple
-            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of the unit vector ``u``
-            and the rotation angle theta expressed in radians.
+            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of
+            the unit vector ``u`` and the rotation angle theta expressed in radians.
 
         """
         q1 = q[0]
@@ -920,7 +962,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        u : list
+        u : List
             List of ``[ux, uy, uz]`` coordinates for the rotation axis.
 
         theta : float
@@ -928,7 +970,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        list
+        List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         """
@@ -947,7 +989,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        q : list
+        q : List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
@@ -986,7 +1028,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        list
+        List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         """
@@ -1008,7 +1050,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        q : list
+        q : List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
@@ -1047,7 +1089,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        list
+        List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         """
@@ -1140,15 +1182,15 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p : list
+        p : List
             List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``p``.
 
-        q : list
+        q : List
             List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``q``.
 
         Returns
         -------
-        list
+        List
             List of [r1, r2, r3, r4] coordinates for the result quaternion.
 
         """
@@ -1169,21 +1211,21 @@ class GeometryOperators(object):
     @staticmethod
     @pyaedt_function_handler()
     def q_rotation(v, q):
-        """Evaluate the rotation of a vector defined by a quaternion.
+        """Evaluate the rotation of a vector, defined by a quaternion.
         Evaluated as:
         ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
         ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
 
         Parameters
         ----------
-        v : list
+        v : List
             List of ``[v1, v2, v3]`` coordinates for the vector.
-        q : list
+        q : List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
-        list
+        List
             List of ``[w1, w2, w3]`` coordinates for the result vector ``w``.
         """
         q0 = q[0]
@@ -1215,15 +1257,15 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        v : list
+        v : List
             List of ``[v1, v2, v3]`` coordinates for the vector.
 
-        q : list
+        q : List
             List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
 
         Returns
         -------
-        list
+        List
             List of ``[w1, w2, w3]`` coordinates for the vector.
 
         """
@@ -1237,12 +1279,12 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        pts : list
+        pts : List
             List of points, with each point defined by its ``[x,y,z]`` coordinates.
 
         Returns
         -------
-        list
+        List
             List of [x,y,z] coordinates for the centroid of the polygon.
 
         """
@@ -1344,7 +1386,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        cs_in : list of str or str
+        cs_in : List of str or str
             ``["x", "y", "z"]`` or "Global".
         """
         if type(cs_in) is str:
@@ -1366,27 +1408,33 @@ class GeometryOperators(object):
         Use this function to change the orientation.
         The polygon is represented by its vertices coordinates.
 
+
         Parameters
         ----------
-        x : list
-            List of x coordinates of the vertices. Length must be >= 3.
-        y : list
+        x : List
+            List of x coordinates of the vertices. Length must be >= 1.
+            Degenerate polygon with only 2 points is also accepted, in this case the points are returned unchanged.
+        y : List
             List of y coordinates of the vertices. Must be of the same length as x.
         clockwise : bool
-            If ``True`` the polygon is oriented colckwise, if ``False`` it is oriented counterclockwise.
+            If ``True`` the polygon is oriented clockwise, if ``False`` it is oriented counterclockwise.
             Default is ``True``.
 
         Returns
         -------
-        list of list
+        List of List
             Lists of oriented vertices.
         """
-        # select a vertex on the hull
-        if len(x) < 3:  # pragma: no cover
-            raise ValueError("'x' length must be >= 3")
+        x_ret = x[:]
+        y_ret = y[:]
+        if len(x) < 2:  # pragma: no cover
+            raise ValueError("'x' length must be >= 2")
         if len(y) != len(x):  # pragma: no cover
-            raise ValueError("'y' must be same length as 'x'.")
+            raise ValueError("'y' must be same length as 'x'")
+        if len(x) == 2:
+            return x_ret, y_ret
         # fmt: off
+        # select a vertex on the hull
         xmin = min(x)
         ixmin = [i for i, el in enumerate(x) if xmin == el]
         if len(ixmin) == 1:
@@ -1424,9 +1472,9 @@ class GeometryOperators(object):
             is_CW = True
         # fmt: on
         if (clockwise and not is_CW) or (not clockwise and is_CW):
-            x.reverse()
-            y.reverse()
-        return x, y
+            x_ret.reverse()
+            y_ret.reverse()
+        return x_ret, y_ret
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1442,11 +1490,11 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        va : list
+        va : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        vb : list
+        vb : List
             List of ``[x, y, z]`` coordinates for the second vector.
-        vn : list
+        vn : List
             List of ``[x, y, z]`` coordinates for the plane normal.
         right_handed : bool
             Whether to consider the right-handed rotation from va to vb. The default is ``True``.
@@ -1510,9 +1558,9 @@ class GeometryOperators(object):
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
-        point : list
+        point : List
             List of ``[x, y]`` coordinates.
-        polygon : list
+        polygon : List
             [[x1, x2, ..., xn],[y1, y2, ..., yn]]
 
         Returns
@@ -1556,9 +1604,9 @@ class GeometryOperators(object):
 
         The method implements the radial algorithm (https://es.wikipedia.org/wiki/Algoritmo_radial)
 
-        point : list
+        point : List
             List of ``[x, y]`` coordinates.
-        polygon : list
+        polygon : List
             [[x1, x2, ..., xn],[y1, y2, ..., yn]]
 
         Returns
@@ -1579,13 +1627,13 @@ class GeometryOperators(object):
         """
         Determine if the two segments a and b are intersecting.
 
-        a1 : list
+        a1 : List
             First point of segment a. List of ``[x, y]`` coordinates.
-        a2 : list
+        a2 : List
             Second point of segment a. List of ``[x, y]`` coordinates.
-        b1 : list
+        b1 : List
             First point of segment b. List of ``[x, y]`` coordinates.
-        b2 : list
+        b2 : List
             Second point of segment b. List of ``[x, y]`` coordinates.
         include_collinear : bool
             If ``True`` two segments are considered intersecting also if just one end lies on the other segment.
@@ -1669,11 +1717,11 @@ class GeometryOperators(object):
         Determine if a segment defined by two points ``a`` and ``b`` intersects a polygon.
         Points on the vertices and on the polygon boundaries are not considered intersecting.
 
-        a : list
+        a : List
             First point of the segment. List of ``[x, y]`` coordinates.
-        b : list
+        b : List
             Second point of the segment. List of ``[x, y]`` coordinates.
-        polygon : list
+        polygon : List
             [[x1, x2, ..., xn],[y1, y2, ..., yn]]
 
         Returns
@@ -1704,9 +1752,9 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first vector.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second vector.
         tol : float
             Linear tolerance. The default value is ``1e-6``.
@@ -1730,11 +1778,11 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p : list
+        p : List
             List of ``[x, y, z]`` coordinates for the reference point ``p``.
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first point of the segment.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second point of the segment.
 
         Returns
@@ -1757,11 +1805,11 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        p : list
+        p : List
             List of ``[x, y, z]`` coordinates for the reference point ``p``.
-        a : list
+        a : List
             List of ``[x, y, z]`` coordinates for the first point of the segment.
-        b : list
+        b : List
             List of ``[x, y, z]`` coordinates for the second point of the segment.
 
         Returns
@@ -1789,7 +1837,7 @@ class GeometryOperators(object):
 
         Parameters
         ----------
-        polygon : list
+        polygon : List
             [[x1, x2, ..., xn],[y1, y2, ..., yn]]
         partition_max_order : float, optional
             Order of the lattice partition used to find the quasi-lattice polygon that approximates ``polygon``.
@@ -1797,7 +1845,7 @@ class GeometryOperators(object):
 
         Returns
         -------
-        list of list
+        List of List
             List containing the rectangles points. Return all rectangles found.
             List is in the form: [[[x1, y1],[x2, y2],...],[[x1, y1],[x2, y2],...],...].
         """
@@ -1960,3 +2008,78 @@ class GeometryOperators(object):
 
         """
         return math.floor(math.radians(angle) * 10**digits) / (10**digits)
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def find_closest_points(points_list, reference_point, tol=1e-6):
+        """Given a list of points, finds the closest points to a reference point.
+        It returns a list of points because more than one can be found.
+        It works with 2D or 3D points. The tolerance used to evaluate the distance
+        to the reference point can be specified.
+
+        Parameters
+        ----------
+        points_list : List of List
+            List of points. The points can be defined in 2D or 3D space.
+        reference_point : List
+            The reference point. The point can be defined in 2D or 3D space (same as points_list).
+        tol : float, optional
+            The tolerance used to evaluate the distance. Default is ``1e-6``.
+
+        Returns
+        -------
+        List of List
+
+        """
+        # fmt: off
+        if not isinstance(points_list, list) or not isinstance(points_list[0], list):
+            raise AttributeError("points_list must be a list of points")
+        if len(points_list[0]) < 2 or len(points_list[0]) > 3:
+            raise AttributeError("points must be defined in either 2D or 3D space.")
+        if len(points_list[0]) != len(reference_point):
+            raise AttributeError("Points in points_list attribute and reference_point must have the same length.")
+        # make copy of the input points
+        pl = [i[:] for i in points_list]
+        pr = reference_point[:]
+        # find the closest points
+        dm = 1e12
+        close_points = []
+        for p in pl:
+            d = GeometryOperators.points_distance(p, pr)
+            if abs(d-dm) < tol:
+                close_points.append(p)
+            elif d < dm:
+                dm = d
+                close_points = [p]
+        if close_points:
+            return close_points
+        else:  # pragma: no cover
+            return False
+        # fmt: on
+
+    @staticmethod
+    @pyaedt_function_handler
+    def mirror_point(start, reference, vector):
+        """Mirror point about a plane defining by a point on the plane and a normal point.
+
+        Parameters
+        ----------
+        start : list
+            Point to be mirrored
+        reference : list
+            The reference point. Point on the plane around which you want to mirror the object.
+        vector : list
+            Normalized vector used for the mirroring.
+
+        Returns
+        -------
+        List
+            List of the reflected point.
+
+        """
+        distance = [start[i] - reference[i] for i in range(3)]
+        vector_norm = GeometryOperators.v_norm(vector)
+        vector = [vector[i] / vector_norm for i in range(3)]
+        dot_product = sum([distance[i] * vector[i] for i in range(3)])
+        reflection = [-dot_product * vector[i] * 2 + start[i] for i in range(3)]
+        return reflection

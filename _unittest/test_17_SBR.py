@@ -1,4 +1,5 @@
 import os
+import sys
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
@@ -17,12 +18,17 @@ if desktop_version > "2022.2":
     person = "person3_231"
     vehicle = "vehicle1_231"
     bird = "bird1_231"
+    sbr_platform = "satellite_231"
+    array = "array_231"
+
 else:
     test_project_name = "Cassegrain"
     tunnel = "tunnel1"
     person = "person3"
     vehicle = "vehicle1"
     bird = "bird1"
+    sbr_platform = "satellite"
+    array = "array"
 test_subfolder = "T17"
 
 
@@ -37,6 +43,8 @@ class TestClass(BasisTest, object):
             subfolder=test_subfolder,
         )
         self.source = Hfss(self.aedtapp.project_name, "feeder", specified_version=desktop_version)
+        self.sbr_platform = BasisTest.add_app(self, project_name=sbr_platform, subfolder=test_subfolder)
+        self.array = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -175,3 +183,32 @@ class TestClass(BasisTest, object):
         )
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
+
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not supported.")
+    def test_13_link_array(self):
+        assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
+        self.sbr_platform.analyze_all()
+        ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
+        self.array.close_project()
+        ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)
+
+        ffdata.plot_2d_cut(
+            primary_sweep="theta",
+            secondary_sweep_value=[75],
+            theta_scan=20,
+            qty_str="RealizedGain",
+            title="Azimuth at {}Hz".format(ffdata.frequency),
+            convert_to_db=True,
+            export_image_path=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
+
+        ffdata2.polar_plot_3d_pyvista(
+            qty_str="RealizedGain",
+            convert_to_db=True,
+            show=False,
+            position=[-0.11749961434125, -1.68, 0.20457438854331],
+            rotation=[[1, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]],
+            export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
+        )
+        assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))

@@ -1,0 +1,549 @@
+[Fri Feb 17 15:42:01 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 siwave_ng 2022 R2.3 (Built: Sep 22 2022 17:18:31):
+[Fri Feb 17 15:42:01 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Loading project...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Initializing layout database...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 Simulation "Siwave_DC_WP9QNY" started on host AAPIBQOJZZGEYGY at Fri Feb 17 15:42:02 2023:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Generating solver input files...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0118 Dielectric layer "UNNAMED_000" has a thickness of 0 mm and will be ignored:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0118 Dielectric layer "UNNAMED_012" has a thickness of 0 mm and will be ignored:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 [Simulation Directory]: "C:/Users/hzhou/AppData/Local/Temp/ens_temp_29148.pjt/":
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 [Simulation Log File]: "C:/Users/hzhou/AppData/Local/Temp/ens_temp_29148.pjt/Galileo_22r2_dcir.simlog":
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  5.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Identifying nets for inclusion in simulation...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 BST_V3P3_S5:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 EN_V1P5_S5:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 GND:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 RTC32K_CLK_SEL:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 V3P3_RTC:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 V3P3_S5:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0051 VR1_FB1:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  10.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Performing basic DRC...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Identifying non-functional pads...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  20.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  25.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Identifying geometry to process...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Generating antipads in planes...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Processing planes...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  50.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  60.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  70.000000:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Processing circuit elements...:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1: positive node at (83.604100,35.585400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A1: positive node at (18.364200,53.009800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A2: positive node at (20.269200,53.009800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A3: positive node at (-0.787400,52.781200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A4: positive node at (-2.794000,51.968400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A5: positive node at (4.445000,51.714400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A6: positive node at (6.985000,51.714400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A7: positive node at (9.525000,51.714400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A8: positive node at (13.335000,51.714400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A9: positive node at (5.715000,50.165000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A10: positive node at (4.445000,50.139600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A11: positive node at (-0.787400,49.733200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A12: positive node at (2.235200,48.539400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A13: negative node at (15.036800,47.294800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A14: positive node at (18.389600,47.142400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A15: positive node at (9.652000,46.736000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A16: positive node at (11.912600,46.736000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A17: positive node at (-0.787400,46.685200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A18: positive node at (-0.787400,42.621200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A19: positive node at (0.660400,39.979600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A20: negative node at (9.779000,35.661600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A21: positive node at (11.836400,35.610800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A22: negative node at (16.840200,35.534600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A23: positive node at (14.732000,35.382200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A24: positive node at (9.880600,34.315400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1A25: positive node at (17.018000,33.985200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1B1: positive node at (5.842000,16.459200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1L1: positive node at (94.030800,50.901600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1L2: positive node at (94.030800,49.885600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1L3: positive node at (93.294200,48.869600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M1: positive node at (89.763600,20.726400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M2: positive node at (89.763600,19.710400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M3: positive node at (97.282000,16.649700)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M4: positive node at (86.563200,19.304000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M5: positive node at (92.887800,18.516600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M6: positive node at (88.823800,18.008600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M7: positive node at (93.167200,17.449800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M8: positive node at (92.506800,15.367000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M9: positive node at (87.325200,13.004800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M10: positive node at (86.309200,13.004800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M11: positive node at (76.835000,8.661400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M12: positive node at (75.565000,8.661400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M13: positive node at (93.573600,12.293600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C1M14: positive node at (94.742000,9.626600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A1: positive node at (33.604200,52.476400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A2: positive node at (30.022800,51.739800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A3: positive node at (26.924000,50.520600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A4: positive node at (32.181800,50.139600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A5: positive node at (28.625800,49.022000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A6: negative node at (46.482000,46.050200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A8: positive node at (45.110400,61.493400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A9: positive node at (47.371000,62.382400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2A10: positive node at (37.719000,53.111400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B1: positive node at (40.436800,17.068800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B2: positive node at (47.523400,16.687800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B3: positive node at (40.843200,15.163800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B4: positive node at (39.243000,10.769600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B5: positive node at (37.363400,5.359400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B6: positive node at (43.967400,5.232400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B7: positive node at (46.405800,5.207000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B9: positive node at (43.103800,4.013200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B11: positive node at (40.005000,2.540000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B12: positive node at (47.472600,18.135600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2B13: positive node at (47.371000,8.966200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L1: positive node at (48.641000,40.843200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L2: positive node at (71.577200,40.106600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L3: positive node at (68.503800,40.106600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L7: positive node at (68.605400,37.033200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L8: positive node at (62.509400,36.499800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L9: positive node at (72.288400,35.229800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L12: positive node at (64.947800,34.442400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L13: positive node at (52.146200,33.553400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2L14: positive node at (68.503800,38.328600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M2: positive node at (48.945800,3.454400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M4: positive node at (54.610000,7.391400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M6: positive node at (68.148200,28.778200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M7: positive node at (51.181000,7.924800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M8: positive node at (54.229000,4.953000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M9: positive node at (48.945800,2.438400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C2M10: positive node at (53.136800,1.295400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3: positive node at (95.262700,41.960800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A1: positive node at (59.588400,65.786000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A2: positive node at (61.214000,65.455800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A3: positive node at (56.997600,62.001400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A4: positive node at (58.013600,62.001400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A5: positive node at (61.620400,61.010800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A6: positive node at (59.232800,60.401200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A7: positive node at (54.178200,57.556400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A10: negative node at (49.428400,46.050200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A12: positive node at (67.691000,41.249600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A13: positive node at (71.424800,41.224200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A14: positive node at (65.379600,39.878000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A15: positive node at (72.745600,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A16: positive node at (66.802000,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A17: positive node at (70.535800,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A18: negative node at (64.541400,37.439600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A19: positive node at (64.490600,32.867600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A23: positive node at (53.949600,62.915800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A24: positive node at (59.055000,62.001400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A25: positive node at (55.295800,55.626000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3A26: positive node at (57.073800,54.711600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B1: positive node at (61.493400,30.505400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B2: positive node at (68.554600,29.108400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B3: positive node at (71.297800,29.083000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B4: positive node at (73.228200,29.083000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B5: positive node at (53.517800,28.600400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B6: positive node at (65.963800,29.210000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B7: positive node at (61.518800,28.041600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B8: positive node at (67.564000,27.178000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B9: positive node at (63.423800,23.190200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:02 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B10: positive node at (55.702200,21.386800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B11: positive node at (65.354200,23.190200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B12: positive node at (59.258200,16.281400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B13: positive node at (58.496200,11.150600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B14: positive node at (57.073800,10.972800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B15: positive node at (65.024000,10.312400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B16: positive node at (56.642000,23.241000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B17: positive node at (52.146200,26.314400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3B18: positive node at (71.297800,19.177000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L1: positive node at (22.225000,52.070000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L3: positive node at (22.733000,49.504600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L4: positive node at (24.765000,49.377600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L5: positive node at (43.027600,48.412400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L6: positive node at (34.950400,48.412400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L7: positive node at (22.733000,47.599600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L11: positive node at (43.383200,38.379400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L12: positive node at (31.623000,38.125400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L13: positive node at (47.167800,37.947600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L14: positive node at (38.684200,37.465000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L15: positive node at (41.490900,36.576000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L16: positive node at (31.623000,36.474400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L17: positive node at (40.233600,35.979100)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L18: positive node at (41.833800,35.344100)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L19: positive node at (44.323000,35.458400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L20: positive node at (41.351200,35.344100)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L21: positive node at (37.922200,34.848800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L22: positive node at (40.690800,34.772600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L23: positive node at (31.623000,34.696400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L24: positive node at (42.621200,34.378900)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L25: positive node at (43.891200,34.061400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L26: positive node at (40.269795,34.072195)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L27: positive node at (45.161200,33.756600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L28: positive node at (41.683305,33.259395)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L29: positive node at (41.031795,33.259395)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3L30: positive node at (38.938200,32.283400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M1: positive node at (40.665400,31.750000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M2: positive node at (39.649400,31.038800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M3: positive node at (30.149800,30.657800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M4: positive node at (31.673800,29.159200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M5: positive node at (40.335200,29.006800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M6: positive node at (41.122600,27.686000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M7: positive node at (41.148000,26.060400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M8: positive node at (39.446200,25.730200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M9: positive node at (40.589200,17.424400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M10: positive node at (37.287200,15.773400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M11: positive node at (39.141400,-0.584200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M12: positive node at (38.404800,1.422400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C3M13: positive node at (33.045400,16.967200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4: positive node at (75.184000,38.125400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4A2: positive node at (75.209400,35.153600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4A3: positive node at (75.793600,60.375800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B1: positive node at (85.826600,27.965400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B2: positive node at (85.826600,25.704800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B3: positive node at (92.684600,24.866600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B4: positive node at (93.827600,24.866600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B5: positive node at (97.917000,17.348200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B6: positive node at (96.139000,27.406600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4B7: positive node at (89.001600,24.155400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4L1: positive node at (20.726400,66.268600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4L2: positive node at (18.161000,48.234600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4L3: positive node at (18.084800,46.939200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4M1: positive node at (15.925800,27.076400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4M2: positive node at (17.297400,26.314400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4M3: positive node at (18.796000,25.603200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4M4: negative node at (12.369800,25.450800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4M5: positive node at (19.812000,-0.812800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C4M6: positive node at (19.354800,-2.159000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C5: positive node at (76.631800,36.601400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C6: positive node at (11.836400,60.375800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C7: positive node at (7.239000,60.579000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C8: positive node at (7.289800,64.693800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C9: positive node at (11.836400,64.643000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C10: positive node at (84.709000,58.978800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C11: positive node at (71.348600,43.891200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C12: positive node at (82.600800,29.387800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C13: positive node at (90.043000,59.004200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0100 C14: positive node at (69.164200,60.058300)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0101 L2M1: positive node at (57.251600,29.641800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0101 L3M1_0: positive node at (43.132807,4.288612)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0101 L3M1_1: positive node at (43.582793,3.788588)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0101 L3M2_0: positive node at (40.839212,3.095193)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0101 L3M2_1: positive node at (40.339188,2.645207)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0101 L4B1: positive node at (78.155800,29.565600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1: positive node at (90.487500,7.112000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A1: positive node at (0.101600,53.797200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A2: positive node at (4.445000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A3: positive node at (6.985000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A4: positive node at (8.255000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A5: positive node at (9.525000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A6: positive node at (13.335000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A7: positive node at (-1.905000,52.984400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A8: positive node at (-0.787400,51.765200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A9: positive node at (-2.794000,50.952400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A10: positive node at (0.101600,50.749200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A11: positive node at (3.124200,49.555400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A12: positive node at (-0.787400,48.717200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A13: positive node at (0.101600,47.701200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A14: positive node at (2.235200,47.523400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A15: positive node at (-0.787400,45.669200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A16: positive node at (0.101600,44.653200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A17: positive node at (-0.787400,43.637200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A18: positive node at (5.715000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A19: positive node at (12.065000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A20: positive node at (10.795000,53.619400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1A21: positive node at (20.904200,63.906400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1B1: positive node at (17.703800,5.918200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1B2: positive node at (15.163800,5.918200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L1: negative node at (77.851000,59.156600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L2: positive node at (75.641200,59.156600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L3: negative node at (73.736200,59.156600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L5: positive node at (77.724000,58.140600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L7: positive node at (75.641200,58.140600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L10: positive node at (83.578700,60.883800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1L11: positive node at (94.030800,47.853600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M1: positive node at (93.091000,26.720800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M2: positive node at (95.631000,23.469600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M3: positive node at (92.151200,17.475200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M4: positive node at (94.462600,16.891000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M5: positive node at (94.462600,15.875000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M6: negative node at (89.585800,15.240000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M7: positive node at (95.808800,13.944600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M8: positive node at (95.808800,12.928600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M9: positive node at (96.164400,11.912600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M10: positive node at (96.164400,10.896600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M11: positive node at (78.105000,7.772400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R1M12: positive node at (95.681800,7.797800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2: positive node at (84.493100,36.906200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A1: positive node at (40.716200,66.192400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A3: positive node at (41.351200,63.906400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A4: negative node at (26.924000,52.552600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A5: positive node at (38.455600,52.374800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A6: positive node at (26.924000,51.536600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A7: positive node at (30.657800,47.421800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A8: positive node at (33.959800,46.837600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A9: positive node at (47.523400,46.050200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A10: positive node at (34.975800,45.948600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A11: positive node at (37.998400,50.266600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A12: positive node at (41.325800,46.710600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A13: positive node at (40.309800,46.710600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2A14: positive node at (39.293800,46.710600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B1: positive node at (35.204400,24.638000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B2: positive node at (47.879000,24.587200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B4: positive node at (38.481000,23.215600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B5: positive node at (37.465000,22.809200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B6: positive node at (36.245800,22.733000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B7: positive node at (46.253400,23.418800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B8: positive node at (40.919400,22.479000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B9: positive node at (39.903400,22.326600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B10: positive node at (35.229800,21.259800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B11: positive node at (41.986200,22.453600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B12: positive node at (39.370000,20.904200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B13: positive node at (36.601400,20.828000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B14: positive node at (47.294800,22.504400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B15: positive node at (49.022000,20.574000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B16: positive node at (40.741600,20.421600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B17: positive node at (38.354000,20.015200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B18: positive node at (37.566600,18.796000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B19: positive node at (35.179000,18.288000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B20: positive node at (46.101000,17.551400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B21: positive node at (45.085000,17.424400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B22: positive node at (32.664400,15.900400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B24: positive node at (30.810200,4.953000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B25: positive node at (33.731200,4.953000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B28: positive node at (45.618400,26.187400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2B30: positive node at (47.929800,20.574000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L1: negative node at (71.704200,59.156600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L2: positive node at (54.305200,49.784000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L3: positive node at (56.565800,49.733200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L4: positive node at (64.287400,45.720000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L5: positive node at (61.315600,45.694600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L6: positive node at (61.315600,44.678600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L7: positive node at (61.315600,43.662600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L8: positive node at (61.315600,42.646600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L9: negative node at (48.641000,41.859200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L12: positive node at (61.315600,41.630600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L13: positive node at (59.410600,41.300400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L14: positive node at (69.519800,40.106600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L15: positive node at (70.535800,39.217600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L16: positive node at (67.056000,37.998400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L17: positive node at (66.167000,36.957000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:03 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L18: positive node at (51.892200,32.537400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L19: positive node at (69.519800,38.328600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L20: positive node at (70.535800,39.217600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2L21: negative node at (48.031400,46.024800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M1: negative node at (70.561200,31.013400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M4: positive node at (68.148200,27.762200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M5: positive node at (49.276000,26.365200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M6: positive node at (70.561200,29.972000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M7: positive node at (57.251600,23.317200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M8: positive node at (54.940200,22.402800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M9: positive node at (59.918600,22.123400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M10: positive node at (56.972200,21.818600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M11: positive node at (60.604400,21.056600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M12: positive node at (56.311800,21.031200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M13: positive node at (58.775600,20.853400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M14: positive node at (55.422800,19.735800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R2M15: positive node at (74.295000,7.772400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3: positive node at (83.997800,24.028400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A1: positive node at (62.052200,62.026800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A2: positive node at (60.248800,59.512200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A3: positive node at (56.692800,57.658000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A4: positive node at (57.708800,57.658000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A5: positive node at (53.162200,57.556400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A6: positive node at (50.139600,56.642000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A7: positive node at (51.155600,56.642000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A8: positive node at (54.178200,56.540400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A10: positive node at (61.493400,52.959000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A11: positive node at (69.519800,51.206400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A12: positive node at (68.478400,49.377600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A13: positive node at (69.697600,46.024800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A14: positive node at (61.925200,45.389800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A15: positive node at (69.697600,45.008800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A17: positive node at (68.783200,43.942000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A19: negative node at (69.494400,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A20: positive node at (51.689000,39.903400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A21: positive node at (64.211200,39.878000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A22: positive node at (67.894200,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A23: positive node at (71.628000,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3A24: positive node at (51.917600,44.297600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B1: positive node at (67.360800,29.108400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B2: positive node at (64.465200,29.210000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B3: positive node at (50.342800,23.672800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B4: positive node at (50.419000,20.777200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B5: positive node at (55.118000,19.100800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B6: positive node at (57.023000,19.100800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B10: negative node at (54.635400,14.173200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B11: negative node at (55.727600,14.173200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3B12: positive node at (54.711600,10.261600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L1: positive node at (22.225000,51.054000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L2: positive node at (39.446200,45.694600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L3: positive node at (42.367200,41.656000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L4: positive node at (40.716200,38.404800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L5: positive node at (32.004000,33.451800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L6: positive node at (34.086800,32.969200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L7: positive node at (31.750000,32.029400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L8: positive node at (33.350200,34.163000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L9: positive node at (35.077400,35.179000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L10: positive node at (39.928800,41.173400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L11: positive node at (46.329600,41.554400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L12: positive node at (38.912800,42.291000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L13: positive node at (40.005000,43.637200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3L14: positive node at (40.792400,41.173400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M1: positive node at (47.040800,25.095200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M2: positive node at (50.063400,24.384000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M5: positive node at (43.281600,22.656800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M6: positive node at (39.039800,22.453600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M7: positive node at (37.846000,22.352000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M8: positive node at (44.119800,20.624800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M9: positive node at (42.214800,20.523200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M10: positive node at (44.475400,17.526000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M11: positive node at (40.132000,20.294600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M14: positive node at (45.491400,17.551400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M15: positive node at (25.603200,2.260600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M16: positive node at (36.118800,11.734800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M17: positive node at (34.188400,11.734800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M18: positive node at (32.004000,11.734800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M19: positive node at (30.073600,11.734800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M20: positive node at (25.095200,11.785600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M21: positive node at (25.450800,13.893800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R3M22: positive node at (80.086200,41.198800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4: positive node at (82.854800,24.028400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4A2: negative node at (84.582000,62.966600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4A6: positive node at (87.312500,41.173400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4A7: positive node at (73.812400,39.293800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4A9: positive node at (86.080600,62.966600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B1: positive node at (90.271600,22.936200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B2: positive node at (91.287600,22.936200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B3: positive node at (92.303600,22.936200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B4: positive node at (94.970600,22.072600)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B5: positive node at (90.500200,9.194800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B6: positive node at (90.500200,8.178800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4B8: positive node at (87.884000,9.144000)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L1: positive node at (20.878800,64.312800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L2: positive node at (19.659600,64.312800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L3: positive node at (13.335000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L4: positive node at (12.065000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L5: positive node at (8.255000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L6: positive node at (6.985000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L7: positive node at (5.715000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L8: positive node at (4.445000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L9: positive node at (20.015200,51.841400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L10: positive node at (17.780000,50.800000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L11: positive node at (16.510000,50.800000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L12: positive node at (14.605000,50.800000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L13: positive node at (13.335000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L14: positive node at (12.065000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L15: positive node at (10.795000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L16: positive node at (8.255000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L17: positive node at (5.715000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L18: positive node at (4.445000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L19: negative node at (13.182600,36.728400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L20: positive node at (6.985000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L21: positive node at (9.525000,49.301400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L22: positive node at (9.525000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4L23: positive node at (10.795000,52.095400)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M1: negative node at (13.131800,23.850600)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M2: positive node at (19.126200,0.203200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M7: positive node at (-0.762000,12.141200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M8: positive node at (0.279400,12.141200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M9: positive node at (1.346200,12.141200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M10: positive node at (2.438400,12.141200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M11: positive node at (3.556000,12.141200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R4M12: positive node at (4.648200,12.141200)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R5: positive node at (88.188800,41.452800)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R6: positive node at (81.635600,44.196000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R7: positive node at (98.298000,9.639300)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R8: positive node at (89.585800,5.715000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R9: positive node at (87.249000,-1.270000)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R10: positive node at (98.323400,26.720800)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R11: positive node at (83.604100,34.188400)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R12: positive node at (90.043000,57.988200)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R13: positive node at (0.889000,26.809700)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R14: positive node at (0.863600,29.451300)mm on layer TOP is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:warning 0104 R15: positive node at (-3.632200,26.047700)mm on layer BOTTOM is not attached to any net included in this simulation:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  80.000000:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Writing solver input files...:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 Negative terminal (attached to net GND) of U3A1-BST_V3P3_S5 has been set to 0V (ideal ground):
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  95.000000:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:progress  100.000000:
+[Fri Feb 17 15:42:04 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:message Solving for DC voltage/current distribution... :
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Initializing the problem 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 1 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Setting up solution materials 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 2 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Reading geometry file 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 3 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Reading layer stack up 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 4 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Setting up circuit graph 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 5 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Creating 5 layer meshes 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 10 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Meshing Layer #1 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 15 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Meshing Layer #2 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 20 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Meshing Layer #3 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 25 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Meshing Layer #4 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 30 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Meshing Layer #5 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 35 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Combining 5 layer meshes 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 40 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Appending Layer #5 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 41 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Appending Layer #4 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 43 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Appending Layer #3 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 44 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Appending Layer #2 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 46 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message   Appending Layer #1 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 48 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Meshing vias and bondwires 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 50 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Adding mesh to the circuit graph 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 55 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Initializing unknown and source information 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 60 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 1: Refining mesh 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 61 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 1: Filling system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 62 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 1: Solving system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 63 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 1: Computing energy error 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 65 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 1: Estimated global error = 100.000000 % 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 66 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 2: Refining mesh 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 69 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 2: Filling system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 70 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 2: Solving system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 71 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 2: Computing energy error 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 72 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 2: Estimated global error = 6.659675 % 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 74 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 3: Refining mesh 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 76 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 3: Filling system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 78 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 3: Solving system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 79 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 3: Computing energy error 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 80 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 3: Estimated global error = 3.040997 % 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 82 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 4: Refining mesh 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 84 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 4: Filling system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 85 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 4: Solving system matrix 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 87 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 4: Computing energy error 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 88 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 4: Estimated global error = 1.707257 % 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 89 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Solution converged after 4 passes 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Iteration 4: Writing solution information - do not exit simulation! 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 91 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Deleting problem 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 99 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:message Finished 
+C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe:progress 100 
+[Fri Feb 17 15:42:12 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 DC solver completed with return code 0:
+[Fri Feb 17 15:42:12 2023] C:\Program Files\AnsysEM\v222\Win64\siwave_ng.exe:information 0050 Simulation "Siwave_DC_WP9QNY" completed on host AAPIBQOJZZGEYGY at Fri Feb 17 15:42:12 2023:

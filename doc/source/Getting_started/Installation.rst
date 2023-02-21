@@ -9,7 +9,7 @@ basic support for EDB and Circuit (Nexxim).
 Requirements
 ~~~~~~~~~~~~
 In addition to the runtime dependencies listed in the installation information, PyAEDT
-requires Ansys Electronics Desktop (AEDT) 2021 R2 or later. The AEDT Student Version is also supported.
+requires Ansys Electronics Desktop (AEDT) 2022 R1 or later. The AEDT Student Version is also supported.
 
 
 
@@ -71,14 +71,19 @@ for writing PyAEDT scripts in Windows with a simple batch file.
 This batch file executes these steps:
 
 1. Creates a Python virtual environment in your ``%APPDATA%`` folder. To accomplish
-   this, it uses CPython in the latest installed version of AEDT on your machine.
+   this, it uses CPython in the selected version of AEDT available on your machine.
 2. Installs PyAEDT.
 3. Optionally installs `Spyder <https://www.spyder-ide.org/>`_ with -s flag.
 4. Installs `Jupyter Lab <https://jupyter.org/>`_.
 5. Creates a symbolic link from your PyAEDT installation to AEDT ``PersonalLib`` so
    that scripts can also be run within AEDT.
 6. Updates PyAEDT.
-7. Runs the tool that you choose (Spyder, Jupyter Lab, or a simple console).
+7. Install PyAEDT toolkit in AEDT to enable PyAEDT Console and PyAEDT Run Script.
+8. Runs the tool that you choose (Spyder, Jupyter Lab, or a simple console).
+
+.. image:: ../Resources/toolkits.png
+  :width: 800
+  :alt: PyAEDT toolkit installed after batch run
 
 Steps 1 through 5 are executed only the first time that you run the batch file or when ``-f`` is used:
 

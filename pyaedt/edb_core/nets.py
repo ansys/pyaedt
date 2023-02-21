@@ -303,15 +303,15 @@ class EdbNets(object):
             codes.append(79)
             objects_lists.append([vertices, codes, "b", "Outline", 1.0, 1.5, "contour"])
             n_label += 1
-        top_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
-        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[0]
+        top_layer = list(self._pedb.stackup.signal_layers.keys())[0]
+        bottom_layer = list(self._pedb.stackup.signal_layers.keys())[-1]
         if plot_components_on_top or plot_components_on_bottom:
             nc = 0
             for comp in self._pedb.core_components.components.values():
                 if not comp.is_enabled:
                     continue
                 net_names = comp.nets
-                if not any([i in nets for i in net_names]):
+                if nets and not any([i in nets for i in net_names]):
                     continue
                 layer_name = comp.placement_layer
                 if layer_name not in layers:
@@ -346,7 +346,7 @@ class EdbNets(object):
                 continue
             net_name = path.net_name
             layer_name = path.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             try:
                 x, y = path.points()
@@ -392,7 +392,7 @@ class EdbNets(object):
                 continue
             net_name = poly.net_name
             layer_name = poly.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name != "" and net_name not in nets or layer_name not in layers):
                 continue
             xt, yt = poly.points()
             if not xt:
@@ -444,17 +444,23 @@ class EdbNets(object):
                     create_label = True
 
             if create_label and n_label <= max_labels:
-                objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
+                if layer_name == "Outline":
+                    objects_lists.append([vertices, codes, label_colors[label], label, 1.0, 2.0, "contour"])
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], label, 0.4, "path"])
                 n_label += 1
             else:
-                objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
+                if layer_name == "Outline":
+                    objects_lists.append([vertices, codes, label_colors[label], None, 1.0, 2.0, "contour"])
+                else:
+                    objects_lists.append([vertices, codes, label_colors[label], None, 0.4, "path"])
 
         for circle in self._pedb.core_primitives.circles:
             if circle.is_void:
                 continue
             net_name = circle.net_name
             layer_name = circle.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             x, y = circle.points()
             if not x:
@@ -497,7 +503,7 @@ class EdbNets(object):
                 continue
             net_name = rect.net_name
             layer_name = rect.layer_name
-            if net_name not in nets or layer_name not in layers:
+            if nets and (net_name not in nets or layer_name not in layers):
                 continue
             x, y = rect.points()
             if not x:
@@ -577,7 +583,7 @@ class EdbNets(object):
     @pyaedt_function_handler()
     def plot(
         self,
-        nets,
+        nets=None,
         layers=None,
         color_by_net=False,
         show_legend=True,
@@ -591,7 +597,7 @@ class EdbNets(object):
 
         Parameters
         ----------
-        nets : str, list
+        nets : str, list, optional
             Name of the net or list of nets to plot. If ``None`` all nets will be plotted.
         layers : str, list, optional
             Name of the layers to include in the plot. If ``None`` all the signal layers will be considered.
@@ -679,7 +685,6 @@ class EdbNets(object):
         """
         temp_list = []
         for refdes, comp_obj in self._pedb.core_components.inductors.items():
-
             numpins = comp_obj.numpins
 
             if numpins == 2:

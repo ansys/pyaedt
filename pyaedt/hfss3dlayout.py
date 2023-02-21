@@ -8,6 +8,7 @@ import os
 import warnings
 from collections import OrderedDict
 
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
 from pyaedt.generic.general_methods import generate_unique_name
@@ -16,6 +17,9 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
+from pyaedt.modules.PostProcessor import ReportDcirCategory
+from pyaedt.modules.PostProcessor import ReportDcirShow
+from pyaedt.modules.solutions import SolutionData
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -658,7 +662,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         val_list = []
         all_validate = outputdir + "\\all_validation.log"
         with open_file(all_validate, "w") as validation:
-
             # Desktop Messages
             msg = "Desktop Messages:"
             validation.writelines(msg + "\n")
@@ -837,7 +840,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def set_meshing_settings(self, mesh_method="Phi", enable_intersections_check=True, use_alternative_fallback=True):
-
         """Define the settings of the mesh.
 
         Parameters
@@ -973,7 +975,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1076,7 +1078,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS3DLayout` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1155,7 +1157,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.modules.SetupTemplates.SweepHFSS` or bool
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or bool
             Sweep object if successful, ``False`` otherwise.
 
         References
@@ -1345,7 +1347,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def import_brd(
-        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False
+        self, input_file, aedb_path=None, set_as_active=True, close_active_project=False, control_file=None
     ):  # pragma: no cover
         """Import a board file into HFSS 3D Layout and assign the stackup from an XML file if present.
 
@@ -1360,6 +1362,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         close_active_project : bool, optional
             Whether to close the active project after loading the board file.
             The default is ''False``.
+        control_file : str, optional
+            Path to the XML file with the stackup information. The default is ``None``, in
+            which case the stackup is not edited.
+
         Returns
         -------
         bool
@@ -1370,7 +1376,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.ImportExtracta
         """
-        return self._import_cad(input_file, "brd", aedb_path, "", set_as_active, close_active_project)
+        return self._import_cad(input_file, "brd", aedb_path, control_file, set_as_active, close_active_project)
 
     @pyaedt_function_handler()
     def import_awr(
@@ -1996,3 +2002,53 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 return True
         self.logger.error("Port not found.")
         return False
+
+    def get_dcir_solution_data(self, setup_name, show="RL", category="Voltage"):
+        """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
+        Sources ["Voltage", "Current", "Power"]
+        "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
+        "Vias" ['X', 'Y', 'Current', 'Limit', 'Resistance', 'IR Drop', 'Power']
+        "Bondwires" ['Current', 'Limit', 'Resistance', 'IR Drop']
+        "Probes" ['Voltage'].
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        show : str, optional
+            Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
+        category : str, optional
+            Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop_Resistance"``,
+            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR_Drop"``.
+        Returns
+        -------
+        pyaedt.modules.solutions.SolutionData
+        """
+        if is_ironpython:
+            self._logger.error("Function is only supported in CPython.")
+            return False
+        show_id = ReportDcirShow[show].value
+        category = ReportDcirCategory[category].value
+
+        context = [
+            "NAME:Context",
+            "SimValueContext:=",
+            [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, show_id, "IDIID", False, "1"],
+        ]
+        all_categories = list(
+            self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
+        )
+        if category not in all_categories:  # pragma: no cover
+            return False
+
+        all_quantities = self.post.available_report_quantities(
+            is_siwave_dc=True, context=show, quantities_category=category
+        )
+        data = self.post.oreportsetup.GetSolutionDataPerVariation(
+            "Standard",
+            setup_name,
+            context,
+            ["Index:=", "All"],
+            all_quantities,
+        )
+        return SolutionData(list(data))

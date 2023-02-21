@@ -152,7 +152,6 @@ class TestClass(BasisTest, object):
             pass
 
     def test_04_create_polyhedron(self):
-
         o1 = self.aedtapp.modeler.create_polyhedron()
         assert o1.id > 0
         assert o1.name.startswith("New")
@@ -402,7 +401,6 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.get_obj_id(o.name) == o.id
 
     def test_26_get_object_names(self):
-
         p1, p2, points = self.create_polylines()
         c1 = self.create_copper_box()
         r1 = self.create_rectangle()
@@ -514,10 +512,22 @@ class TestClass(BasisTest, object):
         area = self.aedtapp.modeler.get_face_area(listfaces[0])
         assert area == 7 * 13
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_36_get_face_center(self):
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
+        cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0, 0, 0], radius=10, height=10)
+        assert all(
+            min(
+                [
+                    GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center))
+                    for ref_center in [[0, 0, 0], [0, 10, 0], [0, 5, 0]]
+                ]
+            )
+            < 1e-10
+            for f in cylinder.faces
+        )
 
     def test_37_get_edge_midpoint(self):
         polyline = self.aedtapp.modeler.create_polyline([[0, 0, 0], [10, 5, 3]])
@@ -693,7 +703,6 @@ class TestClass(BasisTest, object):
         P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
 
     def test_49_modify_crossection(self):
-
         P = self.aedtapp.modeler.create_polyline(
             position_list=[[34.1004, 14.1248, 0], [27.646, 16.7984, 0], [24.9725, 10.3439, 0]],
             name="Rotor_Subtract_25_0",
@@ -718,7 +727,6 @@ class TestClass(BasisTest, object):
         assert P4.object_type == "Solid"
 
     def test_50_remove_vertex_from_polyline(self):
-
         p1, p2, test_points = self.create_polylines("Poly_remove_")
 
         P = self.aedtapp.modeler["Poly_remove_segmented"]
@@ -736,7 +744,6 @@ class TestClass(BasisTest, object):
         P3.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
 
     def test_51_remove_edges_from_polyline(self):
-
         modeler = self.aedtapp.modeler
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_edges(edge_id=0)
@@ -880,7 +887,8 @@ class TestClass(BasisTest, object):
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
 
-    @pytest.mark.skipif(config["use_grpc"] and config["desktopVersion"] < "2023.1", reason="Failing in grpc 2022.2")
+    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
+    @pytest.mark.skipif(config["use_grpc"] and config["desktopVersion"] < "2023.1", reason="Failing in grpc")
     def test_66a_insert_encrypted_3dcomp(self):
         assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder)
         # assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder, password="dfgdg")
@@ -897,6 +905,46 @@ class TestClass(BasisTest, object):
         assert (
             self.aedtapp.modeler.create_group(components=[obj_3dcomp1.name, obj_3dcomp2.name], group_name="test_group")
             == "test_group"
+        )
+
+    def test_66c_component_bounding_box(self):
+        my_udmPairs = []
+        mypair = ["OuterRadius", "20.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Tau", "0.65"]
+        my_udmPairs.append(mypair)
+        mypair = ["Sigma", "0.81"]
+        my_udmPairs.append(mypair)
+        mypair = ["Delta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Beta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Port_Gap_Width", "8.1mm"]
+        my_udmPairs.append(mypair)
+        self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm_83",
+        )
+        assert (
+            GeometryOperators.v_norm(
+                GeometryOperators.v_sub(
+                    self.aedtapp.modeler.user_defined_components["test_udm_83"].bounding_box,
+                    [-18.662366556727996, -20.2, 0.0, 18.662366556727996, 20.2, 0.0],
+                )
+            )
+            < 1e-10
+        )
+
+        assert (
+            GeometryOperators.v_norm(
+                GeometryOperators.v_sub(
+                    self.aedtapp.modeler.user_defined_components["test_udm_83"].center,
+                    [0.0, 0.0, 0.0],
+                )
+            )
+            < 1e-10
         )
 
     def test_67_assign_material(self):
@@ -932,7 +980,6 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(is_ironpython, reason="pytest is not supported with IronPython.")
     def test_70_create_torus_exceptions(self):
-
         with pytest.raises(ValueError) as excinfo:
             self.aedtapp.modeler.create_torus(
                 [30, 30], major_radius=-0.3, minor_radius=0.5, axis="Z", name="torus", material_name="Copper"
@@ -1261,6 +1308,7 @@ class TestClass(BasisTest, object):
             assert box2.name not in box1.faces[1].touching_objects
         assert box2.get_touching_faces(box1)
 
+    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"
@@ -1315,6 +1363,7 @@ class TestClass(BasisTest, object):
         )
         assert attached_clones[0] in self.aedtapp.modeler.user_defined_component_names
 
+    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_80_udm_operations(self):
         my_udmPairs = []
@@ -1379,8 +1428,28 @@ class TestClass(BasisTest, object):
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Not working in 2022.2 GRPC")
-    def test_81_duplicate_and_mirror_3dcomponent(self):
+    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
+    def test_81_operations_3dcomponent(self):
+        my_udmPairs = []
+        mypair = ["OuterRadius", "20.2mm"]
+        my_udmPairs.append(mypair)
+        mypair = ["Tau", "0.65"]
+        my_udmPairs.append(mypair)
+        mypair = ["Sigma", "0.81"]
+        my_udmPairs.append(mypair)
+        mypair = ["Delta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Beta_Angle", "45deg"]
+        my_udmPairs.append(mypair)
+        mypair = ["Port_Gap_Width", "8.1mm"]
+        my_udmPairs.append(mypair)
+        obj_udm = self.aedtapp.modeler.create_udm(
+            udmfullname="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
+            udm_params_list=my_udmPairs,
+            udm_library="syslib",
+            name="test_udm2",
+        )
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0], is_3d_comp=True
         )

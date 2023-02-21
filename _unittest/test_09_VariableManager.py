@@ -72,7 +72,6 @@ class TestClass(BasisTest, object):
         assert v["Var3"].units == "deg"
 
     def test_03_test_evaluated_value(self):
-
         self.aedtapp["p1"] = "10mm"
         self.aedtapp["p2"] = "20mm"
         self.aedtapp["p3"] = "p1 * p2"
@@ -95,7 +94,6 @@ class TestClass(BasisTest, object):
         assert v_app["p2"].expression == "5rad"
 
     def test_04_set_variable(self):
-
         assert self.aedtapp.variable_manager.set_variable("p1", expression="10mm")
         assert self.aedtapp["p1"] == "10mm"
         assert self.aedtapp.variable_manager.set_variable("p1", expression="20mm", overwrite=False)
@@ -112,22 +110,41 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.variable_manager.set_variable("$p1", expression="10mm")
 
     def test_05_variable_class(self):
-
         v = Variable("4mm")
         num_value = v.numeric_value
         assert num_value == 4.0
 
         v = v.rescale_to("meter")
-        test = v.evaluated_value
+        assert v.evaluated_value == "0.004meter"
         assert v.numeric_value == 0.004
+        assert v.value == v.numeric_value
 
         v = Variable("100cel")
+        assert v.numeric_value == 100.0
+        assert v.evaluated_value == "100.0cel"
+        assert v.value == 373.15
         v.rescale_to("fah")
         assert v.numeric_value == 212.0
-        pass
+
+        v = Variable("30dBW")
+        assert v.numeric_value == 30.0
+        assert v.evaluated_value == "30.0dBW"
+        assert v.value == 1000
+        v.rescale_to("megW")
+        assert v.numeric_value == 0.001
+        assert v.evaluated_value == "0.001megW"
+        assert v.value == 1000
+
+        v = Variable("10dBm")
+        assert v.numeric_value == 10.0
+        assert v.evaluated_value == "10.0dBm"
+        assert v.value == 0.01
+        v.rescale_to("W")
+        assert v.numeric_value == 0.01
+        assert v.evaluated_value == "0.01W"
+        assert v.value == 0.01
 
     def test_06_multiplication(self):
-
         v1 = Variable("10mm")
         v2 = Variable(3)
         v3 = Variable("3mA")
@@ -175,7 +192,6 @@ class TestClass(BasisTest, object):
         assert result_8.unit_system == "Power"
 
     def test_07_addition(self):
-
         v1 = Variable("10mm")
         v2 = Variable(3)
         v3 = Variable("3mA")
@@ -208,7 +224,6 @@ class TestClass(BasisTest, object):
         assert result_3.unit_system == "Current"
 
     def test_08_subtraction(self):
-
         v1 = Variable("10mm")
         v2 = Variable(3)
         v3 = Variable("3mA")
@@ -242,7 +257,6 @@ class TestClass(BasisTest, object):
         assert result_3.unit_system == "Current"
 
     def test_09_specify_units(self):
-
         # Scaling of the unit system "Angle"
         angle = Variable("1rad")
         angle.rescale_to("deg")
@@ -437,7 +451,6 @@ class TestClass(BasisTest, object):
         assert v[var].sensitivity_initial_disp == "0.5mm"
 
     def test_19_test_optimization_global_properties(self):
-
         var = "$v1"
         self.aedtapp[var] = "10mm"
         v = self.aedtapp.variable_manager

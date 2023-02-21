@@ -561,6 +561,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             props.append(["NAME:Psi", "Value:=", self._dim_arg(self.props["Psi"], "deg")])
 
         self._change_property(self.name, props)
+        self._quaternion = None
         return True
 
     @pyaedt_function_handler()
@@ -846,6 +847,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         -------
         list
         """
+        if self._quaternion:
+            return self._quaternion
         self._modeler._app.variable_manager["temp_var"] = 0
         if self.mode == "axis" or self.mode == "view":
             x1 = self.props["XAxisXvec"]
@@ -889,6 +892,37 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
             del self._modeler._app.variable_manager["temp_var"]
         return self._quaternion
+
+    @property
+    def origin(self):
+        """Coordinate system origin in model units.
+
+        Returns
+        -------
+        list
+        """
+        self._modeler._app.variable_manager["temp_var"] = self.props["OriginX"]
+        x = self._modeler._app.variable_manager["temp_var"].numeric_value
+        self._modeler._app.variable_manager["temp_var"] = self.props["OriginY"]
+        y = self._modeler._app.variable_manager["temp_var"].numeric_value
+        self._modeler._app.variable_manager["temp_var"] = self.props["OriginZ"]
+        z = self._modeler._app.variable_manager["temp_var"].numeric_value
+        del self._modeler._app.variable_manager["temp_var"]
+        return [x, y, z]
+
+    @origin.setter
+    def origin(self, origin):
+        """Set the coordinate system origin in model units."""
+        legacy_update = self.auto_update
+        self.auto_update = False
+        origin_x = self._dim_arg(origin[0], self.model_units)
+        origin_y = self._dim_arg(origin[1], self.model_units)
+        origin_z = self._dim_arg(origin[2], self.model_units)
+        self.props["OriginX"] = origin_x
+        self.props["OriginY"] = origin_y
+        self.props["OriginZ"] = origin_z
+        self.update()
+        self.auto_update = legacy_update
 
     @property
     def _orientation(self):
@@ -1524,7 +1558,6 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def _find_perpendicular_points(self, face):
-
         if isinstance(face, str):
             vertices = [i.position for i in self[face].vertices]
         else:
@@ -1613,10 +1646,8 @@ class GeometryModeler(Modeler, object):
             * If ``mode="axisrotation"``, specify ``theta`` and ``u``.
 
             Parameters not needed by the specified mode are ignored.
-            For back compatibility, ``view="rotate"`` is the same as
-            ``mode="axis"``.  The default mode, ``"axisrotation"``, is
-            a coordinate system parallel to the global coordinate
-            system centered in the global origin.
+            The default mode, ``"axis"``, is a coordinate system parallel to the
+            global coordinate system centered in the global origin.
 
         view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
@@ -1625,8 +1656,9 @@ class GeometryModeler(Modeler, object):
             Enumerator ``pyaedt.generic.constants.VIEW`` can be used.
 
             .. note::
-               Because the ``"rotate"`` option is obsolete, use
-               ``mode="axis"`` instead.
+              For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
+              ``mode="axis"``. Because the "rotate" option in the "view" mode is obsolete, use
+              ``mode="axis"`` instead.
 
         x_pointing : list, optional
             List of the ``[x, y, z]`` coordinates specifying the X axis
@@ -1652,7 +1684,7 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         :class:`pyaedt.modeler.Modeler.CoordinateSystem`
-            Coordinate System Object.
+            Created coordinate system.
 
         References
         ----------
@@ -1761,8 +1793,9 @@ class GeometryModeler(Modeler, object):
         ----------
         point : list
             List of the ``[x, y, z]`` coordinates to transform.
-        ref_cs : str
-            Name of the destination reference system.
+        ref_cs : str, CoordinateSystem
+            Name of the destination reference system. The ``CoordinateSystem`` object can also be
+            used.
 
         Returns
         -------
@@ -1776,10 +1809,16 @@ class GeometryModeler(Modeler, object):
             point = [float(i) for i in point]
         except:
             raise AttributeError("Point must be in format [x, y, z].")
-        if ref_cs == "Global":
+        if isinstance(ref_cs, BaseCoordinateSystem):
+            ref_cs_name = ref_cs.name
+        elif isinstance(ref_cs, str):
+            ref_cs_name = ref_cs
+        else:
+            raise AttributeError("ref_cs must be either a string or a CoordinateSystem object.")
+        if ref_cs_name == "Global":
             return point
         cs_names = [i.name for i in self.coordinate_systems]
-        if ref_cs not in cs_names:
+        if ref_cs_name not in cs_names:
             raise AttributeError("Specified coordinate system does not exist in the design.")
 
         def get_total_transformation(p, cs):
@@ -1809,7 +1848,8 @@ class GeometryModeler(Modeler, object):
             p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
             return p2
 
-        return get_total_transformation(point, ref_cs)
+        p = get_total_transformation(point, ref_cs_name)
+        return [round(p[i], 13) for i in range(3)]
 
     @pyaedt_function_handler()
     def set_working_coordinate_system(self, name):
@@ -1818,7 +1858,8 @@ class GeometryModeler(Modeler, object):
         Parameters
         ----------
         name : str, FaceCoordinateSystem, CoordinateSystem
-            Name of the coordinate system to set as the working coordinate system.
+            Name of the coordinate system or ``CoordinateSystem`` object to set as the working
+            coordinate system.
 
         Returns
         -------
@@ -1839,6 +1880,137 @@ class GeometryModeler(Modeler, object):
                 ["NAME:SetWCS Parameter", "Working Coordinate System:=", name, "RegionDepCSOk:=", False]
             )
         return True
+
+    @pyaedt_function_handler()
+    def invert_cs(self, coordinate_system, to_global=False):
+        """Get the inverse translation and the conjugate quaternion of the input coordinate system.
+
+        By defining a new coordinate system with this information, the reference coordinate system
+        of the input coordinate system is obtained.
+
+        Parameters
+        ----------
+        coordinate_system : str, CoordinateSystem
+            Name of the destination reference system. A ``CoordinateSystem`` object can also be
+            used.
+        to_global : bool, optional
+            Whether to compute the inverse transformation of the input coordinate system with
+            respect to the global coordinate system. The default is ``False``.
+
+        Returns
+        -------
+        list
+            Origin coordinates.
+        list
+            Quaternion.
+        """
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            cs = coordinate_system
+        elif isinstance(coordinate_system, str):
+            cs_names = [i.name for i in self.coordinate_systems]
+            if coordinate_system not in cs_names:  # pragma: no cover
+                raise AttributeError("Specified coordinate system does not exist in the design.")
+            cs = self.coordinate_systems[cs_names.index(coordinate_system)]
+        else:  # pragma: no cover
+            raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
+
+        if to_global:
+            o, q = self.reference_cs_to_global(coordinate_system)
+            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
+            q = [q[0], -q[1], -q[2], -q[3]]
+        else:
+            q = cs.quaternion
+            q = [q[0], -q[1], -q[2], -q[3]]
+            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
+        return o, q
+
+    @pyaedt_function_handler()
+    def reference_cs_to_global(self, coordinate_system):
+        """Get the origin and quaternion defining the coordinate system in the global coordinates.
+
+        Parameters
+        ----------
+        coordinate_system : str, CoordinateSystem
+            Name of the destination reference system. The ``CoordinateSystem`` object can also be used.
+
+        Returns
+        -------
+        list
+            Origin coordinates.
+        list
+            Quaternion.
+        """
+        cs_names = [i.name for i in self.coordinate_systems]
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            cs = coordinate_system
+        elif isinstance(coordinate_system, str):
+            if coordinate_system not in cs_names:  # pragma: no cover
+                raise AttributeError("Specified coordinate system does not exist in the design.")
+            cs = self.coordinate_systems[cs_names.index(coordinate_system)]
+        else:  # pragma: no cover
+            raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
+        quaternion = cs.quaternion
+        origin = cs.origin
+        ref_cs_name = cs.ref_cs
+        while ref_cs_name != "Global":
+            ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
+            quaternion_ref = ref_cs.quaternion
+            quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
+            origin_ref = ref_cs.origin
+            origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
+            ref_cs_name = ref_cs.ref_cs
+        return origin, quaternion
+
+    @pyaedt_function_handler()
+    def duplicate_coordinate_system_to_global(self, coordinate_system):
+        """Create a duplicate coordinate system referenced to the global coordinate system.
+
+        Having this coordinate system referenced to the global coordinate
+        system removes all nested coordinate system dependencies.
+
+        Parameters
+        ----------
+        coordinate_system : str, CoordinateSystem
+            Name of the destination reference system. The ``CoordinateSystem`` object can also be used.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.Modeler.CoordinateSystem`
+            Created coordinate system.
+
+        References
+        ----------
+
+        >>> oEditor.CreateRelativeCS
+        """
+        cs_names = [i.name for i in self.coordinate_systems]
+        if isinstance(coordinate_system, BaseCoordinateSystem):
+            cs = coordinate_system
+        elif isinstance(coordinate_system, str):
+            if coordinate_system not in cs_names:  # pragma: no cover
+                raise AttributeError("Specified coordinate system does not exist in the design.")
+            cs = self.coordinate_systems[cs_names.index(coordinate_system)]
+        else:  # pragma: no cover
+            raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
+        o, q = self.reference_cs_to_global(coordinate_system)
+        x, y, _ = GeometryOperators.quaternion_to_axis(q)
+        reference_cs = "Global"
+        name = cs.name + "_RefToGlobal"
+        if name in cs_names:
+            name = cs.name + generate_unique_name("_RefToGlobal")
+        cs = CoordinateSystem(self)
+        if cs:
+            result = cs.create(
+                origin=o,
+                reference_cs=reference_cs,
+                name=name,
+                mode="axis",
+                x_pointing=x,
+                y_pointing=y,
+            )
+            if result:
+                return cs
+        return False
 
     @pyaedt_function_handler()
     def set_objects_deformation(self, objects):
@@ -2314,13 +2486,13 @@ class GeometryModeler(Modeler, object):
         return bounding
 
     @pyaedt_function_handler()
-    def convert_to_selections(self, objtosplit, return_list=False):
+    def convert_to_selections(self, object_id, return_list=False):
         """Convert one or more object to selections.
 
         Parameters
         ----------
-        objtosplit : str, int, list
-            One or more objects to convert to selections. A list can contain
+        object_id : str, int, list
+            One or more object IDs whose name will be returned. A list can contain
             both strings (object names) and integers (object IDs).
         return_list : bool, option
             Whether to return a list of the selections. The default is
@@ -2330,17 +2502,17 @@ class GeometryModeler(Modeler, object):
         Returns
         -------
         str or list
-           String or list of the selections.
+           Name of the objects corresponding to the one or more object IDs passed as arguments.
 
         """
-        if "netref.builtins.list" in str(type(objtosplit)):
+        if "netref.builtins.list" in str(type(object_id)):
             list_new = []
-            for i in range(len(objtosplit)):
-                list_new.append(objtosplit[i])
-        elif not isinstance(objtosplit, list):
-            objtosplit = [objtosplit]
+            for i in range(len(object_id)):
+                list_new.append(object_id[i])
+        elif not isinstance(object_id, list):
+            object_id = [object_id]
         objnames = []
-        for el in objtosplit:
+        for el in object_id:
             if isinstance(el, int) and el in list(self.objects.keys()):
                 objnames.append(self.objects[el].name)
             elif isinstance(el, int):
@@ -2409,7 +2581,7 @@ class GeometryModeler(Modeler, object):
         self.refresh_all_ids()
         return [selections] + [i for i in self.object_names if i not in all_objs]
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler()  # TODO: Deprecate this and add duplicate as an option in the mirror method.
     def duplicate_and_mirror(
         self,
         objid,
@@ -2445,32 +2617,13 @@ class GeometryModeler(Modeler, object):
 
         >>> oEditor.DuplicateMirror
         """
-        selections = self.convert_to_selections(objid)
-        Xpos, Ypos, Zpos = self._pos_with_arg(position)
-        Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
-
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:DuplicateToMirrorParameters"]
-        vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
-        vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
-        vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
-        vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
-        vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
-        vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
-        vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
-        if is_3d_comp:
-            orig_3d = [i for i in self.user_defined_component_names]
-        added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
-        self.add_new_objects()
-        if is_3d_comp:
-            added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
-            if added_3d_comps:
-                self.logger.info("Found 3D Components Duplication")
-                return added_3d_comps
-        return added_objs
+        return self.mirror(
+            objid, position, vector, duplicate=True, is_3d_comp=is_3d_comp, duplicate_assignment=duplicate_assignment
+        )
+        # selections = self.convert_to_selections(objid)
 
     @pyaedt_function_handler()
-    def mirror(self, objid, position, vector):
+    def mirror(self, objid, position, vector, duplicate=False, is_3d_comp=False, duplicate_assignment=True):
         """Mirror a selection.
 
         Parameters
@@ -2479,37 +2632,65 @@ class GeometryModeler(Modeler, object):
             Name or ID of the object.
         position : int or float
             List of the ``[x, y, z]`` coordinates or the
-            Application.Position object for the selection.
+            ``Application.Position`` object for the selection.
+        duplicate : bool, optional
+            Whether if duplicate the object before mirror or not. Default is ``False``.
+        is_3d_comp : bool, optional
+            Whether the component is 3D. The default is ``False``. If ``True``, the method
+            tries to return the duplicated list of 3D components.
         vector : float
             List of the ``[x1, y1, z1]`` coordinates or
-            the Application.Position object for the vector.
+            the ``Application.Position`` object for the vector.
+        duplicate_assignment : bool, optional
+            Whether to duplicate selection assignments. The default is ``True``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        bool, list
+            List of objects created or ``True`` when successful, ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Mirror
+        >>> oEditor.DuplicateMirror
         """
+
         selections = self.convert_to_selections(objid)
         Xpos, Ypos, Zpos = self._pos_with_arg(position)
         Xnorm, Ynorm, Znorm = self._pos_with_arg(vector)
+        if duplicate:
+            vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            vArg2 = ["NAME:DuplicateToMirrorParameters"]
+            vArg2.append("DuplicateMirrorBaseX:="), vArg2.append(Xpos)
+            vArg2.append("DuplicateMirrorBaseY:="), vArg2.append(Ypos)
+            vArg2.append("DuplicateMirrorBaseZ:="), vArg2.append(Zpos)
+            vArg2.append("DuplicateMirrorNormalX:="), vArg2.append(Xnorm)
+            vArg2.append("DuplicateMirrorNormalY:="), vArg2.append(Ynorm)
+            vArg2.append("DuplicateMirrorNormalZ:="), vArg2.append(Znorm)
+            vArg3 = ["NAME:Options", "DuplicateAssignments:=", duplicate_assignment]
+            if is_3d_comp:
+                orig_3d = [i for i in self.user_defined_component_names]
+            added_objs = _retry_ntimes(10, self.oeditor.DuplicateMirror, vArg1, vArg2, vArg3)
+            self.add_new_objects()
+            if is_3d_comp:
+                added_3d_comps = [i for i in self.user_defined_component_names if i not in orig_3d]
+                if added_3d_comps:
+                    self.logger.info("Found 3D Components Duplication")
+                    return added_3d_comps
+            return added_objs
+        else:
+            vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
+            vArg2 = ["NAME:MirrorParameters"]
+            vArg2.append("MirrorBaseX:="), vArg2.append(Xpos)
+            vArg2.append("MirrorBaseY:="), vArg2.append(Ypos)
+            vArg2.append("MirrorBaseZ:="), vArg2.append(Zpos)
+            vArg2.append("MirrorNormalX:="), vArg2.append(Xnorm)
+            vArg2.append("MirrorNormalY:="), vArg2.append(Ynorm)
+            vArg2.append("MirrorNormalZ:="), vArg2.append(Znorm)
 
-        vArg1 = ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"]
-        vArg2 = ["NAME:MirrorParameters"]
-        vArg2.append("MirrorBaseX:="), vArg2.append(Xpos)
-        vArg2.append("MirrorBaseY:="), vArg2.append(Ypos)
-        vArg2.append("MirrorBaseZ:="), vArg2.append(Zpos)
-        vArg2.append("MirrorNormalX:="), vArg2.append(Xnorm)
-        vArg2.append("MirrorNormalY:="), vArg2.append(Ynorm)
-        vArg2.append("MirrorNormalZ:="), vArg2.append(Znorm)
-
-        self.oeditor.Mirror(vArg1, vArg2)
-
-        return True
+            self.oeditor.Mirror(vArg1, vArg2)
+            return True
 
     @pyaedt_function_handler()
     def move(self, objid, vector):
@@ -2946,21 +3127,32 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.SeparateBody
         """
-        selections = self.convert_to_selections(object_list)
-        self.oeditor.SeparateBody(
-            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
-            ["CreateGroupsForNewObjects:=", create_group],
-        )
-        self.refresh_all_ids()
-        return True
+        try:
+            selections = self.convert_to_selections(object_list)
+            all_objs = [i for i in self.object_names]
+            self.oeditor.SeparateBody(
+                ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+                ["CreateGroupsForNewObjects:=", create_group],
+            )
+            self.refresh_all_ids()
+            new_objects_list_names = [selections] + [i for i in self.object_names if i not in all_objs]
+            new_objects_list = []
+            for obj in self.object_list:
+                for new_obj in new_objects_list_names:
+                    if obj.name == new_obj:
+                        new_objects_list.append(obj)
+            return new_objects_list
+        except:
+            return False
 
     @pyaedt_function_handler()
     def rotate(self, objid, cs_axis, angle=90.0, unit="deg"):
@@ -3078,7 +3270,6 @@ class GeometryModeler(Modeler, object):
 
     @pyaedt_function_handler()
     def _imprint_projection(self, tool_list, keep_originals=True, normal=True, vector_direction=None, distance="1mm"):
-
         szList1 = self.convert_to_selections(tool_list)
 
         varg1 = ["NAME:Selections", "Selections:=", szList1]
@@ -3189,8 +3380,7 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
-        self.oeditor.PurgeHistory(vArg1)
-        return True
+        return _retry_ntimes(10, self.oeditor.PurgeHistory, vArg1)
 
     @pyaedt_function_handler()
     def get_model_bounding_box(self):
@@ -3344,28 +3534,40 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Connect
         """
-        unclassified_before = list(self.unclassified_names)
-        szSelections = self.convert_to_selections(theList)
+        try:
+            unclassified_before = list(self.unclassified_names)
+            szSelections = self.convert_to_selections(theList)
+            szSelections_list = szSelections.split(",")
+            vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
+            self.oeditor.Connect(vArg1)
+            if unclassified_before != self.unclassified_names:
+                self._odesign.Undo()
+                self.logger.error("Error in connection. Reverting Operation")
+                return False
 
-        self.oeditor.Connect(vArg1)
-        if unclassified_before != self.unclassified_names:
-            self._odesign.Undo()
-            self.logger.error("Error in connection. Reverting Operation")
+            self.cleanup_objects()
+            self.logger.info("Connection Correctly created")
+
+            self.refresh_all_ids()
+            objects_list_after_connection = [
+                obj
+                for obj in self.object_list
+                for sel in set(szSelections_list).intersection(self.object_names)
+                if obj.name == sel
+            ]
+            return objects_list_after_connection
+        except:
             return False
-
-        self.cleanup_objects()
-        self.logger.info("Connection Correctly created")
-        return True
 
     @pyaedt_function_handler()
     def translate(self, objid, vector):
@@ -4559,8 +4761,8 @@ class GeometryModeler(Modeler, object):
             return str(value) + self.model_units
 
     @pyaedt_function_handler()
-    def break_spaceclaim_connection(self):
-        """Break the connection with SpaceClaim.
+    def break_spaceclaim_connection(self):  # TODO: Need to change this name. Don't use "break".
+        """Disconnect from the running SpaceClaim instance.
 
         Returns
         -------
@@ -4658,7 +4860,6 @@ class GeometryModeler(Modeler, object):
             objs.extend(list(self.oeditor.GetObjectsByMaterial(mat.lower())))
 
             for i in objs:
-
                 oFaceIDs = self.oeditor.GetFaceIDs(i)
 
                 for face in oFaceIDs:
@@ -4720,7 +4921,6 @@ class GeometryModeler(Modeler, object):
         sel = []
 
         for i in elements:
-
             oFaceIDs = self.oeditor.GetFaceIDs(i)
 
             for face in oFaceIDs:

@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
+from pyaedt.modeler.cad.elements3d import BinaryTreeNode
 from pyaedt.modeler.cad.elements3d import _dict2arg
 
 
@@ -163,6 +164,21 @@ class UserDefinedComponent(object):
             self.native_properties = self._props["NativeComponentDefinitionProvider"]
             self.auto_update = True
 
+    def history(self):
+        """Component history.
+
+        Returns
+        -------
+            :class:`pyaedt.modeler.cad.elements3d.BinaryTree` when successful,
+            ``False`` when failed.
+
+        """
+        try:
+            child_object = self._primitives.oeditor.GetChildObject(self.name)
+            return BinaryTreeNode(list(child_object.GetChildNames("Operations"))[0], child_object, True, "Operations")
+        except:
+            return False
+
     @property
     def group_name(self):
         """Group the component belongs to.
@@ -313,7 +329,7 @@ class UserDefinedComponent(object):
                 del self._primitives.user_defined_components[self._m_name]
                 self._project_dictionary = None
                 self._m_name = component_name
-        else:
+        else:  # pragma: no cover
             self._logger.warning("Name %s already assigned in the design", component_name)
 
     @property
@@ -430,6 +446,33 @@ class UserDefinedComponent(object):
         del self._primitives.modeler.user_defined_components[self.name]
         self._primitives.cleanup_objects()
         self.__dict__ = {}
+
+    @pyaedt_function_handler()
+    def duplicate_and_mirror(self, position, vector):
+        """Duplicate and mirror a selection.
+
+        Parameters
+        ----------
+        position : float
+            List of the ``[x, y, z]`` coordinates or
+            Application.Position object for the selection.
+        vector : float
+            List of the ``[x1, y1, z1]`` coordinates or
+            Application.Position object for the vector.
+
+        Returns
+        -------
+        list
+            List of objects created or an empty list.
+
+        References
+        ----------
+
+        >>> oEditor.DuplicateMirror
+        """
+        return self._primitives.modeler.duplicate_and_mirror(
+            self.name, position, vector, is_3d_comp=True, duplicate_assignment=True
+        )
 
     @pyaedt_function_handler()
     def mirror(self, position, vector):
@@ -592,10 +635,11 @@ class UserDefinedComponent(object):
             attach_object = kwargs["attachObject"]
 
         if self.is3dcomponent:
+            old_component_list = self._primitives.modeler.user_defined_component_names
             _, added_objects = self._primitives.modeler.duplicate_along_line(
                 self.name, vector, nclones, attach_object, True
             )
-            return added_objects
+            return list(set(added_objects) - set(old_component_list))
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
@@ -630,6 +674,38 @@ class UserDefinedComponent(object):
         self._primitives.oeditor.EditNativeComponentDefinition(self._get_args(self.update_props))
 
         return True
+
+    @property
+    def bounding_box(self):
+        """Get bounding dimension of a user defined model.
+
+        Returns
+        -------
+        list
+            List of floats containing [x_min, y_min, z_min, x_max, y_max, z_max].
+
+        """
+        bb = [float("inf")] * 3 + [float("-inf")] * 3
+        for _, obj in self.parts.items():
+            bbox = obj.bounding_box
+            bb = [min(bb[i], bbox[i]) for i in range(3)] + [max(bb[i + 3], bbox[i + 3]) for i in range(3)]
+        return bb
+
+    @property
+    def center(self):
+        """Get center coordinates of a user defined model.
+
+        Returns
+        -------
+        list
+            List of floats containing [x_center, y_center, z_center].
+
+        """
+        x_min, y_min, z_min, x_max, y_max, z_max = self.bounding_box
+        x_center = (x_min + x_max) / 2
+        y_center = (y_min + y_max) / 2
+        z_center = (z_min + z_max) / 2
+        return [x_center, y_center, z_center]
 
     @property
     def _logger(self):

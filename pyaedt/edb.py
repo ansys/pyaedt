@@ -261,8 +261,11 @@ class Edb(object):
     def _init_dlls(self):
         """Initialize DLLs."""
         if os.name == "posix":
-            if env_value(self.edbversion) in os.environ:
-                self.base_path = env_path(self.edbversion)
+            if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
+                if settings.edb_dll_path:
+                    self.base_path = settings.edb_dll_path
+                else:
+                    self.base_path = env_path(self.edbversion)
                 sys.path.append(self.base_path)
             else:
                 main = sys.modules["__main__"]
@@ -285,7 +288,9 @@ class Edb(object):
                 _clr.AddReference("Ansys.Ansoft.EdbBuilderUtils")
                 _clr.AddReference("Ansys.Ansoft.SimSetupData")
         else:
-            if self.student_version:
+            if settings.edb_dll_path:
+                self.base_path = settings.edb_dll_path
+            elif self.student_version:
                 self.base_path = env_path_student(self.edbversion)
             else:
                 self.base_path = env_path(self.edbversion)
@@ -996,7 +1001,6 @@ class Edb(object):
         use_pyaedt_extent=False,
     ):
         if extent_type in ["Conforming", self.edb.Geometry.ExtentType.Conforming, 1]:
-
             if use_pyaedt_extent:
                 _poly = self._create_conformal(net_signals, expansion_size, 1e-12, use_round_corner, expansion_size)
             else:

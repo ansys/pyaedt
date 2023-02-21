@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 from math import asin
@@ -13,6 +14,7 @@ from math import tan
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.advanced_cad.actors import Bird
@@ -22,7 +24,6 @@ from pyaedt.modeler.advanced_cad.multiparts import Environment
 from pyaedt.modeler.advanced_cad.multiparts import MultiPartComponent
 from pyaedt.modeler.cad.Primitives import Primitives
 from pyaedt.modeler.geometry_operators import GeometryOperators
-from pyaedt.modules.Boundary import NativeComponentObject
 
 
 class Primitives3D(Primitives, object):
@@ -57,9 +58,9 @@ class Primitives3D(Primitives, object):
         Parameters
         ----------
         position : list
-            Anchor point for the box in Cartesian ``[x, y, z]`` coordinates.
+            Anchor point for the box in Cartesian``[x, y, z]`` coordinates.
         dimensions_list : list
-           Length of the box edges in Cartesian ``[x, y, z]`` coordinates.
+           Length of the box edges in Cartesian``[x, y, z]`` coordinates.
         name : str, optional
             Name of the box. The default is ``None``, in which case the
             default name is assigned.
@@ -511,7 +512,7 @@ class Primitives3D(Primitives, object):
         >>> origin = [0,0,0]
         >>> endpos = [10,5,20]
         >>> #Material and name are not mandatory fields
-        >>> object_id = hfss.modeler.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
+        >>> object_id = hfss.modeler.primivites.create_bondwire(origin, endpos,h1=0.5, h2=0.1, alpha=75, beta=4,
         ...                                                     bond_type=0, name="mybox", matname="copper")
         """
         x_position, y_position, z_position = self._pos_with_arg(start_position)
@@ -584,15 +585,6 @@ class Primitives3D(Primitives, object):
         ----------
 
         >>> oEditor.CreateRectangle
-
-        Examples
-        --------
-        >>> from pyaedt import Hfss
-        >>> hfss = Hfss()
-        >>> plane = 0
-        >>> position = [0,0,0]
-        >>> dimension = [10,5]
-        >>> rect_obj = hfss.modeler.create_rectangle(plane, position, dimension)
 
         """
         szAxis = GeometryOperators.cs_plane_to_axis_str(csPlane)
@@ -1101,6 +1093,50 @@ class Primitives3D(Primitives, object):
         return p1
 
     @pyaedt_function_handler()
+    def _create_reference_cs_from_3dcomp(self, udm_obj, password):
+        """Create a new coordinate system from the 3d component reference one.
+
+        Returns
+        -------
+        str
+            Name of the created coordinate system that mirrors the reference one of the
+            3d component.
+        """
+        app = udm_obj.edit_definition(password=password)
+        wcs = app.modeler.oeditor.GetActiveCoordinateSystem()
+        if wcs != "Global":
+            temp_folder = os.path.join(
+                self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
+            )
+            os.mkdir(os.path.join(temp_folder))
+            new_proj_name = os.path.join(temp_folder, generate_unique_name("project") + ".aedt")
+            app.save_project(new_proj_name)
+            o, q = app.modeler.invert_cs(wcs, to_global=True)
+            app.oproject.Close()
+            for root, dirs, files in os.walk(temp_folder, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(temp_folder)
+            phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
+            cs_name = udm_obj.name + "_" + wcs + "_ref"
+            if cs_name not in [i.name for i in self.modeler.coordinate_systems]:
+                self.modeler.create_coordinate_system(
+                    mode="zxz",
+                    origin=o,
+                    name=cs_name,
+                    reference_cs=udm_obj.target_coordinate_system,
+                    psi=psi,
+                    theta=theta,
+                    phi=phi,
+                )
+            return cs_name
+        else:
+            app.oproject.Close()
+            return udm_obj.target_coordinate_system
+
+    @pyaedt_function_handler()
     def insert_3d_component(
         self,
         comp_file,
@@ -1195,16 +1231,81 @@ class Primitives3D(Primitives, object):
                 obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
                 for new_name in obj_list:
                     self._create_object(new_name)
+                if auxiliary_dict:
+                    if isinstance(auxiliary_dict, bool):
+                        auxiliary_dict = comp_file + ".json"
+                    aux_dict = json.load(open(auxiliary_dict, "r"))
+                    if aux_dict.get("datasets", None):
+                        for key, val in aux_dict["datasets"].items():
+                            if key.startswith("$"):
+                                is_project_dataset = True
+                                dsname = key[1:]
+                            else:
+                                is_project_dataset = False
+                                dsname = key
+                            self._app.create_dataset(
+                                dsname,
+                                val["x"],
+                                val["y"],
+                                val["z"],
+                                val["v"],
+                                is_project_dataset,
+                                val["xunit"],
+                                val["yunit"],
+                                val["zunit"],
+                                val["vunit"],
+                            )
                 udm_obj = self._create_user_defined_component(new_object_name)
                 if name and not auxiliary_dict:
                     udm_obj.name = name
-        except:
+        except Exception:  # pragma: no cover
             udm_obj = False
         if auxiliary_dict and udm_obj:
-            if isinstance(auxiliary_dict, bool):
-                auxiliary_dict = comp_file + ".json"
-            aux_dict = json.load(open(auxiliary_dict, "r"))
             mapping_dict = {}
+            if aux_dict.get("native components", None):
+                if aux_dict.get("coordinatesystems", None):
+                    for cs in list(aux_dict["coordinatesystems"].keys()):
+                        aux_dict["coordinatesystems"][udm_obj.name + "_" + cs] = aux_dict["coordinatesystems"][cs]
+                        aux_dict["coordinatesystems"].pop(cs)
+                        if aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] != "Global":
+                            aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = (
+                                udm_obj.name
+                                + "_"
+                                + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
+                            )
+                for _, ncdict in aux_dict["native components"].items():
+                    for _, inst_dict in ncdict["Instances"].items():
+                        if inst_dict["CS"]:
+                            if inst_dict["CS"] != "Global":
+                                inst_dict["CS"] = udm_obj.name + "_" + inst_dict["CS"]
+                temp_dict = {}
+                temp_dict["native components"] = copy.deepcopy(aux_dict["native components"])
+                temp_dict["coordinatesystems"] = copy.deepcopy(aux_dict["coordinatesystems"])
+                temp_dict["monitor"] = {}
+                for mon_name in list(aux_dict["monitor"].keys()):
+                    if aux_dict["monitor"][mon_name].get("Native Assignment", None):
+                        temp_dict["monitor"][udm_obj.name + "_" + mon_name] = aux_dict["monitor"][mon_name]
+                        del aux_dict["monitor"][mon_name]
+                self._app.configurations.options.unset_all_import()
+                self._app.configurations.options.import_native_components = True
+                self._app.configurations.options.import_monitor = True
+                temp_dict_file = os.path.join(self._app.toolkit_directory, generate_unique_name("tempdict_"))
+                with open(temp_dict_file, "w") as f:
+                    json.dump(temp_dict, f)
+                exclude_set = set([obj.name for _, obj in self._app.modeler.objects.items()])
+                old_udm = set(list(self._app.modeler.user_defined_components))
+                old_cs = set(self._app.modeler.coordinate_systems)
+                self._app.configurations.import_config(temp_dict_file, exclude_set)
+                targetCS = self._create_reference_cs_from_3dcomp(udm_obj, password)
+                if targetCS != "Global":
+                    self._app.modeler.refresh_all_ids()
+                    for udm in set(list(self._app.modeler.user_defined_components)) - old_udm:
+                        if self._app.modeler.user_defined_components[udm].target_coordinate_system == "Global":
+                            self._app.modeler.user_defined_components[udm].target_coordinate_system = targetCS
+                for cs in set(self._app.modeler.coordinate_systems) - old_cs:
+                    if cs.ref_cs == "Global":
+                        cs.ref_cs = targetCS
+                        cs.update()
             if aux_dict.get("monitor", None):
                 temp_proj_name = self._app._generate_unique_project_name()
                 ipkapp_temp = Icepak(projectname=os.path.join(self._app.toolkit_directory, temp_proj_name))
@@ -1302,66 +1403,8 @@ class Primitives3D(Primitives, object):
                             monitor_quantity=val["Quantity"],
                             monitor_name=key,
                         )
-            if aux_dict.get("datasets", None):
-                for key, val in aux_dict["datasets"].items():
-                    if key.startswith("$"):
-                        is_project_dataset = True
-                        dsname = key[1:]
-                    else:
-                        is_project_dataset = False
-                        dsname = key
-                    self._app.create_dataset(
-                        dsname,
-                        val["x"],
-                        val["y"],
-                        val["z"],
-                        val["v"],
-                        is_project_dataset,
-                        val["xunit"],
-                        val["yunit"],
-                        val["zunit"],
-                        val["vunit"],
-                    )
             if name:
                 udm_obj.name = name
-            if aux_dict.get("native components", None):
-                if aux_dict.get("coordinatesystems", None):
-                    for cs in list(aux_dict["coordinatesystems"].keys()):
-                        aux_dict["coordinatesystems"][udm_obj.name + "_" + cs] = aux_dict["coordinatesystems"][cs]
-                        aux_dict["coordinatesystems"].pop(cs)
-                        if aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] == "Global":
-                            aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = targetCS
-                        else:
-                            aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"] = (
-                                udm_obj.name
-                                + "_"
-                                + aux_dict["coordinatesystems"][udm_obj.name + "_" + cs]["Reference CS"]
-                            )
-                    add_cs = list(aux_dict["coordinatesystems"].keys())
-                    available_cs = ["Global"] + [cs.name for cs in self.modeler.coordinate_systems]
-                    i = 0
-                    while add_cs:
-                        if aux_dict["coordinatesystems"][add_cs[i]]["Reference CS"] in available_cs:
-                            self._app.configurations._update_coordinate_systems(
-                                add_cs[i], aux_dict["coordinatesystems"][add_cs[i]]
-                            )
-                            available_cs.append(add_cs[i])
-                            add_cs.pop(i)
-                            i = 0
-                        else:
-                            i += 1
-                for nc, ncdict in aux_dict["native components"].items():
-                    for nc_cs in ncdict["CS"]:
-                        if nc_cs == "Global":
-                            ncdict["Props"]["TargetCS"] = targetCS
-                        else:
-                            ncdict["Props"]["TargetCS"] = udm_obj.name + "_" + nc_cs
-                        native = NativeComponentObject(self, ncdict["Type"], nc, ncdict["Props"])
-                        try:
-                            native.create()
-                            self._app._native_components.append(native)
-                        except:
-                            self._app.logger.error("Native component {} creation failed.".format(nc))
             os.remove(temp_proj)
             return udm_obj, mapping_dict, aux_dict
         else:
@@ -1796,17 +1839,16 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def create_choke(self, json_file):
-        """Create an inductive choke using parameters defined in a json file.
+        """Create a choke from a JSON setting file.
 
         Parameters
         ----------
         json_file : str
-            Full path of the json file. The file is returned by the function ``check_choke_values``.
+            Full path of the JSON file with the choke settings.
 
         Returns
         -------
-        List
-            Three parameters output
+        List of
             bool
                 ``True`` when successful, ``False`` when failed.
             :class:`pyaedt.modeler.cad.object3d.Object3d`
@@ -1817,18 +1859,17 @@ class Primitives3D(Primitives, object):
                 list
                     list of point coordinates of the winding.
                     for each winding.
-
-            [bool, core_obj, [first_winding_obj, first_winding_point_list],
-            [second_winding_obj, second_winding_point_list], etc...]
+                    [bool, core_obj, [first_winding_obj, first_winding_point_list],
+                    [second_winding_obj, second_winding_point_list], etc...]
 
         Examples
         --------
-        Json file has to be like the following example.  #TODO Look into using a schema for the json file.
+        Json file has to be like the following example.
 
         >>> from pyaedt import Hfss
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
-        >>> my_choke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
+        >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
 
         with open_file(json_file, "r") as read_file:
@@ -2024,7 +2065,6 @@ class Primitives3D(Primitives, object):
 
     @pyaedt_function_handler()
     def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
-
         teta_r = radians(teta)
         points_list1 = [
             [in_rad * cos(teta_r), -in_rad * sin(teta_r), height / 2 - chamf],
@@ -2215,7 +2255,6 @@ class Primitives3D(Primitives, object):
         sr,
         sep_layer,
     ):
-
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + sr * w_dia
         out_rad_in_wind = out_rad - sr * w_dia
@@ -2256,7 +2295,6 @@ class Primitives3D(Primitives, object):
         sr,
         sep_layer,
     ):
-
         chamf = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 5)
         chamf_mid_wind = self._make_winding_follow_chamfer(chamfer, sr, w_dia, 3)
         in_rad_in_wind = in_rad + 2 * sr * w_dia
@@ -2634,7 +2672,6 @@ class Primitives3D(Primitives, object):
 
             if values["Similar Layer"]["Different"]:
                 if values["Layer"]["Double"] or values["Layer"]["Triple"]:
-
                     if asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)) > pi / nb_wind / turns2:
                         turns2 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + sr * dia_wire)))
                         values["Mid Winding"]["Turns"] = turns2
@@ -2687,7 +2724,6 @@ class Primitives3D(Primitives, object):
                     # TODO if occ2 == 100: method can be improve
 
                 if values["Layer"]["Triple"]:
-
                     if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
                         turns3 = int(pi / nb_wind / asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)))
                         values["Inner Winding"]["Turns"] = turns3

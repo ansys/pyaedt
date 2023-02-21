@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import re
+
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
+from pyaedt.modeler.circuits.object3dcircuit import Wire
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponent
 from pyaedt.modeler.circuits.PrimitivesEmit import EmitComponents
 from pyaedt.modeler.circuits.PrimitivesMaxwellCircuit import MaxwellCircuitComponents
@@ -29,8 +32,23 @@ class ModelerCircuit(Modeler):
 
     def __init__(self, app):
         self._app = app
+        self._schematic_units = "meter"
         self.o_def_manager = self._app.odefinition_manager
         Modeler.__init__(self, app)
+        self.wire = Wire(self)
+
+    @property
+    def schematic_units(self):
+        """Schematic units. Options are ``"mm"``, ``"mil"``, ``"cm"`` and all other metric and imperial units.
+        The default is ``"meter"``."""
+        return self._schematic_units
+
+    @schematic_units.setter
+    def schematic_units(self, value):
+        if value in list(AEDT_UNITS["Length"].keys()):
+            self._schematic_units = value
+        else:
+            self.logger.error("The unit %s is not supported.", value)
 
     @property
     def o_component_manager(self):
@@ -100,16 +118,24 @@ class ModelerCircuit(Modeler):
 
         >>> oEditor.CreateWire
         """
-        obj1 = self.components[firstcomponent]
+        if self._app.design_type == "Maxwell Circuit":
+            components = self.schematic.components
+            obj1 = components[firstcomponent]
+        else:
+            components = self.components
+            obj1 = components[firstcomponent]
         if "Port" in obj1.composed_name:
             pos1 = self.oeditor.GetPropertyValue("BaseElementTab", obj1.composed_name, "Component Location").split(", ")
             pos1 = [float(i.strip()[:-3]) * 0.0000254 for i in pos1]
             if "GPort" in obj1.composed_name:
                 pos1[1] += 0.00254
         else:
-            pins1 = self.components.get_pins(firstcomponent)
-            pos1 = self.components.get_pin_location(firstcomponent, pins1[pinnum_first - 1])
-        obj2 = self.components[secondcomponent]
+            if self._app.design_type == "Maxwell Circuit":
+                pos1 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj1.location]
+            else:
+                pins1 = components.get_pins(firstcomponent)
+                pos1 = components.get_pin_location(firstcomponent, pins1[pinnum_first - 1])
+        obj2 = components[secondcomponent]
         if "Port" in obj2.composed_name:
             pos2 = self.oeditor.GetPropertyValue("BaseElementTab", obj2.composed_name, "Component Location").split(", ")
             pos2 = [float(i.strip()[:-3]) * 0.0000254 for i in pos2]
@@ -117,10 +143,16 @@ class ModelerCircuit(Modeler):
                 pos2[1] += 0.00254
 
         else:
-            pins2 = self.components.get_pins(secondcomponent)
-            pos2 = self.components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
-        self.components.create_wire([pos1, pos2])
-        return True
+            if self._app.design_type == "Maxwell Circuit":
+                pos2 = [float(re.sub(r"[^0-9.\-]", "", x)) * 0.0000254 for x in obj2.location]
+            else:
+                pins2 = components.get_pins(secondcomponent)
+                pos2 = components.get_pin_location(secondcomponent, pins2[pinnum_second - 1])
+        try:
+            self.schematic.create_wire([pos1, pos2])
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def _get_components_selections(self, selections, return_as_list=True):
@@ -175,7 +207,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -188,7 +220,7 @@ class ModelerNexxim(ModelerCircuit):
 
         Returns
         -------
-        :class:`pyaedt.modeler.PrimitivesNexxim.NexximComponents`
+        :class:`pyaedt.modeler.circuits.PrimitivesNexxim.NexximComponents`
         """
         return self._schematic
 
@@ -207,7 +239,7 @@ class ModelerNexxim(ModelerCircuit):
 
     @property
     def model_units(self):
-        """Model units.
+        """Layout model units.
 
         References
         ----------
@@ -251,8 +283,8 @@ class ModelerNexxim(ModelerCircuit):
         self.oeditor.SetActivelUnits(["NAME:Units Parameter", "Units:=", units, "Rescale:=", False])
 
     @pyaedt_function_handler()
-    def move(self, selections, pos, units="meter"):
-        """Move the selections by ``[x, y]``.
+    def move(self, selections, pos, units=None):
+        """Move the selections by the specified ``[x, y]`` coordinates.
 
         Parameters
         ----------
@@ -261,7 +293,8 @@ class ModelerNexxim(ModelerCircuit):
         pos : list
             Offset for the ``[x, y]`` axis.
         units : str
-            Offset for the Y axis.
+            Units of the movement. The default is ``"meter"``. If ``None``,
+            ``schematic_units` are used.
 
         Returns
         -------
@@ -277,9 +310,12 @@ class ModelerNexxim(ModelerCircuit):
         if not sels:
             self.logger.error("No Component Found.")
             return False
-        x_location = AEDT_UNITS["Length"][units] * float(pos[0])
-        y_location = AEDT_UNITS["Length"][units] * float(pos[1])
-
+        if units:
+            x_location = AEDT_UNITS["Length"][units] * float(pos[0])
+            y_location = AEDT_UNITS["Length"][units] * float(pos[1])
+        else:
+            x_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[0])
+            y_location = AEDT_UNITS["Length"][self.schematic_units] * float(pos[1])
         self.oeditor.Move(
             ["NAME:Selections", "Selections:=", sels],
             [

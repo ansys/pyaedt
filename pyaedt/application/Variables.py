@@ -18,6 +18,7 @@ from __future__ import division
 
 import os
 import re
+import types
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.constants import AEDT_UNITS
@@ -93,7 +94,6 @@ class CSVDataset:
         valid_solutions=True,
         invalid_solutions=False,
     ):
-
         self._header = []
         self._data = {}
         self._unit_dict = {}
@@ -208,7 +208,6 @@ class CSVDataset:
 
     # Called when iteration is initialized
     def __iter__(self):
-
         self._index = 0
         return self
 
@@ -276,11 +275,10 @@ def decompose_variable_value(variable_value, full_variables={}):
             float_value = float(variable_value)
         except ValueError:
             # search for a valid units string at the end of the variable_value
-            loc = re.search("[a-z_A-Z]+", variable_value)
+            loc = re.search("[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?", variable_value)
             units = _find_units_in_dependent_variables(variable_value, full_variables)
-
             if loc:
-                loc_units = loc.span()[0]
+                loc_units = loc.span()[1]
                 extract_units = variable_value[loc_units:]
                 chars = set("+*/()[]")
                 if any((c in chars) for c in extract_units):
@@ -699,7 +697,7 @@ class VariableManager(object):
         return self._variables
 
     @pyaedt_function_handler()
-    def get_expression(self, variable_name):
+    def get_expression(self, variable_name):  # TODO: Should be renamed to "evaluate"
         """Retrieve the variable value of a project or design variable as a string.
 
         References
@@ -1130,6 +1128,8 @@ class Variable(object):
                 scale = 1
             if isinstance(scale, tuple):
                 self._value = scale[0](self._value, inverse=False)
+            elif isinstance(scale, types.FunctionType):
+                self._value = scale(self._value, False)
             else:
                 self._value = self._value * scale
 
@@ -1429,6 +1429,8 @@ class Variable(object):
                     scale = 1
                 if isinstance(scale, tuple):
                     return scale[0](self._value, True)
+                elif isinstance(scale, types.FunctionType):
+                    return scale(self._value, True)
                 else:
                     return self._value / scale
             else:  # pragma: no cover

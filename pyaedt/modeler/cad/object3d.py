@@ -258,7 +258,6 @@ class Object3d(object):
 
     @pyaedt_function_handler()
     def export_image(self, file_path=None):
-
         """Export the model to path.
 
         .. note::
@@ -1214,7 +1213,6 @@ class Object3d(object):
 
     @part_coordinate_system.setter
     def part_coordinate_system(self, sCS):
-
         pcs = ["NAME:Orientation", "Value:=", sCS]
         self._change_property(pcs)
         self._part_coordinate_system = sCS
@@ -1424,17 +1422,17 @@ class Object3d(object):
         return self._primitives.modeler.split(self.name, plane, sides)
 
     @pyaedt_function_handler()
-    def mirror(self, position, vector):
+    def mirror(self, position, vector, duplicate=False):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : int or float
-            List of the ``[x, y, z]`` coordinates or
-            the Application.Position object for the selection.
-        vector : float
-            List of the ``[x1, y1, z1]`` coordinates or
-            the Application.Position object for the vector.
+        position : list of int or float
+            Cartesian ``[x, y, z]`` coordinates or
+            the ``Application.Position`` object of a point in the plane used for the mirror operation.
+        vector : list of float
+            Vector in Cartesian coordinates ``[x1, y1, z1]``  or
+            the ``Application.Position`` object for the vector normal to the plane used for the mirror operation.
 
         Returns
         -------
@@ -1447,7 +1445,7 @@ class Object3d(object):
 
         >>> oEditor.Mirror
         """
-        if self._primitives.modeler.mirror(self.id, position=position, vector=vector):
+        if self._primitives.modeler.mirror(self.id, position=position, vector=vector, duplicate=duplicate):
             return self
         return False
 

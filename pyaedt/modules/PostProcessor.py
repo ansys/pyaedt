@@ -29,11 +29,15 @@ from pyaedt.modules.solutions import SolutionData
 
 if not is_ironpython:
     try:
+        from enum import Enum
+
         import pandas as pd
     except ImportError:
-        warnings.warn(
-            "The Pandas module is required to run some functionalities.\n" "Install with \n\npip install pandas\n"
-        )
+        pd = None
+        Enum = None
+else:
+    Enum = object
+
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -92,6 +96,28 @@ TEMPLATES_BY_NAME = {
     "Eigenmode Parameters": rt.Standard,
     "Spectrum": rt.Spectral,
 }
+
+
+class ReportDcirShow(Enum):
+    RL = "0"
+    Sources = "1"
+    Vias = "2"
+    Bondwires = "3"
+    Probes = "4"
+
+
+class ReportDcirCategory(Enum):
+    Voltage = "Voltage"
+    Current = "Current"
+    Power = "Power"
+    Loop_Resistance = "Loop Resistance"
+    Path_Resistance = "Path Resistance"
+    Resistance = "Resistance"
+    Inductor = "Inductance"
+    X = "X"
+    Y = "Y"
+    Limit = "Limit"
+    IR_Drop = "IR Drop"
 
 
 class Reports(object):
@@ -692,7 +718,9 @@ class PostProcessorCommon(object):
         return []
 
     @pyaedt_function_handler()
-    def available_quantities_categories(self, report_category=None, display_type=None, solution=None, context=""):
+    def available_quantities_categories(
+        self, report_category=None, display_type=None, solution=None, context="", is_siwave_dc=False
+    ):
         """Compute the list of all available report categories.
 
         Parameters
@@ -706,7 +734,8 @@ class PostProcessorCommon(object):
             Report Setup. Default is `None` which will take first nominal_adpative solution.
         context : str, optional
             Report Category. Default is `""` which will take first default context.
-
+        is_siwave_dc : bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
         Returns
         -------
         list
@@ -717,13 +746,40 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
+        if is_siwave_dc:  # pragma: no cover
+            id = "0"
+            if context:
+                id = str(
+                    [
+                        "RL",
+                        "Sources",
+                        "Vias",
+                        "Bondwires",
+                        "Probes",
+                    ].index(context)
+                )
+            context = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+            ]
+
+        elif not context:  # pragma: no cover
+            context = ""
+
         if solution and report_category and display_type:
             return list(self.oreportsetup.GetAllCategories(report_category, display_type, solution, context))
         return []
 
     @pyaedt_function_handler()
     def available_report_quantities(
-        self, report_category=None, display_type=None, solution=None, quantities_category=None, context=""
+        self,
+        report_category=None,
+        display_type=None,
+        solution=None,
+        quantities_category=None,
+        context="",
+        is_siwave_dc=False,
     ):
         """Compute the list of all available report quantities of a given report quantity category.
 
@@ -740,7 +796,9 @@ class PostProcessorCommon(object):
             The category to which quantities belong. It has to be one of ``available_quantities_categories`` method.
             Default is ``None`` which will take first default quantity.".
         context : str, optional
-            Report Category. Default is ``""`` which will take first default context.
+            Report Context. Default is ``""`` which will take first default context.
+        is_siwave_dc : bool, optional
+            Whether if the setup is Siwave DCIR or not. Default is ``False``.
 
         Returns
         -------
@@ -752,7 +810,25 @@ class PostProcessorCommon(object):
             display_type = self.available_display_types(report_category)[0]
         if not solution:
             solution = self._app.nominal_adaptive
-        if not context:
+        if is_siwave_dc:
+            id = "0"
+            if context:
+                id = str(
+                    [
+                        "RL",
+                        "Sources",
+                        "Vias",
+                        "Bondwires",
+                        "Probes",
+                    ].index(context)
+                )
+            context = [
+                "NAME:Context",
+                "SimValueContext:=",
+                [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id, "IDIID", False, "1"],
+            ]
+
+        elif not context:
             context = ""
         if not quantities_category:
             categories = self.available_quantities_categories(report_category, display_type, solution, context)
@@ -1492,7 +1568,7 @@ class PostProcessorCommon(object):
     @pyaedt_function_handler()
     def create_report(
         self,
-        expressions,
+        expressions=None,
         setup_sweep_name=None,
         domain="Sweep",
         variations=None,
@@ -1514,7 +1590,7 @@ class PostProcessorCommon(object):
         setup_sweep_name : str, optional
             Setup name with the sweep. The default is ``""``.
         domain : str, optional
-            Plot Domain. Options are "Sweep" and "Time".
+            Plot Domain. Options are "Sweep", "Time", "DCIR".
         variations : dict, optional
             Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
         primary_sweep_variable : str, optional
@@ -1531,7 +1607,8 @@ class PostProcessorCommon(object):
         plot_type : str, optional
             The format of Data Visualization. Default is ``Rectangular Plot``.
         context : str, optional
-            The default is ``None``. It can be `None`, `"Differential Pairs"` or
+            The default is ``None``. It can be `None`, `"Differential Pairs"`,`"RL"`,
+            `"Sources"`, `"Vias"`,`"Bondwires"`, `"Probes"` for Hfss3dLayout or
             Reduce Matrix Name for Q2d/Q3d solution or Infinite Sphere name for Far Fields Plot.
         plotname : str, optional
             Name of the plot. The default is ``None``.
@@ -1603,10 +1680,20 @@ class PostProcessorCommon(object):
         if not setup_sweep_name:
             setup_sweep_name = self._app.nominal_sweep
         report = report_class(self, report_category, setup_sweep_name)
+        if not expressions:
+            expressions = [
+                i for i in self.available_report_quantities(report_category=report_category, context=context)
+            ]
         report.expressions = expressions
         report.domain = domain
         if primary_sweep_variable:
             report.primary_sweep = primary_sweep_variable
+        elif domain == "DCIR":  # pragma: no cover
+            report.primary_sweep = "Index"
+            if variations:
+                variations["Index"] = ["All"]
+            else:  # pragma: no cover
+                variations = {"Index": "All"}
         if secondary_sweep_variable:
             report.secondary_sweep = secondary_sweep_variable
         if variations:
@@ -1616,6 +1703,20 @@ class PostProcessorCommon(object):
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
+        elif context in [
+            "RL",
+            "Sources",
+            "Vias",
+            "Bondwires",
+            "Probes",
+        ]:
+            report.siwave_dc_category = [
+                "RL",
+                "Sources",
+                "Vias",
+                "Bondwires",
+                "Probes",
+            ].index(context)
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif report_category == "Far Fields":
@@ -1626,12 +1727,15 @@ class PostProcessorCommon(object):
                     if "Context" in context.keys() and "SourceContext" in context.keys():
                         report.far_field_sphere = context["Context"]
                         report.source_context = context["SourceContext"]
+                    if "Context" in context.keys() and "Source Group" in context.keys():
+                        report.far_field_sphere = context["Context"]
+                        report.source_group = context["Source Group"]
                 else:
                     report.far_field_sphere = context
         elif report_category == "Near Fields":
             report.near_field = context
         elif context:
-            if context in self.modeler.line_names:
+            if context in self.modeler.line_names or context in self.modeler.point_names:
                 report.polyline = context
 
         result = report.create(plotname)
@@ -2498,10 +2602,8 @@ class PostProcessor(PostProcessorCommon, object):
                 else:
                     variation_dict.append("0deg")
         if not sample_points_file and not sample_points_lists:
-
             _retry_ntimes(10, self.ofieldsreporter.CalculatorWrite, filename, ["Solution:=", solution], variation_dict)
         elif sample_points_file:
-
             _retry_ntimes(
                 10,
                 self.ofieldsreporter.ExportToFile,
@@ -2623,10 +2725,14 @@ class PostProcessor(PostProcessorCommon, object):
         return True
 
     @pyaedt_function_handler()
-    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsincList, listtype, plot_name=None):
+    def _create_fieldplot(self, objlist, quantityName, setup_name, intrinsics, listtype, plot_name=None):
         objlist = self._app.modeler.convert_to_selections(objlist, True)
         if not setup_name:
             setup_name = self._app.existing_analysis_sweeps[0]
+        if not intrinsics:
+            for i in self._app.setups:
+                if i.name == setup_name.split(" : ")[0]:
+                    intrinsics = i.default_intrinsics
         self._desktop.CloseAllWindows()
         try:
             self._app._modeler.fit_all()
@@ -2644,7 +2750,7 @@ class PostProcessor(PostProcessorCommon, object):
                 cutplanelist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         elif listtype == "FacesList":
             plot = FieldPlot(
@@ -2652,7 +2758,7 @@ class PostProcessor(PostProcessorCommon, object):
                 surfacelist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         elif listtype == "ObjList":
             plot = FieldPlot(
@@ -2660,7 +2766,7 @@ class PostProcessor(PostProcessorCommon, object):
                 objlist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         elif listtype == "Line":
             plot = FieldPlot(
@@ -2668,14 +2774,14 @@ class PostProcessor(PostProcessorCommon, object):
                 linelist=objlist,
                 solutionName=setup_name,
                 quantityName=quantityName,
-                intrinsincList=intrinsincList,
+                intrinsincList=intrinsics,
             )
         plot.name = plot_name
         plot.plotFolder = plot_name
 
         plt = plot.create()
         if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
-            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsincList["Time"])
+            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
         if plt:
             self.field_plots[plot_name] = plot
             return plot
@@ -2897,7 +3003,6 @@ class PostProcessor(PostProcessorCommon, object):
                 self.ofieldsreporter.ExportPlotImageToFile(fileName, foldername, plotName, cs.name)
                 cs.delete()
             else:
-
                 self.export_model_picture(
                     full_name=fileName, width=width, height=height, orientation=orientation, field_selections=plotName
                 )
