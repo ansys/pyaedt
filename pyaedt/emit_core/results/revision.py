@@ -190,7 +190,10 @@ class Revision:
         ----------
         domain :
             ``InteractionDomain`` object for constraining the analysis parameters.
-
+Returns
+--------
+count : float
+    Number of instances in the domain for the current revision.
         Examples
         ----------
         >>> domain = aedtapp.interaction_domain()
