@@ -194,10 +194,11 @@ class Revision:
         --------
         count : float
             Number of instances in the domain for the current revision.
-                Examples
-                ----------
-                >>> domain = aedtapp.interaction_domain()
-                >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
+
+        Examples
+        ----------
+        >>> domain = aedtapp.interaction_domain()
+        >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
         """
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
