@@ -192,7 +192,7 @@ class Revision:
                     ``InteractionDomain`` object for constraining the analysis parameters.
         Returns
         --------
-        count : float
+        count : int
             Number of instances in the domain for the current revision.
 
         Examples
