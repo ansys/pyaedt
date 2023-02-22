@@ -247,7 +247,7 @@ class EdbSiwave(object):
         return self._create_terminal_on_pins(circuit_port)
 
     def create_port_between_pin_and_layer(
-        self, component_name=None, pins_name=[], layer_name=None, reference_net=None, impedance=50.0
+        self, component_name=None, pins_name=None, layer_name=None, reference_net=None, impedance=50.0
     ):
         """Create circuit port between pin and a reference layer.
 
