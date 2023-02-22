@@ -270,6 +270,8 @@ class EdbSiwave(object):
             Created terminal (PadsatckInstanceTerminal).
 
         """
+        if not pins_name:
+            pins_name = []
         if pins_name:
             if not isinstance(pins_name, list):
                 pins_name = [pins_name]
