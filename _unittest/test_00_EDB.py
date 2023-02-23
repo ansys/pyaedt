@@ -2151,3 +2151,26 @@ class TestClass(BasisTest, object):
         setup = list(edbapp.active_cell.SimulationSetups)[0]
         setup_str = [t.strip("\n\t") for t in setup.ToString().split("\r")]
         assert [f for f in setup_str if "MeshFrequency" in f][0].split("=")[-1].strip("'") == simconfig.mesh_freq
+
+    def test_136_rlc_component_values_getter_setter(self):
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_0123.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        components_to_change = [
+            res for res in list(edbapp.core_components.Others.values()) if res.partname == "A93549-027"
+        ]
+        for res in components_to_change:
+            res.type = "Resistor"
+            res.res_value = 10
+            assert res.res_value == 10
+            res.rlc_values = [20, 1e-9, 1e-12]
+            assert res.res_value == 20
+            assert res.ind_value == 1e-9
+            assert res.cap_value == 1e-12
+            res.res_value = 12.5
+            assert res.res_value == 12.5 and res.ind_value == 1e-9 and res.cap_value == 1e-12
+            res.ind_value = 5e-9
+            assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 1e-12
+            res.cap_value = 8e-12
+            assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 8e-12
