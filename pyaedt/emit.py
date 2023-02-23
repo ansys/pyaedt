@@ -159,7 +159,6 @@ class Emit(Design, object):
 
             self.__emit_api_enabled = True
 
-
     @property
     def modeler(self):
         """Modeler.
