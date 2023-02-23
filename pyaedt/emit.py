@@ -118,6 +118,18 @@ class Emit(FieldAnalysisEmit, object):
             projectname = generate_unique_project_name()
         self.__emit_api_enabled = False
         """Constructor for the ``FieldAnalysisEmit`` class"""
+
+        self._units = {
+            "Power": "dBm",
+            "Frequency": "MHz",
+            "Length": "meter",
+            "Time": "ns",
+            "Voltage": "mV",
+            "Data Rate": "bps",
+            "Resistance": "ohm",
+        }
+        """Default Emit units."""
+
         FieldAnalysisEmit.__init__(
             self,
             "EMIT",
@@ -134,16 +146,6 @@ class Emit(FieldAnalysisEmit, object):
             port=port,
             aedt_process_id=aedt_process_id,
         )
-        self._units = {
-            "Power": "dBm",
-            "Frequency": "MHz",
-            "Length": "meter",
-            "Time": "ns",
-            "Voltage": "mV",
-            "Data Rate": "bps",
-            "Resistance": "ohm",
-        }
-        """Default Emit units."""
 
         if self._aedt_version >= "2023.1":
             self._emit_api = EMIT_MODULE.EmitApi()

@@ -114,7 +114,7 @@ class EmitComponents(object):
         self.modeler = modeler
         self._currentId = 0
         self.components = defaultdict(EmitComponent)
-        pass
+        self.refresh_all_ids()
 
     @pyaedt_function_handler()
     def create_component(self, component_type, name=None, library=None):
