@@ -4,12 +4,12 @@ import warnings
 
 from pyaedt import generate_unique_project_name
 from pyaedt.application.Design import Design
-from pyaedt.modeler.schematic import ModelerEmit
-from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core import EMIT_MODULE
 from pyaedt.emit_core import EmitConstants
+from pyaedt.emit_core.Couplings import CouplingsEmit
 from pyaedt.emit_core.results.results import Results
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modeler.schematic import ModelerEmit
 
 
 class Emit(Design, object):
@@ -158,10 +158,9 @@ class Emit(Design, object):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
-        
-        # Update modeler IDs now, after units are initialized.
-        #self.modeler.components.refresh_all_ids()
 
+        # Update modeler IDs now, after units are initialized.
+        # self.modeler.components.refresh_all_ids()
 
     @property
     def modeler(self):
