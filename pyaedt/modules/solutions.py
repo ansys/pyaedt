@@ -2548,6 +2548,10 @@ class FieldPlot:
         self.CloudSpacing = 0.5
         self.CloudMinSpacing = -1
         self.CloudMaxSpacing = -1
+        self.LineWidth = 4
+        self.LineStyle = "Cylinder"
+        self.IsoValType = "Tone"
+        self.NumofPoints = 100
 
     @property
     def plotGeomInfo(self):
@@ -2672,6 +2676,19 @@ class FieldPlot:
                 ],
                 "GridColor:=",
                 self.GridColor,
+            ]
+        elif self.line_indexes:
+            arg = [
+                "NAME:PlotOnLineSettings",
+                ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+                "IsoValType:=",
+                self.IsoValType,
+                "ArrowUniform:=",
+                self.ArrowUniform,
+                "NumofArrow:=",
+                self.NumofPoints,
+                "Refinement:=",
+                self.Refinement,
             ]
         else:
             arg = [
