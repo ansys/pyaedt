@@ -548,6 +548,11 @@ class TestClass(BasisTest, object):
         assert insulating_assignment.name == "InsulatingExample"
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
+        insulating_assignment_face = self.aedtapp.assign_insulating(insulated_box.faces[0], "InsulatingExample2")
+        assert insulating_assignment_face.name == "InsulatingExample2"
+        insulating_assignment_comb = self.aedtapp.assign_insulating([insulated_box.name, insulated_box.faces[0]],
+                                                                    "InsulatingExample3")
+        assert insulating_assignment_comb.name == "InsulatingExample3"
 
     def test_38_assign_current_density(self):
         design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
