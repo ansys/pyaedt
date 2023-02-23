@@ -136,3 +136,33 @@ To use IronPython in AEDT:
 .. code::
 
     ipy64 setup-distutils.py install --user
+
+
+Install pyaedt in Conda virtual environment
+~~~~~~~~~~~~~~~~~~~~~~
+Create virtual environment
+
+.. code::
+
+    (base) C:\>conda create --name pyaedt_py310 python=3.10
+
+Activate virtual environment
+
+.. code::
+
+    (base) C:\>conda activate pyaedt_py310
+
+Install required packages.
+
+Download `requirements.txt <https://github.com/pyansys/pyaedt/blob/main/requirements/requirements.txt>`_
+
+.. code::
+
+    (pyaedt_py310) C:\>pip install -r requirements
+
+Upgrade pyaedt to the latest version
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code::
+
+    (pyaedt_py310) pip install -U pyaedt
