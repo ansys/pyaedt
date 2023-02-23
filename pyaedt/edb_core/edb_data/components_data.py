@@ -478,6 +478,14 @@ class EDBComponent(object):
                 return pair.R.ToString()
         return None
 
+    @res_value.setter
+    def res_value(self, value):
+        if value:
+            if self.rlc_values == [None, None, None]:
+                self.rlc_values = [value, 0, 0]
+            else:
+                self.rlc_values = [value, self.rlc_values[1], self.rlc_values[2]]
+
     @property
     def cap_value(self):
         """Capacitance Value.
@@ -499,6 +507,14 @@ class EDBComponent(object):
                 return pair.C.ToString()
         return None
 
+    @cap_value.setter
+    def cap_value(self, value):
+        if value:
+            if self.rlc_values == [None, None, None]:
+                self.rlc_values = [0, 0, value]
+            else:
+                self.rlc_values = [self.rlc_values[1], self.rlc_values[2], value]
+
     @property
     def ind_value(self):
         """Inductance Value.
@@ -519,6 +535,14 @@ class EDBComponent(object):
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.L.ToString()
         return None
+
+    @ind_value.setter
+    def ind_value(self, value):
+        if value:
+            if self.rlc_values == [None, None, None]:
+                self.rlc_values = [0, value, 0]
+            else:
+                self.rlc_values = [self.rlc_values[1], value, self.rlc_values[2]]
 
     @property
     def is_parallel_rlc(self):
