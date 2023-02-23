@@ -159,8 +159,6 @@ class Emit(Design, object):
 
             self.__emit_api_enabled = True
 
-        # Update modeler IDs now, after units are initialized.
-        # self.modeler.components.refresh_all_ids()
 
     @property
     def modeler(self):
