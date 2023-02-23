@@ -404,6 +404,21 @@ class EDBComponent(object):
         pin_pair = self._pin_pairs[0]
         return pin_pair.rlc_values
 
+    @rlc_values.setter
+    def rlc_values(self, value):
+        if isinstance(value, list):
+            rlc_enabled = [True if i else False for i in value]
+            rlc_values = [self._get_edb_value(i) for i in value]
+            model = self._edb.Cell.Hierarchy.PinPairModel()
+            pin_names = list(self.pins.keys())
+            for idx, i in enumerate(np.arange(len(pin_names) // 2)):
+                pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
+                rlc = self._edb.Utility.Rlc(
+                    rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
+                )
+                model.SetPinPairRlc(pin_pair, rlc)
+            self._set_model(model)
+
     @property
     def value(self):
         """Retrieve discrete component value.
