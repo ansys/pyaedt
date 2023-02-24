@@ -165,4 +165,4 @@ Upgrade PyAEDT to the latest version
 
 .. code:: bash
 
-    (pyaedt_py310) pip install -U pyaedt
+    pip install -U pyaedt
