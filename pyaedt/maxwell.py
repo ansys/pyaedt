@@ -2090,8 +2090,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Parameters
         ----------
-        geometry_selection : str
-            Objects to apply the insulating boundary to.
+        geometry_selection : str or int
+            Objects or faces to apply the insulating boundary to.
         insulation_name : str, optional
             Name of the insulation. The default is ``None`` in which case a unique name is chosen.
 
@@ -2113,8 +2113,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> insulated_box = maxwell3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="InsulatedBox")
         >>> insulating_assignment = maxwell3d_app.assign_insulating(insulated_box, "InsulatingExample")
         >>> type(insulating_assignment)
-        <class 'pyaedt.modules.Boundary.BoundaryObject'>
-
         """
 
         if self.solution_type in [
@@ -2130,7 +2128,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 insulation_name = generate_unique_name(insulation_name)
 
             listobj = self.modeler.convert_to_selections(geometry_selection, True)
-            props = {"Objects": listobj}
+            props = {"Objects": [], "Faces": []}
+            for sel in listobj:
+                if isinstance(sel, str):
+                    props["Objects"].append(sel)
+                elif isinstance(sel, int):
+                    props["Faces"].append(sel)
 
             return self._create_boundary(insulation_name, props, "Insulating")
         return False
