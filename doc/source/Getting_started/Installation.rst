@@ -138,7 +138,7 @@ To use IronPython in AEDT:
     ipy64 setup-distutils.py install --user
 
 
-Install pyaedt in Conda virtual environment
+Install PyAEDT in Conda virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~
 Create virtual environment
 
