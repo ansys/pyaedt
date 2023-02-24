@@ -142,7 +142,7 @@ Install PyAEDT in Conda virtual environment
 ~~~~~~~~~~~~~~~~~~~~~~
 Create virtual environment
 
-.. code::
+.. code:: bash
 
     (base) C:\>conda create --name pyaedt_py310 python=3.10
 
