@@ -160,8 +160,8 @@ Download `requirements.txt <https://github.com/pyansys/pyaedt/blob/main/requirem
 
     (pyaedt_py310) C:\>pip install -r requirements.txt
 
-Upgrade pyaedt to the latest version
-~~~~~~~~~~~~~~~~~~~~~~
+Upgrade PyAEDT to the latest version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code::
 
