@@ -155,7 +155,7 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.props["SubmodelDefinitionName"]: nc for nc in self._native_components}
+        return {nc.component_name: nc for nc in self._native_components}
 
     @property
     def output_variables(self):
@@ -1705,7 +1705,7 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def solve_in_batch(self, filename=None, machine="local", run_in_thread=False):
+    def solve_in_batch(self, filename=None, machine="local", run_in_thread=False, num_cores=4, num_tasks=1):
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1721,6 +1721,10 @@ class Analysis(Design, object):
         run_in_thread : bool, optional
             Whether to submit the batch command as a thread. The default is
             ``False``.
+        num_cores : int, optional
+            Number of cores to use in simulation.
+        num_tasks : int, optional
+            Number of tasks to use in simulation.
 
         Returns
         -------
@@ -1742,11 +1746,14 @@ class Analysis(Design, object):
             os.unlink(queue_file)
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
-        if machine == "local":
-            # -Monitor option used as workaround for R2 BatchSolve not exiting properly at the end of the Batch job
-            options = ["-ng", "-BatchSolve", "-Monitor"]
-        else:
-            options = ["-ng", "-BatchSolve", "-machinelist", "list=" + machine, "-Monitor"]
+
+        options = [
+            "-ng",
+            "-BatchSolve",
+            "-machinelist",
+            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+            "-Monitor",
+        ]
 
         if os.name == "posix":
             batch_run = [inst_dir + "/ansysedt"]

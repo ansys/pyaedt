@@ -1,0 +1,88 @@
+$begin '$base_index$'
+  $begin 'properties'
+    all_levels=000000000000
+    time(year=000000002023, month=000000000002, day=000000000020, hour=000000000013, min=000000000037, sec=000000000005)
+    version=000000000000
+  $end 'properties'
+  $begin '$base_index$'
+    $index$(pos=000000002259, lin=000000000075, lvl=000000000000)
+  $end '$base_index$'
+$end '$base_index$'
+$begin 'SolutionBlock1'
+	ProductName='HFSS 3D Layout Design'
+	CircuitName='Galileo_G87173_204'
+	VersionID=0
+	PostProcess=false
+	LossLess=false
+	NextUniqueID=4
+	MoveBackwards=false
+	$begin 'VariationIDs'
+		Map(V='', ID=3)
+	$end 'VariationIDs'
+$end 'SolutionBlock1'
+$begin 'BlockMapName'
+	FileHeader='SolutionBlock1'
+	'SolutionKey(SimSetup=0, Instance=\'\', Solution=-3, VersionID=0)'='SolutionBlock4'
+	'SolutionKey(SimSetup=0, Instance=\'\', Solution=2, VersionID=0)'='SolutionBlock5'
+	'SolutionKey(SimSetup=0, Instance=\'SetupDefinition\', Solution=-1, VersionID=0)'='SolutionBlock3'
+	'SolutionKey(SimSetup=0, Instance=\'SolutionDefinition\', Solution=2, VersionID=0)'='SolutionBlock2'
+$end 'BlockMapName'
+$begin 'SolutionBlock2'
+	SolutionName='Siwave_DC_WP9QNY'
+	SolutionID=2
+	V=0
+	$begin 'States'
+		F(VID=3, Ver=0)
+	$end 'States'
+	$begin 'Definition'
+		SamplingInterpolation=false
+		Frequencies()
+		SolutionType=1
+		CenterFreq=0
+	$end 'Definition'
+	AdaptivePass=-1
+	Currents=false
+	RadiationCurrents=false
+	SolveFields=false
+$end 'SolutionBlock2'
+$begin 'SolutionBlock3'
+	SimSetupID=0
+	SimSetupName='Siwave_DC_WP9QNY'
+	VersionID=0
+$end 'SolutionBlock3'
+$begin 'SolutionBlock5'
+	VariationDataID=-1
+	Folder='DV3_S2_V0'
+	AdaptPass=-1
+	$begin 'ThermalData'
+		HasValidThermalData=false
+		HasValidAppliedFeedback=false
+	$end 'ThermalData'
+$end 'SolutionBlock5'
+$begin 'SolutionBlock4'
+	ConvSetupName='siwdcir'
+	IsConverged=true
+	MaxPasses='5'
+	MinPasses='1'
+	ConvTarget='3'
+	ConvTargetConsecPasses='N/A'
+	ConvCurrentConsecPasses='N/A'
+	c(pe=0.001627129081211, pn=1, pl=0.1541718688318, pd=100)
+	c(pe=0.0008126695993027, pn=2, pl=0.1644392141307, pd=6.659674930767)
+	c(pe=0.0005943575106478, pn=3, pl=0.1694398060464, pd=3.040997211123)
+	c(pe=0.0004824647542885, pn=4, pl=0.1723325788722, pd=1.707256927007)
+$end 'SolutionBlock4'
+$begin '$index$'
+	$begin '$index$'
+		SolutionBlock1(pos=370, lin=11, lvl=0)
+		BlockMapName(pos=646, lin=23, lvl=0)
+		SolutionBlock2(pos=1095, lin=30, lvl=0)
+		SolutionBlock3(pos=1456, lin=48, lvl=0)
+		SolutionBlock5(pos=1567, lin=53, lvl=0)
+		SolutionBlock4(pos=1778, lin=62, lvl=0)
+		$base_index$(pos=0, lin=1, lvl=0)
+		$index$(pos=2259, lin=75, lvl=0)
+	$end '$index$'
+$end '$index$'
+'$index$'
+          
