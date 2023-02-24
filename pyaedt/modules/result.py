@@ -2,36 +2,43 @@ from itertools import combinations
 import numpy as np
 import skrf as rf
 
-class Result:
-    def __init__(self, app, setup_name, sweep_name):
-        self._app = app
 
-    @property
-    def terminal_solution_data(self):
-        return
+class ResultHfss3dlayout:
+    def __init__(self, h3d):
+        self._h3d = h3d
 
+    def get_s_parameter(self, setup_name, sweep_name):
+        h3d = self._h3d
 
-class ResultHfss3dlayout(Result):
-    def __init__(self, h3d, setup_name, sweep_name):
-        Result.__init__(self, h3d, setup_name, sweep_name)
-        self.terminal_solution_data_context = [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]
+        s_parameters = []
+        context = [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"]
 
         ports = h3d.excitations
+        port_order = {ports.index(p): p for p in ports}
         port_pairs = list(combinations(ports, 2))
+        port_pairs.extend([(p, p) for p in ports])
 
+        solution = "{} : {}".format(setup_name, sweep_name)
         expression = ["S({}, {})".format(*c) for c in port_pairs]
+
+        variation = ['Freq:=', ['All']]
+        for name in h3d._odesign.GetVariables() + h3d._oproject.GetVariables():
+            variation.append(name + ":=")
+            value = "All"
+            variation.append([value])
+
         solution_data = h3d.oreportsetup.GetSolutionDataPerVariation(
             "Standard",
-            "{} : {}".format(setup_name, sweep_name),
-            self.terminal_solution_data_context,
-            ['Freq:=', ['All'], ""],
+            solution,
+            context,
+            variation,
             expression
-
         )
         for d in solution_data:
-            freq_points = d.GetSweepValues("Freq")
-            sdata_3d = np.zeros([len(freq_points), len(ports), len(ports)])
+            freq_points = rf.Frequency.from_f(d.GetSweepValues("Freq"), unit="Hz")
 
+
+            sdata_3d = np.zeros([len(freq_points), len(ports), len(ports)], dtype=complex)
             for i in port_pairs:
                 p_a, p_b = i
                 expression = "S({}, {})".format(p_a, p_b)
@@ -51,7 +58,12 @@ class ResultHfss3dlayout(Result):
                 sdata_2d = np.array(sdata_real, dtype=complex) + 1j * np.array(sdata_img, dtype=complex)
                 sdata_3d[:, p_number, p_number] = sdata_2d
 
-            nw = rf.Network(s=sdata_3d, frequency=freq_points, z0=50)
-            nw.name = ""
-
-
+            var = {}
+            for name in d.GetDesignVariableNames():
+                value = d.GetDesignVariableValue(name)
+                var[name] = value
+            params = {"variant": var,
+                      "port_order": port_order}
+            nw = rf.Network(s=sdata_3d, frequency=freq_points, z0=50.+0.j, params=params)
+            s_parameters.append(nw)
+        return s_parameters
