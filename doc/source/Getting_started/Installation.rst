@@ -144,7 +144,7 @@ Create virtual environment
 
 .. code:: bash
 
-    (base) C:\>conda create --name pyaedt_py310 python=3.10
+    conda create --name pyaedt_py310 python=3.10
 
 Activate virtual environment
 
