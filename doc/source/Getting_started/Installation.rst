@@ -148,7 +148,7 @@ Create virtual environment
 
 Activate virtual environment
 
-.. code::
+.. code:: bash
 
     (base) C:\>conda activate pyaedt_py310
 
