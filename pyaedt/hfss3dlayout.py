@@ -20,6 +20,7 @@ from pyaedt.modules.Boundary import BoundaryObject3dLayout
 from pyaedt.modules.PostProcessor import ReportDcirCategory
 from pyaedt.modules.PostProcessor import ReportDcirShow
 from pyaedt.modules.solutions import SolutionData
+from pyaedt.modules.result import ResultHfss3dlayout
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -2053,61 +2054,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return SolutionData(list(data))
 
-    def get_solution_data(self,
-                          expressions=None,
-                          setup_sweep_name=None,
-                          domain="Sweep",
-                          show="Terminals",
-                          variations=None,
-                          primary_sweep_variable=None,
-                          report_category=None,
-                          ):
-        """Get SolutionData of a report in AEDT. It can be a 2D plot, 3D solution data class.
-
-        Parameters
-        ----------
-        expressions : str or list, optional
-            One or more formulas to add to the report. Example is value ``"dB(S(1,1))"``.
-            Default is `None` which will return all traces.
-        setup_sweep_name : str, optional
-            Setup name with the sweep. The default is ``""``.
-        domain : str, optional
-            Plot Domain. Options are "Sweep" and "Time".
-        variations : dict, optional
-            Dictionary of all families including the primary sweep. The default is ``{"Freq": ["All"]}``.
-        primary_sweep_variable : str, optional
-            Name of the primary sweep. The default is ``"Freq"``.
-        report_category : str, optional
-            Category of the Report to be created. If `None` default data Report will be used.
-            The Report Category can be one of the types available for creating a report depend on the simulation setup.
-            For example for a Far Field Plot in HFSS the UI shows the report category as "Create Far Fields Report".
-            The report category will be in this case "Far Fields".
-            Depending on the setup different categories are available.
-            If `None` default category will be used (the first item in the Results drop down menu in AEDT).
-
-        Returns
-        -------
-        :class:`pyaedt.modules.solutions.SolutionData`
-            Solution Data object.
-
-        """
-
-        if show == "Differenial_pairs":
-            sim_value_ctxt = [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "EnsDiffPairKey", False, "1", "IDIID",
-                              False, "1"]
-        else:
-            sim_value_ctxt = [3,0,2,0,False,False,-1,1,0,1,1,"",0,0,"IDIID",False,"1"]
-        context = ["NAME:Context", "SimValueContext:=", sim_value_ctxt]
-
-        return self.post.get_solution_data(
-            expressions,
-            setup_sweep_name,
-            domain,
-            variations,
-            primary_sweep_variable,
-            report_category,
-            context,
-            None,
-            1001,
-            None,
-        )
+    def get_result_s_parameter(self, setup_name, sweep_name):
+        result = ResultHfss3dlayout(self)
+        return result.get_s_parameter(setup_name, sweep_name)
