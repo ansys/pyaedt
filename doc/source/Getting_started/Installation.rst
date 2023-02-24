@@ -156,7 +156,7 @@ Install required packages.
 
 Download `requirements.txt <https://github.com/pyansys/pyaedt/blob/main/requirements/requirements.txt>`_
 
-.. code::
+.. code:: bash
 
     (pyaedt_py310) C:\>pip install -r requirements.txt
 
