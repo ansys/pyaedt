@@ -150,7 +150,7 @@ Activate virtual environment
 
 .. code:: bash
 
-    (base) C:\>conda activate pyaedt_py310
+    conda activate pyaedt_py310
 
 Install required packages.
 
