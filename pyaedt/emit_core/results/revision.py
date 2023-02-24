@@ -34,7 +34,7 @@ class Revision:
         design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
         subfolder = ""
         for f in os.scandir(emit_obj.oproject.GetPath()):
-            if os.path.splitext(f.name)[1].lower() in ".aedtresults":
+            if os.path.splitext(f.name)[1].lower() == ".aedtresults":
                 subfolder = os.path.join(f.path, "EmitDesign1")
         default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
         if default_behaviour:

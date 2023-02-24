@@ -147,6 +147,6 @@ Do not write hard-coded values to the registry. Instead, use the Configuration s
 
 Maximum line length
 ~~~~~~~~~~~~~~~~~~~
-Best practice is to keep the length at or below 120 characters for code, docstrings,
+Best practice is to keep the length at or below 120 characters for code,
 and comments. Lines longer than this might not display properly on some terminals
 and tools or might be difficult to follow.
