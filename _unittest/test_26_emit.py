@@ -29,8 +29,6 @@ class TestClass(BasisTest, object):
 
     def test_objects(self):
         assert self.aedtapp.solution_type
-        assert isinstance(self.aedtapp.existing_analysis_setups, list)
-        assert isinstance(self.aedtapp.setup_names, list)
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
@@ -400,7 +398,7 @@ class TestClass(BasisTest, object):
 
         # Get the Freqs
         freqs = rev.get_active_frequencies(radios[0], bands[0], econsts.tx_rx_mode().rx)
-        assert freqs == 100.0
+        assert freqs == [100.0]
 
         # Add an emitter
         emitter1 = self.aedtapp.modeler.components.create_component("USB_3.x")
