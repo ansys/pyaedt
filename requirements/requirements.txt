@@ -17,7 +17,7 @@ pywin32>=301; python_version > '3.6' and sys_platform == 'windows'
 # https://github.com/mhammond/pywin32
 # License: PSF
 
-rpyc==5.3.0; python_version > '3.6'
+rpyc==5.3.1; python_version > '3.6'
 # https://github.com/tomerfiliba-org/rpyc
 # License: MIT
 
