@@ -26,6 +26,8 @@ extras_require = [
     "SRTM.py",
 ]
 
+setup()
+
 if sys.version_info > (3, 7):
     install_requires = [
         "cffi == 1.15.0;platform_system=='Linux'",
@@ -57,25 +59,6 @@ elif is_ironpython:
     extras_require = []
 else:
     sys.exit("PyAEDT supports only CPython 3.7-3.10 and IronPython 2.7.")
-
-setup(
-    name=name,
-    version=version,
-    author=author,
-    maintainer=maintainer,
-    maintainer_email=maintainer_email,
-    description=description,
-    long_description=long_description,
-    long_description_content_type="text/x-rst",
-    install_requires=install_requires,
-    extras_require={"full":extras_require},
-    packages=packages,
-    data_files=data_files,
-    include_package_data=True,
-    license=license,
-    classifiers=classifiers,
-    project_urls=project_urls,
-)
 
 if os.name == "posix" and not is_ironpython:
     print("     ")
