@@ -116,12 +116,7 @@ class TestClass(BasisTest, object):
             assert isinstance(cmp.solder_ball_placement, int)
         mounted_cmp = edb2.core_components.get_component_by_name("BGA")
         hosting_cmp = self.edbapp.core_components.get_component_by_name("U2A5")
-        (
-            result,
-            vector,
-            rotation,
-            solder_ball_height,
-        ) = self.edbapp.core_components.get_component_placement_vector(
+        (result, vector, rotation, solder_ball_height,) = self.edbapp.core_components.get_component_placement_vector(
             mounted_component=mounted_cmp,
             hosting_component=hosting_cmp,
             mounted_component_pin1="A10",
@@ -133,12 +128,7 @@ class TestClass(BasisTest, object):
         assert abs(abs(rotation) - math.pi / 2) < 1e-9
         assert solder_ball_height == 0.00033
         assert len(vector) == 2
-        (
-            result,
-            vector,
-            rotation,
-            solder_ball_height,
-        ) = self.edbapp.core_components.get_component_placement_vector(
+        (result, vector, rotation, solder_ball_height,) = self.edbapp.core_components.get_component_placement_vector(
             mounted_component=mounted_cmp,
             hosting_component=hosting_cmp,
             mounted_component_pin1="A10",
