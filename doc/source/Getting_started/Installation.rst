@@ -139,7 +139,7 @@ To use IronPython in AEDT:
 
 
 Install PyAEDT in Conda virtual environment
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Create virtual environment
 
 .. code:: bash
