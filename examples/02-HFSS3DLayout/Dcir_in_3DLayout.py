@@ -106,7 +106,9 @@ voltage = hfss3dl.get_dcir_solution_data(
     category="Voltage")
 print({ expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Get via
+# ~~~~~~~
 # Get via current from dcir result
 via_current = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
