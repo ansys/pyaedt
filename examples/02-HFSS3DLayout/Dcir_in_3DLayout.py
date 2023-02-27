@@ -114,7 +114,8 @@ via_current = hfss3dl.get_dcir_solution_data(
     category="Current")
 print({ expression: via_current.data_magnitude(expression) for  expression in via_current.expressions[100:105]})
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
 # Close AEDT
+# ~~~~~~~~~~
 hfss3dl.close_project()
 desktop.release_desktop()
