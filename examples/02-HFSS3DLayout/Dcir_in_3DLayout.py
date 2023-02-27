@@ -98,7 +98,9 @@ loop_resistance = hfss3dl.get_dcir_solution_data(
     category="Loop_Resistance")
 print({expression: loop_resistance.data_magnitude(expression) for expression in loop_resistance.expressions})
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Get voltage
+# ~~~~~~~~~~~
 # Get voltage from dcir result
 voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
