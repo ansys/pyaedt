@@ -19,7 +19,7 @@ class IcepakMesh(object):
         self._app = app
 
         self._odesign = self._app._odesign
-        self.modeler = self._app._modeler
+        self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
         self.id = 0

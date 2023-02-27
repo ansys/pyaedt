@@ -900,7 +900,7 @@ class PostProcessorCommon(object):
     @property
     def modeler(self):
         """Modeler."""
-        return self._app._modeler
+        return self._app.modeler
 
     @property
     def post_solution_type(self):
@@ -1999,7 +1999,7 @@ class PostProcessor(PostProcessorCommon, object):
             Primitives object.
 
         """
-        return self._app._modeler
+        return self._app.modeler
 
     @property
     def model_units(self):
@@ -2735,7 +2735,7 @@ class PostProcessor(PostProcessorCommon, object):
                     intrinsics = i.default_intrinsics
         self._desktop.CloseAllWindows()
         try:
-            self._app._modeler.fit_all()
+            self._app.modeler.fit_all()
         except:
             pass
         self._desktop.TileWindows(0)
