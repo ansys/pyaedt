@@ -3,7 +3,6 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
-from pyaedt.modeler.schematic import ModelerNexxim
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
 from pyaedt.modules.Boundary import PowerIQSource
@@ -12,7 +11,6 @@ from pyaedt.modules.Boundary import Sources
 from pyaedt.modules.Boundary import VoltageDCSource
 from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
 from pyaedt.modules.Boundary import VoltageSinSource
-from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.modules.SolveSweeps import SetupKeys
 
@@ -64,8 +62,8 @@ class FieldAnalysisCircuit(Analysis):
             aedt_process_id,
         )
 
-        self._modeler = ModelerNexxim(self)
-        self._post = CircuitPostProcessor(self)
+        self._modeler = None
+        self._post = None
         self._internal_excitations = None
         self._internal_sources = None
 
@@ -118,15 +116,18 @@ class FieldAnalysisCircuit(Analysis):
             return False
         return True
 
-    @property
     def post(self):
-        """Postprocessor.
+        """PostProcessor.
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        :class:`pyaedt.modules.AdvancedPostProcessing.CircuitPostProcessor`
             PostProcessor object.
         """
+        if self._post is None:
+            from pyaedt.modules.PostProcessor import CircuitPostProcessor
+
+            self._post = CircuitPostProcessor(self)
         return self._post
 
     @property
@@ -161,6 +162,10 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def modeler(self):
         """Modeler object."""
+        if self._modeler is None:
+            from pyaedt.modeler.schematic import ModelerNexxim
+
+            self._modeler = ModelerNexxim(self)
         return self._modeler
 
     @property
