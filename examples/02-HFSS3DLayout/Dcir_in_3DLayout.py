@@ -73,8 +73,10 @@ appedb.core_siwave.create_current_source_on_pin_group(
 
 appedb.core_siwave.add_siwave_dc_analysis(name="my_setup")
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Save and close Edb
+###############################################################################
+# Save and close EDB
+# ~~~~~~~~~~~~~~~~~~
+# Save and close EDB.
 
 appedb.save_edb()
 appedb.close_edb()
