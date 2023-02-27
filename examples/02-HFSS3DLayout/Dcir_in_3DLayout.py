@@ -90,7 +90,9 @@ hfss3dl = pyaedt.Hfss3dLayout(local_path)
 hfss3dl.analyze_all()
 hfss3dl.save_project()
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Get loop resistance
+# ~~~~~~~~~~~~~~~~~~~
 # Get loop resistance from dcir result
 loop_resistance = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
