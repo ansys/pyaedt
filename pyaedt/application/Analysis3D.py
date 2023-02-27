@@ -136,7 +136,7 @@ class FieldAnalysis3D(Analysis, object):
             from pyaedt.modules.Mesh import Mesh
             from pyaedt.modules.MeshIcepak import IcepakMesh
 
-            IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
+            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
         return self._mesh
 
     @property
