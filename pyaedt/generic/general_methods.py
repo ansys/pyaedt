@@ -39,17 +39,6 @@ except:
 if not is_ironpython:
     import psutil
 
-pd = None
-if not is_ironpython:
-    try:
-        import pandas as pd
-    except ImportError:
-        pd = None
-    try:
-        import numpy as np
-    except ImportError:
-        np = None
-
 try:
     import xml.etree.cElementTree as ET
 
@@ -718,9 +707,11 @@ def read_csv_pandas(filename, encoding="utf-8"):
     :class:`pandas.DataFrame`
 
     """
-    if pd:
+    try:
+        import pandas as pd
+
         return pd.read_csv(filename, encoding=encoding, header=0, na_values=".")
-    else:
+    except ImportError:
         logging.error("Pandas is not available. Install it.")
         return None
 
@@ -759,9 +750,11 @@ def read_xlsx(filename):
 
     """
     try:
+        import pandas as pd
+
         lines = pd.read_excel(filename)
         return lines
-    except:
+    except ImportError:
         lines = []
         return lines
 
@@ -1003,8 +996,12 @@ def compute_fft(time_vals, value):
     tuple
         Frequency and Values.
     """
-    if not np:
+    try:
+        import numpy as np
+    except ImportError:
         logging.error("Numpy is not available. Please, install it first.")
+        return False
+
     deltaT = time_vals[-1] - time_vals[0]
     num_points = len(time_vals)
     valueFFT = np.fft.fft(value, num_points)
@@ -1052,8 +1049,11 @@ def parse_excitation_file(
     tuple
         Frequency, magnitude and phase.
     """
-    if not np:
+    try:
+        import numpy as np
+    except ImportError:
         logging.error("Numpy is not available. Please, install it first.")
+        return False
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
