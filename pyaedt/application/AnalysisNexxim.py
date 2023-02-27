@@ -116,6 +116,7 @@ class FieldAnalysisCircuit(Analysis):
             return False
         return True
 
+    @property
     def post(self):
         """PostProcessor.
 

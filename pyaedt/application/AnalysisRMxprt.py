@@ -52,6 +52,7 @@ class FieldAnalysisRMxprt(Analysis):
         self._modeler = None
         self._post = None
 
+    @property
     def post(self):
         """Post Object.
 
