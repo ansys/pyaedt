@@ -1,6 +1,8 @@
 import os
 
 import pyaedt
+from pyaedt import settings
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import open_file
 
 
@@ -523,9 +525,13 @@ class IbisReader(object):
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
         ibis = Ibis(ibis_name, self._circuit)
-
+        if settings.remote_rpc_session_temp_folder:
+            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self._filename)[-1])
+            file_to_open = check_and_download_file(local_path, self._filename)
+        else:
+            file_to_open = self._filename
         # Read *.ibis file.
-        with open_file(self._filename, "r") as ibis_file:
+        with open_file(file_to_open, "r") as ibis_file:
             while True:
                 current_line = ibis_file.readline()
                 if not current_line:
