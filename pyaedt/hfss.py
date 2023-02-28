@@ -5185,7 +5185,7 @@ class Hfss(FieldAnalysis3D, object):
 
         self.modeler._initialize_multipart()
         if self.solution_type != "SBR+":
-            self.logger.error("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method applies only to SBR+ solution.")
             return False
         use_motion = abs(speed) > 0.0
         r = Radar(
