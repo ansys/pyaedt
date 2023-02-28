@@ -11,7 +11,7 @@ dst_dir = os.path.join(temp_dir, pyaedt.generate_unique_name("pyaedt_dcir"))
 os.mkdir(dst_dir)
 local_path = pyaedt.downloads.download_aedb(dst_dir)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#####################################################################################
 # Load example board into EDB
 
 edbversion = "2022.2"
