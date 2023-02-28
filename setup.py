@@ -65,6 +65,7 @@ elif sys.version_info == (3, 7):
         "matplotlib==3.5.3",
         "psutil",
         "pandas==1.3.5",
+        "scikit-rf",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif is_ironpython:
