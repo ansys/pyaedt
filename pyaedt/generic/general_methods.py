@@ -999,7 +999,7 @@ def compute_fft(time_vals, value):
     try:
         import numpy as np
     except ImportError:
-        logging.error("Numpy is not available. Please, install it first.")
+        logging.error("NumPy is not available. Install it.")
         return False
 
     deltaT = time_vals[-1] - time_vals[0]
