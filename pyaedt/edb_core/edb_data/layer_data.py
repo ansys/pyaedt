@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
-import time
 from collections import OrderedDict
+import time
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.clr_module import List

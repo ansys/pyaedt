@@ -13,8 +13,8 @@ from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
-from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
 from pyaedt.modeler.pcb.Primitives3DLayout import Primitives3DLayout
+from pyaedt.modeler.pcb.object3dlayout import ComponentsSubCircuit3DLayout
 from pyaedt.modules.LayerStackup import Layers
 
 

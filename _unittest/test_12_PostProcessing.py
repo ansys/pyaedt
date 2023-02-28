@@ -5,6 +5,7 @@ import uuid
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+
 from pyaedt import Circuit
 from pyaedt import Hfss
 from pyaedt import Q2d

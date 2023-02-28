@@ -1,5 +1,5 @@
-import copy
 from collections import OrderedDict
+import copy
 
 
 def HFSS3DLayout_AdaptiveFrequencyData(freq):

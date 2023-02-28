@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
+from collections import OrderedDict
 import random
 import re
 import warnings
-from collections import OrderedDict
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.general_methods import _uname
