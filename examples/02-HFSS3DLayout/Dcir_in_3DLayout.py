@@ -68,7 +68,7 @@ appedb.core_siwave.create_current_source_on_pin_group(
     name="U2A5-V3P3_S5"
 )
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
 # Add SIwave DCIR analysis
 
 appedb.core_siwave.add_siwave_dc_analysis(name="my_setup")
