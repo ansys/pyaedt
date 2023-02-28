@@ -155,7 +155,7 @@ class FileManagement(object):
         if self.client.root.pathexists(remotepath):
             return "Directory Exists!"
         self.client.root.makedirs(remotepath)
-        return "Directory created!"
+        return "Directory created."
 
     def walk(self, remotepath):
         if self.client.root.pathexists(remotepath):
