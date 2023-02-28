@@ -3,7 +3,7 @@ import tempfile
 import pyaedt
 
 ###############################################################################
-# Configure Edb for DCIR analysis
+# Configure EDB for DCIR analysis
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Copy example into temporary folder
 temp_dir = tempfile.gettempdir()
