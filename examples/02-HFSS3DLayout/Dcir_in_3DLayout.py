@@ -51,7 +51,7 @@ appedb.core_siwave.create_pin_group_on_net(
     net_name="V3P3_S5",
     group_name="U2A5-V3P3_S5")
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#####################################################################################
 # Create pin group on sink component negative pins
 
 appedb.core_siwave.create_pin_group_on_net(
