@@ -43,7 +43,7 @@ appedb.core_siwave.create_voltage_source_on_pin_group(
     name="U3A1-BST_V3P3_S5"
 )
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#####################################################################################
 # Create pin group on sink component positive pins
 
 appedb.core_siwave.create_pin_group_on_net(
