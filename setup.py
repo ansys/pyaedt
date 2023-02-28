@@ -48,7 +48,7 @@ if sys.version_info > (3, 7):
         "pythonnet == 3.0.1",
         "rpyc==5.3.0",
         "pyvista>=0.34.1",
-        "numpy=1.24.2",
+        "numpy==1.24.2",
         "matplotlib==3.7.0",
         "psutil",
         "pandas==1.5.3",
