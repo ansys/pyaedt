@@ -2665,7 +2665,7 @@ class PostProcessor(PostProcessorCommon, object):
         file_path = os.path.join(filepath, filename + "." + file_format)
         self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
         if settings.remote_rpc_session_temp_folder:
-            local_path = "{}/{}".format(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
+            local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
             file_path = check_and_download_file(local_path, file_path)
         return file_path
 
