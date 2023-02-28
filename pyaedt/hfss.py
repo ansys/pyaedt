@@ -5894,7 +5894,7 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.solutions.FfdSolutionData`
-            Solution Data Object.
+            SolutionData object.
         """
         from pyaedt.modules.solutions import FfdSolutionData
 
