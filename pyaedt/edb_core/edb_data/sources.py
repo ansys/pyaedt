@@ -864,10 +864,18 @@ class ExcitationSources(CommonExcitation):
         """Get the magnitude of the source."""
         return self._edb_terminal.GetSourceAmplitude().ToDouble()
 
+    @magnitude.setter
+    def magnitude(self, value):
+        self._edb_terminal.SetSourceAmplitude(self._edb.Utility.Value(value))
+
     @property
     def phase(self):
         """Get the phase of the source."""
         return self._edb_terminal.GetSourcePhase().ToDouble()
+
+    @phase.setter
+    def phase(self, value):
+        self._edb_terminal.SetSourcePhase(self._edb.Utility.Value(value))
 
 
 class ExcitationProbes(CommonExcitation):
