@@ -2901,7 +2901,7 @@ class PostProcessor(PostProcessorCommon, object):
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create. The default is ``None``.
 
         Returns
         -------
