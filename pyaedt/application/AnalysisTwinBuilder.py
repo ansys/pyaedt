@@ -103,9 +103,9 @@ class AnalysisTwinBuilder(Analysis):
     def post(self):
         """Design Post Processor.
 
-           Returns
-           -------
-           :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
         if self._post is None:
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
