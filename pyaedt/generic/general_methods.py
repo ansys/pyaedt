@@ -1052,7 +1052,7 @@ def parse_excitation_file(
     try:
         import numpy as np
     except ImportError:
-        logging.error("Numpy is not available. Please, install it first.")
+        logging.error("Numpy is not available. Install it.")
         return False
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
