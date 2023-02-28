@@ -519,11 +519,16 @@ def generate_unique_folder_name(rootname=None, folder_name=None):
     str
     """
     if not rootname:
-        rootname = tempfile.gettempdir()
+        if settings.remote_rpc_session:
+            rootname = settings.remote_rpc_session_temp_folder
+        else:
+            rootname = tempfile.gettempdir()
     if folder_name is None:
         folder_name = generate_unique_name("pyaedt_prj", n=3)
     temp_folder = os.path.join(rootname, folder_name)
-    if not os.path.exists(temp_folder):
+    if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(temp_folder):
+        settings.remote_rpc_session.filemanager.makedirs(temp_folder)
+    elif not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
 
     return temp_folder
@@ -555,7 +560,7 @@ def generate_unique_project_name(rootname=None, folder_name=None, project_name=N
     name_with_ext = project_name + "." + project_format
     folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
     prj = os.path.join(folder_path, name_with_ext)
-    if os.path.exists(prj):
+    if os.path.exists(prj) or (settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(prj)):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
         prj = os.path.join(folder_path, name_with_ext)
     return prj

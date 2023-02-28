@@ -163,7 +163,6 @@ class FieldAnalysis3D(Analysis, object):
                     for file in files:
                         if file.endswith(".a3dcomp"):
                             listfiles.append(os.path.join(root, file))
-                # listfiles = glob.glob(syspath + "/**/*.a3dcomp", recursive=True)
                 for el in listfiles:
                     head, tail = ntpath.split(el)
                     components_dict[tail[:-8]] = el
