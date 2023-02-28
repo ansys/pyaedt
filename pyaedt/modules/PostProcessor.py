@@ -2928,7 +2928,7 @@ class PostProcessor(PostProcessorCommon, object):
             if self._app.modeler[face]:
                 seeding_faces_ids.append(self._app.modeler[face].id)
             else:
-                self.logger.error("Object {} doesn't exists in current design".format(face))
+                self.logger.error("Object {} doesn't exist in current design".format(face))
                 return False
         if not in_volume_tracing_objs:
             in_volume_tracing_ids = [0]
