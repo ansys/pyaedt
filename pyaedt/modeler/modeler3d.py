@@ -783,6 +783,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         bounding_box : list.
             List of coordinates of bounding box vertices.
+            Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
         check_solids : bool, optional.
             Check solid objects.
         check_lines : bool, optional.
@@ -799,40 +800,42 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             raise ValueError("Bounding box list must have dimension 6.")
 
         objects = []
-
         if check_solids:
             for obj in self.solid_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects.append(obj)
 
         if check_lines:
             for obj in self.line_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects.append(obj)
 
         if check_sheets:
             for obj in self.sheet_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects.append(obj)
 
