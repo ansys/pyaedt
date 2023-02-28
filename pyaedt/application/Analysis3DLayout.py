@@ -372,7 +372,6 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
         """
-        """Modeler object."""
         if self._modeler is None:
             from pyaedt.modeler.modelerpcb import Modeler3DLayout
 
