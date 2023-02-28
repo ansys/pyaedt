@@ -777,7 +777,7 @@ class Materials(object):
         try:
             import pandas as pd
         except ImportError:
-            self.logger.error("Pandas is needed. Please, install it first.")
+            self.logger.error("Pandas is needed. Install it.")
             return False
         materials_added = []
         props = {}
