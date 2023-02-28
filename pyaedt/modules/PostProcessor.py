@@ -2891,7 +2891,7 @@ class PostProcessor(PostProcessorCommon, object):
         seeding_faces : list
             List of seeding faces.
         in_volume_tracing_objs : list
-            List of the in volume tracing objects.
+            List of the in-volume tracing objects.
         surface_tracing_objs : list
             List of the surface tracing objects.
         setup_name : str, optional
