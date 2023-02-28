@@ -34,7 +34,7 @@ appedb.core_siwave.create_pin_group_on_net(
     net_name="GND",
     group_name="U3A1-GND")
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#####################################################################################
 # Create voltage source between VRM positive and negative pin groups
 appedb.core_siwave.create_voltage_source_on_pin_group(
     pos_pin_group_name="U3A1-BST_V3P3_S5",
