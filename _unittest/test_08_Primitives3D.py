@@ -1460,4 +1460,3 @@ class TestClass(BasisTest, object):
     def test_83_cover_face(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.cover_faces(o1)
-
