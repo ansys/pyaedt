@@ -17,7 +17,7 @@ local_path = pyaedt.downloads.download_aedb(dst_dir)
 edbversion = "2022.2"
 appedb = pyaedt.Edb(local_path, edbversion=edbversion)
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#####################################################################################
 # Create pin group on VRM positive pins
 
 gnd_name = "GND"
