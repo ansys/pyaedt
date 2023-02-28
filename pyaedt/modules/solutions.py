@@ -1634,10 +1634,10 @@ class FfdSolutionData(object):
             index_str = self.get_array_index(port_name)
             a = index_str[0]
             b = index_str[1]
-            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_count=port_count)), 3)
+            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_count)), 3)
             w_ang1 = a * phase_shift_A_rad1 + b * phase_shift_B_rad1
 
-            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_count=port_count)), 3)
+            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_count)), 3)
             w_ang2 = a * phase_shift_A_rad2 + b * phase_shift_B_rad2
 
             w_dict[port_name] = np.sqrt(w_mag1) * np.exp(1j * w_ang1) + np.sqrt(w_mag2) * np.exp(1j * w_ang2)
