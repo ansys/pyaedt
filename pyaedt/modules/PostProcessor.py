@@ -2884,7 +2884,7 @@ class PostProcessor(PostProcessorCommon, object):
         plot_name=None,
     ):
         """
-        Create a field plot of line.
+        Create a field plot of the line.
 
         Parameters
         ----------
