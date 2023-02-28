@@ -1,6 +1,5 @@
 import copy
 import json
-import os
 from math import asin
 from math import ceil
 from math import cos
@@ -10,6 +9,7 @@ from math import radians
 from math import sin
 from math import sqrt
 from math import tan
+import os
 
 from pyaedt import Icepak
 from pyaedt.generic import LoadAEDTFile

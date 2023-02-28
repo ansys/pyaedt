@@ -9,14 +9,14 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import copy
 import math
 import os
 import warnings
-from collections import OrderedDict
 
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name

@@ -3,10 +3,12 @@ from __future__ import absolute_import
 
 import ast
 import codecs
+from collections import OrderedDict
 import csv
 import datetime
 import difflib
 import fnmatch
+from functools import update_wrapper
 import inspect
 import itertools
 import json
@@ -20,8 +22,6 @@ import sys
 import tempfile
 import time
 import traceback
-from collections import OrderedDict
-from functools import update_wrapper
 
 from pyaedt.generic.constants import CSS4_COLORS
 

@@ -1,10 +1,10 @@
+from collections import OrderedDict
 import copy
+from difflib import SequenceMatcher
 import json
 import os
 import sys
 import warnings
-from collections import OrderedDict
-from difflib import SequenceMatcher
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -12,36 +12,29 @@ from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.SetupTemplates import ASSM
 from pyaedt.modules.SetupTemplates import BLDC
 from pyaedt.modules.SetupTemplates import CPSM
+from pyaedt.modules.SetupTemplates import Close
 from pyaedt.modules.SetupTemplates import DCM
 from pyaedt.modules.SetupTemplates import DFIG
-from pyaedt.modules.SetupTemplates import GRM
-from pyaedt.modules.SetupTemplates import HFSSSBR
-from pyaedt.modules.SetupTemplates import HSPICE
-from pyaedt.modules.SetupTemplates import LSSM
-from pyaedt.modules.SetupTemplates import NSSM
-from pyaedt.modules.SetupTemplates import PMDC
-from pyaedt.modules.SetupTemplates import SPIM
-from pyaedt.modules.SetupTemplates import SRM
-from pyaedt.modules.SetupTemplates import TPIM
-from pyaedt.modules.SetupTemplates import TPSM
-from pyaedt.modules.SetupTemplates import TR
-from pyaedt.modules.SetupTemplates import UNIM
-from pyaedt.modules.SetupTemplates import Close
 from pyaedt.modules.SetupTemplates import EddyCurrent
 from pyaedt.modules.SetupTemplates import ElectricTransient
 from pyaedt.modules.SetupTemplates import Electrostatic
+from pyaedt.modules.SetupTemplates import GRM
 from pyaedt.modules.SetupTemplates import HFSS3DLayout
 from pyaedt.modules.SetupTemplates import HFSSDrivenAuto
 from pyaedt.modules.SetupTemplates import HFSSDrivenDefault
 from pyaedt.modules.SetupTemplates import HFSSEigen
+from pyaedt.modules.SetupTemplates import HFSSSBR
 from pyaedt.modules.SetupTemplates import HFSSTransient
+from pyaedt.modules.SetupTemplates import HSPICE
 from pyaedt.modules.SetupTemplates import LNA3DLayout
+from pyaedt.modules.SetupTemplates import LSSM
 from pyaedt.modules.SetupTemplates import Magnetostatic
 from pyaedt.modules.SetupTemplates import Matrix
 from pyaedt.modules.SetupTemplates import MaxwellTransient
 from pyaedt.modules.SetupTemplates import MechModal
 from pyaedt.modules.SetupTemplates import MechStructural
 from pyaedt.modules.SetupTemplates import MechTerm
+from pyaedt.modules.SetupTemplates import NSSM
 from pyaedt.modules.SetupTemplates import NexximAMI
 from pyaedt.modules.SetupTemplates import NexximDC
 from pyaedt.modules.SetupTemplates import NexximHarmonicBalance1T
@@ -52,10 +45,13 @@ from pyaedt.modules.SetupTemplates import NexximOscillatorNT
 from pyaedt.modules.SetupTemplates import NexximOscillatorRSF
 from pyaedt.modules.SetupTemplates import NexximQuickEye
 from pyaedt.modules.SetupTemplates import NexximSystem
-from pyaedt.modules.SetupTemplates import NexximTransient
 from pyaedt.modules.SetupTemplates import NexximTVNoise
+from pyaedt.modules.SetupTemplates import NexximTransient
 from pyaedt.modules.SetupTemplates import NexximVerifEye
 from pyaedt.modules.SetupTemplates import Open
+from pyaedt.modules.SetupTemplates import PMDC
+from pyaedt.modules.SetupTemplates import SPIM
+from pyaedt.modules.SetupTemplates import SRM
 from pyaedt.modules.SetupTemplates import SiwaveAC3DLayout
 from pyaedt.modules.SetupTemplates import SiwaveDC3DLayout
 from pyaedt.modules.SetupTemplates import SteadyFlowOnly
@@ -64,9 +60,13 @@ from pyaedt.modules.SetupTemplates import SteadyTemperatureOnly
 from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
 from pyaedt.modules.SetupTemplates import SweepSiwave
+from pyaedt.modules.SetupTemplates import TPIM
+from pyaedt.modules.SetupTemplates import TPSM
+from pyaedt.modules.SetupTemplates import TR
 from pyaedt.modules.SetupTemplates import TransientFlowOnly
 from pyaedt.modules.SetupTemplates import TransientTemperatureAndFlow
 from pyaedt.modules.SetupTemplates import TransientTemperatureOnly
+from pyaedt.modules.SetupTemplates import UNIM
 
 open3 = open
 if sys.version_info < (3, 0):

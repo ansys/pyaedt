@@ -2,11 +2,11 @@
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import fnmatch
 import io
 import os
 import warnings
-from collections import OrderedDict
 
 from pyaedt import is_ironpython
 from pyaedt import settings

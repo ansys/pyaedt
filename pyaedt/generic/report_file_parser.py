@@ -1,6 +1,6 @@
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import SI_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 
 
 def parse_rdat_file(file_path):

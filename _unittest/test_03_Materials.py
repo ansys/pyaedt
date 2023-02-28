@@ -4,6 +4,7 @@ import os
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Icepak
 from pyaedt import Maxwell3d
 from pyaedt import is_ironpython

@@ -3,17 +3,17 @@
 from __future__ import absolute_import  # noreorder
 
 import ast
+from collections import OrderedDict
 import math
 import os
 import tempfile
 import warnings
-from collections import OrderedDict
 
 from pyaedt import settings
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.constants import INFINITE_SPHERE_TYPE
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
@@ -25,8 +25,8 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
-from pyaedt.modules.solutions import FfdSolutionData
 from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.solutions import FfdSolutionData
 
 
 class Hfss(FieldAnalysis3D, object):

@@ -15,9 +15,9 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
 
 
 import pyaedt.downloads as downloads
+from pyaedt.generic import constants
 import pyaedt.generic.DataHandlers as data_handler
 import pyaedt.generic.general_methods as general_methods
-from pyaedt.generic import constants
 from pyaedt.generic.general_methods import _pythonver
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_folder_name
