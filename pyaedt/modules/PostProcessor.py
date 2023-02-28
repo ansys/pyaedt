@@ -2942,7 +2942,7 @@ class PostProcessor(PostProcessorCommon, object):
                     self.logger.error("Object {} doesn't exists in current design".format(obj))
                     return False
         else:
-            self.logger.error("Provide a valid object for in volume objects selection.")
+            self.logger.error("Provide a valid object for the in-volume objects selection.")
             return False
         if not surface_tracing_objs:
             surface_tracing_ids = [0]
