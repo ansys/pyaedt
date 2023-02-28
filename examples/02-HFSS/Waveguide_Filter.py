@@ -59,6 +59,7 @@ hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
                    specified_version="2022.2",
                    designname="filter",
                    non_graphical=non_graphical,
+                   new_desktop_session=True,
                    close_on_exit=True)
 
 # hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.
