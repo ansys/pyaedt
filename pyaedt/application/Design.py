@@ -903,7 +903,6 @@ class Design(AedtObjects):
             ):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
-
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
