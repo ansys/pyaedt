@@ -2162,6 +2162,7 @@ class TestClass(BasisTest, object):
         ]
         for res in components_to_change:
             res.type = "Resistor"
+            res.res_value = [25, 0, 0]
             res.res_value = 10
             assert res.res_value == 10
             res.rlc_values = [20, 1e-9, 1e-12]
