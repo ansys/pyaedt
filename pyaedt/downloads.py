@@ -377,8 +377,10 @@ def download_icepak_3d_component(destination=None):
     'C:/Users/user/AppData/local/temp/pyaedtexamples/PCBAssembly.aedt',
     """
     _download_file("icepak_3dcomp//PCBAssembly.aedb", destination=destination)
-    return _download_file("icepak_3dcomp", "PCBAssembly.aedt", destination),\
-           _download_file("icepak_3dcomp", "QFP2.aedt", destination)
+    return _download_file("icepak_3dcomp", "PCBAssembly.aedt", destination), _download_file(
+        "icepak_3dcomp", "QFP2.aedt", destination
+    )
+
 
 def download_via_wizard(destination=None):
     """Download an example of Hfss Via Wizard and return the def path.
