@@ -2877,8 +2877,8 @@ class PostProcessor(PostProcessorCommon, object):
     def create_fieldplot_line_traces(
         self,
         seeding_faces,
-        in_volume_tracing_objs,
-        surface_tracing_objs,
+        in_volume_tracing_objs=None,
+        surface_tracing_objs=None,
         setup_name=None,
         intrinsincDict=None,
         plot_name=None,
@@ -2930,27 +2930,39 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 self.logger.error("Object {} doesn't exists in current design".format(face))
                 return False
-        if not isinstance(in_volume_tracing_objs, list):
+        if not in_volume_tracing_objs:
+            in_volume_tracing_ids = [0]
+        elif not isinstance(in_volume_tracing_objs, list):
             in_volume_tracing_objs = [in_volume_tracing_objs]
-        in_volume_tracing_ids = []
-        for obj in in_volume_tracing_objs:
-            if self._app.modeler[obj]:
-                in_volume_tracing_ids.append(self._app.modeler[obj].id)
-            else:
-                self.logger.error("Object {} doesn't exists in current design".format(obj))
-                return False
-        if not isinstance(surface_tracing_objs, list):
+            in_volume_tracing_ids = []
+            for obj in in_volume_tracing_objs:
+                if self._app.modeler[obj]:
+                    in_volume_tracing_ids.append(self._app.modeler[obj].id)
+                else:
+                    self.logger.error("Object {} doesn't exists in current design".format(obj))
+                    return False
+        else:
+            self.logger.error("Provide a valid object for in volume objects selection.")
+            return False
+        if not surface_tracing_objs:
+            surface_tracing_ids = [0]
+        elif not isinstance(surface_tracing_objs, list):
             surface_tracing_objs = [surface_tracing_objs]
-        surface_tracing_ids = []
-        for obj in surface_tracing_objs:
-            if self._app.modeler[obj]:
-                surface_tracing_ids.append(self._app.modeler[obj].id)
-            else:
-                self.logger.error("Object {} doesn't exists in current design".format(obj))
-                return False
+            surface_tracing_ids = []
+            for obj in surface_tracing_objs:
+                if self._app.modeler[obj]:
+                    surface_tracing_ids.append(self._app.modeler[obj].id)
+                else:
+                    self.logger.error("Object {} doesn't exists in current design".format(obj))
+                    return False
+        else:
+            self.logger.error("Provide a valid object for surface objects selection.")
+            return False
         seeding_faces_ids.insert(0, len(seeding_faces_ids))
-        in_volume_tracing_ids.insert(0, len(in_volume_tracing_ids))
-        surface_tracing_ids.insert(0, len(surface_tracing_ids))
+        if in_volume_tracing_ids != [0]:
+            in_volume_tracing_ids.insert(0, len(in_volume_tracing_ids))
+        if surface_tracing_ids != [0]:
+            surface_tracing_ids.insert(0, len(surface_tracing_ids))
         return self._create_fieldplot_line_traces(
             seeding_faces_ids,
             in_volume_tracing_ids,
