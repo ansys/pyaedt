@@ -20,7 +20,6 @@ from pyaedt.modules.Boundary import BoundaryObject3dLayout
 from pyaedt.modules.PostProcessor import ReportDcirCategory
 from pyaedt.modules.PostProcessor import ReportDcirShow
 from pyaedt.modules.solutions import SolutionData
-from pyaedt.modules.result import ResultHfss3dlayout
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -2054,6 +2053,43 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return SolutionData(list(data))
 
-    def get_result_s_parameter(self, setup_name, sweep_name):
-        result = ResultHfss3dlayout(self)
-        return result.get_s_parameter(setup_name, sweep_name)
+    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
+        """
+        Return a Touchstone data plot.
+
+        Parameters
+        ----------
+        setup_name : list
+            Name of the setup.
+        sweep_name : str, optional
+            Name of the sweep. The default value is ``None``.
+        variations : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.TouchstoneParser.TouchstoneData`
+           Class containing all requested data.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        from pyaedt.generic.TouchstoneParser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.setups[0].name
+
+        if not sweep_name:
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    sweep_name = setup.sweeps[0].name
+        s_parameters = []
+        solution = "{} : {}".format(setup_name, sweep_name)
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, solution, variations=variations)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
