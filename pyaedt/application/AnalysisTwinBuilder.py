@@ -101,7 +101,7 @@ class AnalysisTwinBuilder(Analysis):
 
     @property
     def post(self):
-        """Design Post Processor.
+        """Design Postprocessor.
 
         Returns
         -------
