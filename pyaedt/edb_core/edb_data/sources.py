@@ -317,7 +317,7 @@ class PinGroup(object):
         return terminal
 
     def delete(self):
-        """Delete active pingroup.
+        """Delete active pin group.
 
         Returns
         -------
