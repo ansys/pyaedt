@@ -335,8 +335,11 @@ class Design(AedtObjects):
         start = time.time()
         if (
             self.project_timestamp_changed
-            or os.path.exists(self.project_file)
-            and os.path.normpath(self.project_file) not in settings._project_properties
+            or (
+                os.path.exists(self.project_file)
+                and os.path.normpath(self.project_file) not in settings._project_properties
+            )
+            or (settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(self.project_file))
         ):
             settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
             self._logger.info("aedt file load time {}".format(time.time() - start))
