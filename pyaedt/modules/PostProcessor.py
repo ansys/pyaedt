@@ -2839,7 +2839,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
-        """Create a field plot of line.
+        """Create a field plot of the line.
 
         Parameters
         ----------
