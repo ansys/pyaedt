@@ -81,6 +81,21 @@ class TouchstoneData(skrf.Network):
         pass
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
+        """Plot all insertion losses. The first frequency point is used to determine whether two
+        ports are shorted.
+
+        Parameters
+        ----------
+        threshold : float, int, optional
+            Threshold to determine shorted ports in dB.
+        plot: bool
+            Whether to plot.
+
+        Returns
+        -------
+        list
+            List of tuples representing insertion loss excitations.
+        """
         temp_list = []
         freq_idx = 0
         for i in self.port_tuples:
@@ -88,13 +103,25 @@ class TouchstoneData(skrf.Network):
             if loss > threshold:
                 temp_list.append(i)
 
-        if plot:
+        if plot:  # pragma: no cover
             for i in temp_list:
                 self.plot_s_db(*i)
             plt.show()
         return temp_list
 
+    def plot_return_losses(self):  # pragma: no cover
+        """Plot all return losses.
 
+        Parameters
+        ----------
+        Returns
+        -------
+        bool
+        """
+        for i in np.arange(self.number_of_ports):
+            self.plot_s_db(i, i)
+        plt.show()
+        return True
 
     def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.

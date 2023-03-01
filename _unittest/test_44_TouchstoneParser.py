@@ -1,10 +1,7 @@
 import os
-import time
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
-from _unittest.conftest import desktop_version
-from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from pyaedt import Hfss3dLayout
 
@@ -47,9 +44,8 @@ class TestClass(BasisTest, object):
         from pyaedt.generic.touchstone_parser import TouchstoneData
 
         ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
-        ts1_d = ts1.get_mixed_mode_touchstone_data()
+        assert ts1.get_mixed_mode_touchstone_data()
         ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
-        ts2_d = ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
+        assert ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
 
-        ts1.plot_insertion_losses()
-
+        assert ts1.plot_insertion_losses(plot=False)
