@@ -2874,7 +2874,7 @@ class FieldPlot:
 
     @property
     def field_line_trace_plot_settings(self):
-        """Field line trace plot settings.
+        """Settings for the field line traces in the plot.
 
         Returns
         -------
@@ -2925,7 +2925,7 @@ class FieldPlot:
                 if self.seeding_faces[0] != len(self.seeding_faces) - 1:
                     for face in self.seeding_faces[1:]:
                         if not isinstance(face, int):
-                            self._postprocessor.logger.error("Provide the object valid id.")
+                            self._postprocessor.logger.error("Provide valid object id for seeding faces.")
                             return False
                         else:
                             if face not in list(self._postprocessor._app.modeler.objects.keys()):
@@ -2935,7 +2935,7 @@ class FieldPlot:
                 if self.volume_indexes[0] != len(self.volume_indexes) - 1:
                     for obj in self.volume_indexes[1:]:
                         if not isinstance(obj, int):
-                            self._postprocessor.logger.error("Provide the object valid id.")
+                            self._postprocessor.logger.error("Provide valid object id for in volume object.")
                             return False
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
@@ -2945,7 +2945,7 @@ class FieldPlot:
                 if self.surfaces_indexes[0] != len(self.surfaces_indexes) - 1:
                     for obj in self.surfaces_indexes[1:]:
                         if not isinstance(obj, int):
-                            self._postprocessor.logger.error("Provide the object valid id.")
+                            self._postprocessor.logger.error("Provide valid object id for surface object.")
                             return False
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
