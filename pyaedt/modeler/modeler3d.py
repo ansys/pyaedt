@@ -76,7 +76,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         hide_contents=False,
         replace_names=False,
         component_outline="BoundingBox",
-        auxiliary_dict_file=False,
+        auxiliary_dict=False,
         monitor_objects=None,
         datasets=None,
         native_components=None,
@@ -126,7 +126,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
-        auxiliary_dict_file : bool or str, optional
+        auxiliary_dict : bool or str, optional
             Whether to export the auxiliary file containing information about defined datasets and Icepak monitor
             objects. A destination file can be specified using a string.
             The default is ``False``.
@@ -292,9 +292,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        if auxiliary_dict_file:
-            if isinstance(auxiliary_dict_file, bool):
-                auxiliary_dict_file = component_file + ".json"
+        if auxiliary_dict:
+            if isinstance(auxiliary_dict, bool):
+                auxiliary_dict = component_file + ".json"
             cachesettings = {
                 prop: getattr(self._app.configurations.options, prop)
                 for prop in vars(self._app.configurations.options)
@@ -349,7 +349,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                 for cs in list(out_dict["coordinatesystems"]):
                     if cs not in cs_set:
                         del out_dict["coordinatesystems"][cs]
-            with open(auxiliary_dict_file, "w") as outfile:
+            with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
         return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 
