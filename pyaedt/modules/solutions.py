@@ -2938,7 +2938,7 @@ class FieldPlot:
                 if self.volume_indexes[0] != len(self.volume_indexes) - 1:
                     for obj in self.volume_indexes[1:]:
                         if not isinstance(obj, int):
-                            self._postprocessor.logger.error("Provide valid object id for in volume object.")
+                            self._postprocessor.logger.error("Provide valid object id for in-volume object.")
                             return False
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
