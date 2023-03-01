@@ -52,6 +52,7 @@ if sys.version_info > (3, 7):
         "matplotlib==3.7.0",
         "psutil",
         "pandas==1.5.3",
+        "scikit-rf",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif sys.version_info == (3, 7):
