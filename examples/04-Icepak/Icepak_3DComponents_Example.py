@@ -8,7 +8,7 @@ features added by PyAEDT.
 ###############################################################################
 # Import PyAEDT and download files
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform import of required classes from the pyaedt package and import os package.
+# Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
 from pyaedt import Icepak, generate_unique_folder_name, downloads
 import os
