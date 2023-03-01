@@ -321,7 +321,7 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("SurfApprox")
         self.logger.info("Assigning Mesh Level " + str(level) + " to " + str(names))
-        names = self._app._modeler.convert_to_selections(names, True)
+        names = self._app.modeler.convert_to_selections(names, True)
 
         if isinstance(names[0], int):
             seltype = "Faces"
@@ -697,7 +697,7 @@ class Mesh(object):
         if maxlength is None and maxel is None:
             self.logger.error("mesh not assigned due to incorrect settings")
             return
-        names = self._app._modeler.convert_to_selections(names, True)
+        names = self._app.modeler.convert_to_selections(names, True)
 
         if isinstance(names[0], int) and not isinside:
             seltype = "Faces"
@@ -773,7 +773,7 @@ class Mesh(object):
             maxelements = "1000"
         else:
             restrictlength = True
-        names = self._app._modeler.convert_to_selections(names, True)
+        names = self._app.modeler.convert_to_selections(names, True)
 
         if isinstance(names[0], int):
             seltype = "Faces"
@@ -836,7 +836,7 @@ class Mesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("CurvilinearElements")
-        names = self._app._modeler.convert_to_selections(names, True)
+        names = self._app.modeler.convert_to_selections(names, True)
 
         if isinstance(names[0], int):
             seltype = "Faces"
@@ -887,7 +887,7 @@ class Mesh(object):
                     meshop_name = generate_unique_name(meshop_name)
         else:
             meshop_name = generate_unique_name("CurvilinearElements")
-        names = self._app._modeler.convert_to_selections(names, True)
+        names = self._app.modeler.convert_to_selections(names, True)
         if isinstance(names[0], int):
             seltype = "Faces"
         elif isinstance(names[0], str):
