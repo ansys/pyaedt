@@ -678,10 +678,7 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    if settings.remote_rpc_session:
-        return settings.remote_rpc_session.filemanager.pathexists(project_path[:-4] + "lock")
-    else:
-        return check_if_path_exists(project_path[:-4] + "lock")
+    return check_if_path_exists(project_path[:-4] + "lock")
 
 
 @pyaedt_function_handler()

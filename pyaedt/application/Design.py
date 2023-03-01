@@ -44,6 +44,7 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_project_locked
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
@@ -936,8 +937,8 @@ class Design(AedtObjects):
                         "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
                     )
                 else:
-                    assert not os.path.exists(
-                        proj_name + ".lock"
+                    assert not is_project_locked(
+                        proj_name
                     ), "Project is locked. Close or remove the lock before proceeding."
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     self._add_handler()
