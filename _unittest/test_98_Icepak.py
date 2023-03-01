@@ -190,6 +190,10 @@ class TestClass(BasisTest, object):
         assert test
         test = self.aedtapp.mesh.assign_mesh_region(["USB_ID"], mesh_level_RadioPCB)
         assert test
+        b = self.aedtapp.modeler.create_box([0, 0, 0], [1, 1, 1])
+        b.model = False
+        test = self.aedtapp.mesh.assign_mesh_region([b.name])
+        assert test
 
     def test_12b_AssignVirtualMeshOperation(self):
         self.aedtapp.oproject = test_project_name
@@ -677,7 +681,7 @@ class TestClass(BasisTest, object):
             os.path.join(file_path, file_name),
             component_name="board_assembly",
             included_cs=["Global"],
-            auxiliary_dict_file=True,
+            auxiliary_dict=True,
         )
         self.aedtapp.create_dataset(
             "test_ignore",
@@ -700,7 +704,7 @@ class TestClass(BasisTest, object):
             os.path.join(file_path, file_name),
             component_name="board_assembly",
             included_cs=cs_list,
-            auxiliary_dict_file=True,
+            auxiliary_dict=True,
             reference_cs="CS1",
             monitor_objects=mon_list,
             datasets=["test_dataset"],

@@ -18,14 +18,12 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.advanced_cad.actors import Radar
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
-from pyaedt.modules.solutions import FfdSolutionData
 from pyaedt.modules.SolveSweeps import SetupKeys
 
 
@@ -5183,9 +5181,11 @@ class Hfss(FieldAnalysis3D, object):
         >>> oModule.SetSBRTxRxSettings
         >>> oEditor.CreateGroup
         """
+        from pyaedt.modeler.advanced_cad.actors import Radar
+
         self.modeler._initialize_multipart()
         if self.solution_type != "SBR+":
-            self.logger.error("Method Applies only to SBR+ Solution.")
+            self.logger.error("Method applies only to SBR+ solution.")
             return False
         use_motion = abs(speed) > 0.0
         r = Radar(
@@ -5894,8 +5894,10 @@ class Hfss(FieldAnalysis3D, object):
         Returns
         -------
         :class:`pyaedt.modules.solutions.FfdSolutionData`
-            Solution Data Object.
+            SolutionData object.
         """
+        from pyaedt.modules.solutions import FfdSolutionData
+
         if not variations:
             variations = self.available_variations.nominal_w_values_dict_w_dependent
         if not setup_name:

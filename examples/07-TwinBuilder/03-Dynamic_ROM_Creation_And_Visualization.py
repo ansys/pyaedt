@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 from pyaedt import TwinBuilder
 from pyaedt import generate_unique_project_name
 from pyaedt import generate_unique_folder_name
-from pyaedt import examples
+from pyaedt import downloads
 
 ###############################################################################
 # Select version and set launch options
@@ -35,7 +35,7 @@ from pyaedt import examples
 # if one is running.
 
 desktop_version = "2023.1"
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 new_thread = True
 
 ###############################################################################
@@ -48,8 +48,8 @@ source_build_conf_file = "dynarom_build.conf"
 
 # Download data from example_data repository
 temp_folder = generate_unique_folder_name()
-source_data_folder = examples.download_twin_builder_data(source_snapshot_data_zipfilename, True, temp_folder)
-source_data_folder = examples.download_twin_builder_data(source_build_conf_file, True, temp_folder)
+source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True, temp_folder)
+source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder)
 
 # Toggle these for local testing 
 # source_data_folder = "D:\\Scratch\\TempDyn"
@@ -57,7 +57,7 @@ source_data_folder = examples.download_twin_builder_data(source_build_conf_file,
 data_folder = os.path.join(source_data_folder, "Ex03")
 
 # Unzip training data and config file
-examples.unzip(os.path.join(source_data_folder ,source_snapshot_data_zipfilename), data_folder)
+downloads.unzip(os.path.join(source_data_folder ,source_snapshot_data_zipfilename), data_folder)
 shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.path.join(data_folder,source_build_conf_file))
 
 

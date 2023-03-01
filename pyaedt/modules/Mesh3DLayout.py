@@ -132,7 +132,7 @@ class Mesh3d(object):
 
         self.logger = self._app.logger
         self._odesign = self._app._odesign
-        self.modeler = self._app._modeler
+        self.modeler = self._app.modeler
         self.id = 0
 
         self.meshoperations = self._get_design_mesh_operations()
