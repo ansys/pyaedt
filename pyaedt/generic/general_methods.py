@@ -144,6 +144,29 @@ def _check_types(arg):
     return ""
 
 
+def pyaedt_function_handler(direct_func=None):
+    """Provides an exception handler, logging mechanism, and argument converter for client-server
+    communications.
+
+    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
+    and displays errors.
+
+    """
+    if callable(direct_func):
+        user_function = direct_func
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+    elif direct_func is not None:
+        raise TypeError("Expected first argument to be a callable, or None")
+
+    def decorating_function(user_function):
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+
+    return decorating_function
+
+
+@pyaedt_function_handler()
 def check_and_download_file(local_path, remote_path, overwrite=True):
     """Check if a file is remote and either download it or return the path.
 
@@ -168,6 +191,7 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
+@pyaedt_function_handler()
 def check_if_path_exists(path):
     """Check whether a path exists or not local or remote machine (for remote sessions only).
 
@@ -185,6 +209,7 @@ def check_if_path_exists(path):
     return os.path.exists(path)
 
 
+@pyaedt_function_handler()
 def check_and_download_folder(local_path, remote_path, overwrite=True):
     """Check if a folder is remote and either download it or return the path.
 
@@ -284,28 +309,6 @@ def _log_method(func, new_args, new_kwargs):
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
         settings.logger.debug(m)
-
-
-def pyaedt_function_handler(direct_func=None):
-    """Provides an exception handler, logging mechanism, and argument converter for client-server
-    communications.
-
-    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
-    and displays errors.
-
-    """
-    if callable(direct_func):
-        user_function = direct_func
-        wrapper = _function_handler_wrapper(user_function)
-        return update_wrapper(wrapper, user_function)
-    elif direct_func is not None:
-        raise TypeError("Expected first argument to be a callable, or None")
-
-    def decorating_function(user_function):
-        wrapper = _function_handler_wrapper(user_function)
-        return update_wrapper(wrapper, user_function)
-
-    return decorating_function
 
 
 def _function_handler_wrapper(user_function):
