@@ -80,7 +80,7 @@ jobs:
       - name: 'Create Documentations'
         run: |
           testenv\Scripts\Activate.ps1
-          sphinx-build -j auto -b html -a doc/source doc/_build/html 
+          sphinx-build -j auto --color -b html -a doc/source doc/_build/html 
 
       - name: "Upload HTML documentation artifact"
         uses: actions/upload-artifact@v3
@@ -149,7 +149,7 @@ jobs:
       - name: Build json files
         run: |
           jsondoc\Scripts\Activate.ps1
-          sphinx-build -M json doc/source doc-json -j auto -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
+          sphinx-build -M json doc/source doc-json -j auto --color -D release=${{ env.PYAEDT_VERSION }} -D version=${{ env.PYAEDT_VERSION }} -w build_errors.txt -N;
 
       - name: Flatten the generated nested files into a single directory
         run: |

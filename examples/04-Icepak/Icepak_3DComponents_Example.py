@@ -2,13 +2,13 @@
 Icepak: thermal analysis with 3D components
 -------------------------------------
 This example shows how to create a thermal analysis of an electronic package by taking advantage of 3D components and
-features added by pyAEDT.
+features added by PyAEDT.
 """
 
 ###############################################################################
-# Import pyAEDT and download files
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform import of required class from the pyAEDT package and import os package.
+# Import PyAEDT and download files
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
 from pyaedt import Icepak, generate_unique_folder_name, downloads
 import os
@@ -17,8 +17,9 @@ import os
 temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
 
-# Create Heatsink
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Create heatsink
+# ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
 ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"), specified_version="2023.1", non_graphical=True,
@@ -69,8 +70,9 @@ ipk.modeler.create_3dcomponent(
 )
 ipk.close_project(save_project=False)
 
+###############################################################################
 # Create QFP
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~
 # Download and open a project containing a QPF.
 ipk = Icepak(projectname=qfp_temp_name)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "QFP2.jpg"))
@@ -121,8 +123,9 @@ ipk.modeler.create_3dcomponent(
 )
 ipk.close_project(save_project=False)
 
-# Create Electronic Package
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Create electronic package
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open a project containing the electronic package.
 ipk = Icepak(projectname=package_temp_name)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
@@ -171,8 +174,9 @@ ipk.modeler.create_3dcomponent(
 
 ipk.close_project(save_project=False)
 
-# Create Main Assembly
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Create main assembly
+# ~~~~~~~~~~~~~~~~~~~~
 # Open a new empty project.
 ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"))
 
