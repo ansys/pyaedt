@@ -77,13 +77,79 @@ class TouchstoneData(skrf.Network):
 
         elif os.path.exists(touchstone_file):
             skrf.Network.__init__(self, touchstone_file)
-            self.port_names = _parse_ports_name(touchstone_file)
         pass
 
-    def get_differential_touchstone_data(self, p):
+    def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
+        """Transform network from single ended parameters to generalized mixed mode parameters.
+
+        Example 1, an N-port single-ended network with port order 1234 is converted to mixed-mode
+        parameters.
+
+             A                                  B
+             +------------+                     +-----------+
+           0-|s0========s2|-2                 0-|d0=======d1|-1
+           1-|s1========s3|-3                 2-|d2=======d3|-3
+            ...          ...     =se2gmm=>     ...         ...
+        2N-4-|s2N-4==s2N-2|-2N-2           2N-4-|cN-4===cN-3|-2N-3
+        2N-3-|s2N-3==s2N-1|-2N-1           2N-2-|cN-2===cN-1|-2N-1
+             +------------+                     +-----------+
+
+        Example 2, an N-port single-ended network with port order 1324 is converted to mixed-mode
+        parameters.
+
+             A                                  B
+             +------------+                     +-----------+
+           0-|s0========s2|-1                 0-|d0=======d1|-1
+           2-|s1========s3|-3                 2-|d2=======d3|-3
+            ...          ...     =se2gmm=>     ...         ...
+        2N-4-|s2N-4==s2N-2|-2N-3           2N-4-|cN-4===cN-3|-2N-3
+        2N-2-|s2N-3==s2N-1|-2N-1           2N-2-|cN-2===cN-1|-2N-1
+             +------------+                     +-----------+
+
+        Parameters
+        ----------
+        num_of_diff_ports : int, optional
+            The number of differential ports.
+        port_ordering : str, optional
+            The current port ordering. Options are ``"1234"``, ``"1324"``. The default
+            is ``1234``
+
+        Returns
+        -------
+        TouchstoneData
+
+        """
         ts_diff = copy(self)
-        ts_diff.se2gmm()
-        return
+        port_count = len(ts_diff.port_names)
+
+        if num_of_diff_ports is None:
+            num_of_diff_ports = port_count // 4 * 2
+
+        if port_ordering == "1234":
+            pass
+        elif port_ordering == "1324":
+
+            temp_port_order = np.arange(port_count)
+            for i in np.arange(port_count):
+                if i%4 == 1:
+                    temp_port_order[i] = temp_port_order[i] + 1
+                elif i%4 == 2:
+                    temp_port_order[i] = temp_port_order[i] - 1
+
+            port_order = np.arange(port_count)
+            new_port_order = np.arange(port_count)
+            new_port_order[:len(temp_port_order)] = temp_port_order
+
+            ts_diff.renumber(port_order, new_port_order)
+        else:
+            return False
+
+        ts_diff.se2gmm(num_of_diff_ports)
+
+        new_port_names = ["D{}".format(i) for i in np.arange(num_of_diff_ports)]
+        new_port_names.extend(["C{}".format(i) for i in np.arange(num_of_diff_ports)])
+        ts_diff.port_names[:len(new_port_names)] = new_port_names
+        return ts_diff
 
     @pyaedt_function_handler()
     def get_return_loss_index(self, excitation_name_prefix=""):

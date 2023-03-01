@@ -2068,7 +2068,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         Returns
         -------
-        :class:`pyaedt.generic.TouchstoneParser.TouchstoneData`
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
            Class containing all requested data.
 
         References
@@ -2076,7 +2076,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
         >>> oModule.GetSolutionDataPerVariation
         """
-        from pyaedt.generic.TouchstoneParser import TouchstoneData
+        from pyaedt.generic.touchstone_parser import TouchstoneData
 
         if not setup_name:
             setup_name = self.setups[0].name

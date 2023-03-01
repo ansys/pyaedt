@@ -24,7 +24,7 @@ example_path = downloads.download_touchstone()
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pyaedt.generic.TouchstoneParser import (
+from pyaedt.generic.touchstone_parser import (
     read_touchstone,
     get_return_losses,
     get_insertion_losses_from_prefix,

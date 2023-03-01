@@ -12,7 +12,7 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.TouchstoneParser import _parse_ports_name
+from pyaedt.generic.touchstone_parser import _parse_ports_name
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modeler.circuits.object3dcircuit import Wire
 
