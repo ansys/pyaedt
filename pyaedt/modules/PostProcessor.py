@@ -2930,34 +2930,38 @@ class PostProcessor(PostProcessorCommon, object):
             else:
                 self.logger.error("Object {} doesn't exist in current design".format(face))
                 return False
+        in_volume_tracing_ids = []
         if not in_volume_tracing_objs:
-            in_volume_tracing_ids = [0]
+            in_volume_tracing_ids.append(0)
         elif not isinstance(in_volume_tracing_objs, list):
             in_volume_tracing_objs = [in_volume_tracing_objs]
-            in_volume_tracing_ids = []
             for obj in in_volume_tracing_objs:
                 if self._app.modeler[obj]:
                     in_volume_tracing_ids.append(self._app.modeler[obj].id)
                 else:
                     self.logger.error("Object {} doesn't exist in current design".format(obj))
                     return False
-        else:
-            self.logger.error("Provide a valid object for the in-volume objects selection.")
-            return False
+        elif isinstance(in_volume_tracing_objs, list):
+            for obj in in_volume_tracing_objs:
+                if not self._app.modeler[obj]:
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    return False
+        surface_tracing_ids = []
         if not surface_tracing_objs:
-            surface_tracing_ids = [0]
+            surface_tracing_ids.append(0)
         elif not isinstance(surface_tracing_objs, list):
             surface_tracing_objs = [surface_tracing_objs]
-            surface_tracing_ids = []
             for obj in surface_tracing_objs:
                 if self._app.modeler[obj]:
                     surface_tracing_ids.append(self._app.modeler[obj].id)
                 else:
                     self.logger.error("Object {} doesn't exist in current design".format(obj))
                     return False
-        else:
-            self.logger.error("Provide a valid object for surface objects selection.")
-            return False
+        elif isinstance(surface_tracing_objs, list):
+            for obj in surface_tracing_objs:
+                if not self._app.modeler[obj]:
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    return False
         seeding_faces_ids.insert(0, len(seeding_faces_ids))
         if in_volume_tracing_ids != [0]:
             in_volume_tracing_ids.insert(0, len(in_volume_tracing_ids))

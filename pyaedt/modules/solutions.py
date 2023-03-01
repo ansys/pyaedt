@@ -2556,7 +2556,7 @@ class FieldPlot:
         self.NumofPoints = 100
         self.TraceStepLength = "0.001mm"
         self.UseAdaptiveStep = True
-        self.SeedingSamplingOption = False
+        self.SeedingSamplingOption = True
         self.SeedingPointsNumber = 15
         self.FractionOfMaximum = 0.8
 
@@ -2768,6 +2768,9 @@ class FieldPlot:
     @property
     def surfacePlotInstructionLineTraces(self):
         """Surface plot settings for field line traces.
+
+        ..note::
+            ``Specify seeding points on selections`` is by default set to ''by sampling''.
 
         Returns
         -------

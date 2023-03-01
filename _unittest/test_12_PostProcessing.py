@@ -1249,6 +1249,7 @@ class TestClass(BasisTest, object):
         assert not self.m2dtest.post.create_fieldplot_line_traces(
             "Ground", "Region", "Ground", plot_name="LineTracesTest"
         )
+        self.m2dtest.solution_type = "Electrostatic"
         assert not self.m2dtest.post.create_fieldplot_line_traces(
             "Invalid", "Region", "Ground", plot_name="LineTracesTest1"
         )
@@ -1258,14 +1259,25 @@ class TestClass(BasisTest, object):
         assert not self.m2dtest.post.create_fieldplot_line_traces(
             "Ground", "Region", "Invalid", plot_name="LineTracesTest3"
         )
-        self.m2dtest.solution_type = "Electrostatic"
         self.m2dtest.assign_voltage(rect.name, amplitude=0, name="Ground")
         self.m2dtest.assign_voltage(circle.name, amplitude=50e6, name="50kV")
         setup_name = "test"
         self.m2dtest.create_setup(setupname=setup_name)
         self.m2dtest.analyze_setup(setup_name)
-        plot = self.m2dtest.post.create_fieldplot_line_traces("Ground", "Region", "Ground", plot_name="LineTracesTest4")
+        plot = self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", plot_name="LineTracesTest4"
+        )
         assert plot
+        assert self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", "Ground", plot_name="LineTracesTest5"
+        )
+        assert self.m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], plot_name="LineTracesTest6")
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", ["Invalid"], plot_name="LineTracesTest7"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest8"
+        )
         plot.TraceStepLength = "0.002mm"
         plot.SeedingPointsNumber = 20
         plot.LineStyle = "Cylinder"
@@ -1274,6 +1286,10 @@ class TestClass(BasisTest, object):
         el_id = [obj.id for obj in self.m2dtest.modeler.object_list if obj.name == "Electrode"]
         plot.seeding_faces.append(el_id[0])
         assert plot.update()
+        plot.seeding_faces.append(8)
+        assert not plot.update()
+        plot.seeding_faces = [3, 8]
+        assert not plot.update()
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()
