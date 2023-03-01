@@ -247,29 +247,31 @@ class EdbSiwave(object):
         return self._create_terminal_on_pins(circuit_port)
 
     def create_port_between_pin_and_layer(
-        self, component_name=None, pins_name=[], layer_name=None, reference_net=None, impedance=50.0
+        self, component_name=None, pins_name=None, layer_name=None, reference_net=None, impedance=50.0
     ):
         """Create circuit port between pin and a reference layer.
 
         Parameters
         ----------
         component_name : str
-            component name
+            Component name. The default is ``None``.
         pins_name : str
-            pin name or list of pin name
+            Pin name or list of pin names. The default is ``None``.
         layer_name : str
-            layer name
+            Layer name. The default is ``None``.
         reference_net : str
-            reference net name
-        impedance : float
-            port impedance
+            Reference net name. The default is ``None``.
+        impedance : float, optional
+            Port impedance. The default is ``50.0`` in ohms.
 
         Returns
         -------
-        terminal
-            Created terminal (PadsatckInstanceTerminal).
+        PadstackInstanceTerminal
+            Created terminal.
 
         """
+        if not pins_name:
+            pins_name = []
         if pins_name:
             if not isinstance(pins_name, list):  # pragma no cover
                 pins_name = [pins_name]
