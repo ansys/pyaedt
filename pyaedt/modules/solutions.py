@@ -2882,7 +2882,7 @@ class FieldPlot:
         Returns
         -------
         list
-            Field line trace plot settings.
+            List of settings for the field line traces in the plot.
         """
         return [
             "NAME:FieldLineTracePlotSettings",
