@@ -1,6 +1,6 @@
-from copy import deepcopy as copy
 import os
 import re
+from copy import deepcopy as copy
 
 import numpy as np
 import skrf
@@ -128,17 +128,16 @@ class TouchstoneData(skrf.Network):
         if port_ordering == "1234":
             pass
         elif port_ordering == "1324":
-
             temp_port_order = np.arange(port_count)
             for i in np.arange(port_count):
-                if i%4 == 1:
+                if i % 4 == 1:
                     temp_port_order[i] = temp_port_order[i] + 1
-                elif i%4 == 2:
+                elif i % 4 == 2:
                     temp_port_order[i] = temp_port_order[i] - 1
 
             port_order = np.arange(port_count)
             new_port_order = np.arange(port_count)
-            new_port_order[:len(temp_port_order)] = temp_port_order
+            new_port_order[: len(temp_port_order)] = temp_port_order
 
             ts_diff.renumber(port_order, new_port_order)
         else:
@@ -148,7 +147,7 @@ class TouchstoneData(skrf.Network):
 
         new_port_names = ["D{}".format(i) for i in np.arange(num_of_diff_ports)]
         new_port_names.extend(["C{}".format(i) for i in np.arange(num_of_diff_ports)])
-        ts_diff.port_names[:len(new_port_names)] = new_port_names
+        ts_diff.port_names[: len(new_port_names)] = new_port_names
         return ts_diff
 
     @pyaedt_function_handler()

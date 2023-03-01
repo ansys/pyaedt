@@ -45,8 +45,8 @@ class TestClass(BasisTest, object):
 
     def test_02_read_ts_file(self):
         from pyaedt.generic.touchstone_parser import TouchstoneData
+
         ts1 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1234.s8p"))
         ts1_d = ts1.get_mixed_mode_touchstone_data()
         ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
         ts2_d = ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
-
