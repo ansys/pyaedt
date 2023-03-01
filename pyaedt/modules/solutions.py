@@ -2933,6 +2933,7 @@ class FieldPlot:
                         else:
                             if face not in list(self._postprocessor._app.modeler.objects.keys()):
                                 self._postprocessor.logger.error("Invalid object id.")
+                                self.seeding_faces.remove(face)
                                 return False
                     self.seeding_faces[0] = len(self.seeding_faces) - 1
                 if self.volume_indexes[0] != len(self.volume_indexes) - 1:
@@ -2943,6 +2944,7 @@ class FieldPlot:
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
                                 self._postprocessor.logger.error("Invalid object id.")
+                                self.volume_indexes.remove(obj)
                                 return False
                     self.volume_indexes[0] = len(self.volume_indexes) - 1
                 if self.surfaces_indexes[0] != len(self.surfaces_indexes) - 1:
@@ -2953,6 +2955,7 @@ class FieldPlot:
                         else:
                             if obj not in list(self._postprocessor._app.modeler.objects.keys()):
                                 self._postprocessor.logger.error("Invalid object id.")
+                                self.surfaces_indexes.remove(obj)
                                 return False
                     self.surfaces_indexes[0] = len(self.surfaces_indexes) - 1
                 self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstructionLineTraces)

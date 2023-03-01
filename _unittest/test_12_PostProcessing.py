@@ -1286,9 +1286,15 @@ class TestClass(BasisTest, object):
         el_id = [obj.id for obj in self.m2dtest.modeler.object_list if obj.name == "Electrode"]
         plot.seeding_faces.append(el_id[0])
         assert plot.update()
+        plot.volume_indexes.append(el_id[0])
+        plot.update()
+        plot.surfaces_indexes.append(el_id[0])
+        plot.update()
         plot.seeding_faces.append(8)
         assert not plot.update()
-        plot.seeding_faces = [3, 8]
+        plot.volume_indexes.append(8)
+        assert not plot.update()
+        plot.surfaces_indexes.append(8)
         assert not plot.update()
 
     def test_z99_delete_variations(self):
