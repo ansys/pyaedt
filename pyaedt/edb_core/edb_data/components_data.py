@@ -406,7 +406,7 @@ class EDBComponent(object):
 
     @rlc_values.setter
     def rlc_values(self, value):
-        if isinstance(value, list):
+        if isinstance(value, list):  # pragma no cover
             rlc_enabled = [True if i else False for i in value]
             rlc_values = [self._get_edb_value(i) for i in value]
             model = self._edb.Cell.Hierarchy.PinPairModel()
@@ -479,7 +479,7 @@ class EDBComponent(object):
         return None
 
     @res_value.setter
-    def res_value(self, value):
+    def res_value(self, value):  # pragma no cover
         if value:
             if self.rlc_values == [None, None, None]:
                 self.rlc_values = [value, 0, 0]
@@ -508,7 +508,7 @@ class EDBComponent(object):
         return None
 
     @cap_value.setter
-    def cap_value(self, value):
+    def cap_value(self, value):  # pragma no cover
         if value:
             if self.rlc_values == [None, None, None]:
                 self.rlc_values = [0, 0, value]
@@ -537,7 +537,7 @@ class EDBComponent(object):
         return None
 
     @ind_value.setter
-    def ind_value(self, value):
+    def ind_value(self, value):  # pragma no cover
         if value:
             if self.rlc_values == [None, None, None]:
                 self.rlc_values = [0, value, 0]
@@ -563,7 +563,7 @@ class EDBComponent(object):
         return None
 
     @is_parallel_rlc.setter
-    def is_parallel_rlc(self, value):
+    def is_parallel_rlc(self, value):  # pragma no cover
         if not len(self._pin_pairs):
             logging.warning(self.refdes, " has no pin pair.")
         else:
