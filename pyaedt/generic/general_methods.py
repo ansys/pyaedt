@@ -168,6 +168,23 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
+def check_if_path_exists(path):
+    """Check whether a path exists or not local or remote machine (for remote sessions only).
+
+    Parameters
+    ----------
+    path : str
+        Local or remote path to check.
+
+    Returns
+    -------
+    bool
+    """
+    if settings.remote_rpc_session:
+        return settings.remote_rpc_session.filemanager.pathexists(path)
+    return os.path.exists(path)
+
+
 def check_and_download_folder(local_path, remote_path, overwrite=True):
     """Check if a folder is remote and either download it or return the path.
 
@@ -192,6 +209,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
+@pyaedt_function_handler()
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
@@ -560,7 +578,7 @@ def generate_unique_project_name(rootname=None, folder_name=None, project_name=N
     name_with_ext = project_name + "." + project_format
     folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
     prj = os.path.join(folder_path, name_with_ext)
-    if os.path.exists(prj) or (settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(prj)):
+    if check_if_path_exists(prj):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
         prj = os.path.join(folder_path, name_with_ext)
     return prj
@@ -660,7 +678,7 @@ def is_project_locked(project_path):
     if settings.remote_rpc_session:
         return settings.remote_rpc_session.filemanager.pathexists(project_path[:-4] + "lock")
     else:
-        return os.path.exists(project_path[:-4] + "lock")
+        return check_if_path_exists(project_path[:-4] + "lock")
 
 
 @pyaedt_function_handler()

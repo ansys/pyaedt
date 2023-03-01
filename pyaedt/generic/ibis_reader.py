@@ -3,6 +3,7 @@ import os
 import pyaedt
 from pyaedt import settings
 from pyaedt.generic.general_methods import check_and_download_file
+from pyaedt.generic.general_methods import check_if_path_exists
 from pyaedt.generic.general_methods import open_file
 
 
@@ -520,7 +521,7 @@ class IbisReader(object):
 
         """
 
-        if not os.path.exists(self._filename):
+        if not check_if_path_exists(self._filename):
             raise Exception("{} does not exist.".format(self._filename))
 
         ibis_name = pyaedt.generic.general_methods.get_filename_without_extension(self._filename)
