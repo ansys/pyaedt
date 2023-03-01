@@ -1,3 +1,10 @@
+"""
+HFSS 3D Layout: SIwave DCIR analysis in HFSS 3D Layout
+------------------------------------------------------
+This example shows how you can use configure HFSS 3D Layout for SIwave DCIR
+analysis.
+"""
+
 import os
 import tempfile
 import pyaedt
