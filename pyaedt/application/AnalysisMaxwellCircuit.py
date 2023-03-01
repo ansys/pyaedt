@@ -1,5 +1,4 @@
 from pyaedt.application.Analysis import Analysis
-from pyaedt.modeler.schematic import ModelerMaxwellCircuit
 
 
 class AnalysisMaxwellCircuit(Analysis):
@@ -70,9 +69,18 @@ class AnalysisMaxwellCircuit(Analysis):
             port,
             aedt_process_id,
         )
-        self._modeler = ModelerMaxwellCircuit(self)
+        self._modeler = None
 
     @property
     def modeler(self):
-        """Design oModeler."""
+        """Design oModeler.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.schematic.ModelerMaxwellCircuit`
+        """
+        if self._modeler is None:
+            from pyaedt.modeler.schematic import ModelerMaxwellCircuit
+
+            self._modeler = ModelerMaxwellCircuit(self)
         return self._modeler

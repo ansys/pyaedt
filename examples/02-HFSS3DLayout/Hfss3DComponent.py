@@ -164,7 +164,7 @@ solutions.plot(traces, math_formula="db20")
 # ~~~~~~~~~~~~~~~~~~~
 # Launch HFSS3dLayout application
 
-h3d = pyaedt.Hfss3dLayout(new_desktop_session=new_session, specified_version=desktop_version)
+h3d = pyaedt.Hfss3dLayout()
 
 ###############################################################################
 # Add stackup layers
