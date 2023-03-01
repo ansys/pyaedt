@@ -380,7 +380,7 @@ class CircuitComponents(object):
             Parameters
             ----------
             file : str
-                Path of the touchstone file.
+                Path of the Touchstone file.
             Returns
             -------
             List of str
