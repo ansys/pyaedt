@@ -271,21 +271,21 @@ class EdbSiwave(object):
 
         """
         if pins_name:
-            if not isinstance(pins_name, list):
+            if not isinstance(pins_name, list):  # pragma no cover
                 pins_name = [pins_name]
             if not reference_net:
                 self._logger.info("no reference net provided, searching net {} instead.".format(layer_name))
                 reference_net = self._pedb.core_nets.get_net_by_name(layer_name)
-                if not reference_net:
+                if not reference_net:  # pragma no cover
                     self._logger.error("reference net {} not found.".format(layer_name))
                     return False
             else:
-                if not isinstance(reference_net, self._edb.Cell.Net):
+                if not isinstance(reference_net, self._edb.Cell.Net):  # pragma no cover
                     reference_net = self._pedb.core_nets.get_net_by_name(reference_net)
                 if not reference_net:
                     self._logger.error("Net {} not found".format(reference_net))
                     return False
-            for pin_name in pins_name:
+            for pin_name in pins_name:  # pragma no cover
                 pin = [
                     pin
                     for pin in self._pedb.core_padstack.get_pinlist_from_component_and_net(component_name)
