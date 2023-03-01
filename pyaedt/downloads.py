@@ -145,7 +145,7 @@ def download_aedb(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -176,7 +176,7 @@ def download_edb_merge_utility(force_download=False, destination=None):
     force_download : bool
         Force to delete cache and download files again.
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -212,7 +212,7 @@ def download_netlist(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -241,7 +241,7 @@ def download_antenna_array(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -271,7 +271,7 @@ def download_sbr(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -300,7 +300,7 @@ def download_sbr_time(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -329,7 +329,7 @@ def download_icepak(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -358,7 +358,7 @@ def download_icepak_3d_component(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -391,7 +391,7 @@ def download_via_wizard(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -420,7 +420,7 @@ def download_touchstone(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -447,7 +447,7 @@ def download_sherlock(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -483,7 +483,7 @@ def download_leaf(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -518,7 +518,7 @@ def download_custom_reports(force_download=False, destination=None):
     force_download : bool
         Force to delete cache and download files again.
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -560,7 +560,7 @@ def download_3dcomponent(force_download=False, destination=None):
     force_download : bool
         Force to delete cache and download files again.
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -596,7 +596,7 @@ def download_multiparts(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------

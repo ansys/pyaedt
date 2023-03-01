@@ -18,7 +18,7 @@ temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
 
 ###############################################################################
-# Create Heatsink
+# Create heatsink
 # ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
@@ -124,7 +124,7 @@ ipk.modeler.create_3dcomponent(
 ipk.close_project(save_project=False)
 
 ###############################################################################
-# Create Electronic Package
+# Create electronic package
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open a project containing the electronic package.
 ipk = Icepak(projectname=package_temp_name)
@@ -175,7 +175,7 @@ ipk.modeler.create_3dcomponent(
 ipk.close_project(save_project=False)
 
 ###############################################################################
-# Create Main Assembly
+# Create main assembly
 # ~~~~~~~~~~~~~~~~~~~~
 # Open a new empty project.
 ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"))
