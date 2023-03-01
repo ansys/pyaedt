@@ -1,3 +1,4 @@
+from copy import deepcopy as copy
 import os
 import re
 
@@ -79,8 +80,13 @@ class TouchstoneData(skrf.Network):
             self.port_names = _parse_ports_name(touchstone_file)
         pass
 
+    def get_differential_touchstone_data(self, p):
+        ts_diff = copy(self)
+        ts_diff.se2gmm()
+        return
+
     @pyaedt_function_handler()
-    def get_return_losses(self, excitation_name_prefix=""):
+    def get_return_loss_index(self, excitation_name_prefix=""):
         """Get the list of all the Returnloss from a list of exctitations.
 
         If no excitation is provided it will provide a full list of return losses.
@@ -113,7 +119,7 @@ class TouchstoneData(skrf.Network):
         return spar, values
 
     @pyaedt_function_handler()
-    def get_insertion_losses_from_prefix(self, tx_prefix, rx_prefix):
+    def get_insertion_loss_index_from_prefix(self, tx_prefix, rx_prefix):
         """Get the list of all the Insertion Losses from prefix.
 
         Parameters
@@ -132,8 +138,8 @@ class TouchstoneData(skrf.Network):
 
         """
         spar = []
-        trlist = [i for i in self.network.port_names if tx_prefix in i]
-        receiver_list = [i for i in self.network.port_names if rx_prefix in i]
+        trlist = [i for i in self.port_names if tx_prefix in i]
+        receiver_list = [i for i in self.port_names if rx_prefix in i]
         values = []
         if len(trlist) != len(receiver_list):
             print("TX and RX should be same length lists")
@@ -144,7 +150,7 @@ class TouchstoneData(skrf.Network):
         return spar, values
 
     @pyaedt_function_handler()
-    def get_next_xtalk(self, tx_prefix=""):
+    def get_next_xtalk_index(self, tx_prefix=""):
         """Get the list of all the Near End XTalk a list of excitation. Optionally prefix can
         be used to retrieve driver names.
         Example: excitation_names ["1", "2", "3"] output ["S(1,2)", "S(1,3)", "S(2,3)"]
@@ -162,9 +168,9 @@ class TouchstoneData(skrf.Network):
         """
         next = []
         if tx_prefix:
-            trlist = [i for i in self.network.port_names if tx_prefix in i]
+            trlist = [i for i in self.port_names if tx_prefix in i]
         else:
-            trlist = self.network.port_names
+            trlist = self.port_names
         values = []
         for i in trlist:
             k = trlist.index(i) + 1
@@ -175,7 +181,7 @@ class TouchstoneData(skrf.Network):
         return next, values
 
     @pyaedt_function_handler()
-    def get_fext_xtalk_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
+    def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
         """Get the list of all the Far End XTalk from a list of exctitations and a prefix that will
         be used to retrieve driver and receivers names.
         If skip_same_index_couples is true, the tx and rx with same index
@@ -199,8 +205,8 @@ class TouchstoneData(skrf.Network):
 
         """
         fext = []
-        trlist = [i for i in self.network.port_names if tx_prefix in i]
-        reclist = [i for i in self.network.port_names if rx_prefix in i]
+        trlist = [i for i in self.port_names if tx_prefix in i]
+        reclist = [i for i in self.port_names if rx_prefix in i]
         values = []
         for i in trlist:
             for k in reclist:
@@ -215,7 +221,7 @@ def get_worst_curve_from_solution_data(
     solution_data, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None
 ):
     """This method analyze a solution data object with multiple curves and find the worst curve returning its name and
-     a ordered dictionary with each curve mean. Actual algorithm simply takes the mean of the magnitued over the
+     an ordered dictionary with each curve mean. Actual algorithm simply takes the mean of the magnitude over the
      frequency range
 
     Parameters

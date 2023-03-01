@@ -181,6 +181,7 @@ class TestClass(BasisTest, object):
         assert len(my_data.data_magnitude(trace_names[0])) > 0
         assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
+        assert self.aedtapp.get_touchstone_data("Setup1")
 
     def test_04_export_touchstone(self):
         setup_name = "Setup1"
