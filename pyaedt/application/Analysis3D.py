@@ -11,16 +11,6 @@ from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
-from pyaedt.modeler.modeler2d import Modeler2D
-from pyaedt.modeler.modeler3d import Modeler3D
-from pyaedt.modules.Mesh import Mesh
-from pyaedt.modules.MeshIcepak import IcepakMesh
-
-if is_ironpython:
-    from pyaedt.modules.PostProcessor import PostProcessor
-else:
-    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
 
 
 class FieldAnalysis3D(Analysis, object):
@@ -101,9 +91,9 @@ class FieldAnalysis3D(Analysis, object):
             port,
             aedt_process_id,
         )
-        self._modeler = Modeler2D(self) if application in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
-        self._mesh = IcepakMesh(self) if application == "Icepak" else Mesh(self)
-        self._post = PostProcessor(self)
+        self._post = None
+        self._modeler = None
+        self._mesh = None
         self._configurations = Configurations(self)
 
     @property
@@ -123,7 +113,14 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modeler.modeler3d.Modeler3D` or :class:`pyaedt.modeler.modeler2d.Modeler2D`
+            Modeler object.
         """
+        if self._modeler is None:
+            from pyaedt.modeler.modeler2d import Modeler2D
+            from pyaedt.modeler.modeler3d import Modeler3D
+
+            self._modeler = Modeler2D(self) if self.design_type in ["Maxwell 2D", "2D Extractor"] else Modeler3D(self)
+
         return self._modeler
 
     @property
@@ -133,8 +130,31 @@ class FieldAnalysis3D(Analysis, object):
         Returns
         -------
         :class:`pyaedt.modules.Mesh.Mesh` or :class:`pyaedt.modules.MeshIcepak.IcepakMesh`
+            Mesh object.
         """
+        if self._mesh is None:
+            from pyaedt.modules.Mesh import Mesh
+            from pyaedt.modules.MeshIcepak import IcepakMesh
+
+            self._mesh = IcepakMesh(self) if self.design_type == "Icepak" else Mesh(self)
         return self._mesh
+
+    @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+            PostProcessor object.
+        """
+        if self._post is None:
+            if is_ironpython:
+                from pyaedt.modules.PostProcessor import PostProcessor
+            else:
+                from pyaedt.modules.AdvancedPostProcessing import PostProcessor
+            self._post = PostProcessor(self)
+        return self._post
 
     @property
     def components3d(self):
@@ -934,6 +954,8 @@ class FieldAnalysis3D(Analysis, object):
         :class:`pyaedt.modeler.stackup_3d.Stackup3D`
             Stackup class.
         """
+        from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
+
         return Stackup3D(self)
 
     @pyaedt_function_handler()

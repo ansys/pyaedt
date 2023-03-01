@@ -34,7 +34,7 @@ class Revision:
         design = emit_obj.odesktop.GetActiveProject().GetActiveDesign()
         subfolder = ""
         for f in os.scandir(emit_obj.oproject.GetPath()):
-            if os.path.splitext(f.name)[1].lower() in ".aedtresults":
+            if os.path.splitext(f.name)[1].lower() == ".aedtresults":
                 subfolder = os.path.join(f.path, "EmitDesign1")
         default_behaviour = not os.path.exists(os.path.join(subfolder, "{}.emit".format(name)))
         if default_behaviour:
@@ -180,6 +180,29 @@ class Revision:
         self._load_revision()
         engine = self.emit_project._emit_api.get_engine()
         return engine.is_domain_valid(domain)
+
+    @pyaedt_function_handler()
+    def get_instance_count(self, domain):
+        """
+                Return the number of instances in the domain for the current revision.
+
+                Parameters
+                ----------
+                domain :
+                    ``InteractionDomain`` object for constraining the analysis parameters.
+        Returns
+        --------
+        count : int
+            Number of instances in the domain for the current revision.
+
+        Examples
+        ----------
+        >>> domain = aedtapp.interaction_domain()
+        >>> num_instances = aedtapp.results.current_revision.get_instance_count(domain)
+        """
+        self._load_revision()
+        engine = self.emit_project._emit_api.get_engine()
+        return engine.get_instance_count(domain)
 
     @pyaedt_function_handler()
     def get_receiver_names(self):

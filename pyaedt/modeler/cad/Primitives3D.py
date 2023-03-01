@@ -606,7 +606,9 @@ class Primitives3D(Primitives, object):
         return self._create_object(new_object_name)
 
     @pyaedt_function_handler()
-    def create_circle(self, cs_plane, position, radius, numSides=0, is_covered=True, name=None, matname=None):
+    def create_circle(
+        self, cs_plane, position, radius, numSides=0, is_covered=True, name=None, matname=None, non_model=False
+    ):
         """Create a circle.
 
         Parameters
@@ -626,6 +628,8 @@ class Primitives3D(Primitives, object):
         matname : str, optional
             Name of the material. The default is ``None``, in which case the
             default material is assigned.
+        non_model : bool, optional
+             Either if create the new object as model or non-model. The default is ``False``.
 
         Returns
         -------
@@ -638,6 +642,9 @@ class Primitives3D(Primitives, object):
         >>> oEditor.CreateCircle
 
         """
+        non_model_flag = ""
+        if non_model:
+            non_model_flag = "NonModel#"
         szAxis = GeometryOperators.cs_plane_to_axis_str(cs_plane)
         XCenter, YCenter, ZCenter = self._pos_with_arg(position)
         Radius = self._arg_with_dim(radius)
@@ -649,7 +656,7 @@ class Primitives3D(Primitives, object):
         vArg1.append("Radius:="), vArg1.append(Radius)
         vArg1.append("WhichAxis:="), vArg1.append(szAxis)
         vArg1.append("NumSegments:="), vArg1.append("{}".format(numSides))
-        vArg2 = self._default_object_attributes(name=name, matname=matname)
+        vArg2 = self._default_object_attributes(name=name, matname=matname, flags=non_model_flag)
         new_object_name = self.oeditor.CreateCircle(vArg1, vArg2)
         return self._create_object(new_object_name)
 

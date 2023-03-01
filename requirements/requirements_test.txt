@@ -12,7 +12,7 @@ pandas==1.5.3; python_version > '3.7'
 pytest==7.2.1
 pytest-cov==4.0.0
 pytest-xdist==3.2.0
-pyvista==0.38.2
+pyvista==0.38.3
 scikit-learn==1.0.2; python_version <= '3.7'
 scikit-learn==1.2.1; python_version > '3.7'
 SRTM.py
