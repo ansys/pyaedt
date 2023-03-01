@@ -1,0 +1,40 @@
+   Module        Real Time   CPU Time     Memory          Size
+_______________________________________________________________________
+
+           siwave_ng 2022 R2.3 (Built: Sep 22 2022 17:18:31)
+    Commenced on host AAPIBQOJZZGEYGY at Fri Feb 17 15:42:02 2023
+
+------------------------------------------------------------------------
+|               |   Real   |   Cpu    |  Memory  |                     |
+|    Command    |   Time   |   Time   |          |                     |
+| solve_setup   | 00:00:02 | 00:00:00 |  198612K |        1 project    |
+------------------------------------------------------------------------
+         Finished on AAPIBQOJZZGEYGY at 02/17/2023 15:42:04
+
+
+    SIwave DC IR solver 2022 R2.3 Sep 22 2022 at 17:03:45 beginning
+        C:\Program Files\AnsysEM\v222\Win64\sidirect_solver.exe
+               on AAPIBQOJZZGEYGY at 02/17/2023 15:42:04
+------------------------------------------------------------------------
+|               |   Real   |   Cpu    |  Memory  |                     |
+|    Command    |   Time   |   Time   |          | Number of Elements  |
+| InitMesh      | 00:00:02 | 00:00:03 |     112M |    58223 triangles  |
+| PreProc       | 00:00:01 | 00:00:00 |     112M |    58223 triangles  |
+| AdaptMesh_1   | 00:00:00 | 00:00:00 |     112M |    67821 triangles  |
+| Solve(4p)_1   | 00:00:00 | 00:00:00 |     120M |    40571 unknowns   |
+| ErrorCalc_1   | 00:00:01 | 00:00:00 |     120M |    67821 triangles  |
+| AdaptMesh_2   | 00:00:00 | 00:00:00 |     128M |    85482 triangles  |
+| Solve(4p)_2   | 00:00:00 | 00:00:00 |     145M |    49764 unknowns   |
+| ErrorCalc_2   | 00:00:01 | 00:00:00 |     145M |    85482 triangles  |
+| AdaptMesh_3   | 00:00:00 | 00:00:00 |     150M |   107708 triangles  |
+| Solve(4p)_3   | 00:00:01 | 00:00:00 |     169M |    61210 unknowns   |
+| ErrorCalc_3   | 00:00:00 | 00:00:00 |     169M |   107708 triangles  |
+| AdaptMesh_4   | 00:00:01 | 00:00:00 |     179M |   135714 triangles  |
+| Solve(4p)_4   | 00:00:00 | 00:00:00 |     206M |    75568 unknowns   |
+| ErrorCalc_4   | 00:00:00 | 00:00:00 |     206M |   135714 triangles  |
+| PostProc      | 00:00:01 | 00:00:00 |     206M |     1015 elements   |
+| ResCalc       | 00:00:00 | 00:00:00 |     213M |       17 terminals  |
+------------------------------------------------------------------------
+          Finished on AAPIBQOJZZGEYGY at 02/17/2023 15:42:12
+
+_______________________________________________________________________

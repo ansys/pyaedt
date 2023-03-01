@@ -1608,6 +1608,27 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
+    def cover_faces(self, selection):
+        """Cover a sheet.
+
+        Parameters
+        ----------
+        selection : str, int
+            Sheet object to cover.
+        Returns
+        -------
+        bool
+
+        References
+        ----------
+
+        >>> oEditor.CoverLines
+        """
+        obj_to_cover = self.convert_to_selections(selection, False)
+        self.oeditor.CoverSurfaces(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
+        return True
+
+    @pyaedt_function_handler()
     def create_coordinate_system(
         self,
         origin=None,
@@ -1904,10 +1925,10 @@ class GeometryModeler(Modeler, object):
         list
             Quaternion.
         """
-        cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
         elif isinstance(coordinate_system, str):
+            cs_names = [i.name for i in self.coordinate_systems]
             if coordinate_system not in cs_names:  # pragma: no cover
                 raise AttributeError("Specified coordinate system does not exist in the design.")
             cs = self.coordinate_systems[cs_names.index(coordinate_system)]
@@ -3127,21 +3148,32 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.SeparateBody
         """
-        selections = self.convert_to_selections(object_list)
-        self.oeditor.SeparateBody(
-            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
-            ["CreateGroupsForNewObjects:=", create_group],
-        )
-        self.refresh_all_ids()
-        return True
+        try:
+            selections = self.convert_to_selections(object_list)
+            all_objs = [i for i in self.object_names]
+            self.oeditor.SeparateBody(
+                ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+                ["CreateGroupsForNewObjects:=", create_group],
+            )
+            self.refresh_all_ids()
+            new_objects_list_names = [selections] + [i for i in self.object_names if i not in all_objs]
+            new_objects_list = []
+            for obj in self.object_list:
+                for new_obj in new_objects_list_names:
+                    if obj.name == new_obj:
+                        new_objects_list.append(obj)
+            return new_objects_list
+        except:
+            return False
 
     @pyaedt_function_handler()
     def rotate(self, objid, cs_axis, angle=90.0, unit="deg"):
@@ -3369,8 +3401,7 @@ class GeometryModeler(Modeler, object):
 
         vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
 
-        self.oeditor.PurgeHistory(vArg1)
-        return True
+        return _retry_ntimes(10, self.oeditor.PurgeHistory, vArg1)
 
     @pyaedt_function_handler()
     def get_model_bounding_box(self):
@@ -3524,28 +3555,40 @@ class GeometryModeler(Modeler, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        pyaedt.modeler.Object3d.Object3d, bool
+            3D object.
+            ``False`` when failed.
 
         References
         ----------
 
         >>> oEditor.Connect
         """
-        unclassified_before = list(self.unclassified_names)
-        szSelections = self.convert_to_selections(theList)
+        try:
+            unclassified_before = list(self.unclassified_names)
+            szSelections = self.convert_to_selections(theList)
+            szSelections_list = szSelections.split(",")
+            vArg1 = ["NAME:Selections", "Selections:=", szSelections]
 
-        vArg1 = ["NAME:Selections", "Selections:=", szSelections]
+            self.oeditor.Connect(vArg1)
+            if unclassified_before != self.unclassified_names:
+                self._odesign.Undo()
+                self.logger.error("Error in connection. Reverting Operation")
+                return False
 
-        self.oeditor.Connect(vArg1)
-        if unclassified_before != self.unclassified_names:
-            self._odesign.Undo()
-            self.logger.error("Error in connection. Reverting Operation")
+            self.cleanup_objects()
+            self.logger.info("Connection Correctly created")
+
+            self.refresh_all_ids()
+            objects_list_after_connection = [
+                obj
+                for obj in self.object_list
+                for sel in set(szSelections_list).intersection(self.object_names)
+                if obj.name == sel
+            ]
+            return objects_list_after_connection
+        except:
             return False
-
-        self.cleanup_objects()
-        self.logger.info("Connection Correctly created")
-        return True
 
     @pyaedt_function_handler()
     def translate(self, objid, vector):

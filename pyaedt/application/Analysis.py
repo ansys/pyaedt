@@ -10,11 +10,11 @@ from __future__ import absolute_import  # noreorder
 import os
 import shutil
 import tempfile
-import threading
 import time
 import warnings
 from collections import OrderedDict
 
+from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
@@ -38,13 +38,17 @@ from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
-from pyaedt.modules.MaterialLib import Materials
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
 from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
+
+if os.name == "posix" and is_ironpython:
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
 
 
 class Analysis(Design, object):
@@ -123,7 +127,7 @@ class Analysis(Design, object):
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
-        self._materials = Materials(self)
+        self._materials = None
         self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
 
@@ -150,7 +154,7 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.props["SubmodelDefinitionName"]: nc for nc in self._native_components}
+        return {nc.component_name: nc for nc in self._native_components}
 
     @property
     def output_variables(self):
@@ -177,6 +181,10 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
+        if not self._materials:
+            from pyaedt.modules.MaterialLib import Materials
+
+            self._materials = Materials(self)
         return self._materials
 
     @property
@@ -262,39 +270,6 @@ class Analysis(Design, object):
 
         """
         return GravityDirection()
-
-    @property
-    def modeler(self):
-        """Modeler.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Modeler.Modeler`
-            Modeler object.
-        """
-        return self._modeler
-
-    @property
-    def mesh(self):
-        """Mesh.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Mesh.Mesh`
-            Mesh object.
-        """
-        return self._mesh
-
-    @property
-    def post(self):
-        """PostProcessor.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
-            PostProcessor object.
-        """
-        return self._post
 
     @property
     def analysis_setup(self):
@@ -1700,7 +1675,7 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def solve_in_batch(self, filename=None, machine="local", run_in_thread=False):
+    def solve_in_batch(self, filename=None, machine="localhost", run_in_thread=False, num_cores=4, num_tasks=1):
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1712,53 +1687,76 @@ class Analysis(Design, object):
             Name of the setup. The default is ``None``, which means that the active project
             is to be solved.
         machine : str, optional
-            Name of the machine if remote.  The default is ``"local"``.
+            Name of the machine if remote.  The default is ``"localhost"``.
         run_in_thread : bool, optional
             Whether to submit the batch command as a thread. The default is
             ``False``.
+        num_cores : int, optional
+            Number of cores to use in simulation.
+        num_tasks : int, optional
+            Number of tasks to use in simulation.
 
         Returns
         -------
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        inst_dir = self.desktop_install_dir
+        self.last_run_log = ""
+        self.last_run_job = ""
         if not filename:
             filename = self.project_file
+            project_name = self.project_name
             self.close_project()
-        if machine == "local":
-            # -Monitor option used as workaround for R2 BatchSolve not exiting properly at the end of the Batch job
-            options = " -ng -BatchSolve -Monitor "
         else:
-            options = " -ng -distribute -machinelist list=" + machine + " -Batchsolve "
+            project_name = os.path.splitext(os.path.split(filename)[-1])[0]
+        queue_file = filename + ".q"
+        queue_file_completed = filename + ".q.completed"
+        if os.path.exists(queue_file):
+            os.unlink(queue_file)
+        if os.path.exists(queue_file_completed):
+            os.unlink(queue_file_completed)
 
-        self.logger.info("Batch Solve Options: " + options)
+        options = [
+            "-ng",
+            "-BatchSolve",
+            "-machinelist",
+            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+            "-Monitor",
+        ]
+
         if os.name == "posix":
-            batch_run = os.path.join(
-                self.desktop_install_dir + "/ansysedt" + chr(34) + options + chr(34) + filename + chr(34)
-            )
+            batch_run = [inst_dir + "/ansysedt"]
+
         else:
-            batch_run = (
-                chr(34) + self.desktop_install_dir + "/ansysedt.exe" + chr(34) + options + chr(34) + filename + chr(34)
-            )
+            batch_run = [inst_dir + "/ansysedt.exe"]
+        batch_run.extend(options)
+        batch_run.append(filename)
 
         """
         check for existing solution directory and delete if present so we
         dont have old .asol files etc
         """
-
         self.logger.info("Solving model in batch mode on " + machine)
-        self.logger.info("Batch Job command:" + batch_run)
         if run_in_thread:
+            DETACHED_PROCESS = 0x00000008
+            subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
+            self.logger.info("Batch job launched.")
 
-            def thread_run():
-                """ """
-                os.system(batch_run)
-
-            x = threading.Thread(target=thread_run)
-            x.start()
         else:
-            os.system(batch_run)
-        self.logger.info("Batch job finished.")
+            subprocess.Popen(batch_run)
+            self.logger.info("Batch job finished.")
+
+        if machine == "localhost":
+            while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
+                time.sleep(0.5)
+            with open(queue_file, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "JobID" in line:
+                        ls = line.split("=")[1].strip().strip("'")
+                        self.last_run_job = ls
+                        self.last_run_log = os.path.join(filename + ".batchinfo", project_name + "-" + ls + ".log")
         return True
 
     @pyaedt_function_handler()

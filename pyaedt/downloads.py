@@ -6,6 +6,7 @@ import tempfile
 import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import settings
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
@@ -128,7 +129,10 @@ def _download_file(directory, filename=None, destination=None):
     else:
         url = _get_file_url(directory, filename)
         local_path = _retrieve_file(url, filename, directory, destination)
-
+    if settings.remote_rpc_session:
+        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_path)[-1])
+        settings.remote_rpc_session.filemanager.upload(local_path, remote_path)
+        return remote_path
     return local_path
 
 
@@ -347,6 +351,39 @@ def download_icepak(destination=None):
     """
 
     return _download_file("icepak", "Graphics_card.aedt", destination)
+
+
+def download_icepak_3d_component(destination=None):
+    """Download an example of Icepak Array and return the def pathsw.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path where files will be downloaded. Optional. Default is user temp folder.
+
+    Returns
+    -------
+    str
+        Path to PCBAssembly the example file.
+    str
+        Path to QFP2 the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file
+
+    >>> from pyaedt import examples
+    >>> path1, path2 = examples.download_icepak_3d_component()
+    >>> path1
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/PCBAssembly.aedt',
+    """
+    _download_file("icepak_3dcomp//PCBAssembly.aedb", destination=destination)
+    return _download_file("icepak_3dcomp", "PCBAssembly.aedt", destination), _download_file(
+        "icepak_3dcomp", "QFP2.aedt", destination
+    )
 
 
 def download_via_wizard(destination=None):

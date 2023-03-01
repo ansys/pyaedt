@@ -1,6 +1,7 @@
 # standard imports
 import math
 import os
+import sys
 
 from _unittest.conftest import BasisTest
 from pyaedt.generic.general_methods import is_ironpython
@@ -130,7 +131,7 @@ class TestClass(BasisTest, object):
         assert pg2.material_name == "copper"
         assert isclose(pg2.faces[0].area, 5.196152422706631)
 
-    @pytest.mark.skipif(is_ironpython, reason="Not running in ironpython")
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_09_plot(self):
         self.aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 0, 2])
         self.aedtapp.modeler.create_regular_polygon(
@@ -155,16 +156,16 @@ class TestClass(BasisTest, object):
 
     def test_12_objects_in_bounding_box(self):
         self.aedtapp.solution_type = "MagnetostaticXY"
-        bounding_box = [35, 42, -52, -68]
+        bounding_box = [-52, -68, 35, 42]
         objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        bounding_box = [20, 30, 10, -25, -36, -40]
+        bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_xy_4) is list
         assert type(objects_xy_6) is list
         self.aedtapp.solution_type = "MagnetostaticZ"
-        bounding_box = [35, 42, -52, -68]
+        bounding_box = [-52, -68, 35, 42]
         objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        bounding_box = [20, 30, 10, -25, -36, -40]
+        bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_z_4) is list
         assert type(objects_z_6) is list
