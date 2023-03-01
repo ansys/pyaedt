@@ -59,13 +59,13 @@ ipk.monitor.assign_point_monitor(point_monitor_position, monitor_quantity=["Temp
 ipk.monitor.assign_face_monitor(hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom")
 ipk.monitor.assign_point_monitor_in_object("HS_Fin1_5", monitor_quantity="Temperature", monitor_name="Fin5Center")
 
-# Export the heatsink 3D component and close project. auxiliary_dict_file is set to true in order to export the
+# Export the heatsink 3D component and close project. auxiliary_dict is set to true in order to export the
 # monitor objects along with the .a3dcomp file.
 os.mkdir(os.path.join(temp_folder, "componentLibrary"))
 ipk.modeler.create_3dcomponent(
     os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
     component_name="Heatsink",
-    auxiliary_dict_file=True
+    auxiliary_dict=True
 )
 ipk.close_project(save_project=False)
 
@@ -116,7 +116,7 @@ ipk.monitor.assign_surface_monitor("Die_Attach", monitor_quantity="Temperature",
 ipk.modeler.create_3dcomponent(
     os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
     component_name="QFP",
-    auxiliary_dict_file=True,
+    auxiliary_dict=True,
     datasets=["PowerDissipationDataset"]
 )
 ipk.close_project(save_project=False)
@@ -164,7 +164,7 @@ ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
     component_name="PCBAssembly",
-    auxiliary_dict_file=True,
+    auxiliary_dict=True,
     included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
     reference_cs="PCB_Assembly"
 )
@@ -210,7 +210,7 @@ ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder, "componentLibrary", "MainAssembly.a3dcomp"),
     component_name="MainAssembly",
-    auxiliary_dict_file=True,
+    auxiliary_dict=True,
     native_components=True,
     included_cs=["PCBAssembly1_PCB_Assembly", "PCBAssembly2_PCB_Assembly",
                  "PCBAssembly1_PCB_Assembly_ref", "PCBAssembly2_PCB_Assembly_ref"]
