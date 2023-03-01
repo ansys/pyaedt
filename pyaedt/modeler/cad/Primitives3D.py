@@ -1115,7 +1115,7 @@ class Primitives3D(Primitives, object):
             temp_folder = os.path.join(
                 self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
             )
-            os.mkdir(os.path.join(temp_folder))
+            os.mkdirs(os.path.join(temp_folder))
             new_proj_name = os.path.join(temp_folder, generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
             o, q = app.modeler.invert_cs(wcs, to_global=True)
