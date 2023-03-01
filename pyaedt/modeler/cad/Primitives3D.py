@@ -1115,6 +1115,8 @@ class Primitives3D(Primitives, object):
             temp_folder = os.path.join(
                 self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
             )
+            if not os.path.exists(os.path.join(self._app.toolkit_directory, self._app.design_name)):
+                os.mkdir(os.path.join(self._app.toolkit_directory, self._app.design_name))
             os.mkdir(os.path.join(temp_folder))
             new_proj_name = os.path.join(temp_folder, generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
