@@ -69,7 +69,7 @@ config = {
     "skip_debug": False,
     "local": False,
     "use_grpc": True,
-    "disable_sat_bounding_box": False,
+    "disable_sat_bounding_box": True,
 }
 
 # Check for the local config file, override defaults if found
