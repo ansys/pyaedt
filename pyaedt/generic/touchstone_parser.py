@@ -1,3 +1,4 @@
+import itertools
 import os
 import re
 from copy import deepcopy as copy
@@ -78,7 +79,31 @@ class TouchstoneData(skrf.Network):
 
         elif os.path.exists(touchstone_file):
             skrf.Network.__init__(self, touchstone_file)
-        pass
+        self.log_x = True
+
+    @pyaedt_function_handler()
+    def get_insertion_loss_index(self, threshold=-3):
+        """Get all insertion losses. The first frequency point is used to determine whether two
+        ports are shorted.
+
+        Parameters
+        ----------
+        threshold : float, int, optional
+            Threshold to determine shorted ports in dB.
+
+        Returns
+        -------
+         list
+            List of index couples representing Insertion Losses of excitations.
+
+        """
+        temp_list = []
+        freq_idx = 0
+        for i in self.port_tuples:
+            loss = self.s_db[freq_idx, i[0], i[1]]
+            if loss > threshold:
+                temp_list.append(i)
+        return temp_list
 
     def plot_insertion_losses(self, threshold=-3, plot=True):
         """Plot all insertion losses. The first frequency point is used to determine whether two
@@ -105,7 +130,7 @@ class TouchstoneData(skrf.Network):
 
         if plot:  # pragma: no cover
             for i in temp_list:
-                self.plot_s_db(*i)
+                self.plot_s_db(*i, logx=self.log_x)
             plt.show()
         return temp_list
 
@@ -119,7 +144,7 @@ class TouchstoneData(skrf.Network):
         bool
         """
         for i in np.arange(self.number_of_ports):
-            self.plot_s_db(i, i)
+            self.plot_s_db(i, i, logx=self.log_x)
         plt.show()
         return True
 
@@ -205,27 +230,24 @@ class TouchstoneData(skrf.Network):
 
         Parameters
         ----------
-        excitation_names :
-            list of excitation to include
+
         excitation_name_prefix :
              (Default value = '')
 
         Returns
         -------
-        list, list
-            list of string representing Return Losses of excitations
+        list
+            list of index couples representing Return Losses of excitations
 
         """
-        spar = []
         values = []
         if excitation_name_prefix:
             excitation_names = [i for i in self.port_names if excitation_name_prefix.lower() in i.lower()]
         else:
             excitation_names = [i for i in self.port_names]
         for i in excitation_names:
-            spar.append("S({},{})".format(i, i))
             values.append([self.port_names.index(i), self.port_names.index(i)])
-        return spar, values
+        return values
 
     @pyaedt_function_handler()
     def get_insertion_loss_index_from_prefix(self, tx_prefix, rx_prefix):
@@ -242,11 +264,10 @@ class TouchstoneData(skrf.Network):
 
         Returns
         -------
-        list, list
-            List of string representing Insertion Losses of excitations.
+        list
+            List of index couples representing Insertion Losses of excitations.
 
         """
-        spar = []
         trlist = [i for i in self.port_names if tx_prefix in i]
         receiver_list = [i for i in self.port_names if rx_prefix in i]
         values = []
@@ -254,9 +275,8 @@ class TouchstoneData(skrf.Network):
             print("TX and RX should be same length lists")
             return False
         for i, j in zip(trlist, receiver_list):
-            spar.append("S({},{})".format(i, j))
             values.append([self.port_names.index(i), self.port_names.index(j)])
-        return spar, values
+        return values
 
     @pyaedt_function_handler()
     def get_next_xtalk_index(self, tx_prefix=""):
@@ -271,11 +291,10 @@ class TouchstoneData(skrf.Network):
 
         Returns
         -------
-        list, list
-            list of string representing Near End XTalks
+        list
+            list of index couples representing Near End XTalks
 
         """
-        next = []
         if tx_prefix:
             trlist = [i for i in self.port_names if tx_prefix in i]
         else:
@@ -284,10 +303,9 @@ class TouchstoneData(skrf.Network):
         for i in trlist:
             k = trlist.index(i) + 1
             while k < len(trlist):
-                next.append("S({},{})".format(i, trlist[k]))
                 values.append([self.port_names.index(i), self.port_names.index(trlist[k])])
                 k += 1
-        return next, values
+        return values
 
     @pyaedt_function_handler()
     def get_fext_xtalk_index_from_prefix(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
@@ -300,8 +318,6 @@ class TouchstoneData(skrf.Network):
         ----------
         tx_prefix : str
             prefix for TX (eg. "DIE")
-        reclist :
-            list of Receiver to include
         rx_prefix : str
             prefix for RX (eg. "BGA")
         skip_same_index_couples : bool
@@ -309,72 +325,111 @@ class TouchstoneData(skrf.Network):
 
         Returns
         -------
-        list, list
-            List of string representing Far End XTalks.
+        list
+            List of index couples representing Far End XTalks.
 
         """
-        fext = []
         trlist = [i for i in self.port_names if tx_prefix in i]
         reclist = [i for i in self.port_names if rx_prefix in i]
         values = []
         for i in trlist:
             for k in reclist:
                 if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
-                    fext.append("S({},{})".format(i, k))
                     values.append([self.port_names.index(i), self.port_names.index(k)])
-        return fext, values
+        return values
 
+    def plot_next_xtalk_losses(self, tx_prefix=""):
+        """Plot all next crosstalk curves.
 
-@pyaedt_function_handler()
-def get_worst_curve_from_solution_data(
-    solution_data, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None
-):
-    """This method analyze a solution data object with multiple curves and find the worst curve returning its name and
-     an ordered dictionary with each curve mean. Actual algorithm simply takes the mean of the magnitude over the
-     frequency range
+        Parameters
+        ----------
+        Returns
+        -------
+        bool
+        """
+        index = self.get_next_xtalk_index(tx_prefix=tx_prefix)
 
-    Parameters
-    ----------
-    solution_data :
-        SolutionData or TouchstoneData object
-    freq_min :
-        minimum frequency to analyze (None to 0) (Default value = None)
-    freq_max :
-        maximum frequency to analyze (None to max freq) (Default value = None)
-    worst_is_higher : bool
-        boolean. if True, the worst curve is the one with higher mean value (Default value = True)
-    curve_list :
-        list of curves on which to search. None to search on all curves (Default value = None)
+        for ind in index:
+            self.plot_s_db(ind[0], ind[1], logx=self.log_x)
+        plt.show()
+        return True
 
-    Returns
-    -------
-    type
-        worst element str, dictionary of ordered expression and their mean
+    def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
+        """Plot all fext crosstalk curves.
 
-    """
-    if not curve_list:
-        curve_list = solution_data.expressions
-    return_loss_freq = solution_data.sweeps["Freq"]
-    if not freq_min:
-        lower_id = 0
-    else:
-        lower_id = next(x[0] for x in enumerate(return_loss_freq) if x[1] >= freq_min)
-    if not freq_max:
-        higher_id = len(return_loss_freq) - 1
-    else:
-        if freq_max >= return_loss_freq[-1]:
+        Parameters
+        ----------
+        tx_prefix : str
+            prefix for TX (eg. "DIE")
+        rx_prefix : str
+            prefix for RX (eg. "BGA")
+        skip_same_index_couples : bool
+            Boolean ignore TX and RX couple with same index. The default value is ``True``.
+
+        Returns
+        -------
+        bool
+        """
+        index = self.get_fext_xtalk_index_from_prefix(
+            tx_prefix=tx_prefix, rx_prefix=rx_prefix, skip_same_index_couples=skip_same_index_couples
+        )
+        for ind in index:
+            self.plot_s_db(ind[0], ind[1], logx=self.log_x)
+        plt.show()
+        return True
+
+    @pyaedt_function_handler()
+    def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
+        """This method analyze a solution data object with multiple curves and
+        find the worst curve returning its name and an ordered dictionary with each curve mean.
+        Actual algorithm simply takes the mean of the magnitude over the frequency range.
+
+        Parameters
+        ----------
+        freq_min : float, optional
+            minimum frequency to analyze in GHz (None to 0). Default value is ``None``.
+        freq_max : float, optional
+            maximum frequency to analyze in GHz (None to max freq). Default value is ``None``.
+        worst_is_higher : bool
+            boolean. if True, the worst curve is the one with higher mean value. Default value is ``None``.
+        curve_list : list
+            List of [m,n] index of curves on which to search. None to search on all curves. Default value is ``None``.
+
+        Returns
+        -------
+        type
+            worst element str, dictionary of ordered expression and their mean
+
+        """
+
+        return_loss_freq = [float(i.center) for i in list(self.frequency)]
+        if not freq_min:
+            lower_id = 0
+        else:
+            lower_id = next(x[0] for x in enumerate(return_loss_freq) if x[1] >= freq_min * 1e9)
+        if not freq_max:
             higher_id = len(return_loss_freq) - 1
         else:
-            higher_id = next(x[0] for x in enumerate(return_loss_freq) if x[1] >= freq_max)
+            if freq_max * 1e9 >= return_loss_freq[-1]:
+                higher_id = len(return_loss_freq) - 1
+            else:
+                higher_id = next(x[0] for x in enumerate(return_loss_freq) if x[1] >= freq_max * 1e9)
 
-    dict_means = {}
-    for el in curve_list:
-        data1 = solution_data.data_magnitude(el)[lower_id:higher_id]
-        mean1 = sum(data1) / len(data1)
-        dict_means[el] = mean1
-    dict_means = dict(sorted(dict_means.items(), key=lambda item: item[1], reverse=worst_is_higher))
-    worst_el = next(iter(dict_means))
-    return worst_el, dict_means
+        dict_means = {}
+        if not curve_list:
+            curve_list = list(itertools.combinations(range(0, len(self.port_names)), 2))
+            for i in range(0, len(self.port_names)):
+                curve_list.append([i, i])
+        for el in curve_list:
+            data1 = np.absolute(self.s[lower_id:higher_id, el[0], el[1]])
+            mean1 = sum(data1) / len(data1)
+            dict_means[tuple(el)] = mean1
+        dict_means = dict(sorted(dict_means.items(), key=lambda item: item[1], reverse=worst_is_higher))
+        worst_el = next(iter(dict_means))
+        if plot:  # pragma: no cover
+            self.plot_s_db(*worst_el, logx=self.log_x)
+            plt.show()
+        return worst_el, dict_means
 
 
 @pyaedt_function_handler()
@@ -388,7 +443,7 @@ def read_touchstone(file_path):
 
     Returns
     -------
-    class:`pyaedt.generic.TouchoneParser.TouchstoneData`
+    class:`pyaedt.generic.touchstone_parser.TouchstoneData`
         NPort holding data contained in the touchstone file.
 
     """

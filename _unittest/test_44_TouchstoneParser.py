@@ -4,6 +4,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Hfss3dLayout
+from pyaedt import is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -19,6 +20,7 @@ test_project_name = "hfss_design"
 aedt_proj_name = "differential_microstrip"
 
 
+@pytest.mark.skipif(is_ironpython, reason="Not supported by Ironpython")
 class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
@@ -49,3 +51,4 @@ class TestClass(BasisTest, object):
         assert ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
 
         assert ts1.plot_insertion_losses(plot=False)
+        assert ts1.get_worst_curve(curve_list=ts1.get_return_loss_index(), plot=False)
