@@ -2964,7 +2964,7 @@ class FieldPlot:
         """Modify the field plot settings.
 
         .. note::
-            Not available for field plot line traces.
+            This method is not available for field plot line traces.
 
         Returns
         -------

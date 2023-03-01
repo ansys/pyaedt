@@ -2939,7 +2939,7 @@ class PostProcessor(PostProcessorCommon, object):
                 if self._app.modeler[obj]:
                     in_volume_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exists in current design".format(obj))
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
                     return False
         else:
             self.logger.error("Provide a valid object for the in-volume objects selection.")
