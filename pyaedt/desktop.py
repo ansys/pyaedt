@@ -136,6 +136,7 @@ def _delete_objects():
     gc.collect()
 
 
+@pyaedt_function_handler()
 def release_desktop(close_projects=True, close_desktop=True):
     """Release the AEDT API.
 
