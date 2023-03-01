@@ -144,6 +144,59 @@ def _check_types(arg):
     return ""
 
 
+def _function_handler_wrapper(user_function):
+    def wrapper(*args, **kwargs):
+        if not settings.enable_error_handler:
+            result = user_function(*args, **kwargs)
+            return result
+        else:
+            try:
+                settings.time_tick = time.time()
+                out = user_function(*args, **kwargs)
+                if settings.enable_debug_logger:
+                    _log_method(user_function, args, kwargs)
+                return out
+            except TypeError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
+                return False
+            except ValueError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
+                return False
+            except AttributeError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Attribute Error")
+                return False
+            except KeyError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
+                return False
+            except IndexError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
+                return False
+            except AssertionError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
+                return False
+            except NameError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Name Error")
+                return False
+            except IOError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "IO Error")
+                return False
+            except MethodNotSupportedError:
+                message = "This Method is not supported in current AEDT Design Type."
+                if settings.enable_screen_logs:
+                    print("**************************************************************")
+                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
+                    print("**************************************************************")
+                    print("")
+                if settings.enable_file_logs:
+                    settings.logger.error(message)
+                return False
+            except BaseException:
+                _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
+                return False
+
+    return wrapper
+
+
 def pyaedt_function_handler(direct_func=None):
     """Provides an exception handler, logging mechanism, and argument converter for client-server
     communications.
@@ -309,59 +362,6 @@ def _log_method(func, new_args, new_kwargs):
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
         settings.logger.debug(m)
-
-
-def _function_handler_wrapper(user_function):
-    def wrapper(*args, **kwargs):
-        if not settings.enable_error_handler:
-            result = user_function(*args, **kwargs)
-            return result
-        else:
-            try:
-                settings.time_tick = time.time()
-                out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger:
-                    _log_method(user_function, args, kwargs)
-                return out
-            except TypeError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
-                return False
-            except ValueError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
-                return False
-            except AttributeError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Attribute Error")
-                return False
-            except KeyError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
-                return False
-            except IndexError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
-                return False
-            except AssertionError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
-                return False
-            except NameError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Name Error")
-                return False
-            except IOError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "IO Error")
-                return False
-            except MethodNotSupportedError:
-                message = "This Method is not supported in current AEDT Design Type."
-                if settings.enable_screen_logs:
-                    print("**************************************************************")
-                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
-                    print("**************************************************************")
-                    print("")
-                if settings.enable_file_logs:
-                    settings.logger.error(message)
-                return False
-            except BaseException:
-                _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
-                return False
-
-    return wrapper
 
 
 @pyaedt_function_handler()
