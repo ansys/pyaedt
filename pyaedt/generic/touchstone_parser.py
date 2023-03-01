@@ -3,10 +3,13 @@ import os
 import re
 from copy import deepcopy as copy
 
-import matplotlib.pyplot as plt
-import numpy as np
-import skrf
-import skrf as rf
+from pyaedt import is_ironpython
+
+if not is_ironpython:
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import skrf
+    import skrf as rf
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
