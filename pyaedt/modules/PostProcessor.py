@@ -2880,7 +2880,7 @@ class PostProcessor(PostProcessorCommon, object):
         in_volume_tracing_objs=None,
         surface_tracing_objs=None,
         setup_name=None,
-        intrinsincDict=None,
+        intrinsinc_dict=None,
         plot_name=None,
     ):
         """
@@ -2897,7 +2897,7 @@ class PostProcessor(PostProcessorCommon, object):
         setup_name : str, optional
             Name of the setup in the format ``"setupName : sweepName"``. The default
             is ``None``.
-        intrinsincDict : dict, optional
+        intrinsinc_dict : dict, optional
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
@@ -2916,8 +2916,8 @@ class PostProcessor(PostProcessorCommon, object):
         if self._app.solution_type != "Electrostatic":
             self.logger.error("Field line traces is valid only for electrostatic solution")
             return False
-        if intrinsincDict is None:
-            intrinsincDict = {}
+        if intrinsinc_dict is None:
+            intrinsinc_dict = {}
         if plot_name and plot_name in list(self.field_plots.keys()):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
@@ -2973,7 +2973,7 @@ class PostProcessor(PostProcessorCommon, object):
             surface_tracing_ids,
             "FieldLineTrace",
             setup_name,
-            intrinsincDict,
+            intrinsinc_dict,
             plot_name,
         )
 
