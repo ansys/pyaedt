@@ -12,7 +12,6 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.touchstone_parser import _parse_ports_name
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modeler.circuits.object3dcircuit import Wire
 
@@ -375,6 +374,27 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
+
+        def _parse_ports_name(file):
+            """Parse and interpret the option line in the touchstone file
+            Parameters
+            ----------
+            file : str
+                Path of the touchstone file.
+            Returns
+            -------
+            List of str
+                Names of the ports in the touchstone file.
+            """
+            portnames = []
+            line = file.readline()
+            while not line.startswith("! Port"):
+                line = file.readline()
+            while line.startswith("! Port"):
+                portnames.append(line.split(" = ")[1].strip())
+                line = file.readline()
+            return portnames
+
         if not model_name:
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
         if model_name in list(self.o_model_manager.GetNames()):
