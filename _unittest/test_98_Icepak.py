@@ -744,6 +744,10 @@ class TestClass(BasisTest, object):
         )
         file_name = "Advanced3DComp1.a3dcomp"
         self.aedtapp.insert_design("test_51_3")
+        cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2")
+        cs2.props["OriginX"] = 20
+        cs2.props["OriginY"] = 20
+        cs2.props["OriginZ"] = 20
         self.aedtapp.modeler.insert_3d_component(
             comp_file=os.path.join(file_path, file_name), targetCS="CS2", auxiliary_dict=True, name="test"
         )
