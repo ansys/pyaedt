@@ -2839,7 +2839,7 @@ class PostProcessor(PostProcessorCommon, object):
 
     @pyaedt_function_handler()
     def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
-        """Create a field plot of line.
+        """Create a field plot of the line.
 
         Parameters
         ----------
@@ -2884,14 +2884,14 @@ class PostProcessor(PostProcessorCommon, object):
         plot_name=None,
     ):
         """
-        Create a field plot of line.
+        Create a field plot of the line.
 
         Parameters
         ----------
         seeding_faces : list
             List of seeding faces.
         in_volume_tracing_objs : list
-            List of the in volume tracing objects.
+            List of the in-volume tracing objects.
         surface_tracing_objs : list
             List of the surface tracing objects.
         setup_name : str, optional
@@ -2901,7 +2901,7 @@ class PostProcessor(PostProcessorCommon, object):
             Dictionary containing all intrinsic variables. The default
             is ``{}``.
         plot_name : str, optional
-            Name of the fieldplot to create.
+            Name of the field plot to create. The default is ``None``.
 
         Returns
         -------
@@ -2928,7 +2928,7 @@ class PostProcessor(PostProcessorCommon, object):
             if self._app.modeler[face]:
                 seeding_faces_ids.append(self._app.modeler[face].id)
             else:
-                self.logger.error("Object {} doesn't exists in current design".format(face))
+                self.logger.error("Object {} doesn't exist in current design".format(face))
                 return False
         if not in_volume_tracing_objs:
             in_volume_tracing_ids = [0]
@@ -2939,10 +2939,10 @@ class PostProcessor(PostProcessorCommon, object):
                 if self._app.modeler[obj]:
                     in_volume_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exists in current design".format(obj))
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
                     return False
         else:
-            self.logger.error("Provide a valid object for in volume objects selection.")
+            self.logger.error("Provide a valid object for the in-volume objects selection.")
             return False
         if not surface_tracing_objs:
             surface_tracing_ids = [0]
@@ -2953,7 +2953,7 @@ class PostProcessor(PostProcessorCommon, object):
                 if self._app.modeler[obj]:
                     surface_tracing_ids.append(self._app.modeler[obj].id)
                 else:
-                    self.logger.error("Object {} doesn't exists in current design".format(obj))
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
                     return False
         else:
             self.logger.error("Provide a valid object for surface objects selection.")
