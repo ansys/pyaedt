@@ -133,6 +133,82 @@ def _check_types(arg):
     return ""
 
 
+def _function_handler_wrapper(user_function):
+    def wrapper(*args, **kwargs):
+        if not settings.enable_error_handler:
+            result = user_function(*args, **kwargs)
+            return result
+        else:
+            try:
+                settings.time_tick = time.time()
+                out = user_function(*args, **kwargs)
+                if settings.enable_debug_logger:
+                    _log_method(user_function, args, kwargs)
+                return out
+            except TypeError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
+                return False
+            except ValueError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
+                return False
+            except AttributeError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Attribute Error")
+                return False
+            except KeyError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
+                return False
+            except IndexError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
+                return False
+            except AssertionError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
+                return False
+            except NameError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "Name Error")
+                return False
+            except IOError:
+                _exception(sys.exc_info(), user_function, args, kwargs, "IO Error")
+                return False
+            except MethodNotSupportedError:
+                message = "This Method is not supported in current AEDT Design Type."
+                if settings.enable_screen_logs:
+                    print("**************************************************************")
+                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
+                    print("**************************************************************")
+                    print("")
+                if settings.enable_file_logs:
+                    settings.logger.error(message)
+                return False
+            except BaseException:
+                _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
+                return False
+
+    return wrapper
+
+
+def pyaedt_function_handler(direct_func=None):
+    """Provides an exception handler, logging mechanism, and argument converter for client-server
+    communications.
+
+    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
+    and displays errors.
+
+    """
+    if callable(direct_func):
+        user_function = direct_func
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+    elif direct_func is not None:
+        raise TypeError("Expected first argument to be a callable, or None")
+
+    def decorating_function(user_function):
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+
+    return decorating_function
+
+
+@pyaedt_function_handler()
 def check_and_download_file(local_path, remote_path, overwrite=True):
     """Check if a file is remote and either download it or return the path.
 
@@ -157,6 +233,25 @@ def check_and_download_file(local_path, remote_path, overwrite=True):
     return remote_path
 
 
+@pyaedt_function_handler()
+def check_if_path_exists(path):
+    """Check whether a path exists or not local or remote machine (for remote sessions only).
+
+    Parameters
+    ----------
+    path : str
+        Local or remote path to check.
+
+    Returns
+    -------
+    bool
+    """
+    if settings.remote_rpc_session:
+        return settings.remote_rpc_session.filemanager.pathexists(path)
+    return os.path.exists(path)
+
+
+@pyaedt_function_handler()
 def check_and_download_folder(local_path, remote_path, overwrite=True):
     """Check if a folder is remote and either download it or return the path.
 
@@ -181,6 +276,7 @@ def check_and_download_folder(local_path, remote_path, overwrite=True):
     return remote_path
 
 
+@pyaedt_function_handler()
 def open_file(file_path, file_options="r"):
     """Open a file and return the object.
 
@@ -255,81 +351,6 @@ def _log_method(func, new_args, new_kwargs):
             message.append(line_begin2 + str(new_kwargs)[1:-1])
     for m in message:
         settings.logger.debug(m)
-
-
-def pyaedt_function_handler(direct_func=None):
-    """Provides an exception handler, logging mechanism, and argument converter for client-server
-    communications.
-
-    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
-    and displays errors.
-
-    """
-    if callable(direct_func):
-        user_function = direct_func
-        wrapper = _function_handler_wrapper(user_function)
-        return update_wrapper(wrapper, user_function)
-    elif direct_func is not None:
-        raise TypeError("Expected first argument to be a callable, or None")
-
-    def decorating_function(user_function):
-        wrapper = _function_handler_wrapper(user_function)
-        return update_wrapper(wrapper, user_function)
-
-    return decorating_function
-
-
-def _function_handler_wrapper(user_function):
-    def wrapper(*args, **kwargs):
-        if not settings.enable_error_handler:
-            result = user_function(*args, **kwargs)
-            return result
-        else:
-            try:
-                settings.time_tick = time.time()
-                out = user_function(*args, **kwargs)
-                if settings.enable_debug_logger:
-                    _log_method(user_function, args, kwargs)
-                return out
-            except TypeError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Type Error")
-                return False
-            except ValueError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Value Error")
-                return False
-            except AttributeError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Attribute Error")
-                return False
-            except KeyError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Key Error")
-                return False
-            except IndexError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Index Error")
-                return False
-            except AssertionError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Assertion Error")
-                return False
-            except NameError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "Name Error")
-                return False
-            except IOError:
-                _exception(sys.exc_info(), user_function, args, kwargs, "IO Error")
-                return False
-            except MethodNotSupportedError:
-                message = "This Method is not supported in current AEDT Design Type."
-                if settings.enable_screen_logs:
-                    print("**************************************************************")
-                    print("pyaedt error on Method {}:  {}. Please Check again".format(user_function.__name__, message))
-                    print("**************************************************************")
-                    print("")
-                if settings.enable_file_logs:
-                    settings.logger.error(message)
-                return False
-            except BaseException:
-                _exception(sys.exc_info(), user_function, args, kwargs, "General or AEDT Error")
-                return False
-
-    return wrapper
 
 
 @pyaedt_function_handler()
@@ -508,11 +529,16 @@ def generate_unique_folder_name(rootname=None, folder_name=None):
     str
     """
     if not rootname:
-        rootname = tempfile.gettempdir()
+        if settings.remote_rpc_session:
+            rootname = settings.remote_rpc_session_temp_folder
+        else:
+            rootname = tempfile.gettempdir()
     if folder_name is None:
         folder_name = generate_unique_name("pyaedt_prj", n=3)
     temp_folder = os.path.join(rootname, folder_name)
-    if not os.path.exists(temp_folder):
+    if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(temp_folder):
+        settings.remote_rpc_session.filemanager.makedirs(temp_folder)
+    elif not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
 
     return temp_folder
@@ -544,7 +570,7 @@ def generate_unique_project_name(rootname=None, folder_name=None, project_name=N
     name_with_ext = project_name + "." + project_format
     folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
     prj = os.path.join(folder_path, name_with_ext)
-    if os.path.exists(prj):
+    if check_if_path_exists(prj):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
         prj = os.path.join(folder_path, name_with_ext)
     return prj
@@ -641,7 +667,7 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    return os.path.exists(project_path[:-4] + "lock")
+    return check_if_path_exists(project_path[:-4] + "lock")
 
 
 @pyaedt_function_handler()

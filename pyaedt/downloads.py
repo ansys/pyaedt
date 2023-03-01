@@ -6,6 +6,7 @@ import tempfile
 import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import settings
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
@@ -128,7 +129,10 @@ def _download_file(directory, filename=None, destination=None):
     else:
         url = _get_file_url(directory, filename)
         local_path = _retrieve_file(url, filename, directory, destination)
-
+    if settings.remote_rpc_session:
+        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_path)[-1])
+        settings.remote_rpc_session.filemanager.upload(local_path, remote_path)
+        return remote_path
     return local_path
 
 
