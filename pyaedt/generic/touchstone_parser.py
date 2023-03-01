@@ -322,7 +322,7 @@ class TouchstoneData(skrf.Network):
                 if not skip_same_index_couples or reclist.index(k) != trlist.index(i):
                     fext.append("S({},{})".format(i, k))
                     values.append([self.port_names.index(i), self.port_names.index(k)])
-        return fext
+        return fext, values
 
 
 @pyaedt_function_handler()
@@ -378,7 +378,7 @@ def get_worst_curve_from_solution_data(
 
 
 @pyaedt_function_handler()
-def read_touchstone(file_path, port_names=None):
+def read_touchstone(file_path):
     """Load the contents of a Touchstone file into an NPort
 
     Parameters
@@ -386,14 +386,11 @@ def read_touchstone(file_path, port_names=None):
     file_path : str
         The path of the touchstone file.
 
-    port_names : list, optional
-         List of port names.
-
     Returns
     -------
     class:`pyaedt.generic.TouchoneParser.TouchstoneData`
         NPort holding data contained in the touchstone file.
 
     """
-    data = TouchstoneData(touchstone_file=file_path, port_names=port_names)
+    data = TouchstoneData(touchstone_file=file_path)
     return data

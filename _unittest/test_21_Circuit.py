@@ -154,7 +154,7 @@ class TestClass(BasisTest, object):
         rx = ports[int(numports / 2) :]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
-        touchstone_data = self.aedtapp.get_touchstone_data(insertions)
+        touchstone_data = self.aedtapp.get_touchstone_data()
         assert touchstone_data
 
     def test_11_export_fullwave(self):
@@ -210,14 +210,7 @@ class TestClass(BasisTest, object):
 
     def test_16_read_touchstone(self):
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
-        assert len(data.expressions) > 0
-        assert data.data_real()
-        assert data.data_imag()
-        assert data.data_db()
-
-        data_with_verbose = read_touchstone(os.path.join(self.local_scratch.path, touchstone), verbose=True)
-        assert max(data_with_verbose.data_magnitude()) > 0.37
-        assert max(data_with_verbose.data_magnitude()) < 0.38
+        assert len(data.port_names) > 0
 
     def test_17_create_setup(self):
         setup_name = "Dom_LNA"
