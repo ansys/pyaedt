@@ -911,7 +911,7 @@ class Design(AedtObjects):
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
             elif os.path.exists(proj_name) or (
-                settings.remote_rpc_session and settings.remote_rpc_session.root.pathexists(proj_name)
+                settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
