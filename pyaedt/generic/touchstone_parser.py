@@ -5,6 +5,7 @@ import re
 import numpy as np
 import skrf
 import skrf as rf
+import matplotlib.pyplot as plt
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
@@ -78,6 +79,22 @@ class TouchstoneData(skrf.Network):
         elif os.path.exists(touchstone_file):
             skrf.Network.__init__(self, touchstone_file)
         pass
+
+    def plot_insertion_losses(self, threshold=-3, plot=True):
+        temp_list = []
+        freq_idx = 0
+        for i in self.port_tuples:
+            loss = self.s_db[freq_idx, i[0], i[1]]
+            if loss > threshold:
+                temp_list.append(i)
+
+        if plot:
+            for i in temp_list:
+                self.plot_s_db(*i)
+            plt.show()
+        return temp_list
+
+
 
     def get_mixed_mode_touchstone_data(self, num_of_diff_ports=None, port_ordering="1234"):
         """Transform network from single ended parameters to generalized mixed mode parameters.

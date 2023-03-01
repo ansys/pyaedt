@@ -50,3 +50,5 @@ class TestClass(BasisTest, object):
         ts2 = TouchstoneData(touchstone_file=os.path.join(test_T44_dir, "port_order_1324.s8p"))
         ts2_d = ts1.get_mixed_mode_touchstone_data(port_ordering="1324")
 
+        ts1.plot_insertion_losses()
+
