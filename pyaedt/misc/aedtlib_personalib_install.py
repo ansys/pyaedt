@@ -127,12 +127,12 @@ def write_tab_config(product_toolkit_dir, pyaedt_lib_dir, force_write=False):
 
     # Write a new "Panel_PyAEDT" sub-element.
     panel = ET.SubElement(root, "panel", label="Panel_PyAEDT")
-    gallery = ET.SubElement(panel, "gallery", imagewidth="32", imageheight="32")
+    gallery = ET.SubElement(panel, "gallery", imagewidth="120", imageheight="72")
     image_rel_path = os.path.relpath(pyaedt_lib_dir, product_toolkit_dir).replace("\\", "/") + "/"
     if image_rel_path == "./":
         image_rel_path = ""
     ET.SubElement(gallery, "button", label="PyAEDT", isLarge="1", image=image_rel_path + "images/large/pyansys.png")
-    group = ET.SubElement(gallery, "group", label="PyAEDT", image=image_rel_path + "images/gallery/PyAEDT.png")
+    group = ET.SubElement(gallery, "group", label="PyAEDT Menu", image=image_rel_path + "images/gallery/PyAEDT.png")
     ET.SubElement(group, "button", label="Console", script="PyAEDT/Console")
     ET.SubElement(group, "button", label="Jupyter Notebook", script="PyAEDT/Jupyter")
     ET.SubElement(group, "button", label="Run PyAEDT Script", script="PyAEDT/Run PyAEDT Script")
