@@ -81,8 +81,11 @@ def install_toolkit(toolkit_dir, product):
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
-    jupyter_executable = sys.executable.replace("python.exe", "jupyter.exe")
-    ipython_executable = sys.executable.replace("python.exe", "ipython.exe")
+    # Remove hardcoded version number from python virtual environment path, so it runs version specific virtual
+    # environment.
+    executable_version_agnostic = sys.executable.replace(version[2:6].replace(".", ""), "%s")
+    jupyter_executable = executable_version_agnostic.replace("python.exe", "jupyter.exe")
+    ipython_executable = executable_version_agnostic.replace("python.exe", "ipython.exe")
     for file_name in files_to_copy:
         with open(os.path.join(current_dir, file_name + ".py_build"), "r") as build_file:
             file_name_dest = file_name.replace("_", " ") + ".py"
@@ -91,7 +94,7 @@ def install_toolkit(toolkit_dir, product):
                 build_file_data = build_file.read()
                 build_file_data = (
                     build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
-                    .replace("##PYTHON_EXE##", sys.executable)
+                    .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
                 )
