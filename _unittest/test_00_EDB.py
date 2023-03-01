@@ -23,7 +23,7 @@ from pyaedt.generic.constants import SourceType
 
 try:
     import pytest
-except ImportError:  # pragma: no cover
+except ImportError:  # 'pragma: no cover
     import _unittest_ironpython.conf_unittest as pytest
 
 test_subfolder = "TEDB"
@@ -403,7 +403,9 @@ class TestClass(BasisTest, object):
             assert len(self.edbapp.sources) > 0
             assert len(self.edbapp.probes) == 0
             assert list(self.edbapp.sources.values())[0].magnitude == 3.3
-            assert list(self.edbapp.sources.values())[0].phase == 0
+            list(self.edbapp.sources.values())[0].phase = 1
+            assert list(self.edbapp.sources.values())[0].phase == 1
+
 
     def test_042_create_current_source(self):
         assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""

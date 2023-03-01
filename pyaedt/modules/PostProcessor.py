@@ -1990,7 +1990,7 @@ class PostProcessor(PostProcessorCommon, object):
         PostProcessorCommon.__init__(self, app)
 
     @property
-    def _primitives(self):
+    def _primitives(self):  # pragma: no cover
         """Primitives.
 
         Returns

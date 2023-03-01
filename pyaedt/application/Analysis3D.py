@@ -149,7 +149,7 @@ class FieldAnalysis3D(Analysis, object):
             PostProcessor object.
         """
         if self._post is None:
-            if is_ironpython:
+            if is_ironpython:  # pragma: no cover
                 from pyaedt.modules.PostProcessor import PostProcessor
             else:
                 from pyaedt.modules.AdvancedPostProcessing import PostProcessor
