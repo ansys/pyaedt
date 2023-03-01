@@ -2160,3 +2160,17 @@ class TestClass(BasisTest, object):
         edbapp.core_siwave.create_port_between_pin_and_layer(
             component_name="U2A5", pins_name="AJ30", layer_name="BOTTOM", reference_net="GND"
         )
+
+    def test_135_siwave_source_setter(self):
+        # test needed for the setter with sources created in Siwave prior EDB import
+        source_path = os.path.join(local_path, "example_models", test_subfolder, "test_sources.aedb")
+        target_path = os.path.join(self.local_scratch.path, "test_135_source_setter.aedb")
+        self.local_scratch.copyfolder(source_path, target_path)
+        edbapp = Edb(target_path, edbversion=desktop_version)
+        sources = list(edbapp.core_siwave.sources.values())
+        sources[0].magnitude = 1.45
+        assert sources[0].magnitude == 1.45
+        sources[1].magnitude = 1.45
+        assert sources[1].magnitude == 1.45
+        sources[2].magnitude = 1.45
+        assert sources[2].magnitude == 1.45
