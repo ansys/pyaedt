@@ -25,12 +25,6 @@ from pyaedt.modules.Material import Material
 from pyaedt.modules.Material import OrderedDict
 from pyaedt.modules.Material import SurfaceMaterial
 
-if not is_ironpython:
-    try:
-        import pandas as pd
-    except ImportError:
-        pd = None
-
 
 class Materials(object):
     """Contains the AEDT materials database and all methods for creating and editing materials.
@@ -780,8 +774,10 @@ class Materials(object):
         List of :class:`pyaedt.modules.Material.Material`
 
         """
-        if not pd:
-            self.logger.error("Pandas is needed. Please, install it first.")
+        try:
+            import pandas as pd
+        except ImportError:
+            self.logger.error("Pandas is needed. Install it.")
             return False
         materials_added = []
         props = {}

@@ -900,7 +900,7 @@ class PostProcessorCommon(object):
     @property
     def modeler(self):
         """Modeler."""
-        return self._app._modeler
+        return self._app.modeler
 
     @property
     def post_solution_type(self):
@@ -1999,7 +1999,7 @@ class PostProcessor(PostProcessorCommon, object):
             Primitives object.
 
         """
-        return self._app._modeler
+        return self._app.modeler
 
     @property
     def model_units(self):
@@ -2662,8 +2662,12 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if not filename:
             filename = plotname
-        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + "." + file_format))
-        return os.path.join(filepath, filename + "." + file_format)
+        file_path = os.path.join(filepath, filename + "." + file_format)
+        self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
+        if settings.remote_rpc_session_temp_folder:
+            local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
+            file_path = check_and_download_file(local_path, file_path)
+        return file_path
 
     @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -2735,7 +2739,7 @@ class PostProcessor(PostProcessorCommon, object):
                     intrinsics = i.default_intrinsics
         self._desktop.CloseAllWindows()
         try:
-            self._app._modeler.fit_all()
+            self._app.modeler.fit_all()
         except:
             pass
         self._desktop.TileWindows(0)

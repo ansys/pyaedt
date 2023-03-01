@@ -1787,8 +1787,10 @@ class FfdSolutionData(object):
             full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
             export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
             if settings.remote_rpc_session:
-                settings.remote_rpc_session.root.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.root.pathexists(export_path + exported_name_base + ".txt")
+                settings.remote_rpc_session.filemanager.makedirs(export_path)
+                file_exists = settings.remote_rpc_session.filemanager.pathexists(
+                    export_path + exported_name_base + ".txt"
+                )
             elif not os.path.exists(export_path):
                 os.makedirs(export_path)
                 file_exists = os.path.exists(export_path + exported_name_base + ".txt")

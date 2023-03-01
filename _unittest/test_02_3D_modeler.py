@@ -654,7 +654,7 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [3, 2, -5], 1)
 
     def test_52_objects_in_bounding_box(self):
-        bounding_box = [100, 200, 100, -100, -300, -200]
+        bounding_box = [-100, -300, -200, 100, 200, 100]
         objects_in_bounding_box = self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
         assert type(objects_in_bounding_box) is list
 

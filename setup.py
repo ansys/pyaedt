@@ -28,33 +28,7 @@ extras_require = [
 
 setup()
 
-if sys.version_info > (3, 7):
-    install_requires = [
-        "cffi == 1.15.0;platform_system=='Linux'",
-        "pywin32 >= 301;platform_system=='Windows'",
-        "pythonnet == 3.0.1",
-        "rpyc==5.3.0",
-        "pyvista>=0.34.1",
-        "numpy",
-        "matplotlib",
-        "psutil",
-        "pandas",
-        "dotnetcore2 ==3.1.23;platform_system=='Linux'",
-    ]
-elif sys.version_info == (3, 7):
-    install_requires = [
-        "cffi == 1.15.0;platform_system=='Linux'",
-        "pywin32 >= 301;platform_system=='Windows'",
-        "pythonnet == 3.0.1",
-        "rpyc==5.3.0",
-        "pyvista>=0.34.1",
-        "numpy",
-        "matplotlib",
-        "psutil",
-        "pandas==1.3.5",
-        "dotnetcore2 ==3.1.23;platform_system=='Linux'",
-    ]
-elif is_ironpython:
+if is_ironpython:
     install_requires = []
     extras_require = []
 else:

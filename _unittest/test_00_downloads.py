@@ -85,3 +85,6 @@ class TestClass(BasisTest, object):
         else:
             example_folder = self.examples.download_file(directory="wpf_edb_merge")
             assert os.path.exists(example_folder)
+
+    def test_14_download_icepak_3d_component(self):
+        assert self.examples.download_icepak_3d_component()

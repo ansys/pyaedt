@@ -157,16 +157,16 @@ class TestClass(BasisTest, object):
 
     def test_12_objects_in_bounding_box(self):
         self.aedtapp.solution_type = "MagnetostaticXY"
-        bounding_box = [35, 42, -52, -68]
+        bounding_box = [-52, -68, 35, 42]
         objects_xy_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        bounding_box = [20, 30, 10, -25, -36, -40]
+        bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_xy_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_xy_4) is list
         assert type(objects_xy_6) is list
         self.aedtapp.solution_type = "MagnetostaticZ"
-        bounding_box = [35, 42, -52, -68]
+        bounding_box = [-52, -68, 35, 42]
         objects_z_4 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
-        bounding_box = [20, 30, 10, -25, -36, -40]
+        bounding_box = [-25, -36, -40, 20, 30, 10]
         objects_z_6 = self.aedtapp.modeler.objects_in_bounding_box(bounding_box=bounding_box)
         assert type(objects_z_4) is list
         assert type(objects_z_6) is list

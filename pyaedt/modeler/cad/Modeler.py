@@ -1608,6 +1608,27 @@ class GeometryModeler(Modeler, object):
         return True
 
     @pyaedt_function_handler()
+    def cover_faces(self, selection):
+        """Cover a sheet.
+
+        Parameters
+        ----------
+        selection : str, int
+            Sheet object to cover.
+        Returns
+        -------
+        bool
+
+        References
+        ----------
+
+        >>> oEditor.CoverLines
+        """
+        obj_to_cover = self.convert_to_selections(selection, False)
+        self.oeditor.CoverSurfaces(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
+        return True
+
+    @pyaedt_function_handler()
     def create_coordinate_system(
         self,
         origin=None,

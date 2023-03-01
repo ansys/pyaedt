@@ -38,7 +38,6 @@ from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
-from pyaedt.modules.MaterialLib import Materials
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
@@ -128,7 +127,7 @@ class Analysis(Design, object):
         self._setup = None
         if setup_name:
             self.analysis_setup = setup_name
-        self._materials = Materials(self)
+        self._materials = None
         self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
 
@@ -182,6 +181,10 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
+        if not self._materials:
+            from pyaedt.modules.MaterialLib import Materials
+
+            self._materials = Materials(self)
         return self._materials
 
     @property
@@ -267,39 +270,6 @@ class Analysis(Design, object):
 
         """
         return GravityDirection()
-
-    @property
-    def modeler(self):
-        """Modeler.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Modeler.Modeler`
-            Modeler object.
-        """
-        return self._modeler
-
-    @property
-    def mesh(self):
-        """Mesh.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Mesh.Mesh`
-            Mesh object.
-        """
-        return self._mesh
-
-    @property
-    def post(self):
-        """PostProcessor.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
-            PostProcessor object.
-        """
-        return self._post
 
     @property
     def analysis_setup(self):
@@ -1705,7 +1675,7 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def solve_in_batch(self, filename=None, machine="local", run_in_thread=False, num_cores=4, num_tasks=1):
+    def solve_in_batch(self, filename=None, machine="localhost", run_in_thread=False, num_cores=4, num_tasks=1):
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1717,7 +1687,7 @@ class Analysis(Design, object):
             Name of the setup. The default is ``None``, which means that the active project
             is to be solved.
         machine : str, optional
-            Name of the machine if remote.  The default is ``"local"``.
+            Name of the machine if remote.  The default is ``"localhost"``.
         run_in_thread : bool, optional
             Whether to submit the batch command as a thread. The default is
             ``False``.
@@ -1777,7 +1747,7 @@ class Analysis(Design, object):
             subprocess.Popen(batch_run)
             self.logger.info("Batch job finished.")
 
-        if machine == "local":
+        if machine == "localhost":
             while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
