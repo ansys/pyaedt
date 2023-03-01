@@ -1118,6 +1118,7 @@ class Desktop(object):
 
         return str(ex_value)
 
+    @pyaedt_function_handler()
     def release_desktop(self, close_projects=True, close_on_exit=True):
         """Release AEDT.
 
