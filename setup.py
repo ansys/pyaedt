@@ -2,7 +2,7 @@ import os
 
 from setuptools import setup
 import sys
-import pip
+# import pip
 import logging
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
@@ -12,11 +12,11 @@ log = logging.getLogger()
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 
 
-def install(package):
-    if hasattr(pip, "main"):
-        pip.main(["install", package])
-    else:
-        pip._internal.main(["install", package])
+# def install(package):
+#     if hasattr(pip, "main"):
+#         pip.main(["install", package])
+#     else:
+#         pip._internal.main(["install", package])
 
 
 
@@ -26,13 +26,13 @@ extras_require = [
     "SRTM.py",
 ]
 
-setup()
+
 
 if is_ironpython:
     install_requires = []
     extras_require = []
-else:
-    sys.exit("PyAEDT supports only CPython 3.7-3.10 and IronPython 2.7.")
+# else:
+#     sys.exit("PyAEDT supports only CPython 3.7-3.10 and IronPython 2.7.")
 
 if os.name == "posix" and not is_ironpython:
     print("     ")
@@ -51,3 +51,6 @@ if os.name == "posix" and not is_ironpython:
     print("     ")
     print("     ")
     print("     ")
+
+if __name__ == '__main__':
+    setup()
