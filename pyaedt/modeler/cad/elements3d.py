@@ -316,11 +316,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
         if not v:
-            i = 0
-            while i < 5:
-                pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, i / 5)]
-                vertices.append(VertexPrimitive(self._object3d, -1, pos))
-                i += 1
+            pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
+            vertices.append(VertexPrimitive(self._object3d, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
