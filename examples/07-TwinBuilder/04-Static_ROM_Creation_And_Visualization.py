@@ -22,6 +22,7 @@ from pyaedt import TwinBuilder
 from pyaedt import generate_unique_project_name
 from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
+from pyaedt import settings
 
 ###############################################################################
 # Select version and set launch options
@@ -37,7 +38,7 @@ from pyaedt import downloads
 desktop_version = "2023.1"
 non_graphical = False
 new_thread = True
-
+settings.use_grpc_api = True
 ###############################################################################
 # Set up input data
 # ~~~~~~~~~~~~~~~~~
@@ -187,4 +188,4 @@ tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
 tb.release_desktop()
-pyaedt.settings.use_grpc_api = False
+settings.use_grpc_api = False

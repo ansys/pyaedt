@@ -77,7 +77,7 @@ def _check_grpc_port(port, machine_name=""):
         return True
 
 
-def _find_free_port(port_start=50001, port_end=60000):
+def _find_free_port(port_start=40001, port_end=55000):
     list_ports = random.sample(range(port_start, port_end), port_end - port_start)
     s = socket.socket()
     for port in list_ports:
