@@ -123,16 +123,17 @@ q.modeler.create_rectangle(
 # Create a conformal coating.
 
 sm_obj_list = []
-for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
-    obj = q.modeler.get_object_from_name(obj_name)
-    e_obj_list = []
-    for i in [1, 2, 3]:
-        e_obj = q.modeler.create_object_from_edge(obj.edges[i])
-        e_obj_list.append(e_obj)
-    e_obj_1 = e_obj_list[0]
-    q.modeler.unite(e_obj_list)
-    new_obj = q.modeler.sweep_along_vector(e_obj_1.id, [0, sm_h, 0])
-    sm_obj_list.append(new_obj)
+
+# for obj_name in ["signal", "co_gnd_left", "co_gnd_right"]:
+#     obj = q.modeler.get_object_from_name(obj_name)
+#     e_obj_list = []
+#     for i in [1, 2, 3]:
+#         e_obj = q.modeler.create_object_from_edge(obj.edges[i])
+#         e_obj_list.append(e_obj)
+#     e_obj_1 = e_obj_list[0]
+#     q.modeler.unite(e_obj_list)
+#     new_obj = q.modeler.sweep_along_vector(e_obj_1.id, [0, sm_h, 0])
+#     sm_obj_list.append(new_obj)
 
 new_obj = q.modeler.create_rectangle(position=[co_gnd_w, layer_2_lh, 0], dimension_list=[clearance, sm_h])
 sm_obj_list.append(new_obj)
