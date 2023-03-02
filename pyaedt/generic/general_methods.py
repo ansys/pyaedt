@@ -294,7 +294,12 @@ def open_file(file_path, file_options="r"):
     """
     file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
     dir_name = os.path.dirname(file_path)
-    if os.path.exists(dir_name):
+    if "r" in file_options:
+        if os.path.exists(file_path):
+            return open(file_path, file_options)
+        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
+            return open(file_path, file_options)
+    elif os.path.exists(dir_name):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:
         return settings.remote_rpc_session.open_file(file_path, file_options)
@@ -1009,7 +1014,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time_vals, value):
+def compute_fft(time_vals, value):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
@@ -1485,7 +1490,7 @@ class Settings(object):
         self._enable_debug_logger = False
         self._enable_error_handler = True
         self._non_graphical = False
-        self.aedt_version = None
+        self._aedt_version = None
         self.remote_api = False
         self._use_grpc_api = None
         self.machine = ""
@@ -1505,6 +1510,24 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
+
+    @property
+    def aedt_version(self):
+        """Get and set the aedt version.
+        It disables the sat bounding box for AEDT version > 2022.2.
+
+        Returns
+        -------
+        str
+            Aedt version in the form ``"2023.x"``.
+        """
+        return self._aedt_version
+
+    @aedt_version.setter
+    def aedt_version(self, value):
+        self._aedt_version = value
+        if self._aedt_version >= "2023.1":
+            self.disable_bounding_box_sat = True
 
     @property
     def edb_dll_path(self):

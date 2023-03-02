@@ -2520,6 +2520,7 @@ class FieldPlot:
         solutionName="",
         quantityName="",
         intrinsincList={},
+        seedingFaces=[],
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2527,6 +2528,7 @@ class FieldPlot:
         self.surfaces_indexes = surfacelist
         self.line_indexes = linelist
         self.cutplane_indexes = cutplanelist
+        self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
         self.intrinsincList = intrinsincList
@@ -2550,6 +2552,15 @@ class FieldPlot:
         self.CloudSpacing = 0.5
         self.CloudMinSpacing = -1
         self.CloudMaxSpacing = -1
+        self.LineWidth = 4
+        self.LineStyle = "Cylinder"
+        self.IsoValType = "Tone"
+        self.NumofPoints = 100
+        self.TraceStepLength = "0.001mm"
+        self.UseAdaptiveStep = True
+        self.SeedingSamplingOption = True
+        self.SeedingPointsNumber = 15
+        self.FractionOfMaximum = 0.8
 
     @property
     def plotGeomInfo(self):
@@ -2675,6 +2686,19 @@ class FieldPlot:
                 "GridColor:=",
                 self.GridColor,
             ]
+        elif self.line_indexes:
+            arg = [
+                "NAME:PlotOnLineSettings",
+                ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+                "IsoValType:=",
+                self.IsoValType,
+                "ArrowUniform:=",
+                self.ArrowUniform,
+                "NumofArrow:=",
+                self.NumofPoints,
+                "Refinement:=",
+                self.Refinement,
+            ]
         else:
             arg = [
                 "NAME:PlotOnVolumeSettings",
@@ -2744,6 +2768,71 @@ class FieldPlot:
         ]
 
     @property
+    def surfacePlotInstructionLineTraces(self):
+        """Surface plot settings for field line traces.
+
+        ..note::
+            ``Specify seeding points on selections`` is by default set to ''by sampling''.
+
+        Returns
+        -------
+        list
+            List of plot settings for line traces.
+
+        """
+        return [
+            "NAME:" + self.name,
+            "SolutionName:=",
+            self.solutionName,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            "QuantityName_FieldLineTrace",
+            "PlotFolder:=",
+            self.plotFolder,
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "Trace Step Length:=",
+            self.TraceStepLength,
+            "Use Adaptive Step:=",
+            self.UseAdaptiveStep,
+            "Seeding Faces:=",
+            self.seeding_faces,
+            "Seeding Markers:=",
+            [0],
+            "Surface Tracing Objects:=",
+            self.surfaces_indexes,
+            "Volume Tracing Objects:=",
+            self.volume_indexes,
+            "Seeding Sampling Option:=",
+            self.SeedingSamplingOption,
+            "Seeding Points Number:=",
+            self.SeedingPointsNumber,
+            "Fractional of Maximal:=",
+            self.FractionOfMaximum,
+            "Discrete Seeds Option:=",
+            "Marker Point",
+            [
+                "NAME:InceptionEvaluationSettings",
+                "Gas Type:=",
+                0,
+                "Gas Pressure:=",
+                1,
+                "Use Inception:=",
+                True,
+                "Potential U0:=",
+                0,
+                "Potential K:=",
+                0,
+                "Potential A:=",
+                1,
+            ],
+            self.field_line_trace_plot_settings,
+        ]
+
+    @property
     def field_plot_settings(self):
         """Field Plot Settings.
 
@@ -2788,6 +2877,22 @@ class FieldPlot:
             ],
         ]
 
+    @property
+    def field_line_trace_plot_settings(self):
+        """Settings for the field line traces in the plot.
+
+        Returns
+        -------
+        list
+            List of settings for the field line traces in the plot.
+        """
+        return [
+            "NAME:FieldLineTracePlotSettings",
+            ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+            "IsoValType:=",
+            self.IsoValType,
+        ]
+
     @pyaedt_function_handler()
     def create(self):
         """Create a field plot.
@@ -2798,9 +2903,14 @@ class FieldPlot:
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
-        return True
+        try:
+            if self.seeding_faces:
+                self.oField.CreateFieldPlot(self.surfacePlotInstructionLineTraces, "FieldLineTrace")
+            else:
+                self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def update(self):
@@ -2815,11 +2925,54 @@ class FieldPlot:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
+        try:
+            if self.seeding_faces:
+                if self.seeding_faces[0] != len(self.seeding_faces) - 1:
+                    for face in self.seeding_faces[1:]:
+                        if not isinstance(face, int):
+                            self._postprocessor.logger.error("Provide valid object id for seeding faces.")
+                            return False
+                        else:
+                            if face not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.seeding_faces.remove(face)
+                                return False
+                    self.seeding_faces[0] = len(self.seeding_faces) - 1
+                if self.volume_indexes[0] != len(self.volume_indexes) - 1:
+                    for obj in self.volume_indexes[1:]:
+                        if not isinstance(obj, int):
+                            self._postprocessor.logger.error("Provide valid object id for in-volume object.")
+                            return False
+                        else:
+                            if obj not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.volume_indexes.remove(obj)
+                                return False
+                    self.volume_indexes[0] = len(self.volume_indexes) - 1
+                if self.surfaces_indexes[0] != len(self.surfaces_indexes) - 1:
+                    for obj in self.surfaces_indexes[1:]:
+                        if not isinstance(obj, int):
+                            self._postprocessor.logger.error("Provide valid object id for surface object.")
+                            return False
+                        else:
+                            if obj not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.surfaces_indexes.remove(obj)
+                                return False
+                    self.surfaces_indexes[0] = len(self.surfaces_indexes) - 1
+                self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstructionLineTraces)
+            else:
+                self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def update_field_plot_settings(self):
         """Modify the field plot settings.
+
+        .. note::
+            This method is not available for field plot line traces.
 
         Returns
         -------

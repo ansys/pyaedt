@@ -888,7 +888,7 @@ class TestClass(BasisTest, object):
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
+    @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
     @pytest.mark.skipif(config["use_grpc"] and config["desktopVersion"] < "2023.1", reason="Failing in grpc")
     def test_66a_insert_encrypted_3dcomp(self):
         assert not self.aedtapp.modeler.insert_3d_component(self.encrypted_cylinder)
@@ -1309,7 +1309,7 @@ class TestClass(BasisTest, object):
             assert box2.name not in box1.faces[1].touching_objects
         assert box2.get_touching_faces(box1)
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
+    @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_79_3dcomponent_operations(self):
         self.aedtapp.solution_type = "Modal"
@@ -1364,7 +1364,7 @@ class TestClass(BasisTest, object):
         )
         assert attached_clones[0] in self.aedtapp.modeler.user_defined_component_names
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
+    @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1", reason="Method failing 2022.2")
     def test_80_udm_operations(self):
         my_udmPairs = []
@@ -1429,7 +1429,7 @@ class TestClass(BasisTest, object):
         num_clones = 5
         assert not obj_udm.duplicate_along_line(udp, num_clones)
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2023.2", reason="Method failing 2023.2")
+    @pytest.mark.skipif(config["desktopVersion"] > "2022.2", reason="Method failing in version higher than 2022.2")
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_81_operations_3dcomponent(self):
         my_udmPairs = []

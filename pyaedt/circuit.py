@@ -1006,22 +1006,20 @@ class Circuit(FieldAnalysisCircuit, object):
         )
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
+    def get_touchstone_data(self, setup_name=None, variation_dict=None):
         """
         Return a Touchstone data plot.
 
         Parameters
         ----------
-        curvenames : list
-            List of the curves to plot.
-        solution_name : str, optional
+        setup_name : str, optional
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData`
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
            Class containing all requested data.
 
         References
@@ -1029,14 +1027,18 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oModule.GetSolutionDataPerVariation
         """
-        if not solution_name:
-            solution_name = self.nominal_sweep
-        variations = {"Freq": ["All"]}
-        if variation_dict:
-            for el in variation_dict:
-                variations[el] = [variation_dict[el]]
-        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
-        return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
+        from pyaedt.generic.touchstone_parser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.existing_analysis_sweeps[0]
+
+        s_parameters = []
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, setup_name, variations=variation_dict)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
 
     @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
