@@ -2003,7 +2003,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.logger.error("Port not found.")
         return False
 
-    def get_dcir_solution_data(self, setup_name, show="RL", category="Voltage"):
+    def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
@@ -2053,5 +2053,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return SolutionData(list(data))
 
-    def get_dcir_report(self, ):
+    def get_dcir_report(self, setup_name):
+        rl_loop_resistance = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop_Resistance")
+        #source_voltage = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        #via_current = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category="Current")
+        #via_x = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category="X")
+        #via_y = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category="Y")
+
+        #rl_loop_resistance.
         pass
