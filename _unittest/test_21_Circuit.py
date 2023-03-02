@@ -208,6 +208,8 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
 
     def test_16_read_touchstone(self):
+        from pyaedt.generic.touchstone_parser import read_touchstone
+
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
         assert len(data.port_names) > 0
 
