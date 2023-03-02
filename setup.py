@@ -52,6 +52,7 @@ if sys.version_info.major == 3 and sys.version_info.minor > 7:
         "matplotlib==3.7.0",
         "psutil",
         "pandas==1.5.3",
+        "scikit-rf",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif sys.version_info.major == 3 and sys.version_info.minor == 7:
@@ -65,6 +66,7 @@ elif sys.version_info.major == 3 and sys.version_info.minor == 7:
         "matplotlib==3.5.3",
         "psutil",
         "pandas==1.3.5",
+        "scikit-rf",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
 elif is_ironpython:
