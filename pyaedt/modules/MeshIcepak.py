@@ -606,7 +606,9 @@ class IcepakMesh(object):
         all_objs = [i for i in self.modeler.object_names]
         meshregion.create()
         objectlist2 = self.modeler.object_names
-        added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
+        added_obj = [i for i in objectlist2 if i not in all_objs]
+        if not added_obj:
+            added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
         meshregion.Objects = added_obj
         meshregion.SubModels = None
         self.meshregions.append(meshregion)

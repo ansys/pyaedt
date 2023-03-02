@@ -41,7 +41,7 @@ extras_require = [
     "SRTM.py",
 ]
 
-if sys.version_info > (3, 7):
+if sys.version_info.major == 3 and sys.version_info.minor > 7:
     install_requires = [
         "cffi == 1.15.0;platform_system=='Linux'",
         "pywin32 >= 301;platform_system=='Windows'",
@@ -55,7 +55,7 @@ if sys.version_info > (3, 7):
         "scikit-rf",
         "dotnetcore2 ==3.1.23;platform_system=='Linux'",
     ]
-elif sys.version_info == (3, 7):
+elif sys.version_info.major == 3 and sys.version_info.minor == 7:
     install_requires = [
         "cffi == 1.15.0;platform_system=='Linux'",
         "pywin32 >= 301;platform_system=='Windows'",

@@ -2,13 +2,13 @@
 Icepak: thermal analysis with 3D components
 -------------------------------------
 This example shows how to create a thermal analysis of an electronic package by taking advantage of 3D components and
-features added by pyAEDT.
+features added by PyAEDT.
 """
 
 ###############################################################################
-# Import pyAEDT and download files
-# ~~~~~~~~~~~~~~~~~~~~~~~~
-# Perform import of required class from the pyAEDT package and import os package.
+# Import PyAEDT and download files
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
 from pyaedt import Icepak, generate_unique_folder_name, downloads
 import os
@@ -17,8 +17,9 @@ import os
 temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)
 
-# Create Heatsink
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Create heatsink
+# ~~~~~~~~~~~~~~~
 # Open a new project in non-graphical mode.
 
 ipk = Icepak(projectname=os.path.join(temp_folder, "Heatsink.aedt"), specified_version="2023.1", non_graphical=True,
@@ -59,18 +60,19 @@ ipk.monitor.assign_point_monitor(point_monitor_position, monitor_quantity=["Temp
 ipk.monitor.assign_face_monitor(hs_base.bottom_face_z.id, monitor_quantity="Temperature", monitor_name="Bottom")
 ipk.monitor.assign_point_monitor_in_object("HS_Fin1_5", monitor_quantity="Temperature", monitor_name="Fin5Center")
 
-# Export the heatsink 3D component and close project. auxiliary_dict_file is set to true in order to export the
+# Export the heatsink 3D component and close project. auxiliary_dict is set to true in order to export the
 # monitor objects along with the .a3dcomp file.
 os.mkdir(os.path.join(temp_folder, "componentLibrary"))
 ipk.modeler.create_3dcomponent(
     os.path.join(temp_folder, "componentLibrary", "Heatsink.a3dcomp"),
     component_name="Heatsink",
-    auxiliary_dict_file=True
+    auxiliary_dict=True
 )
 ipk.close_project(save_project=False)
 
+###############################################################################
 # Create QFP
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~
 # Download and open a project containing a QPF.
 ipk = Icepak(projectname=qfp_temp_name)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "QFP2.jpg"))
@@ -116,13 +118,14 @@ ipk.monitor.assign_surface_monitor("Die_Attach", monitor_quantity="Temperature",
 ipk.modeler.create_3dcomponent(
     os.path.join(temp_folder, "componentLibrary", "QFP.a3dcomp"),
     component_name="QFP",
-    auxiliary_dict_file=True,
+    auxiliary_dict=True,
     datasets=["PowerDissipationDataset"]
 )
 ipk.close_project(save_project=False)
 
-# Create Electronic Package
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Create electronic package
+# ~~~~~~~~~~~~~~~~~~~~~~~~~
 # Download and open a project containing the electronic package.
 ipk = Icepak(projectname=package_temp_name)
 ipk.plot(show=False, export_path=os.path.join(temp_folder, "electronic_package_missing_obj.jpg"))
@@ -164,15 +167,16 @@ ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder, "componentLibrary", "PCBAssembly.a3dcomp"),
     component_name="PCBAssembly",
-    auxiliary_dict_file=True,
+    auxiliary_dict=True,
     included_cs=["Global", "HeatsinkCS", "PCB_Assembly"],
     reference_cs="PCB_Assembly"
 )
 
 ipk.close_project(save_project=False)
 
-# Create Main Assembly
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+###############################################################################
+# Create main assembly
+# ~~~~~~~~~~~~~~~~~~~~
 # Open a new empty project.
 ipk = Icepak(projectname=os.path.join(temp_folder, "main_assembly.aedt"))
 
@@ -210,7 +214,7 @@ ipk.flatten_3d_components()
 ipk.modeler.create_3dcomponent(
     component_file=os.path.join(temp_folder, "componentLibrary", "MainAssembly.a3dcomp"),
     component_name="MainAssembly",
-    auxiliary_dict_file=True,
+    auxiliary_dict=True,
     native_components=True,
     included_cs=["PCBAssembly1_PCB_Assembly", "PCBAssembly2_PCB_Assembly",
                  "PCBAssembly1_PCB_Assembly_ref", "PCBAssembly2_PCB_Assembly_ref"]

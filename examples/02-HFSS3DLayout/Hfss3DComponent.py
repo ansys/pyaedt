@@ -229,5 +229,5 @@ traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)
 solutions.plot(traces, math_formula="db20")
 
-hfss.save_project()
-hfss.release_desktop()
+h3d.save_project()
+h3d.release_desktop()

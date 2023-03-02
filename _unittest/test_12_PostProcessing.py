@@ -7,6 +7,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from pyaedt import Circuit
 from pyaedt import Hfss
+from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import settings
@@ -36,6 +37,7 @@ if config["desktopVersion"] > "2022.2":
     array = "array_simple_231"
     sbr_file = "poc_scat_small_231"
     q3d_file = "via_gsg_231"
+    m2d_file = "m2d_field_lines_test_231"
 
 else:
     test_field_name = "Potter_Horn"
@@ -43,7 +45,7 @@ else:
     array = "array_simple"
     sbr_file = "poc_scat_small"
     q3d_file = "via_gsg"
-
+    m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
@@ -68,6 +70,7 @@ class TestClass(BasisTest, object):
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
         self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
+        self.m2dtest = BasisTest.add_app(self, project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -1228,6 +1231,73 @@ class TestClass(BasisTest, object):
         val = self.aedtapp.post.update_report_dynamically
         self.aedtapp.post.update_report_dynamically = not val
         assert self.aedtapp.post.update_report_dynamically != val
+
+    def test_75_plot_field_line_traces(self):
+        self.m2dtest.modeler.model_units = "mm"
+        rect = self.m2dtest.modeler.create_rectangle(
+            position=["1mm", "5mm", "0mm"], dimension_list=["-1mm", "-10mm", 0], name="Ground", matname="copper"
+        )
+        rect.solve_inside = False
+        circle = self.m2dtest.modeler.create_circle(
+            position=["-10mm", "0", "0"],
+            radius="1mm",
+            num_sides="0",
+            is_covered=True,
+            name="Electrode",
+            matname="copper",
+        )
+        circle.solve_inside = False
+        self.m2dtest.modeler.create_region([20, 100, 20, 100])
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Ground", "Region", "Ground", plot_name="LineTracesTest"
+        )
+        self.m2dtest.solution_type = "Electrostatic"
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Invalid", "Region", "Ground", plot_name="LineTracesTest1"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Ground", "Invalid", "Ground", plot_name="LineTracesTest2"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Ground", "Region", "Invalid", plot_name="LineTracesTest3"
+        )
+        self.m2dtest.assign_voltage(rect.name, amplitude=0, name="Ground")
+        self.m2dtest.assign_voltage(circle.name, amplitude=50e6, name="50kV")
+        setup_name = "test"
+        self.m2dtest.create_setup(setupname=setup_name)
+        self.m2dtest.analyze_setup(setup_name)
+        plot = self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", plot_name="LineTracesTest4"
+        )
+        assert plot
+        assert self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", "Ground", plot_name="LineTracesTest5"
+        )
+        assert self.m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], plot_name="LineTracesTest6")
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", ["Invalid"], plot_name="LineTracesTest7"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest8"
+        )
+        plot.TraceStepLength = "0.002mm"
+        plot.SeedingPointsNumber = 20
+        plot.LineStyle = "Cylinder"
+        plot.LineWidth = 3
+        assert plot.update()
+        el_id = [obj.id for obj in self.m2dtest.modeler.object_list if obj.name == "Electrode"]
+        plot.seeding_faces.append(el_id[0])
+        assert plot.update()
+        plot.volume_indexes.append(el_id[0])
+        plot.update()
+        plot.surfaces_indexes.append(el_id[0])
+        plot.update()
+        plot.seeding_faces.append(8)
+        assert not plot.update()
+        plot.volume_indexes.append(8)
+        assert not plot.update()
+        plot.surfaces_indexes.append(8)
+        assert not plot.update()
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

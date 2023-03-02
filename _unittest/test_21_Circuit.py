@@ -5,10 +5,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt.generic.touchstone_parser import (
-    read_touchstone,  # Setup paths for module imports
-)
-from pyaedt.generic.general_methods import is_ironpython
+from pyaedt import is_ironpython
 
 try:
     import pytest  # noqa: F401

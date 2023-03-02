@@ -404,6 +404,21 @@ class EDBComponent(object):
         pin_pair = self._pin_pairs[0]
         return pin_pair.rlc_values
 
+    @rlc_values.setter
+    def rlc_values(self, value):
+        if isinstance(value, list):  # pragma no cover
+            rlc_enabled = [True if i else False for i in value]
+            rlc_values = [self._get_edb_value(i) for i in value]
+            model = self._edb.Cell.Hierarchy.PinPairModel()
+            pin_names = list(self.pins.keys())
+            for idx, i in enumerate(np.arange(len(pin_names) // 2)):
+                pin_pair = self._edb.Utility.PinPair(pin_names[idx], pin_names[idx + 1])
+                rlc = self._edb.Utility.Rlc(
+                    rlc_values[0], rlc_enabled[0], rlc_values[1], rlc_enabled[1], rlc_values[2], rlc_enabled[2], False
+                )
+                model.SetPinPairRlc(pin_pair, rlc)
+            self._set_model(model)
+
     @property
     def value(self):
         """Retrieve discrete component value.
@@ -463,6 +478,14 @@ class EDBComponent(object):
                 return pair.R.ToString()
         return None
 
+    @res_value.setter
+    def res_value(self, value):  # pragma no cover
+        if value:
+            if self.rlc_values == [None, None, None]:
+                self.rlc_values = [value, 0, 0]
+            else:
+                self.rlc_values = [value, self.rlc_values[1], self.rlc_values[2]]
+
     @property
     def cap_value(self):
         """Capacitance Value.
@@ -483,6 +506,14 @@ class EDBComponent(object):
                 pair = model.GetPinPairRlc(pinpair)
                 return pair.C.ToString()
         return None
+
+    @cap_value.setter
+    def cap_value(self, value):  # pragma no cover
+        if value:
+            if self.rlc_values == [None, None, None]:
+                self.rlc_values = [0, 0, value]
+            else:
+                self.rlc_values = [self.rlc_values[1], self.rlc_values[2], value]
 
     @property
     def ind_value(self):
@@ -505,6 +536,14 @@ class EDBComponent(object):
                 return pair.L.ToString()
         return None
 
+    @ind_value.setter
+    def ind_value(self, value):  # pragma no cover
+        if value:
+            if self.rlc_values == [None, None, None]:
+                self.rlc_values = [0, value, 0]
+            else:
+                self.rlc_values = [self.rlc_values[1], value, self.rlc_values[2]]
+
     @property
     def is_parallel_rlc(self):
         """Define if model is Parallel or Series.
@@ -524,18 +563,24 @@ class EDBComponent(object):
         return None
 
     @is_parallel_rlc.setter
-    def is_parallel_rlc(self, value):
+    def is_parallel_rlc(self, value):  # pragma no cover
         if not len(self._pin_pairs):
             logging.warning(self.refdes, " has no pin pair.")
         else:
-            pin_pair = self._pin_pairs[0]
-            pin_pair_rlc = self._edb_model.GetPinPairRlc(pin_pair)
-            pin_pair_rlc.IsParallel = value
-            pin_pair_model = self._edb_model
-            pin_pair_model.SetPinPairRlc(pin_pair, pin_pair_rlc)
-            comp_prop = self.component_property
-            comp_prop.SetModel(pin_pair_model)
-            self.edbcomponent.SetComponentProperty(comp_prop)
+            if isinstance(value, bool):
+                componentProperty = self.edbcomponent.GetComponentProperty()
+                model = componentProperty.GetModel().Clone()
+                pinpairs = model.PinPairs
+                if not list(pinpairs):
+                    return "0"
+                for pin_pair in pinpairs:
+                    pin_pair_rlc = model.GetPinPairRlc(pin_pair)
+                    pin_pair_rlc.IsParallel = value
+                    pin_pair_model = self._edb_model
+                    pin_pair_model.SetPinPairRlc(pin_pair, pin_pair_rlc)
+                    comp_prop = self.component_property
+                    comp_prop.SetModel(pin_pair_model)
+                    self.edbcomponent.SetComponentProperty(comp_prop)
 
     @property
     def center(self):
