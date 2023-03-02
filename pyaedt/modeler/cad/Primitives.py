@@ -921,7 +921,7 @@ class Primitives(object):
         --------
         Set up the desktop environment.
 
-        >>> from pyaedt.modeler.cad.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
+        >>> from pyaedt.modeler.polylines import PolylineSegment        >>> from pyaedt.desktop import Desktop
         >>> from pyaedt.maxwell import Maxwell3d
         >>> desktop=Desktop(specified_version="2021.2", new_desktop_session=False)
         >>> aedtapp = Maxwell3D()
@@ -2808,14 +2808,10 @@ class Primitives(object):
             self.planes[name] = o
         else:
             o = Object3d(self, name)
-            if o.history.command == "CreatePolyline":
-                new_id = o.id
-                o = self.get_existing_polyline(o)
+            if pid:
+                new_id = pid
             else:
-                if pid:
-                    new_id = pid
-                else:
-                    new_id = o.id
+                new_id = o.id
             self.objects[new_id] = o
             self.object_id_dict[o.name] = new_id
         return o
@@ -2870,7 +2866,7 @@ class Primitives(object):
                 ]["GeometryPart"]["Attributes"]
                 operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
-                ]["GeometryPart"]["Operations"]
+                ]["GeometryPart"]["Attributes"]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 
