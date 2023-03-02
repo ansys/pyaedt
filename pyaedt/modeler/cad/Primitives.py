@@ -2808,10 +2808,14 @@ class Primitives(object):
             self.planes[name] = o
         else:
             o = Object3d(self, name)
-            if pid:
-                new_id = pid
-            else:
+            if o.history.command == "CreatePolyline":
                 new_id = o.id
+                o = self.get_existing_polyline(o)
+            else:
+                if pid:
+                    new_id = pid
+                else:
+                    new_id = o.id
             self.objects[new_id] = o
             self.object_id_dict[o.name] = new_id
         return o
@@ -2866,7 +2870,7 @@ class Primitives(object):
                 ]["GeometryPart"]["Attributes"]
                 operations = self._app.design_properties["ModelSetup"]["GeometryCore"]["GeometryOperations"][
                     "ToplevelParts"
-                ]["GeometryPart"]["Attributes"]
+                ]["GeometryPart"]["Operations"]
             if attribs["Name"] in self._all_object_names:
                 pid = 0
 

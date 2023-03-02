@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+# import copy
 import math
 
 from pyaedt import _retry_ntimes
@@ -152,11 +153,17 @@ class Polyline(Object3d):
         non_model=False,
     ):
         self._primitives = primitives
+        self._positions = None
 
         if src_object:
             self.__dict__ = src_object.__dict__.copy()
+            # # scr_obj keys need to be added and also a deep copied.
+            # for k in src_object.__dict__:
+            #     self.__dict__[k] = copy.deepcopy(src_object.__dict__[k])
+            self._positions = None
+
             if name:
-                self._m_name = name  # This is conimg from
+                self._m_name = name
             else:
                 self._id = src_object.id
                 self._m_name = src_object.name
@@ -212,7 +219,7 @@ class Polyline(Object3d):
             object.
 
         """
-        return self.vertices[0].position
+        return self.points[0]
 
     @property
     def end_point(self):
@@ -232,7 +239,7 @@ class Polyline(Object3d):
         >>> oEditor.GetVertexPosition
 
         """
-        return self.vertices[-1].position
+        return self.points[-1]
 
     @property
     def points(self):
@@ -240,7 +247,9 @@ class Polyline(Object3d):
         if self._positions:
             return self._positions
         else:
-            aaa = -1
+            # get from history
+            # self.history.
+            aaa = self.history
             return aaa
 
     @property

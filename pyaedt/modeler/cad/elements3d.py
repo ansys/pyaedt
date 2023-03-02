@@ -1373,7 +1373,7 @@ class BinaryTreeNode:
         self.props = {}
         if first_level:
             self.child_object = self.children[name].child_object
-            del self.children[name]
+            self.children = self.children[name].children
         for i in self.child_object.GetPropNames():
             self.props[i] = self.child_object.GetPropValue(i)
         self.props = HistoryProps(self, self.props)
