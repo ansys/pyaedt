@@ -1446,7 +1446,7 @@ class EDBPadstackInstance(object):
         return int(self._edb_padstackinstance.GetGroup().GetPlacementLayer().GetTopBottomAssociation())
 
     @pyaedt_function_handler()
-    def create_rectangle_in_pad(self, layer_name, return_points=False):
+    def create_rectangle_in_pad(self, layer_name, return_points=False, partition_max_order=16):
         """Create a rectangle inscribed inside a padstack instance pad. The rectangle is fully inscribed in the
         pad and has the maximum area. It is necessary to specify the layer on which the rectangle will be created.
 
@@ -1458,6 +1458,9 @@ class EDBPadstackInstance(object):
         return_points : bool, optional
             If `True` does not create the rectangle and just returns a list containing the rectangle vertices.
             Default is `False`.
+        partition_max_order : float, optional
+            Order of the lattice partition used to find the quasi-lattice polygon that approximates ``polygon``.
+            Default is ``16``.
 
         Returns
         -------
@@ -1617,7 +1620,9 @@ class EDBPadstackInstance(object):
                     points.append([point.X.ToDouble(), point.Y.ToDouble()])
             xpoly, ypoly = zip(*points)
             polygon = [list(xpoly), list(ypoly)]
-            rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(polygon)
+            rectangles = GeometryOperators.find_largest_rectangle_inside_polygon(
+                polygon, partition_max_order=partition_max_order
+            )
             rect = rectangles[0]
             for i in range(4):
                 rect[i] = _translate(_rotate(rect[i]))
