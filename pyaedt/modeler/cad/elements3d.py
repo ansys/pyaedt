@@ -201,10 +201,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     """
 
-    def __init__(self, object3d, objid):
+    def __init__(self, object3d, objid, position=None):
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d.m_Editor
+        self._position = position
 
     @property
     def position(self):
@@ -223,6 +224,8 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
+        if self._position:
+            return self._position
         try:
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             return [float(i) for i in vertex_data]
@@ -312,6 +315,12 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
+        if not v:
+            i = 0
+            while i < 5:
+                pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, i / 5)]
+                vertices.append(VertexPrimitive(self._object3d, -1, pos))
+                i += 1
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -514,6 +523,13 @@ class FacePrimitive(object):
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        if not v:
+            for el in self.edges:
+                i = 0
+                while i < 5:
+                    pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, i / 5)]
+                    vertices.append(VertexPrimitive(self._object3d, -1, pos))
+                    i += 1
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -1379,7 +1395,7 @@ class BinaryTreeNode:
         self.props = {}
         if first_level:
             self.child_object = self.children[name].child_object
-            del self.children[name]
+            self.children = self.children[name].children
         for i in self.child_object.GetPropNames():
             self.props[i] = self.child_object.GetPropValue(i)
         self.props = HistoryProps(self, self.props)

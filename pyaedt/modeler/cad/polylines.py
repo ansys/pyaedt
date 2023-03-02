@@ -1,9 +1,11 @@
 from __future__ import absolute_import
 
+# import copy
 import math
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import PLANE
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -151,11 +153,17 @@ class Polyline(Object3d):
         non_model=False,
     ):
         self._primitives = primitives
+        self._positions = None
 
         if src_object:
             self.__dict__ = src_object.__dict__.copy()
+            # # scr_obj keys need to be added and also a deep copied.
+            # for k in src_object.__dict__:
+            #     self.__dict__[k] = copy.deepcopy(src_object.__dict__[k])
+            self._positions = None
+
             if name:
-                self._m_name = name  # This is conimg from
+                self._m_name = name
             else:
                 self._id = src_object.id
                 self._m_name = src_object.name
@@ -211,7 +219,7 @@ class Polyline(Object3d):
             object.
 
         """
-        return self.vertices[0].position
+        return self.points[0]
 
     @property
     def end_point(self):
@@ -231,12 +239,18 @@ class Polyline(Object3d):
         >>> oEditor.GetVertexPosition
 
         """
-        return self.vertices[-1].position
+        return self.points[-1]
 
     @property
     def points(self):
         """Polyline Points."""
-        return self._positions
+        if self._positions:
+            return self._positions
+        else:
+            # get from history
+            # self.history.
+            aaa = self.history
+            return aaa
 
     @property
     def vertex_positions(self):
@@ -742,7 +756,7 @@ class Polyline(Object3d):
 
         Parameters
         ----------
-        position_list : list
+        position_list : List
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
@@ -791,17 +805,22 @@ class Polyline(Object3d):
 
         segment_id = 1
         segment_index = 0
-        num_vertices = len(self.vertices)
-        for vertex in self.vertices:
-            if vertex.position == end_point:
-                if vertex.id == self.vertices[0].id:
-                    if segment_id > 0:
-                        segment_id -= 1
+        at_start = None
+        num_polyline_points = len(self.points)
+        for i, point in enumerate(self.points):
+            # if point.position == end_point:
+            if GeometryOperators.points_distance(list(point), end_point) < 1e-8:
+                # if point.id == self.points[0].id:
+                #     if segment_id > 0:
+                #         segment_id -= 1
+                if i == 0:
+                    segment_id = 0
                 at_start = True
                 break
             # If start_point=[0, 0, 0] (a list of integers provided by the user), it won't be equal to vertex.position
             # that returns a list of float: [0., 0., 0.]. Thus we cast start_point as a list of floats.
-            elif vertex.position == [float(x) for x in start_point]:
+            # elif point.position == [float(x) for x in start_point]:
+            elif GeometryOperators.points_distance(list(point), start_point) < 1e-8:
                 at_start = False
                 if segment_index > 0:
                     segment_index -= 1
@@ -821,7 +840,8 @@ class Polyline(Object3d):
                     break
         segment_index -= id_v
 
-        assert segment_index < num_vertices, "Vertex for the insert is not found."
+        assert segment_index < num_polyline_points, "Vertex for the insert is not found."
+        assert segment_id is not None, "Vertex for the insert is not found."
         type = segment.type
 
         varg1 = ["NAME:Insert Polyline Segment"]
