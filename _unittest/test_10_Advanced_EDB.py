@@ -173,7 +173,7 @@ class TestClass(BasisTest, object):
         )
         padstack_instances = list(edb_padstacks.core_padstack.padstack_instances.values())
         for padstack_instance in padstack_instances:
-            result = padstack_instance.create_rectangle_in_pad("s")
+            result = padstack_instance.create_rectangle_in_pad("s", partition_max_order=8)
             if padstack_instance.padstack_definition != "Padstack_None":
                 assert result
             else:

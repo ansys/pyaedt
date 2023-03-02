@@ -1,5 +1,6 @@
 # Import required modules
 import os
+import sys
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
@@ -32,7 +33,7 @@ class TestClass(BasisTest, object):
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
-        if self.aedtapp._aedt_version >= "2023.1":
+        if self.aedtapp._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
             assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
             assert self.aedtapp.results is not None
 

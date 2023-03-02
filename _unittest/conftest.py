@@ -53,7 +53,7 @@ sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
-default_version = "2022.2"
+default_version = "2023.1"
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
@@ -69,7 +69,7 @@ config = {
     "skip_debug": False,
     "local": False,
     "use_grpc": True,
-    "disable_sat_bounding_box": False,
+    "disable_sat_bounding_box": True,
 }
 
 # Check for the local config file, override defaults if found
@@ -202,18 +202,22 @@ new_thread = config["NewThread"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
-    _main = sys.modules["__main__"]
+    # _main = sys.modules["__main__"]
+    # yield
+    # if not is_ironpython:
+    #     try:
+    #         try:
+    #             os.kill(_main.desktop_pid, 9)
+    #         except:
+    #             pass
+    #         # release_desktop(close_projects=False, close_desktop=True)
+    #     except:
+    #         pass
+    desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
-    if not is_ironpython:
-        try:
-            try:
-                os.kill(_main.desktop_pid, 9)
-            except:
-                pass
-            # release_desktop(close_projects=False, close_desktop=True)
-        except:
-            pass
-
+    desktop.release_desktop(True, True)
+    del desktop
+    gc.collect()
     if config["test_desktops"]:
         run_desktop_tests()
 

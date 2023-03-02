@@ -1485,7 +1485,7 @@ class Settings(object):
         self._enable_debug_logger = False
         self._enable_error_handler = True
         self._non_graphical = False
-        self.aedt_version = None
+        self._aedt_version = None
         self.remote_api = False
         self._use_grpc_api = None
         self.machine = ""
@@ -1505,6 +1505,24 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
+
+    @property
+    def aedt_version(self):
+        """Get and set the aedt version.
+        It disables the sat bounding box for AEDT version > 2022.2.
+
+        Returns
+        -------
+        str
+            Aedt version in the form ``"2023.x"``.
+        """
+        return self._aedt_version
+
+    @aedt_version.setter
+    def aedt_version(self, value):
+        self._aedt_version = value
+        if self._aedt_version >= "2023.1":
+            self.disable_bounding_box_sat = True
 
     @property
     def edb_dll_path(self):
