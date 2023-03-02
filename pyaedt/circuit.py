@@ -1070,16 +1070,16 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def push_time_excitations(
-            self,
-            instance_name,
-            start=0.0,
-            stop=0.0,
-            harmonics=100,
-            window_type="Rectangular",
-            width_percentage=100.0,
-            kaiser=0.0,
-            correct_coherent_gain=True,
-            setup_name="NexximTransient",
+        self,
+        instance_name,
+        start=0.0,
+        stop=0.0,
+        harmonics=100,
+        window_type="Rectangular",
+        width_percentage=100.0,
+        kaiser=0.0,
+        correct_coherent_gain=True,
+        setup_name="NexximTransient",
     ):
         """Push excitations for a transient setup.
 
@@ -1119,15 +1119,23 @@ class Circuit(FieldAnalysisCircuit, object):
             "NAME:options",
             "transient:=",
             [
-               "start:=", start,
-               "stop:=", stop,
-               "maxHarmonics:=", harmonics,
-               "winType:=", window_type,
-               "widthPct:=", width_percentage,
-               "kaiser:=", kaiser,
-               "correctCoherentGain:=", correct_coherent_gain
+                "start:=",
+                start,
+                "stop:=",
+                stop,
+                "maxHarmonics:=",
+                harmonics,
+                "winType:=",
+                window_type,
+                "widthPct:=",
+                width_percentage,
+                "kaiser:=",
+                kaiser,
+                "correctCoherentGain:=",
+                correct_coherent_gain,
             ],
-            "Sol:=", setup_name
+            "Sol:=",
+            setup_name,
         ]
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
