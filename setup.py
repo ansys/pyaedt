@@ -5,6 +5,8 @@ import sys
 # import pip
 import logging
 
+from _setup_common import version
+
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 log = logging.getLogger()
 
@@ -79,4 +81,4 @@ if os.name == "posix" and not is_ironpython:
     print("     ")
 
 if __name__ == '__main__':
-    setup()
+    setup(version=version)
