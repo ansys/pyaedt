@@ -801,6 +801,7 @@ class UserDefinedComponent(object):
             project = self._primitives._app.odesktop.GetActiveProject()
             project_name = project.GetName()
             import os
+
             if os.name == "posix":
                 design_name = project.GetDesign()[0].GetName()
             else:
