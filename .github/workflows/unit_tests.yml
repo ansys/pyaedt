@@ -54,7 +54,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           pip install .
-          pip install -r requirements/requirements_test.txt
+          pip install .[tests]
           pip install pytest-azurepipelines
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
           mkdir tmp
