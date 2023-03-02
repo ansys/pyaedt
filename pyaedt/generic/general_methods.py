@@ -1009,7 +1009,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time_vals, value):
+def compute_fft(time_vals, value):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters

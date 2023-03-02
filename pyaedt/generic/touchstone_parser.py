@@ -8,7 +8,6 @@ from pyaedt import is_ironpython
 if not is_ironpython:
     import matplotlib.pyplot as plt
     import numpy as np
-    import skrf
     import skrf as rf
 
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -41,7 +40,7 @@ def _parse_ports_name(file):
     return portnames
 
 
-class TouchstoneData(skrf.Network):
+class TouchstoneData(rf.Network):
     """Contains data information from Touchstone Read call"""
 
     def __init__(self, solution_data=None, touchstone_file=None):
@@ -76,12 +75,12 @@ class TouchstoneData(skrf.Network):
             for name, value in solution_data.active_variation.items():
                 var[name] = value
             params = {"variant": var, "port_order": port_order}
-            skrf.Network.__init__(self, s=sdata_3d, frequency=freq_points, z0=50.0 + 0.0j, params=params)
+            rf.Network.__init__(self, s=sdata_3d, frequency=freq_points, z0=50.0 + 0.0j, params=params)
             rf.stylely()
             self.port_names = ports
 
         elif os.path.exists(touchstone_file):
-            skrf.Network.__init__(self, touchstone_file)
+            rf.Network.__init__(self, touchstone_file)
         self.log_x = True
 
     @pyaedt_function_handler()
