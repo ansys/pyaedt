@@ -5,8 +5,11 @@ from __future__ import absolute_import  # noreorder
 import fnmatch
 import io
 import os
+import re
 import warnings
 from collections import OrderedDict
+
+import pandas as pd
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -19,6 +22,7 @@ from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 from pyaedt.modules.PostProcessor import ReportDcirCategory
 from pyaedt.modules.PostProcessor import ReportDcirShow
+from pyaedt.modules.PostProcessor import ReportUnit
 from pyaedt.modules.solutions import SolutionData
 
 
@@ -2053,12 +2057,80 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return SolutionData(list(data))
 
-    def get_dcir_report(self, setup_name):
-        rl_loop_resistance = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop_Resistance")
-        #source_voltage = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
-        #via_current = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category="Current")
-        #via_x = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category="X")
-        #via_y = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category="Y")
+    def get_dcir_element_data_loop_resistance(self, setup_name):
 
-        #rl_loop_resistance.
-        pass
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop_Resistance")
+
+        terms = []
+        pattern = r"LoopRes\((.*?)\)"
+        for ex in solution_data.expressions:
+            matches = re.findall(pattern, ex)
+            if matches:
+                terms.extend(matches[0].split(","))
+        terms = list(set(terms))
+
+        data = {}
+        for i in terms:
+            data2 = []
+            for ex in ["LoopRes({},{})".format(i, j) for j in terms]:
+                d = solution_data.data_magnitude(ex)
+                if d:
+                    data2.append(d[0])
+                else:
+                    data2.append(False)
+            data[i] = data2
+
+        df = pd.DataFrame(data)
+        df.index = terms
+        return df
+
+    def get_dcir_element_data_source(self, setup_name):
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        terms = []
+        pattern = r"^V\((.*?)\)"
+        for t_name in solution_data.expressions:
+            matches = re.findall(pattern, t_name)
+            if matches:
+                terms.append(matches[0])
+        terms = list(set(terms))
+
+        data = {"Voltage":[]}
+        for t_name in terms:
+            ex = "V({})".format(t_name)
+            value = solution_data.data_magnitude(ex)
+            if value:
+                coeff = ReportUnit[solution_data.units_data[ex]].value
+                data["Voltage"].append(value[0]*coeff)
+        df = pd.DataFrame(data)
+        df.index = terms
+        return df
+
+    def get_dcir_element_data_via(self, setup_name):
+        import functools
+        cates = ["X", "Y", "Current", "Resistance", "IR_Drop", "Power"]
+        data = {cat: [] for cat in cates}
+        via_names = []
+        for cat in cates:
+            solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
+            tmp_via_names = []
+            pattern = r"\((.*?)\)"
+            for t_name in solution_data.expressions:
+                matches = re.findall(pattern, t_name)
+                if matches:
+                    tmp_via_names.append(matches[0])
+            if not via_names:
+                via_names = tmp_via_names
+            else:
+                if not functools.reduce(lambda x, y: x and y, map(lambda p, q: p == q, via_names, tmp_via_names), True):
+                    return False
+
+            for ex in solution_data.expressions:
+                value = solution_data.data_magnitude(ex)[0]
+                if value:
+                    coeff = ReportUnit[solution_data.units_data[ex]].value
+                    data[cat].append(value*coeff)
+                else:
+                    data[cat].append(value)
+        df = pd.DataFrame(data)
+        df.index = via_names
+        return df
