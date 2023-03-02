@@ -95,6 +95,10 @@ if not non_graphical:
 if not non_graphical:
     cir.post.export_report_to_jpg(cir.working_directory, report4.plot_name)
 
+################################################
+# This is how the spectrum looks like
+# .. image:: Resources/spectrum_plot.png
+
 ###############################################################################
 # Save project and close AEDT
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~

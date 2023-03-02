@@ -186,5 +186,5 @@ shutil.rmtree(source_data_folder)
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
-if os.name != "posix":
-    tb.release_desktop()
+tb.release_desktop()
+pyaedt.settings.use_grpc_api = False

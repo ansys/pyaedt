@@ -60,6 +60,11 @@ sys.path.append(os.path.abspath(os.path.join(local_path)))
 sys.path.append(os.path.join(root_path))
 
 from pyaedt import __version__
+import pyaedt
+pyaedt.settings.use_grpc_api = True
+d = pyaedt.Desktop(specified_version="2023.1", new_desktop_session=True, non_graphical=True)
+d.release_desktop()
+pyaedt.settings.use_grpc_api = False
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."
