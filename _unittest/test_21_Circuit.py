@@ -5,6 +5,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Circuit  # Setup paths for module imports
+from pyaedt import is_ironpython
 
 try:
     import pytest  # noqa: F401
