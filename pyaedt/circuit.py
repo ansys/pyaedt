@@ -1042,7 +1042,7 @@ class Circuit(FieldAnalysisCircuit, object):
 
     @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
-        """Push excitations.
+        """Push excitations for a linear frequency setup.
 
         Parameters
         ----------
@@ -1065,6 +1065,78 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup_name]
 
+        self.modeler.oeditor.PushExcitations(instance_name, arg)
+        return True
+
+    @pyaedt_function_handler()
+    def push_time_excitations(
+        self,
+        instance_name,
+        start=0.0,
+        stop=0.0,
+        harmonics=100,
+        window_type="Rectangular",
+        width_percentage=100.0,
+        kaiser=0.0,
+        correct_coherent_gain=True,
+        setup_name="NexximTransient",
+    ):
+        """Push excitations for a transient setup.
+
+        Parameters
+        ----------
+        instance_name : str
+            Name of the instance.
+        start : float, optional
+            Start time in ``seconds``. The default is ``0.0``.
+        stop : float, optional
+            Stop time in ``seconds``. The default is ``0.0``.
+        harmonics : int, optional
+            Maximum number of harmonics. The default is ``100``.
+        window_type : str, optional
+            Window type. Available windows are: ``Rectangular``, ``Barlett``, ``Blackman``, ``Hamming``,
+            ``Hanning``, ``Kaiser``, ``Welch``, ``Weber``, ``Lanzcos``. The default is ``Rectangular``.
+        width_percentage : float, optional
+            Width percentage. The default is ``100.0``.
+        kaiser : float, optional
+            Kaiser value. The default is ``0.0``.
+        correct_coherent_gain : bool, optional
+            Enable coherent gain correction. The default is ``True``.
+        setup_name : str, optional
+            Name of the solution setup to push. The default is ``"LinearFrequency"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.PushExcitations
+        """
+        arg = [
+            "NAME:options",
+            "transient:=",
+            [
+                "start:=",
+                start,
+                "stop:=",
+                stop,
+                "maxHarmonics:=",
+                harmonics,
+                "winType:=",
+                window_type,
+                "widthPct:=",
+                width_percentage,
+                "kaiser:=",
+                kaiser,
+                "correctCoherentGain:=",
+                correct_coherent_gain,
+            ],
+            "Sol:=",
+            setup_name,
+        ]
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
 
