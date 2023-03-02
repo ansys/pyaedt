@@ -20,7 +20,7 @@ import pyaedt
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-version = "2022.2"
+version = "2023.1"
 
 ###############################################################################
 # Launch Maxwell3D

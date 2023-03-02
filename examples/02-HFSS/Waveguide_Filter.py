@@ -44,7 +44,6 @@ wgparams = {'l': [0.7428, 0.82188],
 
 non_graphical = False
 new_thread = True
-pyaedt.settings.use_grpc_api = True
 
 ###############################################################################
 # Save the project and results in the TEMP folder
@@ -214,4 +213,3 @@ plt = solution.plot(solution.expressions)  # Matplotlib axes object.
 
 hfss.save_project()
 hfss.release_desktop()
-pyaedt.settings.use_grpc_api = False

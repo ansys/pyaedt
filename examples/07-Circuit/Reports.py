@@ -23,7 +23,7 @@ project_path = pyaedt.downloads.download_custom_reports(temp_folder)
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 ##########################################################
 # Set non-graphical mode

@@ -24,7 +24,7 @@ import pyaedt
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 
 non_graphical = False
 new_thread = True

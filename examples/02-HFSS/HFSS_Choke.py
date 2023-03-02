@@ -29,7 +29,7 @@ non_graphical = False
 # Launches HFSS 2022 R2 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2022.2",
+                   specified_version="2023.1",
                    non_graphical=non_graphical,
                    new_desktop_session=True,
                    solution_type="Terminal")

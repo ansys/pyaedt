@@ -29,7 +29,7 @@ from pyaedt.generic.filesystem import Scratch
 
 non_graphical = False
 NewThread = True
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 scratch_path = pyaedt.generate_unique_folder_name()
 
 ###############################################################################

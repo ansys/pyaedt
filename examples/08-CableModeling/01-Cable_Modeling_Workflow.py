@@ -28,7 +28,7 @@ json_path = pyaedt.downloads.download_file("cable_modeling", "set_cable_properti
 # ~~~~~~~~~~~
 # Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 ###############################################################################
 # Set non-graphical mode

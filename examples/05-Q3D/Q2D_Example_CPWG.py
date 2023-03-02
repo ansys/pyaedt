@@ -27,7 +27,7 @@ non_graphical = False
 # Launch AEDT 2022 R2 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
-q = pyaedt.Q2d(specified_version="2022.2",
+q = pyaedt.Q2d(specified_version="2023.1",
                non_graphical=non_graphical,
                new_desktop_session=True,
                projectname=pyaedt.generate_unique_name("pyaedt_q2d_example"),

@@ -23,7 +23,6 @@ print(project_name)
 # Launch AEDT
 # ~~~~~~~~~~~
 # Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
-pyaedt.settings.use_grpc_api = True
 desktopVersion = "2023.1"
 
 ###############################################################################
@@ -70,4 +69,3 @@ aedtapp.create_schematic_from_netlist(netlist)
 # AEDT.
 
 desktop.release_desktop()
-pyaedt.settings.use_grpc_api = False

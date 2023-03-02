@@ -31,7 +31,7 @@ aedt_file = targetfile[:-4] + "aedt"
 
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.1")
 
 ###############################################################################
 # Compute nets and components
@@ -185,7 +185,7 @@ edb.close_edb()
 # Open Siwave and generate a report. This works on Window only.
 
 # from pyaedt import Siwave
-# siwave = Siwave("2022.2")
+# siwave = Siwave("2023.1")
 # siwave.open_project(siwave_file)
 # report_file = os.path.join(temp_folder,'Galileo.htm')
 #

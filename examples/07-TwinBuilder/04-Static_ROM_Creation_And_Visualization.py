@@ -38,7 +38,6 @@ from pyaedt import settings
 desktop_version = "2023.1"
 non_graphical = False
 new_thread = True
-settings.use_grpc_api = True
 ###############################################################################
 # Set up input data
 # ~~~~~~~~~~~~~~~~~
@@ -188,4 +187,3 @@ tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
 tb.release_desktop()
-settings.use_grpc_api = False
