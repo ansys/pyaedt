@@ -207,6 +207,7 @@ class TestClass(BasisTest, object):
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
     def test_16_read_touchstone(self):
         from pyaedt.generic.touchstone_parser import read_touchstone
 
