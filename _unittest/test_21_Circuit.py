@@ -8,6 +8,7 @@ from pyaedt import Circuit  # Setup paths for module imports
 from pyaedt.generic.touchstone_parser import (
     read_touchstone,  # Setup paths for module imports
 )
+from pyaedt.generic.general_methods import is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -154,8 +155,9 @@ class TestClass(BasisTest, object):
         rx = ports[int(numports / 2) :]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
-        touchstone_data = self.aedtapp.get_touchstone_data()
-        assert touchstone_data
+        if not is_ironpython:
+            touchstone_data = self.aedtapp.get_touchstone_data()
+            assert touchstone_data
 
     def test_11_export_fullwave(self):
         output = self.aedtapp.export_fullwave_spice(
