@@ -1390,7 +1390,7 @@ class BinaryTreeNode:
                 for name in names:
                     self.children[name] = BinaryTreeNode(name, self.child_object.GetChildObject(i).GetChildObject(name))
         self.props = {}
-        if first_level:
+        if first_level and self.children:
             self.child_object = self.children[name].child_object
             self.children = self.children[name].children
         for i in self.child_object.GetPropNames():
