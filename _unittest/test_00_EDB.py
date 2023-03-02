@@ -406,7 +406,6 @@ class TestClass(BasisTest, object):
             list(self.edbapp.sources.values())[0].phase = 1
             assert list(self.edbapp.sources.values())[0].phase == 1
 
-
     def test_042_create_current_source(self):
         assert self.edbapp.core_siwave.create_current_source_on_net("U2A5", "DDR3_DM1", "U2A5", "GND", 0.1, 0) != ""
         pins = self.edbapp.core_components.get_pin_from_component("U2A5")

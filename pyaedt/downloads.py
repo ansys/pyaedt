@@ -352,6 +352,7 @@ def download_icepak(destination=None):
 
     return _download_file("icepak", "Graphics_card.aedt", destination)
 
+
 def download_icepak_3d_component(destination=None):  # pragma: no cover
     """Download an example of Icepak Array and return the def pathsw.
 
