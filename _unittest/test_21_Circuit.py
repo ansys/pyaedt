@@ -5,9 +5,6 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt.generic.touchstone_parser import (
-    read_touchstone,  # Setup paths for module imports
-)
 
 try:
     import pytest  # noqa: F401
@@ -208,7 +205,10 @@ class TestClass(BasisTest, object):
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
 
+    @pytest.mark.skipif(is_ironpython, reason="Supported only in CPython.")
     def test_16_read_touchstone(self):
+        from pyaedt.generic.touchstone_parser import read_touchstone
+
         data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
         assert len(data.port_names) > 0
 
