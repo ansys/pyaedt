@@ -2052,3 +2052,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             all_quantities,
         )
         return SolutionData(list(data))
+
+    def get_dcir_report(self, ):
+        pass
