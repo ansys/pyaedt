@@ -26,7 +26,7 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode with Circuit.
+# Launch AEDT 2023 R1 in graphical mode with Circuit.
 
 cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
                      specified_version="2023.1",

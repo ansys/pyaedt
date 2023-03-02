@@ -27,11 +27,11 @@ aedt_file = targetfile[:-4] + "aedt"
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
-
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
+edb_version = "2023.1"
 if os.path.exists(aedt_file):
     os.remove(aedt_file)
-edb = pyaedt.Edb(edbpath=targetfile, edbversion="2023.1")
+edb = pyaedt.Edb(edbpath=targetfile, edbversion=edb_version)
 
 ###############################################################################
 # Compute nets and components
@@ -170,7 +170,8 @@ siw_file = edb.solve_siwave()
 # Export Siwave Reports
 # ~~~~~~~~~~~~~~~~~~~~~
 # Export all DC Reports quantities.
-outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
+if edb_version != "2023.1":
+    outputs = edb.export_siwave_dc_results(siw_file, setup.name, )
 
 ###############################################################################
 # Close EDB

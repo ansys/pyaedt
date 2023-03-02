@@ -10,7 +10,7 @@ run anlasyis and get results.
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Peform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2022 R2.
+# on version 2023 R1.
 
 import os
 import pyaedt
@@ -35,7 +35,7 @@ print("Project folder will be", target_aedb)
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
 
 edbapp = pyaedt.Edb(target_aedb, edbversion="2023.1")
 ###############################################################################

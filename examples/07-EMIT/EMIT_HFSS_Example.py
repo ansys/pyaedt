@@ -25,7 +25,7 @@ from pyaedt.generic.filesystem import Scratch
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 # 
-# The following code uses AEDT 2022 R2.
+# The following code uses AEDT 2023 R1.
 
 non_graphical = False
 NewThread = True

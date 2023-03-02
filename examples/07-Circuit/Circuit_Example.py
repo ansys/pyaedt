@@ -17,7 +17,7 @@ import os
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
+# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
 
 desktop_version = "2023.1"
 

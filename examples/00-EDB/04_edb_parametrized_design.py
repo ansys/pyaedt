@@ -8,7 +8,7 @@ This example shows how you can use HFSS 3D Layout to create and solve a parametr
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform required imports, which includes importing the ``Hfss3dlayout`` object
-# and initializing it on version 2022 R2.
+# and initializing it on version 2023 R1.
 
 import pyaedt
 import os

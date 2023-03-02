@@ -44,7 +44,7 @@ outline_polygon_name = "poly_14188"
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
 d = pyaedt.launch_desktop(specified_version="2023.1", non_graphical=non_graphical, new_desktop_session=True)
 

@@ -24,7 +24,7 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2023 R1 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q = pyaedt.Q2d(specified_version="2023.1",

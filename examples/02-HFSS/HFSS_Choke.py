@@ -26,7 +26,7 @@ non_graphical = False
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launches HFSS 2022 R2 in graphical mode.
+# Launches HFSS 2023 R1 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name,
                    specified_version="2023.1",
