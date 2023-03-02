@@ -81,7 +81,7 @@ def install_toolkit(toolkit_dir, product):
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
-    # Remove hard-coded version number from Python virtual environment path, and replace with corresponding AEDT
+    # Remove hard-coded version number from Python virtual environment path, and replace it with the corresponding AEDT
     # version's Python virtual environment.
     executable_version_agnostic = sys.executable.replace(version[2:6].replace(".", ""), "%s")
     jupyter_executable = executable_version_agnostic.replace("python.exe", "jupyter.exe")
