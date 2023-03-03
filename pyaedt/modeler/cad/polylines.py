@@ -155,6 +155,7 @@ class Polyline(Object3d):
     ):
         self._primitives = primitives
         self._positions = None
+        self._segment_types = None
 
         if src_object:
             # scr_obj keys need to be added.
@@ -185,10 +186,8 @@ class Polyline(Object3d):
             self._is_closed = close_surface
             self._is_covered = cover_surface
 
-            self._segment_types = None
             if segment_type:
                 if isinstance(segment_type, (list, tuple)):
-                    # self._segment_types = copy(segment_type)
                     self._segment_types = [i for i in segment_type]
                 else:
                     self._segment_types = segment_type
@@ -249,7 +248,7 @@ class Polyline(Object3d):
             for i in p_in:
                 v, u = decompose_variable_value(i)
                 p_out.append(unit_converter(v, unit_system="Length", input_units=u, output_units=dest_unit))
-            return p_out
+            return tuple(p_out)
 
         if self._positions:
             return self._positions
