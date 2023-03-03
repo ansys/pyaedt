@@ -806,7 +806,10 @@ class Materials(object):
                     and val[keys.index(prop)]
                     and not (isinstance(val[keys.index(prop)], float) and math.isnan(val[keys.index(prop)]))
                 ):
-                    props[prop] = val[keys.index(prop)]
+                    prop_value = val[keys.index(prop)]
+                    if prop_value.dtype == "int64":
+                        prop_value = prop_value.astype(float)
+                    props[prop] = prop_value
             new_material = Material(self, newname, props)
             new_material.update()
             self.material_keys[newname] = new_material
