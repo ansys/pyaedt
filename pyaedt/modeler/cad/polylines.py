@@ -1,11 +1,12 @@
 from __future__ import absolute_import
 
-# import copy
 import math
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.geometry_operators import GeometryOperators
@@ -156,11 +157,9 @@ class Polyline(Object3d):
         self._positions = None
 
         if src_object:
-            self.__dict__ = src_object.__dict__.copy()
-            # # scr_obj keys need to be added and also a deep copied.
-            # for k in src_object.__dict__:
-            #     self.__dict__[k] = copy.deepcopy(src_object.__dict__[k])
-            self._positions = None
+            # scr_obj keys need to be added.
+            for k in src_object.__dict__:
+                self.__dict__[k] = src_object.__dict__[k]
 
             if name:
                 self._m_name = name
@@ -244,13 +243,29 @@ class Polyline(Object3d):
     @property
     def points(self):
         """Polyline Points."""
+
+        def _convert_points(p_in, dest_unit):
+            p_out = []
+            for i in p_in:
+                v, u = decompose_variable_value(i)
+                p_out.append(unit_converter(v, unit_system="Length", input_units=u, output_units=dest_unit))
+            return p_out
+
         if self._positions:
             return self._positions
         else:
             # get from history
-            # self.history.
-            aaa = self.history
-            return aaa
+            points = []
+            children = self.history.children
+            if children:
+                for i, p in enumerate(children.values()):
+                    if i == 0:  # append the first point only for the first segment
+                        points.append(_convert_points(list(p.child_object.Point1)[1::2], self._primitives.model_units))
+                    points.append(_convert_points(list(p.child_object.Point2)[1::2], self._primitives.model_units))
+                self._positions = points
+                return self._positions
+            else:
+                return []
 
     @property
     def vertex_positions(self):
