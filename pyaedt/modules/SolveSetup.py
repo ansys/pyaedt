@@ -505,7 +505,9 @@ class Setup(CommonSetup):
 
         >>> oModule.EditSetup
         """
+        auto_update = self.auto_update
         try:
+            self.auto_update = False
             meshlinks = self.props["MeshLink"]
             # design type
             if self.p_app.design_type == "Mechanical":
@@ -564,8 +566,10 @@ class Setup(CommonSetup):
             if self.p_app.design_type != "Maxwell 2D" or self.p_app.design_type != "Maxwell 3D":
                 meshlinks["AdaptPort"] = adapt_port
             self.update()
+            self.auto_update = auto_update
             return True
         except:
+            self.auto_update = auto_update
             return False
 
     @pyaedt_function_handler()

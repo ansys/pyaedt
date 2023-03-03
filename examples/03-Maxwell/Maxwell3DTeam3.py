@@ -31,7 +31,7 @@ non_graphical = False
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2022.2"
+DesktopVersion = "2023.1"
 
 M3D = pyaedt.Maxwell3d(
     projectname=pyaedt.generate_unique_project_name(),

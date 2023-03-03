@@ -20,12 +20,12 @@ import pyaedt
 # You can define ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-version = "2022.2"
+version = "2023.1"
 
 ###############################################################################
 # Launch Maxwell3D
 # ~~~~~~~~~~~~~~~~
-# Launch Maxwell 3D 2022 R2 in graphical mode.
+# Launch Maxwell 3D 2023 R1 in graphical mode.
 
 m3d = pyaedt.Maxwell3d(projectname=pyaedt.generate_unique_project_name(),
                        solution_type="EddyCurrent",

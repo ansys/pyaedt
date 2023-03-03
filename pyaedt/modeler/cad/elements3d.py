@@ -201,10 +201,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     """
 
-    def __init__(self, object3d, objid):
+    def __init__(self, object3d, objid, position=None):
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d.m_Editor
+        self._position = position
 
     @property
     def position(self):
@@ -223,6 +224,8 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
+        if self._position:
+            return self._position
         try:
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             return [float(i) for i in vertex_data]
@@ -312,6 +315,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
+        if not v:
+            pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
+            vertices.append(VertexPrimitive(self._object3d, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -514,6 +520,10 @@ class FacePrimitive(object):
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        if not v:
+            for el in self.edges:
+                pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
+                vertices.append(VertexPrimitive(self._object3d, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -586,34 +596,28 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceCenter
 
         """
-        if len(self.vertices) > 1:
-            return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+        vtx = self.vertices
+        if len(vtx) > 1:
+            return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
+        elif len(vtx) == 1:
+            centroid = [0, 0, 0]
+            eval_points = 4
+            for edge in self.edges:
+                centroid = GeometryOperators.v_sum(
+                    centroid,
+                    GeometryOperators.get_polygon_centroid(
+                        [
+                            [
+                                float(i)
+                                for i in self.oeditor.GetEdgePositionAtNormalizedParameter(edge.id, pos / eval_points)
+                            ]
+                            for pos in range(0, eval_points, 1)
+                        ]
+                    ),
+                )
+            return GeometryOperators.v_prod(1 / len(self.edges), centroid)
         else:
-            center = self.center_from_aedt
-            if center:
-                return center
-            else:
-                if self.vertices:
-                    return self.vertices[0].position
-                else:  # pragma: no cover
-                    centroid = [0, 0, 0]
-                    eval_points = 4
-                    for edge in self.edges:
-                        centroid = GeometryOperators.v_sum(
-                            centroid,
-                            GeometryOperators.get_polygon_centroid(
-                                [
-                                    [
-                                        float(i)
-                                        for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
-                                            edge.id, pos / eval_points
-                                        )
-                                    ]
-                                    for pos in range(0, eval_points, 1)
-                                ]
-                            ),
-                        )
-                    return GeometryOperators.v_prod(1 / len(self.edges), centroid)
+            return self.center_from_aedt
 
     @property
     def area(self):

@@ -96,14 +96,13 @@ class Modeler2D(GeometryModeler, Primitives2D):
         radius = 0
         oVertexIDs = self[object_name].vertices
         if oVertexIDs:
-            vert_id_int = [x.id for x in oVertexIDs]
             if inner:
                 radius = 0
             else:
                 radius = 1e9
 
-            for vertex in vert_id_int:
-                pos = self.oeditor.GetVertexPosition(vertex)
+            for vertex in oVertexIDs:
+                pos = vertex.position
                 vertex_radius = math.sqrt(float(pos[0]) ** 2 + float(pos[1]) ** 2)
                 if inner:
                     if vertex_radius > radius:
@@ -150,6 +149,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         ----------
         bounding_box : list.
             List of either the 4 or 6 coordinates of the bounding box vertices.
+            Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
         check_lines : bool, optional.
             Whether to check line objects. The default is ``True``.
         check_sheets : bool, optional.
@@ -170,28 +170,29 @@ class Modeler2D(GeometryModeler, Primitives2D):
                 bounding_box = [bounding_box[0], 0, bounding_box[1], bounding_box[2], 0, bounding_box[3]]
 
         objects_2d = []
-
         if check_lines:
-            for obj in self._primitives.line_objects:
-                if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+            for obj in self.line_objects:
+                bound = obj.bounding_box
+                if (  # pragma: no cover
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects_2d.append(obj)
 
         if check_sheets:
-            for obj in self._primitives.sheet_objects:
+            for obj in self.sheet_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects_2d.append(obj)
 

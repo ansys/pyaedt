@@ -43,3 +43,6 @@ psutil==5.9.4; python_version > '3.6'
 
 pyvista==0.38.3; python_version > '3.6'
 # License: MIT
+
+scikit-rf; python_version > '3.6'
+# License: BSD-3-Clause License
