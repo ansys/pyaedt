@@ -26,15 +26,14 @@ sName = 'MySetupAuto'
 sType = 'Electrostatic'
 dName = 'Design1'
 pName = pyaedt.generate_unique_project_name()
-non_graphical = False
+non_graphical = True
 
 #################################################################################
 # Download .xlsx file
 # ~~~~~~~~~~~~~~~~~~~
 # Set local temporary folder to export the .xlsx file to.
 
-temp_folder = pyaedt.generate_unique_folder_name()
-file_name_xlsx = pyaedt.downloads.download_file("field_line_traces", "my_copper.xlsx", temp_folder)
+file_name_xlsx = pyaedt.downloads.download_file("field_line_traces", "my_copper.xlsx")
 
 #################################################################################
 # Initialize dictionaries
