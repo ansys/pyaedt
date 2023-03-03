@@ -7,7 +7,7 @@ This example shows how you can use EDB to create a layout.
 ##########################
 # Import EDB layout object
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Import the EDB layout object and initialize it on version 2022 R2.
+# Import the EDB layout object and initialize it on version 2023 R1.
 
 import time
 import os
@@ -17,7 +17,7 @@ start = time.time()
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.1")
 
 ####################
 # Add stackup layers

@@ -2057,6 +2057,47 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         )
         return SolutionData(list(data))
 
+    def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
+        """
+        Return a Touchstone data plot.
+
+        Parameters
+        ----------
+        setup_name : list
+            Name of the setup.
+        sweep_name : str, optional
+            Name of the sweep. The default value is ``None``.
+        variations : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
+           Class containing all requested data.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        from pyaedt.generic.touchstone_parser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.setups[0].name
+
+        if not sweep_name:
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    sweep_name = setup.sweeps[0].name
+        s_parameters = []
+        solution = "{} : {}".format(setup_name, sweep_name)
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, solution, variations=variations)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
+
     def get_dcir_element_data_loop_resistance(self, setup_name):
         """Get dcir element data loop resistance.
 

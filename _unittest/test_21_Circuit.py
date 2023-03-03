@@ -5,9 +5,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt.generic.TouchstoneParser import (
-    read_touchstone,  # Setup paths for module imports
-)
+from pyaedt import is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -131,6 +129,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
+    def test_07b_push_excitation_time(self):
+        setup_name = "test_07b_Transient"
+        setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
+        assert self.aedtapp.push_time_excitations(instance_name="U1", setup_name=setup_name)
+
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
@@ -154,8 +157,9 @@ class TestClass(BasisTest, object):
         rx = ports[int(numports / 2) :]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
-        touchstone_data = self.aedtapp.get_touchstone_data(insertions)
-        assert touchstone_data
+        if not is_ironpython:
+            touchstone_data = self.aedtapp.get_touchstone_data()
+            assert touchstone_data
 
     def test_11_export_fullwave(self):
         output = self.aedtapp.export_fullwave_spice(
@@ -208,16 +212,12 @@ class TestClass(BasisTest, object):
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
     def test_16_read_touchstone(self):
-        data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
-        assert len(data.expressions) > 0
-        assert data.data_real()
-        assert data.data_imag()
-        assert data.data_db()
+        from pyaedt.generic.touchstone_parser import read_touchstone
 
-        data_with_verbose = read_touchstone(os.path.join(self.local_scratch.path, touchstone), verbose=True)
-        assert max(data_with_verbose.data_magnitude()) > 0.37
-        assert max(data_with_verbose.data_magnitude()) < 0.38
+        data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
+        assert len(data.port_names) > 0
 
     def test_17_create_setup(self):
         setup_name = "Dom_LNA"

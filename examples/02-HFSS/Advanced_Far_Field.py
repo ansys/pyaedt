@@ -38,9 +38,9 @@ import matplotlib.pyplot as plt
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in non-graphical mode.
+# Launch AEDT 2023 R1 in non-graphical mode.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 NewThread = True
 desktop = pyaedt.launch_desktop(specified_version=desktopVersion,
                                 non_graphical=non_graphical,

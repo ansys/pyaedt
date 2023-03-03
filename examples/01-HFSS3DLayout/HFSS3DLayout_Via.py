@@ -24,9 +24,9 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
-h3d = pyaedt.Hfss3dLayout(specified_version="2022.2", new_desktop_session=True, non_graphical=non_graphical)
+h3d = pyaedt.Hfss3dLayout(specified_version="2023.1", new_desktop_session=True, non_graphical=non_graphical)
 
 ###############################################################################
 # Set up variables

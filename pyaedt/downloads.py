@@ -353,8 +353,8 @@ def download_icepak(destination=None):
     return _download_file("icepak", "Graphics_card.aedt", destination)
 
 
-def download_icepak_3d_component(destination=None):
-    """Download an example of Icepak Array and return the def path.
+def download_icepak_3d_component(destination=None):  # pragma: no cover
+    """Download an example of Icepak Array and return the def pathsw.
 
     Examples files are downloaded to a persistent cache to avoid
     re-downloading the same file twice.

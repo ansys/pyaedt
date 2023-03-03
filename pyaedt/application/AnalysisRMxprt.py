@@ -60,7 +60,7 @@ class FieldAnalysisRMxprt(Analysis):
         -------
         :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
         """
-        if self._post is None:
+        if self._post is None:  # pragma: no cover
             from pyaedt.modules.PostProcessor import CircuitPostProcessor
 
             self._post = CircuitPostProcessor(self)

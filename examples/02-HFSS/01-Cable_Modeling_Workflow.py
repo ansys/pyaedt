@@ -26,9 +26,9 @@ json_path = pyaedt.downloads.download_file("cable_modeling", "set_cable_properti
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
+# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -42,14 +42,14 @@ non_graphical = False
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode.
+# Launch AEDT 2023 R1 in graphical mode.
 
 d = pyaedt.launch_desktop(desktopVersion, non_graphical=non_graphical, new_desktop_session=True)
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launch HFSS 2022 R2 in graphical mode.
+# Launch HFSS 2023 R1 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_path, non_graphical=non_graphical)
 hfss.modeler.model_units = "mm"

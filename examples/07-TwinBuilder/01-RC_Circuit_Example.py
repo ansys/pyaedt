@@ -17,14 +17,14 @@ import pyaedt
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Select the Twin Builder version and set the launch options. The following code
-# launches Twin Builder 2022 R2 in graphical mode.
+# launches Twin Builder 2023 R1 in graphical mode.
 #
 # You can change the Boolean parameter ``non_graphical`` to ``True`` to launch
 # Twin Builder in non-graphical mode. You can also change the Boolean parameter
 # ``new_thread`` to ``False`` to launch Twin Builder in an existing AEDT session
 # if one is running.
 
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 
 non_graphical = False
 new_thread = True

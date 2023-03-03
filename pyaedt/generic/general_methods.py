@@ -294,7 +294,12 @@ def open_file(file_path, file_options="r"):
     """
     file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
     dir_name = os.path.dirname(file_path)
-    if os.path.exists(dir_name):
+    if "r" in file_options:
+        if os.path.exists(file_path):
+            return open(file_path, file_options)
+        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
+            return open(file_path, file_options)
+    elif os.path.exists(dir_name):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:
         return settings.remote_rpc_session.open_file(file_path, file_options)
@@ -1009,7 +1014,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time_vals, value):
+def compute_fft(time_vals, value):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters

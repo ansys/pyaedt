@@ -2215,7 +2215,10 @@ class Hfss(FieldAnalysis3D, object):
             )
             if add_pec_cap:
                 dist = math.sqrt(self.modeler[sheet_name].faces[0].area)
-                self._create_pec_cap(sheet_name, startobj, dist / 10)
+                if settings.aedt_version > "2022.2":
+                    self._create_pec_cap(sheet_name, startobj, -dist / 10)
+                else:
+                    self._create_pec_cap(sheet_name, startobj, dist / 10)
             portname = self._get_unique_source_name(portname, "Port")
 
             if "Modal" in self.solution_type:
@@ -6015,3 +6018,45 @@ class Hfss(FieldAnalysis3D, object):
             return self._create_boundary(symmetry_name, props, "Symmetry")
         except:
             return False
+
+    @pyaedt_function_handler()
+    def get_touchstone_data(self, setup_name, sweep_name=None, variation_dict=None):
+        """
+        Return a Touchstone data plot.
+
+        Parameters
+        ----------
+        setup_name : list
+            List of the curves to plot.
+        sweep_name : str, optional
+            Name of the solution. The default value is ``None``.
+        variation_dict : dict, optional
+            Dictionary of variation names. The default value is ``None``.
+
+        Returns
+        -------
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
+           Class containing all requested data.
+
+        References
+        ----------
+
+        >>> oModule.GetSolutionDataPerVariation
+        """
+        from pyaedt.generic.touchstone_parser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.setups[0].name
+
+        if not sweep_name:
+            for setup in self.setups:
+                if setup.name == setup_name:
+                    sweep_name = setup.sweeps[0].name
+        s_parameters = []
+        solution = "{} : {}".format(setup_name, sweep_name)
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, solution, variations=variation_dict)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
