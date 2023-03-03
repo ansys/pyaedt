@@ -9,8 +9,6 @@ import re
 import warnings
 from collections import OrderedDict
 
-import pandas as pd
-
 from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Analysis3DLayout import FieldAnalysis3DLayout
@@ -2089,6 +2087,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
+        if is_ironpython:
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
         solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
 
         terms = []
@@ -2125,6 +2128,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
+        if is_ironpython:
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
         solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
         terms = []
         pattern = r"^V\((.*?)\)"
@@ -2155,6 +2163,11 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
+        if is_ironpython:
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
         cates = ["X", "Y", "Current", "Resistance", "IR Drop", "Power"]
         df = None
         for cat in cates:
