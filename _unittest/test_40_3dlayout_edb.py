@@ -325,8 +325,6 @@ class TestClass(BasisTest, object):
             domain="DCIR",
             context="RL",
         )
-        now = time.time()
         assert isinstance(hfss3d.get_dcir_element_data_via("Siwave_DC_WP9QNY"), pd.DataFrame)
-        print(time.time() - now)
         assert isinstance(hfss3d.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame)
         assert isinstance(hfss3d.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame)
