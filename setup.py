@@ -5,11 +5,10 @@ import sys
 # import pip
 import logging
 
-from _setup_common import version
-
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 log = logging.getLogger()
 
+from _setup_common import version
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 
