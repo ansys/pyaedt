@@ -2058,7 +2058,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return SolutionData(list(data))
 
     def get_dcir_element_data_loop_resistance(self, setup_name):
-        """Get dcir loop resistance.
+        """Get dcir element data loop resistance.
 
         Parameters
         ----------
@@ -2094,7 +2094,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return df
 
     def get_dcir_element_data_current_source(self, setup_name):
-        """Get dcir .
+        """Get dcir element data current source.
 
         Parameters
         ----------
@@ -2125,11 +2125,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return df
 
     def get_dcir_element_data_via(self, setup_name):
-        import functools
+        """Get dcir .
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
         cates = ["X", "Y", "Current", "Resistance", "IR_Drop", "Power"]
-        data = {cat: [] for cat in cates}
-        via_names = []
+        df = None
         for cat in cates:
+            data = {cat:[]}
             solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
             tmp_via_names = []
             pattern = r"\((.*?)\)"
@@ -2137,11 +2146,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 matches = re.findall(pattern, t_name)
                 if matches:
                     tmp_via_names.append(matches[0])
-            if not via_names:
-                via_names = tmp_via_names
-            else:
-                if not functools.reduce(lambda x, y: x and y, map(lambda p, q: p == q, via_names, tmp_via_names), True):
-                    return False
 
             for ex in solution_data.expressions:
                 value = solution_data.data_magnitude(ex)[0]
@@ -2150,6 +2154,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     data[cat].append(value*coeff)
                 else:
                     data[cat].append(value)
-        df = pd.DataFrame(data)
-        df.index = via_names
+            df_tmp = pd.DataFrame(data)
+            df_tmp.index = tmp_via_names
+            if not isinstance(df, pd.DataFrame):
+                df = df_tmp
+            else:
+                df.merge(df_tmp , left_index=True, right_index=True, how='outer')
         return df

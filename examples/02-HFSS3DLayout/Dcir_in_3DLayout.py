@@ -98,9 +98,10 @@ hfss3dl.analyze_all()
 hfss3dl.save_project()
 
 ###############################################################################
-# Get loop resistance
+# Get element data
 # ~~~~~~~~~~~~~~~~~~~
 # Get loop resistance from dcir result
+
 loop_resistance = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="RL",
@@ -115,7 +116,7 @@ voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Sources",
     category="Voltage")
-print({ expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
+print({expression: voltage.data_magnitude(expression) for  expression in voltage.expressions})
 
 ###############################################################################
 # Get via
@@ -125,7 +126,7 @@ via_current = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Vias",
     category="Current")
-print({ expression: via_current.data_magnitude(expression) for  expression in via_current.expressions[100:105]})
+print({expression: via_current.data_magnitude(expression) for expression in via_current.expressions[100:105]})
 
 ###############################################################################
 # Close AEDT
