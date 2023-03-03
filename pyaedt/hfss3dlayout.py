@@ -2153,7 +2153,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 terms.append(matches[0])
         terms = list(set(terms))
 
-        data = {"Voltage":[]}
+        data = {"Voltage": []}
         for t_name in terms:
             ex = "V({})".format(t_name)
             value = solution_data.data_magnitude(ex, convert_to_SI=True)
@@ -2177,7 +2177,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         cates = ["X", "Y", "Current", "Resistance", "IR_Drop", "Power"]
         df = None
         for cat in cates:
-            data = {cat:[]}
+            data = {cat: []}
             solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
             tmp_via_names = []
             pattern = r"\((.*?)\)"
@@ -2188,7 +2188,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
             for ex in solution_data.expressions:
                 value = solution_data.data_magnitude(ex, convert_to_SI=True)[0]
-                #value = solution_data._solutions_mag(ex)
+                # value = solution_data._solutions_mag(ex)
                 data[cat].append(value)
 
             df_tmp = pd.DataFrame(data)
@@ -2196,5 +2196,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             if not isinstance(df, pd.DataFrame):
                 df = df_tmp
             else:
-                df.merge(df_tmp , left_index=True, right_index=True, how='outer')
+                df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df
