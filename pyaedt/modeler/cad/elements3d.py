@@ -596,34 +596,28 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceCenter
 
         """
-        if len(self.vertices) > 1:
-            return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+        vtx = self.vertices
+        if len(vtx) > 1:
+            return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
+        elif len(vtx) == 1:
+            centroid = [0, 0, 0]
+            eval_points = 4
+            for edge in self.edges:
+                centroid = GeometryOperators.v_sum(
+                    centroid,
+                    GeometryOperators.get_polygon_centroid(
+                        [
+                            [
+                                float(i)
+                                for i in self.oeditor.GetEdgePositionAtNormalizedParameter(edge.id, pos / eval_points)
+                            ]
+                            for pos in range(0, eval_points, 1)
+                        ]
+                    ),
+                )
+            return GeometryOperators.v_prod(1 / len(self.edges), centroid)
         else:
-            center = self.center_from_aedt
-            if center:
-                return center
-            else:
-                if self.vertices:
-                    return self.vertices[0].position
-                else:  # pragma: no cover
-                    centroid = [0, 0, 0]
-                    eval_points = 4
-                    for edge in self.edges:
-                        centroid = GeometryOperators.v_sum(
-                            centroid,
-                            GeometryOperators.get_polygon_centroid(
-                                [
-                                    [
-                                        float(i)
-                                        for i in self.oeditor.GetEdgePositionAtNormalizedParameter(
-                                            edge.id, pos / eval_points
-                                        )
-                                    ]
-                                    for pos in range(0, eval_points, 1)
-                                ]
-                            ),
-                        )
-                    return GeometryOperators.v_prod(1 / len(self.edges), centroid)
+            return self.center_from_aedt
 
     @property
     def area(self):
