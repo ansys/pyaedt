@@ -298,7 +298,10 @@ def open_file(file_path, file_options="r"):
         if os.path.exists(file_path):
             return open(file_path, file_options)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
-            return settings.remote_rpc_session.open_file(file_path, file_options)
+            local_file = tempfile.gettempdir()
+            settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
+            return open(local_file, file_options)
+            # return settings.remote_rpc_session.open_file(file_path, file_options)
     elif os.path.exists(dir_name):
         return open(file_path, file_options)
     elif settings.remote_rpc_session:
