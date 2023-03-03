@@ -13,7 +13,6 @@ plot field line traces, relevant for an electrostatic analysis.
 # Perform required imports.
 
 import pyaedt
-import time
 
 #################################################################################
 # Initialize Maxwell 2D
@@ -33,6 +32,7 @@ non_graphical = False
 # Download .xlsx file
 # ~~~~~~~~~~~~~~~~~~~
 # Set local temporary folder to export the .xlsx file to.
+
 temp_folder = pyaedt.generate_unique_folder_name()
 file_name_xlsx = pyaedt.downloads.download_file("field_line_traces", "my_copper.xlsx", temp_folder)
 
@@ -58,7 +58,7 @@ geom_params_rectangle = {
     'r_dy': '-10mm'
 }
 
-##########################################################
+##################################################################################
 # Launch Maxwell 2D
 # ~~~~~~~~~~~~~~~~~
 # Launch Maxwell 2D and save the project.
@@ -71,7 +71,7 @@ M2D = pyaedt.Maxwell2d(projectname=pName,
                        non_graphical=non_graphical
                        )
 
-##########################################################
+##################################################################################
 # Create object to access 2D modeler
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create the object ``mod2D`` to access the 2D modeler easily.
@@ -80,7 +80,7 @@ mod2D = M2D.modeler
 mod2D.delete()
 mod2D.model_units = "mm"
 
-##########################################################
+##################################################################################
 # Define variables from dictionaries
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define design variables from the created dictionaries.
@@ -90,14 +90,14 @@ for k, v in geom_params_circle.items():
 for k, v in geom_params_rectangle.items():
     M2D[k] = v
 
-##########################################################
+##################################################################################
 # Read materials from .xslx file
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Read materials from .xslx file into and set into design.
 
 mats = M2D.materials.import_materials_from_excel(file_name_xlsx)
 
-##########################################################
+##################################################################################
 # Create design geometries
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Create rectangle and a circle and assign the material read from the .xlsx file.
@@ -121,7 +121,7 @@ poly2_id = mod2D.create_polyline(position_list=poly2_points, name='Poly2')
 mod2D.split([poly1_id, poly2_id], 'YZ', sides='NegativeOnly')
 mod2D.create_region([20, 100, 20, 100])
 
-##########################################################
+##################################################################################
 # Define excitations
 # ~~~~~~~~~~~~~~~~~~
 # Assign voltage excitations to rectangle and circle.
@@ -129,14 +129,14 @@ mod2D.create_region([20, 100, 20, 100])
 M2D.assign_voltage(rect.id, amplitude=0, name='Ground')
 M2D.assign_voltage(circle.id, amplitude=50e6, name='50kV')
 
-##########################################################
+##################################################################################
 # Create initial mesh settings
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Assign a surface mesh to the rectangle.
 
 M2D.mesh.assign_surface_mesh_manual(names=['Ground'], surf_dev=0.001)
 
-##########################################################
+##################################################################################
 # Create, validate and analyze the setup
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create, update, validate and analyze the setup.
@@ -147,10 +147,11 @@ setup.update()
 M2D.validate_simple()
 M2D.analyze_setup(sName)
 
-##########################################################
-# add_e_calc_expressions
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# add_e_calc_expressions
+##################################################################################
+# Evaluate the E Field tangential component
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Evaluate the E Field tangential component along the given polylines.
+# Add these operations to the Named Expression list in Field Calculator.
 
 fields = M2D.odesign.GetModule('FieldsReporter')
 fields.CalcStack("clear")
@@ -165,13 +166,30 @@ fields.CalcOp("Tangent")
 fields.CalcOp("Dot")
 fields.AddNamedExpression("e_tan_poly2", "Fields")
 
-##########################################################
+##################################################################################
 # Create Field Line Traces Plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Create Field Line Traces Plot specifying as seeding faces
 # the ground, the electrode and the region
 # and as ``In surface objects`` only the region.
 
-M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"], "Region", plot_name="LineTracesTest4")
+plot = M2D.post.create_fieldplot_line_traces(["Ground", "Electrode", "Region"], "Region", plot_name="LineTracesTest")
 
-# UPDATE HERE!!!
+###################################################################################
+# Update Field Line Traces Plot
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Update field line traces plot.
+# Update seeding points number, line style and line width.
+
+plot.SeedingPointsNumber = 20
+plot.LineStyle = "Cylinder"
+plot.LineWidth = 3
+plot.update()
+
+###################################################################################
+# Save project and close AEDT
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Save the project and close AEDT.
+
+M2D.save_project()
+M2D.release_desktop()
