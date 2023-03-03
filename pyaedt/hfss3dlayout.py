@@ -2058,7 +2058,16 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         return SolutionData(list(data))
 
     def get_dcir_element_data_loop_resistance(self, setup_name):
+        """Get dcir loop resistance.
 
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
         solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop_Resistance")
 
         terms = []
@@ -2084,7 +2093,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
-    def get_dcir_element_data_source(self, setup_name):
+    def get_dcir_element_data_current_source(self, setup_name):
+        """Get dcir .
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
         solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
         terms = []
         pattern = r"^V\((.*?)\)"
