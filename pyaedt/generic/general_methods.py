@@ -857,12 +857,21 @@ def recursive_glob(startpath, filepattern):
     startpath -- starting path (directory)
     filepattern -- fnmatch-style filename pattern
     """
-    return [
-        os.path.join(dirpath, filename)
-        for dirpath, _, filenames in os.walk(startpath)
-        for filename in filenames
-        if fnmatch.fnmatch(filename, filepattern)
-    ]
+    if settings.remote_rpc_session:
+        files = []
+        for i in settings.remote_rpc_session.filemanager.listdir(startpath):
+            if settings.remote_rpc_session.filemanager.isdir(os.path.join(startpath, i)):
+                files.extend(recursive_glob(os.path.join(startpath, i), filepattern))
+            elif fnmatch.fnmatch(i, filepattern):
+                files.append(os.path.join(startpath, i))
+        return files
+    else:
+        return [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(startpath)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, filepattern)
+        ]
 
 
 @pyaedt_function_handler()

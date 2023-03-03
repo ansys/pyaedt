@@ -748,18 +748,6 @@ class Desktop(object):
                 os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
             pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
             os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
-        import ctypes
-
-        self._main.library_aedt = ctypes.cdll.LoadLibrary(os.path.join(base_path, "PyDesktopPlugin.dll"))
-
-        # do things with lib_MyClass
-
-        if __name__ == "__main__":
-            lib = ctypes.cdll.LoadLibrary("./mylib.so")
-
-            # do things with lib_MyClass
-
-            ctypesCloseLibrary(lib)
 
         import ScriptEnv
 
