@@ -522,11 +522,8 @@ class FacePrimitive(object):
         v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
         if not v:
             for el in self.edges:
-                i = 0
-                while i < 5:
-                    pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, i / 5)]
-                    vertices.append(VertexPrimitive(self._object3d, -1, pos))
-                    i += 1
+                pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
+                vertices.append(VertexPrimitive(self._object3d, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -1390,9 +1387,9 @@ class BinaryTreeNode:
                 for name in names:
                     self.children[name] = BinaryTreeNode(name, self.child_object.GetChildObject(i).GetChildObject(name))
         self.props = {}
-        if first_level and self.children:
+        if first_level:
             self.child_object = self.children[name].child_object
-            self.children = self.children[name].children
+            del self.children[name]
         for i in self.child_object.GetPropNames():
             self.props[i] = self.child_object.GetPropValue(i)
         self.props = HistoryProps(self, self.props)
