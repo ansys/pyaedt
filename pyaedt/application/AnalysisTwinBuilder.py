@@ -1,7 +1,5 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.schematic import ModelerTwinBuilder
-from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
 from pyaedt.modules.SolveSweeps import SetupKeys
 
@@ -72,8 +70,8 @@ class AnalysisTwinBuilder(Analysis):
             port,
             aedt_process_id,
         )
-        self._modeler = ModelerTwinBuilder(self)
-        self._post = CircuitPostProcessor(self)
+        self._modeler = None
+        self._post = None
 
     @property
     def existing_analysis_sweeps(self):
@@ -89,8 +87,31 @@ class AnalysisTwinBuilder(Analysis):
 
     @property
     def modeler(self):
-        """Design oModeler."""
+        """Design Modeler.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.schematic.ModelerTwinBuilder`
+        """
+        if self._modeler is None:
+            from pyaedt.modeler.schematic import ModelerTwinBuilder
+
+            self._modeler = ModelerTwinBuilder(self)
         return self._modeler
+
+    @property
+    def post(self):
+        """Design Postprocessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        """
+        if self._post is None:  # pragma: no cover
+            from pyaedt.modules.PostProcessor import CircuitPostProcessor
+
+            self._post = CircuitPostProcessor(self)
+        return self._post
 
     @pyaedt_function_handler()
     def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):

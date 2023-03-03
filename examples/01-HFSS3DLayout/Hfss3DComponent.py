@@ -26,7 +26,7 @@ diel_height = "121mil"
 sig_height = "5mil"
 max_steps = 3
 freq = "3GHz"
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 new_session = True
 
 ###############################################################################
@@ -47,7 +47,7 @@ component3d = pyaedt.downloads.download_file("component_3d", "SMA_RF_Jack.a3dcom
 # ~~~~~~~~~~~
 # Launch HFSS application
 
-hfss = pyaedt.Hfss(new_desktop_session=True, specified_version="2022.2", non_graphical=non_graphical)
+hfss = pyaedt.Hfss(new_desktop_session=True, specified_version="2023.1", non_graphical=non_graphical)
 
 hfss.solution_type = "Terminal"
 
@@ -229,5 +229,5 @@ traces = h3d.get_traces_for_plot(category="S")
 solutions = h3d.post.get_solution_data(traces)
 solutions.plot(traces, math_formula="db20")
 
-hfss.save_project()
-hfss.release_desktop()
+h3d.save_project()
+h3d.release_desktop()

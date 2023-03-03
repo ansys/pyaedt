@@ -60,6 +60,7 @@ sys.path.append(os.path.abspath(os.path.join(local_path)))
 sys.path.append(os.path.join(root_path))
 
 from pyaedt import __version__
+
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "Ansys Inc."

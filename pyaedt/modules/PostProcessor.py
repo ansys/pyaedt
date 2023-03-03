@@ -900,7 +900,7 @@ class PostProcessorCommon(object):
     @property
     def modeler(self):
         """Modeler."""
-        return self._app._modeler
+        return self._app.modeler
 
     @property
     def post_solution_type(self):
@@ -1990,7 +1990,7 @@ class PostProcessor(PostProcessorCommon, object):
         PostProcessorCommon.__init__(self, app)
 
     @property
-    def _primitives(self):
+    def _primitives(self):  # pragma: no cover
         """Primitives.
 
         Returns
@@ -1999,7 +1999,7 @@ class PostProcessor(PostProcessorCommon, object):
             Primitives object.
 
         """
-        return self._app._modeler
+        return self._app.modeler
 
     @property
     def model_units(self):
@@ -2662,8 +2662,12 @@ class PostProcessor(PostProcessorCommon, object):
         """
         if not filename:
             filename = plotname
-        self.ofieldsreporter.ExportFieldPlot(plotname, False, os.path.join(filepath, filename + "." + file_format))
-        return os.path.join(filepath, filename + "." + file_format)
+        file_path = os.path.join(filepath, filename + "." + file_format)
+        self.ofieldsreporter.ExportFieldPlot(plotname, False, file_path)
+        if settings.remote_rpc_session_temp_folder:
+            local_path = os.path.join(settings.remote_rpc_session_temp_folder, filename + "." + file_format)
+            file_path = check_and_download_file(local_path, file_path)
+        return file_path
 
     @pyaedt_function_handler()
     def change_field_plot_scale(self, plot_name, minimum_value, maximum_value, is_log=False, is_db=False):
@@ -2735,7 +2739,7 @@ class PostProcessor(PostProcessorCommon, object):
                     intrinsics = i.default_intrinsics
         self._desktop.CloseAllWindows()
         try:
-            self._app._modeler.fit_all()
+            self._app.modeler.fit_all()
         except:
             pass
         self._desktop.TileWindows(0)
@@ -2789,8 +2793,57 @@ class PostProcessor(PostProcessorCommon, object):
             return False
 
     @pyaedt_function_handler()
+    def _create_fieldplot_line_traces(
+        self,
+        seeding_faces_ids,
+        in_volume_tracing_ids,
+        surface_tracing_ids,
+        quantityName,
+        setup_name,
+        intrinsics,
+        plot_name=None,
+    ):
+        if not setup_name:
+            setup_name = self._app.existing_analysis_sweeps[0]
+        if not intrinsics:
+            for i in self._app.setups:
+                if i.name == setup_name.split(" : ")[0]:
+                    intrinsics = i.default_intrinsics
+        self._desktop.CloseAllWindows()
+        try:
+            self._app._modeler.fit_all()
+        except:
+            pass
+        self._desktop.TileWindows(0)
+        self._oproject.SetActiveDesign(self._app.design_name)
+
+        char_set = string.ascii_uppercase + string.digits
+        if not plot_name:
+            plot_name = quantityName + "_" + "".join(random.sample(char_set, 6))
+        plot = FieldPlot(
+            self,
+            objlist=in_volume_tracing_ids,
+            surfacelist=surface_tracing_ids,
+            solutionName=setup_name,
+            quantityName=quantityName,
+            intrinsincList=intrinsics,
+            seedingFaces=seeding_faces_ids,
+        )
+        plot.name = plot_name
+        plot.plotFolder = plot_name
+
+        plt = plot.create()
+        if "Maxwell" in self._app.design_type and self.post_solution_type == "Transient":
+            self.ofieldsreporter.SetPlotsViewSolutionContext([plot_name], setup_name, "Time:" + intrinsics["Time"])
+        if plt:
+            self.field_plots[plot_name] = plot
+            return plot
+        else:
+            return False
+
+    @pyaedt_function_handler()
     def create_fieldplot_line(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):
-        """Create a field plot of line.
+        """Create a field plot of the line.
 
         Parameters
         ----------
@@ -2823,6 +2876,110 @@ class PostProcessor(PostProcessorCommon, object):
             self.logger.info("Plot {} exists. returning the object.".format(plot_name))
             return self.field_plots[plot_name]
         return self._create_fieldplot(objlist, quantityName, setup_name, intrinsincDict, "Line", plot_name)
+
+    @pyaedt_function_handler()
+    def create_fieldplot_line_traces(
+        self,
+        seeding_faces,
+        in_volume_tracing_objs=None,
+        surface_tracing_objs=None,
+        setup_name=None,
+        intrinsinc_dict=None,
+        plot_name=None,
+    ):
+        """
+        Create a field plot of the line.
+
+        Parameters
+        ----------
+        seeding_faces : list
+            List of seeding faces.
+        in_volume_tracing_objs : list
+            List of the in-volume tracing objects.
+        surface_tracing_objs : list
+            List of the surface tracing objects.
+        setup_name : str, optional
+            Name of the setup in the format ``"setupName : sweepName"``. The default
+            is ``None``.
+        intrinsinc_dict : dict, optional
+            Dictionary containing all intrinsic variables. The default
+            is ``{}``.
+        plot_name : str, optional
+            Name of the field plot to create. The default is ``None``.
+
+        Returns
+        -------
+        type
+            Plot object.
+
+        References
+        ----------
+
+        >>> oModule.CreateFieldPlot
+        """
+        if self._app.solution_type != "Electrostatic":
+            self.logger.error("Field line traces is valid only for electrostatic solution")
+            return False
+        if intrinsinc_dict is None:
+            intrinsinc_dict = {}
+        if plot_name and plot_name in list(self.field_plots.keys()):
+            self.logger.info("Plot {} exists. returning the object.".format(plot_name))
+            return self.field_plots[plot_name]
+        if not isinstance(seeding_faces, list):
+            seeding_faces = [seeding_faces]
+        seeding_faces_ids = []
+        for face in seeding_faces:
+            if self._app.modeler[face]:
+                seeding_faces_ids.append(self._app.modeler[face].id)
+            else:
+                self.logger.error("Object {} doesn't exist in current design".format(face))
+                return False
+        in_volume_tracing_ids = []
+        if not in_volume_tracing_objs:
+            in_volume_tracing_ids.append(0)
+        elif not isinstance(in_volume_tracing_objs, list):
+            in_volume_tracing_objs = [in_volume_tracing_objs]
+            for obj in in_volume_tracing_objs:
+                if self._app.modeler[obj]:
+                    in_volume_tracing_ids.append(self._app.modeler[obj].id)
+                else:
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    return False
+        elif isinstance(in_volume_tracing_objs, list):
+            for obj in in_volume_tracing_objs:
+                if not self._app.modeler[obj]:
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    return False
+        surface_tracing_ids = []
+        if not surface_tracing_objs:
+            surface_tracing_ids.append(0)
+        elif not isinstance(surface_tracing_objs, list):
+            surface_tracing_objs = [surface_tracing_objs]
+            for obj in surface_tracing_objs:
+                if self._app.modeler[obj]:
+                    surface_tracing_ids.append(self._app.modeler[obj].id)
+                else:
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    return False
+        elif isinstance(surface_tracing_objs, list):
+            for obj in surface_tracing_objs:
+                if not self._app.modeler[obj]:
+                    self.logger.error("Object {} doesn't exist in current design".format(obj))
+                    return False
+        seeding_faces_ids.insert(0, len(seeding_faces_ids))
+        if in_volume_tracing_ids != [0]:
+            in_volume_tracing_ids.insert(0, len(in_volume_tracing_ids))
+        if surface_tracing_ids != [0]:
+            surface_tracing_ids.insert(0, len(surface_tracing_ids))
+        return self._create_fieldplot_line_traces(
+            seeding_faces_ids,
+            in_volume_tracing_ids,
+            surface_tracing_ids,
+            "FieldLineTrace",
+            setup_name,
+            intrinsinc_dict,
+            plot_name,
+        )
 
     @pyaedt_function_handler()
     def create_fieldplot_surface(self, objlist, quantityName, setup_name=None, intrinsincDict=None, plot_name=None):

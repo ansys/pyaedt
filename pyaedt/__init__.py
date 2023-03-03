@@ -13,7 +13,7 @@ if os.path.exists(os.path.join(pyaedt_path, "version.txt")):
     with open(os.path.join(pyaedt_path, "version.txt"), "r") as f:
         __version__ = f.read().strip()
 
-
+version = __version__
 import pyaedt.downloads as downloads
 import pyaedt.generic.DataHandlers as data_handler
 import pyaedt.generic.general_methods as general_methods

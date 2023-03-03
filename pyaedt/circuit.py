@@ -1006,22 +1006,20 @@ class Circuit(FieldAnalysisCircuit, object):
         )
 
     @pyaedt_function_handler()
-    def get_touchstone_data(self, curvenames, solution_name=None, variation_dict=None):
+    def get_touchstone_data(self, setup_name=None, variation_dict=None):
         """
         Return a Touchstone data plot.
 
         Parameters
         ----------
-        curvenames : list
-            List of the curves to plot.
-        solution_name : str, optional
+        setup_name : str, optional
             Name of the solution. The default value is ``None``.
         variation_dict : dict, optional
             Dictionary of variation names. The default value is ``None``.
 
         Returns
         -------
-        :class:`pyaedt.modules.solutions.SolutionData`
+        :class:`pyaedt.generic.touchstone_parser.TouchstoneData`
            Class containing all requested data.
 
         References
@@ -1029,18 +1027,22 @@ class Circuit(FieldAnalysisCircuit, object):
 
         >>> oModule.GetSolutionDataPerVariation
         """
-        if not solution_name:
-            solution_name = self.nominal_sweep
-        variations = {"Freq": ["All"]}
-        if variation_dict:
-            for el in variation_dict:
-                variations[el] = [variation_dict[el]]
-        ctxt = ["NAME:Context", "SimValueContext:=", [3, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
-        return self.post.get_solution_data_per_variation("Standard", solution_name, ctxt, variations, curvenames)
+        from pyaedt.generic.touchstone_parser import TouchstoneData
+
+        if not setup_name:
+            setup_name = self.existing_analysis_sweeps[0]
+
+        s_parameters = []
+        expression = self.get_traces_for_plot(category="S")
+        sol_data = self.post.get_solution_data(expression, setup_name, variations=variation_dict)
+        for i in range(sol_data.number_of_variations):
+            sol_data.set_active_variation(i)
+            s_parameters.append(TouchstoneData(solution_data=sol_data))
+        return s_parameters
 
     @pyaedt_function_handler()
     def push_excitations(self, instance_name, thevenin_calculation=False, setup_name="LinearFrequency"):
-        """Push excitations.
+        """Push excitations for a linear frequency setup.
 
         Parameters
         ----------
@@ -1063,6 +1065,78 @@ class Circuit(FieldAnalysisCircuit, object):
         """
         arg = ["NAME:options", "CalcThevenin:=", thevenin_calculation, "Sol:=", setup_name]
 
+        self.modeler.oeditor.PushExcitations(instance_name, arg)
+        return True
+
+    @pyaedt_function_handler()
+    def push_time_excitations(
+        self,
+        instance_name,
+        start=0.0,
+        stop=0.0,
+        harmonics=100,
+        window_type="Rectangular",
+        width_percentage=100.0,
+        kaiser=0.0,
+        correct_coherent_gain=True,
+        setup_name="NexximTransient",
+    ):
+        """Push excitations for a transient setup.
+
+        Parameters
+        ----------
+        instance_name : str
+            Name of the instance.
+        start : float, optional
+            Start time in ``seconds``. The default is ``0.0``.
+        stop : float, optional
+            Stop time in ``seconds``. The default is ``0.0``.
+        harmonics : int, optional
+            Maximum number of harmonics. The default is ``100``.
+        window_type : str, optional
+            Window type. Available windows are: ``Rectangular``, ``Barlett``, ``Blackman``, ``Hamming``,
+            ``Hanning``, ``Kaiser``, ``Welch``, ``Weber``, ``Lanzcos``. The default is ``Rectangular``.
+        width_percentage : float, optional
+            Width percentage. The default is ``100.0``.
+        kaiser : float, optional
+            Kaiser value. The default is ``0.0``.
+        correct_coherent_gain : bool, optional
+            Enable coherent gain correction. The default is ``True``.
+        setup_name : str, optional
+            Name of the solution setup to push. The default is ``"LinearFrequency"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.PushExcitations
+        """
+        arg = [
+            "NAME:options",
+            "transient:=",
+            [
+                "start:=",
+                start,
+                "stop:=",
+                stop,
+                "maxHarmonics:=",
+                harmonics,
+                "winType:=",
+                window_type,
+                "widthPct:=",
+                width_percentage,
+                "kaiser:=",
+                kaiser,
+                "correctCoherentGain:=",
+                correct_coherent_gain,
+            ],
+            "Sol:=",
+            setup_name,
+        ]
         self.modeler.oeditor.PushExcitations(instance_name, arg)
         return True
 
