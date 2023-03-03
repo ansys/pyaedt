@@ -20,10 +20,7 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
-from pyaedt.modules.PostProcessor import ReportDcirCategory
-from pyaedt.modules.PostProcessor import ReportDcirShow
 from pyaedt.modules.PostProcessor import ReportUnit
-from pyaedt.modules.solutions import SolutionData
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -1885,7 +1882,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def get_model_from_mesh_results(self, binary=True):
-        """Get the path for the parasolid file in the results folder.
+        """Get the path for the parasolid file in the result folder.
         The parasolid file is generated after the mesh is created in 3D Layout.
 
         Parameters
@@ -2023,39 +2020,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
         category : str, optional
             Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop_Resistance"``,
-            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR_Drop"``.
+            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
         Returns
         -------
         pyaedt.modules.solutions.SolutionData
         """
+
         if is_ironpython:
             self._logger.error("Function is only supported in CPython.")
             return False
-        show_id = ReportDcirShow[show].value
-        category = ReportDcirCategory[category].value
-
-        context = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, show_id, "IDIID", False, "1"],
-        ]
-        all_categories = list(
-            self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
-        )
-        if category not in all_categories:  # pragma: no cover
-            return False
-
+        all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
+        if category not in all_categories:
+            return False  # pragma: no cover
         all_quantities = self.post.available_report_quantities(
-            is_siwave_dc=True, context=show, quantities_category=category
+            context=show, is_siwave_dc=True, quantities_category=category
         )
-        data = self.post.oreportsetup.GetSolutionDataPerVariation(
-            "Standard",
-            setup_name,
-            context,
-            ["Index:=", "All"],
-            all_quantities,
-        )
-        return SolutionData(list(data))
+
+        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
 
     def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
         """
@@ -2109,7 +2090,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
-        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop_Resistance")
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
 
         terms = []
         pattern = r"LoopRes\((.*?)\)"
@@ -2154,13 +2135,13 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 terms.append(matches[0])
         terms = list(set(terms))
 
-        data = {"Voltage":[]}
+        data = {"Voltage": []}
         for t_name in terms:
             ex = "V({})".format(t_name)
             value = solution_data.data_magnitude(ex)
             if value:
                 coeff = ReportUnit[solution_data.units_data[ex]].value
-                data["Voltage"].append(value[0]*coeff)
+                data["Voltage"].append(value[0] * coeff)
         df = pd.DataFrame(data)
         df.index = terms
         return df
@@ -2176,10 +2157,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
-        cates = ["X", "Y", "Current", "Resistance", "IR_Drop", "Power"]
+        cates = ["X", "Y", "Current", "Resistance", "IR Drop", "Power"]
         df = None
         for cat in cates:
-            data = {cat:[]}
+            data = {cat: []}
             solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
             tmp_via_names = []
             pattern = r"\((.*?)\)"
@@ -2192,7 +2173,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                 value = solution_data.data_magnitude(ex)[0]
                 if value:
                     coeff = ReportUnit[solution_data.units_data[ex]].value
-                    data[cat].append(value*coeff)
+                    data[cat].append(value * coeff)
                 else:
                     data[cat].append(value)
             df_tmp = pd.DataFrame(data)
@@ -2200,5 +2181,5 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             if not isinstance(df, pd.DataFrame):
                 df = df_tmp
             else:
-                df.merge(df_tmp , left_index=True, right_index=True, how='outer')
+                df.merge(df_tmp, left_index=True, right_index=True, how="outer")
         return df

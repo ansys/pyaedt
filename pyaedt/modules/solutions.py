@@ -49,7 +49,8 @@ class SolutionData(object):
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
-
+        self._expressions = None
+        self._intrinsics = None
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
@@ -107,6 +108,8 @@ class SolutionData(object):
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
             self.nominal_variation = var_id
+            self._expressions = None
+            self._intrinsics = None
             return True
         return False
 
@@ -145,13 +148,14 @@ class SolutionData(object):
     @property
     def intrinsics(self):
         """Get intrinsics dictionary on active variation."""
-        _sweeps = OrderedDict({})
-        intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
-        for el in intrinsics:
-            values = list(self.nominal_variation.GetSweepValues(el, False))
-            _sweeps[el] = [i for i in values]
-            _sweeps[el] = list(OrderedDict.fromkeys(_sweeps[el]))
-        return _sweeps
+        if not self._intrinsics:
+            self._intrinsics = OrderedDict({})
+            intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
+            for el in intrinsics:
+                values = list(self.nominal_variation.GetSweepValues(el, False))
+                self._intrinsics[el] = [i for i in values]
+                self._intrinsics[el] = list(OrderedDict.fromkeys(self._intrinsics[el]))
+        return self._intrinsics
 
     @property
     def nominal_variation(self):
@@ -184,8 +188,10 @@ class SolutionData(object):
     @property
     def expressions(self):
         """Expressions."""
-        mydata = [i for i in self._nominal_variation.GetDataExpressions()]
-        return list(dict.fromkeys(mydata))
+        if not self._expressions:
+            mydata = [i for i in self._nominal_variation.GetDataExpressions()]
+            self._expressions = list(dict.fromkeys(mydata))
+        return self._expressions
 
     @pyaedt_function_handler()
     def update_sweeps(self):
