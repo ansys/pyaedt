@@ -1,7 +1,5 @@
 import os
 
-import pandas as pd
-
 from _unittest.conftest import config
 
 try:
@@ -16,6 +14,7 @@ from _unittest.conftest import local_path
 
 # Import required modules
 from pyaedt import Hfss3dLayout
+from pyaedt import is_ironpython
 
 test_subfolder = "T40"
 if config["desktopVersion"] > "2022.2":
@@ -309,7 +308,10 @@ class TestClass(BasisTest, object):
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
+    @pytest.mark.skipif(is_ironpython, reason="Not Supported.")
     def test_19_dcir(self):
+        import pandas as pd
+
         lock = self.dcir_example_project + ".lock"
         if os.path.isfile(lock):
             os.remove(lock)
