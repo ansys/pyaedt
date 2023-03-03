@@ -774,7 +774,7 @@ class Materials(object):
         List of :class:`pyaedt.modules.Material.Material`
 
         """
-        try:
+        try:  # pragma: no cover
             import pandas as pd
         except ImportError:
             self.logger.error("Pandas is needed. Install it.")

@@ -174,7 +174,7 @@ class Modeler2D(GeometryModeler, Primitives2D):
         if check_lines:
             for obj in self.line_objects:
                 bound = obj.bounding_box
-                if (
+                if (  # pragma: no cover
                     bounding_box[0] <= bound[0] <= bounding_box[3]
                     and bounding_box[1] <= bound[1] <= bounding_box[4]
                     and bounding_box[2] <= bound[2] <= bounding_box[5]

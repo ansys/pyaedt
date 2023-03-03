@@ -22,16 +22,7 @@ example_path = downloads.download_touchstone()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Import Matplotlib, NumPy, and the Touchstone file.
 
-import matplotlib.pyplot as plt
-import numpy as np
-from pyaedt.generic.TouchstoneParser import (
-    read_touchstone,
-    get_return_losses,
-    get_insertion_losses_from_prefix,
-    get_fext_xtalk_from_prefix,
-    get_next_xtalk,
-    get_worst_curve_from_solution_data,
-)
+from pyaedt.generic.touchstone_parser import read_touchstone
 
 ###############################################################################
 # Read Touchstone file
@@ -41,52 +32,39 @@ from pyaedt.generic.TouchstoneParser import (
 data = read_touchstone(example_path)
 
 ###############################################################################
-# Get curve names
-# ~~~~~~~~~~~~~~~
-# Get the curve names. The following code shows how to get lists of the return losses,
+# Get curve plot
+# ~~~~~~~~~~~~~~
+# Get the curve plot by category. The following code shows how to plot lists of the return losses,
 # insertion losses, fext, and next based on a few inputs and port names.
 
-rl_list = get_return_losses(data.ports)
-il_list = get_insertion_losses_from_prefix(expressions=data.ports, tx_prefix="U1", rx_prefix="U7")
-fext_list = get_fext_xtalk_from_prefix(expressions=data.ports, tx_prefix="U1", rx_prefix="U7")
-next_list = get_next_xtalk(expressions=data.ports, tx_prefix="U1")
+data.plot_return_losses()
+
+data.plot_insertion_losses()
+
+data.plot_next_xtalk_losses("U1")
+
+data.plot_fext_xtalk_losses(tx_prefix="U1", rx_prefix="U7")
+
 
 ###############################################################################
 # Get curve worst cases
 # ~~~~~~~~~~~~~~~~~~~~~
 # Get curve worst cases.
 
-worst_rl, global_mean = get_worst_curve_from_solution_data(
-    data, freq_min=1, freq_max=20, worst_is_higher=True, curve_list=rl_list
+worst_rl, global_mean = data.get_worst_curve(
+    freq_min=1, freq_max=20, worst_is_higher=True, curve_list=data.get_return_loss_index()
 )
-worst_il, mean2 = get_worst_curve_from_solution_data(
-    data, freq_min=1, freq_max=20, worst_is_higher=False, curve_list=il_list
+worst_il, mean2 = data.get_worst_curve(freq_min=1,
+                                       freq_max=20,
+                                       worst_is_higher=False,
+                                       curve_list=data.get_insertion_loss_index()
+                                       )
+worst_fext, mean3 = data.get_worst_curve(freq_min=1,
+                                         freq_max=20,
+                                         worst_is_higher=True,
+                                         curve_list=data.get_fext_xtalk_index_from_prefix(tx_prefix="U1",
+                                                                                          rx_prefix="U7")
+                                         )
+worst_next, mean4 = data.get_worst_curve(
+    freq_min=1, freq_max=20, worst_is_higher=True, curve_list=data.get_next_xtalk_index("U1")
 )
-worst_fext, mean3 = get_worst_curve_from_solution_data(
-    data, freq_min=1, freq_max=20, worst_is_higher=True, curve_list=fext_list
-)
-worst_next, mean4 = get_worst_curve_from_solution_data(
-    data, freq_min=1, freq_max=20, worst_is_higher=True, curve_list=next_list
-)
-
-###############################################################################
-# Plot curves using Matplotlib
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Plot the curves using Matplotlib.
-
-fig, ax = plt.subplots(figsize=(20, 10))
-ax.set(xlabel="Frequency (Hz)", ylabel="Return Loss (dB)", title="Return Loss")
-ax.grid()
-mag_data = 20 * np.log10(np.array(data.solutions_data_mag[worst_rl]))
-freq_data = np.array([i * 1e9 for i in data.sweeps["Freq"]])
-ax.plot(freq_data, mag_data, label=worst_rl)
-mag_data2 = 20 * np.log10(np.array(data.solutions_data_mag[worst_il]))
-ax.plot(freq_data, mag_data2, label=worst_il)
-mag_data3 = 20 * np.log10(np.array(data.solutions_data_mag[worst_fext]))
-ax.plot(freq_data, mag_data3, label=worst_fext)
-mag_data4 = 20 * np.log10(np.array(data.solutions_data_mag[worst_next]))
-ax.plot(freq_data, mag_data4, label=worst_next)
-ax.legend(
-    ["Worst RL = " + worst_rl, "Worst IL = " + worst_il, "Worst FEXT = " + worst_fext, "Worst NEXT = " + worst_next]
-)
-plt.show()
