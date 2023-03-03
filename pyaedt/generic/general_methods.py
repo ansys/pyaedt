@@ -292,22 +292,20 @@ def open_file(file_path, file_options="r"):
     object
         Opened file.
     """
-    file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
     dir_name = os.path.dirname(file_path)
     if "r" in file_options:
         if os.path.exists(file_path):
+            print("Local Read")
             return open(file_path, file_options)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
-            local_file = tempfile.gettempdir()
+            local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
             settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
             return open(local_file, file_options)
-            # return settings.remote_rpc_session.open_file(file_path, file_options)
     elif os.path.exists(dir_name):
         return open(file_path, file_options)
-    elif settings.remote_rpc_session:
-        return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
-        settings.logger.error("The file: %s does not exist", dir_name)
+        settings.logger.error("The file or folder %s does not exist", dir_name)
 
 
 def _log_method(func, new_args, new_kwargs):
