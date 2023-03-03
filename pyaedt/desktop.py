@@ -194,13 +194,15 @@ def release_desktop(close_projects=True, close_desktop=True):
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
         if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
-            if _check_grpc_port(settings.port, settings.machine):
+            try:
                 import ScriptEnv
 
                 if close_desktop:
                     ScriptEnv.Shutdown()
                 else:
                     ScriptEnv.Release()
+            except:
+                pass
             _delete_objects()
             return True
         elif not inside_desktop:
