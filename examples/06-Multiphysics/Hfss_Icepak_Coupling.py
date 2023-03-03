@@ -25,7 +25,7 @@ import pyaedt
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
 non_graphical = False
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 ###############################################################################
 # Open project

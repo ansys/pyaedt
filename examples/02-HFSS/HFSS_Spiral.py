@@ -26,10 +26,10 @@ non_graphical = False
 #############################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launch HFSS 2022 R2 in non-graphical mode and change the
+# Launch HFSS 2023 R1 in non-graphical mode and change the
 # units to microns.
 
-hfss = pyaedt.Hfss(specified_version="2022.2", non_graphical=non_graphical, designname="A1")
+hfss = pyaedt.Hfss(specified_version="2023.1", non_graphical=non_graphical, designname="A1")
 hfss.modeler.model_units = "um"
 p = hfss.modeler
 
