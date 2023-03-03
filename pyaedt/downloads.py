@@ -131,6 +131,8 @@ def _download_file(directory, filename=None, destination=None):
         local_path = _retrieve_file(url, filename, directory, destination)
     if settings.remote_rpc_session:
         remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_path)[-1])
+        if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
+            settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
         settings.remote_rpc_session.filemanager.upload(local_path, remote_path)
         return remote_path
     return local_path
