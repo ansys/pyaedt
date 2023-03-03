@@ -296,7 +296,6 @@ def open_file(file_path, file_options="r"):
     dir_name = os.path.dirname(file_path)
     if "r" in file_options:
         if os.path.exists(file_path):
-            print("Local Read")
             return open(file_path, file_options)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
             local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
