@@ -2163,8 +2163,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         df.index = terms
         return df
 
-    def get_dcir_element_data_via(self, setup_name):
-        """Get dcir .
+    def get_dcir_element_data_via(self, setup_name):  # pragma: no cover
+        """Get dcir element data via.
 
         Parameters
         ----------
