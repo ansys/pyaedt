@@ -120,32 +120,6 @@ class ReportDcirCategory(Enum):
     IR_Drop = "IR Drop"
 
 
-class ReportUnit(Enum):
-    nA = 1e-9
-    uA = 1e-6
-    mA = 1e-3
-    A = 1
-
-    nV = 1e-9
-    uV = 1e-6
-    mV = 1e-3
-    V = 1
-    kV = 1.e3
-
-    um = 1e-6
-    mm = 1e-3
-    m = 1
-
-    nW = 1e-9
-    uW = 1e-6
-    mW = 1e-3
-    W = 1
-
-    ohm = 1
-    mohm = 1e-3
-
-
-
 class Reports(object):
     """Provides the names of default solution types."""
 

@@ -22,7 +22,6 @@ from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 from pyaedt.modules.PostProcessor import ReportDcirCategory
 from pyaedt.modules.PostProcessor import ReportDcirShow
-from pyaedt.modules.PostProcessor import ReportUnit
 from pyaedt.modules.solutions import SolutionData
 
 
@@ -2157,10 +2156,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         data = {"Voltage":[]}
         for t_name in terms:
             ex = "V({})".format(t_name)
-            value = solution_data.data_magnitude(ex)
+            value = solution_data.data_magnitude(ex, convert_to_SI=True)
             if value:
-                coeff = ReportUnit[solution_data.units_data[ex]].value
-                data["Voltage"].append(value[0]*coeff)
+                data["Voltage"].append(value[0])
         df = pd.DataFrame(data)
         df.index = terms
         return df
@@ -2189,12 +2187,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
                     tmp_via_names.append(matches[0])
 
             for ex in solution_data.expressions:
-                value = solution_data.data_magnitude(ex)[0]
-                if value:
-                    coeff = ReportUnit[solution_data.units_data[ex]].value
-                    data[cat].append(value*coeff)
-                else:
-                    data[cat].append(value)
+                value = solution_data.data_magnitude(ex, convert_to_SI=True)[0]
+                #value = solution_data._solutions_mag(ex)
+                data[cat].append(value)
+
             df_tmp = pd.DataFrame(data)
             df_tmp.index = tmp_via_names
             if not isinstance(df, pd.DataFrame):
