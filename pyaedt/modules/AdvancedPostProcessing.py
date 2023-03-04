@@ -689,8 +689,19 @@ class PostProcessor(Post):
         return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
 
     @pyaedt_function_handler()
-    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True, view="yz", zoom=2.0,
-                   convert_fields_in_db=False, log_multiplier=10.0):
+    def plot_scene(
+        self,
+        frames_list,
+        output_gif_path,
+        norm_index=0,
+        dy_rng=0,
+        fps=30,
+        show=True,
+        view="yz",
+        zoom=2.0,
+        convert_fields_in_db=False,
+        log_multiplier=10.0,
+    ):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
 
