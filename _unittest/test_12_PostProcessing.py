@@ -886,7 +886,7 @@ class TestClass(BasisTest, object):
             dy_rng=35,
             show=False,
             convert_fields_in_db=True,
-            log_multiplier=20.0
+            log_multiplier=20.0,
         )
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation2.gif"))
 
