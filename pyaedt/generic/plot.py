@@ -1311,10 +1311,10 @@ class ModelPlotter(object):
                             else:
                                 values.append(float(tmp[3]))
                     if self.convert_fields_in_db:
-                        if len(values[0]) == 1:
-                            values = [self.log_multiplier * math.log10(i) for i in values]
+                        if not isinstance(values[0], list):
+                            values = [self.log_multiplier * math.log10(abs(i)) for i in values]
                         else:
-                            values = [[self.log_multiplier * math.log10(i) for i in value] for value in values]
+                            values = [[self.log_multiplier * math.log10(abs(i)) for i in value] for value in values]
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]
