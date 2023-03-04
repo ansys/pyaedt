@@ -879,6 +879,16 @@ class TestClass(BasisTest, object):
             show=False,
         )
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
+        self.sbr_test.post.plot_scene(
+            frames_list,
+            os.path.join(self.sbr_test.working_directory, "animation2.gif"),
+            norm_index=5,
+            dy_rng=35,
+            show=False,
+            convert_fields_in_db=True,
+            log_multiplier=20.0
+        )
+        assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation2.gif"))
 
     def test_56_test_export_q3d_results(self):
         self.q3dtest.analyze_nominal()
