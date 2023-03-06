@@ -98,28 +98,6 @@ TEMPLATES_BY_NAME = {
 }
 
 
-class ReportDcirShow(Enum):
-    RL = "0"
-    Sources = "1"
-    Vias = "2"
-    Bondwires = "3"
-    Probes = "4"
-
-
-class ReportDcirCategory(Enum):
-    Voltage = "Voltage"
-    Current = "Current"
-    Power = "Power"
-    Loop_Resistance = "Loop Resistance"
-    Path_Resistance = "Path Resistance"
-    Resistance = "Resistance"
-    Inductor = "Inductance"
-    X = "X"
-    Y = "Y"
-    Limit = "Limit"
-    IR_Drop = "IR Drop"
-
-
 class Reports(object):
     """Provides the names of default solution types."""
 
@@ -1901,6 +1879,20 @@ class PostProcessorCommon(object):
         elif context:
             if hasattr(self.modeler, "line_names") and context in self.modeler.line_names:
                 report.polyline = context
+            elif context in [
+                "RL",
+                "Sources",
+                "Vias",
+                "Bondwires",
+                "Probes",
+            ]:
+                report.siwave_dc_category = [
+                    "RL",
+                    "Sources",
+                    "Vias",
+                    "Bondwires",
+                    "Probes",
+                ].index(context)
         solution_data = report.get_solution_data()
         return solution_data
 

@@ -733,10 +733,11 @@ class ModelPlotter(object):
         self._y_scale = 1.0
         self._z_scale = 1.0
         self._convert_fields_in_db = False
+        self._log_multiplier = 10.0
 
     @property
     def convert_fields_in_db(self):
-        """Either if convert the fields before plotting in dB10. Log scale will be disabled.
+        """Either if convert the fields before plotting in dB. Log scale will be disabled.
 
         Returns
         -------
@@ -751,6 +752,20 @@ class ModelPlotter(object):
             f._cached_polydata = None
         for f in self.frames:
             f._cached_polydata = None
+
+    @property
+    def log_multiplier(self):
+        """Multiply the log value.
+
+        Returns
+        -------
+        float
+        """
+        return self._log_multiplier
+
+    @log_multiplier.setter
+    def log_multiplier(self, value):
+        self._log_multiplier = value
 
     @property
     def x_scale(self):
@@ -1245,7 +1260,7 @@ class ModelPlotter(object):
                 if ".aedtplt" in field.path:
                     vertices, faces, scalars, log1 = _parse_aedtplt(field.path)
                     if self.convert_fields_in_db:
-                        scalars = [np.multiply(np.log10(i), 10) for i in scalars]
+                        scalars = [np.multiply(np.log10(i), self.log_multiplier) for i in scalars]
                     fields_vals = pv.PolyData(vertices[0], faces[0])
                     field._cached_polydata = fields_vals
                     if isinstance(scalars[0], list):
@@ -1296,10 +1311,10 @@ class ModelPlotter(object):
                             else:
                                 values.append(float(tmp[3]))
                     if self.convert_fields_in_db:
-                        if len(values[0]) == 1:
-                            values = [10 * math.log10(i) for i in values]
+                        if not isinstance(values[0], list):
+                            values = [self.log_multiplier * math.log10(abs(i)) for i in values]
                         else:
-                            values = [[10 * math.log10(i) for i in value] for value in values]
+                            values = [[self.log_multiplier * math.log10(abs(i)) for i in value] for value in values]
                     if nodes:
                         try:
                             conv = 1 / AEDT_UNITS["Length"][self.units]

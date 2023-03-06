@@ -10,9 +10,8 @@ features added by PyAEDT.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Perform import of required classes from the ``pyaedt`` package and import the ``os`` package.
 
-from pyaedt import Icepak, generate_unique_folder_name, downloads
+from pyaedt import Icepak, generate_unique_folder_name, downloads, settings
 import os
-
 # Download needed files
 temp_folder = generate_unique_folder_name()
 package_temp_name, qfp_temp_name = downloads.download_icepak_3d_component(temp_folder)

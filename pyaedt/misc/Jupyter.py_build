@@ -26,9 +26,10 @@ def generate_unique_name(rootname, suffix="", n=6):
 proj_dir = oDesktop.GetProjectDirectory()
 os.chdir(proj_dir)
 
+version = oDesktop.GetVersion()[2:6].replace(".", "")
 current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
 pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
-jupyter_exe = r"##JUPYTER_EXE##"
+jupyter_exe = r"##JUPYTER_EXE##" % version
 template = os.path.join(pyaedt_toolkit_dir, "jupyter_template.ipynb")
 target = os.path.join(proj_dir, generate_unique_name("pyaedt", ".ipynb", n=3))
 with open(template, "r") as source:

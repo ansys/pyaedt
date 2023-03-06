@@ -22,7 +22,7 @@ from pyaedt import TwinBuilder
 from pyaedt import generate_unique_project_name
 from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
-
+from pyaedt import settings
 ###############################################################################
 # Select version and set launch options
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -173,5 +173,4 @@ shutil.rmtree(source_data_folder)
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
-if os.name != "posix":
-    tb.release_desktop()
+tb.release_desktop()

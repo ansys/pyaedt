@@ -14,6 +14,7 @@ from _unittest.conftest import local_path
 
 # Import required modules
 from pyaedt import Hfss3dLayout
+from pyaedt import is_ironpython
 
 test_subfolder = "T40"
 if config["desktopVersion"] > "2022.2":
@@ -307,12 +308,15 @@ class TestClass(BasisTest, object):
         assert "var_test" in self.aedtapp.variable_manager.design_variable_names
         assert self.aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
+    @pytest.mark.skipif(is_ironpython, reason="Not Supported.")
     def test_19_dcir(self):
+        import pandas as pd
+
         lock = self.dcir_example_project + ".lock"
         if os.path.isfile(lock):
             os.remove(lock)
         hfss3d = Hfss3dLayout(self.dcir_example_project, "Galileo_G87173_204", specified_version=desktop_version)
-        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path_Resistance")
+        assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "RL", "Path Resistance")
         assert hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Vias", "Current")
         solution_data = hfss3d.get_dcir_solution_data("Siwave_DC_WP9QNY", "Sources", "Voltage")
         assert hfss3d.post.available_report_quantities(is_siwave_dc=True, context="")
@@ -322,3 +326,5 @@ class TestClass(BasisTest, object):
             domain="DCIR",
             context="RL",
         )
+        assert isinstance(hfss3d.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame)
+        assert isinstance(hfss3d.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame)

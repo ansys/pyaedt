@@ -515,17 +515,19 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 GRPC")
     def test_36_get_face_center(self):
-        listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
+        plane = self.aedtapp.PLANE.XY
+        rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
+        listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get2")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
         cylinder = self.aedtapp.modeler.create_cylinder(cs_axis=1, position=[0, 0, 0], radius=10, height=10)
+        if config["desktopVersion"] >= "2023.1":
+            centers = [[0, 10, 0], [0, 0, 0], [0, 5, 10]]
+
+        else:
+            centers = [[0, 0, 0], [0, 10, 0], [0, 5, 0]]
         assert all(
-            min(
-                [
-                    GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center))
-                    for ref_center in [[0, 0, 0], [0, 10, 0], [0, 5, 0]]
-                ]
-            )
+            min([GeometryOperators.v_norm(GeometryOperators.v_sub(f.center, ref_center)) for ref_center in centers])
             < 1e-10
             for f in cylinder.faces
         )

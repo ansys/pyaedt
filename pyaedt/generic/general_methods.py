@@ -292,19 +292,21 @@ def open_file(file_path, file_options="r"):
     object
         Opened file.
     """
-    file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
     dir_name = os.path.dirname(file_path)
     if "r" in file_options:
         if os.path.exists(file_path):
             return open(file_path, file_options)
-        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
-            return open(file_path, file_options)
+        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
+            file_path
+        ):  # pragma: no cover
+            local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
+            settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
+            return open(local_file, file_options)
     elif os.path.exists(dir_name):
         return open(file_path, file_options)
-    elif settings.remote_rpc_session:
-        return settings.remote_rpc_session.open_file(file_path, file_options)
     else:
-        settings.logger.error("The file: %s does not exist", dir_name)
+        settings.logger.error("The file or folder %s does not exist", dir_name)
 
 
 def _log_method(func, new_args, new_kwargs):
@@ -857,12 +859,21 @@ def recursive_glob(startpath, filepattern):
     startpath -- starting path (directory)
     filepattern -- fnmatch-style filename pattern
     """
-    return [
-        os.path.join(dirpath, filename)
-        for dirpath, _, filenames in os.walk(startpath)
-        for filename in filenames
-        if fnmatch.fnmatch(filename, filepattern)
-    ]
+    if settings.remote_rpc_session:
+        files = []
+        for i in settings.remote_rpc_session.filemanager.listdir(startpath):
+            if settings.remote_rpc_session.filemanager.isdir(os.path.join(startpath, i)):
+                files.extend(recursive_glob(os.path.join(startpath, i), filepattern))
+            elif fnmatch.fnmatch(i, filepattern):
+                files.append(os.path.join(startpath, i))
+        return files
+    else:
+        return [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(startpath)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, filepattern)
+        ]
 
 
 @pyaedt_function_handler()

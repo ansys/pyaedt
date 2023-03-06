@@ -30,7 +30,7 @@ temp_folder = pyaedt.generate_unique_folder_name()
 project_temp_name = pyaedt.downloads.download_icepak(temp_folder)
 
 ipk = pyaedt.Icepak(projectname=project_temp_name,
-                    specified_version="2022.2",
+                    specified_version="2023.1",
                     new_desktop_session=True,
                     non_graphical=non_graphical
                     )

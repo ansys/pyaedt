@@ -6,6 +6,7 @@ from collections import OrderedDict
 import fnmatch
 import io
 import os
+import re
 import warnings
 
 from pyaedt import is_ironpython
@@ -17,9 +18,6 @@ from pyaedt.generic.general_methods import parse_excitation_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
-from pyaedt.modules.PostProcessor import ReportDcirCategory
-from pyaedt.modules.PostProcessor import ReportDcirShow
-from pyaedt.modules.solutions import SolutionData
 
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
@@ -1881,7 +1879,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
 
     @pyaedt_function_handler()
     def get_model_from_mesh_results(self, binary=True):
-        """Get the path for the parasolid file in the results folder.
+        """Get the path for the parasolid file in the result folder.
         The parasolid file is generated after the mesh is created in 3D Layout.
 
         Parameters
@@ -2003,7 +2001,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         self.logger.error("Port not found.")
         return False
 
-    def get_dcir_solution_data(self, setup_name, show="RL", category="Voltage"):
+    def get_dcir_solution_data(self, setup_name, show="RL", category="Loop_Resistance"):
         """Retrieve dcir solution data. Available element_names are dependent on element_type as below.
         Sources ["Voltage", "Current", "Power"]
         "RL" ['Loop Resistance', 'Path Resistance', 'Resistance', 'Inductance']
@@ -2019,39 +2017,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             Type of the element. Options are ``"Sources"`, ``"RL"`, ``"Vias"``, ``"Bondwires"``, and ``"Probes"``.
         category : str, optional
             Name of the element. Options are ``"Voltage"`, ``"Current"`, ``"Power"``, ``"Loop_Resistance"``,
-            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR_Drop"``.
+            ``"Path_Resistance"``, ``"Resistance"``, ``"Inductance"``, ``"X"``, ``"Y"``, ``"Limit"`` and ``"IR Drop"``.
         Returns
         -------
         pyaedt.modules.solutions.SolutionData
         """
-        if is_ironpython:
+
+        if is_ironpython:  # pragma: no cover
             self._logger.error("Function is only supported in CPython.")
             return False
-        show_id = ReportDcirShow[show].value
-        category = ReportDcirCategory[category].value
-
-        context = [
-            "NAME:Context",
-            "SimValueContext:=",
-            [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, show_id, "IDIID", False, "1"],
-        ]
-        all_categories = list(
-            self.post.oreportsetup.GetAllCategories("Standard", "Rectangular Plot", setup_name, context)
-        )
-        if category not in all_categories:  # pragma: no cover
-            return False
-
+        all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
+        if category not in all_categories:
+            return False  # pragma: no cover
         all_quantities = self.post.available_report_quantities(
-            is_siwave_dc=True, context=show, quantities_category=category
+            context=show, is_siwave_dc=True, quantities_category=category
         )
-        data = self.post.oreportsetup.GetSolutionDataPerVariation(
-            "Standard",
-            setup_name,
-            context,
-            ["Index:=", "All"],
-            all_quantities,
-        )
-        return SolutionData(list(data))
+
+        return self.post.get_solution_data(all_quantities, setup_sweep_name=setup_name, domain="DCIR", context=show)
 
     def get_touchstone_data(self, setup_name=None, sweep_name=None, variations=None):
         """
@@ -2093,3 +2075,119 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             sol_data.set_active_variation(i)
             s_parameters.append(TouchstoneData(solution_data=sol_data))
         return s_parameters
+
+    def get_dcir_element_data_loop_resistance(self, setup_name):
+        """Get dcir element data loop resistance.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
+        if is_ironpython:  # pragma: no cover
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="RL", category="Loop Resistance")
+
+        terms = []
+        pattern = r"LoopRes\((.*?)\)"
+        for ex in solution_data.expressions:
+            matches = re.findall(pattern, ex)
+            if matches:
+                terms.extend(matches[0].split(","))
+        terms = list(set(terms))
+
+        data = {}
+        for i in terms:
+            data2 = []
+            for ex in ["LoopRes({},{})".format(i, j) for j in terms]:
+                d = solution_data.data_magnitude(ex)
+                if d is not False:
+                    data2.append(d[0])
+                else:
+                    data2.append(False)
+            data[i] = data2
+
+        df = pd.DataFrame(data)
+        df.index = terms
+        return df
+
+    def get_dcir_element_data_current_source(self, setup_name):
+        """Get dcir element data current source.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
+        if is_ironpython:  # pragma: no cover
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
+        solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Sources", category="Voltage")
+        terms = []
+        pattern = r"^V\((.*?)\)"
+        for t_name in solution_data.expressions:
+            matches = re.findall(pattern, t_name)
+            if matches:
+                terms.append(matches[0])
+        terms = list(set(terms))
+
+        data = {"Voltage": []}
+        for t_name in terms:
+            ex = "V({})".format(t_name)
+            value = solution_data.data_magnitude(ex, convert_to_SI=True)
+            if value is not False:
+                data["Voltage"].append(value[0])
+        df = pd.DataFrame(data)
+        df.index = terms
+        return df
+
+    def get_dcir_element_data_via(self, setup_name):
+        """Get dcir element data via.
+
+        Parameters
+        ----------
+        setup_name : str
+            Name of the setup.
+        Returns
+        -------
+        pandas.Dataframe
+        """
+        if is_ironpython:
+            self.logger.error("Method not supported in IronPython.")
+            return False
+        import pandas as pd
+
+        cates = ["X", "Y", "Current", "Resistance", "IR Drop", "Power"]
+        df = None
+        for cat in cates:
+            data = {cat: []}
+            solution_data = self.get_dcir_solution_data(setup_name=setup_name, show="Vias", category=cat)
+            tmp_via_names = []
+            pattern = r"\((.*?)\)"
+            for t_name in solution_data.expressions:
+                matches = re.findall(pattern, t_name)
+                if matches:
+                    tmp_via_names.append(matches[0])
+
+            for ex in solution_data.expressions:
+                value = solution_data.data_magnitude(ex, convert_to_SI=True)[0]
+                data[cat].append(value)
+
+            df_tmp = pd.DataFrame(data)
+            df_tmp.index = tmp_via_names
+            if not isinstance(df, pd.DataFrame):
+                df = df_tmp
+            else:
+                df.merge(df_tmp, left_index=True, right_index=True, how="outer")
+        return df

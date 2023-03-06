@@ -22,6 +22,7 @@ from pyaedt import TwinBuilder
 from pyaedt import generate_unique_project_name
 from pyaedt import generate_unique_folder_name
 from pyaedt import downloads
+from pyaedt import settings
 
 ###############################################################################
 # Select version and set launch options
@@ -37,7 +38,6 @@ from pyaedt import downloads
 desktop_version = "2023.1"
 non_graphical = False
 new_thread = True
-
 ###############################################################################
 # Set up input data
 # ~~~~~~~~~~~~~~~~~
@@ -48,10 +48,9 @@ source_build_conf_file = "SROMbuild.conf"
 source_props_conf_file = "SROM_props.conf"
 
 # Download data from example_data repository
-temp_folder = generate_unique_folder_name()
-source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True, temp_folder)
-source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True, temp_folder)
-source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True, temp_folder)
+source_data_folder = downloads.download_twin_builder_data(source_snapshot_data_zipfilename, True)
+source_data_folder = downloads.download_twin_builder_data(source_build_conf_file, True)
+source_data_folder = downloads.download_twin_builder_data(source_props_conf_file, True)
 
 # Uncomment the following line for local testing 
 # source_data_folder = "D:\\Scratch\\TempStatic"
@@ -59,9 +58,11 @@ source_data_folder = downloads.download_twin_builder_data(source_props_conf_file
 data_folder = os.path.join(source_data_folder, "Ex04")
 
 # Unzip training data and config file
-downloads.unzip(os.path.join(source_data_folder ,source_snapshot_data_zipfilename), data_folder)
-shutil.copyfile(os.path.join(source_data_folder ,source_build_conf_file), os.path.join(data_folder,source_build_conf_file))
-shutil.copyfile(os.path.join(source_data_folder ,source_props_conf_file), os.path.join(data_folder,source_props_conf_file))
+downloads.unzip(os.path.join(source_data_folder, source_snapshot_data_zipfilename), data_folder)
+shutil.copyfile(os.path.join(source_data_folder, source_build_conf_file),
+                os.path.join(data_folder, source_build_conf_file))
+shutil.copyfile(os.path.join(source_data_folder, source_props_conf_file),
+                os.path.join(data_folder, source_props_conf_file))
 
 ###############################################################################
 # Launch Twin Builder and build ROM component
@@ -69,7 +70,8 @@ shutil.copyfile(os.path.join(source_data_folder ,source_props_conf_file), os.pat
 # Launch Twin Builder using an implicit declaration and add a new design with
 # a default setup for building the static ROM component.
 
-tb = TwinBuilder(projectname=generate_unique_project_name(),specified_version=desktop_version, non_graphical=non_graphical, new_desktop_session=new_thread)
+tb = TwinBuilder(projectname=generate_unique_project_name(), specified_version=desktop_version,
+                 non_graphical=non_graphical, new_desktop_session=new_thread)
 
 # Switch the current desktop configuration and the schematic environment to "Twin Builder".
 # The Static ROM feature is only available with a twin builder license.
@@ -84,30 +86,29 @@ rom_manager = tb._odesign.GetROMManager()
 static_rom_builder = rom_manager.GetStaticROMBuilder()
 
 # Build the static ROM with specified configuration file
-confpath = os.path.join(data_folder,source_build_conf_file)
+confpath = os.path.join(data_folder, source_build_conf_file)
 static_rom_builder.Build(confpath.replace('\\', '/'))
 
 # Test if ROM was created sucessfully
-static_rom_path = os.path.join(data_folder,'StaticRom.rom')
+static_rom_path = os.path.join(data_folder, 'StaticRom.rom')
 if os.path.exists(static_rom_path):
-	tb.logger.info("Built intermediate rom file sucessfully at: %s", static_rom_path)
+    tb.logger.info("Built intermediate rom file sucessfully at: %s", static_rom_path)
 else:
-	tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
+    tb.logger.error("Intermediate rom file not found at: %s", static_rom_path)
 
-#Create the ROM component definition in Twin Builder
-rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'),'staticrom') 
-
+# Create the ROM component definition in Twin Builder
+rom_manager.CreateROMComponent(static_rom_path.replace('\\', '/'), 'staticrom')
 
 ###############################################################################
 # Create schematic
 # ~~~~~~~~~~~~~~~~
 # Place components to create a schematic.
- 
+
 # Define the grid distance for ease in calculations
 G = 0.00254
 
 # Place a dynamic ROM component
-rom1 = tb.modeler.schematic.create_component("ROM1","","staticrom", [40 * G, 25 * G])
+rom1 = tb.modeler.schematic.create_component("ROM1", "", "staticrom", [40 * G, 25 * G])
 
 # Place two excitation sources
 source1 = tb.modeler.schematic.create_periodic_waveform_source(None, "SINE", 2.5, 0.01, 0, 7.5, 0, [20 * G, 29 * G])
@@ -143,7 +144,6 @@ tb.set_hmax("1s")
 
 tb.analyze_setup("TR")
 
-
 ###############################################################################
 # Get report data and plot using Matplotlib
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,24 +153,16 @@ tb.analyze_setup("TR")
 
 e_value = "ROM1.outfield_mode_1"
 x = tb.post.get_solution_data(e_value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(e_value))
-
+x.plot()
 e_value = "ROM1.outfield_mode_2"
 x = tb.post.get_solution_data(e_value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(e_value))
-
+x.plot()
 e_value = "SINE1.VAL"
 x = tb.post.get_solution_data(e_value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(e_value))
-
+x.plot()
 e_value = "SINE2.VAL"
 x = tb.post.get_solution_data(e_value, "TR", "Time")
-plt.plot(x.intrinsics["Time"], x.data_real(e_value))
-
-plt.grid()
-plt.xlabel("Time")
-plt.ylabel("outfield Mode 1 & 2 vs inlet velocity and temperature")
-plt.show()
+x.plot()
 
 
 ###############################################################################
@@ -186,5 +178,4 @@ shutil.rmtree(source_data_folder)
 tb._odesktop.SetDesktopConfiguration(current_desktop_config)
 tb._odesktop.SetSchematicEnvironment(current_schematic_environment)
 
-if os.name != "posix":
-    tb.release_desktop()
+tb.release_desktop()

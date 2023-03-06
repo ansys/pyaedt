@@ -2215,7 +2215,10 @@ class Hfss(FieldAnalysis3D, object):
             )
             if add_pec_cap:
                 dist = math.sqrt(self.modeler[sheet_name].faces[0].area)
-                self._create_pec_cap(sheet_name, startobj, dist / 10)
+                if settings.aedt_version > "2022.2":
+                    self._create_pec_cap(sheet_name, startobj, -dist / 10)
+                else:
+                    self._create_pec_cap(sheet_name, startobj, dist / 10)
             portname = self._get_unique_source_name(portname, "Port")
 
             if "Modal" in self.solution_type:

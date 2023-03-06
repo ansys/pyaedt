@@ -96,14 +96,13 @@ class Modeler2D(GeometryModeler, Primitives2D):
         radius = 0
         oVertexIDs = self[object_name].vertices
         if oVertexIDs:
-            vert_id_int = [x.id for x in oVertexIDs]
             if inner:
                 radius = 0
             else:
                 radius = 1e9
 
-            for vertex in vert_id_int:
-                pos = self.oeditor.GetVertexPosition(vertex)
+            for vertex in oVertexIDs:
+                pos = vertex.position
                 vertex_radius = math.sqrt(float(pos[0]) ** 2 + float(pos[1]) ** 2)
                 if inner:
                     if vertex_radius > radius:

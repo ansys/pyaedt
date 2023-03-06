@@ -130,6 +130,11 @@ class TestClass(BasisTest, object):
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
         assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
 
+    def test_07b_push_excitation_time(self):
+        setup_name = "test_07b_Transient"
+        setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
+        assert self.aedtapp.push_time_excitations(instance_name="U1", setup_name=setup_name)
+
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
         assert self.aedtapp.create_schematic_from_mentor_netlist(os.path.join(self.local_scratch.path, netlist2))
