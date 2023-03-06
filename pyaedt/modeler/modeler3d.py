@@ -98,7 +98,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         excitation_list : list, optional
             List of Excitation names to export. The default is all excitations.
         included_cs : list, optional
-            List of Coordinate Systems to export. The default is all coordinate systems.
+            List of Coordinate Systems to export. The default is the ``reference_cs``.
         reference_cs : str, optional
             The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
@@ -221,7 +221,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if included_cs:
             allcs = included_cs
         else:
-            allcs = self.oeditor.GetCoordinateSystems()
+            allcs = [reference_cs]
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
