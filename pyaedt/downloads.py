@@ -45,12 +45,8 @@ def _retrieve_file(url, filename, directory, destination=None):
     if not is_ironpython:
         urlretrieve = urllib.request.urlretrieve
 
-    dirpath = os.path.dirname(local_path)
     if not os.path.isdir(destination):
-        os.mkdir(destination)
-    if not os.path.isdir(dirpath):
-        os.makedirs(dirpath)
-
+        os.makedirs(destination)
     # Perform download
     if os.name == "posix":
         command = "wget {} -O {}".format(url, local_path)
