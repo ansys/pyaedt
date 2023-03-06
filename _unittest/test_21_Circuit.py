@@ -752,6 +752,5 @@ class TestClass(BasisTest, object):
     def test_43_create_text(self):
         self.aedtapp.insert_design("text")
         self.aedtapp.modeler.schematic_units = "mil"
-        self.aedtapp.modeler.create_text(0.0, 0.0)
-        self.aedtapp.modeler.create_text(100, 100)
+        self.aedtapp.modeler.create_text("text test")
         pass

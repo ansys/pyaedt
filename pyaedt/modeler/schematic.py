@@ -156,20 +156,80 @@ class ModelerCircuit(Modeler):
             return False
 
     @pyaedt_function_handler()
-    def create_text(self, x_origin, y_origin):
+    def create_text(
+        self,
+        text,
+        x_origin=0,
+        y_origin=0,
+        text_size=12,
+        text_angle=0,
+        text_color=0,
+        show_rect=False,
+        x1=0,
+        y1=0,
+        x2=0,
+        y2=0,
+        rect_line_width=0,
+        rect_border_color=0,
+        rect_fill=0,
+        rect_color=0,
+    ):
         """Draw Text.
 
         Parameters
         ----------
-        x_origin : float
-            x coordinate of the t .
-        y_origin : float
-            y coordinate of the t .
+        text : string
+            Text to display.
+        x_origin : float, optional
+            x origin coordinate of the text box.
+            Default value is ``0``.
+        y_origin : float, optional
+            y origin coordinate of the text box .
+            Default value is ``0``.
+        text_size : int, optional
+            Size of text.
+            Default value is ``12``.
+        text_angle : float, optional
+            Angle of text.
+            Default value is ``0``.
+        text_color : int, optional
+            The RGB value of the text color.
+            Default value is ``0``.
+        show_rect : bool, optional
+            Show rectangle.
+            Default value is ``False``.
+        x1 : float, optional
+            The text rectangle left X value, in meters.
+            Default value is ``0``.
+        y1 : float, optional
+            The text rectangle upper Y value, in meters.
+            Default value is ``0``.
+        x2 : float, optional
+            The text rectangle right X value, in meters.
+            Default value is ``0``.
+        y2 : float, optional
+            The text rectangle lower Y value, in meters.
+            Default value is ``0``.
+        rect_line_width : float, optional
+            The width of the rectangle border, in meters.
+            Default value is ``0``.
+        rect_border_color : int, optional
+            The RGB value of the rectangle border color.
+            Default value is ``0``.
+        rect_fill : int, optional
+            The rectangle fill pattern id.
+            Available values are: 0 = hollow, 1 = solid, 2 = NEDiagonal, 3 = OrthoCross,
+            4 = DiagCross, 5 = NWDiagonal, 6 = Horizontal, 7 = Vertical.
+            Default value is ``0``.
+        rect_color : int, optional
+            The RGB value of the rectangle fill color.
+            Default value is ``0``.
+
 
         Returns
         -------
-        bool
-             when successful, ``False`` when failed.
+        str
+             Unique id of the created object when successful, ``False`` when failed.
 
         References
         ----------
@@ -190,36 +250,37 @@ class ModelerCircuit(Modeler):
             "Y:=",
             y_origin,
             "Size:=",
-            12,
+            """text_size""",
             "Angle:=",
-            0,
+            text_angle,
             "Text:=",
-            "this is text I want to added",
+            text,
             "Color:=",
-            0,
+            text_color,
             "Id:=",
             text_id,
             "ShowRect:=",
-            False,
+            show_rect,
             "X1:=",
-            0.0446616666666624,
+            x1,
             "Y1:=",
-            0.0569383333333376,
+            y1,
             "X2:=",
-            0.088443245614206,
+            x2,
             "Y2:=",
-            0.0505883333333122,
+            y2,
             "RectLineWidth:",
-            0,
+            rect_line_width,
             "RectBorderColor:",
-            0,
+            rect_border_color,
             "RectFill:=",
-            0,
+            rect_fill,
             "RectColor:=",
-            0,
+            rect_color,
         ]
+        attr = ["NAME:Attributes", "Page:=", 1]
         try:
-            self.modeler.oeditor.CreateText(args)
+            self.oeditor.CreateText(args, attr)
             return True
         except:
             return False
