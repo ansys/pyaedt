@@ -17,4 +17,3 @@ scikit-learn==1.0.2; python_version <= '3.7'
 scikit-learn==1.2.1; python_version > '3.7'
 SRTM.py
 utm
-
