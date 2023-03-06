@@ -689,7 +689,19 @@ class PostProcessor(Post):
         return solution_data.plot_3d(x_axis=primary_sweep, y_axis=secondary_sweep)
 
     @pyaedt_function_handler()
-    def plot_scene(self, frames_list, output_gif_path, norm_index=0, dy_rng=0, fps=30, show=True, view="yz", zoom=2):
+    def plot_scene(
+        self,
+        frames_list,
+        output_gif_path,
+        norm_index=0,
+        dy_rng=0,
+        fps=30,
+        show=True,
+        view="yz",
+        zoom=2.0,
+        convert_fields_in_db=False,
+        log_multiplier=10.0,
+    ):
         """Plot the current model 3D scene with overlapping animation coming from a file list and save the gif.
 
 
@@ -715,6 +727,10 @@ class PostProcessor(Post):
            The default is ``"isometric"``.
         zoom : float, optional
             Default zoom. Default Value is `2`.
+        convert_fields_in_db : bool, optional
+            Either if convert the fields before plotting in dB. Default Value is `False`.
+        log_multiplier : float, optional
+            Field multiplier if field in dB. Default Value is `10.0`.
 
         Returns
         -------
@@ -754,4 +770,6 @@ class PostProcessor(Post):
         scene.bounding_box = False
         scene.color_bar = False
         scene.gif_file = output_gif_path  # This gif may be a bit slower so we can speed it up a bit
+        scene.convert_fields_in_db = convert_fields_in_db
+        scene.log_multiplier = log_multiplier
         scene.animate()
