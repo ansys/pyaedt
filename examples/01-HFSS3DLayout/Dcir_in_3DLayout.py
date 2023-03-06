@@ -121,7 +121,7 @@ print(via)
 ###############################################################################
 # Get voltage
 # ~~~~~~~~~~~
-# Get voltage from dcir solutoin data
+# Get voltage from dcir solution data
 voltage = hfss3dl.get_dcir_solution_data(
     setup_name="my_setup",
     show="Sources",
