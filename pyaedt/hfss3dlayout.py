@@ -2107,7 +2107,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             data2 = []
             for ex in ["LoopRes({},{})".format(i, j) for j in terms]:
                 d = solution_data.data_magnitude(ex)
-                if d:
+                if d is not False:
                     data2.append(d[0])
                 else:
                     data2.append(False)
@@ -2146,7 +2146,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         for t_name in terms:
             ex = "V({})".format(t_name)
             value = solution_data.data_magnitude(ex, convert_to_SI=True)
-            if value:
+            if value is not False:
                 data["Voltage"].append(value[0])
         df = pd.DataFrame(data)
         df.index = terms
