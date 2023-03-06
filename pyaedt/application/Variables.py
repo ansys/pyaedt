@@ -640,15 +640,15 @@ class VariableManager(object):
     def __init__(self, app):
         # Global Desktop Environment
         self._app = app
-        self._indipendent_variables = {}
+        self._independent_variables = {}
         self._dependent_variables = {}
 
     @pyaedt_function_handler()
     def __delitem__(self, key):
         """Implement del with array name or index."""
         self.delete_variable(key)
-        if key in self._indipendent_variables:
-            del self._indipendent_variables[key]
+        if key in self._independent_variables:
+            del self._independent_variables[key]
         if key in self._dependent_variables:
             del self._dependent_variables[key]
 
@@ -684,7 +684,7 @@ class VariableManager(object):
         for obj in object_list:
             variables = self._get_var_list_from_aedt(obj)
             for variable_name in variables:
-                if independent and variable_name not in self._indipendent_variables:
+                if independent and variable_name not in self._independent_variables:
                     if self.get_expression(variable_name):
                         variable_expression = self.get_expression(variable_name)
                         all_names[variable_name] = variable_expression
@@ -694,10 +694,10 @@ class VariableManager(object):
                         )
                         is_number_flag = is_number(value._calculated_value)
                         if is_number_flag:
-                            self._indipendent_variables[variable_name] = value
+                            self._independent_variables[variable_name] = value
 
                         elif dependent and not is_number_flag:
-                            self._indipendent_variables[variable_name] = value
+                            self._independent_variables[variable_name] = value
                 elif dependent and variable_name not in self._dependent_variables:
                     if self.get_expression(variable_name):
                         variable_expression = self.get_expression(variable_name)
@@ -709,7 +709,7 @@ class VariableManager(object):
                         is_number_flag = is_number(value._calculated_value)
                         if not is_number_flag:
                             self._dependent_variables[variable_name] = value
-        return self._dependent_variables | self._indipendent_variables
+        return self._dependent_variables | self._independent_variables
 
     @pyaedt_function_handler()
     def get_expression(self, variable_name):  # TODO: Should be renamed to "evaluate"
@@ -823,8 +823,8 @@ class VariableManager(object):
         >>> aedtapp.variable_manager.set_variable["$p1"] == "30mm"
 
         """
-        if variable_name in self._indipendent_variables:
-            del self._indipendent_variables[variable_name]
+        if variable_name in self._independent_variables:
+            del self._independent_variables[variable_name]
         elif variable_name in self._dependent_variables:
             del self._dependent_variables[variable_name]
         if not description:
