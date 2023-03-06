@@ -297,7 +297,9 @@ def open_file(file_path, file_options="r"):
     if "r" in file_options:
         if os.path.exists(file_path):
             return open(file_path, file_options)
-        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(file_path):
+        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
+            file_path
+        ):  # pragma: no cover
             local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
             settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
             return open(local_file, file_options)

@@ -2023,7 +2023,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         pyaedt.modules.solutions.SolutionData
         """
 
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             self._logger.error("Function is only supported in CPython.")
             return False
         all_categories = self.post.available_quantities_categories(context=show, is_siwave_dc=True)
@@ -2087,7 +2087,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             self.logger.error("Method not supported in IronPython.")
             return False
         import pandas as pd
@@ -2128,7 +2128,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
         -------
         pandas.Dataframe
         """
-        if is_ironpython:
+        if is_ironpython:  # pragma: no cover
             self.logger.error("Method not supported in IronPython.")
             return False
         import pandas as pd
