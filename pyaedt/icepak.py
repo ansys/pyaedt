@@ -2032,7 +2032,7 @@ class Icepak(FieldAnalysis3D):
         powerin="0W",
         custom_x_resolution=None,
         custom_y_resolution=None,
-        **kwargs,
+        **kwargs,  # noqa
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2163,7 +2163,7 @@ class Icepak(FieldAnalysis3D):
         custom_x_resolution=None,
         custom_y_resolution=None,
         power_in=0,
-        **kwargs,
+        **kwargs,  # noqa
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
