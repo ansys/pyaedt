@@ -619,6 +619,7 @@ HFSS3DLayout_AdvancedSettings = OrderedDict(
         "UseShellElements": False,
         "SVDHighCompression": False,
         "NumProcessors": 1,
+        "SolverType": "Direct Solver",  # 2022.2
         "UseHfssIterativeSolver": False,
         "UseHfssMUMPSSolver": True,
         "RelativeResidual": 1e-06,
@@ -641,10 +642,12 @@ HFSS3DLayout_AdvancedSettings = OrderedDict(
         "MeshingMethod": "Phi",
         "EnableDesignIntersectionCheck": True,
         "UseAlternativeMeshMethodsAsFallBack": True,
+        "ModeOption": "General mode",  # 2022.2
         "BroadbandFreqOption": "AutoMaxFreq",
         "BroadbandMaxNumFreq": 5,
         "SaveADP": True,
         "UseAdvancedDCExtrap": False,
+        "PhiMesherDeltaZRatio": 100000,  # 2023.1
     }
 )
 HFSS3DLayout_CurveApproximation = OrderedDict(

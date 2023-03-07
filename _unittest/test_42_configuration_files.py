@@ -29,7 +29,9 @@ else:
     q3d_file = "via_gsg_t42"
     test_project_name = "dm boundary test"
 diff_proj_name = "test_42"
-hfss3dl_existing_setup_proj_name = "existing_hfss3dl_setup"
+hfss3dl_existing_setup_proj_name = "existing_hfss3dl_setup_v{}{}".format(
+    config["desktopVersion"][-4:-2], config["desktopVersion"][-1:]
+)
 
 
 class TestClass(BasisTest, object):
@@ -267,3 +269,4 @@ class TestClass(BasisTest, object):
         assert setup2.export_to_json(export_path)
         setup3 = self.hfss3dl_b.create_setup("My_HFSS_Setup_3")
         assert setup3.import_from_json(export_path)
+        assert setup3.update()
