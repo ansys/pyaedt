@@ -4509,14 +4509,14 @@ class GeometryModeler(Modeler, object):
             Either to import material names from the file or not if presents.
         create_lightweigth_part : bool ,optional
             Either to import lightweight or not.
-        group_by_assembly: bool optional
-            Either import by subassembly or individual parts. the default is ``False``.
-        create_group: bool optional
-            Either to create a new group of imported objects. the default is ``True``.
-        separate_disjoints_lumped_object: bool optional
-            Either to automatically separate disjoint parts. the default is ``False``.
-        import_free_surfaces: bool optional
-            Either to import free surfaces parts. the default is ``False``.
+        group_by_assembly : bool, optional
+            Either import by sub-assembly or individual parts. The default is ``False``.
+        create_group : bool, optional
+            Either to create a new group of imported objects. The default is ``True``.
+        separate_disjoints_lumped_object : bool, optional
+            Either to automatically separate disjoint parts. The default is ``False``.
+        import_free_surfaces : bool, optional
+            Either to import free surfaces parts. The default is ``False``.
         point_coicidence_tolerance : float, optional
             Tolerance on point. Default is ``1e-6``.
 
