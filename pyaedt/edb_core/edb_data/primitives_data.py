@@ -257,6 +257,24 @@ class EDBPrimitives(object):
         bbox = self.bbox
         return [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
 
+    @pyaedt_function_handler
+    def get_center_line(self, to_string=False):
+        """Get the center line of the trace.
+
+        Parameters
+        ----------
+        to_string : bool, optional
+            Type of return. The default is ``"False"``.
+        Returns
+        -------
+        list
+
+        """
+        if to_string:
+            return [[p.X.ToString(), p.Y.ToString()] for p in list(self.primitive_object.GetCenterLine().Points)]
+        else:
+            return [[p.X.ToDouble(), p.Y.ToDouble()] for p in list(self.primitive_object.GetCenterLine().Points)]
+
     @pyaedt_function_handler()
     def is_arc(self, point):
         """Either if a point is an arc or not.
