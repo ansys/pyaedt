@@ -328,3 +328,7 @@ class TestClass(BasisTest, object):
         )
         assert isinstance(hfss3d.get_dcir_element_data_loop_resistance("Siwave_DC_WP9QNY"), pd.DataFrame)
         assert isinstance(hfss3d.get_dcir_element_data_current_source("Siwave_DC_WP9QNY"), pd.DataFrame)
+
+    def test_20_layout_option(self):
+        self.aedtapp.layout_option.antipad_option = 1
+        pass
