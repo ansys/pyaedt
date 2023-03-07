@@ -1037,10 +1037,15 @@ class SetupProps(OrderedDict):
         file_path : str
             File path for the JSON file.
         """
+        FILTER_KEYS = {"DataId", "SimSetupID", "ProdMajVerID", "ProjDesignSetup", "ProdMinVerID", "NumberOfProcessors"}
         if not file_path.endswith(".json"):
             file_path = file_path + ".json"
+        export_dict = {}
+        for k, v in self.items():
+            if k not in FILTER_KEYS:
+                export_dict[k] = v
         with open3(file_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(self, indent=4, ensure_ascii=False))
+            f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
         return True
 
     def _import_properties_from_json(self, file_path):

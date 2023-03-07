@@ -640,6 +640,11 @@ HFSS3DLayout_AdvancedSettings = OrderedDict(
         "DesignType": "generic",
         "MeshingMethod": "Phi",
         "EnableDesignIntersectionCheck": True,
+        "UseAlternativeMeshMethodsAsFallBack": True,
+        "BroadbandFreqOption": "AutoMaxFreq",
+        "BroadbandMaxNumFreq": 5,
+        "SaveADP": True,
+        "UseAdvancedDCExtrap": False,
     }
 )
 HFSS3DLayout_CurveApproximation = OrderedDict(
@@ -1029,6 +1034,8 @@ HFSS3DLayout = OrderedDict(
     {
         "Properties": HFSS3DLayout_Properties,
         "CustomSetup": False,
+        "AutoSetup": False,
+        "SliderType": "Balanced",
         "SolveSetupType": "HFSS",
         "PercentRefinementPerPass": 30,
         "MinNumberOfPasses": 1,
@@ -1038,6 +1045,11 @@ HFSS3DLayout = OrderedDict(
         "MaxRefinement": 1000000,
         "SaveAdaptiveCurrents": False,
         "SaveLastAdaptiveRadFields": False,
+        "UseConvergenceMatrix": False,
+        "AllEntries": False,
+        "AllDiagEntries": False,
+        "AllOffDiagEntries": False,
+        "MagMinThreshold": 0.01,
         "ProdMajVerID": -1,
         "ProjDesignSetup": "",
         "ProdMinVerID": -1,
@@ -1077,8 +1089,12 @@ HFSS3DLayout = OrderedDict(
         "Verbose": False,
         "NumberOfProcessors": 0,
         "SmallVoidArea": -2e-09,
+        "RemoveFloatingGeometry": False,
         "HealingOption": 1,
         "InclBBoxOption": 1,
+        "ModelType": 0,
+        "ICModeAuto": 1,
+        "ICModeLength": "50nm",
         "AuxBlock": OrderedDict({}),
         "DoAdaptive": True,
         "Color": ["R:=", 0, "G:=", 0, "B:=", 0],  # TODO: create something smart for color arrays: like a class
@@ -1086,6 +1102,8 @@ HFSS3DLayout = OrderedDict(
         "CurveApproximation": HFSS3DLayout_CurveApproximation,
         "Q3D_DCSettings": HFSS3DLayout_Q3D_DCSettings,
         "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
+        "Data": OrderedDict({}),
+        "MeshOps": OrderedDict({}),
     }
 )
 """HFSS 3D Layout setup properties and default values."""
