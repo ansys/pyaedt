@@ -73,8 +73,6 @@ data_files = [
 ]
 
 
-
-
 extras_require = [
     "osmnx",
     "utm",
