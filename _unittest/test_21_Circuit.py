@@ -33,16 +33,15 @@ class TestClass(BasisTest, object):
     def setup_class(self):
         BasisTest.my_setup(self)
         self.aedtapp = BasisTest.add_app(self, original_project_name, application=Circuit, subfolder=test_subfolder)
-        self.aedtapp.modeler.schematic_units = "mil"
-        self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
-        netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
-        netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
-        touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
-        touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
-        self.local_scratch.copyfile(netlist_file1)
-        self.local_scratch.copyfile(netlist_file2)
-        self.local_scratch.copyfile(touchstone_file)
-        self.local_scratch.copyfile(touchstone_file2)
+        # self.circuitprj = BasisTest.add_app(self, diff_proj_name, application=Circuit, subfolder=test_subfolder)
+        # netlist_file1 = os.path.join(local_path, "example_models", test_subfolder, netlist1)
+        # netlist_file2 = os.path.join(local_path, "example_models", test_subfolder, netlist2)
+        # touchstone_file = os.path.join(local_path, "example_models", test_subfolder, touchstone)
+        # touchstone_file2 = os.path.join(local_path, "example_models", test_subfolder, touchstone2)
+        # self.local_scratch.copyfile(netlist_file1)
+        # self.local_scratch.copyfile(netlist_file2)
+        # self.local_scratch.copyfile(touchstone_file)
+        # self.local_scratch.copyfile(touchstone_file2)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -749,8 +748,18 @@ class TestClass(BasisTest, object):
         assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
-    def test_43_create_text(self):
+    def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
-        self.aedtapp.modeler.schematic_units = "mil"
-        self.aedtapp.modeler.create_text("text test")
-        pass
+        text = self.aedtapp.modeler.create_text("text test")
+        assert isinstance(text, str)
+        assert text in self.aedtapp.oeditor.GetAllGraphics()
+        assert not self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
+        text_id = text.split("@")[1]
+        assert self.aedtapp.modeler.change_text_property(text_id, "Font", "Calibri")
+        assert self.aedtapp.modeler.change_text_property(text_id, "DisplayRectangle", True)
+        assert self.aedtapp.modeler.change_text_property(text_id, "Color", [255, 120, 0])
+        assert not self.aedtapp.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
+        assert self.aedtapp.modeler.change_text_property(text_id, "Location", ["-5000mil", "2000mil"])
+        assert self.aedtapp.modeler.change_text_property(text_id, "Location", [5000, 2000])
+        assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
+        assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})

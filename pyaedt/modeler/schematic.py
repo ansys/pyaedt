@@ -238,8 +238,8 @@ class ModelerCircuit(Modeler):
 
         """
         element_ids = []
-        for el in self.oeditor.GetAllElements():
-            element_ids.append(int(el.split("@")[1].split(";")[1].split(":")[0]))
+        for el in self.oeditor.GetAllGraphics():
+            element_ids.append(int(el.split("@")[1]))
         text_id = random.randint(20000, 23000)
         while text_id in element_ids:
             text_id = random.randint(20000, 23000)
@@ -250,7 +250,7 @@ class ModelerCircuit(Modeler):
             "Y:=",
             y_origin,
             "Size:=",
-            """text_size""",
+            text_size,
             "Angle:=",
             text_angle,
             "Text:=",
@@ -269,21 +269,118 @@ class ModelerCircuit(Modeler):
             x2,
             "Y2:=",
             y2,
-            "RectLineWidth:",
+            "RectLineWidth:=",
             rect_line_width,
-            "RectBorderColor:",
+            "RectBorderColor:=",
             rect_border_color,
             "RectFill:=",
             rect_fill,
             "RectColor:=",
             rect_color,
         ]
-        attr = ["NAME:Attributes", "Page:=", 1]
+        a = ["NAME:Attributes", "Page:=", 1]
         try:
-            self.oeditor.CreateText(args, attr)
-            return True
+            return self.oeditor.CreateText(args, a)
         except:
             return False
+
+    @pyaedt_function_handler
+    def change_text_property(self, property_id, property_name, property_value):
+        """Change an oeditor property.
+
+        Parameters
+        ----------
+        property_id : str
+            Object id.
+        property_name : str
+            Name of the property. For example, ``Text``.
+        property_value : str, list, int
+            Value of the property. It can be a string, an int for a single value, a list of three elements for
+            ``[r,g,b]`` color values or a list of two elements for ``[x, y]`` coordinates.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oEditor.ChangeProperty
+        """
+        graphics_id = [id.split("@")[1] for id in self.oeditor.GetAllGraphics()]
+        if property_id not in graphics_id:
+            self.logger.error("Invalid id.")
+            return False
+        if isinstance(property_value, list) and len(property_value) == 3:
+            if (
+                not isinstance(property_value[0], int)
+                or not isinstance(property_value[1], int)
+                or not isinstance(property_value[2], int)
+            ):
+                self.logger.error("Invalid RGB values for color")
+                return False
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        [
+                            "NAME:ChangedProps",
+                            [
+                                "NAME:" + property_name,
+                                "R:=",
+                                property_value[0],
+                                "G:=",
+                                property_value[1],
+                                "B:=",
+                                property_value[2],
+                            ],
+                        ],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, list) and len(property_value) == 2:
+            xpos = self._arg_with_dim(property_value[0])
+            ypos = self._arg_with_dim(property_value[1])
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "X:=", xpos, "Y:=", ypos]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, bool):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        elif isinstance(property_value, (str, float, int)):
+            self.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:BaseElementTab",
+                        ["NAME:PropServers", "SchObj@" + property_id],
+                        ["NAME:ChangedProps", ["NAME:" + property_name, "Value:=", property_value]],
+                    ],
+                ]
+            )
+        else:
+            self.logger.error("Wrong Property Value")
+            return False
+        self.logger.info("Property {} Changed correctly.".format(property_name))
+        return True
 
     @pyaedt_function_handler()
     def _get_components_selections(self, selections, return_as_list=True):
@@ -302,6 +399,15 @@ class ModelerCircuit(Modeler):
         if not return_as_list:
             return ", ".join(sels)
         return sels
+
+    @pyaedt_function_handler()
+    def _arg_with_dim(self, value):
+        if isinstance(value, str):
+            val = value
+        else:
+            val = "{0}{1}".format(value, "mils")
+
+        return val
 
 
 class ModelerNexxim(ModelerCircuit):
