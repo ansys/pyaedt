@@ -17,7 +17,7 @@ class PolylineSegment(object):
 
     Parameters
     ----------
-    type : str
+    segment_type : str
         Type of the object. Choices are ``"Line"``, ``"Arc"``, ``"Spline"``,
         and ``"AngularArc"``.
     num_seg : int, optional
@@ -49,19 +49,19 @@ class PolylineSegment(object):
 
     """
 
-    def __init__(self, type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
+    def __init__(self, segment_type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
-        assert type in valid_types, "Segment type must be in {}.".format(valid_types)
-        self.type = type
-        if type != "Line":
+        assert segment_type in valid_types, "Segment type must be one of {}.".format(valid_types)
+        self.type = segment_type
+        if segment_type != "Line":
             self.num_seg = num_seg
-        if type == "Line":
+        if segment_type == "Line":
             self.num_points = 2
-        if type == "Spline":
+        if segment_type == "Spline":
             self.num_points = num_points
-        if "Arc" in type:
+        if "Arc" in segment_type:
             self.num_points = 3
-        if type == "AngularArc":
+        if segment_type == "AngularArc":
             self.arc_angle = arc_angle
             if not arc_center:
                 arc_center = [0, 0, 0]
@@ -74,8 +74,10 @@ class PolylineSegment(object):
                 self.arc_plane = "ZX"
             else:
                 self.arc_plane = "YZ"
-        else:
+        elif arc_plane:
+            assert arc_plane in ["XY", "ZX", "YZ"], 'arc_plane must be "XY", "ZX", or "YZ" '
             self.arc_plane = arc_plane
+        self.extra_points = None
 
 
 class Polyline(Object3d):
@@ -177,7 +179,7 @@ class Polyline(Object3d):
                 num_seg=xsection_num_seg,
                 bend_type=xsection_bend_type,
             )
-            self._positions = [i for i in position_list]
+            self._positions = [list(i) for i in position_list]
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
             # and insert a line segment to achieve this if necessary
             if cover_surface:
@@ -248,7 +250,7 @@ class Polyline(Object3d):
             for i in p_in:
                 v, u = decompose_variable_value(i)
                 p_out.append(unit_converter(v, unit_system="Length", input_units=u, output_units=dest_unit))
-            return tuple(p_out)
+            return p_out
 
         if self._positions:
             return self._positions
@@ -309,7 +311,7 @@ class Polyline(Object3d):
         list
 
         """
-        position_list = self._positions
+        position_list = self.points
         segment_types = self._segment_types
 
         assert (
@@ -774,7 +776,7 @@ class Polyline(Object3d):
             List of positions of the points that define the segment to insert.
             Either the starting point or ending point of the segment list must
             match one of the vertices of the existing polyline.
-        segment : str or :class:`pyaedt.modeler.Primitives.PolylineSegment`
+        segment : str or :class:`pyaedt.modeler.Primitives.PolylineSegment`, optional
             Definition of the segment to insert. For the types ``"Line"`` and ``"Arc"``,
             use their string values ``"Line"`` and ``"Arc"``. For the types ``"AngularArc"``
             and ``"Spline"``, use the :class:`pyaedt.modeler.Primitives.PolylineSegment`
@@ -796,50 +798,86 @@ class Polyline(Object3d):
         num_points = len(position_list)
 
         # define the segment type from the number of points given
+        if num_points < 2:
+            raise AttributeError("num_points must contain at least 2 points to define a segment.")
         if not segment:
             if num_points == 2:
                 segment = PolylineSegment("Line")
             elif num_points == 3:
                 segment = PolylineSegment("Arc")
-            else:
+            else:  # num_points>3
                 segment = PolylineSegment("Spline", num_points=num_points)
         else:
             if isinstance(segment, str):
                 segment = PolylineSegment(segment)
-            num_points = segment.num_points
+                num_points = segment.num_points
+            elif isinstance(segment, PolylineSegment):
+                num_points = segment.num_points
+            else:
+                raise AttributeError("segment must be either a string or PolylineSegment object")
 
         # Check whether start-point of the segment is in the existing vertices
-        start_point = self._primitives.value_in_object_units(position_list[0])
+        start_point = position_list[0]
 
         # End point does not exist e.g. for an AngularArc
         try:
-            end_point = self._primitives.value_in_object_units(position_list[num_points - 1])
+            end_point = position_list[num_points - 1]
         except:
             end_point = []
 
         segment_id = 1
         segment_index = 0
         at_start = None
+        insert_position = None
+        insert_points = None
         num_polyline_points = len(self.points)
         for i, point in enumerate(self.points):
             # if point.position == end_point:
-            if GeometryOperators.points_distance(list(point), end_point) < 1e-8:
+            # if GeometryOperators.points_distance(list(point), end_point) < 1e-8:
+            if (
+                GeometryOperators.points_distance(
+                    self._primitives.value_in_object_units(point), self._primitives.value_in_object_units(end_point)
+                )
+                < 1e-8
+            ):
                 # if point.id == self.points[0].id:
                 #     if segment_id > 0:
                 #         segment_id -= 1
-                if i == 0:
-                    segment_id = 0
                 at_start = True
+                segment_index = i
+                insert_position = i
+                insert_points = [start_point]
+                if i == num_polyline_points - 1:
+                    at_start = False
+                    segment_index = i - 2
+                    position_list = [self.points[-2], start_point]
+
+                # if i == 0:
+                #     segment_id = 0
                 break
             # If start_point=[0, 0, 0] (a list of integers provided by the user), it won't be equal to vertex.position
             # that returns a list of float: [0., 0., 0.]. Thus we cast start_point as a list of floats.
             # elif point.position == [float(x) for x in start_point]:
-            elif GeometryOperators.points_distance(list(point), start_point) < 1e-8:
+            elif (
+                GeometryOperators.points_distance(
+                    self._primitives.value_in_object_units(point), self._primitives.value_in_object_units(start_point)
+                )
+                < 1e-8
+            ):
                 at_start = False
-                if segment_index > 0:
-                    segment_index -= 1
+                segment_index = i - 1
+                insert_position = i + 1
+                insert_points = [end_point]
+                if i == 0:
+                    at_start = True
+                    segment_index = 1
+                    position_list = [end_point, self.points[1]]
+                    insert_position = 1
+
+                # if segment_index > 0:
+                #     segment_index -= 1
                 break
-            segment_index += 1
+            # segment_index += 1
         id_v = 0
 
         if isinstance(self._segment_types, list):
@@ -902,5 +940,9 @@ class Polyline(Object3d):
             varg1.append(varg2)
 
             self._primitives.oeditor.ChangeProperty(varg1)
+
+        # add the points to the object
+        if insert_position and insert_points:
+            self._positions[insert_position:insert_position] = insert_points
 
         return True

@@ -98,24 +98,6 @@ class TestClass(BasisTest, object):
             [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material_name="Copper"
         )
 
-    def create_polylines(self, name=None):
-        if not name:
-            name = "Poly_"
-
-        test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
-
-        if self.aedtapp.modeler[name + "segmented"]:
-            self.aedtapp.modeler.delete(name + "segmented")
-
-        if self.aedtapp.modeler[name + "compound"]:
-            self.aedtapp.modeler.delete(name + "compound")
-
-        p1 = self.aedtapp.modeler.create_polyline(position_list=test_points, name=name + "segmented")
-        p2 = self.aedtapp.modeler.create_polyline(
-            position_list=test_points, segment_type=["Line", "Arc"], name=name + "compound"
-        )
-        return p1, p2, test_points
-
     def test_01_resolve_object(self):
         o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
         o1 = self.aedtapp.modeler._resolve_object(o)
@@ -325,7 +307,25 @@ class TestClass(BasisTest, object):
         assert len(of) == 4
         pass
 
-    def test_19_create_polyline(self):
+    def test_19a_create_polylines(self, name=None):
+        if not name:
+            name = "Poly_"
+
+        test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
+
+        if self.aedtapp.modeler[name + "segmented"]:
+            self.aedtapp.modeler.delete(name + "segmented")
+
+        if self.aedtapp.modeler[name + "compound"]:
+            self.aedtapp.modeler.delete(name + "compound")
+
+        p1 = self.aedtapp.modeler.create_polyline(position_list=test_points, name=name + "segmented")
+        p2 = self.aedtapp.modeler.create_polyline(
+            position_list=test_points, segment_type=["Line", "Arc"], name=name + "compound"
+        )
+        return p1, p2, test_points
+
+    def test_19b_create_polyline(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
@@ -669,11 +669,85 @@ class TestClass(BasisTest, object):
             position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_segment"
         )
         assert P
+        assert len(P.points) == 4
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["-p1", "0mm", "0mm"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["0mm", "0mm", "0mm"],
+        ]
         start_point = P.start_point
         insert_point = ["90mm", "20mm", "0mm"]
         insert_point2 = ["95mm", "20mm", "0mm"]
         assert P.insert_segment(position_list=[start_point, insert_point])
+        assert len(P.points) == 5
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["90.0", "20.0", "0.0"],
+            ["-p1", "0mm", "0mm"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["0mm", "0mm", "0mm"],
+        ]
         assert P.insert_segment(position_list=[insert_point, insert_point2])
+        assert len(P.points) == 6
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["90.0", "20.0", "0.0"],
+            ["95.0", "20.0", "0.0"],
+            ["-p1", "0mm", "0mm"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["0mm", "0mm", "0mm"],
+        ]
+        assert P.insert_segment(position_list=[["-p1", "0mm", "0mm"], ["-110mm", "-35mm", "0mm"]])
+        assert len(P.points) == 7
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["90.0", "20.0", "0.0"],
+            ["95.0", "20.0", "0.0"],
+            ["-p1", "0mm", "0mm"],
+            ["-110.0", "-35.0", "0.0"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["0mm", "0mm", "0mm"],
+        ]
+        assert P.insert_segment(position_list=[["-80mm", "10mm", "0mm"], ["-p1", "0mm", "0mm"]])
+        assert len(P.points) == 8
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["90.0", "20.0", "0.0"],
+            ["95.0", "20.0", "0.0"],
+            ["-80.0", "10.0", "0.0"],
+            ["-p1", "0mm", "0mm"],
+            ["-110.0", "-35.0", "0.0"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["0mm", "0mm", "0mm"],
+        ]
+        assert P.insert_segment(position_list=[["0mm", "0mm", "0mm"], ["10mm", "10mm", "0mm"]])
+        assert len(P.points) == 9
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["90.0", "20.0", "0.0"],
+            ["95.0", "20.0", "0.0"],
+            ["-80.0", "10.0", "0.0"],
+            ["-p1", "0mm", "0mm"],
+            ["-110.0", "-35.0", "0.0"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["0mm", "0mm", "0mm"],
+            ["10.0", "10.0", "0.0"],
+        ]
+        assert P.insert_segment(position_list=[["10mm", "5mm", "0mm"], ["0mm", "0mm", "0mm"]])
+        assert len(P.points) == 10
+        assert P.points == [
+            ["0mm", "p1", "0mm"],
+            ["90.0", "20.0", "0.0"],
+            ["95.0", "20.0", "0.0"],
+            ["-80.0", "10.0", "0.0"],
+            ["-p1", "0mm", "0mm"],
+            ["-110.0", "-35.0", "0.0"],
+            ["-p1/2", "-p1/2", "0mm"],
+            ["10.0", "5.0", "0.0"],
+            ["0mm", "0mm", "0mm"],
+            ["10.0", "10.0", "0.0"],
+        ]
 
     def test_48_insert_polylines_segments_test2(self):
         prim3D = self.aedtapp.modeler
@@ -684,11 +758,13 @@ class TestClass(BasisTest, object):
         P = prim3D.create_polyline(
             position_list=test_points, close_surface=False, name="PL08_segmented_compound_insert_arc"
         )
-        start_point = P.vertex_positions[1]
-        insert_point1 = ["90mm", "20mm", "0mm"]
-        insert_point2 = [40, 40, 0]
+        start_point = P.points[1]
+        insert_point1 = ["-120mm", "-25mm", "0mm"]
+        insert_point2 = [-115, -40, 0]
 
         P.insert_segment(position_list=[start_point, insert_point1, insert_point2], segment="Arc")
+
+        pass
 
     def test_49_modify_crossection(self):
         P = self.aedtapp.modeler.create_polyline(
@@ -1198,7 +1274,7 @@ class TestClass(BasisTest, object):
         )
 
         helix_right_turn = self.aedtapp.modeler.create_helix(
-            polyline_name="helix_polyline",
+            polyline_name=polyline.name,
             position=[0, 0, 0],
             x_start_dir=0,
             y_start_dir=1.0,
@@ -1221,7 +1297,7 @@ class TestClass(BasisTest, object):
         )
 
         assert self.aedtapp.modeler.create_helix(
-            polyline_name="helix_polyline_left",
+            polyline_name=polyline_left.name,
             position=[0, 0, 0],
             x_start_dir=1.0,
             y_start_dir=1.0,

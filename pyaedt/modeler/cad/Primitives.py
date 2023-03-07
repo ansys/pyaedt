@@ -531,13 +531,13 @@ class Primitives(object):
         ----------
         value : string or list of strings
             One or more strings for numerical lengths. For example, ``"10mm"``
-            or ``["10mm", "12mm", "14mm"]``. When a a list is given, the entire
+            or ``["10mm", "12mm", "14mm"]``. When a list is given, the entire
             list is converted.
 
         Returns
         -------
-        float or list of floats
-            Defined in object units :attr:`pyaedt.modeler.Primitives.Polyline.object_units`.
+        List of floats
+            Defined in model units :attr:`pyaedt.modeler.model_units`.
 
         """
         # Convert to a list if a scalar is presented
@@ -815,7 +815,7 @@ class Primitives(object):
         :class:`pyaedt.modeler.polylines.PolylineSegment`
         """
         return PolylineSegment(
-            type=type,
+            segment_type=type,
             num_seg=num_seg,
             num_points=num_points,
             arc_angle=arc_angle,
@@ -947,7 +947,7 @@ class Primitives(object):
         additionally specify five segments using ``PolylineSegment``.
 
         >>> P3 = modeler.create_polyline(test_points[1:],
-        ...                               segment_type=PolylineSegment(type="Arc", num_seg=7),
+        ...                               segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
         ...                               name="PL_segmented_arc")
 
         Specify that the four points form a spline and add a circular
@@ -963,7 +963,8 @@ class Primitives(object):
 
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
-        >>> segment_def = PolylineSegment(type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY")
+        >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
+        ...                                arc_angle="90deg", arc_plane="XY")
         >>> modeler.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
@@ -2808,7 +2809,7 @@ class Primitives(object):
             self.planes[name] = o
         else:
             o = Object3d(self, name)
-            if o.history.command == "CreatePolyline":
+            if o.history and o.history.command == "CreatePolyline":
                 new_id = o.id
                 o = self.get_existing_polyline(o)
             else:
