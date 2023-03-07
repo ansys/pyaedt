@@ -561,8 +561,8 @@ class QExtractor(FieldAnalysis3D, object):
                 variations = ",".join(variations_list)
 
         if setup_name is None:
-            setup_name = self.analysis_setup
-        elif setup_name != self.analysis_setup:
+            setup_name = self.active_setup
+        elif setup_name != self.active_setup:
             self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
@@ -899,8 +899,8 @@ class QExtractor(FieldAnalysis3D, object):
             return False
 
         if setup_name is None:
-            setup_name = self.analysis_setup
-        elif setup_name != self.analysis_setup:
+            setup_name = self.active_setup
+        elif setup_name != self.active_setup:
             self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
@@ -2230,7 +2230,7 @@ class Q2d(QExtractor, object):
         if not os.path.exists(export_folder):
             os.makedirs(export_folder)
         if analyze:
-            self.analyze_all()
+            self.analyze()
         setups = self.oanalysis.GetSetups()
 
         for s in setups:

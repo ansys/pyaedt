@@ -188,7 +188,7 @@ class TestClass(BasisTest, object):
     def test_13_link_array(self):
         self.array.setups[0].props["MaximumPasses"] = 1
         assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
-        self.sbr_platform.analyze_all()
+        self.sbr_platform.analyze()
         ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
         self.array.close_project()
         ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)

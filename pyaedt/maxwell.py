@@ -1222,7 +1222,7 @@ class Maxwell(object):
         >>> oModule.ResetSetupToTimeZero
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze_nominal()
+        self.analyze()
         return True
 
     @pyaedt_function_handler()

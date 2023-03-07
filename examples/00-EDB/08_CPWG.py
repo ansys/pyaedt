@@ -172,9 +172,9 @@ h3d.modeler.edb.core_nets.plot(None, None, color_by_net=True)
 ###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
-# Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
+# Start the HFSS solver by uncommenting the ``h3d.analyze()`` command.
 
-# h3d.analyze_nominal()
+# h3d.analyze()
 
 # Save AEDT
 h3d.save_project()

@@ -79,7 +79,7 @@ setup1.props["RayDensityPerWavelength"] = 2
 setup1.props["MaxNumberOfBounces"] = 3
 setup1["RangeType"] = "SinglePoints"
 setup1["RangeStart"] = "10GHz"
-target.analyze_nominal()
+target.analyze()
 
 ###############################################################################
 # Plot results

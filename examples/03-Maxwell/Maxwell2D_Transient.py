@@ -101,7 +101,7 @@ maxwell_2d.post.create_report(
 # ~~~~~~~~~~~
 # Solve the model.
 
-maxwell_2d.analyze_nominal(use_auto_settings=False)
+maxwell_2d.analyze(use_auto_settings=False)
 
 ###############################################################################
 # Create output and plot using PyVista

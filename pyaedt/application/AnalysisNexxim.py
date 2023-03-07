@@ -544,7 +544,7 @@ class FieldAnalysisCircuit(Analysis):
         """
         setup = SetupCircuit(self, self.solution_type, setupname, isnewsetup=False)
         if setup.props:
-            self.analysis_setup = setupname
+            self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()

@@ -127,7 +127,7 @@ class TestClass(BasisTest, object):
         q2d.matrices[2].name == "Test2"
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
         q2d.matrices[3].name == "Test3"
-        q2d.analyze_setup(q2d.analysis_setup)
+        q2d.analyze_setup(q2d.active_setup)
         q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"))
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG")
         assert q2d.export_matrix_data(
