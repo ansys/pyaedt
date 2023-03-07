@@ -763,7 +763,10 @@ class TestClass(BasisTest, object):
             [0.025, -0.02],
             [0.025, 0.02],
         ]
-        assert self.edbapp.core_primitives.create_trace(points, "TOP")
+        trace = self.edbapp.core_primitives.create_trace(points, "TOP")
+        assert trace
+        assert isinstance(trace.get_center_line(), list)
+        assert isinstance(trace.get_center_line(True), list)
 
     def test_070_create_outline(self):
         assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
