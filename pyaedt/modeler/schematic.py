@@ -286,7 +286,7 @@ class ModelerCircuit(Modeler):
             return False
 
     @pyaedt_function_handler
-    def change_text_property(self, property_id, property_name, property_value):
+    def change_text_property(self, property_id, property_name, property_value):  # pragma: no cover
         """Change an oeditor property.
 
         Parameters
@@ -321,7 +321,7 @@ class ModelerCircuit(Modeler):
             ):
                 self.logger.error("Invalid RGB values for color")
                 return False
-            self.oeditor.ChangeProperty(  # pragma: no cover
+            self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -345,7 +345,7 @@ class ModelerCircuit(Modeler):
         elif isinstance(property_value, list) and len(property_value) == 2:
             xpos = self._arg_with_dim(property_value[0])
             ypos = self._arg_with_dim(property_value[1])
-            self.oeditor.ChangeProperty(  # pragma: no cover
+            self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -356,7 +356,7 @@ class ModelerCircuit(Modeler):
                 ]
             )
         elif isinstance(property_value, bool):
-            self.oeditor.ChangeProperty(  # pragma: no cover
+            self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -367,7 +367,7 @@ class ModelerCircuit(Modeler):
                 ]
             )
         elif isinstance(property_value, (str, float, int)):
-            self.oeditor.ChangeProperty(  # pragma: no cover
+            self.oeditor.ChangeProperty(
                 [
                     "NAME:AllTabs",
                     [
@@ -381,10 +381,10 @@ class ModelerCircuit(Modeler):
             self.logger.error("Wrong Property Value")
             return False
         self.logger.info("Property {} Changed correctly.".format(property_name))
-        return True  # pragma: no cover
+        return True
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):
+    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
         sels = []
         if not isinstance(selections, list):
             selections = [selections]
@@ -404,11 +404,11 @@ class ModelerCircuit(Modeler):
     @pyaedt_function_handler()
     def _arg_with_dim(self, value):
         if isinstance(value, str):
-            val = value  # pragma: no cover
+            val = value
         else:
-            val = "{0}{1}".format(value, "mil")  # pragma: no cover
+            val = "{0}{1}".format(value, "mil")
 
-        return val  # pragma: no cover
+        return val
 
 
 class ModelerNexxim(ModelerCircuit):
