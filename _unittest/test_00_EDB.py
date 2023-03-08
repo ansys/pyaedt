@@ -2202,3 +2202,9 @@ class TestClass(BasisTest, object):
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 1e-12
             res.cap_value = 8e-12
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 8e-12
+
+    def test_137_design_options(self):
+        self.edbapp.design_options.suppress_pads = False
+        assert not self.edbapp.design_options.suppress_pads
+        self.edbapp.design_options.antipads_always_on = True
+        assert self.edbapp.design_options.antipads_always_on
