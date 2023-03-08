@@ -19,6 +19,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
+
 class LayoutSettings:
     def __init__(self, oeditor):
         self._oeditor = oeditor
