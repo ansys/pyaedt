@@ -887,6 +887,8 @@ class SetupProps(OrderedDict):
                 if not isinstance(v, dict):
                     target[k] = v
                 else:
+                    if k not in target:
+                        target[k] = {}
                     set_props(target[k], v)
 
         with open3(file_path, "r", encoding="utf-8") as f:
