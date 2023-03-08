@@ -9,7 +9,7 @@ import warnings
 from collections import OrderedDict
 
 from pyaedt import is_ironpython
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
