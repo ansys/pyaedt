@@ -134,16 +134,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             aedt_process_id,
         )
 
-        self._layout_option = None
-
-    @property
-    def layout_option(self):
-        if isinstance(self._layout_option, LayoutSettings):
-            return self._layout_option
-        else:
-            self._layout_option = LayoutSettings(self.oeditor)
-            return self._layout_option
-
     def __enter__(self):
         return self
 
