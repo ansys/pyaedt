@@ -620,17 +620,16 @@ class Analysis(Design, object):
         self,
         analyze=False,
         export_folder=None,
-        matrix_name=None,
+        matrix_name="Original",
         matrix_type="S",
         touchstone_format="MagPhase",
         touchstone_number_precision=15,
         length="1meter",
         impedance=50,
-        use_export_freq=True,
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
     ):
-        """Export all available reports to a file, including sNp, profile, and convergence.
+        """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
@@ -640,11 +639,13 @@ class Analysis(Design, object):
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
         matrix_name : str, optional
-            Matrix to specify to export touchstone file. The default is ``None``, in which case
-            the first matrix is taken.
+            Matrix to specify to export touchstone file. The default is ``Original``, in which case
+             default matrix is taken.
+            This argument applies only to 2DExtractor and Q3D setups where Matrix reduction is computed
+            and needed to export touchstone file.
         matrix_type : str, optional
-            Type of matrix to export. The default is ``S``.
-            Available values are ``S``, ``Y``, ``Z``.
+            Type of matrix to export. The default is ``S`` to export a touchstone file.
+            Available values are ``S``, ``Y``, ``Z``.  ``Y`` and ``Z`` matrices will be exported as tab file.
         touchstone_format : str, optional
             Touchstone format. The default is ``MagPahse``.
             Available values are: ``MagPahse``, ``DbPhase``, ``RealImag``.
@@ -654,12 +655,11 @@ class Analysis(Design, object):
             Real impedance value in ohms, for renormalization. The default is ``50``.
         touchstone_number_precision : int, optional
             Touchstone number of digits precision. The default is ``15``.
-        use_export_freq : bool, optional
-            Specifies whether to use export frequencies. The default is ``True``.
         include_gamma_comment : bool, optional
             Specifies whether to include Gamma and Impedance comments. The default is ``True``.
         support_non_standard_touchstone_extension : bool, optional
-            Specifies whether to include Gamma and Impedance comments. The default is ``True``.
+            Specifies whether to support non-standard Touchstone extensions for mixed reference impedance.
+            The default is ``False``.
 
         Returns
         -------
@@ -674,6 +674,13 @@ class Analysis(Design, object):
         >>> oModule.ExportToFile
         >>> oModule.ExportConvergence
         >>> oModule.ExportNetworkData
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.analyze()
+        >>> exported_files = self.aedtapp.export_results()
         """
         exported_files = []
         if not export_folder:
@@ -690,10 +697,9 @@ class Analysis(Design, object):
         elif self.design_type == "Circuit Design":
             excitations = len(self.excitations)
         else:
-            excitations = self.oboundary.GetNumExcitations()
+            excitations = len(self.osolution.GetAllSources())
         # reports
-        reportnames = self.post.oreportsetup.GetAllReportNames()
-        for report_name in reportnames:
+        for report_name in self.post.all_report_names:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
             export_path = os.path.join(
@@ -761,14 +767,9 @@ class Analysis(Design, object):
                             if result:
                                 exported_files.append(export_path)
 
-                            export_path = os.path.join(
-                                export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
-                            )
-                            self.logger.info("Export SnP: {}".format(export_path))
-
+                            freq_array = []
                             if self.design_type in ["2D Extractor", "Q3D Extractor"]:
                                 freq_model_unit = decompose_variable_value(s.props["AdaptiveFreq"])[1]
-                                freq_array = []
                                 if sweep == "LastAdaptive":
                                     # If sweep is Last Adaptive for Q2D and Q3D
                                     # the default range freq is [10MHz, 100MHz, step: 10MHz]
@@ -785,12 +786,21 @@ class Analysis(Design, object):
 
                             # export touchstone as .sNp file
                             if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
+                                if matrix_type != "S":
+                                    export_path = os.path.join(
+                                        export_folder, "{0}_{1}.tab".format(self.project_name, varCount)
+                                    )
+                                else:
+                                    export_path = os.path.join(
+                                        export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
+                                    )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
                                     self.osolution.ExportNetworkData(
                                         variation,
                                         ["{0}:{1}".format(setup_name, sweep_name)],
-                                        3,
+                                        3 if matrix_type == "S" else 2,
                                         export_path,
                                         ["All"],
                                         True,
@@ -799,7 +809,7 @@ class Analysis(Design, object):
                                         -1,
                                         touchstone_format_value,
                                         touchstone_number_precision,
-                                        use_export_freq,
+                                        True,
                                         include_gamma_comment,
                                         support_non_standard_touchstone_extension,
                                     )
@@ -808,6 +818,10 @@ class Analysis(Design, object):
                                 except:
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "2D Extractor":
+                                export_path = os.path.join(
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, 2 * excitations)
+                                )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
                                     self.odesign.ExportNetworkData(
@@ -826,6 +840,10 @@ class Analysis(Design, object):
                                 except:
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "Q3D Extractor":
+                                export_path = os.path.join(
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, 2 * excitations)
+                                )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
                                     self.odesign.ExportNetworkData(
