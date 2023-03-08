@@ -173,7 +173,7 @@ class ModelerCircuit(Modeler):
         rect_border_color=0,
         rect_fill=0,
         rect_color=0,
-    ):
+    ):  # pragma: no cover
         """Draw Text.
 
         Parameters
@@ -244,7 +244,7 @@ class ModelerCircuit(Modeler):
         text_id = system_random.randint(20000, 23000)
         while text_id in element_ids:
             text_id = system_random.randint(20000, 23000)
-        args = [  # pragma: no cover
+        args = [
             "NAME:TextData",
             "X:=",
             x_origin,
@@ -314,7 +314,7 @@ class ModelerCircuit(Modeler):
             self.logger.error("Invalid id.")
             return False
         if isinstance(property_value, list) and len(property_value) == 3:
-            if (  # pragma: no cover
+            if (
                 not isinstance(property_value[0], int)
                 or not isinstance(property_value[1], int)
                 or not isinstance(property_value[2], int)
@@ -384,7 +384,7 @@ class ModelerCircuit(Modeler):
         return True
 
     @pyaedt_function_handler()
-    def _get_components_selections(self, selections, return_as_list=True):  # pragma: no cover
+    def _get_components_selections(self, selections, return_as_list=True):
         sels = []
         if not isinstance(selections, list):
             selections = [selections]
@@ -402,7 +402,7 @@ class ModelerCircuit(Modeler):
         return sels
 
     @pyaedt_function_handler()
-    def _arg_with_dim(self, value):
+    def _arg_with_dim(self, value):  # pragma: no cover
         if isinstance(value, str):
             val = value
         else:
