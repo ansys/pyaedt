@@ -405,7 +405,7 @@ class ModelerCircuit(Modeler):
         if isinstance(value, str):
             val = value
         else:
-            val = "{0}{1}".format(value, "mils")
+            val = "{0}{1}".format(value, "mil")
 
         return val
 
