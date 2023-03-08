@@ -143,7 +143,7 @@ h3d = pyaedt.Hfss3dLayout(specified_version="2023.1", projectname=target_aedb, n
 # Analyze
 # ~~~~~~~
 # Project will be solved.
-h3d.analyze_nominal()
+h3d.analyze()
 
 ###############################################################################
 # Get Results

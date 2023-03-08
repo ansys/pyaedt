@@ -142,7 +142,7 @@ setup1.props["MaximumPasses"] = max_steps
 # Save the project first and then solve the setup.
 
 hfss.save_project()
-hfss.analyze_nominal()
+hfss.analyze()
 
 ###############################################################################
 # Plot results
@@ -219,7 +219,7 @@ setup1.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyDa
 # Solve Setup
 # ~~~~~~~~~~~
 
-h3d.analyze_nominal()
+h3d.analyze()
 
 ###############################################################################
 # Plot results

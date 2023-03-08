@@ -267,7 +267,7 @@ h3d.create_linear_count_sweep(
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Solve the project and create a report.
 
-h3d.analyze_nominal()
+h3d.analyze()
 h3d.post.create_report(["db(S({0},{1}))".format(port_name, port_name)])
 
 

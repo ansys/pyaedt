@@ -41,7 +41,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(test_project)
 
     def test_01A_check_setup(self):
-        assert self.aedtapp.analysis_setup is None
+        assert self.aedtapp.active_setup is None
 
     def test_02_create_primitive(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
@@ -219,7 +219,7 @@ class TestClass(BasisTest, object):
         setup3.delete()
 
     def test_06b_setup_exists(self):
-        assert self.aedtapp.analysis_setup is not None
+        assert self.aedtapp.active_setup is not None
         assert self.aedtapp.nominal_sweep is not None
 
     def test_06c_create_linear_step_sweep(self):

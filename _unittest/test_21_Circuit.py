@@ -232,7 +232,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
-        assert self.aedtapp.analyze_nominal()
+        assert self.aedtapp.analyze("Dom_LNA")
         time.sleep(30)
         solution_name = "Dom_LNA"
         sweep_name = None
@@ -471,7 +471,7 @@ class TestClass(BasisTest, object):
 
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-        assert self.aedtapp.analyze_nominal()
+        assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
         myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
@@ -493,7 +493,7 @@ class TestClass(BasisTest, object):
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
 
         assert not self.aedtapp.browse_log_file()
-        self.aedtapp.analyze_nominal()
+        self.aedtapp.analyze()
         assert self.aedtapp.browse_log_file()
         self.aedtapp.save_project()
         assert self.aedtapp.browse_log_file()
