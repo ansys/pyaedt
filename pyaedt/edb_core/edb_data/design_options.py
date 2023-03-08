@@ -1,8 +1,7 @@
 class EdbDesignOptions:
-    
     def __init__(self, active_cell):
         self._active_cell = active_cell
-        
+
     @property
     def suppress_pads(self):
         """Whether to suppress non-functional pads."""
