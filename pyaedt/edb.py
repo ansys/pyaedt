@@ -646,6 +646,7 @@ class Edb(object):
 
     @property
     def design_options(self):
+        """Design options."""
         return EdbDesignOptions(self.active_cell)
 
     @property

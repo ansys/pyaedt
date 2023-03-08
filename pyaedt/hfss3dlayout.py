@@ -19,26 +19,6 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import tech_to_control_file
 from pyaedt.modules.Boundary import BoundaryObject3dLayout
 
-class LayoutSettings:
-    def __init__(self, oeditor):
-        self._oeditor = oeditor
-
-    @property
-    def suppress_pads(self):
-        return
-
-    @suppress_pads.setter
-    def suppress_pads(self, value):
-        self._oeditor.ChangeOptions(["NAME:options", "SuppressPads:=", value])
-
-    @property
-    def antipad_option(self):
-        return
-
-    @antipad_option.setter
-    def antipad_option(self, value):
-        self._oeditor.ChangeOptions(["NAME:options", "AntiPadsOption:=", value])
-
 
 class Hfss3dLayout(FieldAnalysis3DLayout):
     """Provides the HFSS 3D Layout application interface.
@@ -153,16 +133,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout):
             port,
             aedt_process_id,
         )
-
-        self._layout_option = None
-
-    @property
-    def layout_option(self):
-        if isinstance(self._layout_option, LayoutSettings):
-            return self._layout_option
-        else:
-            self._layout_option = LayoutSettings(self.oeditor)
-            return self._layout_option
 
     def __enter__(self):
         return self
