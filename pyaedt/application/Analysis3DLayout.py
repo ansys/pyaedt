@@ -4,14 +4,8 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modeler.modelerpcb import Modeler3DLayout
-from pyaedt.modules.Mesh3DLayout import Mesh3d
 from pyaedt.modules.SolveSetup import Setup3DLayout
-
-if is_ironpython:
-    from pyaedt.modules.PostProcessor import PostProcessor
-else:
-    from pyaedt.modules.AdvancedPostProcessing import PostProcessor
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -94,11 +88,27 @@ class FieldAnalysis3DLayout(Analysis):
             aedt_process_id,
         )
         self.logger.info("Analysis Loaded")
-        self._modeler = Modeler3DLayout(self)
+        self._modeler = None
         self.logger.info("Modeler Loaded")
-        self._mesh = Mesh3d(self)
-        self._post = PostProcessor(self)
-        # self._post = PostProcessor(self)
+        self._mesh = None
+        self._post = None
+
+    @property
+    def post(self):
+        """PostProcessor.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
+            PostProcessor object.
+        """
+        if self._post is None:
+            if is_ironpython:  # pragma: no cover
+                from pyaedt.modules.PostProcessor import PostProcessor
+            else:
+                from pyaedt.modules.AdvancedPostProcessing import PostProcessor
+            self._post = PostProcessor(self)
+        return self._post
 
     @property
     def mesh(self):
@@ -108,6 +118,10 @@ class FieldAnalysis3DLayout(Analysis):
         -------
         :class:`pyaedt.modules.Mesh3DLayout.Mesh3d`
         """
+        if self._mesh is None:
+            from pyaedt.modules.Mesh3DLayout import Mesh3d
+
+            self._mesh = Mesh3d(self)
         return self._mesh
 
     @property
@@ -352,7 +366,16 @@ class FieldAnalysis3DLayout(Analysis):
 
     @property
     def modeler(self):
-        """Modeler object."""
+        """Modeler object.
+
+        Returns
+        -------
+        :class:`pyaedt.modeler.modelerpcb.Modeler3DLayout`
+        """
+        if self._modeler is None:
+            from pyaedt.modeler.modelerpcb import Modeler3DLayout
+
+            self._modeler = Modeler3DLayout(self)
         return self._modeler
 
     @property
@@ -383,7 +406,7 @@ class FieldAnalysis3DLayout(Analysis):
         return setups
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
         """Create a setup.
 
         Parameters
@@ -393,8 +416,10 @@ class FieldAnalysis3DLayout(Analysis):
         setuptype : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
-        props : dict, optional
-            Dictionary of properties with values. The default is ``{}``.
+        **kwargs : dict, optional
+            Extra arguments for setup settings.
+            Available keys depend on the setup chosen. For more
+            information, see :doc:`../SetupTemplates3DLayout`.
 
         Returns
         -------
@@ -404,17 +429,33 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
 
         >>> oModule.Add
+
+        Examples
+        --------
+
+        >>> from pyaedt import Hfss3dLayout
+        >>> app = Hfss3dLayout()
+        >>> app.create_setup(setupname="Setup1", MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
         if setuptype is None:
             setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = Setup3DLayout(self, setuptype, name)
         setup.create()
-        if props:
-            for el in props:
-                setup.props[el] = props[el]
-            setup.update()
-        self.analysis_setup = name
+        setup.auto_update = False
+
+        if "props" in kwargs:
+            for el in kwargs["props"]:
+                setup.props[el] = kwargs["props"][el]
+        for arg_name, arg_value in kwargs.items():
+            if arg_name == "props":
+                continue
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
         self.setups.append(setup)
         return setup
 
@@ -442,7 +483,7 @@ class FieldAnalysis3DLayout(Analysis):
             if setupname == setup.name:
                 return setup
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
-        self.analysis_setup = setupname
+        self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()

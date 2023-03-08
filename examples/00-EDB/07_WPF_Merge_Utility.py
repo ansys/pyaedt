@@ -18,7 +18,7 @@ import tempfile
 from pyaedt.downloads import download_edb_merge_utility
 
 python_file = download_edb_merge_utility(force_download=True, destination=tempfile.gettempdir())
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 
 ######################################################################
 # Launch Python script

@@ -1,5 +1,6 @@
 from __future__ import absolute_import  # noreorder
 
+import copy
 import datetime
 import json
 import os.path
@@ -75,7 +76,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         hide_contents=False,
         replace_names=False,
         component_outline="BoundingBox",
-        auxiliary_dict_file=False,
+        auxiliary_dict=False,
         monitor_objects=None,
         datasets=None,
         native_components=None,
@@ -97,7 +98,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         excitation_list : list, optional
             List of Excitation names to export. The default is all excitations.
         included_cs : list, optional
-            List of Coordinate Systems to export. The default is all coordinate systems.
+            List of Coordinate Systems to export. The default is the ``reference_cs``.
         reference_cs : str, optional
             The Coordinate System reference. The default is ``"Global"``.
         is_encrypted : bool, optional
@@ -125,7 +126,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_outline : str, optional
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
-        auxiliary_dict_file : bool or str, optional
+        auxiliary_dict : bool or str, optional
             Whether to export the auxiliary file containing information about defined datasets and Icepak monitor
             objects. A destination file can be specified using a string.
             The default is ``False``.
@@ -220,7 +221,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if included_cs:
             allcs = included_cs
         else:
-            allcs = self.oeditor.GetCoordinateSystems()
+            allcs = [reference_cs]
         arg.append("IncludedCS:="), arg.append(allcs)
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
@@ -291,9 +292,9 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        if auxiliary_dict_file:
-            if isinstance(auxiliary_dict_file, bool):
-                auxiliary_dict_file = component_file + ".json"
+        if auxiliary_dict:
+            if isinstance(auxiliary_dict, bool):
+                auxiliary_dict = component_file + ".json"
             cachesettings = {
                 prop: getattr(self._app.configurations.options, prop)
                 for prop in vars(self._app.configurations.options)
@@ -302,6 +303,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             self._app.configurations.options.unset_all_export()
             self._app.configurations.options.export_monitor = True
             self._app.configurations.options.export_datasets = True
+            self._app.configurations.options.export_native_components = True
             self._app.configurations.options.export_coordinate_systems = True
             configfile = self._app.configurations.export_config()
             for prop in cachesettings:  # restore user settings
@@ -324,6 +326,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["monitor"][i]
                     else:
                         if out_dict["monitor"][i]["Type"] in ["Object", "Surface"]:
+                            self._app.modeler.refresh_all_ids()
                             out_dict["monitor"][i]["ID"] = self._app.modeler.get_obj_id(out_dict["monitor"][i]["ID"])
             if datasets:
                 out_dict["datasets"] = config_dict["datasets"]
@@ -332,31 +335,21 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
                         del out_dict["datasets"][i]
                 out_dict["datasets"] = config_dict["datasets"]
             if native_components:
-                out_dict["native components"] = {}
-                coordinatesystems_set = set()
-                for _, nc in self._app.native_components.items():
-                    nc_name = nc.props["SubmodelDefinitionName"]
-                    nc_props = dict(nc.props).copy()
-                    nc_type = nc.props["NativeComponentDefinitionProvider"]["Type"]
-                    if (
-                        nc_type == "PCB"
-                        and nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] == "This Project*"
-                    ):
-                        nc_props["NativeComponentDefinitionProvider"]["DefnLink"]["Project"] = self._app.project_file
-                    CSs = [
-                        v.target_coordinate_system
-                        for i, v in self._app.modeler.user_defined_components.items()
-                        if v.definition_name == nc_name
-                        and "Target Coordinate System" in self._app.oeditor.GetChildObject(i).GetPropNames()
-                    ]
-                    out_dict["native components"][nc_name] = {"Type": nc_type, "Props": nc_props, "CS": CSs}
-                    for cs in CSs:
-                        while cs != "Global":
-                            coordinatesystems_set.update(cs)
-                            cs = config_dict["coordinatesystems"][cs]["Reference CS"]
-                if config_dict.get("coordinatesystems", None):
-                    out_dict["coordinatesystems"] = config_dict["coordinatesystems"]
-            with open(auxiliary_dict_file, "w") as outfile:
+                out_dict["native components"] = config_dict["native components"]
+                cs_set = set()
+                for _, native_dict in out_dict["native components"].items():
+                    for _, instance_dict in native_dict["Instances"].items():
+                        if instance_dict["CS"] and instance_dict["CS"] != "Global":
+                            cs = instance_dict["CS"]
+                            cs_set.add(cs)
+                            while config_dict["coordinatesystems"][cs]["Reference CS"] != "Global":
+                                cs = config_dict["coordinatesystems"][cs]["Reference CS"]
+                                cs_set.add(cs)
+                out_dict["coordinatesystems"] = copy.deepcopy(config_dict["coordinatesystems"])
+                for cs in list(out_dict["coordinatesystems"]):
+                    if cs not in cs_set:
+                        del out_dict["coordinatesystems"][cs]
+            with open(auxiliary_dict, "w") as outfile:
                 json.dump(out_dict, outfile)
         return _retry_ntimes(3, self.oeditor.Create3DComponent, arg, arg2, component_file, arg3)
 
@@ -790,6 +783,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         bounding_box : list.
             List of coordinates of bounding box vertices.
+            Bounding box is provided as [xmin, ymin, zmin, xmax, ymax, zmax].
         check_solids : bool, optional.
             Check solid objects.
         check_lines : bool, optional.
@@ -806,40 +800,42 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             raise ValueError("Bounding box list must have dimension 6.")
 
         objects = []
-
         if check_solids:
             for obj in self.solid_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects.append(obj)
 
         if check_lines:
             for obj in self.line_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects.append(obj)
 
         if check_sheets:
             for obj in self.sheet_objects:
+                bound = obj.bounding_box
                 if (
-                    bounding_box[3] <= obj.bounding_box[0] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[1] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[2] <= bounding_box[2]
-                    and bounding_box[3] <= obj.bounding_box[3] <= bounding_box[0]
-                    and bounding_box[4] <= obj.bounding_box[4] <= bounding_box[1]
-                    and bounding_box[5] <= obj.bounding_box[5] <= bounding_box[2]
+                    bounding_box[0] <= bound[0] <= bounding_box[3]
+                    and bounding_box[1] <= bound[1] <= bounding_box[4]
+                    and bounding_box[2] <= bound[2] <= bounding_box[5]
+                    and bounding_box[0] <= bound[3] <= bounding_box[3]
+                    and bounding_box[1] <= bound[4] <= bounding_box[4]
+                    and bounding_box[2] <= bound[5] <= bounding_box[5]
                 ):
                     objects.append(obj)
 

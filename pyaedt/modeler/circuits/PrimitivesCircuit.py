@@ -12,7 +12,6 @@ from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import recursive_glob
 from pyaedt.generic.LoadAEDTFile import load_keyword_in_aedt_file
-from pyaedt.generic.TouchstoneParser import _parse_ports_name
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
 from pyaedt.modeler.circuits.object3dcircuit import Wire
 
@@ -375,6 +374,27 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
+
+        def _parse_ports_name(file):
+            """Parse and interpret the option line in the touchstone file
+            Parameters
+            ----------
+            file : str
+                Path of the Touchstone file.
+            Returns
+            -------
+            List of str
+                Names of the ports in the touchstone file.
+            """
+            portnames = []
+            line = file.readline()
+            while not line.startswith("! Port"):
+                line = file.readline()
+            while line.startswith("! Port"):
+                portnames.append(line.split(" = ")[1].strip())
+                line = file.readline()
+            return portnames
+
         if not model_name:
             model_name = os.path.splitext(os.path.basename(touchstone_full_path))[0]
         if model_name in list(self.o_model_manager.GetNames()):
@@ -1194,11 +1214,16 @@ class CircuitComponents(object):
         arg2 = ["NAME:Attributes", "Page:=", 1]
         try:
             wire_id = _retry_ntimes(10, self.oeditor.CreateWire, arg1, arg2)
+            w = Wire(self._modeler)
+            for segment in self._app.oeditor.GetWireSegments(wire_id):
+                key = "SegmentID_{}".format(segment.split(" ")[3])
+                point1 = [float(x) for x in segment.split(" ")[1].split(",")]
+                point2 = [float(x) for x in segment.split(" ")[2].split(",")]
+                w.points_in_segment[key] = [point1, point2]
             if ":" in wire_id.split(";")[1]:
                 wire_id = int(wire_id.split(";")[1].split(":")[0])
             else:
                 wire_id = int(wire_id.split(";")[1])
-            w = Wire(self._modeler)
             if not wire_name:
                 wire_name = generate_unique_name("Wire")
             w.name = wire_name

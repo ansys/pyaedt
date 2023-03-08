@@ -21,15 +21,15 @@ project_name = pyaedt.generate_unique_project_name(project_name="choke")
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch HFSS
 # ~~~~~~~~~~~
-# Launches HFSS 2022 R2 in graphical mode.
+# Launches HFSS 2023 R1 in graphical mode.
 
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2022.2",
+                   specified_version="2023.1",
                    non_graphical=non_graphical,
                    new_desktop_session=True,
                    solution_type="Terminal")

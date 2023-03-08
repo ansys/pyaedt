@@ -548,6 +548,12 @@ class TestClass(BasisTest, object):
         assert insulating_assignment.name == "InsulatingExample"
         insulating_assignment.name = "InsulatingExampleModified"
         assert insulating_assignment.update()
+        insulating_assignment_face = self.aedtapp.assign_insulating(insulated_box.faces[0], "InsulatingExample2")
+        assert insulating_assignment_face.name == "InsulatingExample2"
+        insulating_assignment_comb = self.aedtapp.assign_insulating(
+            [insulated_box.name, insulated_box.faces[0]], "InsulatingExample3"
+        )
+        assert insulating_assignment_comb.name == "InsulatingExample3"
 
     def test_38_assign_current_density(self):
         design_to_activate = [x for x in self.aedtapp.design_list if x.startswith("Maxwell")]
@@ -659,7 +665,7 @@ class TestClass(BasisTest, object):
             last_cycles_number=3,
             calculate_force="Harmonic",
         )
-        self.m3dtransient.analyze_nominal()
+        self.m3dtransient.analyze(self.m3dtransient.active_setup)
         assert self.m3dtransient.export_element_based_harmonic_force(
             start_frequency=1, stop_frequency=100, number_of_frequency=None
         )

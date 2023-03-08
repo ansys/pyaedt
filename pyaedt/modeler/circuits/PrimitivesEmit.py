@@ -114,7 +114,7 @@ class EmitComponents(object):
         self.modeler = modeler
         self._currentId = 0
         self.components = defaultdict(EmitComponent)
-        pass
+        self.refresh_all_ids()
 
     @pyaedt_function_handler()
     def create_component(self, component_type, name=None, library=None):
@@ -209,6 +209,22 @@ class EmitComponents(object):
         if rad_update and ant_update:
             ant_update.move_and_connect_to(rad_update)
         return rad_update, ant_update
+
+    @pyaedt_function_handler()
+    def get_radios(self):
+        """Return a dict of all the radios in the design.
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        Dict : radio_name : EmitRadioComponents
+            Dict of all the radio_name and EmitRadioComponents in the
+            design.
+        """
+        return {k: v for k, v in self.components.items() if v.get_type() == "RadioNode"}
 
     @pyaedt_function_handler()
     def refresh_all_ids(self):
@@ -320,7 +336,7 @@ class EmitComponent(object):
         self.root_prop_node = None
         """Root node of the component."""
 
-        self.units = components._parent.units
+        self.units = components._parent.get_units()
         """Units for the component."""
 
     @property
@@ -672,6 +688,24 @@ class EmitRadioComponent(EmitComponent):
     def __init__(self, components, component_name):
         super(EmitRadioComponent, self).__init__(components, component_name)
 
+    def is_emitter(self):
+        """Check if the radio component is an emitter
+
+        Parameters
+        ----------
+        None
+
+        Return
+        ------
+        Bool
+            ``True`` if it is an emitter, ``False`` otherwise.
+        """
+        properties = self.get_node_properties()
+
+        if "IsEmitter" in properties:
+            return properties["IsEmitter"]
+        return False
+
     def bands(self):
         """Get the bands of this radio.
 
@@ -710,7 +744,7 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str
-            Units of the start frequency.
+            Units to use for the tx power.
 
         Returns
         -------
@@ -720,7 +754,7 @@ class EmitRadioComponent(EmitComponent):
             units = self.units["Power"]
         for child in band_node.children:
             if child.props["Type"] == "TxSpectralProfNode":
-                return emit_consts.convert_power_to_unit(float(child.props["FundamentalAmplitude"]), units)
+                return consts.unit_converter(float(child.props["FundamentalAmplitude"]), "Power", "dBm", units)
 
     def has_tx_channels(self):
         """Check the radio for enabled transmit channels.
@@ -732,8 +766,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Bool
-            ''True'' if the radio has enabled transmit channels and
-            ''False'' if there are no enabled transmit channels."""
+            ``True`` if the radio has enabled transmit channels and
+            ``False`` if there are no enabled transmit channels."""
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
@@ -834,8 +868,8 @@ class EmitComponentPropNode(object):
         Returns
         -------
         Bool
-            Returns ''True'' if the node is enabled and
-            ''False'' if the node is disabled."""
+            Returns ``True`` if the node is enabled and
+            ``False`` if the node is disabled."""
         return self.props["Enabled"] == "true"
 
     @pyaedt_function_handler()
@@ -847,7 +881,7 @@ class EmitComponentPropNode(object):
         power : float
             Peak amplitude of the fundamental [dBm].
         units : str
-            Units of the power.
+            Units of the input power.
 
         Return
         ------
@@ -858,7 +892,7 @@ class EmitComponentPropNode(object):
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
-        power_string = "{}".format(emit_consts.convert_power_dbm(power, units))
+        power_string = "{}".format(consts.unit_converter(power, "Power", units, "dBm"))
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
@@ -872,7 +906,7 @@ class EmitComponentPropNode(object):
         Parameters
         ----------
         units : str
-            Units of the power.
+            Units to use for the power.
 
         Return
         ------
@@ -889,7 +923,7 @@ class EmitComponentPropNode(object):
                 power = child.props["FundamentalAmplitude"]
                 break  # only one Tx Spectral Profile per Band
 
-        return emit_consts.convert_power_to_unit(float(power), units)
+        return consts.unit_converter(float(power), "Power", "dBm", units)
 
     @pyaedt_function_handler()
     def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):

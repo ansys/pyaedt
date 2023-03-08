@@ -36,7 +36,7 @@ from pyaedt.modeler.advanced_cad.stackup_3d import Stackup3D
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Generate database
@@ -132,7 +132,7 @@ print("Its length is: " + str(len(dictionary_list)))
 # the patch. In the stackup library, most things, like the layers and patch,
 # are already parametrized.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 hfss = Hfss(
     new_desktop_session=True, solution_type="Terminal", non_graphical=non_graphical, specified_version=desktopVersion

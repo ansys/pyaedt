@@ -24,6 +24,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 
 from pyaedt import pyaedt_logger
 from pyaedt import settings
@@ -52,7 +53,7 @@ sys.path.append(local_path)
 from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
-default_version = "2022.2"
+default_version = "2023.1"
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
@@ -68,7 +69,7 @@ config = {
     "skip_debug": False,
     "local": False,
     "use_grpc": True,
-    "disable_sat_bounding_box": False,
+    "disable_sat_bounding_box": True,
 }
 
 # Check for the local config file, override defaults if found
@@ -93,6 +94,8 @@ if not os.path.exists(scratch_path):
 
 logger = pyaedt_logger
 
+NONGRAPHICAL = settings.non_graphical
+
 
 class BasisTest(object):
     def my_setup(self):
@@ -103,6 +106,11 @@ class BasisTest(object):
         self._main = sys.modules["__main__"]
 
     def my_teardown(self):
+        for edbapp in self.edbapps[::-1]:
+            try:
+                edbapp.close_edb()
+            except:
+                pass
         if self.aedtapps:
             try:
                 oDesktop = self._main.oDesktop
@@ -113,21 +121,22 @@ class BasisTest(object):
             if oDesktop and not settings.non_graphical:
                 oDesktop.ClearMessages("", "", 3)
             for proj in proj_list:
-                oDesktop.CloseProject(proj)
-            del self.aedtapps
-        for edbapp in self.edbapps[::-1]:
-            try:
-                edbapp.close_edb()
-            except:
-                pass
-        del self.edbapps
+                try:
+                    oDesktop.CloseProject(proj)
+                except:
+                    pass
+            # self.aedtapps[0].release_desktop(False)
+
         logger.remove_all_project_file_logger()
         shutil.rmtree(self.local_scratch.path, ignore_errors=True)
+        del self.edbapps
+        del self.aedtapps
 
     def add_app(self, project_name=None, design_name=None, solution_type=None, application=None, subfolder=""):
         if "oDesktop" not in dir(self._main):
-            self.desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+            self.desktop = Desktop(desktop_version, NONGRAPHICAL, new_thread)
             self.desktop.disable_autosave()
+            self._main.desktop_pid = self.desktop.odesktop.GetProcessID()
         if project_name:
             example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
             example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
@@ -193,42 +202,36 @@ new_thread = config["NewThread"]
 
 @pytest.fixture(scope="session", autouse=True)
 def desktop_init():
+    # _main = sys.modules["__main__"]
+    # yield
+    # if not is_ironpython:
+    #     try:
+    #         try:
+    #             os.kill(_main.desktop_pid, 9)
+    #         except:
+    #             pass
+    #         # release_desktop(close_projects=False, close_desktop=True)
+    #     except:
+    #         pass
+    desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
-    if not is_ironpython:
-        try:
-            _main = sys.modules["__main__"]
-            try:
-                desktop = _main.oDesktop
-                pid = desktop.GetProcessID()
-                os.kill(pid, 9)
-            except:
-                pass
-            # release_desktop(close_projects=False, close_desktop=True)
-        except:
-            pass
-
+    desktop.release_desktop(True, True)
+    del desktop
+    gc.collect()
     if config["test_desktops"]:
         run_desktop_tests()
 
 
-@pytest.fixture
-def clean_desktop_messages(desktop_init):
-    """Clear all Desktop app messages."""
-    desktop_init.logger.clear_messages(level=3)
-
-
-@pytest.fixture
-def clean_desktop(desktop_init):
-    """Close all projects, but don't close Desktop app."""
-    desktop_init.release_desktop(close_projects=True, close_on_exit=False)
-    return desktop_init
-
-
-@pytest.fixture
-def hfss():
-    """Create a new Hfss project."""
-    # Be sure that the base class constructor "design" exposes oDesktop.
-    hfss = Hfss()
-    yield hfss
-    hfss.close_project(hfss.project_name)
+@pytest.fixture(scope="function", autouse=True)
+def method_init():
+    time.sleep(0.01)
+    yield
+    time.sleep(0.01)
     gc.collect()
+
+
+@pytest.fixture(scope="module", autouse=True)
+def class_init():
+    time.sleep(0.5)
+    yield
+    time.sleep(0.5)

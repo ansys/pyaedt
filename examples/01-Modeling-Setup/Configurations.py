@@ -40,7 +40,7 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Open project
@@ -49,7 +49,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 
 project_full_name = pyaedt.downloads.download_icepak(pyaedt.generate_unique_folder_name(folder_name="Graphic_Card"))
 
-ipk = pyaedt.Icepak(projectname=project_full_name, specified_version="2022.2",
+ipk = pyaedt.Icepak(projectname=project_full_name, specified_version="2023.1",
                     new_desktop_session=True, non_graphical=non_graphical)
 ipk.autosave_disable()
 

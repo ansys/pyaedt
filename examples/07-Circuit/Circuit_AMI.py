@@ -24,9 +24,9 @@ project_path = pyaedt.downloads.download_file("ami", "ami_usb.aedtz", temp_folde
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
+# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 
 ##########################################################
 # Set non-graphical mode
@@ -37,7 +37,7 @@ desktopVersion = "2022.2"
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 NewThread = True
 
 ###############################################################################
@@ -56,7 +56,7 @@ cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_g
 # ~~~~~~~~~~~~~~~
 # Solve the transient setup.
 
-cir.analyze_all()
+cir.analyze()
 
 ###############################################################################
 # Get AMI report

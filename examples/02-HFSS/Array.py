@@ -20,7 +20,7 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ##########################################################
 # Download 3D component
@@ -34,7 +34,7 @@ example_path = pyaedt.downloads.download_3dcomponent()
 # Launch HFSS and save the project.
 project_name = pyaedt.generate_unique_project_name(project_name="array")
 hfss = pyaedt.Hfss(projectname=project_name,
-                   specified_version="2022.2",
+                   specified_version="2023.1",
                    designname="Array_Simple",
                    non_graphical=non_graphical,
                    new_desktop_session=True)
@@ -66,7 +66,7 @@ setup = hfss.create_setup()
 setup.props["Frequency"] = "5GHz"
 setup.props["MaximumPasses"] = 3
 
-hfss.analyze_nominal(num_cores=4)
+hfss.analyze(num_cores=4)
 
 ##########################################################
 # Get far field data

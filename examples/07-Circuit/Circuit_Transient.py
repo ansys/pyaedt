@@ -21,15 +21,15 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch AEDT with Circuit
 # ~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode with Circuit.
+# Launch AEDT 2023 R1 in graphical mode with Circuit.
 
 cir = pyaedt.Circuit(projectname=pyaedt.generate_unique_project_name(),
-                     specified_version="2022.2",
+                     specified_version="2023.1",
                      new_desktop_session=True,
                      non_graphical=non_graphical
                      )

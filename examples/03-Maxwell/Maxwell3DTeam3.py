@@ -19,7 +19,7 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ##################################################################################
 # Launch AEDT and Maxwell 3D
@@ -31,7 +31,7 @@ non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 3 Bath Plate"
 Solver = "EddyCurrent"
-DesktopVersion = "2022.2"
+DesktopVersion = "2023.1"
 
 M3D = pyaedt.Maxwell3d(
     projectname=pyaedt.generate_unique_project_name(),

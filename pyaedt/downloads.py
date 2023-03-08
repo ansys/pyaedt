@@ -6,6 +6,7 @@ import tempfile
 import zipfile
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import settings
 from pyaedt.misc import list_installed_ansysem
 
 if is_ironpython:
@@ -43,13 +44,9 @@ def _retrieve_file(url, filename, directory, destination=None):
     # grab the correct url retriever
     if not is_ironpython:
         urlretrieve = urllib.request.urlretrieve
-
-    dirpath = os.path.dirname(local_path)
-    if not os.path.isdir(destination):
-        os.mkdir(destination)
-    if not os.path.isdir(dirpath):
-        os.makedirs(dirpath)
-
+    destination_dir = os.path.join(destination, directory)
+    if not os.path.isdir(destination_dir):
+        os.makedirs(destination_dir)
     # Perform download
     if os.name == "posix":
         command = "wget {} -O {}".format(url, local_path)
@@ -128,7 +125,12 @@ def _download_file(directory, filename=None, destination=None):
     else:
         url = _get_file_url(directory, filename)
         local_path = _retrieve_file(url, filename, directory, destination)
-
+    if settings.remote_rpc_session:
+        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_path)[-1])
+        if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
+            settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
+        settings.remote_rpc_session.filemanager.upload(local_path, remote_path)
+        return remote_path
     return local_path
 
 
@@ -145,7 +147,7 @@ def download_aedb(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -154,7 +156,7 @@ def download_aedb(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
     >>> from pyaedt import examples
     >>> path = examples.download_aedb()
     >>> path
@@ -176,7 +178,7 @@ def download_edb_merge_utility(force_download=False, destination=None):
     force_download : bool
         Force to delete cache and download files again.
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -185,7 +187,7 @@ def download_edb_merge_utility(force_download=False, destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
     >>> from pyaedt import examples
     >>> path = examples.download_edb_merge_utility(force_download=True)
     >>> path
@@ -212,7 +214,7 @@ def download_netlist(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -221,7 +223,7 @@ def download_netlist(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_netlist()
@@ -241,7 +243,7 @@ def download_antenna_array(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -251,7 +253,7 @@ def download_antenna_array(destination=None):
     Examples
     --------
 
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_antenna_array()
@@ -271,7 +273,7 @@ def download_sbr(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -280,7 +282,7 @@ def download_sbr(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_antenna_array()
@@ -300,7 +302,7 @@ def download_sbr_time(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -309,7 +311,7 @@ def download_sbr_time(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_sbr_time()
@@ -329,7 +331,7 @@ def download_icepak(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -338,15 +340,48 @@ def download_icepak(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_icepak()
-    >>> path
+    >>> pathavoid
     'C:/Users/user/AppData/local/temp/pyaedtexamples/Graphic_Card.aedt'
     """
 
     return _download_file("icepak", "Graphics_card.aedt", destination)
+
+
+def download_icepak_3d_component(destination=None):  # pragma: no cover
+    """Download an example of Icepak Array and return the def pathsw.
+
+    Examples files are downloaded to a persistent cache to avoid
+    re-downloading the same file twice.
+
+    Parameters
+    ----------
+    destination : str, optional
+        Path for downloading files. The default is the user's temp folder.
+
+    Returns
+    -------
+    str
+        Path to PCBAssembly the example file.
+    str
+        Path to QFP2 the example file.
+
+    Examples
+    --------
+    Download an example result file and return the path of the file.
+
+    >>> from pyaedt import examples
+    >>> path1, path2 = examples.download_icepak_3d_component()
+    >>> path1
+    'C:/Users/user/AppData/local/temp/pyaedtexamples/PCBAssembly.aedt',
+    """
+    _download_file("icepak_3dcomp//PCBAssembly.aedb", destination=destination)
+    return _download_file("icepak_3dcomp", "PCBAssembly.aedt", destination), _download_file(
+        "icepak_3dcomp", "QFP2.aedt", destination
+    )
 
 
 def download_via_wizard(destination=None):
@@ -358,7 +393,7 @@ def download_via_wizard(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -367,7 +402,7 @@ def download_via_wizard(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_via_wizard()
@@ -387,7 +422,7 @@ def download_touchstone(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -396,7 +431,7 @@ def download_touchstone(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
     >>> from pyaedt import examples
     >>> path = examples.download_touchstone()
     >>> path
@@ -414,7 +449,7 @@ def download_sherlock(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -423,7 +458,7 @@ def download_sherlock(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_sherlock()
@@ -450,7 +485,7 @@ def download_leaf(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -459,7 +494,7 @@ def download_leaf(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_leaf(r"c:\temp")
@@ -485,7 +520,7 @@ def download_custom_reports(force_download=False, destination=None):
     force_download : bool
         Force to delete cache and download files again.
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -494,7 +529,7 @@ def download_custom_reports(force_download=False, destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
     >>> from pyaedt import examples
     >>> path = examples.download_custom_reports(force_download=True)
     >>> path
@@ -527,7 +562,7 @@ def download_3dcomponent(force_download=False, destination=None):
     force_download : bool
         Force to delete cache and download files again.
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -536,7 +571,7 @@ def download_3dcomponent(force_download=False, destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
     >>> from pyaedt import examples
     >>> path = examples.download_3dcomponent(force_download=True)
     >>> path
@@ -563,7 +598,7 @@ def download_multiparts(destination=None):
     Parameters
     ----------
     destination : str, optional
-        Path where files will be downloaded. Optional. Default is user temp folder.
+        Path for downloading files. The default is the user's temp folder.
 
     Returns
     -------
@@ -572,7 +607,7 @@ def download_multiparts(destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_multiparts()
@@ -612,7 +647,7 @@ def download_twin_builder_data(file_name, force_download=False, destination=None
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
     >>> from pyaedt import examples
     >>> path = examples.download_twin_builder_data(file_name="Example1.zip",force_download=True)
     >>> path
@@ -650,7 +685,7 @@ def download_file(directory, filename=None, destination=None):
 
     Examples
     --------
-    Download an example result file and return the path of the file
+    Download an example result file and return the path of the file.
 
     >>> from pyaedt import examples
     >>> path = examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")

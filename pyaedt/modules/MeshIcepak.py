@@ -19,7 +19,7 @@ class IcepakMesh(object):
         self._app = app
 
         self._odesign = self._app._odesign
-        self.modeler = self._app._modeler
+        self.modeler = self._app.modeler
         design_type = self._odesign.GetDesignType()
         assert design_type in meshers, "Invalid design type {}".format(design_type)
         self.id = 0
@@ -607,6 +607,8 @@ class IcepakMesh(object):
         meshregion.create()
         objectlist2 = self.modeler.object_names
         added_obj = [i for i in objectlist2 if i not in all_objs]
+        if not added_obj:
+            added_obj = [i for i in objectlist2 if i not in all_objs or i in objectlist]
         meshregion.Objects = added_obj
         meshregion.SubModels = None
         self.meshregions.append(meshregion)

@@ -25,9 +25,9 @@ targetfolder = os.path.dirname(pyaedt.downloads.download_aedb(temp_folder))
 ###############################################################################
 # Launch EDB
 # ~~~~~~~~~~
-# Launch the :class:`pyaedt.Edb` class, using EDB 2022 R2 and SI units.
+# Launch the :class:`pyaedt.Edb` class, using EDB 2023 R1 and SI units.
 
-edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2022.2")
+edb = pyaedt.Edb(edbpath=targetfolder, edbversion="2023.1")
 
 ###############################################################################
 # Plot custom set of nets colored by layer

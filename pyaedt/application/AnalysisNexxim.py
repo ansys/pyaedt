@@ -3,7 +3,6 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.circuits.object3dcircuit import CircuitComponent
-from pyaedt.modeler.schematic import ModelerNexxim
 from pyaedt.modules.Boundary import CurrentSinSource
 from pyaedt.modules.Boundary import Excitations
 from pyaedt.modules.Boundary import PowerIQSource
@@ -12,8 +11,8 @@ from pyaedt.modules.Boundary import Sources
 from pyaedt.modules.Boundary import VoltageDCSource
 from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
 from pyaedt.modules.Boundary import VoltageSinSource
-from pyaedt.modules.PostProcessor import CircuitPostProcessor
 from pyaedt.modules.SolveSetup import SetupCircuit
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class FieldAnalysisCircuit(Analysis):
@@ -63,8 +62,8 @@ class FieldAnalysisCircuit(Analysis):
             aedt_process_id,
         )
 
-        self._modeler = ModelerNexxim(self)
-        self._post = CircuitPostProcessor(self)
+        self._modeler = None
+        self._post = None
         self._internal_excitations = None
         self._internal_sources = None
 
@@ -119,13 +118,17 @@ class FieldAnalysisCircuit(Analysis):
 
     @property
     def post(self):
-        """Postprocessor.
+        """PostProcessor.
 
         Returns
         -------
-        :class:`pyaedt.modules.PostProcessor.CircuitPostProcessor`
+        :class:`pyaedt.modules.AdvancedPostProcessing.CircuitPostProcessor`
             PostProcessor object.
         """
+        if self._post is None:
+            from pyaedt.modules.PostProcessor import CircuitPostProcessor
+
+            self._post = CircuitPostProcessor(self)
         return self._post
 
     @property
@@ -160,6 +163,10 @@ class FieldAnalysisCircuit(Analysis):
     @property
     def modeler(self):
         """Modeler object."""
+        if self._modeler is None:
+            from pyaedt.modeler.schematic import ModelerNexxim
+
+            self._modeler = ModelerNexxim(self)
         return self._modeler
 
     @property
@@ -537,12 +544,12 @@ class FieldAnalysisCircuit(Analysis):
         """
         setup = SetupCircuit(self, self.solution_type, setupname, isnewsetup=False)
         if setup.props:
-            self.analysis_setup = setupname
+            self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()
-    def create_setup(self, setupname="MySetupAuto", setuptype=None, props={}):
-        """Create a new setup.
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create a setup.
 
         Parameters
         ----------
@@ -551,12 +558,16 @@ class FieldAnalysisCircuit(Analysis):
         setuptype : str, optional
             Type of the setup. The default is ``None``, in which case
             the default type is applied.
-        props : dict, optional
-            Dictionary of properties with values. The default is ``{}``.
+        **kwargs : dict, optional
+            Extra arguments to set up the circuit.
+            Available keys depend on the setup chosen.
+            For more information, see
+            :doc:`../SetupTemplatesCircuit`.
+
 
         Returns
         -------
-        SetupCircuit
+        :class:`pyaedt.modules.SolveSetup.SetupCircuit`
             Setup object.
 
         References
@@ -568,25 +579,33 @@ class FieldAnalysisCircuit(Analysis):
         >>> oModule.AddQuickEyeAnalysis
         >>> oModule.AddVerifEyeAnalysis
         >>> oModule.AddAMIAnalysis
+
+
+        Examples
+        --------
+
+        >>> from pyaedt import Circuit
+        >>> app = Circuit()
+        >>> app.create_setup(setupname="Setup1", setuptype=app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
         """
         if setuptype is None:
-            setuptype = self.solution_type
-
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
         name = self.generate_unique_setup_name(setupname)
         setup = SetupCircuit(self, setuptype, name)
         setup.create()
-        if props:
-            for el in props:
-                setup.props._setitem_without_update(el, props[el])
-            setup.update()
-        self.analysis_setup = name
+        setup.auto_update = False
+
+        if "props" in kwargs:
+            for el in kwargs["props"]:
+                setup.props[el] = kwargs["props"][el]
+        for arg_name, arg_value in kwargs.items():
+            if arg_name == "props":
+                continue
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
         self.setups.append(setup)
         return setup
-
-    # @property
-    # def mesh(self):
-    #     return self._mesh
-    #
-    # @property
-    # def post(self):
-    #     return self._post

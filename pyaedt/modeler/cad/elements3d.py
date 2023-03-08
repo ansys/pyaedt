@@ -201,10 +201,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
 
     """
 
-    def __init__(self, object3d, objid):
+    def __init__(self, object3d, objid, position=None):
         self.id = objid
         self._object3d = object3d
         self.oeditor = object3d.m_Editor
+        self._position = position
 
     @property
     def position(self):
@@ -223,6 +224,8 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         >>> oEditor.GetVertexPosition
 
         """
+        if self._position:
+            return self._position
         try:
             vertex_data = list(self.oeditor.GetVertexPosition(self.id))
             return [float(i) for i in vertex_data]
@@ -312,6 +315,9 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromEdge(self.id)]
+        if not v:
+            pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(self.id, 0)]
+            vertices.append(VertexPrimitive(self._object3d, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -514,6 +520,10 @@ class FacePrimitive(object):
         """
         vertices = []
         v = [i for i in self.oeditor.GetVertexIDsFromFace(self.id)]
+        if not v:
+            for el in self.edges:
+                pos = [float(p) for p in self.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
+                vertices.append(VertexPrimitive(self._object3d, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -571,7 +581,9 @@ class FacePrimitive(object):
         .. note::
            It returns the face centroid if number of face vertex is >1.
            It tries to get AEDT Face Center in case of single vertex face
-           and returns the vertex position otherwise.
+           and returns the vertex position otherwise. If the face has no
+           vertices, and it is not planar, the function returns the centroid
+           of the face edges.
 
         Returns
         -------
@@ -584,14 +596,28 @@ class FacePrimitive(object):
         >>> oEditor.GetFaceCenter
 
         """
-        if len(self.vertices) > 1:
-            return GeometryOperators.get_polygon_centroid([pos.position for pos in self.vertices])
+        vtx = self.vertices
+        if len(vtx) > 1:
+            return GeometryOperators.get_polygon_centroid([pos.position for pos in vtx])
+        elif len(vtx) == 1:
+            centroid = [0, 0, 0]
+            eval_points = 4
+            for edge in self.edges:
+                centroid = GeometryOperators.v_sum(
+                    centroid,
+                    GeometryOperators.get_polygon_centroid(
+                        [
+                            [
+                                float(i)
+                                for i in self.oeditor.GetEdgePositionAtNormalizedParameter(edge.id, pos / eval_points)
+                            ]
+                            for pos in range(0, eval_points, 1)
+                        ]
+                    ),
+                )
+            return GeometryOperators.v_prod(1 / len(self.edges), centroid)
         else:
-            center = self.center_from_aedt
-            if center:
-                return center
-            else:
-                return self.vertices[0].position
+            return self.center_from_aedt
 
     @property
     def area(self):
@@ -1381,5 +1407,73 @@ class BinaryTreeNode:
         try:
             self.child_object.SetPropValue(prop_name, prop_value)
             return True
-        except:
+        except:  # pragma: no cover
             return False
+
+    @pyaedt_function_handler
+    def _jsonalize_tree(self, binary_tree_node):
+        childrend_dict = {}
+        for _, node in binary_tree_node.children.items():
+            childrend_dict.update(self._jsonalize_tree(node))
+        return {binary_tree_node.node: {"Props": binary_tree_node.props, "Children": childrend_dict}}
+
+    @pyaedt_function_handler
+    def jsonalize_tree(self):
+        """Create dictionary from the Binary Tree.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the information of the Binary Three.
+        """
+        return self._jsonalize_tree(binary_tree_node=self)
+
+    @pyaedt_function_handler
+    def _suppress(self, node, app, suppress):
+        if not node.command.startswith("Duplicate") and "Suppress Command" in node.props:
+            app.oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:Geometry3DCmdTab",
+                        ["NAME:PropServers", node.child_object.GetObjPath().split("/")[3] + ":" + node.node],
+                        ["NAME:ChangedProps", ["NAME:Suppress Command", "Value:=", suppress]],
+                    ],
+                ]
+            )
+
+        for _, node in node.children.items():
+            self._suppress(node, app, suppress)
+        return True
+
+    @pyaedt_function_handler
+    def suppress_all(self, app):
+        """Activate suppress option for all the operations contained in the binary tree node.
+
+        Parameters
+        ----------
+        app : object
+            An AEDT application from ``pyaedt.application``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+        """
+        return self._suppress(self, app, True)
+
+    @pyaedt_function_handler
+    def unsuppress_all(self, app):
+        """Disable suppress option for all the operations contained in the binary tree node.
+
+        Parameters
+        ----------
+        app : object
+            An AEDT application from ``pyaedt.application``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+        """
+        return self._suppress(self, app, False)

@@ -17,6 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
+from pyaedt.modules.SolveSweeps import SetupKeys
 
 if not is_ironpython:
     try:
@@ -560,8 +561,8 @@ class QExtractor(FieldAnalysis3D, object):
                 variations = ",".join(variations_list)
 
         if setup_name is None:
-            setup_name = self.analysis_setup
-        elif setup_name != self.analysis_setup:
+            setup_name = self.active_setup
+        elif setup_name != self.active_setup:
             self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
@@ -898,8 +899,8 @@ class QExtractor(FieldAnalysis3D, object):
             return False
 
         if setup_name is None:
-            setup_name = self.analysis_setup
-        elif setup_name != self.analysis_setup:
+            setup_name = self.active_setup
+        elif setup_name != self.active_setup:
             self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
@@ -1840,6 +1841,54 @@ class Q3d(QExtractor, object):
         except:
             return False
 
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", **kwargs):
+        """Create an analysis setup for Q3D Extractor.
+
+        Optional arguments are passed along with the ``setupname`` parameter.
+
+
+        Parameters
+        ----------
+
+        setupname : str, optional
+            Name of the setup. The default is "Setup1".
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesQ3D`.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            3D Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q3d
+        >>> app = Q3d()
+        >>> app.create_setup(setupname="Setup1", DC__MinPass=2)
+
+        """
+        setuptype = self.design_solutions.default_setup
+
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup
+
 
 class Q2d(QExtractor, object):
     """Provides the Q2D app interface.
@@ -2181,7 +2230,7 @@ class Q2d(QExtractor, object):
         if not os.path.exists(export_folder):
             os.makedirs(export_folder)
         if analyze:
-            self.analyze_all()
+            self.analyze()
         setups = self.oanalysis.GetSetups()
 
         for s in setups:
@@ -2304,3 +2353,59 @@ class Q2d(QExtractor, object):
         except:
             self.logger.error("Error in updating conductor type")
             return False
+
+    @pyaedt_function_handler()
+    def create_setup(self, setupname="MySetupAuto", setuptype=None, **kwargs):
+        """Create an analysis setup for 2D Extractor.
+
+        Optional arguments are passed along with the ``setuptype`` and ``setupname``
+        parameters.  Keyword names correspond to the ``setuptype``
+        corresponding to the native AEDT API.  The list of
+        keywords here is not exhaustive.
+
+
+        Parameters
+        ----------
+        setuptype : int, str, optional
+            Type of the setup. Options are "IcepakSteadyState"
+            and "IcepakTransient". The default is "IcepakSteadyState".
+        setupname : str, optional
+            Name of the setup. The default is "Setup1".
+        **kwargs : dict, optional
+            Available keys depend on the setup chosen.
+            For more information, see :doc:`../SetupTemplatesQ3D`.
+
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSetup.SetupHFSS`
+            Solver Setup object.
+
+        References
+        ----------
+
+        >>> oModule.InsertSetup
+
+        Examples
+        --------
+
+        >>> from pyaedt import Q2d
+        >>> app = Q2d()
+        >>> app.create_setup(setupname="Setup1", RLDataBlock__MinPass=2))
+
+        """
+        if setuptype is None:
+            setuptype = self.design_solutions.default_setup
+        elif setuptype in SetupKeys.SetupNames:
+            setuptype = SetupKeys.SetupNames.index(setuptype)
+        if "props" in kwargs:
+            return self._create_setup(setupname=setupname, setuptype=setuptype, props=kwargs["props"])
+        else:
+            setup = self._create_setup(setupname=setupname, setuptype=setuptype)
+        setup.auto_update = False
+        for arg_name, arg_value in kwargs.items():
+            if setup[arg_name] is not None:
+                setup[arg_name] = arg_value
+        setup.auto_update = True
+        setup.update()
+        return setup

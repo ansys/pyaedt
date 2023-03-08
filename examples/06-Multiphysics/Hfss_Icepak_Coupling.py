@@ -24,8 +24,8 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
-desktopVersion = "2022.2"
+non_graphical = False
+desktopVersion = "2023.1"
 
 ###############################################################################
 # Open project

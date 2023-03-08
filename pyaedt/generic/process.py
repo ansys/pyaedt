@@ -276,7 +276,7 @@ class SiwaveSolve(object):
         command.append("-RunScriptAndExit")
         command.append('"' + scriptname + '"')
         print(command)
-        subprocess.check_output(" ".join(command))
-        # p1 = subprocess.call(" ".join(command))
-        # p1.wait()
+
+        subprocess.run(" ".join(command), check=True)
+
         return output_list

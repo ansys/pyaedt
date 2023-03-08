@@ -17,9 +17,9 @@ import os
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode. This example uses SI units.
+# Launch AEDT 2023 R1 in graphical mode. This example uses SI units.
 
-desktop_version = "2022.2"
+desktop_version = "2023.1"
 
 ###############################################################################
 # Set non-graphical mode
@@ -30,7 +30,7 @@ desktop_version = "2022.2"
 # The Boolean parameter ``new_thread`` defines whether to create a new instance
 # of AEDT or try to connect to an existing instance of it.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 new_thread = True
 
 ###############################################################################

@@ -5,9 +5,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
 from pyaedt import Circuit  # Setup paths for module imports
-from pyaedt.generic.TouchstoneParser import (
-    read_touchstone,  # Setup paths for module imports
-)
+from pyaedt import is_ironpython
 
 try:
     import pytest  # noqa: F401
@@ -98,6 +96,8 @@ class TestClass(BasisTest, object):
         assert LNA_setup.name == "LNA"
 
     def test_06b_add_3dlayout_component(self):
+        setup = self.aedtapp.create_setup("test_06b_LNA")
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
         myedb = self.aedtapp.modeler.schematic.add_subcircuit_3dlayout("Galileo_G87173_204")
         assert type(myedb.id) is int
         ports = myedb.pins
@@ -123,8 +123,16 @@ class TestClass(BasisTest, object):
         assert type(my_model) is int
 
     def test_07a_push_excitation(self):
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=False)
-        assert self.aedtapp.push_excitations(instance_name="U1", setup_name="LNA", thevenin_calculation=True)
+        setup_name = "test_07a_LNA"
+        setup = self.aedtapp.create_setup(setup_name)
+        setup.add_sweep_step(start_point=0, end_point=5, step_size=0.01)
+        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=False)
+        assert self.aedtapp.push_excitations(instance_name="U1", setup_name=setup_name, thevenin_calculation=True)
+
+    def test_07b_push_excitation_time(self):
+        setup_name = "test_07b_Transient"
+        setup = self.aedtapp.create_setup(setup_name, setuptype="NexximTransient")
+        assert self.aedtapp.push_time_excitations(instance_name="U1", setup_name=setup_name)
 
     def test_08_import_mentor_netlist(self):
         self.aedtapp.insert_design("MentorSchematicImport")
@@ -149,8 +157,9 @@ class TestClass(BasisTest, object):
         rx = ports[int(numports / 2) :]
         insertions = ["dB(S({},{}))".format(i, j) for i, j in zip(tx, rx)]
         assert self.aedtapp.create_touchstone_report("Insertion Losses", insertions)
-        touchstone_data = self.aedtapp.get_touchstone_data(insertions)
-        assert touchstone_data
+        if not is_ironpython:
+            touchstone_data = self.aedtapp.get_touchstone_data()
+            assert touchstone_data
 
     def test_11_export_fullwave(self):
         output = self.aedtapp.export_fullwave_spice(
@@ -203,16 +212,12 @@ class TestClass(BasisTest, object):
     def test_15_rotate(self):
         assert self.aedtapp.modeler.rotate("IPort@Port1")
 
+    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
     def test_16_read_touchstone(self):
-        data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
-        assert len(data.expressions) > 0
-        assert data.data_real()
-        assert data.data_imag()
-        assert data.data_db()
+        from pyaedt.generic.touchstone_parser import read_touchstone
 
-        data_with_verbose = read_touchstone(os.path.join(self.local_scratch.path, touchstone), verbose=True)
-        assert max(data_with_verbose.data_magnitude()) > 0.37
-        assert max(data_with_verbose.data_magnitude()) < 0.38
+        data = read_touchstone(os.path.join(self.local_scratch.path, touchstone))
+        assert len(data.port_names) > 0
 
     def test_17_create_setup(self):
         setup_name = "Dom_LNA"
@@ -227,7 +232,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
-        assert self.aedtapp.analyze_nominal()
+        assert self.aedtapp.analyze("Dom_LNA")
         time.sleep(30)
         solution_name = "Dom_LNA"
         sweep_name = None
@@ -406,13 +411,15 @@ class TestClass(BasisTest, object):
     )
     def test_31_duplicate(self):  # pragma: no cover
         subcircuit = self.aedtapp.modeler.schematic.create_subcircuit(location=[0.0, 0.0])
+        self.aedtapp.modeler.schematic_units = "meter"
         new_subcircuit = self.aedtapp.modeler.schematic.duplicate(
             subcircuit.composed_name, location=[0.0508, 0.0], angle=0
         )
+
         assert type(new_subcircuit.location) is list
         assert type(new_subcircuit.id) is int
-        assert new_subcircuit.location[0] == "1900mil"
-        assert new_subcircuit.location[1] == "-100mil"
+        assert new_subcircuit.location[0] == 0.04826
+        assert new_subcircuit.location[1] == -0.00254
         assert new_subcircuit.angle == 0.0
 
     def test_32_push_down(self):
@@ -464,7 +471,7 @@ class TestClass(BasisTest, object):
 
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-        assert self.aedtapp.analyze_nominal()
+        assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
         myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
@@ -486,7 +493,7 @@ class TestClass(BasisTest, object):
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
 
         assert not self.aedtapp.browse_log_file()
-        self.aedtapp.analyze_nominal()
+        self.aedtapp.analyze()
         assert self.aedtapp.browse_log_file()
         self.aedtapp.save_project()
         assert self.aedtapp.browse_log_file()
@@ -719,6 +726,22 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.modeler.schematic.create_wire(
             [["100mil", "0"], ["100mil", "100mil"]], wire_name="wire_name_test1"
         )
+        self.aedtapp.modeler.schematic.create_wire([[0.02, 0.02], [0.04, 0.02]], wire_name="wire_test1")
+        wire_keys = [key for key in self.aedtapp.modeler.schematic.wires]
+        for key in wire_keys:
+            if self.aedtapp.modeler.schematic.wires[key].name == "wire_test1":
+                assert len(self.aedtapp.modeler.schematic.wires[key].points_in_segment) == 1
+                assert self.aedtapp.modeler.schematic.wires[key].id == key
+                for seg_key in list(self.aedtapp.modeler.schematic.wires[key].points_in_segment.keys()):
+                    point_list = [
+                        round(x, 2)
+                        for y in self.aedtapp.modeler.schematic.wires[key].points_in_segment[seg_key]
+                        for x in y
+                    ]
+                    assert point_list[0] == 0.02
+                    assert point_list[1] == 0.02
+                    assert point_list[2] == 0.04
+                    assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self):
         assert self.aedtapp.modeler.wire.display_wire_properties(

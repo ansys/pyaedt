@@ -725,7 +725,12 @@ class Object3d(object):
         if self.object_type == "Unclassified":
             return []
         vertices = []
+
         v = [i for i in self._primitives.get_object_vertices(self.name)]
+        if not v:
+            for el in self.edges:
+                pos = [float(p) for p in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
+                vertices.append(VertexPrimitive(self, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:
@@ -1422,17 +1427,17 @@ class Object3d(object):
         return self._primitives.modeler.split(self.name, plane, sides)
 
     @pyaedt_function_handler()
-    def mirror(self, position, vector):
+    def mirror(self, position, vector, duplicate=False):
         """Mirror a selection.
 
         Parameters
         ----------
-        position : int or float
-            List of the ``[x, y, z]`` coordinates or
-            the Application.Position object for the selection.
-        vector : float
-            List of the ``[x1, y1, z1]`` coordinates or
-            the Application.Position object for the vector.
+        position : list of int or float
+            Cartesian ``[x, y, z]`` coordinates or
+            the ``Application.Position`` object of a point in the plane used for the mirror operation.
+        vector : list of float
+            Vector in Cartesian coordinates ``[x1, y1, z1]``  or
+            the ``Application.Position`` object for the vector normal to the plane used for the mirror operation.
 
         Returns
         -------
@@ -1445,7 +1450,7 @@ class Object3d(object):
 
         >>> oEditor.Mirror
         """
-        if self._primitives.modeler.mirror(self.id, position=position, vector=vector):
+        if self._primitives.modeler.mirror(self.id, position=position, vector=vector, duplicate=duplicate):
             return self
         return False
 

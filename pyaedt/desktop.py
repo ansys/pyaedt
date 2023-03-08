@@ -77,7 +77,7 @@ def _check_grpc_port(port, machine_name=""):
         return True
 
 
-def _find_free_port(port_start=50001, port_end=60000):
+def _find_free_port(port_start=40001, port_end=55000):
     list_ports = random.sample(range(port_start, port_end), port_end - port_start)
     s = socket.socket()
     for port in list_ports:
@@ -133,9 +133,41 @@ def _delete_objects():
         del module.desktop
     except AttributeError:
         pass
+    try:
+        del module.sDesktopinstallDirectory
+    except AttributeError:
+        pass
+    try:
+        del module.isoutsideDesktop
+    except AttributeError:
+        pass
+    try:
+        del module.AEDTVersion
+    except AttributeError:
+        pass
+    try:
+        del sys.modules["PyDesktopPluginDll"]
+    except:
+        pass
+    try:
+        del sys.modules["PyDesktopPlugin"]
+    except:
+        pass
+    try:
+        del sys.modules["ScriptEnv"]
+    except:
+        pass
+    keys = [k for k in sys.modules.keys()]
+    for i in keys:
+        if "Ansys.Ansoft" in i:
+            del sys.modules[i]
+    for p in sys.path[::-1]:
+        if "AnsysEM" in p:
+            del sys.path[sys.path.index(p)]
     gc.collect()
 
 
+@pyaedt_function_handler()
 def release_desktop(close_projects=True, close_desktop=True):
     """Release the AEDT API.
 
@@ -161,14 +193,18 @@ def release_desktop(close_projects=True, close_desktop=True):
             for project in projects:
                 desktop.CloseProject(project)
         pid = _main.oDesktop.GetProcessID()
-        if settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython:
-            if _check_grpc_port(settings.port, settings.machine):
+        if settings.remote_rpc_session or (
+            settings.aedt_version >= "2022.2" and settings.use_grpc_api and not is_ironpython
+        ):
+            try:
                 import ScriptEnv
 
                 if close_desktop:
                     ScriptEnv.Shutdown()
                 else:
                     ScriptEnv.Release()
+            except:
+                pass
             _delete_objects()
             return True
         elif not inside_desktop:
@@ -356,6 +392,9 @@ class Desktop(object):
         aedt_process_id=None,
     ):
         """Initialize desktop."""
+        if os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t"):
+            non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+
         self._main = sys.modules["__main__"]
         self._main.interpreter = _com
         self.release_on_exit = close_on_exit
@@ -645,8 +684,8 @@ class Desktop(object):
                 "PyAEDT supports COM initialization in Windows only. To use in Linux, upgrade to AEDT 2022 R2 or later."
             )
         base_path = self._main.sDesktopinstallDirectory
-        sys.path.append(base_path)
-        sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        sys.path.insert(0, base_path)
+        sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
         launch_msg = "AEDT installation Path {}.".format(base_path)
         self.logger.info(launch_msg)
         _clr.AddReference("Ansys.Ansoft.CoreCOMScripting")
@@ -702,8 +741,8 @@ class Desktop(object):
 
     def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version):
         base_path = self._main.sDesktopinstallDirectory
-        sys.path.append(base_path)
-        sys.path.append(os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
+        sys.path.insert(0, base_path)
+        sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
         if os.name == "posix":
             if os.environ.get("LD_LIBRARY_PATH"):
                 os.environ["LD_LIBRARY_PATH"] = (
@@ -713,6 +752,7 @@ class Desktop(object):
                 os.environ["LD_LIBRARY_PATH"] = os.path.join(base_path, "defer")
             pyaedt_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
             os.environ["PATH"] = pyaedt_path + os.pathsep + os.environ["PATH"]
+
         import ScriptEnv
 
         launch_msg = "AEDT installation Path {}".format(base_path)
@@ -1115,6 +1155,7 @@ class Desktop(object):
 
         return str(ex_value)
 
+    @pyaedt_function_handler()
     def release_desktop(self, close_projects=True, close_on_exit=True):
         """Release AEDT.
 

@@ -118,7 +118,7 @@ class Edb(object):
         use_ppe=False,
     ):
         self._clean_variables()
-        if is_ironpython and inside_desktop:
+        if inside_desktop:
             self.standalone = False
         else:
             self.standalone = True

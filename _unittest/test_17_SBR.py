@@ -1,4 +1,5 @@
 import os
+import sys
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
@@ -17,6 +18,9 @@ if desktop_version > "2022.2":
     person = "person3_231"
     vehicle = "vehicle1_231"
     bird = "bird1_231"
+    sbr_platform = "satellite_231"
+    array = "array_231"
+
 else:
     test_project_name = "Cassegrain"
     tunnel = "tunnel1"
@@ -180,10 +184,11 @@ class TestClass(BasisTest, object):
         for part in parts_dict["parts"]:
             assert os.path.exists(parts_dict["parts"][part]["file_name"])
 
-    @pytest.mark.skipif(is_ironpython, reason="Not supported.")
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not supported.")
     def test_13_link_array(self):
+        self.array.setups[0].props["MaximumPasses"] = 1
         assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
-        self.sbr_platform.analyze_all()
+        self.sbr_platform.analyze()
         ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
         self.array.close_project()
         ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)

@@ -539,6 +539,8 @@ class Monitor:
         m_name = monitor_dict["Name"]
         m_object = None
         if mode == 1:
+            if monitor_dict["Geometry Assignment"] not in self._app.modeler.object_names:
+                return False
             if m_case == "Face":
                 for f in self._app.modeler.get_object_from_name(monitor_dict["Geometry Assignment"]).faces:
                     if f.center == monitor_dict["Location"]:
@@ -557,10 +559,11 @@ class Monitor:
             m_object = monitor_dict["ID"]
         else:
             self._app.logger.error("Only modes supported are 0 and 1")
-        if m_object is None:
+        if m_object is None:  # pragma: no cover
             self._app.logger.error("{} monitor object could not be restored".format(m_name))
             return False
         self._app.configurations.update_monitor(m_case, m_object, m_quantity, m_name)
+        self._app.logger.info("{} monitor object restored".format(m_name))
         return m_name
 
 

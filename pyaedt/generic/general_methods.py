@@ -27,28 +27,10 @@ from pyaedt.generic.constants import CSS4_COLORS
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
-inside_desktop = True
-try:
-    import ScriptEnv
-
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-except:
-    inside_desktop = False
-
+inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
 if not is_ironpython:
     import psutil
-
-pd = None
-if not is_ironpython:
-    try:
-        import pandas as pd
-    except ImportError:
-        pd = None
-    try:
-        import numpy as np
-    except ImportError:
-        np = None
 
 try:
     import xml.etree.cElementTree as ET
@@ -144,152 +126,6 @@ def _check_types(arg):
     return ""
 
 
-def check_and_download_file(local_path, remote_path, overwrite=True):
-    """Check if a file is remote and either download it or return the path.
-
-    Parameters
-    ----------
-    local_path : str
-        Local path to save the file to.
-    remote_path : str
-        Path to the remote file.
-    overwrite : bool
-        Whether to overwrite the file if it already exits locally.
-        The default is ``True``.
-
-    Returns
-    -------
-    str
-    """
-    if settings.remote_rpc_session:
-        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
-        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
-        return local_path
-    return remote_path
-
-
-def check_and_download_folder(local_path, remote_path, overwrite=True):
-    """Check if a folder is remote and either download it or return the path.
-
-    Parameters
-    ----------
-    local_path : str
-        Local path to save the folder to.
-    remote_path : str
-        Path to the remote folder.
-    overwrite : bool
-        Whether to overwrite the folder if it already exits locally.
-        The default is ``True``.
-
-    Returns
-    -------
-    str
-    """
-    if settings.remote_rpc_session:
-        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
-        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
-        return local_path
-    return remote_path
-
-
-def open_file(file_path, file_options="r"):
-    """Open a file and return the object.
-
-    Parameters
-    ----------
-    file_path : str
-        Full absolute path to the file (either local or remote).
-    file_options : str, optional
-        Options for opening the file.
-
-    Returns
-    -------
-    object
-        Opened file.
-    """
-    file_path = os.path.abspath(file_path.replace("\\", "/") if file_path[0] != "\\" else file_path)
-    dir_name = os.path.dirname(file_path)
-    if os.path.exists(dir_name):
-        return open(file_path, file_options)
-    elif settings.remote_rpc_session:
-        return settings.remote_rpc_session.open_file(file_path, file_options)
-    else:
-        settings.logger.error("The file: %s does not exist", dir_name)
-
-
-def _log_method(func, new_args, new_kwargs):
-    if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
-        return
-    if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
-        return
-    if (
-        not settings.enable_debug_edb_logger
-        and "Edb" in str(func) + str(new_args)
-        or "edb_core" in str(func) + str(new_args)
-    ):
-        return
-    line_begin = "    Implicit Arguments: "
-    line_begin2 = "    Explicit Arguments: "
-    message = []
-    delta = time.time() - settings.time_tick
-    m, s = divmod(delta, 60)
-    h, m = divmod(m, 60)
-    d, h = divmod(h, 24)
-    msec = (s - int(s)) * 1000
-    if d > 0:
-        time_msg = " {}days {}h {}m {}sec.".format(d, h, m, int(s))
-    elif h > 0:
-        time_msg = " {}h {}m {}sec.".format(h, m, int(s))
-    else:
-        time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
-    if new_args and settings.enable_debug_methods_argument_logger:
-        object_name = str([new_args[0]])[1:-1]
-        id = object_name.find(" object at ")
-        if id >= 0:
-            object_name = object_name[1:id]
-            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-        else:
-            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
-            if new_args[1:]:
-                message.append(line_begin + str(new_args[1:])[1:-1])
-            if new_kwargs:
-                message.append(line_begin2 + str(new_kwargs)[1:-1])
-
-    else:
-        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
-        if new_kwargs and settings.enable_debug_methods_argument_logger:
-            message.append(line_begin2 + str(new_kwargs)[1:-1])
-    for m in message:
-        settings.logger.debug(m)
-
-
-def pyaedt_function_handler(direct_func=None):
-    """Provides an exception handler, logging mechanism, and argument converter for client-server
-    communications.
-
-    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
-    and displays errors.
-
-    """
-    if callable(direct_func):
-        user_function = direct_func
-        wrapper = _function_handler_wrapper(user_function)
-        return update_wrapper(wrapper, user_function)
-    elif direct_func is not None:
-        raise TypeError("Expected first argument to be a callable, or None")
-
-    def decorating_function(user_function):
-        wrapper = _function_handler_wrapper(user_function)
-        return update_wrapper(wrapper, user_function)
-
-    return decorating_function
-
-
 def _function_handler_wrapper(user_function):
     def wrapper(*args, **kwargs):
         if not settings.enable_error_handler:
@@ -341,6 +177,180 @@ def _function_handler_wrapper(user_function):
                 return False
 
     return wrapper
+
+
+def pyaedt_function_handler(direct_func=None):
+    """Provides an exception handler, logging mechanism, and argument converter for client-server
+    communications.
+
+    This method returns the function itself if correctly executed. Otherwise, it returns ``False``
+    and displays errors.
+
+    """
+    if callable(direct_func):
+        user_function = direct_func
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+    elif direct_func is not None:
+        raise TypeError("Expected first argument to be a callable, or None")
+
+    def decorating_function(user_function):
+        wrapper = _function_handler_wrapper(user_function)
+        return update_wrapper(wrapper, user_function)
+
+    return decorating_function
+
+
+@pyaedt_function_handler()
+def check_and_download_file(local_path, remote_path, overwrite=True):
+    """Check if a file is remote and either download it or return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path to save the file to.
+    remote_path : str
+        Path to the remote file.
+    overwrite : bool
+        Whether to overwrite the file if it already exits locally.
+        The default is ``True``.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_file(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+@pyaedt_function_handler()
+def check_if_path_exists(path):
+    """Check whether a path exists or not local or remote machine (for remote sessions only).
+
+    Parameters
+    ----------
+    path : str
+        Local or remote path to check.
+
+    Returns
+    -------
+    bool
+    """
+    if settings.remote_rpc_session:
+        return settings.remote_rpc_session.filemanager.pathexists(path)
+    return os.path.exists(path)
+
+
+@pyaedt_function_handler()
+def check_and_download_folder(local_path, remote_path, overwrite=True):
+    """Check if a folder is remote and either download it or return the path.
+
+    Parameters
+    ----------
+    local_path : str
+        Local path to save the folder to.
+    remote_path : str
+        Path to the remote folder.
+    overwrite : bool
+        Whether to overwrite the folder if it already exits locally.
+        The default is ``True``.
+
+    Returns
+    -------
+    str
+    """
+    if settings.remote_rpc_session:
+        remote_path = remote_path.replace("\\", "/") if remote_path[0] != "\\" else remote_path
+        settings.remote_rpc_session.filemanager.download_folder(remote_path, local_path, overwrite=overwrite)
+        return local_path
+    return remote_path
+
+
+@pyaedt_function_handler()
+def open_file(file_path, file_options="r"):
+    """Open a file and return the object.
+
+    Parameters
+    ----------
+    file_path : str
+        Full absolute path to the file (either local or remote).
+    file_options : str, optional
+        Options for opening the file.
+
+    Returns
+    -------
+    object
+        Opened file.
+    """
+    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
+    dir_name = os.path.dirname(file_path)
+    if "r" in file_options:
+        if os.path.exists(file_path):
+            return open(file_path, file_options)
+        elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
+            file_path
+        ):  # pragma: no cover
+            local_file = os.path.join(tempfile.gettempdir(), os.path.split(file_path)[-1])
+            settings.remote_rpc_session.filemanager.download_file(file_path, local_file)
+            return open(local_file, file_options)
+    elif os.path.exists(dir_name):
+        return open(file_path, file_options)
+    else:
+        settings.logger.error("The file or folder %s does not exist", dir_name)
+
+
+def _log_method(func, new_args, new_kwargs):
+    if not settings.enable_debug_internal_methods_logger and str(func.__name__)[0] == "_":
+        return
+    if not settings.enable_debug_geometry_operator_logger and "GeometryOperators" in str(func):
+        return
+    if (
+        not settings.enable_debug_edb_logger
+        and "Edb" in str(func) + str(new_args)
+        or "edb_core" in str(func) + str(new_args)
+    ):
+        return
+    line_begin = "    Implicit Arguments: "
+    line_begin2 = "    Explicit Arguments: "
+    message = []
+    delta = time.time() - settings.time_tick
+    m, s = divmod(delta, 60)
+    h, m = divmod(m, 60)
+    d, h = divmod(h, 24)
+    msec = (s - int(s)) * 1000
+    if d > 0:
+        time_msg = " {}days {}h {}m {}sec.".format(d, h, m, int(s))
+    elif h > 0:
+        time_msg = " {}h {}m {}sec.".format(h, m, int(s))
+    else:
+        time_msg = "  {}m {}sec {}msec.".format(m, int(s), int(msec))
+    if new_args and settings.enable_debug_methods_argument_logger:
+        object_name = str([new_args[0]])[1:-1]
+        id = object_name.find(" object at ")
+        if id >= 0:
+            object_name = object_name[1:id]
+            message.append(" '{}' has been executed in {}".format(object_name + "." + str(func.__name__), time_msg))
+            if new_args[1:]:
+                message.append(line_begin + str(new_args[1:])[1:-1])
+            if new_kwargs:
+                message.append(line_begin2 + str(new_kwargs)[1:-1])
+
+        else:
+            message.append(" '{}' has been executed in {}".format(str(func.__name__), time_msg))
+            if new_args[1:]:
+                message.append(line_begin + str(new_args[1:])[1:-1])
+            if new_kwargs:
+                message.append(line_begin2 + str(new_kwargs)[1:-1])
+
+    else:
+        message.append(" '{}' has been executed in: {}".format(str(func.__name__), time_msg))
+        if new_kwargs and settings.enable_debug_methods_argument_logger:
+            message.append(line_begin2 + str(new_kwargs)[1:-1])
+    for m in message:
+        settings.logger.debug(m)
 
 
 @pyaedt_function_handler()
@@ -519,11 +529,16 @@ def generate_unique_folder_name(rootname=None, folder_name=None):
     str
     """
     if not rootname:
-        rootname = tempfile.gettempdir()
+        if settings.remote_rpc_session:
+            rootname = settings.remote_rpc_session_temp_folder
+        else:
+            rootname = tempfile.gettempdir()
     if folder_name is None:
         folder_name = generate_unique_name("pyaedt_prj", n=3)
     temp_folder = os.path.join(rootname, folder_name)
-    if not os.path.exists(temp_folder):
+    if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(temp_folder):
+        settings.remote_rpc_session.filemanager.makedirs(temp_folder)
+    elif not os.path.exists(temp_folder):
         os.makedirs(temp_folder)
 
     return temp_folder
@@ -555,7 +570,7 @@ def generate_unique_project_name(rootname=None, folder_name=None, project_name=N
     name_with_ext = project_name + "." + project_format
     folder_path = generate_unique_folder_name(rootname, folder_name=folder_name)
     prj = os.path.join(folder_path, name_with_ext)
-    if os.path.exists(prj):
+    if check_if_path_exists(prj):
         name_with_ext = generate_unique_name(project_name, n=3) + "." + project_format
         prj = os.path.join(folder_path, name_with_ext)
     return prj
@@ -652,7 +667,7 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    return os.path.exists(project_path[:-4] + "lock")
+    return check_if_path_exists(project_path[:-4] + "lock")
 
 
 @pyaedt_function_handler()
@@ -718,9 +733,11 @@ def read_csv_pandas(filename, encoding="utf-8"):
     :class:`pandas.DataFrame`
 
     """
-    if pd:
+    try:
+        import pandas as pd
+
         return pd.read_csv(filename, encoding=encoding, header=0, na_values=".")
-    else:
+    except ImportError:
         logging.error("Pandas is not available. Install it.")
         return None
 
@@ -759,9 +776,11 @@ def read_xlsx(filename):
 
     """
     try:
+        import pandas as pd
+
         lines = pd.read_excel(filename)
         return lines
-    except:
+    except ImportError:
         lines = []
         return lines
 
@@ -833,12 +852,21 @@ def recursive_glob(startpath, filepattern):
     startpath -- starting path (directory)
     filepattern -- fnmatch-style filename pattern
     """
-    return [
-        os.path.join(dirpath, filename)
-        for dirpath, _, filenames in os.walk(startpath)
-        for filename in filenames
-        if fnmatch.fnmatch(filename, filepattern)
-    ]
+    if settings.remote_rpc_session:
+        files = []
+        for i in settings.remote_rpc_session.filemanager.listdir(startpath):
+            if settings.remote_rpc_session.filemanager.isdir(os.path.join(startpath, i)):
+                files.extend(recursive_glob(os.path.join(startpath, i), filepattern))
+            elif fnmatch.fnmatch(i, filepattern):
+                files.append(os.path.join(startpath, i))
+        return files
+    else:
+        return [
+            os.path.join(dirpath, filename)
+            for dirpath, _, filenames in os.walk(startpath)
+            for filename in filenames
+            if fnmatch.fnmatch(filename, filepattern)
+        ]
 
 
 @pyaedt_function_handler()
@@ -922,14 +950,22 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
         keys = ["ansysedtsv.exe"]
     else:
         keys = ["ansysedt.exe"]
+    long_version = None
+    if len(version) > 6:
+        version = version[-6:]
     if version and "." in version:
+        long_version = version
         version = version[-4:].replace(".", "")
-    if version < "222":
+    if version < "221":
         version = version[:2] + "." + version[2]
+        long_version = "20{}".format(version)
     sessions = []
     for p in psutil.process_iter():
         try:
             if p.name() in keys:
+                if long_version and _check_installed_version(os.path.dirname(p.exe()), long_version):
+                    sessions.append(p.pid)
+                    continue
                 cmd = p.cmdline()
                 if non_graphical and "-ng" in cmd or not non_graphical:
                     if not version or (version and version in cmd[0]):
@@ -982,7 +1018,7 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
 
 
 @pyaedt_function_handler()
-def compute_fft(time_vals, value):
+def compute_fft(time_vals, value):  # pragma: no cover
     """Compute FFT of input transient data.
 
     Parameters
@@ -995,8 +1031,12 @@ def compute_fft(time_vals, value):
     tuple
         Frequency and Values.
     """
-    if not np:
-        logging.error("Numpy is not available. Please, install it first.")
+    try:
+        import numpy as np
+    except ImportError:
+        logging.error("NumPy is not available. Install it.")
+        return False
+
     deltaT = time_vals[-1] - time_vals[0]
     num_points = len(time_vals)
     valueFFT = np.fft.fft(value, num_points)
@@ -1044,8 +1084,11 @@ def parse_excitation_file(
     tuple
         Frequency, magnitude and phase.
     """
-    if not np:
-        logging.error("Numpy is not available. Please, install it first.")
+    try:
+        import numpy as np
+    except ImportError:
+        logging.error("NumPy is not available. Install it.")
+        return False
     df = read_csv_pandas(file_name, encoding=encoding)
     if is_time_domain:
         time = df[df.keys()[0]].values * x_scale
@@ -1147,14 +1190,18 @@ class PropsManager(object):
             Key to search
         """
         item_split = item.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
         props = self.props
         found_el = []
         matching_percentage = 1
         while matching_percentage >= 0.4:
             for item_value in item_split:
-                found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, 0.8)
+                found_el = self._recursive_search(props, item_value, matching_percentage)
+                # found_el = difflib.get_close_matches(item_value, list(props.keys()), 1, matching_percentage)
                 if found_el:
-                    props = props[found_el[0]]
+                    props = found_el[1][found_el[2]]
+                    # props = props[found_el[0]]
             if found_el:
                 return props
             else:
@@ -1173,6 +1220,8 @@ class PropsManager(object):
             Value to apply.
         """
         item_split = key.split("/")
+        if len(item_split) == 1:
+            item_split = item_split[0].split("__")
         found_el = []
         props = self.props
         matching_percentage = 1
@@ -1214,6 +1263,11 @@ class PropsManager(object):
                     out_val = self._recursive_search(v, key, matching_percentage)
                     if out_val:
                         return out_val
+                elif isinstance(v, list) and isinstance(v[0], (dict, OrderedDict)):
+                    for val in v:
+                        out_val = self._recursive_search(val, key, matching_percentage)
+                        if out_val:
+                            return out_val
         return False
 
     @pyaedt_function_handler()
@@ -1393,6 +1447,34 @@ def _dim_arg(value, units):
         return value
 
 
+@pyaedt_function_handler()
+def _check_installed_version(install_path, long_version):
+    """Check installation folder to determine if it is for specified Ansys EM version.
+
+    Parameters
+    ----------
+    install_path: str
+        Installation folder to check.  For example, ``"C:\\Program Files\\AnsysEM\\v231\\Win64"``.
+    long_version: str
+        Long form of version number.  For example, ``"2023.1"``.
+
+    Returns
+    -------
+    bool
+
+    """
+    product_list_path = os.path.join(install_path, "config", "ProductList.txt")
+    if os.path.isfile(product_list_path):
+        try:
+            with open(product_list_path, "r") as f:
+                install_version = f.readline().strip()[-6:]
+                if install_version == long_version:
+                    return True
+        except:
+            pass
+    return False
+
+
 class Settings(object):
     """Manages all PyAEDT environment variables and global settings."""
 
@@ -1412,7 +1494,7 @@ class Settings(object):
         self._enable_debug_logger = False
         self._enable_error_handler = True
         self._non_graphical = False
-        self.aedt_version = None
+        self._aedt_version = None
         self.remote_api = False
         self._use_grpc_api = None
         self.machine = ""
@@ -1432,6 +1514,24 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
+
+    @property
+    def aedt_version(self):
+        """Get and set the aedt version.
+        It disables the sat bounding box for AEDT version > 2022.2.
+
+        Returns
+        -------
+        str
+            Aedt version in the form ``"2023.x"``.
+        """
+        return self._aedt_version
+
+    @aedt_version.setter
+    def aedt_version(self, value):
+        self._aedt_version = value
+        if self._aedt_version >= "2023.1":
+            self.disable_bounding_box_sat = True
 
     @property
     def edb_dll_path(self):

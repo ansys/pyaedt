@@ -25,7 +25,7 @@ project_name = pyaedt.downloads.download_antenna_array()
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Import modules for postprocessing
@@ -38,9 +38,9 @@ import matplotlib.pyplot as plt
 ###############################################################################
 # Launch AEDT
 # ~~~~~~~~~~~
-# Launch AEDT 2022 R2 in non-graphical mode.
+# Launch AEDT 2023 R1 in non-graphical mode.
 
-desktopVersion = "2022.2"
+desktopVersion = "2023.1"
 NewThread = True
 desktop = pyaedt.launch_desktop(specified_version=desktopVersion,
                                 non_graphical=non_graphical,

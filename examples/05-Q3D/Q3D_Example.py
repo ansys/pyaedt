@@ -19,15 +19,15 @@ import pyaedt
 # documentation only.
 # You can set ``non_graphical`` either to ``True`` or ``False``.
 
-non_graphical = os.getenv("PYAEDT_NON_GRAPHICAL", "False").lower() in ("true", "1", "t")
+non_graphical = False
 
 ###############################################################################
 # Launch AEDT and Q3D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and launch Q3D Extractor. This example uses SI units.
+# Launch AEDT 2023 R1 in graphical mode and launch Q3D Extractor. This example uses SI units.
 
 q = pyaedt.Q3d(projectname=pyaedt.generate_unique_project_name(),
-               specified_version="2022.2",
+               specified_version="2023.1",
                non_graphical=non_graphical,
                new_desktop_session=True)
 
@@ -138,7 +138,7 @@ q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type
 # ~~~~~~~~~~~
 # Solve the setup.
 
-q.analyze_nominal()
+q.analyze()
 q.save_project()
 
 ###############################################################################

@@ -49,7 +49,8 @@ class SolutionData(object):
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
-
+        self._expressions = None
+        self._intrinsics = None
         self._nominal_variation = None
         self._nominal_variation = self._original_data[0]
         self.active_expression = self.expressions[0]
@@ -107,6 +108,8 @@ class SolutionData(object):
         if var_id < len(self.variations):
             self.active_variation = self.variations[var_id]
             self.nominal_variation = var_id
+            self._expressions = None
+            self._intrinsics = None
             return True
         return False
 
@@ -145,13 +148,14 @@ class SolutionData(object):
     @property
     def intrinsics(self):
         """Get intrinsics dictionary on active variation."""
-        _sweeps = OrderedDict({})
-        intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
-        for el in intrinsics:
-            values = list(self.nominal_variation.GetSweepValues(el, False))
-            _sweeps[el] = [i for i in values]
-            _sweeps[el] = list(OrderedDict.fromkeys(_sweeps[el]))
-        return _sweeps
+        if not self._intrinsics:
+            self._intrinsics = OrderedDict({})
+            intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
+            for el in intrinsics:
+                values = list(self.nominal_variation.GetSweepValues(el, False))
+                self._intrinsics[el] = [i for i in values]
+                self._intrinsics[el] = list(OrderedDict.fromkeys(self._intrinsics[el]))
+        return self._intrinsics
 
     @property
     def nominal_variation(self):
@@ -184,8 +188,10 @@ class SolutionData(object):
     @property
     def expressions(self):
         """Expressions."""
-        mydata = [i for i in self._nominal_variation.GetDataExpressions()]
-        return list(dict.fromkeys(mydata))
+        if not self._expressions:
+            mydata = [i for i in self._nominal_variation.GetDataExpressions()]
+            self._expressions = list(dict.fromkeys(mydata))
+        return self._expressions
 
     @pyaedt_function_handler()
     def update_sweeps(self):
@@ -1634,10 +1640,10 @@ class FfdSolutionData(object):
             index_str = self.get_array_index(port_name)
             a = index_str[0]
             b = index_str[1]
-            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_count=port_count)), 3)
+            w_mag1 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_count)), 3)
             w_ang1 = a * phase_shift_A_rad1 + b * phase_shift_B_rad1
 
-            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_count=port_count)), 3)
+            w_mag2 = np.round(np.abs(self.assign_weight(a, b, taper=self.taper, port_cont=port_count)), 3)
             w_ang2 = a * phase_shift_A_rad2 + b * phase_shift_B_rad2
 
             w_dict[port_name] = np.sqrt(w_mag1) * np.exp(1j * w_ang1) + np.sqrt(w_mag2) * np.exp(1j * w_ang2)
@@ -1787,8 +1793,10 @@ class FfdSolutionData(object):
             full_setup_str = "{}-{}-{}".format(sol_setup_name_str, self.sphere_name, frequency)
             export_path = "{}/{}/eep/".format(self._app.working_directory, full_setup_str)
             if settings.remote_rpc_session:
-                settings.remote_rpc_session.root.makedirs(export_path)
-                file_exists = settings.remote_rpc_session.root.pathexists(export_path + exported_name_base + ".txt")
+                settings.remote_rpc_session.filemanager.makedirs(export_path)
+                file_exists = settings.remote_rpc_session.filemanager.pathexists(
+                    export_path + exported_name_base + ".txt"
+                )
             elif not os.path.exists(export_path):
                 os.makedirs(export_path)
                 file_exists = os.path.exists(export_path + exported_name_base + ".txt")
@@ -2518,6 +2526,7 @@ class FieldPlot:
         solutionName="",
         quantityName="",
         intrinsincList={},
+        seedingFaces=[],
     ):
         self._postprocessor = postprocessor
         self.oField = postprocessor.ofieldsreporter
@@ -2525,6 +2534,7 @@ class FieldPlot:
         self.surfaces_indexes = surfacelist
         self.line_indexes = linelist
         self.cutplane_indexes = cutplanelist
+        self.seeding_faces = seedingFaces
         self.solutionName = solutionName
         self.quantityName = quantityName
         self.intrinsincList = intrinsincList
@@ -2548,6 +2558,15 @@ class FieldPlot:
         self.CloudSpacing = 0.5
         self.CloudMinSpacing = -1
         self.CloudMaxSpacing = -1
+        self.LineWidth = 4
+        self.LineStyle = "Cylinder"
+        self.IsoValType = "Tone"
+        self.NumofPoints = 100
+        self.TraceStepLength = "0.001mm"
+        self.UseAdaptiveStep = True
+        self.SeedingSamplingOption = True
+        self.SeedingPointsNumber = 15
+        self.FractionOfMaximum = 0.8
 
     @property
     def plotGeomInfo(self):
@@ -2673,6 +2692,19 @@ class FieldPlot:
                 "GridColor:=",
                 self.GridColor,
             ]
+        elif self.line_indexes:
+            arg = [
+                "NAME:PlotOnLineSettings",
+                ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+                "IsoValType:=",
+                self.IsoValType,
+                "ArrowUniform:=",
+                self.ArrowUniform,
+                "NumofArrow:=",
+                self.NumofPoints,
+                "Refinement:=",
+                self.Refinement,
+            ]
         else:
             arg = [
                 "NAME:PlotOnVolumeSettings",
@@ -2742,6 +2774,71 @@ class FieldPlot:
         ]
 
     @property
+    def surfacePlotInstructionLineTraces(self):
+        """Surface plot settings for field line traces.
+
+        ..note::
+            ``Specify seeding points on selections`` is by default set to ''by sampling''.
+
+        Returns
+        -------
+        list
+            List of plot settings for line traces.
+
+        """
+        return [
+            "NAME:" + self.name,
+            "SolutionName:=",
+            self.solutionName,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            "QuantityName_FieldLineTrace",
+            "PlotFolder:=",
+            self.plotFolder,
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "Trace Step Length:=",
+            self.TraceStepLength,
+            "Use Adaptive Step:=",
+            self.UseAdaptiveStep,
+            "Seeding Faces:=",
+            self.seeding_faces,
+            "Seeding Markers:=",
+            [0],
+            "Surface Tracing Objects:=",
+            self.surfaces_indexes,
+            "Volume Tracing Objects:=",
+            self.volume_indexes,
+            "Seeding Sampling Option:=",
+            self.SeedingSamplingOption,
+            "Seeding Points Number:=",
+            self.SeedingPointsNumber,
+            "Fractional of Maximal:=",
+            self.FractionOfMaximum,
+            "Discrete Seeds Option:=",
+            "Marker Point",
+            [
+                "NAME:InceptionEvaluationSettings",
+                "Gas Type:=",
+                0,
+                "Gas Pressure:=",
+                1,
+                "Use Inception:=",
+                True,
+                "Potential U0:=",
+                0,
+                "Potential K:=",
+                0,
+                "Potential A:=",
+                1,
+            ],
+            self.field_line_trace_plot_settings,
+        ]
+
+    @property
     def field_plot_settings(self):
         """Field Plot Settings.
 
@@ -2786,6 +2883,22 @@ class FieldPlot:
             ],
         ]
 
+    @property
+    def field_line_trace_plot_settings(self):
+        """Settings for the field line traces in the plot.
+
+        Returns
+        -------
+        list
+            List of settings for the field line traces in the plot.
+        """
+        return [
+            "NAME:FieldLineTracePlotSettings",
+            ["NAME:LineSettingsID", "Width:=", self.LineWidth, "Style:=", self.LineStyle],
+            "IsoValType:=",
+            self.IsoValType,
+        ]
+
     @pyaedt_function_handler()
     def create(self):
         """Create a field plot.
@@ -2796,9 +2909,14 @@ class FieldPlot:
             ``True`` when successful, ``False`` when failed.
 
         """
-
-        self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
-        return True
+        try:
+            if self.seeding_faces:
+                self.oField.CreateFieldPlot(self.surfacePlotInstructionLineTraces, "FieldLineTrace")
+            else:
+                self.oField.CreateFieldPlot(self.surfacePlotInstruction, "Field")
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def update(self):
@@ -2813,11 +2931,54 @@ class FieldPlot:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
+        try:
+            if self.seeding_faces:
+                if self.seeding_faces[0] != len(self.seeding_faces) - 1:
+                    for face in self.seeding_faces[1:]:
+                        if not isinstance(face, int):
+                            self._postprocessor.logger.error("Provide valid object id for seeding faces.")
+                            return False
+                        else:
+                            if face not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.seeding_faces.remove(face)
+                                return False
+                    self.seeding_faces[0] = len(self.seeding_faces) - 1
+                if self.volume_indexes[0] != len(self.volume_indexes) - 1:
+                    for obj in self.volume_indexes[1:]:
+                        if not isinstance(obj, int):
+                            self._postprocessor.logger.error("Provide valid object id for in-volume object.")
+                            return False
+                        else:
+                            if obj not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.volume_indexes.remove(obj)
+                                return False
+                    self.volume_indexes[0] = len(self.volume_indexes) - 1
+                if self.surfaces_indexes[0] != len(self.surfaces_indexes) - 1:
+                    for obj in self.surfaces_indexes[1:]:
+                        if not isinstance(obj, int):
+                            self._postprocessor.logger.error("Provide valid object id for surface object.")
+                            return False
+                        else:
+                            if obj not in list(self._postprocessor._app.modeler.objects.keys()):
+                                self._postprocessor.logger.error("Invalid object id.")
+                                self.surfaces_indexes.remove(obj)
+                                return False
+                    self.surfaces_indexes[0] = len(self.surfaces_indexes) - 1
+                self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstructionLineTraces)
+            else:
+                self.oField.ModifyFieldPlot(self.name, self.surfacePlotInstruction)
+            return True
+        except:
+            return False
 
     @pyaedt_function_handler()
     def update_field_plot_settings(self):
         """Modify the field plot settings.
+
+        .. note::
+            This method is not available for field plot line traces.
 
         Returns
         -------
