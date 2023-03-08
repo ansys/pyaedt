@@ -1150,7 +1150,16 @@ class TestClass(BasisTest, object):
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51c_export_results(self):
-        self.aedtapp.set_active_design("Array_simple")
+        self.aedtapp.insert_design("Array_simple_resuts", "Modal")
+        from pyaedt.generic.DataHandlers import json_to_dict
+
+        dict_in = json_to_dict(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
+        dict_in["Circ_Patch_5GHz1"] = os.path.join(
+            local_path, "example_models", test_subfolder, "Circ_Patch_5GHz.a3dcomp"
+        )
+        dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
+        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        dict_in["cells"][(3, 3)]["rotation"] = 90
         exported_files = self.aedtapp.export_results()
         assert len(exported_files) == 0
         setup = self.aedtapp.create_setup(setupname="test")
@@ -1159,6 +1168,10 @@ class TestClass(BasisTest, object):
         assert len(exported_files) == 0
         self.aedtapp.analyze_setup(name="test")
         exported_files = self.aedtapp.export_results()
+        assert len(exported_files) == 3
+        exported_files = self.aedtapp.export_results(
+            matrix_type="Y",
+        )
         assert len(exported_files) > 0
 
     def test_52_crate_setup_hybrid_sbr(self):

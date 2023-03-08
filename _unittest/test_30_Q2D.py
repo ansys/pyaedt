@@ -267,7 +267,7 @@ class TestClass(BasisTest, object):
 
     def test_16_export_results_q2d(self):
         q2d = Q2d(self.test_matrix, specified_version=desktop_version)
-        exported_files = q2d.export_results()
+        exported_files = q2d.export_results(analyze=True)
         assert len(exported_files) > 0
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 
