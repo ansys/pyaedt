@@ -616,7 +616,6 @@ class Analysis(Design, object):
         impedance=50,
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
-        **kwargs,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
