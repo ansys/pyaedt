@@ -744,6 +744,7 @@ class TestClass(BasisTest, object):
                     assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self):
+        self.aedtapp.set_active_design("CreateWireTest")
         assert self.aedtapp.modeler.wire.display_wire_properties(
             wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
         )
@@ -781,6 +782,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_44_change_text_property(self):
+        self.aedtapp.set_active_design("text")
         text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
         assert self.aedtapp.modeler.change_text_property(text_id, "Font", "Calibri")
         assert self.aedtapp.modeler.change_text_property(text_id, "DisplayRectangle", True)
