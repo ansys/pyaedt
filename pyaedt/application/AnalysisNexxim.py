@@ -11,8 +11,8 @@ from pyaedt.modules.Boundary import Sources
 from pyaedt.modules.Boundary import VoltageDCSource
 from pyaedt.modules.Boundary import VoltageFrequencyDependentSource
 from pyaedt.modules.Boundary import VoltageSinSource
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import SetupCircuit
-from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class FieldAnalysisCircuit(Analysis):

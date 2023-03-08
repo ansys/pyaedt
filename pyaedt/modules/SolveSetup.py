@@ -14,13 +14,13 @@ import warnings
 from collections import OrderedDict
 from random import randrange
 
-from pyaedt import Hfss
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.generic.general_methods import settings
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
 from pyaedt.modules.SolveSweeps import SweepHFSS3DLayout
@@ -133,9 +133,13 @@ class CommonSetup(PropsManager, object):
     @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
+            v = settings.aedt_version[-4:].replace(".", "")
+            keys = [i for i in SetupKeys.SetupTemplates.keys() if str(i).endswith("_" + str(self.setuptype))]
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            # for t in setup_template:
-            #    _tuple2dict(t, self.props)
+            if keys:
+                for key in keys:
+                    if v >= key.split("_")[0]:
+                        setup_template = SetupKeys.SetupTemplates[key]
             self.props = SetupProps(self, setup_template)
         else:
             try:
@@ -659,9 +663,13 @@ class SetupCircuit(CommonSetup):
     def _init_props(self, isnewsetup=False):
         props = {}
         if isnewsetup:
+            v = settings.aedt_version[-4:].replace(".", "")
+            keys = [i for i in SetupKeys.SetupTemplates.keys() if str(i).endswith("_" + str(self.setuptype))]
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            # for t in setup_template:
-            #    _tuple2dict(t, props)
+            if keys:
+                for key in keys:
+                    if v >= key.split("_")[0]:
+                        setup_template = SetupKeys.SetupTemplates[key]
             self.props = SetupProps(self, setup_template)
         else:
             self.props = SetupProps(self, OrderedDict())
@@ -1188,9 +1196,13 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
+            v = settings.aedt_version[-4:].replace(".", "")
+            keys = [i for i in SetupKeys.SetupTemplates.keys() if str(i).endswith("_" + str(self.setuptype))]
             setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            # for t in setup_template:
-            #    _tuple2dict(t, self.props)
+            if keys:
+                for key in keys:
+                    if v >= key.split("_")[0]:
+                        setup_template = SetupKeys.SetupTemplates[key]
             self.props = SetupProps(self, setup_template)
         else:
             try:
@@ -1371,6 +1383,8 @@ class Setup3DLayout(CommonSetup):
                 timeout = 0
             time.sleep(1)
         if keep_net_name:
+            from pyaedt import Hfss
+
             primitives_3d_pts_per_nets = self._get_primitives_points_per_net()
             via_per_nets = self._get_via_position_per_net()
             layers_elevation = {
