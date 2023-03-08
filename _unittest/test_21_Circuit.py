@@ -772,14 +772,16 @@ class TestClass(BasisTest, object):
         assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
     def test_43_create_and_change_prop_text(self):
         self.aedtapp.insert_design("text")
         text = self.aedtapp.modeler.create_text("text test")
         assert isinstance(text, str)
         assert text in self.aedtapp.oeditor.GetAllGraphics()
         assert not self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
-        text_id = text.split("@")[1]
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    def test_44_change_text_property(self):
+        text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
         assert self.aedtapp.modeler.change_text_property(text_id, "Font", "Calibri")
         assert self.aedtapp.modeler.change_text_property(text_id, "DisplayRectangle", True)
         assert self.aedtapp.modeler.change_text_property(text_id, "Color", [255, 120, 0])

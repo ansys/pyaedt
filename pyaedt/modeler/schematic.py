@@ -173,7 +173,7 @@ class ModelerCircuit(Modeler):
         rect_border_color=0,
         rect_fill=0,
         rect_color=0,
-    ):  # pragma: no cover
+    ):
         """Draw Text.
 
         Parameters
