@@ -77,6 +77,7 @@ else:
 release = version = __version__
 
 os.environ["PYAEDT_NON_GRAPHICAL"] = "1"
+os.environ["PYAEDT_DOC_GENERATION"] = "1"
 
 
 # -- General configuration ---------------------------------------------------

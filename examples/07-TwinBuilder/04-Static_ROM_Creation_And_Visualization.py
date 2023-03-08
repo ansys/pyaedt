@@ -140,9 +140,10 @@ tb.set_hmax("1s")
 ###############################################################################
 # Solve transient setup
 # ~~~~~~~~~~~~~~~~~~~~~
-# Solve the transient setup.
+# Solve the transient setup. Skipping in case of documentation build.
 
-tb.analyze_setup("TR")
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    tb.analyze_setup("TR")
 
 ###############################################################################
 # Get report data and plot using Matplotlib
@@ -150,19 +151,19 @@ tb.analyze_setup("TR")
 # Get report data and plot it using Matplotlib. The following code gets and plots
 # the values for the voltage on the pulse voltage source and the values for the
 # output of the dynamic ROM.
-
-e_value = "ROM1.outfield_mode_1"
-x = tb.post.get_solution_data(e_value, "TR", "Time")
-x.plot()
-e_value = "ROM1.outfield_mode_2"
-x = tb.post.get_solution_data(e_value, "TR", "Time")
-x.plot()
-e_value = "SINE1.VAL"
-x = tb.post.get_solution_data(e_value, "TR", "Time")
-x.plot()
-e_value = "SINE2.VAL"
-x = tb.post.get_solution_data(e_value, "TR", "Time")
-x.plot()
+if os.getenv("PYAEDT_DOC_GENERATION", "False") != "1":
+    e_value = "ROM1.outfield_mode_1"
+    x = tb.post.get_solution_data(e_value, "TR", "Time")
+    x.plot()
+    e_value = "ROM1.outfield_mode_2"
+    x = tb.post.get_solution_data(e_value, "TR", "Time")
+    x.plot()
+    e_value = "SINE1.VAL"
+    x = tb.post.get_solution_data(e_value, "TR", "Time")
+    x.plot()
+    e_value = "SINE2.VAL"
+    x = tb.post.get_solution_data(e_value, "TR", "Time")
+    x.plot()
 
 
 ###############################################################################
