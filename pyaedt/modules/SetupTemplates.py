@@ -1708,5 +1708,29 @@ class SetupKeys:
         53: DCM,
         54: CPSM,
         55: NSSM,
-        "231_29": HFSS3DLayout_v231,
     }
+
+    SetupTemplates_231 = {
+        29: HFSS3DLayout_v231,
+    }
+    SetupTemplates_232 = {}
+
+    @staticmethod
+    def _add_to_template(template_in, template_to_append):
+        template_out = template_in.copy()
+        for k, v in template_to_append.items():
+            template_out[k] = v
+        return template_out
+
+    @staticmethod
+    def get_setup_templates():
+        from pyaedt.generic.general_methods import settings
+
+        template = SetupKeys.SetupTemplates
+        if settings.aedt_version is not None and settings.aedt_version >= "2023.1":
+            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+        elif settings.aedt_version is not None and settings.aedt_version >= "2023.2":
+            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+
+        return template

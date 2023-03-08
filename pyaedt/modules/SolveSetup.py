@@ -19,7 +19,6 @@ from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.general_methods import settings
 from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSweeps import SetupProps
 from pyaedt.modules.SolveSweeps import SweepHFSS
@@ -133,13 +132,7 @@ class CommonSetup(PropsManager, object):
     @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
-            v = settings.aedt_version[-4:].replace(".", "")
-            keys = [i for i in SetupKeys.SetupTemplates.keys() if str(i).endswith("_" + str(self.setuptype))]
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            if keys:
-                for key in keys:
-                    if v >= key.split("_")[0]:
-                        setup_template = SetupKeys.SetupTemplates[key]
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
             try:
@@ -663,13 +656,7 @@ class SetupCircuit(CommonSetup):
     def _init_props(self, isnewsetup=False):
         props = {}
         if isnewsetup:
-            v = settings.aedt_version[-4:].replace(".", "")
-            keys = [i for i in SetupKeys.SetupTemplates.keys() if str(i).endswith("_" + str(self.setuptype))]
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            if keys:
-                for key in keys:
-                    if v >= key.split("_")[0]:
-                        setup_template = SetupKeys.SetupTemplates[key]
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
             self.props = SetupProps(self, OrderedDict())
@@ -1196,13 +1183,7 @@ class Setup3DLayout(CommonSetup):
     @pyaedt_function_handler()
     def _init_props(self, isnewsetup=False):
         if isnewsetup:
-            v = settings.aedt_version[-4:].replace(".", "")
-            keys = [i for i in SetupKeys.SetupTemplates.keys() if str(i).endswith("_" + str(self.setuptype))]
-            setup_template = SetupKeys.SetupTemplates[self.setuptype]
-            if keys:
-                for key in keys:
-                    if v >= key.split("_")[0]:
-                        setup_template = SetupKeys.SetupTemplates[key]
+            setup_template = SetupKeys.get_setup_templates()[self.setuptype]
             self.props = SetupProps(self, setup_template)
         else:
             try:
