@@ -8,6 +8,7 @@ jupyterlab==3.6.1
 matplotlib==3.7.0
 nbsphinx==0.8.12
 numpydoc==1.5.0
+openpyxl==3.1.1
 osmnx
 pypandoc==1.11
 pytest-sphinx==0.5.0
@@ -23,3 +24,4 @@ sphinx-notfound-page==0.8.3
 sphinxcontrib-websupport==1.2.4
 SRTM.py
 utm
+

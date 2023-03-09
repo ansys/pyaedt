@@ -46,3 +46,6 @@ pyvista==0.38.3; python_version > '3.6'
 
 scikit-rf; python_version > '3.6'
 # License: BSD-3-Clause License
+
+openpyxl==3.1.1; python_version > '3.6'
+# License: MIT
