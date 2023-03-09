@@ -764,7 +764,10 @@ class TestClass(BasisTest, object):
             [0.025, -0.02],
             [0.025, 0.02],
         ]
-        assert self.edbapp.core_primitives.create_trace(points, "TOP")
+        trace = self.edbapp.core_primitives.create_trace(points, "TOP")
+        assert trace
+        assert isinstance(trace.get_center_line(), list)
+        assert isinstance(trace.get_center_line(True), list)
 
     def test_070_create_outline(self):
         assert self.edbapp.core_stackup.stackup_layers.add_outline_layer("Outline1")
@@ -2200,3 +2203,9 @@ class TestClass(BasisTest, object):
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 1e-12
             res.cap_value = 8e-12
             assert res.res_value == 12.5 and res.ind_value == 5e-9 and res.cap_value == 8e-12
+
+    def test_137_design_options(self):
+        self.edbapp.design_options.suppress_pads = False
+        assert not self.edbapp.design_options.suppress_pads
+        self.edbapp.design_options.antipads_always_on = True
+        assert self.edbapp.design_options.antipads_always_on

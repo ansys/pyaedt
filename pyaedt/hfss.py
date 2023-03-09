@@ -24,7 +24,7 @@ from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import FarFieldSetup
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.Boundary import NearFieldSetup
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Hfss(FieldAnalysis3D, object):

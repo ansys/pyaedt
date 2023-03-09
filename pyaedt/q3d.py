@@ -17,7 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators as go
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import Matrix
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 if not is_ironpython:
     try:
@@ -561,8 +561,8 @@ class QExtractor(FieldAnalysis3D, object):
                 variations = ",".join(variations_list)
 
         if setup_name is None:
-            setup_name = self.analysis_setup
-        elif setup_name != self.analysis_setup:
+            setup_name = self.active_setup
+        elif setup_name != self.active_setup:
             self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
@@ -899,8 +899,8 @@ class QExtractor(FieldAnalysis3D, object):
             return False
 
         if setup_name is None:
-            setup_name = self.analysis_setup
-        elif setup_name != self.analysis_setup:
+            setup_name = self.active_setup
+        elif setup_name != self.active_setup:
             self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup_name)
             return False
         if sweep is None:
@@ -2230,7 +2230,7 @@ class Q2d(QExtractor, object):
         if not os.path.exists(export_folder):
             os.makedirs(export_folder)
         if analyze:
-            self.analyze_all()
+            self.analyze()
         setups = self.oanalysis.GetSetups()
 
         for s in setups:

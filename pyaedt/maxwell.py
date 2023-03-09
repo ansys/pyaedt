@@ -17,7 +17,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.geometry_operators import GeometryOperators
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 
 class Maxwell(object):
@@ -1222,7 +1222,7 @@ class Maxwell(object):
         >>> oModule.ResetSetupToTimeZero
         """
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze_nominal()
+        self.analyze()
         return True
 
     @pyaedt_function_handler()

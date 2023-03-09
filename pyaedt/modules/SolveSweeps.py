@@ -9,64 +9,10 @@ import warnings
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
-from pyaedt.modules.SetupTemplates import ASSM
-from pyaedt.modules.SetupTemplates import BLDC
-from pyaedt.modules.SetupTemplates import CPSM
-from pyaedt.modules.SetupTemplates import Close
-from pyaedt.modules.SetupTemplates import DCM
-from pyaedt.modules.SetupTemplates import DFIG
-from pyaedt.modules.SetupTemplates import EddyCurrent
-from pyaedt.modules.SetupTemplates import ElectricTransient
-from pyaedt.modules.SetupTemplates import Electrostatic
-from pyaedt.modules.SetupTemplates import GRM
-from pyaedt.modules.SetupTemplates import HFSS3DLayout
-from pyaedt.modules.SetupTemplates import HFSSDrivenAuto
-from pyaedt.modules.SetupTemplates import HFSSDrivenDefault
-from pyaedt.modules.SetupTemplates import HFSSEigen
-from pyaedt.modules.SetupTemplates import HFSSSBR
-from pyaedt.modules.SetupTemplates import HFSSTransient
-from pyaedt.modules.SetupTemplates import HSPICE
-from pyaedt.modules.SetupTemplates import LNA3DLayout
-from pyaedt.modules.SetupTemplates import LSSM
-from pyaedt.modules.SetupTemplates import Magnetostatic
-from pyaedt.modules.SetupTemplates import Matrix
-from pyaedt.modules.SetupTemplates import MaxwellTransient
-from pyaedt.modules.SetupTemplates import MechModal
-from pyaedt.modules.SetupTemplates import MechStructural
-from pyaedt.modules.SetupTemplates import MechTerm
-from pyaedt.modules.SetupTemplates import NSSM
-from pyaedt.modules.SetupTemplates import NexximAMI
-from pyaedt.modules.SetupTemplates import NexximDC
-from pyaedt.modules.SetupTemplates import NexximHarmonicBalance1T
-from pyaedt.modules.SetupTemplates import NexximHarmonicBalanceNT
-from pyaedt.modules.SetupTemplates import NexximLNA
-from pyaedt.modules.SetupTemplates import NexximOscillator1T
-from pyaedt.modules.SetupTemplates import NexximOscillatorNT
-from pyaedt.modules.SetupTemplates import NexximOscillatorRSF
-from pyaedt.modules.SetupTemplates import NexximQuickEye
-from pyaedt.modules.SetupTemplates import NexximSystem
-from pyaedt.modules.SetupTemplates import NexximTVNoise
-from pyaedt.modules.SetupTemplates import NexximTransient
-from pyaedt.modules.SetupTemplates import NexximVerifEye
-from pyaedt.modules.SetupTemplates import Open
-from pyaedt.modules.SetupTemplates import PMDC
-from pyaedt.modules.SetupTemplates import SPIM
-from pyaedt.modules.SetupTemplates import SRM
-from pyaedt.modules.SetupTemplates import SiwaveAC3DLayout
-from pyaedt.modules.SetupTemplates import SiwaveDC3DLayout
-from pyaedt.modules.SetupTemplates import SteadyFlowOnly
-from pyaedt.modules.SetupTemplates import SteadyTemperatureAndFlow
-from pyaedt.modules.SetupTemplates import SteadyTemperatureOnly
 from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
 from pyaedt.modules.SetupTemplates import SweepSiwave
-from pyaedt.modules.SetupTemplates import TPIM
-from pyaedt.modules.SetupTemplates import TPSM
-from pyaedt.modules.SetupTemplates import TR
-from pyaedt.modules.SetupTemplates import TransientFlowOnly
-from pyaedt.modules.SetupTemplates import TransientTemperatureAndFlow
-from pyaedt.modules.SetupTemplates import TransientTemperatureOnly
-from pyaedt.modules.SetupTemplates import UNIM
+
 
 open3 = open
 if sys.version_info < (3, 0):
@@ -881,128 +827,6 @@ class SweepMatrix(object):
         return arg
 
 
-class SetupKeys(object):
-    """Provides setup keys."""
-
-    SetupTemplates = {
-        0: HFSSDrivenAuto,
-        1: HFSSDrivenDefault,
-        2: HFSSEigen,
-        3: HFSSTransient,
-        4: HFSSSBR,
-        5: MaxwellTransient,
-        6: Magnetostatic,
-        7: EddyCurrent,
-        8: Electrostatic,
-        9: Electrostatic,
-        10: ElectricTransient,
-        11: SteadyTemperatureAndFlow,
-        12: SteadyTemperatureOnly,
-        13: SteadyFlowOnly,
-        14: Matrix,
-        15: NexximLNA,
-        16: NexximDC,
-        17: NexximTransient,
-        18: NexximQuickEye,
-        19: NexximVerifEye,
-        20: NexximAMI,
-        21: NexximOscillatorRSF,
-        22: NexximOscillator1T,
-        23: NexximOscillatorNT,
-        24: NexximHarmonicBalance1T,
-        25: NexximHarmonicBalanceNT,
-        26: NexximSystem,
-        27: NexximTVNoise,
-        28: HSPICE,
-        29: HFSS3DLayout,
-        30: Open,
-        31: Close,
-        32: MechTerm,
-        33: MechModal,
-        34: GRM,
-        35: TR,
-        36: TransientTemperatureAndFlow,
-        37: TransientTemperatureOnly,
-        38: TransientFlowOnly,
-        39: MechStructural,
-        40: SiwaveDC3DLayout,
-        41: SiwaveAC3DLayout,
-        42: LNA3DLayout,
-        43: DFIG,
-        44: TPIM,
-        45: SPIM,
-        46: TPSM,
-        47: BLDC,
-        48: ASSM,
-        49: PMDC,
-        50: SRM,
-        51: LSSM,
-        52: UNIM,
-        53: DCM,
-        54: CPSM,
-        55: NSSM,
-    }
-
-    SetupNames = [  # TODO: HFSSDriven appears twice. Is this correct?
-        "HFSSDrivenAuto",
-        "HFSSDriven",
-        "HFSSEigen",
-        "HFSSTransient",
-        "HFSSDriven",
-        "Transient",
-        "Magnetostatic",
-        "EddyCurrent",
-        "Electrostatic",
-        "ElectroDCConduction",
-        "ElectroDCConduction",
-        "IcepakSteadyState",
-        "IcepakSteadyState",
-        "IcepakSteadyState",
-        "Matrix",
-        "NexximLNA",
-        "NexximDC",
-        "NexximTransient",
-        "NexximQuickEye",
-        "NexximVerifEye",
-        "NexximAMI",
-        "NexximOscillatorRSF",
-        "NexximOscillator1T",
-        "NexximOscillatorNT",
-        "NexximHarmonicBalance1T",
-        "NexximHarmonicBalanceNT",
-        "NexximSystem",
-        "NexximTVNoise",
-        "HSPICE",
-        "HFSS3DLayout",
-        "2DMatrix",
-        "2DMatrix",
-        "MechThermal",
-        "MechModal",
-        "GRM",
-        "TR",
-        "IcepakTransient",
-        "IcepakTransient",
-        "IcepakTransient",
-        "MechStructural",
-        "SiwaveDC3DLayout",
-        "SiwaveAC3DLayout",
-        "LNA3DLayout",
-        "GRM",  # DFIG
-        "TPIM",
-        "SPIM",
-        "SYNM",  # TPSM/SYNM
-        "BLDC",
-        "ASSM",
-        "PMDC",
-        "SRM",
-        "LSSM",
-        "UNIM",
-        "DCM",
-        "CPSM",
-        "NSSM",
-    ]
-
-
 class SetupProps(OrderedDict):
     """Provides internal parameters for the AEDT boundary component."""
 
@@ -1037,10 +861,15 @@ class SetupProps(OrderedDict):
         file_path : str
             File path for the JSON file.
         """
+        FILTER_KEYS = {"DataId", "SimSetupID", "ProdMajVerID", "ProjDesignSetup", "ProdMinVerID", "NumberOfProcessors"}
         if not file_path.endswith(".json"):
             file_path = file_path + ".json"
+        export_dict = {}
+        for k, v in self.items():
+            if k not in FILTER_KEYS:
+                export_dict[k] = v
         with open3(file_path, "w", encoding="utf-8") as f:
-            f.write(json.dumps(self, indent=4, ensure_ascii=False))
+            f.write(json.dumps(export_dict, indent=4, ensure_ascii=False))
         return True
 
     def _import_properties_from_json(self, file_path):
@@ -1055,10 +884,12 @@ class SetupProps(OrderedDict):
         def set_props(target, source):
             for k, v in source.items():
                 if k not in target:
-                    raise Exception("{} is not a valid property name.".format(k))
+                    self._pyaedt_setup._app.logger.warning("{} is not a valid property name.".format(k))
                 if not isinstance(v, dict):
                     target[k] = v
                 else:
+                    if k not in target:
+                        target[k] = {}
                     set_props(target[k], v)
 
         with open3(file_path, "r", encoding="utf-8") as f:

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from collections import OrderedDict
 import copy
 
@@ -619,6 +621,7 @@ HFSS3DLayout_AdvancedSettings = OrderedDict(
         "UseShellElements": False,
         "SVDHighCompression": False,
         "NumProcessors": 1,
+        "SolverType": "Direct Solver",  # 2022.2
         "UseHfssIterativeSolver": False,
         "UseHfssMUMPSSolver": True,
         "RelativeResidual": 1e-06,
@@ -640,6 +643,13 @@ HFSS3DLayout_AdvancedSettings = OrderedDict(
         "DesignType": "generic",
         "MeshingMethod": "Phi",
         "EnableDesignIntersectionCheck": True,
+        "UseAlternativeMeshMethodsAsFallBack": True,
+        "ModeOption": "General mode",  # 2022.2
+        "BroadbandFreqOption": "AutoMaxFreq",
+        "BroadbandMaxNumFreq": 5,
+        "SaveADP": True,
+        "UseAdvancedDCExtrap": False,
+        "PhiMesherDeltaZRatio": 100000,  # 2023.1
     }
 )
 HFSS3DLayout_CurveApproximation = OrderedDict(
@@ -1088,6 +1098,83 @@ HFSS3DLayout = OrderedDict(
         "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
     }
 )
+
+HFSS3DLayout_v231 = OrderedDict(
+    {
+        "Properties": HFSS3DLayout_Properties,
+        "CustomSetup": False,
+        "AutoSetup": False,
+        "SliderType": "Balanced",
+        "SolveSetupType": "HFSS",
+        "PercentRefinementPerPass": 30,
+        "MinNumberOfPasses": 1,
+        "MinNumberOfConvergedPasses": 1,
+        "UseDefaultLambda": True,
+        "UseMaxRefinement": False,
+        "MaxRefinement": 1000000,
+        "SaveAdaptiveCurrents": False,
+        "SaveLastAdaptiveRadFields": False,
+        "UseConvergenceMatrix": False,
+        "AllEntries": False,
+        "AllDiagEntries": False,
+        "AllOffDiagEntries": False,
+        "MagMinThreshold": 0.01,
+        "ProdMajVerID": -1,
+        "ProjDesignSetup": "",
+        "ProdMinVerID": -1,
+        "Refine": False,
+        "Frequency": "10GHz",
+        "LambdaRefine": True,
+        "MeshSizeFactor": 1.5,
+        "QualityRefine": True,
+        "MinAngle": "15deg",
+        "UniformityRefine": False,
+        "MaxRatio": 2,
+        "Smooth": False,
+        "SmoothingPasses": 5,
+        "UseEdgeMesh": False,
+        "UseEdgeMeshAbsLength": False,
+        "EdgeMeshRatio": 0.1,
+        "EdgeMeshAbsLength": "1000mm",
+        "LayerProjectThickness": "0meter",
+        "UseDefeature": True,
+        "UseDefeatureAbsLength": False,
+        "DefeatureRatio": 1e-06,
+        "DefeatureAbsLength": "0mm",
+        "InfArrayDimX": 0,
+        "InfArrayDimY": 0,
+        "InfArrayOrigX": 0,
+        "InfArrayOrigY": 0,
+        "InfArraySkew": 0,
+        "ViaNumSides": 6,
+        "ViaMaterial": "copper",
+        "Style25DVia": "Mesh",
+        "Replace3DTriangles": True,
+        "LayerSnapTol": "1e-05",
+        "ViaDensity": 0,
+        "HfssMesh": True,
+        "Q3dPostProc": False,
+        "UnitFactor": 1000,
+        "Verbose": False,
+        "NumberOfProcessors": 0,
+        "SmallVoidArea": -2e-09,
+        "RemoveFloatingGeometry": False,
+        "HealingOption": 1,
+        "InclBBoxOption": 1,
+        "ModelType": 0,
+        "ICModeAuto": 1,
+        "ICModeLength": "50nm",
+        "AuxBlock": OrderedDict({}),
+        "DoAdaptive": True,
+        "Color": ["R:=", 0, "G:=", 0, "B:=", 0],  # TODO: create something smart for color arrays: like a class
+        "AdvancedSettings": HFSS3DLayout_AdvancedSettings,
+        "CurveApproximation": HFSS3DLayout_CurveApproximation,
+        "Q3D_DCSettings": HFSS3DLayout_Q3D_DCSettings,
+        "AdaptiveSettings": HFSS3DLayout_AdaptiveSettings,
+        "Data": OrderedDict({}),
+        "MeshOps": OrderedDict({}),
+    }
+)
 """HFSS 3D Layout setup properties and default values."""
 
 HFSS3DLayout_SweepDataList = OrderedDict({})
@@ -1498,3 +1585,152 @@ SweepSiwave = OrderedDict(
         "HFSSRegionsParallelSimConfig": OrderedDict({}),
     }
 )
+
+list_modules = dir()
+
+
+class SetupKeys:
+    """Provides setup keys."""
+
+    SetupNames = [  # TODO: HFSSDriven appears twice. Is this correct?
+        "HFSSDrivenAuto",
+        "HFSSDriven",
+        "HFSSEigen",
+        "HFSSTransient",
+        "HFSSDriven",
+        "Transient",
+        "Magnetostatic",
+        "EddyCurrent",
+        "Electrostatic",
+        "ElectroDCConduction",
+        "ElectroDCConduction",
+        "IcepakSteadyState",
+        "IcepakSteadyState",
+        "IcepakSteadyState",
+        "Matrix",
+        "NexximLNA",
+        "NexximDC",
+        "NexximTransient",
+        "NexximQuickEye",
+        "NexximVerifEye",
+        "NexximAMI",
+        "NexximOscillatorRSF",
+        "NexximOscillator1T",
+        "NexximOscillatorNT",
+        "NexximHarmonicBalance1T",
+        "NexximHarmonicBalanceNT",
+        "NexximSystem",
+        "NexximTVNoise",
+        "HSPICE",
+        "HFSS3DLayout",
+        "2DMatrix",
+        "2DMatrix",
+        "MechThermal",
+        "MechModal",
+        "GRM",
+        "TR",
+        "IcepakTransient",
+        "IcepakTransient",
+        "IcepakTransient",
+        "MechStructural",
+        "SiwaveDC3DLayout",
+        "SiwaveAC3DLayout",
+        "LNA3DLayout",
+        "GRM",  # DFIG
+        "TPIM",
+        "SPIM",
+        "SYNM",  # TPSM/SYNM
+        "BLDC",
+        "ASSM",
+        "PMDC",
+        "SRM",
+        "LSSM",
+        "UNIM",
+        "DCM",
+        "CPSM",
+        "NSSM",
+    ]
+
+    SetupTemplates = {
+        0: HFSSDrivenAuto,
+        1: HFSSDrivenDefault,
+        2: HFSSEigen,
+        3: HFSSTransient,
+        4: HFSSSBR,
+        5: MaxwellTransient,
+        6: Magnetostatic,
+        7: EddyCurrent,
+        8: Electrostatic,
+        9: Electrostatic,
+        10: ElectricTransient,
+        11: SteadyTemperatureAndFlow,
+        12: SteadyTemperatureOnly,
+        13: SteadyFlowOnly,
+        14: Matrix,
+        15: NexximLNA,
+        16: NexximDC,
+        17: NexximTransient,
+        18: NexximQuickEye,
+        19: NexximVerifEye,
+        20: NexximAMI,
+        21: NexximOscillatorRSF,
+        22: NexximOscillator1T,
+        23: NexximOscillatorNT,
+        24: NexximHarmonicBalance1T,
+        25: NexximHarmonicBalanceNT,
+        26: NexximSystem,
+        27: NexximTVNoise,
+        28: HSPICE,
+        29: HFSS3DLayout,
+        30: Open,
+        31: Close,
+        32: MechTerm,
+        33: MechModal,
+        34: GRM,
+        35: TR,
+        36: TransientTemperatureAndFlow,
+        37: TransientTemperatureOnly,
+        38: TransientFlowOnly,
+        39: MechStructural,
+        40: SiwaveDC3DLayout,
+        41: SiwaveAC3DLayout,
+        42: LNA3DLayout,
+        43: DFIG,
+        44: TPIM,
+        45: SPIM,
+        46: TPSM,
+        47: BLDC,
+        48: ASSM,
+        49: PMDC,
+        50: SRM,
+        51: LSSM,
+        52: UNIM,
+        53: DCM,
+        54: CPSM,
+        55: NSSM,
+    }
+
+    SetupTemplates_231 = {
+        29: HFSS3DLayout_v231,
+    }
+    SetupTemplates_232 = {}
+
+    @staticmethod
+    def _add_to_template(template_in, template_to_append):
+        template_out = template_in.copy()
+        for k, v in template_to_append.items():
+            template_out[k] = v
+        return template_out
+
+    @staticmethod
+    def get_setup_templates():
+        from pyaedt.generic.general_methods import settings
+
+        template = SetupKeys.SetupTemplates
+        if settings.aedt_version is not None and settings.aedt_version >= "2023.1":
+            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+        elif settings.aedt_version is not None and settings.aedt_version >= "2023.2":
+            template = SetupKeys._add_to_template(SetupKeys.SetupTemplates, SetupKeys.SetupTemplates_231)
+            template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_232)
+
+        return template

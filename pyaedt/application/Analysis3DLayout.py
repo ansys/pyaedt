@@ -4,8 +4,8 @@ import warnings
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import Setup3DLayout
-from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class FieldAnalysis3DLayout(Analysis):
@@ -483,7 +483,7 @@ class FieldAnalysis3DLayout(Analysis):
             if setupname == setup.name:
                 return setup
         setup = Setup3DLayout(self, setuptype, setupname, isnewsetup=False)
-        self.analysis_setup = setupname
+        self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()

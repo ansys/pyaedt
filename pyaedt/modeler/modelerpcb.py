@@ -9,7 +9,6 @@ from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import get_filename_without_extension
 from pyaedt.generic.general_methods import inside_desktop
-from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.modeler.cad.Modeler import Modeler
@@ -92,7 +91,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             return self._edb
         if not self._edb:
             self._edb = None
-            if os.path.exists(self._edb_file) or (inside_desktop and is_ironpython):
+            if os.path.exists(self._edb_file) or inside_desktop:
                 self._edb = Edb(
                     self._edb_folder,
                     self._app.design_name,
@@ -101,7 +100,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                     isaedtowned=True,
                     oproject=self._app.oproject,
                 )
-        elif not (inside_desktop and is_ironpython):
+        elif not inside_desktop:
             if self._app.project_timestamp_changed:
                 if self._edb:
                     self._edb.close_edb()

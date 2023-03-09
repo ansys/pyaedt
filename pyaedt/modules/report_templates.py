@@ -1786,7 +1786,9 @@ class CommonReport(object):
         traces : list
             List of traces to add.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         variations : dict, optional
             Dictionary of variations. The default is ``None``.
         context : list, optional

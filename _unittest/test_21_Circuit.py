@@ -233,7 +233,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
-        assert self.aedtapp.analyze_nominal()
+        assert self.aedtapp.analyze("Dom_LNA")
         time.sleep(30)
         solution_name = "Dom_LNA"
         sweep_name = None
@@ -472,7 +472,7 @@ class TestClass(BasisTest, object):
 
         lna = self.aedtapp.create_setup("mylna", self.aedtapp.SETUPS.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
-        assert self.aedtapp.analyze_nominal()
+        assert self.aedtapp.analyze()
 
     def test_36_create_voltage_probe(self):
         myprobe = self.aedtapp.modeler.components.create_voltage_probe(probe_name="test_probe", location=[0.4, 0.2])
@@ -494,7 +494,7 @@ class TestClass(BasisTest, object):
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
 
         assert not self.aedtapp.browse_log_file()
-        self.aedtapp.analyze_nominal()
+        self.aedtapp.analyze()
         assert self.aedtapp.browse_log_file()
         self.aedtapp.save_project()
         assert self.aedtapp.browse_log_file()
@@ -745,6 +745,7 @@ class TestClass(BasisTest, object):
                     assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self):
+        self.aedtapp.set_active_design("CreateWireTest")
         assert self.aedtapp.modeler.wire.display_wire_properties(
             wire_name="wire_name_test", property_to_display="NetName", visibility="Value", location="Top"
         )
@@ -772,3 +773,23 @@ class TestClass(BasisTest, object):
         assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
         assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
+
+    def test_43_create_and_change_prop_text(self):
+        self.aedtapp.insert_design("text")
+        text = self.aedtapp.modeler.create_text("text test")
+        assert isinstance(text, str)
+        assert text in self.aedtapp.oeditor.GetAllGraphics()
+        assert not self.aedtapp.modeler.create_text("text test", "1000mil", "-2000mil")
+
+    @pytest.mark.skipif(config["NonGraphical"], reason="Change property doesn't work in non-graphical mode.")
+    def test_44_change_text_property(self):
+        self.aedtapp.set_active_design("text")
+        text_id = self.aedtapp.oeditor.GetAllGraphics()[0].split("@")[1]
+        assert self.aedtapp.modeler.change_text_property(text_id, "Font", "Calibri")
+        assert self.aedtapp.modeler.change_text_property(text_id, "DisplayRectangle", True)
+        assert self.aedtapp.modeler.change_text_property(text_id, "Color", [255, 120, 0])
+        assert not self.aedtapp.modeler.change_text_property(text_id, "Color", ["255", 120, 0])
+        assert self.aedtapp.modeler.change_text_property(text_id, "Location", ["-5000mil", "2000mil"])
+        assert self.aedtapp.modeler.change_text_property(text_id, "Location", [5000, 2000])
+        assert not self.aedtapp.modeler.change_text_property(1, "Color", [255, 120, 0])
+        assert not self.aedtapp.modeler.change_text_property(text_id, "Invalid", {})

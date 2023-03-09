@@ -138,7 +138,7 @@ q.post.create_report(expressions=data_plot_mutual, context="Original", plot_type
 # ~~~~~~~~~~~
 # Solve the setup.
 
-q.analyze_nominal()
+q.analyze()
 q.save_project()
 
 ###############################################################################

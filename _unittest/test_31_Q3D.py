@@ -250,7 +250,7 @@ class TestClass(BasisTest, object):
         q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3")
         q3d.matrices[3].name == "JointTest3"
         sweep = q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.analysis_setup)
+        q3d.analyze_setup(q3d.active_setup)
         assert len(sweep.frequencies) > 0
         assert sweep.basis_frequencies == []
         assert q3d.export_matrix_data(os.path.join(self.local_scratch.path, "test.txt"))
@@ -340,7 +340,7 @@ class TestClass(BasisTest, object):
         q3d = Q3d(self.test_matrix, specified_version=desktop_version)
         q3d.insert_reduced_matrix("JoinSeries", ["Source1", "Sink4"], "JointTest")
         q3d.matrices[1].name == "JointTest"
-        q3d.analyze_setup(q3d.analysis_setup)
+        q3d.analyze_setup(q3d.active_setup)
         assert q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
         assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
         assert q3d.export_equivalent_circuit(
@@ -399,7 +399,7 @@ class TestClass(BasisTest, object):
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.setups[0].add_sweep()
-        q3d.analyze_setup(q3d.analysis_setup)
+        q3d.analyze_setup(q3d.active_setup)
         exported_files = q3d.export_results()
         assert len(exported_files) > 0
         q3d.close_project(q3d.project_name, save_project=False)

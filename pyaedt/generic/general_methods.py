@@ -27,14 +27,7 @@ from pyaedt.generic.constants import CSS4_COLORS
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
 _pythonver = sys.version_info[0]
-inside_desktop = True
-try:
-    import ScriptEnv
-
-    ScriptEnv.Initialize("Ansoft.ElectronicsDesktop")
-except:
-    inside_desktop = False
-
+inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
 if not is_ironpython:
     import psutil

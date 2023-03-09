@@ -4483,6 +4483,11 @@ class GeometryModeler(Modeler, object):
         refresh_all_ids=True,
         import_materials=False,
         create_lightweigth_part=False,
+        group_by_assembly=False,
+        create_group=True,
+        separate_disjoints_lumped_object=False,
+        import_free_surfaces=False,
+        point_coicidence_tolerance=1e-6,
     ):
         """Import a CAD model.
 
@@ -4504,6 +4509,16 @@ class GeometryModeler(Modeler, object):
             Either to import material names from the file or not if presents.
         create_lightweigth_part : bool ,optional
             Either to import lightweight or not.
+        group_by_assembly : bool, optional
+            Either import by sub-assembly or individual parts. The default is ``False``.
+        create_group : bool, optional
+            Either to create a new group of imported objects. The default is ``True``.
+        separate_disjoints_lumped_object : bool, optional
+            Either to automatically separate disjoint parts. The default is ``False``.
+        import_free_surfaces : bool, optional
+            Either to import free surfaces parts. The default is ``False``.
+        point_coicidence_tolerance : float, optional
+            Tolerance on point. Default is ``1e-6``.
 
         Returns
         -------
@@ -4526,15 +4541,15 @@ class GeometryModeler(Modeler, object):
         vArg1.append("Options:="), vArg1.append("-1")
         vArg1.append("FileType:="), vArg1.append("UnRecognized")
         vArg1.append("MaxStitchTol:="), vArg1.append(-1)
-        vArg1.append("ImportFreeSurfaces:="), vArg1.append(False)
-        vArg1.append("GroupByAssembly:="), vArg1.append(False)
-        vArg1.append("CreateGroup:="), vArg1.append(True)
+        vArg1.append("ImportFreeSurfaces:="), vArg1.append(import_free_surfaces)
+        vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
+        vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
         vArg1.append("MergeFacesAngle:="), vArg1.append(-1)
-        vArg1.append("PointCoincidenceTol:="), vArg1.append(1e-06)
+        vArg1.append("PointCoincidenceTol:="), vArg1.append(point_coicidence_tolerance)
         vArg1.append("CreateLightweightPart:="), vArg1.append(create_lightweigth_part)
         vArg1.append("ImportMaterialNames:="), vArg1.append(import_materials)
-        vArg1.append("SeparateDisjointLumps:="), vArg1.append(False)
+        vArg1.append("SeparateDisjointLumps:="), vArg1.append(separate_disjoints_lumped_object)
         vArg1.append("SourceFile:="), vArg1.append(filename)
         self.oeditor.Import(vArg1)
         if refresh_all_ids:
