@@ -53,6 +53,7 @@ tests = [
     "scikit-learn==1.2.0",
     "SRTM.py",
     "utm",
+    "scikit-rf",
 ]
 doc = [
     "ansys-sphinx-theme==0.8.0",
@@ -81,6 +82,7 @@ doc = [
     "sphinxcontrib-websupport==1.2.4",
     "SRTM.py",
     "utm",
+    "scikit-rf",
 ]
 extras = [
     "matplotlib==3.5.3; python_version <= '3.7'",
