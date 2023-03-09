@@ -435,7 +435,7 @@ class Desktop(object):
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
-            if not new_desktop_session:
+            if not new_desktop_session:  # pragma: no cover
                 sessions = active_sessions(
                     version=version_key, student_version=student_version, non_graphical=non_graphical
                 )
@@ -691,7 +691,7 @@ class Desktop(object):
         student_version,
         version_key,
         aedt_process_id=None,
-    ):
+    ):  # pragma: no cover
         import pythoncom
 
         from pyaedt.generic.clr_module import _clr
@@ -807,7 +807,7 @@ class Desktop(object):
                             "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                         )
                 else:
-                    if os.name != "posix":
+                    if os.name != "posix":  # pragma: no cover
                         if com_active_sessions(
                             version=version, student_version=student_version, non_graphical=non_graphical
                         ):
