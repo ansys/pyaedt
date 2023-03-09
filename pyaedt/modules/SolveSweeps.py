@@ -13,7 +13,6 @@ from pyaedt.modules.SetupTemplates import Sweep3DLayout
 from pyaedt.modules.SetupTemplates import SweepHfss3D
 from pyaedt.modules.SetupTemplates import SweepSiwave
 
-
 open3 = open
 if sys.version_info < (3, 0):
     import io

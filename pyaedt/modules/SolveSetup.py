@@ -14,8 +14,6 @@ from random import randrange
 import time
 import warnings
 
-
-
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
