@@ -43,6 +43,7 @@ from pyaedt import __version__
 from pyaedt import pyaedt_function_handler
 from pyaedt import settings
 from pyaedt.generic.general_methods import _pythonver
+from pyaedt.generic.general_methods import active_sessions
 from pyaedt.generic.general_methods import com_active_sessions
 from pyaedt.generic.general_methods import grpc_active_sessions
 from pyaedt.generic.general_methods import inside_desktop
@@ -68,7 +69,7 @@ def _check_grpc_port(port, machine_name=""):
     s = socket.socket()
     try:
         if not machine_name:
-            machine_name = socket.getfqdn()
+            machine_name = "localhost"
         s.connect((machine_name, port))
     except socket.error:
         return False
@@ -434,6 +435,20 @@ class Desktop(object):
             if "oDesktop" in dir(self._main):
                 del self._main.oDesktop
             self._main.student_version, version_key, version = self._set_version(specified_version, student_version)
+            if not new_desktop_session:
+                sessions = active_sessions(
+                    version=version_key, student_version=student_version, non_graphical=non_graphical
+                )
+                if aedt_process_id:
+                    for session in sessions:
+                        if session[0] == aedt_process_id and session[1] != -1:
+                            self.port = session[1]
+                            settings.use_grpc_api = True
+                            break
+                        elif session[0] == aedt_process_id:
+                            settings.use_grpc_api = False
+                            break
+
             if version_key < "2022.2":
                 settings.use_grpc_api = False
             elif (
@@ -451,7 +466,9 @@ class Desktop(object):
                 self._init_ironpython(non_graphical, new_desktop_session, version)
             elif settings.use_grpc_api:
                 settings.use_grpc_api = True
-                self._init_cpython_new(non_graphical, new_desktop_session, version, self._main.student_version)
+                self._init_cpython_new(
+                    non_graphical, new_desktop_session, version, self._main.student_version, version_key
+                )
             elif _com == "pythonnet_v3":
                 self._logger.info("Launching PyAEDT outside AEDT with CPython and PythonNET.")
                 self._init_cpython(
@@ -718,9 +735,9 @@ class Desktop(object):
             self._dispatch_win32(version)
         elif version_key >= "2021.2":
             if student_version:
-                self.logger.info("{} Student version started with process ID {}.".format(version, proc[0]))
+                self.logger.info("AEDT {} Student version started with process ID {}.".format(version_key, proc[0]))
             else:
-                self.logger.info("{} Started with process ID {}.".format(version, proc[0]))
+                self.logger.info("AEDT {} Started with process ID {}.".format(version_key, proc[0]))
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()
@@ -739,7 +756,7 @@ class Desktop(object):
             )
             self._dispatch_win32(version)
 
-    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version):
+    def _init_cpython_new(self, non_graphical, new_aedt_session, version, student_version, version_key):
         base_path = self._main.sDesktopinstallDirectory
         sys.path.insert(0, base_path)
         sys.path.insert(0, os.path.join(base_path, "PythonFiles", "DesktopPlugin"))
@@ -784,12 +801,21 @@ class Desktop(object):
                 if sessions:
                     self.port = sessions[0]
                     if len(sessions):
-                        self.logger.info("Found active gRPC session on port %s", self.port)
+                        self.logger.info("Found active AEDT gRPC session on port %s", self.port)
                     else:
                         self.logger.warning(
                             "Multiple AEDT gRPC sessions are found. Setting the active session on port %s", self.port
                         )
                 else:
+                    if os.name != "posix":
+                        if com_active_sessions(
+                            version=version, student_version=student_version, non_graphical=non_graphical
+                        ):
+                            settings.use_grpc_api = False
+                            self.logger.info("No AEDT gRPC found. Found active COM Sessions.")
+                            return self._init_cpython(
+                                non_graphical, new_aedt_session, version, student_version, version_key
+                            )
                     self.port = _find_free_port()
                     self.logger.info("New AEDT session is starting on gRPC port %s", self.port)
         elif new_aedt_session and not _check_grpc_port(self.port, self.machine):
