@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
+
 dependencies = [
     "cffi == 1.15.0;platform_system=='Linux'",
     "pywin32 >= 303;platform_system=='Windows'",
