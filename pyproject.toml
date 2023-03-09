@@ -55,6 +55,7 @@ tests = [
     "SRTM.py",
     "utm",
     "scikit-rf",
+
 ]
 doc = [
     "ansys-sphinx-theme==0.8.0",
@@ -84,8 +85,9 @@ doc = [
     "SRTM.py",
     "utm",
     "scikit-rf",
+    "openpyxl==3.0.10",
 ]
-extras = [
+full = [
     "matplotlib==3.5.3; python_version <= '3.7'",
     "matplotlib==3.7.0; python_version > '3.7'",
     "numpy==1.21.6; python_version <= '3.7'",
@@ -97,6 +99,7 @@ extras = [
     "SRTM.py",
     "utm",
     "scikit-rf",
+    "openpyxl==3.0.10",
 ]
 
 
