@@ -862,12 +862,10 @@ class Primitives(object):
             "1mm"]``, or ``["x1", "y1", "z1"]``.
         segment_type : str or PolylineSegment or list, optional
             The default behavior is to connect all points as
-            ``"Line"`` segments. The default is ``None``. For a
-            string, ``"Line"`` or ``"Arc"`` is valid. For a
-            ``"PolylineSegment"``, for ``"Line",`` ``"Arc"``,
-            ``"Spline"``, or ``"AngularArc"``, a list of segment types
-            (str or
-            :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
+            ``"Line"`` segments. The default is ``None``.
+            Use a ``"PolylineSegment"``, for ``"Line"``, ``"Arc"``, ``"Spline"``,
+            or ``"AngularArc"``.
+            A list of segment types (str or :class:`pyaedt.modeler.Primitives.PolylineSegment`) is
             valid for a compound polyline.
         cover_surface : bool, optional
             The default is ``False``.

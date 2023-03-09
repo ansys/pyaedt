@@ -62,7 +62,7 @@ test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "
 P = prim3D.create_polyline(position_list=test_points[0:2], name="PL01_line")
 
 print("Created Polyline with name: {}".format(prim3D.objects[P.id].name))
-print("Segment types : {}".format(P._segment_types))
+print("Segment types : {}".format([s.type for s in P.segment_types]))
 print("primitive id = {}".format(P.id))
 
 ###############################################################################
