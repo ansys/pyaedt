@@ -56,7 +56,7 @@ cir = pyaedt.Circuit(projectname=os.path.join(project_path), non_graphical=non_g
 # ~~~~~~~~~~~~~~~
 # Solve the transient setup.
 
-cir.analyze_all()
+cir.analyze()
 
 ###############################################################################
 # Get AMI report

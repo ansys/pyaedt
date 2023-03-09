@@ -164,7 +164,7 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self):
-        self.aedtapp.analyze_nominal()
+        self.aedtapp.analyze(self.aedtapp.active_setup)
         trace_names = []
         portnames = ["1", "2"]
         for el in portnames:
@@ -337,7 +337,7 @@ class TestClass(BasisTest, object):
         new_report3.report_type = "Data Table"
         assert new_report3.create()
 
-        self.field_test.analyze_nominal()
+        self.field_test.analyze(self.field_test.active_setup)
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
@@ -420,7 +420,7 @@ class TestClass(BasisTest, object):
         assert len(files) > 0
         files = self.circuit_test.export_results()
         assert len(files) > 0
-        self.q2dtest.analyze_all()
+        self.q2dtest.analyze()
         files = self.q2dtest.export_results()
         assert len(files) > 0
         self.q3dtest.analyze_setup("Setup1")
@@ -852,7 +852,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython")
     def test_55_time_plot(self):
-        self.sbr_test.analyze_nominal(use_auto_settings=False)
+        self.sbr_test.analyze(self.sbr_test.active_setup, use_auto_settings=False)
         assert self.sbr_test.setups[0].is_solved
         solution_data = self.sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
@@ -891,7 +891,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation2.gif"))
 
     def test_56_test_export_q3d_results(self):
-        self.q3dtest.analyze_nominal()
+        self.q3dtest.analyze(self.q3dtest.active_setup)
         assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q3dtest.export_profile("Setup1"))
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
@@ -906,7 +906,7 @@ class TestClass(BasisTest, object):
         assert len(self.q3dtest.post.plots) == 6
 
     def test_57_test_export_q2d_results(self):
-        self.q2dtest.analyze_nominal()
+        self.q2dtest.analyze(self.q2dtest.active_setup)
         assert os.path.exists(self.q2dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q2dtest.export_profile("Setup1"))
         new_report = self.q2dtest.post.reports_by_category.standard(self.q2dtest.get_traces_for_plot())
@@ -960,7 +960,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
 
     def test_62_eye_diagram(self):
-        self.eye_test.analyze_nominal()
+        self.eye_test.analyze(self.eye_test.active_setup)
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -971,7 +971,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_63_mask(self):
-        self.eye_test.analyze_nominal()
+        self.eye_test.analyze(self.eye_test.active_setup)
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -990,7 +990,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_64_eye_meas(self):
-        self.eye_test.analyze_nominal()
+        self.eye_test.analyze(self.eye_test.active_setup)
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"

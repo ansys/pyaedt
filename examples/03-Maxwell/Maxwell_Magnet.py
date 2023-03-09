@@ -66,7 +66,7 @@ m3d.plot(show=False, export_path=os.path.join(m3d.working_directory, "Image.jpg"
 # ~~~~~~~~~~~
 # Solve the setup.
 
-m3d.analyze_nominal()
+m3d.analyze()
 
 ###############################################################################
 # Compute mass center

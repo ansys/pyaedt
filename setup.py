@@ -48,10 +48,10 @@ if sys.version_info.major == 3 and sys.version_info.minor > 7:
         "pythonnet>=3.0.1",
         "rpyc>=5.3.0",
         "pyvista>=0.34.1",
-        "numpy>=1.24.2",
+        "numpy>=1.21.6",
         "matplotlib>=3.7.0",
         "psutil",
-        "pandas>=1.5.3",
+        "pandas>=1.3.5",
         "scikit-rf",
         "dotnetcore2>=3.1.23;platform_system=='Linux'",
     ]

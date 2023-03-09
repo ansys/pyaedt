@@ -1,7 +1,7 @@
 from pyaedt.application.Analysis import Analysis
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.modules.SetupTemplates import SetupKeys
 from pyaedt.modules.SolveSetup import SetupCircuit
-from pyaedt.modules.SolveSweeps import SetupKeys
 
 
 class AnalysisTwinBuilder(Analysis):

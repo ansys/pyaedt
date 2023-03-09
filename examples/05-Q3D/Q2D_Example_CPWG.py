@@ -197,7 +197,7 @@ sweep.props["Type"] = "Interpolating"
 
 sweep.update()
 
-q.analyze_nominal()
+q.analyze()
 
 a = q.post.get_solution_data(expressions="Z0(signal,signal)", context="Original")
 a.plot()

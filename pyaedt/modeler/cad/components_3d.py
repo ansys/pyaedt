@@ -803,7 +803,7 @@ class UserDefinedComponent(object):
             import os
 
             if os.name == "posix":
-                design_name = project.GetDesign()[0].GetName()
+                design_name = project.GetDesigns()[0].GetName()
             else:
                 design_name = project.GetActiveDesign().GetName()
             return get_pyaedt_app(project_name, design_name)

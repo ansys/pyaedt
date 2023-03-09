@@ -29,6 +29,9 @@ else:
     q3d_file = "via_gsg_t42"
     test_project_name = "dm boundary test"
 diff_proj_name = "test_42"
+hfss3dl_existing_setup_proj_name = "existing_hfss3dl_setup_v{}{}".format(
+    config["desktopVersion"][-4:-2], config["desktopVersion"][-1:]
+)
 
 
 class TestClass(BasisTest, object):
@@ -40,8 +43,11 @@ class TestClass(BasisTest, object):
         self.q2dtest = Q2d(projectname=q3d_file)
         self.icepak_a = BasisTest.add_app(self, project_name=ipk_name + "_a", application=Icepak)
         self.icepak_b = BasisTest.add_app(self, project_name=ipk_name + "_b", application=Icepak)
-        self.hfss3dl = BasisTest.add_app(
+        self.hfss3dl_a = BasisTest.add_app(
             self, project_name=diff_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
+        )
+        self.hfss3dl_b = BasisTest.add_app(
+            self, project_name=hfss3dl_existing_setup_proj_name, application=Hfss3dLayout, subfolder=test_subfolder
         )
 
     def teardown_class(self):
@@ -249,10 +255,18 @@ class TestClass(BasisTest, object):
         assert app.configurations.results.global_import_success
         app.close_project(save_project=False)
 
-    def test_05_hfss3dlayout_setup(self):
-        setup2 = self.hfss3dl.create_setup("My_HFSS_Setup_2")
+    def test_05a_hfss3dlayout_setup(self):
+        setup2 = self.hfss3dl_a.create_setup("My_HFSS_Setup_2")
         export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
         assert setup2.export_to_json(export_path)
         assert setup2.props["ViaNumSides"] == 6
         assert setup2.import_from_json(os.path.join(local_path, "example_models", test_subfolder, "hfss3dl_setup.json"))
         assert setup2.props["ViaNumSides"] == 12
+
+    def test_05b_hfss3dlayout_existing_setup(self):
+        setup2 = self.hfss3dl_b.get_setup("My_HFSS_Setup_2")
+        export_path = os.path.join(self.local_scratch.path, "export_setup_properties.json")
+        assert setup2.export_to_json(export_path)
+        setup3 = self.hfss3dl_b.create_setup("My_HFSS_Setup_3")
+        assert setup3.import_from_json(export_path)
+        assert setup3.update()

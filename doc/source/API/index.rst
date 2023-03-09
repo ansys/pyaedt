@@ -1,6 +1,6 @@
-==================
-API AEDT reference
-==================
+========
+AEDT API
+========
 
 This section describes PyAEDT core classes, methods, and functions
 for AEDT apps and modules. Use the search feature or click links

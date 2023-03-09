@@ -127,7 +127,7 @@ class TestClass(BasisTest, object):
         q2d.matrices[2].name == "Test2"
         q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3")
         q2d.matrices[3].name == "Test3"
-        q2d.analyze_setup(q2d.analysis_setup)
+        q2d.analyze_setup(q2d.active_setup)
         q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"))
         assert q2d.export_matrix_data(os.path.join(self.local_scratch.path, "test_2d.txt"), problem_type="CG")
         assert q2d.export_matrix_data(
@@ -267,7 +267,7 @@ class TestClass(BasisTest, object):
 
     def test_16_export_results_q2d(self):
         q2d = Q2d(self.test_matrix, specified_version=desktop_version)
-        exported_files = q2d.export_results()
+        exported_files = q2d.export_results(analyze=True)
         assert len(exported_files) > 0
         self.aedtapp.close_project(q2d.project_name, save_project=False)
 
