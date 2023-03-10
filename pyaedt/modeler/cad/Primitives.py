@@ -1480,7 +1480,7 @@ class Primitives(object):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def get_objects_by_material(self, materialname):
+    def get_objects_by_material(self, materialname=None):
         """Retrieve a list of the IDs for objects of a specified material.
 
         Parameters
@@ -1499,7 +1499,15 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
+        if materialname:
+            obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
+        else:
+            obj_lst = [
+                self._get_object_dict_by_material(self.materials.conductors),
+                self._get_object_dict_by_material(self.materials.dielectrics),
+                self._get_object_dict_by_material(self.materials.gases),
+                self._get_object_dict_by_material(self.materials.liquids),
+            ]
         return obj_lst
 
     @pyaedt_function_handler()
@@ -3110,6 +3118,14 @@ class Primitives(object):
                 self.logger.info("Native component properties were not retrieved from the AEDT file.")
 
         return native_comp_properties
+
+    @pyaedt_function_handler
+    def _get_object_dict_by_material(self, material_type):
+        obj_lst = {}
+        for cond in material_type:
+            obj = [x for x in self.object_list if x.material_name == cond]
+            obj_lst[cond] = obj
+        return obj_lst
 
     @pyaedt_function_handler()
     def __getitem__(self, partId):

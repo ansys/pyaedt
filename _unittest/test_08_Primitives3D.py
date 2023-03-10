@@ -454,6 +454,9 @@ class TestClass(BasisTest, object):
         assert len(listsobj) > 0
         listsobj = self.aedtapp.modeler.get_objects_by_material("FR4")
         assert len(listsobj) == 0
+        listsobj = self.aedtapp.modeler.get_objects_by_material()
+        assert set(self.aedtapp.materials.conductors).issubset([mat for sublist in listsobj for mat in sublist])
+        assert set(self.aedtapp.materials.dielectrics).issubset([mat for sublist in listsobj for mat in sublist])
 
     def test_28_get_object_faces(self):
         self.create_rectangle()
