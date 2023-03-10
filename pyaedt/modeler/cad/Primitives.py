@@ -1504,7 +1504,7 @@ class Primitives(object):
 
         """
         if materialname:
-            obj_lst = obj = [x for x in self.object_list if x.material_name == materialname]
+            obj_lst = [x for x in self.object_list if x.material_name == materialname]
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),
