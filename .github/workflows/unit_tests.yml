@@ -86,9 +86,8 @@ jobs:
       - name: 'Build and validate source distribution'
         run: |
           testenv\Scripts\Activate.ps1
-          python setup.py sdist
-          python -m pip install twine
-          python -m twine check dist/*
+          python -m pip install build twine
+          python -m build && python -m twine check dist/*
 
       - name: "Builds and uploads to PyPI"
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
