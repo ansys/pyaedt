@@ -1531,33 +1531,37 @@ class TestClass(BasisTest, object):
         assert isinstance(port_ver.horizontal_extent_factor, float)
         assert isinstance(port_ver.vertical_extent_factor, float)
         assert port_ver.pec_launch_width
-        p = edb.core_primitives.create_trace(
-            path_list=[["-40mm", "-10mm"], ["-30mm", "-10mm"]],
-            layer_name="TOP",
-            net_name="SIGP",
-            width="0.1mm",
-            start_cap_style="Flat",
-            end_cap_style="Flat",
-        )
+        args = {
+            "layer_name": "TOP",
+            "net_name": "SIGP",
+            "width": "0.1mm",
+            "start_cap_style": "Flat",
+            "end_cap_style": "Flat",
+        }
+        traces = []
+        trace_pathes = [
+            [["-40mm", "-10mm"], ["-30mm", "-10mm"]],
+            [["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
+            [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
+        ]
+        for p in trace_pathes:
+            t = edb.core_primitives.create_trace(path_list=p, **args)
+            traces.append(t)
 
-        n = edb.core_primitives.create_trace(
-            path_list=[["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
-            layer_name="TOP",
-            net_name="SIGN",
-            width="0.1mm",
-            start_cap_style="Flat",
-            end_cap_style="Flat",
-        )
-        assert edb.core_hfss.create_wave_port(p.id, ["-30mm", "-10mm"], "p_port")
+        assert edb.core_hfss.create_wave_port(traces[0].id, trace_pathes[0][0], "wave_port")
 
         assert edb.core_hfss.create_differential_wave_port(
-            p.id,
-            ["-40mm", "-10mm"],
-            n.id,
-            ["-40mm", "-10.2mm"],
+            traces[0].id,
+            trace_pathes[0][0],
+            traces[1].id,
+            trace_pathes[1][0],
             horizontal_extent_factor=8,
         )
         assert not edb.are_port_reference_terminals_connected()
+
+        traces_id = [i.id for i in traces]
+        pathes = [i[1] for i in trace_pathes]
+        assert edb.core_hfss.create_bundle_wave_port(traces_id, pathes)
         edb.close_edb()
 
     def test_121_insert_layer(self):
