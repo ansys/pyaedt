@@ -1481,17 +1481,23 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def get_objects_by_material(self, materialname=None):
-        """Retrieve a list of the IDs for objects of a specified material.
+        """Retrieve a list of objects of a specified material
+        or retrieve a list of objects classified by material.
 
         Parameters
         ----------
         materialname : str
             Name of the material.
+            Default value is ``None``.
 
         Returns
         -------
         list
-            List of IDs for objects of the specified material.
+            If material name is not provided the method returns
+            a list of dictionaries where keys are the material names
+            and values are objects assigned to that material.
+            If material is provided it returns a list of objects
+            assigned to that material.
 
         References
         ----------
@@ -1500,7 +1506,7 @@ class Primitives(object):
 
         """
         if materialname:
-            obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
+            obj_lst = obj = [x for x in self.object_list if x.material_name == materialname]
         else:
             obj_lst = [
                 self._get_object_dict_by_material(self.materials.conductors),
