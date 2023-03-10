@@ -49,7 +49,7 @@ and method structures simplify operation for the end user while reusing informat
 as much as possible across the API.
 
 Install on CPython from PyPI
----------------
+----------------------------
 You can install PyAEDT on CPython 3.7 through 3.10 from PyPI:
 
 .. code:: python
@@ -68,6 +68,7 @@ You can also install PyAEDT from Conda-Forge:
 
     conda install -c conda-forge pyaedt
 
+PyAEDT is still compatible with Ironpython and can be still used in AEDT Framework.
 
 About PyAnsys
 -------------
