@@ -1487,8 +1487,7 @@ class Primitives(object):
         Parameters
         ----------
         materialname : str
-            Name of the material.
-            Default value is ``None``.
+            Name of the material. The default is ``None``.
 
         Returns
         -------
