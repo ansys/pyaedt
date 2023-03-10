@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 * * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 
@@ -11,7 +12,10 @@ interactive Python session.
 import os
 import random
 import string
-import subprocess
+if os.name == "posix":
+    import subprocessdotnet as subprocess
+else:
+    import subprocess
 
 
 def generate_unique_name(rootname, suffix="", n=6):
@@ -39,5 +43,9 @@ with open(template, "r") as source:
                 "AEDTVERSION", oDesktop.GetVersion()[:6]
             )
             t.write(line)
-command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
+if os.name == "posix":
+    command = ["{}".format(jupyter_exe), "lab", "{}".format(target)]
+else:
+    command = ['"{}"'.format(jupyter_exe), "lab", '"{}"'.format(target)]
+
 subprocess.Popen(" ".join(command))
