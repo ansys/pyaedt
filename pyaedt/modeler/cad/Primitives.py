@@ -1492,11 +1492,11 @@ class Primitives(object):
         Returns
         -------
         list
-            If material name is not provided the method returns
+            If a material name is not provided, the method returns
             a list of dictionaries where keys are the material names
-            and values are objects assigned to that material.
-            If material is provided it returns a list of objects
-            assigned to that material.
+            and values are objects assigned to this material.
+            If a material name is provided, the method returns a list
+            of objects assigned to this material.
 
         References
         ----------
