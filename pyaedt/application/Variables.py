@@ -709,9 +709,13 @@ class VariableManager(object):
                         is_number_flag = is_number(value._calculated_value)
                         if not is_number_flag:
                             self._dependent_variables[variable_name] = value
+
         vars = self._independent_variables.copy()
-        for k, v in self._dependent_variables.items():
-            vars[k] = v
+        if dependent and not independent:
+            vars = {}
+            for k, v in self._dependent_variables.items():
+                vars[k] = v
+
         return vars
 
     @pyaedt_function_handler()

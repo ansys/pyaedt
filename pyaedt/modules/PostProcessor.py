@@ -7,23 +7,23 @@ This module provides all functionalities for creating and editing plots in the 3
 from __future__ import absolute_import  # noreorder
 
 import ast
+from collections import OrderedDict
 import os
 import random
 import string
 import warnings
-from collections import OrderedDict
 
-import pyaedt.modules.report_templates as rt
 from pyaedt import is_ironpython
 from pyaedt import settings
 from pyaedt.application.Variables import decompose_variable_value
-from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.DataHandlers import json_to_dict
+from pyaedt.generic.constants import unit_converter
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
+import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
 

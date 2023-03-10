@@ -1,6 +1,7 @@
 import math
 
 from _unittest.conftest import BasisTest
+
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.constants import PLANE
 from pyaedt.generic.constants import SWEEPDRAFT

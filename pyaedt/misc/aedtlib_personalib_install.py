@@ -2,8 +2,8 @@ import os
 import shutil
 import sys
 import warnings
-import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
+import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
 current_dir = os.path.dirname(os.path.realpath(__file__))

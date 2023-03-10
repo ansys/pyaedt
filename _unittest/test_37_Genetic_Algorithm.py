@@ -1,9 +1,9 @@
 import random
 import time
 
+from _unittest.conftest import BasisTest
 import numpy as np
 
-from _unittest.conftest import BasisTest
 from pyaedt.generic.python_optimizers import GeneticAlgorithm as ga
 
 # Setup paths for module imports

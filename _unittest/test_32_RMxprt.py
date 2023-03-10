@@ -1,6 +1,7 @@
 import os
 
 from _unittest.conftest import BasisTest
+
 from pyaedt import Rmxprt
 
 test_project_name = "motor"

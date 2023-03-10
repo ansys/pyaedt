@@ -6,6 +6,7 @@ from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
+
 from pyaedt import Hfss3dLayout
 
 try:
