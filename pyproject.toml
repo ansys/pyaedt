@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 
 [project]
@@ -101,7 +101,8 @@ full = [
     "openpyxl==3.0.10",
 ]
 
-
+[tool.flit.module]
+name = "pyaedt"
 
 [project.urls]
 "Bug Tracker" = "https://github.com/pyansys/pyaedt/issues"
