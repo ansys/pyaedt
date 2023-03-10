@@ -69,7 +69,7 @@ def _check_grpc_port(port, machine_name=""):
     s = socket.socket()
     try:
         if not machine_name:
-            machine_name = "localhost"
+            machine_name = "127.0.0.1"
         s.connect((machine_name, port))
     except socket.error:
         return False
@@ -83,7 +83,7 @@ def _find_free_port(port_start=40001, port_end=55000):
     s = socket.socket()
     for port in list_ports:
         try:
-            s.connect(("localhost", port))
+            s.connect(("127.0.0.1", port))
         except socket.error:
             return port
         else:
@@ -112,6 +112,12 @@ def exception_to_desktop(ex_value, tb_data):  # pragma: no cover
 
 
 def _delete_objects():
+    settings._non_graphical = False
+    settings._aedt_version = None
+    settings.remote_api = False
+    settings._use_grpc_api = None
+    settings.machine = ""
+    settings.port = 0
     module = sys.modules["__main__"]
     try:
         del module.COMUtil
