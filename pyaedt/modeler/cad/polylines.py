@@ -986,7 +986,7 @@ class Polyline(Object3d):
             elif s.type == "Arc":
                 n_points += 2
             elif s.type == "AngularArc":
-                n_points += 0
+                n_points += 2
             elif s.type == "Spline":
                 n_points += s.num_points - 1
             if n_points == pn and not at_start:
@@ -1042,8 +1042,12 @@ class Polyline(Object3d):
                 num_points = segment.num_points
             elif isinstance(segment, PolylineSegment):
                 num_points = segment.num_points
+                if segment.type == "AngularArc":
+                    self._evaluate_arc_angle_extra_points(segment, start_point=position_list[0])
             else:
                 raise AttributeError('segment must be either "Line", "Arc" or PolylineSegment object')
+            if len(position_list) < num_points:
+                raise AttributeError("position_list must contain enough points for the specified segment type.")
 
         # Check whether start-point and end-point of the segment is in the existing polylines points
         start_point = position_list[0]
@@ -1055,9 +1059,8 @@ class Polyline(Object3d):
             end_point = []
 
         segment_id = 1
-        segment_index = 0
         at_start = None
-        insert_position = None
+        p_insert_position = None
         insert_points = None
         num_polyline_points = len(self.points)
         i = None
@@ -1074,16 +1077,14 @@ class Polyline(Object3d):
                 #     if segment_id > 0:
                 #         segment_id -= 1
                 at_start = True
-                segment_index = i
-                insert_position = i
-                insert_points = position_list[:-1]  # All points but last one.
+                p_insert_position = i
+                insert_points = position_list[: num_points - 1]  # All points but last one.
                 if i == num_polyline_points - 1:
                     if segment.type != "Line":
                         # Inserting a segment in this position is not allowed in AEDT.
                         # We can make it work only for "Line" segments.
                         return False
                     at_start = False
-                    segment_index = i - 2
                     position_list = [self.points[-2], start_point]
 
                 # if i == 0:
@@ -1098,17 +1099,19 @@ class Polyline(Object3d):
                 )
                 < 1e-8
             ):
+                # note that AngularArc can only be here
                 at_start = False
-                segment_index = i - 1
-                insert_position = i + 1
-                insert_points = position_list[1:]  # All points but first one. Empty if position_list has only one point
+                p_insert_position = i + 1
+                if segment.type != "AngularArc":
+                    insert_points = position_list[1:num_points]  # Insert all points but first one
+                else:
+                    insert_points = segment.extra_points[:]  # For AngularArc insert the extra points
                 if i == 0:
                     if segment.type != "Line":
                         # Inserting a segment in this position is not allowed in AEDT.
-                        # We can make it work only for "Line" segments.
+                        # PyAEDT can make it work only for "Line" segments.
                         return False
                     at_start = True
-                    segment_index = 1
                     position_list = [end_point, self.points[1]]
 
                 # if segment_index > 0:
@@ -1129,13 +1132,19 @@ class Polyline(Object3d):
         #             break
         # segment_index -= id_v
 
-        if i is None:
-            return False
-        segment_index_2 = self._get_segment_id_from_point_n(i, at_start=at_start)
-        assert segment_index_2 == segment_index
+        assert p_insert_position is not None, "Point for the insert is not found."
+        assert insert_points is not None, "Point for the insert is not found."
 
-        assert segment_index < num_polyline_points, "Vertex for the insert is not found."
-        assert segment_id is not None, "Vertex for the insert is not found."
+        if i is None:
+            raise ValueError("The polyline contains no points. It is impossible to insert a segment.")
+        segment_index = self._get_segment_id_from_point_n(i, at_start=at_start)
+
+        assert isinstance(segment_index, int), "Segment for the insert is not found."
+        if at_start:
+            s_insert_position = segment_index
+        else:
+            s_insert_position = segment_index + 1
+
         type = segment.type
 
         varg1 = ["NAME:Insert Polyline Segment"]
@@ -1164,27 +1173,47 @@ class Polyline(Object3d):
             varg1 += seg_str[9:]
         self._primitives.oeditor.InsertPolylineSegment(varg1)
 
-        if segment.type == "Spline":
-            varg1 = ["NAME:AllTabs"]
-            varg2 = ["NAME:Geometry3DPolylineTab"]
+        # check if the polyline has been modified correctly
+        if self._check_polyline_health() is False:
+            raise AttributeError("Adding the segment result in an unclassified object. Undoing operation.")
 
-            varg3 = ["NAME:PropServers"]
-            varg3.append(self._m_name + ":CreatePolyline:1" + ":Segment" + str(segment_id))
-            varg2.append(varg3)
+        # if segment.type == "Spline":
+        #     varg1 = ["NAME:AllTabs"]
+        #     varg2 = ["NAME:Geometry3DPolylineTab"]
+        #
+        #     varg3 = ["NAME:PropServers"]
+        #     varg3.append(self._m_name + ":CreatePolyline:1" + ":Segment" + str(segment_id))
+        #     varg2.append(varg3)
+        #
+        #     varg4 = ["NAME:ChangedProps"]
+        #     varg5 = ["NAME:Number of Segments"]
+        #     varg5.append("Value:=")
+        #     varg5.append(str(segment_number))
+        #
+        #     varg4.append(varg5)
+        #     varg2.append(varg4)
+        #     varg1.append(varg2)
+        #
+        #     self._primitives.oeditor.ChangeProperty(varg1)
 
-            varg4 = ["NAME:ChangedProps"]
-            varg5 = ["NAME:Number of Segments"]
-            varg5.append("Value:=")
-            varg5.append(str(segment_number))
+        # check if the polyline has been modified correctly
+        if self._check_polyline_health() is False:
+            raise AttributeError("Adding the segment result in an unclassified object. Undoing operation.")
 
-            varg4.append(varg5)
-            varg2.append(varg4)
-            varg1.append(varg2)
+        # add the points and the segment to the object
+        self._positions[p_insert_position:p_insert_position] = insert_points
+        self._segment_types[s_insert_position:s_insert_position] = [segment]
 
-            self._primitives.oeditor.ChangeProperty(varg1)
+        return True
 
-        # add the points to the object
-        if insert_position and insert_points:
-            self._positions[insert_position:insert_position] = insert_points
-
+    @pyaedt_function_handler()
+    def _check_polyline_health(self):
+        # force re-evaluation of object_type
+        self._object_type = None
+        if self.object_type == "Unclassified":
+            # Undo operation
+            self._primitives._app.odesign.Undo()
+            self._object_type = None
+            assert self.object_type != "Unclassified", "Undo operation failed."
+            return False
         return True
