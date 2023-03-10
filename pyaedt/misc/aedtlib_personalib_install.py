@@ -12,9 +12,13 @@ pyaedt_path = os.path.join(
     "..",
 )
 sys.path.append(os.path.join(pyaedt_path, ".."))
-
+student_version = False
 if len(sys.argv) < 2:
     version = "2022.2"
+elif sys.argv[1].endswith("sv"):
+    v = sys.argv[1][:-2]
+    version = "20" + v[-3:-1] + "." + v[-1:]
+    student_version = True
 else:
     v = sys.argv[1]
     version = "20" + v[-3:-1] + "." + v[-1:]
@@ -28,7 +32,7 @@ pid = 0
 def main():
     from pyaedt import Desktop
 
-    with Desktop(version, True, new_desktop_session=True) as d:
+    with Desktop(version, True, new_desktop_session=True, student_version=student_version) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
@@ -38,18 +42,19 @@ def main():
             os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
 
         toolkits = [
-            "2DExtractor",
-            "CircuitDesign",
-            "Emit",
-            "HFSS",
-            "HFSS-IE",
-            "HFSS3DLayoutDesign",
-            "Icepak",
-            "Maxwell2D",
-            "Maxwell3D",
-            "Q3DExtractor",
-            "TwinBuilder",
-            "Mechanical",
+            "Project",
+            # "2DExtractor",
+            # "CircuitDesign",
+            # "Emit",
+            # "HFSS",
+            # "HFSS-IE",
+            # "HFSS3DLayoutDesign",
+            # "Icepak",
+            # "Maxwell2D",
+            # "Maxwell3D",
+            # "Q3DExtractor",
+            # "TwinBuilder",
+            # "Mechanical",
         ]
 
         for product in toolkits:
