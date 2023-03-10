@@ -83,7 +83,7 @@ def _find_free_port(port_start=40001, port_end=55000):
     s = socket.socket()
     for port in list_ports:
         try:
-            s.connect((socket.getfqdn(), port))
+            s.connect(("localhost", port))
         except socket.error:
             return port
         else:
