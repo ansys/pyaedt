@@ -1097,12 +1097,15 @@ class Design(AedtObjects):
         """
 
         if not file_path:
-            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
+            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation_string:
             val_str = []
             for el, val in self.available_variations.nominal_w_values_dict.items():
                 val_str.append("{}={}".format(el, val))
-            variation_string = ",".join(val_str)
+            if self.design_type == "HFSS 3D Layout Design":
+                variation_string = " ".join(val_str)
+            else:
+                variation_string = ",".join(val_str)
         if self.design_type == "2D Extractor":
             for setup in self.setups:
                 if setup.name == setup_name:
