@@ -2,7 +2,7 @@ codecov==2.1.12
 ipython
 joblib==1.2.0
 matplotlib==3.5.3; python_version < '3.8'
-matplotlib==3.7.0; python_version > '3.7'
+matplotlib==3.7.1; python_version > '3.7'
 numpy==1.21.6; python_version <= '3.7'
 numpy==1.24.2; python_version > '3.7'
 openpyxl==3.1.1

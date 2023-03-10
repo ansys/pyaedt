@@ -26,7 +26,7 @@ rpyc==5.3.1; python_version > '3.6'
 # #############################################################################
 
 matplotlib==3.5.3; python_version < '3.8'
-matplotlib==3.7.0; python_version > '3.7'
+matplotlib==3.7.1; python_version > '3.7'
 # License: https://github.com/matplotlib/matplotlib/blob/master/LICENSE/LICENSE
 # License: PSF
 
