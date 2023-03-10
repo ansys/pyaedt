@@ -3127,11 +3127,11 @@ class Primitives(object):
 
     @pyaedt_function_handler
     def _get_object_dict_by_material(self, material_type):
-        obj_lst = {}
+        obj_dict = {}
         for cond in material_type:
             obj = [x for x in self.object_list if x.material_name == cond]
-            obj_lst[cond] = obj
-        return obj_lst
+            obj_dict[cond] = obj
+        return obj_dict
 
     @pyaedt_function_handler()
     def __getitem__(self, partId):
