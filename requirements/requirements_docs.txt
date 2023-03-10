@@ -14,7 +14,7 @@ pypandoc==1.11
 pytest-sphinx==0.5.0
 pyvista==0.38.3
 recommonmark==0.7.1
-scikit-learn==1.2.1
+scikit-learn==1.2.2
 Sphinx==5.3.0
 sphinx-autobuild==2021.3.14
 sphinx-autodoc-typehints==1.22
