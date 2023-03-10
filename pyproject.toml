@@ -132,9 +132,4 @@ testpaths = [
 ]
 
 
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-where = ["pyaedt"]  # ["."] by default
 
