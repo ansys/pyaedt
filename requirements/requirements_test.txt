@@ -14,6 +14,6 @@ pytest-cov==4.0.0
 pytest-xdist==3.2.0
 pyvista==0.38.3
 scikit-learn==1.0.2; python_version <= '3.7'
-scikit-learn==1.2.1; python_version > '3.7'
+scikit-learn==1.2.2; python_version > '3.7'
 SRTM.py
 utm
