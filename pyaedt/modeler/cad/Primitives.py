@@ -1481,8 +1481,7 @@ class Primitives(object):
 
     @pyaedt_function_handler()
     def get_objects_by_material(self, materialname=None):
-        """Retrieve a list of objects of a specified material
-        or retrieve a list of objects classified by material.
+        """Retrieve a list of objects either of a specified material or classified by material.
 
         Parameters
         ----------
