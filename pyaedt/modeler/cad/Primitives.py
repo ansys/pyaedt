@@ -3,13 +3,13 @@ This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import copy
 import math
 import os
 import random
 import string
 import time
-from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value

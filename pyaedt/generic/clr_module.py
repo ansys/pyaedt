@@ -38,7 +38,7 @@ if os.name == "posix" and cpython:  # pragma: no cover
 
 try:  # work around a number formatting bug in the EDB API for non-English locales
     # described in #1980
-    import clr as _clr
+    import clr as _clr  # isort:skip
     from System.Globalization import CultureInfo as _CultureInfo
 
     _CultureInfo.DefaultThreadCurrentCulture = _CultureInfo.InvariantCulture

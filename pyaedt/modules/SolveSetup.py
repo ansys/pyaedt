@@ -7,15 +7,15 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import logging
 import os.path
+from random import randrange
 import time
 import warnings
-from collections import OrderedDict
-from random import randrange
 
-from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
