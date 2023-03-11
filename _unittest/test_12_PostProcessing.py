@@ -5,8 +5,10 @@ import uuid
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
+
 from pyaedt import Circuit
 from pyaedt import Hfss
+from pyaedt import Maxwell2d
 from pyaedt import Q2d
 from pyaedt import Q3d
 from pyaedt import settings
@@ -36,6 +38,7 @@ if config["desktopVersion"] > "2022.2":
     array = "array_simple_231"
     sbr_file = "poc_scat_small_231"
     q3d_file = "via_gsg_231"
+    m2d_file = "m2d_field_lines_test_231"
 
 else:
     test_field_name = "Potter_Horn"
@@ -43,7 +46,7 @@ else:
     array = "array_simple"
     sbr_file = "poc_scat_small"
     q3d_file = "via_gsg"
-
+    m2d_file = "m2d_field_lines_test"
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
 eye_diagram = "SimpleChannel"
@@ -68,6 +71,7 @@ class TestClass(BasisTest, object):
         self.eye_test = BasisTest.add_app(self, project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
         self.ami_test = BasisTest.add_app(self, project_name=ami, application=Circuit, subfolder=test_subfolder)
         self.array_test = BasisTest.add_app(self, project_name=array, subfolder=test_subfolder)
+        self.m2dtest = BasisTest.add_app(self, project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -161,7 +165,7 @@ class TestClass(BasisTest, object):
         assert not self.aedtapp.create_scattering("MyTestScattering2", setup_name, portnames, portnames)
 
     def test_03_get_solution_data(self):
-        self.aedtapp.analyze_nominal()
+        self.aedtapp.analyze(self.aedtapp.active_setup)
         trace_names = []
         portnames = ["1", "2"]
         for el in portnames:
@@ -181,6 +185,8 @@ class TestClass(BasisTest, object):
         assert len(my_data.data_magnitude(trace_names[0])) > 0
         assert my_data.export_data_to_csv(os.path.join(self.local_scratch.path, "output.csv"))
         assert os.path.exists(os.path.join(self.local_scratch.path, "output.csv"))
+        if not is_ironpython:
+            assert self.aedtapp.get_touchstone_data("Setup1")
 
     def test_04_export_touchstone(self):
         setup_name = "Setup1"
@@ -332,7 +338,7 @@ class TestClass(BasisTest, object):
         new_report3.report_type = "Data Table"
         assert new_report3.create()
 
-        self.field_test.analyze_nominal()
+        self.field_test.analyze(self.field_test.active_setup)
         data = self.field_test.post.get_solution_data(
             "GainTotal",
             self.field_test.nominal_adaptive,
@@ -415,7 +421,7 @@ class TestClass(BasisTest, object):
         assert len(files) > 0
         files = self.circuit_test.export_results()
         assert len(files) > 0
-        self.q2dtest.analyze_all()
+        self.q2dtest.analyze()
         files = self.q2dtest.export_results()
         assert len(files) > 0
         self.q3dtest.analyze_setup("Setup1")
@@ -664,6 +670,7 @@ class TestClass(BasisTest, object):
         plot_obj.background_image = r"c:\filenot_exist.jpg"
         assert not plot_obj.background_image
         plot_obj.convert_fields_in_db = True
+        plot_obj.log_multiplier = 20
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
@@ -846,7 +853,7 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython")
     def test_55_time_plot(self):
-        self.sbr_test.analyze_nominal(use_auto_settings=False)
+        self.sbr_test.analyze(self.sbr_test.active_setup, use_auto_settings=False)
         assert self.sbr_test.setups[0].is_solved
         solution_data = self.sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"],
@@ -873,9 +880,19 @@ class TestClass(BasisTest, object):
             show=False,
         )
         assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation.gif"))
+        self.sbr_test.post.plot_scene(
+            frames_list,
+            os.path.join(self.sbr_test.working_directory, "animation2.gif"),
+            norm_index=5,
+            dy_rng=35,
+            show=False,
+            convert_fields_in_db=True,
+            log_multiplier=20.0,
+        )
+        assert os.path.exists(os.path.join(self.sbr_test.working_directory, "animation2.gif"))
 
     def test_56_test_export_q3d_results(self):
-        self.q3dtest.analyze_nominal()
+        self.q3dtest.analyze(self.q3dtest.active_setup)
         assert os.path.exists(self.q3dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q3dtest.export_profile("Setup1"))
         new_report = self.q3dtest.post.reports_by_category.standard(self.q3dtest.get_traces_for_plot())
@@ -890,7 +907,7 @@ class TestClass(BasisTest, object):
         assert len(self.q3dtest.post.plots) == 6
 
     def test_57_test_export_q2d_results(self):
-        self.q2dtest.analyze_nominal()
+        self.q2dtest.analyze(self.q2dtest.active_setup)
         assert os.path.exists(self.q2dtest.export_convergence("Setup1"))
         assert os.path.exists(self.q2dtest.export_profile("Setup1"))
         new_report = self.q2dtest.post.reports_by_category.standard(self.q2dtest.get_traces_for_plot())
@@ -944,7 +961,7 @@ class TestClass(BasisTest, object):
         assert os.path.exists(self.aedtapp.export_mesh_stats("Setup1"))
 
     def test_62_eye_diagram(self):
-        self.eye_test.analyze_nominal()
+        self.eye_test.analyze(self.eye_test.active_setup)
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -955,7 +972,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_63_mask(self):
-        self.eye_test.analyze_nominal()
+        self.eye_test.analyze(self.eye_test.active_setup)
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -974,7 +991,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
     def test_64_eye_meas(self):
-        self.eye_test.analyze_nominal()
+        self.eye_test.analyze(self.eye_test.active_setup)
         rep = self.eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -1226,6 +1243,73 @@ class TestClass(BasisTest, object):
         val = self.aedtapp.post.update_report_dynamically
         self.aedtapp.post.update_report_dynamically = not val
         assert self.aedtapp.post.update_report_dynamically != val
+
+    def test_75_plot_field_line_traces(self):
+        self.m2dtest.modeler.model_units = "mm"
+        rect = self.m2dtest.modeler.create_rectangle(
+            position=["1mm", "5mm", "0mm"], dimension_list=["-1mm", "-10mm", 0], name="Ground", matname="copper"
+        )
+        rect.solve_inside = False
+        circle = self.m2dtest.modeler.create_circle(
+            position=["-10mm", "0", "0"],
+            radius="1mm",
+            num_sides="0",
+            is_covered=True,
+            name="Electrode",
+            matname="copper",
+        )
+        circle.solve_inside = False
+        self.m2dtest.modeler.create_region([20, 100, 20, 100])
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Ground", "Region", "Ground", plot_name="LineTracesTest"
+        )
+        self.m2dtest.solution_type = "Electrostatic"
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Invalid", "Region", "Ground", plot_name="LineTracesTest1"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Ground", "Invalid", "Ground", plot_name="LineTracesTest2"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            "Ground", "Region", "Invalid", plot_name="LineTracesTest3"
+        )
+        self.m2dtest.assign_voltage(rect.name, amplitude=0, name="Ground")
+        self.m2dtest.assign_voltage(circle.name, amplitude=50e6, name="50kV")
+        setup_name = "test"
+        self.m2dtest.create_setup(setupname=setup_name)
+        self.m2dtest.analyze_setup(setup_name)
+        plot = self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", plot_name="LineTracesTest4"
+        )
+        assert plot
+        assert self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", "Ground", plot_name="LineTracesTest5"
+        )
+        assert self.m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], plot_name="LineTracesTest6")
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], "Region", ["Invalid"], plot_name="LineTracesTest7"
+        )
+        assert not self.m2dtest.post.create_fieldplot_line_traces(
+            ["Ground", "Electrode"], ["Invalid"], plot_name="LineTracesTest8"
+        )
+        plot.TraceStepLength = "0.002mm"
+        plot.SeedingPointsNumber = 20
+        plot.LineStyle = "Cylinder"
+        plot.LineWidth = 3
+        assert plot.update()
+        el_id = [obj.id for obj in self.m2dtest.modeler.object_list if obj.name == "Electrode"]
+        plot.seeding_faces.append(el_id[0])
+        assert plot.update()
+        plot.volume_indexes.append(el_id[0])
+        plot.update()
+        plot.surfaces_indexes.append(el_id[0])
+        plot.update()
+        plot.seeding_faces.append(8)
+        assert not plot.update()
+        plot.volume_indexes.append(8)
+        assert not plot.update()
+        plot.surfaces_indexes.append(8)
+        assert not plot.update()
 
     def test_z99_delete_variations(self):
         assert self.q3dtest.cleanup_solution()

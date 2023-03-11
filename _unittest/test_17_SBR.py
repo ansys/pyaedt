@@ -4,6 +4,7 @@ import sys
 from _unittest.conftest import BasisTest
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Hfss
 from pyaedt import is_ironpython
 
@@ -186,8 +187,9 @@ class TestClass(BasisTest, object):
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not supported.")
     def test_13_link_array(self):
+        self.array.setups[0].props["MaximumPasses"] = 1
         assert self.sbr_platform.create_sbr_linked_antenna(self.array, target_cs="antenna_CS", fieldtype="farfield")
-        self.sbr_platform.analyze_all()
+        self.sbr_platform.analyze()
         ffdata = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D")
         self.array.close_project()
         ffdata2 = self.sbr_platform.get_antenna_ffd_solution_data(frequencies=12e9, sphere_name="3D", overwrite=False)

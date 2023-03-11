@@ -258,7 +258,8 @@ class Object3d(object):
 
     @pyaedt_function_handler()
     def export_image(self, file_path=None):
-        """Export the model to path.
+        """Export the current object to a specified file path.
+
 
         .. note::
            Works from AEDT 2021.2 in CPython only. PyVista has to be installed.
@@ -266,7 +267,9 @@ class Object3d(object):
         Parameters
         ----------
         file_path : str, optional
-            File name with full path. If `None` Project directory will be used.
+            File name with full path. If `None` the exported image will be a ``png`` file that
+            will be saved in ``working_directory``.
+            To access the ``working_directory`` the use ``app.working_directory`` property.
 
         Returns
         -------
@@ -729,13 +732,8 @@ class Object3d(object):
         v = [i for i in self._primitives.get_object_vertices(self.name)]
         if not v:
             for el in self.edges:
-                i = 0
-                while i < 5:
-                    pos = [
-                        float(p) for p in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, i / 5)
-                    ]
-                    vertices.append(VertexPrimitive(self, -1, pos))
-                    i += 1
+                pos = [float(p) for p in self._primitives.oeditor.GetEdgePositionAtNormalizedParameter(el.id, 0)]
+                vertices.append(VertexPrimitive(self, -1, pos))
         if settings.aedt_version > "2022.2":
             v = v[::-1]
         for vertex in v:

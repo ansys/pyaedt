@@ -40,7 +40,7 @@ non_graphical = False
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Insert a Maxwell 2D design and save the project.
 
-maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="2022.2", non_graphical=non_graphical,
+maxwell_2d = pyaedt.Maxwell2d(solution_type="TransientXY", specified_version="2023.1", non_graphical=non_graphical,
                               new_desktop_session=True, projectname=pyaedt.generate_unique_project_name())
 
 ###############################################################################
@@ -101,7 +101,7 @@ maxwell_2d.post.create_report(
 # ~~~~~~~~~~~
 # Solve the model.
 
-maxwell_2d.analyze_nominal(use_auto_settings=False)
+maxwell_2d.analyze(use_auto_settings=False)
 
 ###############################################################################
 # Create output and plot using PyVista

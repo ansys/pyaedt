@@ -2,6 +2,7 @@
 import math
 
 from _unittest.conftest import BasisTest
+
 from pyaedt.generic.general_methods import _to_boolean
 from pyaedt.generic.general_methods import _uname
 from pyaedt.generic.general_methods import is_ironpython
@@ -138,7 +139,9 @@ class TestClass(BasisTest, object):
         for vertex in object_vertices:
             assert len(vertex.position) == 3
         circle = self.aedtapp.modeler.create_circle("Z", [0, 0, 0], 2)
-        # assert circle.edges[0].segment_info["Command"] == "CreateCircle"
+        assert len(circle.faces) == 1
+        circle2 = self.aedtapp.modeler.create_circle("Z", [0, 0, 0], 2, non_model=True)
+        assert not circle2.model
 
     def test_03_FacePrimitive(self):
         o_box = self.create_copper_box("PrimitiveBox")
@@ -578,6 +581,15 @@ class TestClass(BasisTest, object):
             for child in subtract_child.keys():
                 assert subtract_child[child].command == subtract_child[child].props["Command"]
                 assert len(subtract_child[child].children) == 0
+
+    def test_27b_object_suppress(self):
+        box = self.aedtapp.modeler.get_object_from_name("box_history1")
+        assert box.history.suppress_all(self.aedtapp)
+        assert box.history.unsuppress_all(self.aedtapp)
+
+    def test_27c_object_jsonalize(self):
+        box = self.aedtapp.modeler.get_object_from_name("box_history1")
+        assert box.history.jsonalize_tree()
 
     def test_28_set_object_history_properties(self):
         assert self.aedtapp.modeler["box_history1"].history.props["Position/X"] == "10meter"

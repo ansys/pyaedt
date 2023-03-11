@@ -1,7 +1,7 @@
+from collections import OrderedDict
 import copy
 import os
 import re
-from collections import OrderedDict
 
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
@@ -309,6 +309,7 @@ class CommonReport(object):
         if expressions:
             self.expressions = expressions
         self._is_created = True
+        self.siwave_dc_category = 0
 
     @property
     def differential_pairs(self):
@@ -1785,7 +1786,9 @@ class CommonReport(object):
         traces : list
             List of traces to add.
         setup_name : str, optional
-            Name of the setup. The default is ``None``.
+            Name of the setup. The default is ``None`` which automatically take ``nominal_adaptive`` setup.
+            Please make sure to build a setup string in the form of ``"SetupName : SetupSweep"``
+            where ``SetupSweep`` is the Sweep name to use in the export or ``LastAdaptive``.
         variations : dict, optional
             Dictionary of variations. The default is ``None``.
         context : list, optional
@@ -1914,7 +1917,34 @@ class Standard(CommonReport):
             else:
                 ctxt = ["Context:=", self.matrix]
         elif self._post.post_solution_type in ["HFSS3DLayout"]:
-            if self.differential_pairs:
+            if self.domain == "DCIR":
+                ctxt = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        37010,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "DCIRID",
+                        False,
+                        str(self.siwave_dc_category),
+                        "IDIID",
+                        False,
+                        "1",
+                    ],
+                ]
+            elif self.differential_pairs:
                 ctxt = [
                     "NAME:Context",
                     "SimValueContext:=",

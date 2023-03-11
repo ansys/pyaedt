@@ -1,9 +1,11 @@
 # Import required modules
 import os
+import sys
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import is_ironpython
+
 from pyaedt import Emit
 from pyaedt.emit_core import EmitConstants as econsts
 from pyaedt.generic import constants as consts
@@ -29,12 +31,10 @@ class TestClass(BasisTest, object):
 
     def test_objects(self):
         assert self.aedtapp.solution_type
-        assert isinstance(self.aedtapp.existing_analysis_setups, list)
-        assert isinstance(self.aedtapp.setup_names, list)
         assert isinstance(self.aedtapp.modeler.components, EmitComponents)
         assert self.aedtapp.modeler
         assert self.aedtapp.oanalysis is None
-        if self.aedtapp._aedt_version >= "2023.1":
+        if self.aedtapp._aedt_version >= "2023.1" and sys.version_info.major == 3 and sys.version_info.minor == 7:
             assert str(type(self.aedtapp._emit_api)) == "<class 'EmitApiPython.EmitApi'>"
             assert self.aedtapp.results is not None
 
@@ -400,7 +400,7 @@ class TestClass(BasisTest, object):
 
         # Get the Freqs
         freqs = rev.get_active_frequencies(radios[0], bands[0], econsts.tx_rx_mode().rx)
-        assert freqs == 100.0
+        assert freqs == [100.0]
 
         # Add an emitter
         emitter1 = self.aedtapp.modeler.components.create_component("USB_3.x")
@@ -692,8 +692,9 @@ class TestClass(BasisTest, object):
         assert domain.interferer_names == ["MD400C"]
         assert domain.interferer_band_names == ["Tx"]
         assert domain.interferer_channel_frequencies == [-1.0]
-        assert domain.instance_count() == 31626
-        interaction = self.aedtapp.results.revisions[0].run(domain)
+        revision = self.aedtapp.results.revisions[0]
+        assert revision.get_instance_count(domain) == 31626
+        interaction = revision.run(domain)
         available_warning = interaction.get_availability_warning(domain)
         assert available_warning == ""
         availability = interaction.get_availability(domain)

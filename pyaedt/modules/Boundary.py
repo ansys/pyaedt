@@ -1,13 +1,13 @@
 """
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
+from collections import OrderedDict
 import copy
 import re
-from collections import OrderedDict
 
-from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple
@@ -223,7 +223,7 @@ class NativeComponentObject(BoundaryCommon, object):
         """
         try:
             names = [i for i in self._app.excitations]
-        except Exception as e:
+        except Exception:  # pragma: no cover
             names = []
         self.name = self._app.modeler.oeditor.InsertNativeComponent(self._get_args())
         try:

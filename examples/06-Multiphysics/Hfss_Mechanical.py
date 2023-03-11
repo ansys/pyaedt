@@ -34,7 +34,7 @@ project_temp_name = pyaedt.downloads.download_via_wizard(pyaedt.generate_unique_
 # ~~~~~~~~~~
 # Start HFSS and initialize the PyAEDT object.
 
-version = "2022.2"
+version = "2023.1"
 hfss = pyaedt.Hfss(projectname=project_temp_name, specified_version=version, non_graphical=non_graphical,
                    new_desktop_session=True)
 pin_names = hfss.excitations
@@ -104,7 +104,7 @@ LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
 # Solve the circuit and push excitations to the HFSS model to calculate the
 # correct value of losses.
 
-circuit.analyze_nominal()
+circuit.analyze()
 circuit.push_excitations(instance_name="S1", setup_name=setup_name)
 
 
@@ -148,7 +148,7 @@ mech.plot(show=False, export_path=os.path.join(mech.working_directory, "Mech.jpg
 
 mech.create_setup()
 mech.save_project()
-mech.analyze_nominal()
+mech.analyze()
 surfaces = []
 for name in mech.get_all_conductors_names():
     surfaces.extend(mech.modeler.get_object_faces(name))

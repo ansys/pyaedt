@@ -7,12 +7,12 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import os
 import shutil
 import tempfile
 import time
 import warnings
-from collections import OrderedDict
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -21,15 +21,15 @@ from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import CoordinateSystemAxis
+from pyaedt.generic.constants import CoordinateSystemPlane
 from pyaedt.generic.constants import GRAVITY
+from pyaedt.generic.constants import GravityDirection
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import Plane
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
-from pyaedt.generic.constants import CoordinateSystemAxis
-from pyaedt.generic.constants import CoordinateSystemPlane
-from pyaedt.generic.constants import GravityDirection
-from pyaedt.generic.constants import Plane
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
@@ -38,7 +38,6 @@ from pyaedt.modules.Boundary import MaxwellParameters
 from pyaedt.modules.Boundary import NativeComponentObject
 from pyaedt.modules.DesignXPloration import OptimizationSetups
 from pyaedt.modules.DesignXPloration import ParametricSetups
-from pyaedt.modules.MaterialLib import Materials
 from pyaedt.modules.SolveSetup import Setup
 from pyaedt.modules.SolveSetup import SetupHFSS
 from pyaedt.modules.SolveSetup import SetupHFSSAuto
@@ -127,8 +126,8 @@ class Analysis(Design, object):
         self.logger.info("Design Loaded")
         self._setup = None
         if setup_name:
-            self.analysis_setup = setup_name
-        self._materials = Materials(self)
+            self.active_setup = setup_name
+        self._materials = None
         self.logger.info("Materials Loaded")
         self._available_variations = self.AvailableVariations(self)
 
@@ -155,7 +154,7 @@ class Analysis(Design, object):
         """
         if not self._native_components:
             self._native_components = self._get_native_data()
-        return {nc.props["SubmodelDefinitionName"]: nc for nc in self._native_components}
+        return {nc.component_name: nc for nc in self._native_components}
 
     @property
     def output_variables(self):
@@ -182,6 +181,10 @@ class Analysis(Design, object):
            Materials in the project.
 
         """
+        if not self._materials:
+            from pyaedt.modules.MaterialLib import Materials
+
+            self._materials = Materials(self)
         return self._materials
 
     @property
@@ -269,41 +272,8 @@ class Analysis(Design, object):
         return GravityDirection()
 
     @property
-    def modeler(self):
-        """Modeler.
-
-        Returns
-        -------
-        :class:`pyaedt.modeler.Modeler.Modeler`
-            Modeler object.
-        """
-        return self._modeler
-
-    @property
-    def mesh(self):
-        """Mesh.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.Mesh.Mesh`
-            Mesh object.
-        """
-        return self._mesh
-
-    @property
-    def post(self):
-        """PostProcessor.
-
-        Returns
-        -------
-        :class:`pyaedt.modules.AdvancedPostProcessing.PostProcessor`
-            PostProcessor object.
-        """
-        return self._post
-
-    @property
-    def analysis_setup(self):
-        """Analysis setup.
+    def active_setup(self):
+        """Get or Set the name of the active setup. If not set it will be the first analysis setup.
 
         Returns
         -------
@@ -323,14 +293,38 @@ class Analysis(Design, object):
             self._setup = None
             return self._setup
 
-    @analysis_setup.setter
-    def analysis_setup(self, setup_name):
+    @active_setup.setter
+    def active_setup(self, setup_name):
         setup_list = self.existing_analysis_setups
         if setup_list:
             assert setup_name in setup_list, "Invalid setup name {}".format(setup_name)
             self._setup = setup_name
         else:
             self._setup = setup_list[0]
+
+    @property
+    def analysis_setup(self):
+        """Analysis setup.
+
+        .. deprecated:: 0.6.53
+           Use :func:`active_setup` property instead.
+
+        Returns
+        -------
+        str
+            Name of the active or first analysis setup.
+
+        References
+        ----------
+
+        >>> oModule.GetAllSolutionSetups()
+        """
+        warnings.warn("`analysis_setup` is deprecated. Use `active_setup` property instead.", DeprecationWarning)
+        return self.active_setup
+
+    @analysis_setup.setter
+    def analysis_setup(self, setup_name):
+        self.active_setup = setup_name
 
     @property
     def existing_analysis_sweeps(self):
@@ -573,18 +567,6 @@ class Analysis(Design, object):
         return list_output
 
     @pyaedt_function_handler()
-    def analyze_all(self):
-        """Analyze all setups in a design.
-
-        Returns
-        -------
-        bool
-            ``True`` when simulation is finished.
-        """
-        self.odesign.AnalyzeAll()
-        return True
-
-    @pyaedt_function_handler()
     def list_of_variations(self, setup_name=None, sweep_name=None):
         """Retrieve a list of active variations for input setup.
 
@@ -638,17 +620,16 @@ class Analysis(Design, object):
         self,
         analyze=False,
         export_folder=None,
-        matrix_name=None,
+        matrix_name="Original",
         matrix_type="S",
         touchstone_format="MagPhase",
         touchstone_number_precision=15,
         length="1meter",
         impedance=50,
-        use_export_freq=True,
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
     ):
-        """Export all available reports to a file, including sNp, profile, and convergence.
+        """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
@@ -658,11 +639,13 @@ class Analysis(Design, object):
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
         matrix_name : str, optional
-            Matrix to specify to export touchstone file. The default is ``None``, in which case
-            the first matrix is taken.
+            Matrix to specify to export touchstone file. The default is ``Original``, in which case
+             default matrix is taken.
+            This argument applies only to 2DExtractor and Q3D setups where Matrix reduction is computed
+            and needed to export touchstone file.
         matrix_type : str, optional
-            Type of matrix to export. The default is ``S``.
-            Available values are ``S``, ``Y``, ``Z``.
+            Type of matrix to export. The default is ``S`` to export a touchstone file.
+            Available values are ``S``, ``Y``, ``Z``.  ``Y`` and ``Z`` matrices will be exported as tab file.
         touchstone_format : str, optional
             Touchstone format. The default is ``MagPahse``.
             Available values are: ``MagPahse``, ``DbPhase``, ``RealImag``.
@@ -672,12 +655,11 @@ class Analysis(Design, object):
             Real impedance value in ohms, for renormalization. The default is ``50``.
         touchstone_number_precision : int, optional
             Touchstone number of digits precision. The default is ``15``.
-        use_export_freq : bool, optional
-            Specifies whether to use export frequencies. The default is ``True``.
         include_gamma_comment : bool, optional
             Specifies whether to include Gamma and Impedance comments. The default is ``True``.
         support_non_standard_touchstone_extension : bool, optional
-            Specifies whether to include Gamma and Impedance comments. The default is ``True``.
+            Specifies whether to support non-standard Touchstone extensions for mixed reference impedance.
+            The default is ``False``.
 
         Returns
         -------
@@ -692,12 +674,19 @@ class Analysis(Design, object):
         >>> oModule.ExportToFile
         >>> oModule.ExportConvergence
         >>> oModule.ExportNetworkData
+
+        Examples
+        --------
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> aedtapp.analyze()
+        >>> exported_files = self.aedtapp.export_results()
         """
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
         if analyze:
-            self.analyze_all()
+            self.analyze()
         # excitations
         if self.design_type == "HFSS3DLayout" or self.design_type == "HFSS 3D Layout Design":
             excitations = len(self.oexcitation.GetAllPortsList())
@@ -708,10 +697,9 @@ class Analysis(Design, object):
         elif self.design_type == "Circuit Design":
             excitations = len(self.excitations)
         else:
-            excitations = self.oboundary.GetNumExcitations()
+            excitations = len(self.osolution.GetAllSources())
         # reports
-        reportnames = self.post.oreportsetup.GetAllReportNames()
-        for report_name in reportnames:
+        for report_name in self.post.all_report_names:
             name_no_space = report_name.replace(" ", "_")
             self.post.oreportsetup.UpdateReports([str(report_name)])
             export_path = os.path.join(
@@ -779,14 +767,9 @@ class Analysis(Design, object):
                             if result:
                                 exported_files.append(export_path)
 
-                            export_path = os.path.join(
-                                export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
-                            )
-                            self.logger.info("Export SnP: {}".format(export_path))
-
+                            freq_array = []
                             if self.design_type in ["2D Extractor", "Q3D Extractor"]:
                                 freq_model_unit = decompose_variable_value(s.props["AdaptiveFreq"])[1]
-                                freq_array = []
                                 if sweep == "LastAdaptive":
                                     # If sweep is Last Adaptive for Q2D and Q3D
                                     # the default range freq is [10MHz, 100MHz, step: 10MHz]
@@ -803,12 +786,21 @@ class Analysis(Design, object):
 
                             # export touchstone as .sNp file
                             if self.design_type in ["HFSS3DLayout", "HFSS 3D Layout Design", "HFSS"]:
+                                if matrix_type != "S":
+                                    export_path = os.path.join(
+                                        export_folder, "{0}_{1}.tab".format(self.project_name, varCount)
+                                    )
+                                else:
+                                    export_path = os.path.join(
+                                        export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, excitations)
+                                    )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
                                     self.osolution.ExportNetworkData(
                                         variation,
                                         ["{0}:{1}".format(setup_name, sweep_name)],
-                                        3,
+                                        3 if matrix_type == "S" else 2,
                                         export_path,
                                         ["All"],
                                         True,
@@ -817,7 +809,7 @@ class Analysis(Design, object):
                                         -1,
                                         touchstone_format_value,
                                         touchstone_number_precision,
-                                        use_export_freq,
+                                        True,
                                         include_gamma_comment,
                                         support_non_standard_touchstone_extension,
                                     )
@@ -826,6 +818,10 @@ class Analysis(Design, object):
                                 except:
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "2D Extractor":
+                                export_path = os.path.join(
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, 2 * excitations)
+                                )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
                                     self.odesign.ExportNetworkData(
@@ -844,6 +840,10 @@ class Analysis(Design, object):
                                 except:
                                     self.logger.warning("Export SnP failed: no solutions found")
                             elif self.design_type == "Q3D Extractor":
+                                export_path = os.path.join(
+                                    export_folder, "{0}_{1}.s{2}p".format(self.project_name, varCount, 2 * excitations)
+                                )
+                                self.logger.info("Export SnP: {}".format(export_path))
                                 try:
                                     self.logger.info("Export SnP: {}".format(export_path))
                                     self.odesign.ExportNetworkData(
@@ -1198,66 +1198,6 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def analyze_from_initial_mesh(self):
-        """Revert the solution to the initial mesh and re-run the solve.
-
-        Returns
-        -------
-        bool
-           ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oModule.RevertSetupToInitial
-        >>> oDesign.Analyze
-        """
-        self.oanalysis.RevertSetupToInitial(self._setup)
-        self.analyze_nominal()
-        return True
-
-    @pyaedt_function_handler()
-    def analyse_nominal(self):
-        """Solve the nominal design.
-
-        .. deprecated:: 0.4.0
-           Use :func:`Analysis.analyze_nominal` instead.
-        """
-        warnings.warn("`analyse_nominal` is deprecated. Use `analyze_nominal` instead.", DeprecationWarning)
-        self.analyze_nominal()
-
-    @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
-        """Solve the nominal design.
-
-        Parameters
-        ----------
-        num_cores : int, optional
-            Number of simulation cores.
-        num_tasks : int, optional
-            Number of simulation tasks.
-        num_gpu : int, optional
-            Number of simulation graphic processing units to use.
-        acf_file : str, optional
-            Full path to the custom ACF file.
-        use_auto_settings : bool, optional
-            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
-            that support automatic settings.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-
-        >>> oDesign.Analyze
-        """
-
-        return self.analyze_setup(self.analysis_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
-
-    @pyaedt_function_handler()
     def generate_unique_setup_name(self, setup_name=None):
         """Generate a new setup with an unique name.
 
@@ -1360,7 +1300,7 @@ class Analysis(Design, object):
                 setup.props[el] = props[el]
             setup.update()
 
-        self.analysis_setup = name
+        self.active_setup = name
         self.setups.append(setup)
         return setup
 
@@ -1426,7 +1366,7 @@ class Analysis(Design, object):
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, setupname, isnewsetup=False)
         setup.update(properties_dict)
-        self.analysis_setup = setupname
+        self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()
@@ -1457,7 +1397,7 @@ class Analysis(Design, object):
         else:
             setup = Setup(self, setuptype, setupname, isnewsetup=False)
         if setup.props:
-            self.analysis_setup = setupname
+            self.active_setup = setupname
         return setup
 
     @pyaedt_function_handler()
@@ -1569,6 +1509,162 @@ class Analysis(Design, object):
         return dict
 
     @pyaedt_function_handler()
+    def analyze_all(self):
+        """Analyze all setups in a design.
+
+        .. deprecated:: 0.6.52
+           Use :func:`analyze` method instead.
+
+        Returns
+        -------
+        bool
+            ``True`` when simulation is finished.
+        """
+        warnings.warn("`analyze_all` is deprecated. Use `analyze` method instead.", DeprecationWarning)
+        self.odesign.AnalyzeAll()
+        return True
+
+    @pyaedt_function_handler()
+    def analyze_from_initial_mesh(self):
+        """Revert the solution to the initial mesh and re-run the solve.
+
+        .. deprecated:: 0.6.52
+           Use :func:`analyze` method instead.
+
+        Returns
+        -------
+        bool
+           ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oModule.RevertSetupToInitial
+        >>> oDesign.Analyze
+        """
+        warnings.warn("`analyze_from_initial_mesh` is deprecated. Use `analyze` method instead.", DeprecationWarning)
+
+        self.oanalysis.RevertSetupToInitial(self._setup)
+        self.analyze(self.active_setup)
+        return True
+
+    @pyaedt_function_handler()
+    def analyse_nominal(self):
+        """Solve the nominal design.
+
+        .. deprecated:: 0.4.0
+           Use :func:`Analysis.analyze` instead.
+        """
+        warnings.warn("`analyse_nominal` is deprecated. Use `analyze` instead.", DeprecationWarning)
+        self.analyze(self.active_setup)
+
+    @pyaedt_function_handler()
+    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+        """Solve the nominal design.
+
+        .. deprecated:: 0.6.52
+           Use :func:`analyze` method instead.
+
+        Parameters
+        ----------
+        num_cores : int, optional
+            Number of simulation cores.
+        num_tasks : int, optional
+            Number of simulation tasks.
+        num_gpu : int, optional
+            Number of simulation graphic processing units to use.
+        acf_file : str, optional
+            Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
+        """
+        warnings.warn("`analyze_nominal` is deprecated. Use `analyze` method instead.", DeprecationWarning)
+
+        return self.analyze(self.active_setup, num_cores, num_tasks, num_gpu, acf_file, use_auto_settings)
+
+    def analyze(
+        self,
+        setup_name=None,
+        num_cores=None,
+        num_tasks=None,
+        num_gpu=None,
+        acf_file=None,
+        use_auto_settings=True,
+        solve_in_batch=False,
+        machine="localhost",
+        run_in_thread=False,
+        revert_to_initial_mesh=False,
+    ):
+        """Solve the active design.
+
+        Parameters
+        ----------
+        setup_name : str, optional
+            Setup to analyze. Default is ``None`` which solves all the setups.
+        num_cores : int, optional
+            Number of simulation cores.
+        num_tasks : int, optional
+            Number of simulation tasks.
+        num_gpu : int, optional
+            Number of simulation graphic processing units to use.
+        acf_file : str, optional
+            Full path to the custom ACF file.
+        use_auto_settings : bool, optional
+            Set ``True`` to use automatic settings for HPC. The option is only considered for setups
+            that support automatic settings.
+        solve_in_batch : bool, optional
+            Whether to solve the project in batch or not.
+            If ``True`` the project will be saved, closed, solved and repened.
+        machine : str, optional
+            Name of the machine if remote.  The default is ``"localhost"``.
+        run_in_thread : bool, optional
+            Whether to submit the batch command as a thread. The default is
+            ``False``.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+
+        >>> oDesign.Analyze
+        """
+        if solve_in_batch:
+            return self.solve_in_batch(
+                filename=None,
+                machine=machine,
+                run_in_thread=run_in_thread,
+                num_cores=num_cores,
+                num_tasks=num_tasks,
+                revert_to_initial_mesh=revert_to_initial_mesh,
+            )
+        else:
+            return self.analyze_setup(
+                setup_name,
+                num_cores,
+                num_tasks,
+                num_gpu,
+                acf_file,
+                use_auto_settings,
+                revert_to_initial_mesh=revert_to_initial_mesh,
+            )
+
+    @pyaedt_function_handler()
     def analyze_setup(
         self,
         name,
@@ -1579,6 +1675,7 @@ class Analysis(Design, object):
         use_auto_settings=True,
         num_variations_to_distribute=None,
         allowed_distribution_types=None,
+        revert_to_initial_mesh=False,
     ):
         """Analyze a design setup.
 
@@ -1586,6 +1683,7 @@ class Analysis(Design, object):
         ----------
         name : str
             Name of the setup, which can be an optimetric setup or a simple setup.
+            If ``None`` all setups will be solved.
         num_cores : int, optional
             Number of simulation cores. The default is ``None.``
         num_tasks : int, optional
@@ -1601,6 +1699,8 @@ class Analysis(Design, object):
         allowed_distribution_types : list, optional
             List of strings. Each string represents a distribution type. The default value ``None`` does nothing.
             An empty list ``[]`` disables all types.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
 
         Returns
         -------
@@ -1677,8 +1777,19 @@ class Analysis(Design, object):
                 set_custom_dso = True
             except:
                 pass
-        if name in self.existing_analysis_setups:
+        if not name:
             try:
+                self.logger.info("Solving all design setups")
+                self.odesign.AnalyzeAll()
+            except:
+                if set_custom_dso:
+                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                self.logger.error("Error in Solving Setup %s", name)
+                return False
+        elif name in self.existing_analysis_setups:
+            try:
+                if revert_to_initial_mesh:
+                    self.oanalysis.RevertSetupToInitial(name)
                 self.logger.info("Solving design setup %s", name)
                 self.odesign.Analyze(name)
             except:
@@ -1705,7 +1816,16 @@ class Analysis(Design, object):
         return True
 
     @pyaedt_function_handler()
-    def solve_in_batch(self, filename=None, machine="local", run_in_thread=False):
+    def solve_in_batch(
+        self,
+        filename=None,
+        machine="localhost",
+        run_in_thread=False,
+        num_cores=4,
+        num_tasks=1,
+        setup_name=None,
+        revert_to_initial_mesh=False,
+    ):
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1717,10 +1837,18 @@ class Analysis(Design, object):
             Name of the setup. The default is ``None``, which means that the active project
             is to be solved.
         machine : str, optional
-            Name of the machine if remote.  The default is ``"local"``.
+            Name of the machine if remote.  The default is ``"localhost"``.
         run_in_thread : bool, optional
             Whether to submit the batch command as a thread. The default is
             ``False``.
+        num_cores : int, optional
+            Number of cores to use in simulation.
+        num_tasks : int, optional
+            Number of tasks to use in simulation.
+        setup_name : str
+            Name of the setup, which can be an optimetric setup or a simple setup. If ``None`` all setup will be solved.
+        revert_to_initial_mesh : bool, optional
+            Whether to revert to initial mesh before solving or not. Default is ``False``.
 
         Returns
         -------
@@ -1730,9 +1858,14 @@ class Analysis(Design, object):
         inst_dir = self.desktop_install_dir
         self.last_run_log = ""
         self.last_run_job = ""
+        design_name = None
         if not filename:
             filename = self.project_file
             project_name = self.project_name
+            design_name = self.design_name
+            if revert_to_initial_mesh:
+                for setup in self.setup_names:
+                    self.oanalysis.RevertSetupToInitial(setup)
             self.close_project()
         else:
             project_name = os.path.splitext(os.path.split(filename)[-1])[0]
@@ -1742,12 +1875,20 @@ class Analysis(Design, object):
             os.unlink(queue_file)
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
-        if machine == "local":
-            # -Monitor option used as workaround for R2 BatchSolve not exiting properly at the end of the Batch job
-            options = ["-ng", "-BatchSolve", "-Monitor"]
-        else:
-            options = ["-ng", "-BatchSolve", "-machinelist", "list=" + machine, "-Monitor"]
 
+        options = [
+            "-ng",
+            "-BatchSolve",
+            "-machinelist",
+            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+            "-Monitor",
+        ]
+        if setup_name and design_name:
+            options.append(
+                "{}:{}:{}".format(
+                    design_name, "Nominal" if setup_name in self.setup_names else "Optimetrics", setup_name
+                )
+            )
         if os.name == "posix":
             batch_run = [inst_dir + "/ansysedt"]
 
@@ -1770,7 +1911,7 @@ class Analysis(Design, object):
             subprocess.Popen(batch_run)
             self.logger.info("Batch job finished.")
 
-        if machine == "local":
+        if machine == "localhost":
             while not os.path.exists(queue_file) and not os.path.exists(queue_file_completed):
                 time.sleep(0.5)
             with open(queue_file, "r") as f:
@@ -2096,7 +2237,7 @@ class Analysis(Design, object):
             return False
 
         if setup_name is None:
-            setup_name = self.analysis_setup
+            setup_name = self.active_setup
         if default_adaptive is None:
             default_adaptive = self.design_solutions.default_adaptive
         analysis_setup = setup_name + " : " + default_adaptive

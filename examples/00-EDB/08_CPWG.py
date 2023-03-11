@@ -9,7 +9,7 @@ for a CPWG (coplanar waveguide with ground).
 # Perform required imports
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 # Peform required imports. Importing the ``Hfss3dlayout`` object initializes it
-# on version 2022 R2.
+# on version 2023 R1.
 
 import pyaedt
 import os
@@ -29,7 +29,7 @@ non_graphical = False
 
 aedb_path = os.path.join(pyaedt.generate_unique_folder_name(), pyaedt.generate_unique_name("pcb") + ".aedb")
 print(aedb_path)
-edbapp = pyaedt.Edb(edbpath=aedb_path, edbversion="2022.2")
+edbapp = pyaedt.Edb(edbpath=aedb_path, edbversion="2023.1")
 
 ###############################################################################
 # Define parameters
@@ -122,7 +122,7 @@ edbapp.close_edb()
 # ~~~~~~~~~~~~~~~~
 # Open EDB in AEDT.
 
-h3d = pyaedt.Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2022.2",
+h3d = pyaedt.Hfss3dLayout(projectname=os.path.join(aedb_path, "edb.def"), specified_version="2023.1",
                           non_graphical=non_graphical)
 
 ###############################################################################
@@ -172,9 +172,9 @@ h3d.modeler.edb.core_nets.plot(None, None, color_by_net=True)
 ###############################################################################
 # Start HFSS solver
 # ~~~~~~~~~~~~~~~~~
-# Start the HFSS solver by uncommenting the ``h3d.analyze_nominal()`` command.
+# Start the HFSS solver by uncommenting the ``h3d.analyze()`` command.
 
-# h3d.analyze_nominal()
+# h3d.analyze()
 
 # Save AEDT
 h3d.save_project()

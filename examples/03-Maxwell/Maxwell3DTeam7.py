@@ -33,7 +33,7 @@ non_graphical = False
 Project_Name = "COMPUMAG"
 Design_Name = "TEAM 7 Asymmetric Conductor"
 Solver = "EddyCurrent"
-DesktopVersion = "2022.2"
+DesktopVersion = "2023.1"
 
 M3D = Maxwell3d(
     projectname=generate_unique_project_name(),
@@ -431,7 +431,7 @@ M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_di
 # Save the project and solve it.
 
 M3D.save_project()
-M3D.analyze_all()
+M3D.analyze()
 
 ####################################################################################################
 # Release AEDT from PyAEDT scripting

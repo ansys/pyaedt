@@ -1,6 +1,6 @@
-=================
-API EDB reference
-=================
+=======
+EDB API
+=======
 
 This section describes PyAEDT EDB classes, methods, and functions
 for EDB apps and modules. Use the search feature or click links

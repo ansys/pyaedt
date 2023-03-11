@@ -56,9 +56,10 @@ project_name = os.path.join(project_folder, general_methods.generate_unique_name
 
 # Instantiate the HFSS application
 hfss = pyaedt.Hfss(projectname=project_name + '.aedt',
-                   specified_version="2022.2",
+                   specified_version="2023.1",
                    designname="filter",
                    non_graphical=non_graphical,
+                   new_desktop_session=True,
                    close_on_exit=True)
 
 # hfss.settings.enable_debug_methods_argument_logger = False  # Only for debugging.

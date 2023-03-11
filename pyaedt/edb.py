@@ -20,16 +20,13 @@ from pyaedt.edb_core import EdbLayout
 from pyaedt.edb_core import EdbNets
 from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
+from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveDCSimulationSetup,
-)
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveSYZSimulationSetup,
-)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
@@ -118,7 +115,7 @@ class Edb(object):
         use_ppe=False,
     ):
         self._clean_variables()
-        if is_ironpython and inside_desktop:
+        if inside_desktop:
             self.standalone = False
         else:
             self.standalone = True
@@ -642,6 +639,11 @@ class Edb(object):
         if not self._stackup and self.builder:
             self._stackup = EdbStackup(self)
         return self._stackup
+
+    @property
+    def design_options(self):
+        """Design options."""
+        return EdbDesignOptions(self.active_cell)
 
     @property
     def stackup(self):

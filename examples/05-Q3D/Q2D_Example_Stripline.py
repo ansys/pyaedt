@@ -25,12 +25,12 @@ project_path = pyaedt.generate_unique_project_name()
 ###############################################################################
 # Launch AEDT and 2D Extractor
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Launch AEDT 2022 R2 in graphical mode and launch 2D Extractor. This example
+# Launch AEDT 2023 R1 in graphical mode and launch 2D Extractor. This example
 # uses SI units.
 
 q = pyaedt.Q2d(projectname=project_path,
                designname="differential_stripline",
-               specified_version="2022.2",
+               specified_version="2023.1",
                non_graphical=non_graphical,
                new_desktop_session=True
                )
@@ -206,7 +206,7 @@ sweep.props["Type"] = "Interpolating"
 sweep.update()
 
 # Analyze the nominal design and plot characteristic impedance.
-q.analyze_nominal()
+q.analyze()
 plot_sources = matrix.get_sources_for_plot(category="Z0")
 a = q.post.get_solution_data(expressions=plot_sources, context=matrix.name)
 a.plot(snapshot_path=os.path.join(q.working_directory, "plot.jpg")) # Save plot as jpg

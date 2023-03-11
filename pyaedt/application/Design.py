@@ -8,6 +8,7 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import gc
 import json
 import os
@@ -19,9 +20,11 @@ import sys
 import threading
 import time
 import warnings
-from collections import OrderedDict
 
 from pyaedt import pyaedt_logger
+from pyaedt.application.Variables import DataSet
+from pyaedt.application.Variables import VariableManager
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
@@ -30,19 +33,19 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-from pyaedt.application.Variables import DataSet
-from pyaedt.application.Variables import VariableManager
-from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
 from pyaedt.desktop import release_desktop
+from pyaedt.generic.DataHandlers import variation_string_to_dict
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
+from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_project_locked
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
@@ -50,7 +53,6 @@ from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 
@@ -333,12 +335,23 @@ class Design(AedtObjects):
             Dictionary of the project properties.
         """
         start = time.time()
-        if (
-            self.project_timestamp_changed
-            or os.path.exists(self.project_file)
+        if self.project_timestamp_changed or (
+            os.path.exists(self.project_file)
             and os.path.normpath(self.project_file) not in settings._project_properties
         ):
             settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(self.project_file)
+            self._logger.info("aedt file load time {}".format(time.time() - start))
+        elif (
+            os.path.normpath(self.project_file) not in settings._project_properties
+            and settings.remote_rpc_session
+            and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
+        ):
+            local_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(self.project_file)[-1])
+            file_path = check_and_download_file(local_path, self.project_file)
+            try:
+                settings._project_properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(file_path)
+            except:
+                pass
             self._logger.info("aedt file load time {}".format(time.time() - start))
         if os.path.normpath(self.project_file) in settings._project_properties:
             return settings._project_properties[os.path.normpath(self.project_file)]
@@ -898,10 +911,11 @@ class Design(AedtObjects):
                 self._oproject = self.odesktop.SetActiveProject(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
-            elif os.path.exists(proj_name):
+            elif os.path.exists(proj_name) or (
+                settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
+            ):
                 if ".aedtz" in proj_name:
                     name = self._generate_unique_project_name()
-
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
@@ -923,8 +937,8 @@ class Design(AedtObjects):
                         "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
                     )
                 else:
-                    assert not os.path.exists(
-                        proj_name + ".lock"
+                    assert not is_project_locked(
+                        proj_name
                     ), "Project is locked. Close or remove the lock before proceeding."
                     self._oproject = self.odesktop.OpenProject(proj_name)
                     self._add_handler()
@@ -1083,12 +1097,15 @@ class Design(AedtObjects):
         """
 
         if not file_path:
-            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
+            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation_string:
             val_str = []
             for el, val in self.available_variations.nominal_w_values_dict.items():
                 val_str.append("{}={}".format(el, val))
-            variation_string = ",".join(val_str)
+            if self.design_type == "HFSS 3D Layout Design":
+                variation_string = " ".join(val_str)
+            else:
+                variation_string = ",".join(val_str)
         if self.design_type == "2D Extractor":
             for setup in self.setups:
                 if setup.name == setup_name:

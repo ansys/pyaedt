@@ -2,14 +2,14 @@
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import csv
 import math
 import os
 import warnings
-from collections import OrderedDict
 
 from pyaedt import is_ironpython
-from pyaedt.modules.SolveSweeps import SetupKeys
+from pyaedt.modules.SetupTemplates import SetupKeys
 
 if os.name == "posix" and is_ironpython:
     import subprocessdotnet as subprocess
@@ -19,9 +19,9 @@ else:
 import re
 
 from pyaedt.application.Analysis3D import FieldAnalysis3D
-from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.configurations import ConfigurationsIcepak
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
@@ -2032,7 +2032,7 @@ class Icepak(FieldAnalysis3D):
         powerin="0W",
         custom_x_resolution=None,
         custom_y_resolution=None,
-        **kwargs
+        **kwargs  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2163,7 +2163,7 @@ class Icepak(FieldAnalysis3D):
         custom_x_resolution=None,
         custom_y_resolution=None,
         power_in=0,
-        **kwargs
+        **kwargs  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 

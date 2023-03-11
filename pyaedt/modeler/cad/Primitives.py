@@ -3,13 +3,13 @@ This module contains these Primitives classes: `Polyline` and `Primitives`.
 """
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import copy
 import math
 import os
 import random
 import string
 import time
-from collections import OrderedDict
 
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
@@ -1479,18 +1479,22 @@ class Primitives(object):
         return len(self.objects)
 
     @pyaedt_function_handler()
-    def get_objects_by_material(self, materialname):
-        """Retrieve a list of the IDs for objects of a specified material.
+    def get_objects_by_material(self, materialname=None):
+        """Retrieve a list of objects either of a specified material or classified by material.
 
         Parameters
         ----------
         materialname : str
-            Name of the material.
+            Name of the material. The default is ``None``.
 
         Returns
         -------
         list
-            List of IDs for objects of the specified material.
+            If a material name is not provided, the method returns
+            a list of dictionaries where keys are the material names
+            and values are objects assigned to this material.
+            If a material name is provided, the method returns a list
+            of objects assigned to this material.
 
         References
         ----------
@@ -1498,7 +1502,15 @@ class Primitives(object):
         >>> oEditor.GetObjectsByMaterial
 
         """
-        obj_lst = list(self.oeditor.GetObjectsByMaterial(materialname))
+        if materialname:
+            obj_lst = [x for x in self.object_list if x.material_name == materialname]
+        else:
+            obj_lst = [
+                self._get_object_dict_by_material(self.materials.conductors),
+                self._get_object_dict_by_material(self.materials.dielectrics),
+                self._get_object_dict_by_material(self.materials.gases),
+                self._get_object_dict_by_material(self.materials.liquids),
+            ]
         return obj_lst
 
     @pyaedt_function_handler()
@@ -3113,6 +3125,14 @@ class Primitives(object):
                 self.logger.info("Native component properties were not retrieved from the AEDT file.")
 
         return native_comp_properties
+
+    @pyaedt_function_handler
+    def _get_object_dict_by_material(self, material_type):
+        obj_dict = {}
+        for cond in material_type:
+            obj = [x for x in self.object_list if x.material_name == cond]
+            obj_dict[cond] = obj
+        return obj_dict
 
     @pyaedt_function_handler()
     def __getitem__(self, partId):
