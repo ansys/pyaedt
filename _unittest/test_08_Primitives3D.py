@@ -824,15 +824,19 @@ class TestClass(BasisTest, object):
         P.remove_vertex(test_points[2])
         time.sleep(0.1)
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P1.remove_vertex([0, 1, 2])
+        P1.remove_point([0, 1, 2])
         time.sleep(0.1)
 
         P2 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P2.remove_vertex(["0mm", "1mm", "2mm"])
+        P2.remove_point(["0mm", "1mm", "2mm"])
         time.sleep(0.1)
 
-        P3 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P3.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
+        P3 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 2, 5]])
+        P3.remove_point(["3mm", "2mm", "5mm"])
+        time.sleep(0.1)
+
+        P4 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
+        P4.remove_point(["0mm", "1mm", "2mm"], abstol=1e-6)
 
     def test_51_remove_edges_from_polyline(self):
         modeler = self.aedtapp.modeler
@@ -840,13 +844,13 @@ class TestClass(BasisTest, object):
         P.remove_edges(edge_id=0)
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_edges(edge_id=[0, 1])
+        P.remove_segments(segment_id=[0, 1])
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_edges(edge_id=[1, 2])
+        P.remove_segments(segment_id=[1, 2])
         assert P.name in self.aedtapp.modeler.line_names
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4], [3, 1, 6]])
-        P.remove_edges(edge_id=2)
+        P.remove_segments(segment_id=2)
         assert P.name in self.aedtapp.modeler.line_names
 
     def test_52_remove_edges_from_polyline_invalid(self):

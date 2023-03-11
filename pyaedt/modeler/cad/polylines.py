@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import math
+import warnings
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler
@@ -742,6 +743,17 @@ class Polyline(Object3d):
     def remove_vertex(self, position, abstol=1e-9):
         """Remove a vertex from an existing polyline by position.
 
+        .. deprecated:: 0.6.55
+           Use :func:``remove_point`` method instead.
+
+        """
+        warnings.warn("`remove_vertex` is deprecated. Use `remove_point` method instead.", DeprecationWarning)
+        return self.remove_point(position, abstol)
+
+    @pyaedt_function_handler()
+    def remove_point(self, position, abstol=1e-9):
+        """Remove a point from an existing polyline by position.
+
         You must enter the exact position of the vertex as a list
         of ``[x, y, z]`` coordinates in the object's coordinate system.
 
@@ -768,80 +780,115 @@ class Polyline(Object3d):
         Use floating point values for the vertex positions.
 
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_vertex([0, 1, 2])
+        >>> P.remove_point([0, 1, 2])
 
         Use string expressions for the vertex position.
 
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_vertex(["0mm", "1mm", "2mm"])
+        >>> P.remove_point(["0mm", "1mm", "2mm"])
 
         Use string expressions for the vertex position and include an absolute
         tolerance when searching for the vertex to be removed.
 
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_vertex(["0mm", "1mm", "2mm"], abstol=1e-6)
+        >>> P.remove_point(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
         found_vertex = False
-        if self._primitives._app._is_object_oriented_enabled():
-            obj = self._primitives.oeditor.GetChildObject(self._m_name).GetChildObject("CreatePolyline:1")
-            segments = obj.GetChildNames()
-            seg_id = 0
-            for seg in segments:
-                point = obj.GetChildObject(seg).GetPropValue("Point1")
-                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
-                pos_xyz = self._primitives.value_in_object_units(position)
-                found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
-                if found_vertex:
-                    at_start = True
-                    break
-                point = obj.GetChildObject(seg).GetPropValue("Point2")
-                p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
-                found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
-                if found_vertex:
-                    at_start = False
-                    break
-                seg_id += 1
-        else:  # pragma: no cover
-            pos_xyz = self._primitives.value_in_object_units(position)
-            for ind, vertex_pos in enumerate(self.vertex_positions):
-                # compare the specified point with the vertex data using an absolute tolerance
-                # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-                found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
-                if found_vertex:
-                    if ind == len(self.vertex_positions) - 1:
-                        seg_id = ind - 1
-                        at_start = True
-                    else:
-                        seg_id = ind
-                        at_start = False
-                    break
+        # if self._primitives._app._is_object_oriented_enabled():
+        #     obj = self._primitives.oeditor.GetChildObject(self._m_name).GetChildObject("CreatePolyline:1")
+        #     segments = obj.GetChildNames()
+        #     seg_id = 0
+        #     for seg in segments:
+        #         point = obj.GetChildObject(seg).GetPropValue("Point1")
+        #         p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+        #         pos_xyz = self._primitives.value_in_object_units(position)
+        #         found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
+        #         if found_vertex:
+        #             at_start = True
+        #             break
+        #         point = obj.GetChildObject(seg).GetPropValue("Point2")
+        #         p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
+        #         found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
+        #         if found_vertex:
+        #             at_start = False
+        #             break
+        #         seg_id += 1
+        # else:  # pragma: no cover
+        #     pos_xyz = self._primitives.value_in_object_units(position)
+        #     for ind, vertex_pos in enumerate(self.vertex_positions):
+        #         # compare the specified point with the vertex data using an absolute tolerance
+        #         # (default of math.isclose is 1e-9 which should be ok in almost all cases)
+        #         found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
+        #         if found_vertex:
+        #             if ind == len(self.vertex_positions) - 1:
+        #                 seg_id = ind - 1
+        #                 at_start = True
+        #             else:
+        #                 seg_id = ind
+        #                 at_start = False
+        #             break
 
-        assert found_vertex, "Specified vertex {} not found in polyline {}.".format(position, self._m_name)
-        self._primitives.oeditor.DeletePolylinePoint(
-            [
-                "NAME:Delete Point",
-                "Selections:=",
-                self._m_name + ":CreatePolyline:1",
-                "Segment Indices:=",
-                [seg_id],
-                "At Start:=",
-                at_start,
-            ]
-        )
+        seg_id = None
+        at_start = None
+        pos_xyz = self._primitives.value_in_object_units(position)
+        for ind, point_pos in enumerate(self.points):
+            # compare the specified point with the vertex data using an absolute tolerance
+            # (default of math.isclose is 1e-9 which should be ok in almost all cases)
+            found_vertex = GeometryOperators.points_distance(point_pos, pos_xyz) <= abstol
+            if found_vertex:
+                if ind == len(self.points) - 1:
+                    at_start = False
+                    seg_id = self._get_segment_id_from_point_n(ind, at_start, allow_inner_points=True)
+                else:
+                    at_start = True
+                    seg_id = self._get_segment_id_from_point_n(ind, at_start, allow_inner_points=True)
+                break
+
+        if not found_vertex or seg_id is None or at_start is None:
+            raise ValueError("Specified vertex {} not found in polyline {}.".format(position, self._m_name))
+
+        try:
+            self._primitives.oeditor.DeletePolylinePoint(
+                [
+                    "NAME:Delete Point",
+                    "Selections:=",
+                    self._m_name + ":CreatePolyline:1",
+                    "Segment Indices:=",
+                    [seg_id],
+                    "At Start:=",
+                    at_start,
+                ]
+            )
+        except:  # pragma: no cover
+            raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(seg_id, self.name))
+        else:
+            i_start, i_end = self._get_point_slice_from_segment_id(seg_id, at_start)
+            del self._positions[i_start:i_end]
+            del self._segment_types[seg_id]
 
         return True
 
     @pyaedt_function_handler()
     def remove_edges(self, edge_id):
-        """Remove a vertex from an existing polyline by position.
+        """Remove a segment from an existing polyline by segment id.
 
-        You must enter the exact position of the vertex as a list
-        of ``[x, y, z]`` coordinates in the object's coordinate system.
+        .. deprecated:: 0.6.55
+           Use :func:``remove_segments`` method instead.
+
+        """
+        warnings.warn("`remove_edges` is deprecated. Use `remove_segments` method instead.", DeprecationWarning)
+        return self.remove_segments(segment_id=edge_id)
+
+    @pyaedt_function_handler()
+    def remove_segments(self, segment_id):
+        """Remove a segment from an existing polyline by segment id.
+
+        You must enter the segment id or the list of the segment ids you want to remove.
 
         Parameters
         ----------
-        edge_id : int or list of int
-            One or more edge IDs within the total number of edges within the polyline.
+        segment_id : int or List of int
+            One or more edge IDs within the total number of edges of the polyline.
 
         Returns
         -------
@@ -856,10 +903,14 @@ class Polyline(Object3d):
         Examples
         --------
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_edges(edge_id=0)
+        >>> P.remove_segments(segment_id=0)
         """
-        if isinstance(edge_id, int):
-            edge_id = [edge_id]
+        if isinstance(segment_id, int):
+            segment_id = [segment_id]
+        elif isinstance(segment_id, list):
+            segment_id.sort()
+        else:
+            raise TypeError("segment_id must be int or list of int.")
         try:
             self._primitives.oeditor.DeletePolylinePoint(
                 [
@@ -867,13 +918,19 @@ class Polyline(Object3d):
                     "Selections:=",
                     self.name + ":CreatePolyline:1",
                     "Segment Indices:=",
-                    edge_id,
+                    segment_id,
                     "At Start:=",
                     True,
                 ]
             )
-        except:
-            raise ValueError("Invalid edge ID {} is specified on polyline {}.".format(edge_id, self.name))
+        except:  # pragma: no cover
+            raise ValueError("Invalid segment ID {} is specified on polyline {}.".format(segment_id, self.name))
+        else:
+            for i, sid in enumerate(segment_id):
+                sid -= i
+                i_start, i_end = self._get_point_slice_from_segment_id(sid)
+                del self._positions[i_start:i_end]
+                del self._segment_types[sid]
         return True
 
     @pyaedt_function_handler()
@@ -967,6 +1024,43 @@ class Polyline(Object3d):
         return True
 
     @pyaedt_function_handler()
+    def _get_point_slice_from_segment_id(self, segment_id, at_start=True):
+        """Get the points belonging to the segment from the segment id.
+        The points are returned as list slice by returning the indexes.
+
+        Parameters
+        ----------
+        segment_id : int
+            segment id
+
+        at_start : bool
+            if ``True`` the slice includes the start point of the segment and not the end point.
+            If ``False`` the slice includes the end point of the segment and not the start point.
+
+        Returns
+        -------
+        tuple of int, bool
+            Indexes of the list slice. ``False`` when failed.
+        """
+        i_end = 0
+        for i, s in enumerate(self.segment_types):
+            i_start = i_end
+            if s.type == "Line":
+                i_end += 1
+            elif s.type == "Arc":
+                i_end += 2
+            elif s.type == "AngularArc":
+                i_end += 2
+            elif s.type == "Spline":
+                i_end += s.num_points - 1
+            if i == segment_id:
+                if at_start:
+                    return i_start, i_end
+                else:
+                    return i_start + 1, i_end + 1
+        return False
+
+    @pyaedt_function_handler()
     def _get_segment_id_from_point_n(self, pn, at_start, allow_inner_points=False):
         """Get the segment id for a given point index considering the segment types in the polyline.
         If a segment cannot be found with the specified rules, the function returns False.
@@ -986,7 +1080,7 @@ class Polyline(Object3d):
         Returns
         -------
         int, bool
-            segment id when successful, ``False`` when failed.
+            segment id when successful. ``False`` when failed.
         """
         n_points = 0
         for i, s in enumerate(self.segment_types):
