@@ -192,7 +192,6 @@ class Polyline(Object3d):
                 num_seg=xsection_num_seg,
                 bend_type=xsection_bend_type,
             )
-            # self._positions = [list(i) for i in position_list]
 
             # validates and create the self._segment_type property and the self._positions property
             if not position_list:
@@ -311,12 +310,6 @@ class Polyline(Object3d):
             self._is_closed = close_surface
             self._is_covered = cover_surface
 
-            # if segment_type:
-            #     if isinstance(segment_type, (list, tuple)):
-            #         self._segment_types = [i for i in segment_type]
-            #     else:
-            #         self._segment_types = segment_type
-
             varg1 = self._point_segment_string_array()
             if non_model:
                 flag = "NonModel#"
@@ -363,14 +356,6 @@ class Polyline(Object3d):
 
         """
         return self.points[-1]
-
-    # @pyaedt_function_handler()
-    # def _convert_points(self, p_in, dest_unit):
-    #     p_out = []
-    #     for i in p_in:
-    #         v, u = decompose_variable_value(i)
-    #         p_out.append(unit_converter(v, unit_system="Length", input_units=u, output_units=dest_unit))
-    #     return p_out
 
     def _update_segments_and_points(self):
         """Updates the self._segment_types and the self._positions from the history.
@@ -500,23 +485,6 @@ class Polyline(Object3d):
         """
         position_list = self.points
         segment_types = self.segment_types
-
-        # assert (
-        #     len(position_list) > 0
-        # ), "The ``position_list`` argument must be a list of positions with at least one point."
-        # if not segment_types:
-        #     segment_types = [PolylineSegment("Line")] * (len(position_list) - 1)
-        # elif isinstance(segment_types, str):
-        #     segment_types = [PolylineSegment(segment_types, num_points=len(position_list))]
-        # elif isinstance(segment_types, PolylineSegment):
-        #     segment_types = [segment_types]
-        # elif isinstance(segment_types, list):
-        #     # Convert all string-type entries in the segment_types list to PolylineSegments
-        #     for ind, seg in enumerate(segment_types):
-        #         if isinstance(seg, str):
-        #             segment_types[ind] = PolylineSegment(seg)
-        # else:
-        #     raise ("Invalid segment_types input of type {}".format(type(segment_types)))
 
         # Add a closing point if needed
         varg1 = ["NAME:PolylineParameters"]
@@ -794,40 +762,6 @@ class Polyline(Object3d):
         >>> P.remove_point(["0mm", "1mm", "2mm"], abstol=1e-6)
         """
         found_vertex = False
-        # if self._primitives._app._is_object_oriented_enabled():
-        #     obj = self._primitives.oeditor.GetChildObject(self._m_name).GetChildObject("CreatePolyline:1")
-        #     segments = obj.GetChildNames()
-        #     seg_id = 0
-        #     for seg in segments:
-        #         point = obj.GetChildObject(seg).GetPropValue("Point1")
-        #         p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
-        #         pos_xyz = self._primitives.value_in_object_units(position)
-        #         found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
-        #         if found_vertex:
-        #             at_start = True
-        #             break
-        #         point = obj.GetChildObject(seg).GetPropValue("Point2")
-        #         p = self._primitives.value_in_object_units([point[1], point[3], point[5]])
-        #         found_vertex = GeometryOperators.points_distance(p, pos_xyz) <= abstol
-        #         if found_vertex:
-        #             at_start = False
-        #             break
-        #         seg_id += 1
-        # else:  # pragma: no cover
-        #     pos_xyz = self._primitives.value_in_object_units(position)
-        #     for ind, vertex_pos in enumerate(self.vertex_positions):
-        #         # compare the specified point with the vertex data using an absolute tolerance
-        #         # (default of math.isclose is 1e-9 which should be ok in almost all cases)
-        #         found_vertex = GeometryOperators.points_distance(vertex_pos, pos_xyz) <= abstol
-        #         if found_vertex:
-        #             if ind == len(self.vertex_positions) - 1:
-        #                 seg_id = ind - 1
-        #                 at_start = True
-        #             else:
-        #                 seg_id = ind
-        #                 at_start = False
-        #             break
-
         seg_id = None
         at_start = None
         pos_xyz = self._primitives.value_in_object_units(position)
@@ -1102,7 +1036,7 @@ class Polyline(Object3d):
         return False
 
     @pyaedt_function_handler()
-    def insert_segment(self, position_list, segment=None, segment_number=0):
+    def insert_segment(self, position_list, segment=None):
         """Add a segment to an existing polyline.
 
         Parameters
@@ -1166,24 +1100,18 @@ class Polyline(Object3d):
         else:
             end_point = []
 
-        segment_id = 1
         at_start = None
         p_insert_position = None
         insert_points = None
         num_polyline_points = len(self.points)
         i = None
         for i, point in enumerate(self.points):
-            # if point.position == end_point:
-            # if GeometryOperators.points_distance(list(point), end_point) < 1e-8:
             if end_point and (
                 GeometryOperators.points_distance(
                     self._primitives.value_in_object_units(point), self._primitives.value_in_object_units(end_point)
                 )
                 < 1e-8
             ):
-                # if point.id == self.points[0].id:
-                #     if segment_id > 0:
-                #         segment_id -= 1
                 at_start = True
                 p_insert_position = i
                 insert_points = position_list[: num_points - 1]  # All points but last one.
@@ -1194,13 +1122,7 @@ class Polyline(Object3d):
                         return False
                     at_start = False
                     position_list = [self.points[-2], start_point]
-
-                # if i == 0:
-                #     segment_id = 0
                 break
-            # If start_point=[0, 0, 0] (a list of integers provided by the user), it won't be equal to vertex.position
-            # that returns a list of float: [0., 0., 0.]. Thus we cast start_point as a list of floats.
-            # elif point.position == [float(x) for x in start_point]:
             elif (
                 GeometryOperators.points_distance(
                     self._primitives.value_in_object_units(point), self._primitives.value_in_object_units(start_point)
@@ -1221,24 +1143,7 @@ class Polyline(Object3d):
                         return False
                     at_start = True
                     position_list = [end_point, self.points[1]]
-
-                # if segment_index > 0:
-                #     segment_index -= 1
                 break
-            # segment_index += 1
-        # id_v = 0
-
-        # if isinstance(self._segment_types, list):
-        #     s_types = [i for i in self._segment_types]
-        # else:
-        #     s_types = [self._segment_types]
-        # for el in s_types:
-        #     if isinstance(el, PolylineSegment):
-        #         id_v += max(0, el.num_seg - 1)
-        #         if id_v > segment_index:
-        #             id_v -= el.num_seg - 1
-        #             break
-        # segment_index -= id_v
 
         assert p_insert_position is not None, "Point for the insert is not found."
         assert insert_points is not None, "Point for the insert is not found."
@@ -1284,25 +1189,6 @@ class Polyline(Object3d):
         # check if the polyline has been modified correctly
         if self._check_polyline_health() is False:
             raise ValueError("Adding the segment result in an unclassified object. Undoing operation.")
-
-        # if segment.type == "Spline":
-        #     varg1 = ["NAME:AllTabs"]
-        #     varg2 = ["NAME:Geometry3DPolylineTab"]
-        #
-        #     varg3 = ["NAME:PropServers"]
-        #     varg3.append(self._m_name + ":CreatePolyline:1" + ":Segment" + str(segment_id))
-        #     varg2.append(varg3)
-        #
-        #     varg4 = ["NAME:ChangedProps"]
-        #     varg5 = ["NAME:Number of Segments"]
-        #     varg5.append("Value:=")
-        #     varg5.append(str(segment_number))
-        #
-        #     varg4.append(varg5)
-        #     varg2.append(varg4)
-        #     varg1.append(varg2)
-        #
-        #     self._primitives.oeditor.ChangeProperty(varg1)
 
         # add the points and the segment to the object
         self._positions[p_insert_position:p_insert_position] = insert_points
