@@ -51,7 +51,8 @@ class PolylineSegment(object):
 
     def __init__(self, segment_type, num_seg=0, num_points=0, arc_angle=0, arc_center=None, arc_plane=None):
         valid_types = ["Line", "Arc", "Spline", "AngularArc"]
-        assert segment_type in valid_types, "Segment type must be one of {}.".format(valid_types)
+        if segment_type not in valid_types:
+            raise TypeError("Segment type must be one of {}.".format(valid_types))
         self.type = segment_type
         if segment_type != "Line":
             self.num_seg = num_seg
@@ -65,18 +66,24 @@ class PolylineSegment(object):
             self.arc_angle = arc_angle
             if not arc_center:
                 arc_center = [0, 0, 0]
-            assert len(arc_center) == 3, "Arc center must be a list of length 3."
+            if len(arc_center) != 3:
+                raise ValueError("Arc center must be a list of length 3.")
             self.arc_center = arc_center
         if isinstance(arc_plane, int):
             if arc_plane == PLANE.XY:
                 self.arc_plane = "XY"
             elif arc_plane == PLANE.ZX:
                 self.arc_plane = "ZX"
-            else:
+            elif arc_plane == PLANE.YZ:
                 self.arc_plane = "YZ"
+            else:
+                raise ValueError("arc_plane must be 0, 1, or 2 ")
         elif arc_plane:
-            assert arc_plane in ["XY", "ZX", "YZ"], 'arc_plane must be "XY", "ZX", or "YZ" '
+            if arc_plane not in ["XY", "ZX", "YZ"]:
+                raise ValueError('arc_plane must be "XY", "ZX", or "YZ" ')
             self.arc_plane = arc_plane
+        else:
+            self.arc_plane = None
         self.extra_points = None
 
 
@@ -187,11 +194,16 @@ class Polyline(Object3d):
             # self._positions = [list(i) for i in position_list]
 
             # validates and create the self._segment_type property and the self._positions property
-            if not position_list or not isinstance(position_list, list):
-                raise AttributeError("The position_list argument must be a list of positions with at least one point.")
+            if not position_list:
+                raise ValueError("The position_list argument must be a list of positions with at least one point.")
+            if not isinstance(position_list, list):
+                raise TypeError("The position_list argument must be a list of positions with at least one point.")
+            # convert the points if they are defined as modeler.Position
+            if isinstance(position_list[0], self._primitives._app.modeler.Position):
+                position_list = [[i for i in j] for j in position_list]
             if not segment_type:
                 if len(position_list) < 2:
-                    raise AttributeError(
+                    raise ValueError(
                         "The position_list argument must contain at least 2 points if segment_type is not specified."
                     )
                 # add the segment
@@ -200,19 +212,19 @@ class Polyline(Object3d):
                 self._positions = [list(i) for i in position_list]
             elif isinstance(segment_type, str):
                 if segment_type not in ["Line", "Arc"]:
-                    raise AttributeError('segment must be either "Line", "Arc" or PolylineSegment object')
+                    raise TypeError('segment must be either "Line", "Arc" or PolylineSegment object')
                 # add the segment
                 self._segment_types = [PolylineSegment(segment_type)]
                 # add the points (discard the points in excess)
                 if self._segment_types[0].type == "Line":
                     if len(position_list) < 2:
-                        raise AttributeError(
+                        raise ValueError(
                             "The position_list argument must contain at least 2 points for segment of type Line."
                         )
                     self._positions = [list(i) for i in position_list[:2]]
                 elif self._segment_types[0].type == "Arc":
                     if len(position_list) < 3:
-                        raise AttributeError(
+                        raise ValueError(
                             "The position_list argument must contain at least 3 points for segment of type Arc."
                         )
                     self._positions = [list(i) for i in position_list[:3]]
@@ -222,19 +234,19 @@ class Polyline(Object3d):
                 # add the points
                 if segment_type.type == "Line":
                     if len(position_list) < 2:
-                        raise AttributeError(
+                        raise ValueError(
                             "The position_list argument must contain at least 2 points for segment of type Line."
                         )
                     self._positions = [list(i) for i in position_list[:2]]
                 elif segment_type.type == "Arc":
                     if len(position_list) < 3:
-                        raise AttributeError(
+                        raise ValueError(
                             "The position_list argument must contain at least 3 points for segment of type Arc."
                         )
                     self._positions = [list(i) for i in position_list[:3]]
                 elif segment_type.type == "Spline":
                     if len(position_list) < self._segment_types[-1].num_points:
-                        raise AttributeError(
+                        raise ValueError(
                             "The position_list argument must contain all points required by the segment of type Spline."
                         )
                     self._positions = [list(i) for i in position_list[: self._segment_types[-1].num_points]]
@@ -247,28 +259,30 @@ class Polyline(Object3d):
                 for i, seg in enumerate(segment_type):
                     # add the segments
                     if isinstance(seg, str):
-                        if segment_type not in ["Line", "Arc"]:
-                            raise AttributeError('segment must be either "Line", "Arc" or PolylineSegment object')
+                        if seg not in ["Line", "Arc"]:
+                            raise TypeError('segment must be either "Line", "Arc" or PolylineSegment object')
                         # Convert all string-type entries in the segment_types list to PolylineSegments
                         self._segment_types.append(PolylineSegment(seg))
                     elif isinstance(seg, PolylineSegment):
                         self._segment_types.append(seg)
                     else:
-                        raise ("Invalid segment_type input of type {}".format(type(seg)))
+                        raise TypeError("Invalid segment_type input of type {}".format(type(seg)))
                     # add the points
                     if i == 0:  # append the first point only for the first segment
                         self._positions.append(list(position_list[0]))
                     # add the other points
                     if self._segment_types[-1].type == "Line":
                         if len(position_list[i_pos : i_pos + 2]) < 2:
-                            raise AttributeError(
+                            raise ValueError(
                                 "The position_list argument must contain at least 2 points for segment of type Line."
                             )
                         self._positions.extend([list(i) for i in position_list[i_pos + 1 : i_pos + 2]])
                         i_pos += 1
                     elif self._segment_types[-1].type == "Arc":
-                        if len(position_list[i_pos : i_pos + 3]) < 3:
-                            raise AttributeError(
+                        if (not close_surface and len(position_list[i_pos : i_pos + 3]) < 3) or (
+                            close_surface and len(position_list[i_pos : i_pos + 3]) < 2
+                        ):
+                            raise ValueError(
                                 "The position_list argument must contain at least 3 points for segment of type Arc."
                             )
                         self._positions.extend([list(i) for i in position_list[i_pos + 1 : i_pos + 3]])
@@ -276,7 +290,7 @@ class Polyline(Object3d):
                     elif self._segment_types[-1].type == "Spline":
                         nsp = self._segment_types[-1].num_points
                         if len(position_list[i_pos : i_pos + nsp]) < nsp:
-                            raise AttributeError(
+                            raise ValueError(
                                 "The position_list argument must contain all points required by the segment Spline."
                             )
                         self._positions.extend([list(i) for i in position_list[: self._segment_types[-1].num_points]])
@@ -286,7 +300,7 @@ class Polyline(Object3d):
                         self._evaluate_arc_angle_extra_points(self._segment_types[-1], start_point=start)
                         self._positions.extend(self._segment_types[-1].extra_points[:])
             else:
-                raise ("Invalid segment_type input of type {}".format(type(segment_type)))
+                raise TypeError("Invalid segment_type input of type {}".format(type(segment_type)))
 
             # When close surface or cover_surface are set to True, ensure the start point and end point are coincident,
             # and insert a line segment to achieve this if necessary
@@ -378,45 +392,43 @@ class Polyline(Object3d):
         if children:
             for i, c in enumerate(children.values()):
                 # evaluate the number of points in the segment
-                attrb = dir(c.child_object)
+                attrb = list(c.props.keys())
                 n_points = 0
                 for j in range(1, len(attrb) + 1):
                     if "Point" + str(j) in attrb:
                         n_points += 1
                 # get the segment type
-                s_type = c.child_object.Segment_Type
+                s_type = c.props["Segment Type"]
                 if i == 0:  # append the first point only for the first segment
                     if s_type != "Center Point Arc":
-                        points.append(_convert_points(list(c.child_object.Point1)[1::2], self._primitives.model_units))
+                        points.append(_convert_points(list(c.props["Point1"])[1::2], self._primitives.model_units))
                     else:
-                        points.append(
-                            _convert_points(list(c.child_object.Start_Point)[1::2], self._primitives.model_units)
-                        )
+                        points.append(_convert_points(list(c.props["Start Point"])[1::2], self._primitives.model_units))
                 if s_type == "Line":
                     segments.append(PolylineSegment("Line"))
-                    points.append(_convert_points(list(c.child_object.Point2)[1::2], self._primitives.model_units))
+                    points.append(_convert_points(list(c.props["Point2"])[1::2], self._primitives.model_units))
                 elif s_type == "3 Point Arc":
                     segments.append(PolylineSegment("Arc"))
-                    points.append(_convert_points(list(c.child_object.Point2)[1::2], self._primitives.model_units))
-                    points.append(_convert_points(list(c.child_object.Point3)[1::2], self._primitives.model_units))
+                    points.append(_convert_points(list(c.props["Point2"])[1::2], self._primitives.model_units))
+                    points.append(_convert_points(list(c.props["Point3"])[1::2], self._primitives.model_units))
                 elif s_type == "Spline":
                     segments.append(PolylineSegment("Spline", num_points=n_points))
                     for p in range(2, n_points + 1):
-                        point_attr = getattr(c.child_object, "Point" + str(p))
+                        point_attr = c.props["Point" + str(p)]
                         points.append(_convert_points(list(point_attr)[1::2], self._primitives.model_units))
                 elif s_type == "Center Point Arc":
-                    start = _convert_points(list(c.child_object.Start_Point)[1::2], self._primitives.model_units)
-                    center = _convert_points(list(c.child_object.Center_Point)[1::2], self._primitives.model_units)
-                    plane = c.child_object.Plane
-                    angle = c.child_object.Angle
+                    start = _convert_points(list(c.props["Start Point"])[1::2], self._primitives.model_units)
+                    center = _convert_points(list(c.props["Center Point"])[1::2], self._primitives.model_units)
+                    plane = c.props["Plane"]
+                    angle = c.props["Angle"]
                     arc_seg = PolylineSegment("AngularArc", arc_angle=angle, arc_center=center, arc_plane=plane)
                     segments.append(arc_seg)
                     self._evaluate_arc_angle_extra_points(arc_seg, start)
                     points.extend(arc_seg.extra_points[:])
 
         # perform validation
-        nn_segments = int(self.history.child_object.Number_of_curves)
-        nn_points = int(self.history.child_object.Number_of_points)
+        nn_segments = int(self.history.props["Number of curves"])
+        nn_points = int(self.history.props["Number of points"])
         assert len(segments) == nn_segments, "Error getting the polyline segments from AEDT."
         assert len(points) == nn_points, "Error getting the polyline points from AEDT."
         # if succeeded save the result
@@ -556,7 +568,7 @@ class Polyline(Object3d):
                                 position_list.append(position_list[0])
                             else:
                                 err_str = "Insufficient points in position_list to complete the specified segment list"
-                                raise IndexError(err_str)
+                                raise ValueError(err_str)
                         points_str.append(self._pl_point(position_list[pos_count + i]))
                         pos_count_incr += 1
                         index_count += 1
@@ -614,10 +626,10 @@ class Polyline(Object3d):
         arc_ang = self._primitives._app.evaluate_expression(segment.arc_angle)  # in radians
         h_arc_ang = arc_ang * 0.5
 
-        p1_alph = c_alph + (p0_alph) * math.cos(h_arc_ang) - (p0_beta) * math.sin(h_arc_ang)
-        p1_beta = c_beta + (p0_alph) * math.sin(h_arc_ang) + (p0_beta) * math.cos(h_arc_ang)
-        p2_alph = c_alph + (p0_alph) * math.cos(arc_ang) - (p0_beta) * math.sin(arc_ang)
-        p2_beta = c_beta + (p0_alph) * math.sin(arc_ang) + (p0_beta) * math.cos(arc_ang)
+        p1_alph = c_alph + p0_alph * math.cos(h_arc_ang) - p0_beta * math.sin(h_arc_ang)
+        p1_beta = c_beta + p0_alph * math.sin(h_arc_ang) + p0_beta * math.cos(h_arc_ang)
+        p2_alph = c_alph + p0_alph * math.cos(arc_ang) - p0_beta * math.sin(arc_ang)
+        p2_beta = c_beta + p0_alph * math.sin(arc_ang) + p0_beta * math.cos(arc_ang)
 
         # Generate the 2 new points in XYZ
         p1 = list(p0_xyz)
@@ -1027,9 +1039,9 @@ class Polyline(Object3d):
         num_points = len(position_list)
 
         # define the segment type from the number of points given
-        if num_points < 2:
-            raise AttributeError("num_points must contain at least 2 points to define a segment.")
         if not segment:
+            if num_points < 2:
+                raise ValueError("num_points must contain at least 2 points to auto-define a segment.")
             if num_points == 2:
                 segment = PolylineSegment("Line")
             elif num_points == 3:
@@ -1045,15 +1057,17 @@ class Polyline(Object3d):
                 if segment.type == "AngularArc":
                     self._evaluate_arc_angle_extra_points(segment, start_point=position_list[0])
             else:
-                raise AttributeError('segment must be either "Line", "Arc" or PolylineSegment object')
-            if len(position_list) < num_points:
-                raise AttributeError("position_list must contain enough points for the specified segment type.")
+                raise TypeError('segment must be either "Line", "Arc" or PolylineSegment object.')
+            if segment.type != "AngularArc" and len(position_list) < num_points:
+                raise ValueError("position_list must contain enough points for the specified segment type.")
+            elif segment.type == "AngularArc" and len(position_list) < 1:
+                raise ValueError("position_list must contain the start point for AngularArc segment.")
 
         # Check whether start-point and end-point of the segment is in the existing polylines points
         start_point = position_list[0]
 
         # End point does not exist for an AngularArc
-        if segment.type != "AngularArg":
+        if segment.type != "AngularArc":
             end_point = position_list[-1]
         else:
             end_point = []
@@ -1175,7 +1189,7 @@ class Polyline(Object3d):
 
         # check if the polyline has been modified correctly
         if self._check_polyline_health() is False:
-            raise AttributeError("Adding the segment result in an unclassified object. Undoing operation.")
+            raise ValueError("Adding the segment result in an unclassified object. Undoing operation.")
 
         # if segment.type == "Spline":
         #     varg1 = ["NAME:AllTabs"]
@@ -1195,10 +1209,6 @@ class Polyline(Object3d):
         #     varg1.append(varg2)
         #
         #     self._primitives.oeditor.ChangeProperty(varg1)
-
-        # check if the polyline has been modified correctly
-        if self._check_polyline_health() is False:
-            raise AttributeError("Adding the segment result in an unclassified object. Undoing operation.")
 
         # add the points and the segment to the object
         self._positions[p_insert_position:p_insert_position] = insert_points

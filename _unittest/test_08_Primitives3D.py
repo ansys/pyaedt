@@ -31,10 +31,12 @@ if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
     components_flatten = "components_flatten_231"
+    polyline = "polyline_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
     components_flatten = "components_flatten"
+    polyline = "polyline"
 
 
 class TestClass(BasisTest, object):
@@ -51,6 +53,8 @@ class TestClass(BasisTest, object):
         test_99_project = os.path.join(local_path, "example_models", test_subfolder, assembly + ".aedt")
         self.test_99_project = self.local_scratch.copyfile(test_99_project)
         self.flatten = BasisTest.add_app(self, project_name=components_flatten, subfolder=test_subfolder)
+        test_54b_project = os.path.join(local_path, "example_models", test_subfolder, polyline + ".aedt")
+        self.test_54b_project = self.local_scratch.copyfile(test_54b_project)
 
     def teardown_class(self):
         BasisTest.my_teardown(self)
@@ -98,6 +102,24 @@ class TestClass(BasisTest, object):
             [30, 30, 0], major_radius=1.2, minor_radius=0.5, axis="Z", name=name, material_name="Copper"
         )
 
+    def create_polylines(self, name=None):
+        if not name:
+            name = "Poly_"
+
+        test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
+
+        if self.aedtapp.modeler[name + "segmented"]:
+            self.aedtapp.modeler.delete(name + "segmented")
+
+        if self.aedtapp.modeler[name + "compound"]:
+            self.aedtapp.modeler.delete(name + "compound")
+
+        p1 = self.aedtapp.modeler.create_polyline(position_list=test_points, name=name + "segmented")
+        p2 = self.aedtapp.modeler.create_polyline(
+            position_list=test_points, segment_type=["Line", "Arc"], name=name + "compound"
+        )
+        return p1, p2, test_points
+
     def test_01_resolve_object(self):
         o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyCreatedBox", "Copper")
         o1 = self.aedtapp.modeler._resolve_object(o)
@@ -129,9 +151,10 @@ class TestClass(BasisTest, object):
         try:
             invalid_entry = "Frank"
             self.aedtapp.modeler.create_box([0, 0, 0], invalid_entry, "MyCreatedBox", "Copper")
-            assert False
         except AssertionError:
             pass
+        else:
+            assert False
 
     def test_04_create_polyhedron(self):
         o1 = self.aedtapp.modeler.create_polyhedron()
@@ -307,25 +330,7 @@ class TestClass(BasisTest, object):
         assert len(of) == 4
         pass
 
-    def test_19a_create_polylines(self, name=None):
-        if not name:
-            name = "Poly_"
-
-        test_points = [[0, 100, 0], [-100, 0, 0], [-50, -50, 0], [0, 0, 0]]
-
-        if self.aedtapp.modeler[name + "segmented"]:
-            self.aedtapp.modeler.delete(name + "segmented")
-
-        if self.aedtapp.modeler[name + "compound"]:
-            self.aedtapp.modeler.delete(name + "compound")
-
-        p1 = self.aedtapp.modeler.create_polyline(position_list=test_points, name=name + "segmented")
-        p2 = self.aedtapp.modeler.create_polyline(
-            position_list=test_points, segment_type=["Line", "Arc"], name=name + "compound"
-        )
-        return p1, p2, test_points
-
-    def test_19b_create_polyline(self):
+    def test_19_create_polyline(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
@@ -620,8 +625,12 @@ class TestClass(BasisTest, object):
         assert prim3D.create_polyline(
             position_list=test_points, segment_type=PolylineSegment("Spline", num_points=3), name="PL03_spline_3pt"
         )
-        assert prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
-        assert prim3D.create_polyline(position_list=test_points[0:2], segment_type="Spline", name="PL03_spline_str_2pt")
+        try:
+            prim3D.create_polyline(position_list=test_points[0:3], segment_type="Spline", name="PL03_spline_str_3pt")
+        except TypeError as e:
+            assert str(e) == 'segment must be either "Line", "Arc" or PolylineSegment object'
+        else:
+            assert False
         assert prim3D.create_polyline(
             position_list=[[100, 100, 0]],
             segment_type=PolylineSegment("AngularArc", arc_center=[0, 0, 0], arc_angle="30deg"),
@@ -683,7 +692,7 @@ class TestClass(BasisTest, object):
         assert len(P.points) == 5
         assert P.points == [
             ["0mm", "p1", "0mm"],
-            ["90.0", "20.0", "0.0"],
+            ["90mm", "20mm", "0mm"],
             ["-p1", "0mm", "0mm"],
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
@@ -692,8 +701,8 @@ class TestClass(BasisTest, object):
         assert len(P.points) == 6
         assert P.points == [
             ["0mm", "p1", "0mm"],
-            ["90.0", "20.0", "0.0"],
-            ["95.0", "20.0", "0.0"],
+            ["90mm", "20mm", "0mm"],
+            ["95mm", "20mm", "0mm"],
             ["-p1", "0mm", "0mm"],
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
@@ -702,10 +711,10 @@ class TestClass(BasisTest, object):
         assert len(P.points) == 7
         assert P.points == [
             ["0mm", "p1", "0mm"],
-            ["90.0", "20.0", "0.0"],
-            ["95.0", "20.0", "0.0"],
+            ["90mm", "20mm", "0mm"],
+            ["95mm", "20mm", "0mm"],
             ["-p1", "0mm", "0mm"],
-            ["-110.0", "-35.0", "0.0"],
+            ["-110mm", "-35mm", "0mm"],
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
         ]
@@ -713,11 +722,11 @@ class TestClass(BasisTest, object):
         assert len(P.points) == 8
         assert P.points == [
             ["0mm", "p1", "0mm"],
-            ["90.0", "20.0", "0.0"],
-            ["95.0", "20.0", "0.0"],
-            ["-80.0", "10.0", "0.0"],
+            ["90mm", "20mm", "0mm"],
+            ["95mm", "20mm", "0mm"],
+            ["-80mm", "10mm", "0mm"],
             ["-p1", "0mm", "0mm"],
-            ["-110.0", "-35.0", "0.0"],
+            ["-110mm", "-35mm", "0mm"],
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
         ]
@@ -725,28 +734,28 @@ class TestClass(BasisTest, object):
         assert len(P.points) == 9
         assert P.points == [
             ["0mm", "p1", "0mm"],
-            ["90.0", "20.0", "0.0"],
-            ["95.0", "20.0", "0.0"],
-            ["-80.0", "10.0", "0.0"],
+            ["90mm", "20mm", "0mm"],
+            ["95mm", "20mm", "0mm"],
+            ["-80mm", "10mm", "0mm"],
             ["-p1", "0mm", "0mm"],
-            ["-110.0", "-35.0", "0.0"],
+            ["-110mm", "-35mm", "0mm"],
             ["-p1/2", "-p1/2", "0mm"],
             ["0mm", "0mm", "0mm"],
-            ["10.0", "10.0", "0.0"],
+            ["10mm", "10mm", "0mm"],
         ]
         assert P.insert_segment(position_list=[["10mm", "5mm", "0mm"], ["0mm", "0mm", "0mm"]])
         assert len(P.points) == 10
         assert P.points == [
             ["0mm", "p1", "0mm"],
-            ["90.0", "20.0", "0.0"],
-            ["95.0", "20.0", "0.0"],
-            ["-80.0", "10.0", "0.0"],
+            ["90mm", "20mm", "0mm"],
+            ["95mm", "20mm", "0mm"],
+            ["-80mm", "10mm", "0mm"],
             ["-p1", "0mm", "0mm"],
-            ["-110.0", "-35.0", "0.0"],
+            ["-110mm", "-35mm", "0mm"],
             ["-p1/2", "-p1/2", "0mm"],
-            ["10.0", "5.0", "0.0"],
+            ["10mm", "5mm", "0mm"],
             ["0mm", "0mm", "0mm"],
-            ["10.0", "10.0", "0.0"],
+            ["10mm", "10mm", "0mm"],
         ]
 
     def test_48_insert_polylines_segments_test2(self):
@@ -832,7 +841,123 @@ class TestClass(BasisTest, object):
         P2 = P1.clone()
         assert P2.id != P1.id
 
-    def test_54_create_bond_wires(self):
+    def test_54_create_spiral_and_add_segments(self):
+        save_model_units = self.aedtapp.modeler.model_units
+        self.aedtapp.modeler.model_units = "um"
+        innerRadius = 20
+        wireThickness_um = 1
+        numberOfTurns = 5
+        NumberOfFaces = 10
+
+        ind = self.aedtapp.modeler.create_spiral(
+            internal_radius=innerRadius,
+            spacing=wireThickness_um,
+            turns=numberOfTurns,
+            faces=NumberOfFaces,
+            material="copper",
+            name="Inductor1",
+        )
+
+        ind.set_crosssection_properties(type="Circle", width=wireThickness_um)
+
+        polyline_points = ind.points
+
+        pn = polyline_points[-1]
+        new_point = [pn[0], pn[1], 10]
+        position_lst = [pn, new_point]
+        ind.insert_segment(position_lst)
+        assert len(ind.points) == 48
+        assert len(ind.segment_types) == 47
+
+        p0 = polyline_points[0]
+        position_lst = [[14, -12, 0], p0]
+        ind.insert_segment(position_lst)
+        assert len(ind.points) == 49
+        assert len(ind.segment_types) == 48
+
+        position_lst = [p0, [12, 2, 0]]
+        ind.insert_segment(position_lst)
+        assert len(ind.points) == 50
+        assert len(ind.segment_types) == 49
+
+        p5 = polyline_points[5]
+        position_lst = [[12, 10, 0], p5]
+        ind.insert_segment(position_lst)
+        assert len(ind.points) == 51
+        assert len(ind.segment_types) == 50
+
+        p6 = polyline_points[6]
+        position_lst = [p6, [-2, 18, 0], [-4, 18, 0]]
+        ind.insert_segment(position_lst, "Arc")
+        assert len(ind.points) == 53
+        assert len(ind.segment_types) == 51
+
+        p10 = polyline_points[10]
+        position_lst = [[-14, 10, 0], [-16, 6, 0], p10]
+        ind.insert_segment(position_lst, "Arc")
+        assert len(ind.points) == 55
+        assert len(ind.segment_types) == 52
+
+        p13 = polyline_points[13]
+        position_lst = [p13, [-16, -8, 0], [-14, -10, 0], [-10, -10, 0], [-10, -14, 0]]
+        ind.insert_segment(position_lst, self.aedtapp.modeler.polyline_segment("Spline", num_points=5))
+        assert len(ind.points) == 59
+        assert len(ind.segment_types) == 53
+
+        p19 = polyline_points[19]
+        position_lst = [[-8, -21, 0], [-4, -18, 0], [-2, -22, 0], p19]
+        ind.insert_segment(position_lst, self.aedtapp.modeler.polyline_segment("Spline", num_points=4))
+        assert len(ind.points) == 62
+        assert len(ind.segment_types) == 54
+
+        pm4 = polyline_points[-4]
+        position_lst = [pm4]
+        ind.insert_segment(
+            position_lst,
+            self.aedtapp.modeler.polyline_segment(
+                "AngularArc", arc_center=[-28, 26, 0], arc_angle="225.9deg", arc_plane="XY"
+            ),
+        )
+        assert len(ind.points) == 64
+        assert len(ind.segment_types) == 55
+
+        # test unclassified
+        p11 = polyline_points[11]
+        position_lst = [[-142, 130, 0], [-126, 63, 0], p11]
+        try:
+            ind.insert_segment(position_lst, "Arc")
+        except ValueError as e:
+            assert str(e) == "Adding the segment result in an unclassified object. Undoing operation."
+        else:
+            assert False
+        assert len(ind.points) == 64
+        assert len(ind.segment_types) == 55
+
+        self.aedtapp.modeler.model_units = save_model_units
+
+    def test_54b_open_and_load_a_polyline(self):
+        self.aedtapp.load_project(self.test_54b_project)
+
+        poly1 = self.aedtapp.modeler["Inductor1"]
+        poly2 = self.aedtapp.modeler["Polyline1"]
+        poly3 = self.aedtapp.modeler["Polyline2"]
+
+        p1 = poly1.points
+        s1 = poly1.segment_types
+        assert len(p1) == 10
+        assert len(s1) == 9
+        p2 = poly2.points
+        s2 = poly2.segment_types
+        assert len(p2) == 13
+        assert len(s2) == 7
+        p3 = poly3.points
+        s3 = poly3.segment_types
+        assert len(p3) == 3
+        assert len(s3) == 1
+
+        # self.aedtapp.close_project(name=self.aedtapp.project_name, save_project=False)
+
+    def test_55_create_bond_wires(self):
         b0 = self.aedtapp.modeler.create_bondwire(
             [0, 0, 0], [10, 10, 2], h1=0.15, h2=0, diameter=0.034, facets=8, matname="copper", name="jedec51"
         )
