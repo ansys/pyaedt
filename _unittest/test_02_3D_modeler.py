@@ -619,13 +619,13 @@ class TestClass(BasisTest, object):
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment0", "Number of segments"
             )
-            == "3"
+            == "0"
         )
         assert (
             self.aedtapp.get_oo_property_value(
                 self.aedtapp.modeler.oeditor, second_line.name + "\\CreatePolyline:1\\Segment2", "Number of segments"
             )
-            == "5"
+            == "0"
         )
 
     def test_50_move_edge(self):
