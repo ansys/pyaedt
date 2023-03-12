@@ -433,7 +433,7 @@ class Polyline(Object3d):
 
     @property
     def segment_types(self):
-        """List of the segment types of the polyline"""
+        """List of the segment types of the polyline."""
         if self._segment_types:
             return self._segment_types
         else:
