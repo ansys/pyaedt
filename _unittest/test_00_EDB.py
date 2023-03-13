@@ -1564,6 +1564,43 @@ class TestClass(BasisTest, object):
         assert edb.core_hfss.create_bundle_wave_port(traces_id, pathes)
         edb.close_edb()
 
+    def test_120b_edb_create_port(self):
+        edb = Edb(
+            edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
+            edbversion=desktop_version,
+        )
+        args = {
+            "layer_name": "TOP",
+            "net_name": "SIGP",
+            "width": "0.1mm",
+            "start_cap_style": "Flat",
+            "end_cap_style": "Flat",
+        }
+        traces = []
+        trace_pathes = [
+            [["-40mm", "-10mm"], ["-30mm", "-10mm"]],
+            [["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
+            [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
+        ]
+        for p in trace_pathes:
+            t = edb.core_primitives.create_trace(path_list=p, **args)
+            traces.append(t)
+
+        assert edb.core_hfss.create_wave_port(traces[0], trace_pathes[0][0], "wave_port")
+
+        assert edb.core_hfss.create_differential_wave_port(
+            traces[0],
+            trace_pathes[0][0],
+            traces[1],
+            trace_pathes[1][0],
+            horizontal_extent_factor=8,
+        )
+        assert not edb.are_port_reference_terminals_connected()
+
+        pathes = [i[1] for i in trace_pathes]
+        assert edb.core_hfss.create_bundle_wave_port(traces, pathes)
+        edb.close_edb()
+
     def test_121_insert_layer(self):
         layers = self.edbapp.core_stackup.stackup_layers
         layer = layers.insert_layer_above("NewLayer", "TOP", "copper", "air", "10um", 0, roughness_enabled=True)
