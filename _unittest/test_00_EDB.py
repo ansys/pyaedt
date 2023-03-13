@@ -1540,29 +1540,29 @@ class TestClass(BasisTest, object):
             "end_cap_style": "Flat",
         }
         traces = []
-        trace_pathes = [
+        trace_paths = [
             [["-40mm", "-10mm"], ["-30mm", "-10mm"]],
             [["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
             [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
         ]
-        for p in trace_pathes:
+        for p in trace_paths:
             t = edb.core_primitives.create_trace(path_list=p, **args)
             traces.append(t)
 
-        assert edb.core_hfss.create_wave_port(traces[0].id, trace_pathes[0][0], "wave_port")
+        assert edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
 
         assert edb.core_hfss.create_differential_wave_port(
             traces[0].id,
-            trace_pathes[0][0],
+            trace_paths[0][0],
             traces[1].id,
-            trace_pathes[1][0],
+            trace_paths[1][0],
             horizontal_extent_factor=8,
         )
         assert not edb.are_port_reference_terminals_connected()
 
         traces_id = [i.id for i in traces]
-        pathes = [i[1] for i in trace_pathes]
-        assert edb.core_hfss.create_bundle_wave_port(traces_id, pathes)
+        paths = [i[1] for i in trace_paths]
+        assert edb.core_hfss.create_bundle_wave_port(traces_id, paths)
         edb.close_edb()
 
     def test_120b_edb_create_port(self):
