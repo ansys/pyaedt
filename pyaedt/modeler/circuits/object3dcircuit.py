@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-import math
 from collections import OrderedDict
+import math
 
 from pyaedt import _retry_ntimes
 from pyaedt import pyaedt_function_handler

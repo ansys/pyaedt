@@ -12,12 +12,13 @@ except ImportError:
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.cad.polylines import Polyline
-from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 test = sys.modules.keys()
@@ -454,6 +455,9 @@ class TestClass(BasisTest, object):
         assert len(listsobj) > 0
         listsobj = self.aedtapp.modeler.get_objects_by_material("FR4")
         assert len(listsobj) == 0
+        listsobj = self.aedtapp.modeler.get_objects_by_material()
+        assert set(self.aedtapp.materials.conductors).issubset([mat for sublist in listsobj for mat in sublist])
+        assert set(self.aedtapp.materials.dielectrics).issubset([mat for sublist in listsobj for mat in sublist])
 
     def test_28_get_object_faces(self):
         self.create_rectangle()

@@ -1,13 +1,13 @@
 """
 This module contains these classes: `BoundaryCommon` and `BoundaryObject`.
 """
+from collections import OrderedDict
 import copy
 import re
-from collections import OrderedDict
 
-from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.DataHandlers import random_string
+from pyaedt.generic.constants import CATEGORIESQ3D
 from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _dim_arg
 from pyaedt.generic.general_methods import filter_tuple

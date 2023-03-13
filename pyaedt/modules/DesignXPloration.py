@@ -1,6 +1,6 @@
+from collections import OrderedDict
 import copy
 import csv
-from collections import OrderedDict
 
 from pyaedt.generic.DataHandlers import _arg2dict
 from pyaedt.generic.DataHandlers import _dict2arg
@@ -533,7 +533,7 @@ class CommonOptimetrics(PropsManager, object):
 
         >>> oDesign.Analyze
         """
-        self._app.analyze_setup(
+        self._app.analyze(
             setup_name=self.name,
             num_cores=num_cores,
             num_tasks=num_tasks,

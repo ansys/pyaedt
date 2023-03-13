@@ -7,12 +7,12 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import os
 import shutil
 import tempfile
 import time
 import warnings
-from collections import OrderedDict
 
 from pyaedt import is_ironpython
 from pyaedt import settings
@@ -21,15 +21,15 @@ from pyaedt.application.JobManager import update_hpc_option
 from pyaedt.application.Variables import Variable
 from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.constants import AXIS
+from pyaedt.generic.constants import CoordinateSystemAxis
+from pyaedt.generic.constants import CoordinateSystemPlane
 from pyaedt.generic.constants import GRAVITY
+from pyaedt.generic.constants import GravityDirection
 from pyaedt.generic.constants import PLANE
+from pyaedt.generic.constants import Plane
 from pyaedt.generic.constants import SETUPS
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.constants import VIEW
-from pyaedt.generic.constants import CoordinateSystemAxis
-from pyaedt.generic.constants import CoordinateSystemPlane
-from pyaedt.generic.constants import GravityDirection
-from pyaedt.generic.constants import Plane
 from pyaedt.generic.general_methods import filter_tuple
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import open_file
