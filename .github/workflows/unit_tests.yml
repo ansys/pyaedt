@@ -54,7 +54,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           pip install .
-          pip install -r requirements/requirements_test.txt
+          pip install .[tests]
           pip install pytest-azurepipelines
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
           mkdir tmp
@@ -86,8 +86,8 @@ jobs:
       - name: 'Build and validate source distribution'
         run: |
           testenv\Scripts\Activate.ps1
-          python setup.py sdist
-          python -m pip install twine
+          python -m pip install build twine
+          python -m build
           python -m twine check dist/*
 
       - name: "Builds and uploads to PyPI"

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 * * * This script is meant to run in IronPython within the Ansys Electronics Desktop. * * *
 The script provides for choosing the Python script to execute.
@@ -10,15 +11,17 @@ See the declaration of the command variable to see the order in which arguments 
 The commands allow the launched script to still reference the project and design that was active when the script
 was launched as well as the AEDT instance that has them open.
 
-Author: Carlos A. Mulero Hernandez
 """
 import os
-import subprocess
-
+if os.name == "posix":
+    import subprocessdotnet as subprocess
+    import clr
+    clr.AddReference("System.Windows.Forms")
+else:
+    import subprocess
 import ScriptEnv
 
-# import clr
-# clr.AddReference("System.Windows.Forms")
+
 from System.Windows.Forms import OpenFileDialog
 
 oProject = oDesktop.GetActiveProject()
@@ -44,12 +47,20 @@ try:
         print("python.exe: " + python_exe)
         pyaedt_script = file_dialog.FileName
         print("pyaedt_script: " + str(pyaedt_script))
-        command = [
-            python_exe,
-            pyaedt_script,
-            str(oDesktop.GetProcessID()),
-            oDesktop.GetVersion()[:6],  # "2022.1.0" is returned but this makes PyAEDT fail a float conversion
-        ]
+        if os.name =="posix":
+            command = [
+                python_exe,
+                pyaedt_script,
+                str(oDesktop.GetProcessID()),
+                str(oDesktop.GetVersion()[:6]),
+            ]
+        else:
+            command = [
+                '""'.format(python_exe),
+                '""'.format(pyaedt_script),
+                str(oDesktop.GetProcessID()),
+                str(oDesktop.GetVersion()[:6]),
+            ]
         subprocess.Popen(command)
     else:
         # exit()

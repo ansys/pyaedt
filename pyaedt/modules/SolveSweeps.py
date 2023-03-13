@@ -1,10 +1,10 @@
+from collections import OrderedDict
 import copy
+from difflib import SequenceMatcher
 import json
 import os
 import sys
 import warnings
-from collections import OrderedDict
-from difflib import SequenceMatcher
 
 from pyaedt import pyaedt_function_handler
 from pyaedt.generic.DataHandlers import _dict2arg

@@ -3,10 +3,12 @@ from __future__ import absolute_import
 
 import ast
 import codecs
+from collections import OrderedDict
 import csv
 import datetime
 import difflib
 import fnmatch
+from functools import update_wrapper
 import inspect
 import itertools
 import json
@@ -20,8 +22,6 @@ import sys
 import tempfile
 import time
 import traceback
-from collections import OrderedDict
-from functools import update_wrapper
 
 from pyaedt.generic.constants import CSS4_COLORS
 
@@ -1011,6 +1011,67 @@ def grpc_active_sessions(version=None, student_version=False, non_graphical=Fals
                         if not version or (version and version in cmd[0]):
                             sessions.append(
                                 int(cmd[cmd.index("-grpcsrv") + 1]),
+                            )
+        except:
+            pass
+    return sessions
+
+
+def active_sessions(version=None, student_version=False, non_graphical=False):
+    """Get information for the active COM AEDT sessions.
+
+    Parameters
+    ----------
+    version : str, optional
+        Version to check. The default is ``None``, in which case all versions are checked.
+        When specifying a version, you can use a three-digit format like ``"222"`` or a
+        five-digit format like ``"2022.2"``.
+    student_version : bool, optional
+    non_graphical : bool, optional
+
+
+    Returns
+    -------
+    list
+        List of AEDT PIDs.
+    """
+    if student_version:
+        keys = ["ansysedtsv.exe"]
+    else:
+        keys = ["ansysedt.exe"]
+    if version and "." in version:
+        version = version[-4:].replace(".", "")
+    if version < "222":
+        version = version[:2] + "." + version[2]
+    sessions = []
+    for p in psutil.process_iter():
+        try:
+            if p.name() in keys:
+                cmd = p.cmdline()
+                if non_graphical and "-ng" in cmd or not non_graphical:
+                    if not version or (version and version in cmd[0]):
+                        if "-grpcsrv" in cmd:
+                            if not version or (version and version in cmd[0]):
+                                try:
+                                    sessions.append(
+                                        [
+                                            p.pid,
+                                            int(cmd[cmd.index("-grpcsrv") + 1]),
+                                        ]
+                                    )
+                                except IndexError:
+                                    sessions.append(
+                                        [
+                                            p.pid,
+                                            -1,
+                                        ]
+                                    )
+                        else:
+                            sessions.append(
+                                [
+                                    p.pid,
+                                    -1,
+                                ]
                             )
         except:
             pass

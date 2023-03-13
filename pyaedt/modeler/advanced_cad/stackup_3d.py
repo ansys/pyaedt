@@ -1,5 +1,5 @@
-import os
 from collections import OrderedDict
+import os
 
 from pyaedt import is_ironpython
 

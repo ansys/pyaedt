@@ -1,0 +1,136 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+
+[project]
+name = "pyaedt"
+dynamic = ["version"]
+description = "Higher-Level Pythonic Ansys Electronics Desktop Framework"
+readme = "README.rst"
+requires-python = ">=3.7,<4"
+license = {file = "LICENSE"}
+authors = [{name = "ANSYS, Inc.", email = "pyansys.support@ansys.com"}]
+maintainers = [{name = "PyAEDT developers", email = "massimo.capodiferro@ansys.com"}]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+
+dependencies = [
+    "cffi == 1.15.0;platform_system=='Linux'",
+    "pywin32 >= 303;platform_system=='Windows'",
+    "pythonnet == 3.0.1",
+    "rpyc==5.3.0",
+    "psutil",
+    "dotnetcore2 ==3.1.23;platform_system=='Linux'",
+]
+
+[project.optional-dependencies]
+tests = [
+    "codecov==2.1.12",
+    "ipython==8.8.0",
+    "joblib==1.2.0",
+    "matplotlib==3.5.3; python_version <= '3.7'",
+    "matplotlib==3.7.1; python_version > '3.7'",
+    "numpy==1.21.6; python_version <= '3.7'",
+    "numpy==1.24.1; python_version > '3.7'",
+    "openpyxl==3.0.10",
+    "osmnx",
+    "pandas==1.3.5; python_version <= '3.7'",
+    "pandas==1.5.3; python_version > '3.7'",
+    "pytest==7.2.2",
+    "pytest-cov==4.0.0",
+    "pytest-xdist==3.2.0",
+    "pyvista==0.37.0",
+    "scikit-learn==1.2.0",
+    "SRTM.py",
+    "utm",
+    "scikit-rf",
+
+]
+doc = [
+    "ansys-sphinx-theme==0.8.0",
+    "imageio==2.24.0",
+    "imageio-ffmpeg==0.4.8",
+    "ipython==8.8.0",
+    "ipywidgets==8.0.4",
+    "joblib==1.2.0",
+    "jupyterlab==3.5.2",
+    "matplotlib==3.5.3; python_version <= '3.7'",
+    "matplotlib==3.7.1; python_version > '3.7'",
+    "nbsphinx==0.8.12",
+    "numpydoc==1.5.0",
+    "osmnx",
+    "pypandoc==1.10",
+    "pytest-sphinx==0.5.0",
+    "pyvista==0.37.0",
+    "recommonmark==0.7.1",
+    "scikit-learn==1.2.0",
+    "Sphinx==5.3.0",
+    "sphinx-autobuild==2021.3.14",
+    "sphinx-autodoc-typehints==1.21.7",
+    "sphinx-copybutton==0.5.1",
+    "sphinx-gallery==0.11.1",
+    "sphinx-notfound-page==0.8.3",
+    "sphinxcontrib-websupport==1.2.4",
+    "SRTM.py",
+    "utm",
+    "scikit-rf",
+    "openpyxl==3.0.10",
+]
+full = [
+    "matplotlib==3.5.3; python_version <= '3.7'",
+    "matplotlib==3.7.1; python_version > '3.7'",
+    "numpy==1.21.6; python_version <= '3.7'",
+    "numpy==1.24.1; python_version > '3.7'",
+    "pandas==1.3.5; python_version <= '3.7'",
+    "pandas==1.5.3; python_version > '3.7'",
+    "osmnx",
+    "pyvista==0.37.0",
+    "SRTM.py",
+    "utm",
+    "scikit-rf",
+    "openpyxl==3.0.10",
+]
+
+[tool.flit.module]
+name = "pyaedt"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/pyansys/pyaedt/issues"
+"Documentation" = "https://aedt.docs.pyansys.com"
+"Source Code" = "https://github.com/pyansys/pyaedt"
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+force_sort_within_sections = true
+line_length = 120
+default_section = "THIRDPARTY"
+src_paths = ["doc", "pyaedt", "_unittests"]
+
+[tool.coverage.run]
+source = ["pyaedt"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.pytest.ini_options]
+minversion = "7.1"
+addopts = "-ra --cov=pyaedt --cov-report html:.cov/html --cov-report xml:.cov/xml --cov-report term -vv"
+testpaths = [
+    "_unittest",
+]
+
+
+
