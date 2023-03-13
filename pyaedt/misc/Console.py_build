@@ -18,7 +18,7 @@ else:
 # Launch file
 version = oDesktop.GetVersion()[2:6].replace(".", "")
 current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, "..", "..", r"##TOOLKIT_REL_LIB_DIR##"))
+pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
 python_exe = r"##IPYTHON_EXE##" % version
 pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
 if os.name =="posix":
