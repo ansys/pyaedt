@@ -2478,7 +2478,7 @@ class SetupMaxwell(Setup, object):
         Returns
         -------
         bool
-            True if successful, False if it fails.
+            ``True`` if successful, ``False`` if it fails.
         """
 
         if self.setuptype != 7:
