@@ -22,8 +22,21 @@ class TestClass(BasisTest, object):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
         o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
-        self.aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
-        assert "ModelRes1" in [i.name for i in self.aedtapp.mesh.meshoperations]
+        mr1 = self.aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        assert mr1.name in self.aedtapp.odesign.GetChildObject("Mesh").GetChildNames()
+        mr1.name = "resolution_test"
+        assert "resolution_test" in self.aedtapp.mesh.meshoperations[0].name
+        mr1.name = "resolution_test"
+        assert self.aedtapp.odesign.GetChildObject("Mesh")
+        mr1.props["Model Resolution Length"] = "0.1mm"
+        assert (
+            self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
+            == "0.1mm"
+        )
+        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
+        mr1.props["Objects"] = [o2.name, o.name]
+        if desktop_version >= "2023.1":
+            assert len(self.aedtapp.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
         assert not mr2
 
@@ -33,7 +46,7 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface")
         surface = self.aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         assert "Surface" in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface.props["SliderMeshSettings"] == 3
+        assert surface.props["Curved Surface Mesh Resolution"] == 3
 
     def test_assign_surface_mesh_manual(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
@@ -41,19 +54,20 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual")
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface.props["SurfDev"] == 1e-6
-        surface["SurfDev"] = 1e-5
-        assert surface.props["SurfDev"] == 1e-5
-        assert surface.props["AspectRatioChoice"] == 2
+        assert surface.props["Surface Deviation"] == 1e-6
+        surface["Surface Deviation"] = 1e-5
+        assert surface.props["Surface Deviation"] == 1e-5
+        assert surface.props["Normal Deviation"] == "Default Value"
+        surface.props["Aspect Ratio"] = 20
+        assert surface.props["Aspect Ratio"] == 20
 
         cylinder_zx = self.aedtapp.modeler.create_cylinder(
             self.aedtapp.PLANE.ZX, udp, 3, coax_dimension, 0, "surface_manual"
         )
         surface_default_value = self.aedtapp.mesh.assign_surface_mesh_manual(cylinder_zx.id)
-        assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface_default_value.props["SurfDev"] == "0.0001mm"
-        assert surface_default_value.props["NormalDev"] == "1"
-        assert surface_default_value.props["AspectRatioChoice"] == 1
+        assert surface_default_value.name in [i.name for i in self.aedtapp.mesh.meshoperations]
+        assert surface_default_value.props["Surface Deviation"] == "Default Value"
+        assert surface_default_value.props["Normal Deviation"] == "Default Value"
 
     def test_assign_surface_priority(self):
         surface = self.aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)

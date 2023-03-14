@@ -1039,4 +1039,6 @@ class FieldAnalysis3D(Analysis, object):
                         ):  # pragma: no cover
                             return False
             app.oproject.Close()
+
+        self.mesh._refresh_mesh_operations()
         return True

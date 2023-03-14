@@ -286,7 +286,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
-                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                mesh_comp = []
+                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                    if isinstance(item, str):
+                        mesh_comp.append(item)
+                    else:
+                        mesh_comp.append(self.modeler.objects[item].name)
+                if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
         else:
@@ -452,8 +458,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         variables = []
         if variables_to_include:
             dependent_variables = []
-            ind_variables = self._app._variable_manager.independent_variable_names
-            dep_variables = self._app._variable_manager.dependent_variable_names
+            ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
+            dep_variables = [i for i in self._app._variable_manager.dependent_variable_names]
             for param in variables_to_include:
                 if self._app[param] in ind_variables:
                     variables.append(self._app[param])
@@ -507,7 +513,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
-                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                mesh_comp = []
+                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                    if isinstance(item, str):
+                        mesh_comp.append(item)
+                    else:
+                        mesh_comp.append(self.modeler.objects[item].name)
+                if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
         else:
