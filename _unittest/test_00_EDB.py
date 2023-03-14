@@ -1598,8 +1598,8 @@ class TestClass(BasisTest, object):
         )
         assert not edb.are_port_reference_terminals_connected()
 
-        pathes = [i[1] for i in trace_pathes]
-        assert edb.core_hfss.create_bundle_wave_port(traces, pathes)
+        paths = [i[1] for i in trace_pathes]
+        assert edb.core_hfss.create_bundle_wave_port(traces, paths)
         edb.close_edb()
 
     def test_121_insert_layer(self):
