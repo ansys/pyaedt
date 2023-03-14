@@ -10,7 +10,15 @@ provided by the launcher
 """
 import sys
 import atexit
-from pyaedt import *
+try:
+   from pyaedt import *
+except ImportError:
+   import os
+   # debug only
+   console_path = os.path.dirname(__file__)
+   if "PersonalLib" in console_path:
+      sys.path.append(os.path.join(console_path, "..", "..", ".."))
+   from pyaedt import *
 import pyaedt
 pyaedt.settings.use_grpc_api=False
 from pyaedt.generic.general_methods import active_sessions
