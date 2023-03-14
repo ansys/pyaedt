@@ -130,38 +130,6 @@ class Revision:
         return interaction
 
     @pyaedt_function_handler()
-    def get_max_simultaneous_interferers(self):
-        """
-        Get the number of maximum simultaneous interferers.
-
-        Returns
-        -------
-        max_interferers : int
-            Maximum number of simultaneous interferers associated with engine
-
-        Examples
-        ----------
-        >>> max_num = aedtapp.results.current_revision.get_max_simultaneous_interferers()
-        """
-        self._load_revision()
-        engine = self.emit_project._emit_api.get_engine()
-        max_interferers = engine.max_simultaneous_interferers
-        return max_interferers
-
-    @pyaedt_function_handler()
-    def set_max_simultaneous_interferers(self, val):
-        """
-        Set the number of maximum simultaneous interferers.
-
-        Examples
-        ----------
-        >>> max_num = aedtapp.results.current_revision.set_max_simultaneous_interferers(3)
-        """
-        self._load_revision()
-        engine = self.emit_project._emit_api.get_engine()
-        engine.max_simultaneous_interferers = val
-
-    @pyaedt_function_handler()
     def is_domain_valid(self, domain):
         """
         Return ``True`` if the given domain is valid for the current revision.
@@ -329,11 +297,7 @@ class Revision:
                 'Bluetooth', 'Rx - Base Data Rate', Emit.tx_rx_mode.rx)
         """
         if self.revision_loaded:
-            freq = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode)
-            # Emit api returns freqs in Hz, convert to user's desired units.
-            if not units or units not in emitConsts.EMIT_VALID_UNITS["Frequency"]:
-                units = self.emit_project._units["Frequency"]
-            freq = consts.unit_converter(freq, "Freq", "Hz", units)
+            freq = self.emit_project._emit_api.get_active_frequencies(radio_name, band_name, tx_rx_mode, units)
         else:
             freq = None
             self.result_mode_error()

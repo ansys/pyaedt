@@ -62,6 +62,23 @@ def interferer_type():
         raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
     return inter_type
 
+def unit_type():
+    """Get an ``unit_type`` object.
+
+    Returns
+    -------
+    :class:`EmitConstants.unit_type`
+        Type of unit: Power, Frequency, Length, Time, Voltage, DataRate, Resistance.
+
+    Examples
+    >>> unit_type = EmitConstants.unit_type()
+    """
+    try:
+        unit_type = EMIT_MODULE.unit_type()
+    except NameError:
+        raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
+    return unit_type
+
 
 EMIT_UNIT_TYPE = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
 """Valid unit type."""
@@ -76,3 +93,13 @@ EMIT_VALID_UNITS = {
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
 """Valid units for each unit type."""
+
+EMIT_UNIT_TYPE_STRING_TO_ENUM = {
+    "Power": unit_type().power,
+    "Frequency": unit_type().frequency,
+    "Length": unit_type().length,
+    "Time": unit_type().time,
+    "Voltage": unit_type().voltage,
+    "Data Rate": unit_type().dataRate,
+    "Resistance": unit_type().resistance,
+}
