@@ -129,6 +129,8 @@ class MeshOperation(PropsManager, object):
             self._mesh.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
         elif self.type == "RotationalLayerMesh":
             self._mesh.omeshmodule.AssignRotationalLayerOp(self._get_args())
+        elif self.type == "EdgeCutLayerMesh":
+            self._mesh.omeshmodule.AssignEdgeCutLayerOp(self._get_args())
         elif self.type == "DensityControlBased":
             self._mesh.omeshmodule.AssignDensityControlOp(self._get_args())
         elif self.type == "Icepak":
@@ -235,13 +237,31 @@ class Mesh(object):
         >>> mr2 = aedtapp.mesh[mr1.name]
         """
 
-        if partId in self.meshoperations_names:
+        if partId in self.meshoperation_names:
             mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == partId]
             return mesh_op_selected[0]
         return None
 
     @property
     def meshoperations(self):
+        """Return the available mesh operations.
+
+        Returns
+        ----------
+        List
+            List of :class:`pyaedt.modules.Mesh.MeshOperation`
+                        List of mesh operation object.
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mesh_operations_list = aedtapp.mesh.meshoperations
+        """
         if self._meshoperations is None:
             self._meshoperations = self._get_design_mesh_operations()
         return self._meshoperations
@@ -255,17 +275,23 @@ class Mesh(object):
 
     @property
     def meshoperation_names(self):
-        """Retrieve all mesh operations.
+        """Return the available mesh operation names.
 
         Returns
-        -------
-        List
-            List of mesh operations.
-
-        References
         ----------
+        List
+            List of mesh operation names.
 
-        >>> oeditor.GetChildObject
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mr2 = aedtapp.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
+        >>> mesh_operations_names = aedtapp.mesh.meshoperation_names
         """
         if self._app._is_object_oriented_enabled():
             return list(self._app.odesign.GetChildObject("Mesh").GetChildNames())
@@ -404,6 +430,15 @@ class Mesh(object):
         ----------
 
         >>> oModule.AssignTrueSurfOp
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -462,6 +497,16 @@ class Mesh(object):
         ----------
 
         >>> oModule.AssignTrueSurfOp
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3,
+        ... meshop_name="Surface_Manual")
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -553,6 +598,15 @@ class Mesh(object):
         ----------
 
         >>> oModule.AssignModelResolutionOp
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -1029,7 +1083,6 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "CurvatureExtraction")
         mop.create()
-        # self._app.odesign.GetChildObject("Mesh").GetChildObject(mop.name).GetPropNames()
         mop.props["Disable for Faceted Surface"] = mop.props["DisableForFacetedSurfaces"]
         mop.props.pop("DisableForFacetedSurfaces")
         self.meshoperations.append(mop)
@@ -1121,10 +1174,11 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names, "Layer Thickenss": layer_thickness})
+        props = OrderedDict({"Type": "EdgeCutLayerMesh", seltype: names, "Layer Thickness": layer_thickness})
 
-        mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
+        mop = MeshOperation(self, meshop_name, props, "EdgeCutLayerMesh")
         mop.create()
+        mop["Layer Thickness"] = layer_thickness
         self.meshoperations.append(mop)
         return mop
 
@@ -1193,5 +1247,14 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "DensityControlBased")
         mop.create()
+        mop.props["Restrict Max Element Length"] = mop.props["RestrictMaxElemLength"]
+        mop.props.pop("RestrictMaxElemLength")
+        mop.props["Max Element Length"] = mop.props["MaxElemLength"]
+        mop.props.pop("MaxElemLength")
+        mop.props["Restrict Layers Number"] = mop.props["RestrictLayersNum"]
+        mop.props.pop("RestrictLayersNum")
+        mop.props["Number of layers"] = mop.props["LayersNum"]
+        mop.props.pop("LayersNum")
+
         self.meshoperations.append(mop)
         return mop

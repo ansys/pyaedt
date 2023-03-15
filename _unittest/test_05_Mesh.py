@@ -82,9 +82,8 @@ class TestClass(BasisTest, object):
         )
 
     def test_delete_mesh_ops(self):
-        surface = self.aedtapp.mesh.delete_mesh_operations("surface")
-        assert self.aedtapp.mesh.meshoperation_names[0] == surface.name
-        assert len(self.aedtapp.mesh.meshoperations) == 2
+        assert self.aedtapp.mesh.delete_mesh_operations("surface")
+        assert len(self.aedtapp.mesh.meshoperation_names) == 2
 
     def test_curvature_extraction(self):
         self.aedtapp.solution_type = "SBR+"
@@ -94,6 +93,42 @@ class TestClass(BasisTest, object):
     def test_maxwell_mesh(self):
         m3d = Maxwell3d(specified_version=desktop_version)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
-        assert m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
-        assert m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")
-        assert m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
+        rot = m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
+        assert rot.props["Number of Layers"] == "3"
+        rot.props["Number of Layers"] = "1"
+        assert rot.props["Number of Layers"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+            rot.name
+        ).GetPropValue("Number of Layers")
+        assert rot.props["Total Layer Thickness"] == "5mm"
+        rot.props["Total Layer Thickness"] = "1mm"
+        assert rot.props["Total Layer Thickness"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+            rot.name
+        ).GetPropValue("Total Layer Thickness")
+
+        edge_cut = m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")
+        assert edge_cut.props["Layer Thickness"] == "1mm"
+        edge_cut.props["Layer Thickness"] = "2mm"
+        assert edge_cut.props["Layer Thickness"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+            edge_cut.name
+        ).GetPropValue("Layer Thickness")
+
+        dens = m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
+        assert dens.props["Restrict Max Element Length"]
+
+        assert dens.props["Max Element Length"] == 10000
+        dens.props["Max Element Length"] = 100
+        assert str(dens.props["Max Element Length"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+            dens.name
+        ).GetPropValue("Max Element Length")
+
+        assert dens.props["Restrict Layers Number"] == False
+        dens.props["Restrict Layers Number"] = True
+        assert dens.props["Restrict Layers Number"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+            dens.name
+        ).GetPropValue("Restrict Layers Number")
+
+        assert dens.props["Number of layers"] == "1"
+        dens.props["Number of layers"] = 2
+        assert str(dens.props["Number of layers"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+            dens.name
+        ).GetPropValue("Number of layers")
