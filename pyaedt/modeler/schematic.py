@@ -106,7 +106,7 @@ class ModelerCircuit(Modeler):
              Number of the pin at which to terminate the connection from the right end of the
              starting component. The default is ``2``.
         pinnum_second : str, optional
-             Number of the pin at which to termiante the connection from the left end of the
+             Number of the pin at which to terminate the connection from the left end of the
              ending component. The default is ``1``.
 
         Returns

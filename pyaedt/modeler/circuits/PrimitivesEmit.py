@@ -405,7 +405,7 @@ class EmitComponent(object):
         """
         wire_name = self.oeditor.GetWireAtPort(self.name, port_name)
         wire_connections = self.oeditor.GetWireConnections(wire_name)
-        # One end of the wire will be this componenent. The other end will be
+        # One end of the wire will be this component. The other end will be
         # the other component. Return component and port names for the other
         # end.
         for wc_comp_name, wc_port_name in wire_connections:

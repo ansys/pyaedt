@@ -36,7 +36,7 @@ class TestClass(BasisTest, object):
         assert ibis_models[1].name == "DQ_FULL_ODT50_800"
         assert ibis_models[16].name == "NF_IN_800"
 
-        # Test pin caracteristics
+        # Test pin characteristics
         assert (
             ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800_modified"].name
             == "A1_MT47H64M4BP-3_25_u26a_800_modified"
