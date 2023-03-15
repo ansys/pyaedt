@@ -32,21 +32,29 @@ class MeshProps(OrderedDict):
     """AEDT Mesh Component Internal Parameters."""
 
     def __setitem__(self, key, value):
+        pyaedt_mesh_attr = list(self._pyaedt_mesh.__dict__.keys())
         if key in list(self._pyaedt_mesh.props.keys()):
             OrderedDict.__setitem__(self, key, value)
             if key in ["Edges", "Faces", "Objects"]:
-                self._pyaedt_mesh._mesh.omeshmodule.ReassignOp(self._pyaedt_mesh.name, ["{}:=".format(key), value])
+                if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
+                    self._pyaedt_mesh.update_assignment()
+                else:
+                    self._pyaedt_mesh._mesh.omeshmodule.ReassignOp(self._pyaedt_mesh.name, ["{}:=".format(key), value])
             else:
+                if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
+                    self._pyaedt_mesh.update()
+                else:
+                    mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
+                        self._pyaedt_mesh.name
+                    )
+                    mesh_obj.SetPropValue(key, value)
+        else:
+            if not "_meshicepak" in pyaedt_mesh_attr or not "_mesh3dlayout" in pyaedt_mesh_attr:
                 mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
                     self._pyaedt_mesh.name
                 )
-                mesh_obj.SetPropValue(key, value)
-        else:
-            mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
-                self._pyaedt_mesh.name
-            )
-            if key in mesh_obj.GetPropNames() or key.replace(" ", "_") in mesh_obj.GetPropNames():
-                OrderedDict.__setitem__(self, key, value)
+                if key in mesh_obj.GetPropNames() or key.replace(" ", "_") in mesh_obj.GetPropNames():
+                    OrderedDict.__setitem__(self, key, value)
 
     def __init__(self, mesh_object, props):
         OrderedDict.__init__(self)
@@ -73,6 +81,7 @@ class MeshOperation(PropsManager, object):
 
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
+        self._internal_props = MeshProps(self, props)
         self.props = MeshProps(self, props)
         self.type = meshoptype
         self._name = name
@@ -80,7 +89,7 @@ class MeshOperation(PropsManager, object):
     @pyaedt_function_handler()
     def _get_args(self):
         """Retrieve arguments."""
-        props = self.props
+        props = self._internal_props
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
@@ -179,7 +188,7 @@ class MeshOperation(PropsManager, object):
         >>> oModule.DeleteOp
         """
         self._mesh.omeshmodule.DeleteOp([self.name])
-        for el in self._mesh.meshoperations:
+        for el in self._mesh.meshoperations[:]:
             if el.name == self.name:
                 self._mesh.meshoperations.remove(el)
         return True
@@ -204,7 +213,6 @@ class Mesh(object):
 
     def __init__(self, app):
         self._app = app
-
         self._odesign = self._app.odesign
         self.modeler = self._app.modeler
         self.logger = self._app.logger
