@@ -254,7 +254,7 @@ class Mesh(object):
         return len(self.meshoperations)
 
     @property
-    def meshoperations_names(self):
+    def meshoperation_names(self):
         """Retrieve all mesh operations.
 
         Returns
@@ -300,28 +300,6 @@ class Mesh(object):
         """
         return self._app.omeshmodule
 
-    @property
-    def design_mesh_operation_list(self):
-        """Retrieve mesh operations.
-
-        Returns
-        -------
-        List
-            List of design mesh operations.
-
-        References
-        ----------
-
-        >>> oeditor.GetChildObject
-        """
-        if self._app._is_object_oriented_enabled():
-            mesh_operation = self._app.odesign.GetChildObject("Mesh")
-            if mesh_operation:
-                return list(mesh_operation.GetChildNames())
-        else:
-            self.logger.warning("Object Oriented Beta Option is not enabled in this Desktop.")
-        return []
-
     @pyaedt_function_handler()
     def _get_design_global_mesh(self):
         """ """
@@ -362,7 +340,7 @@ class Mesh(object):
         """ """
         meshops = []
         try:
-            for ds in self.design_mesh_operation_list:
+            for ds in self.meshoperation_names:
                 props = {}
                 design_mesh = self._app.odesign.GetChildObject("Mesh")
                 for i in design_mesh.GetChildObject(ds).GetPropNames():
@@ -375,7 +353,9 @@ class Mesh(object):
                         if "Faces" in props_parsed.keys():
                             props["Faces"] = props_parsed["Faces"]
                         if "Objects" in props_parsed.keys():
-                            props["Objects"] = self._app.modeler.oeditor.GetObjectNameByID(props_parsed["Objects"])
+                            props["Objects"] = []
+                            for comp in props_parsed["Objects"]:
+                                props["Objects"].append(comp)
                 else:
                     props["Objects"] = []
                     props["Faces"] = []
@@ -725,9 +705,12 @@ class Mesh(object):
         props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
-        # self._app.odesign.GetChildObject("Mesh").GetChildObject(mop.name).GetPropNames()
-        mop.props["Use Auto Simplify"] = mop.props["UseAutoLength"]
-        mop.props.pop("UseAutoLength")
+
+        if mop.props["SurfaceRepPriority"] == 1:
+            mop.props["Surface Representation Priority for TAU"] = "High"
+        else:
+            mop.props["Surface Representation Priority for TAU"] = "Normal"
+        mop.props.pop("SurfaceRepPriority")
         self.meshoperations.append(mop)
         return mop
 
@@ -772,9 +755,7 @@ class Mesh(object):
 
         >>> oModule.DeleteOp
         """
-        # Type "Area Based" not included since the delete command causes
-        # desktop to crash
-        # https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/ACE%20Team/_queries?id=150923
+
         mesh_op_types = ["Length Based", "Surface Approximation Based"]
 
         if mesh_type:
@@ -785,8 +766,8 @@ class Mesh(object):
             opnames = self.omeshmodule.GetOperationNames(mesh_op_type)
             if opnames:
                 self.omeshmodule.DeleteOp(opnames)
-            for el in self.meshoperations:
-                if el.name == opnames:
+            for el in self.meshoperations[:]:
+                if el.name in opnames:
                     self.meshoperations.remove(el)
 
         return True
@@ -1049,8 +1030,8 @@ class Mesh(object):
         mop = MeshOperation(self, meshop_name, props, "CurvatureExtraction")
         mop.create()
         # self._app.odesign.GetChildObject("Mesh").GetChildObject(mop.name).GetPropNames()
-        mop.props["Use Auto Simplify"] = mop.props["UseAutoLength"]
-        mop.props.pop("UseAutoLength")
+        mop.props["Disable for Faceted Surface"] = mop.props["DisableForFacetedSurfaces"]
+        mop.props.pop("DisableForFacetedSurfaces")
         self.meshoperations.append(mop)
         return mop
 
@@ -1096,15 +1077,13 @@ class Mesh(object):
                 "Type": "RotationalLayerMesh",
                 seltype: names,
                 "Number of Layers": str(num_layers),
-                "Total Layer Thickenss": total_thickness,
+                "Total Layer Thickness": total_thickness,
             }
         )
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
-        # self._app.odesign.GetChildObject("Mesh").GetChildObject(mop.name).GetPropNames()
-        mop.props["Use Auto Simplify"] = mop.props["UseAutoLength"]
-        mop.props.pop("UseAutoLength")
+        mop["Total Layer Thickness"] = total_thickness
         self.meshoperations.append(mop)
         return mop
 
@@ -1146,9 +1125,6 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
-        # self._app.odesign.GetChildObject("Mesh").GetChildObject(mop.name).GetPropNames()
-        mop.props["Use Auto Simplify"] = mop.props["UseAutoLength"]
-        mop.props.pop("UseAutoLength")
         self.meshoperations.append(mop)
         return mop
 
@@ -1217,8 +1193,5 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "DensityControlBased")
         mop.create()
-        # self._app.odesign.GetChildObject("Mesh").GetChildObject(mop.name).GetPropNames()
-        mop.props["Use Auto Simplify"] = mop.props["UseAutoLength"]
-        mop.props.pop("UseAutoLength")
         self.meshoperations.append(mop)
         return mop

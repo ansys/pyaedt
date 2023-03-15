@@ -39,6 +39,7 @@ class TestClass(BasisTest, object):
             assert len(self.aedtapp.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
         assert not mr2
+        assert self.aedtapp.mesh[mr1.name].type == "DefeatureBased"
 
     def test_assign_surface_mesh(self):
         udp = self.aedtapp.modeler.Position(10, 10, 0)
@@ -71,19 +72,28 @@ class TestClass(BasisTest, object):
 
     def test_assign_surface_priority(self):
         surface = self.aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
-        assert surface
+        assert surface.props["Surface Representation Priority for TAU"] == "High"
+        surface.props["Surface Representation Priority for TAU"] = "Normal"
+        assert (
+            self.aedtapp.odesign.GetChildObject("Mesh")
+            .GetChildObject(surface.name)
+            .GetPropValue("Surface Representation Priority for TAU")
+            == "Normal"
+        )
 
     def test_delete_mesh_ops(self):
         surface = self.aedtapp.mesh.delete_mesh_operations("surface")
-        assert surface
+        assert self.aedtapp.mesh.meshoperation_names[0] == surface.name
+        assert len(self.aedtapp.mesh.meshoperations) == 2
 
     def test_curvature_extraction(self):
         self.aedtapp.solution_type = "SBR+"
-        assert self.aedtapp.mesh.assign_curvature_extraction("inner")
+        curv = self.aedtapp.mesh.assign_curvature_extraction("inner")
+        assert curv.props["Disable for Faceted Surface"]
 
     def test_maxwell_mesh(self):
         m3d = Maxwell3d(specified_version=desktop_version)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
-        assert m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational")
+        assert m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
         assert m3d.mesh.assign_edge_cut(o.name, meshop_name="Edge")
         assert m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
