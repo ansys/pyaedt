@@ -1205,8 +1205,8 @@ class Configurations(object):
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
             for mesh in self._app.mesh.meshoperations:
-                dict_out["mesh"][mesh.name] = mesh._internal_props
-                self._map_object(mesh._internal_props, dict_out)
+                dict_out["mesh"][mesh.name] = mesh.props
+                self._map_object(mesh.props, dict_out)
 
     @pyaedt_function_handler()
     def _export_datasets(self, dict_out):

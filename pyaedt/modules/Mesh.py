@@ -27,6 +27,36 @@ meshers = {
     "2D Extractor": "MeshSetup",
 }
 
+mesh_props = {
+    "CurvedSurfaceApproxChoice": "Curved Mesh Approximation Type",
+    "SliderMeshSettings": "Curved Surface Mesh Resolution",
+    "SurfDevChoice": "Surface Deviation Choice",
+    "SurfDev": "Surface Deviation",
+    "NormalDevChoice": "Normal Deviation Choice",
+    "NormalDev": "Normal Deviation",
+    "AspectRatioChoice": "Aspect Ratio Choice",
+    "AspectRatio": "Aspect Ratio",
+    "UseAutoLength": "Use Auto Simplify",
+    "DefeatureLength": "Model Resolution Length",
+    "SurfaceRepPriority": "Surface Representation Priority for TAU",
+    "RestrictLength": "Restrict Length",
+    "MaxLength": "Max Length",
+    "RestrictElem": "Restrict Max Elems",
+    "SkinDepth": "Skin Depth",
+    "NumLayers": "Num Layers",
+    "SurfTriMaxLength": "Max Elem Length",
+    "NumMaxElem": "Max Elems",
+    "Apply": "Apply Curvilinear Elements",
+    "DisableForFacetedSurfaces": "Disable for Faceted Surface",
+    "Total Layer Thickness": "Total Layer Thickness",
+    "Number of Layers": "Number of Layers",
+    "RestrictMaxElemLength": "Restrict Max Element Length",
+    "MaxElemLength": "Max Element Length",
+    "RestrictLayersNum": "Restrict Layers Number",
+    "LayersNum": "Number of layers",
+    "Layer Thickness": "Layer Thickness",
+}
+
 
 class MeshProps(OrderedDict):
     """AEDT Mesh Component Internal Parameters."""
@@ -47,7 +77,14 @@ class MeshProps(OrderedDict):
                     mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
                         self._pyaedt_mesh.name
                     )
-                    mesh_obj.SetPropValue(key, value)
+                    if key in mesh_props.keys():
+                        if key == "SurfaceRepPriority":
+                            if value == 0:
+                                value = "Normal"
+                            else:
+                                value = "High"
+
+                        mesh_obj.SetPropValue(mesh_props[key], value)
         else:
             if not "_meshicepak" in pyaedt_mesh_attr or not "_mesh3dlayout" in pyaedt_mesh_attr:
                 mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
@@ -81,7 +118,6 @@ class MeshOperation(PropsManager, object):
 
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
-        self._internal_props = MeshProps(self, props)
         self.props = MeshProps(self, props)
         self.type = meshoptype
         self._name = name
@@ -89,7 +125,7 @@ class MeshOperation(PropsManager, object):
     @pyaedt_function_handler()
     def _get_args(self):
         """Retrieve arguments."""
-        props = self._internal_props
+        props = self.props
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
@@ -472,10 +508,6 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "SurfApproxBased")
         mop.create()
-        mop.props["Curved Mesh Approximation Type"] = mop.props["CurvedSurfaceApproxChoice"]
-        mop.props.pop("CurvedSurfaceApproxChoice")
-        mop.props["Curved Surface Mesh Resolution"] = mop.props["SliderMeshSettings"]
-        mop.props.pop("SliderMeshSettings")
         self.meshoperations.append(mop)
         return mop
 
@@ -557,29 +589,6 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "SurfApproxBased")
         mop.create()
-        mop.props["Curved Mesh Approximation Type"] = mop.props["CurvedSurfaceApproxChoice"]
-        mop.props.pop("CurvedSurfaceApproxChoice")
-
-        if mop.props["SurfDevChoice"] == 1 or mop.props["SurfDevChoice"] == 0:
-            mop.props["Surface Deviation"] = "Default Value"
-        else:
-            mop.props["Surface Deviation"] = mop.props["SurfDev"]
-        mop.props.pop("SurfDevChoice")
-        mop.props.pop("SurfDev")
-
-        if mop.props["NormalDevChoice"] == 1:
-            mop.props["Normal Deviation"] = "Default Value"
-        else:
-            mop.props["Normal Deviation"] = mop.props["NormalDev"]
-        mop.props.pop("NormalDevChoice")
-        mop.props.pop("NormalDev")
-
-        if mop.props["AspectRatioChoice"] == 1:
-            mop.props["Aspect Ratio"] = "Default Value"
-        else:
-            mop.props["Aspect Ratio"] = mop.props["AspectRatio"]
-        mop.props.pop("AspectRatioChoice")
-        mop.props.pop("AspectRatio")
         self.meshoperations.append(mop)
         return mop
 
@@ -640,12 +649,7 @@ class Mesh(object):
             )
 
         mop = MeshOperation(self, meshop_name, props, "DefeatureBased")
-
         mop.create()
-        mop.props["Use Auto Simplify"] = mop.props["UseAutoLength"]
-        mop.props.pop("UseAutoLength")
-        mop.props["Model Resolution Length"] = mop.props["DefeatureLength"]
-        mop.props.pop("DefeatureLength")
         self.meshoperations.append(mop)
         return mop
 
@@ -767,12 +771,6 @@ class Mesh(object):
         props = OrderedDict({"Type": "SurfaceRepPriority", "Objects": object_lists, "SurfaceRepPriority": surfpriority})
         mop = MeshOperation(self, meshop_name, props, "SurfaceRepPriority")
         mop.create()
-
-        if mop.props["SurfaceRepPriority"] == 1:
-            mop.props["Surface Representation Priority for TAU"] = "High"
-        else:
-            mop.props["Surface Representation Priority for TAU"] = "Normal"
-        mop.props.pop("SurfaceRepPriority")
         self.meshoperations.append(mop)
         return mop
 
@@ -912,14 +910,6 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "LengthBased")
         mop.create()
-        mop.props["Restrict Length"] = mop.props["RestrictLength"]
-        mop.props.pop("RestrictLength")
-        mop.props["Max Length"] = mop.props["MaxLength"]
-        mop.props.pop("MaxLength")
-        mop.props["Restrict Max Elems"] = mop.props["RestrictElem"]
-        mop.props.pop("RestrictElem")
-        mop.props["Max Elems"] = mop.props["NumMaxElem"]
-        mop.props.pop("NumMaxElem")
         self.meshoperations.append(mop)
         return mop
 
@@ -997,16 +987,6 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "SkinDepthBased")
         mop.create()
-        mop.props["Skin Depth"] = mop.props["SkinDepth"]
-        mop.props.pop("SkinDepth")
-        mop.props["Num Layers"] = mop.props["NumLayers"]
-        mop.props.pop("NumLayers")
-        mop.props["Max Elem Length"] = mop.props["SurfTriMaxLength"]
-        mop.props.pop("SurfTriMaxLength")
-        mop.props["Restrict Max Elems"] = mop.props["RestrictElem"]
-        mop.props.pop("RestrictElem")
-        mop.props["Max Elems"] = mop.props["NumMaxElem"]
-        mop.props.pop("NumMaxElem")
         self.meshoperations.append(mop)
         return mop
 
@@ -1057,8 +1037,6 @@ class Mesh(object):
         props = OrderedDict({"Type": "Curvilinear", seltype: names, "Apply": enable})
         mop = MeshOperation(self, meshop_name, props, "Curvilinear")
         mop.create()
-        mop.props["Apply Curvilinear Elements"] = mop.props["Apply"]
-        mop.props.pop("Apply")
         self.meshoperations.append(mop)
         return mop
 
@@ -1111,8 +1089,6 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "CurvatureExtraction")
         mop.create()
-        mop.props["Disable for Faceted Surface"] = mop.props["DisableForFacetedSurfaces"]
-        mop.props.pop("DisableForFacetedSurfaces")
         self.meshoperations.append(mop)
         return mop
 
@@ -1164,7 +1140,7 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
-        mop["Total Layer Thickness"] = total_thickness
+        mop.props["Total Layer Thickness"] = total_thickness
         self.meshoperations.append(mop)
         return mop
 
@@ -1206,7 +1182,7 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "EdgeCutLayerMesh")
         mop.create()
-        mop["Layer Thickness"] = layer_thickness
+        mop.props["Layer Thickness"] = layer_thickness
         self.meshoperations.append(mop)
         return mop
 
@@ -1275,14 +1251,5 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "DensityControlBased")
         mop.create()
-        mop.props["Restrict Max Element Length"] = mop.props["RestrictMaxElemLength"]
-        mop.props.pop("RestrictMaxElemLength")
-        mop.props["Max Element Length"] = mop.props["MaxElemLength"]
-        mop.props.pop("MaxElemLength")
-        mop.props["Restrict Layers Number"] = mop.props["RestrictLayersNum"]
-        mop.props.pop("RestrictLayersNum")
-        mop.props["Number of layers"] = mop.props["LayersNum"]
-        mop.props.pop("LayersNum")
-
         self.meshoperations.append(mop)
         return mop

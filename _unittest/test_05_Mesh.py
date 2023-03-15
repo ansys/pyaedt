@@ -28,11 +28,13 @@ class TestClass(BasisTest, object):
         assert "resolution_test" in self.aedtapp.mesh.meshoperations[0].name
         mr1.name = "resolution_test"
         assert self.aedtapp.odesign.GetChildObject("Mesh")
-        mr1.props["Model Resolution Length"] = "0.1mm"
+        mr1.props["DefeatureLength"] = "0.1mm"
         assert (
             self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
             == "0.1mm"
         )
+        mr1.props["UseAutoLength"] = True
+        assert self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Use Auto Simplify")
         o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
         mr1.props["Objects"] = [o2.name, o.name]
         if desktop_version >= "2023.1":
@@ -47,7 +49,7 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface")
         surface = self.aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         assert "Surface" in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface.props["Curved Surface Mesh Resolution"] == 3
+        assert surface.props["SliderMeshSettings"] == 3
 
     def test_assign_surface_mesh_manual(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
@@ -55,25 +57,31 @@ class TestClass(BasisTest, object):
         o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual")
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface.props["Surface Deviation"] == 1e-6
-        surface["Surface Deviation"] = 1e-5
-        assert surface.props["Surface Deviation"] == 1e-5
-        assert surface.props["Normal Deviation"] == "Default Value"
-        surface.props["Aspect Ratio"] = 20
-        assert surface.props["Aspect Ratio"] == 20
+        assert surface.props["SurfDev"] == 1e-6
+        surface["SurfDev"] = 1e-05
+        assert (
+            self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Surface Deviation")
+            == "1e-05"
+        )
+        assert surface.props["NormalDev"] == "1"
+        surface.props["AspectRatio"] = 20
+        assert (
+            self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Aspect Ratio")
+            == "20"
+        )
 
         cylinder_zx = self.aedtapp.modeler.create_cylinder(
             self.aedtapp.PLANE.ZX, udp, 3, coax_dimension, 0, "surface_manual"
         )
         surface_default_value = self.aedtapp.mesh.assign_surface_mesh_manual(cylinder_zx.id)
         assert surface_default_value.name in [i.name for i in self.aedtapp.mesh.meshoperations]
-        assert surface_default_value.props["Surface Deviation"] == "Default Value"
-        assert surface_default_value.props["Normal Deviation"] == "Default Value"
+        assert surface_default_value.props["SurfDevChoice"] == 0
+        assert surface_default_value.props["NormalDev"] == "1"
 
     def test_assign_surface_priority(self):
         surface = self.aedtapp.mesh.assign_surf_priority_for_tau(["surface", "surface_manual"], 1)
-        assert surface.props["Surface Representation Priority for TAU"] == "High"
-        surface.props["Surface Representation Priority for TAU"] = "Normal"
+        assert surface.props["SurfaceRepPriority"] == 1
+        surface.props["SurfaceRepPriority"] = 0
         assert (
             self.aedtapp.odesign.GetChildObject("Mesh")
             .GetChildObject(surface.name)
@@ -88,15 +96,22 @@ class TestClass(BasisTest, object):
     def test_curvature_extraction(self):
         self.aedtapp.solution_type = "SBR+"
         curv = self.aedtapp.mesh.assign_curvature_extraction("inner")
-        assert curv.props["Disable for Faceted Surface"]
+        assert curv.props["DisableForFacetedSurfaces"]
+        curv.props["DisableForFacetedSurfaces"] = False
+        assert (
+            self.aedtapp.odesign.GetChildObject("Mesh")
+            .GetChildObject(curv.name)
+            .GetPropValue("Disable for Faceted Surface")
+            == False
+        )
 
     def test_maxwell_mesh(self):
         m3d = Maxwell3d(specified_version=desktop_version)
         o = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box_Mesh")
         rot = m3d.mesh.assign_rotational_layer(o.name, meshop_name="Rotational", total_thickness="5mm")
         assert rot.props["Number of Layers"] == "3"
-        rot.props["Number of Layers"] = "1"
-        assert rot.props["Number of Layers"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+        rot.props["Number of Layers"] = 1
+        assert str(rot.props["Number of Layers"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             rot.name
         ).GetPropValue("Number of Layers")
         assert rot.props["Total Layer Thickness"] == "5mm"
@@ -113,22 +128,22 @@ class TestClass(BasisTest, object):
         ).GetPropValue("Layer Thickness")
 
         dens = m3d.mesh.assign_density_control(o.name, maxelementlength=10000, meshop_name="Density")
-        assert dens.props["Restrict Max Element Length"]
+        assert dens.props["RestrictMaxElemLength"]
 
-        assert dens.props["Max Element Length"] == 10000
-        dens.props["Max Element Length"] = 100
-        assert str(dens.props["Max Element Length"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+        assert dens.props["MaxElemLength"] == 10000
+        dens.props["MaxElemLength"] = 10
+        assert str(dens.props["MaxElemLength"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             dens.name
         ).GetPropValue("Max Element Length")
 
-        assert dens.props["Restrict Layers Number"] == False
-        dens.props["Restrict Layers Number"] = True
-        assert dens.props["Restrict Layers Number"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+        assert dens.props["RestrictLayersNum"] == False
+        dens.props["RestrictLayersNum"] = True
+        assert dens.props["RestrictLayersNum"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             dens.name
         ).GetPropValue("Restrict Layers Number")
 
-        assert dens.props["Number of layers"] == "1"
-        dens.props["Number of layers"] = 2
-        assert str(dens.props["Number of layers"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
+        assert dens.props["LayersNum"] == "1"
+        dens.props["LayersNum"] = 2
+        assert str(dens.props["LayersNum"]) == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             dens.name
         ).GetPropValue("Number of layers")

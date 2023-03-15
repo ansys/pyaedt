@@ -637,24 +637,24 @@ class TestClass(BasisTest, object):
     def test_22_create_length_mesh(self):
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
         assert mesh
-        mesh.props["Max Elems"] = "10000"
-        assert mesh.props["Max Elems"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+        mesh.props["NumMaxElem"] = "100"
+        assert mesh.props["NumMaxElem"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
             mesh.name
         ).GetPropValue("Max Elems")
 
     def test_23_create_skin_depth(self):
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
         assert mesh
-        mesh.props["Skin Depth"] = "3mm"
-        assert mesh.props["Skin Depth"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+        mesh.props["SkinDepth"] = "3mm"
+        assert mesh.props["SkinDepth"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
             mesh.name
         ).GetPropValue("Skin Depth")
 
     def test_24_create_curvilinear(self):
         mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit2"])
         assert mesh
-        mesh.props["Apply Curvilinear Elements"] = False
-        assert mesh.props["Apply Curvilinear Elements"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+        mesh.props["Apply"] = False
+        assert mesh.props["Apply"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
             mesh.name
         ).GetPropValue("Apply Curvilinear Elements")
         mesh.delete()
