@@ -2224,7 +2224,7 @@ class Edb(object):
             "Terminal reference primitive IDs total intersections = {}\n\n".format(len(iDintersection))
         )
 
-        # If the intersections are non-zero, the termimal references are connected.
+        # If the intersections are non-zero, the terminal references are connected.
         return True if len(iDintersection) > 0 else False
 
     @pyaedt_function_handler()

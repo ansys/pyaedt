@@ -396,7 +396,7 @@ class CommonOptimetrics(PropsManager, object):
         goal_value : optional
             Value for the optimization goal. The default is ``1``.
         goal_weight : optional
-            Weight for the optimzation goal. The default is ``1``.
+            Weight for the optimization goal. The default is ``1``.
         goal_name : str, optional
             Name of the goal. The default is ``None``.
 

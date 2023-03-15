@@ -187,11 +187,13 @@ class TestClass(BasisTest, object):
         count = 1
         assert Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
         assert isinstance(Setup.props["SweepRanges"]["Subrange"], dict)
+        assert Setup.props["SaveAllFields"]
         assert Setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
         assert isinstance(Setup.props["SweepRanges"]["Subrange"], list)
 
         assert Setup.update()
         assert Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        assert Setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert Setup.disable()
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)
