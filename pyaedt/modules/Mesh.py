@@ -904,6 +904,14 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "LengthBased")
         mop.create()
+        mop.props["Restrict Length"] = mop.props["RestrictLength"]
+        mop.props.pop("RestrictLength")
+        mop.props["Max Length"] = mop.props["MaxLength"]
+        mop.props.pop("MaxLength")
+        mop.props["Restrict Max Elems"] = mop.props["RestrictElem"]
+        mop.props.pop("RestrictElem")
+        mop.props["Max Elems"] = mop.props["NumMaxElem"]
+        mop.props.pop("NumMaxElem")
         self.meshoperations.append(mop)
         return mop
 
@@ -981,6 +989,16 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "SkinDepthBased")
         mop.create()
+        mop.props["Skin Depth"] = mop.props["SkinDepth"]
+        mop.props.pop("SkinDepth")
+        mop.props["Num Layers"] = mop.props["NumLayers"]
+        mop.props.pop("NumLayers")
+        mop.props["Max Elem Length"] = mop.props["SurfTriMaxLength"]
+        mop.props.pop("SurfTriMaxLength")
+        mop.props["Restrict Max Elems"] = mop.props["RestrictElem"]
+        mop.props.pop("RestrictElem")
+        mop.props["Max Elems"] = mop.props["NumMaxElem"]
+        mop.props.pop("NumMaxElem")
         self.meshoperations.append(mop)
         return mop
 
@@ -1031,6 +1049,8 @@ class Mesh(object):
         props = OrderedDict({"Type": "Curvilinear", seltype: names, "Apply": enable})
         mop = MeshOperation(self, meshop_name, props, "Curvilinear")
         mop.create()
+        mop.props["Apply Curvilinear Elements"] = mop.props["Apply"]
+        mop.props.pop("Apply")
         self.meshoperations.append(mop)
         return mop
 

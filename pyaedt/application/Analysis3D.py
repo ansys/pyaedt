@@ -1040,5 +1040,6 @@ class FieldAnalysis3D(Analysis, object):
                             return False
             app.oproject.Close()
 
-        self.mesh._refresh_mesh_operations()
+        if not self.design_type == "Icepak":
+            self.mesh._refresh_mesh_operations()
         return True
