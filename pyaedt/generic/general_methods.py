@@ -1615,8 +1615,8 @@ class Settings(object):
         return self._lsf_ram
 
     @lsf_ram.setter
-    def lsf_ram(self, val):
-        self._lsf_ram = int(val)
+    def lsf_ram(self, value):
+        self._lsf_ram = int(value)
 
     @property
     def lsf_timeout(self):
