@@ -2,7 +2,6 @@ import os
 import warnings
 
 import pyaedt.emit_core.EmitConstants as emitConsts
-import pyaedt.generic.constants as consts
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
 
