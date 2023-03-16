@@ -1606,8 +1606,8 @@ class Settings(object):
         return self._lsf_num_cores
 
     @lsf_num_cores.setter
-    def lsf_num_cores(self, val):
-        self._lsf_num_cores = int(val)
+    def lsf_num_cores(self, value):
+        self._lsf_num_cores = int(value)
 
     @property
     def lsf_ram(self):
