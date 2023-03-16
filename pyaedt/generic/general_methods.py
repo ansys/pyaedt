@@ -1613,7 +1613,8 @@ class Settings(object):
 
     @property
     def lsf_ram(self):
-        """Get or set the RAM allocated of LSF Job. Valid only on linux systems running LSF Scheduler."""
+        """Get or set the RAM allocated for the LSF job. This attribute is valid
+        only on Linux systems running LSF Scheduler."""
         return self._lsf_ram
 
     @lsf_ram.setter
