@@ -1603,7 +1603,8 @@ class Settings(object):
 
     @property
     def lsf_num_cores(self):
-        """Get or set the number of LSF cores. Valid only on linux systems running LSF Scheduler."""
+        """Get or set the number of LSF cores. This attribute is valid only
+        on Linux systems running LSF Scheduler."""
         return self._lsf_num_cores
 
     @lsf_num_cores.setter
