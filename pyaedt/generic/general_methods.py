@@ -1624,8 +1624,8 @@ class Settings(object):
         return self._lsf_timeout
 
     @lsf_timeout.setter
-    def lsf_timeout(self, val):
-        self._lsf_timeout = int(val)
+    def lsf_timeout(self, value):
+        self._lsf_timeout = int(value)
 
     @property
     def aedt_version(self):
