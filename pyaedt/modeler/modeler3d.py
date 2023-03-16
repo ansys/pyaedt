@@ -394,7 +394,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         Returns
         -------
         :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
-            User defined component object.
+            User-defined component object.
 
         References
         ----------
