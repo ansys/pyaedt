@@ -17,7 +17,7 @@ sys.path.append(os.path.join(pyaedt_path, ".."))
 pid = 0
 
 
-def add_pyaedt_to_aedt(aedt_version, is_student_version=True, use_sys_lib=False):
+def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False):
     from pyaedt import Desktop
 
     with Desktop(aedt_version, True, new_desktop_session=True, student_version=is_student_version) as d:
