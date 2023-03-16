@@ -90,7 +90,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
-            List of variables to include. The default is ``None``.
+            List of variables to include. The default is all variables.
         object_list : list, optional
             List of object names to export. The default is all object names.
         boundaries_list : list, optional
@@ -127,18 +127,21 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             Component outline. Value can either be ``BoundingBox`` or ``None``.
             The default is ``BoundingBox``.
         auxiliary_dict : bool or str, optional
-            Whether to export the auxiliary file containing information about defined datasets and Icepak monitor
-            objects. A destination file can be specified using a string.
+            Whether to export the auxiliary file containing information about defined
+            datasets and Icepak monitor objects. A destination file can be specified
+            using a string.
             The default is ``False``.
         monitor_objects : list, optional
-            List of monitor objects' names to export. The default is the names of all monitor objects. This argument is
-            relevant only if ``auxiliary_dict_file`` is not set to ``False``.
+            List of monitor objects' names to export. The default is the names of all
+            monitor objects. This argument is relevant only if ``auxiliary_dict_file``
+            is not set to ``False``.
         datasets : list, optional
-            List of dataset names to export. The default is all datasets. This argument is relevant only if
-            ``auxiliary_dict_file`` is not set to ``False``.
+            List of dataset names to export. The default is all datasets. This argument
+             is relevant only if ``auxiliary_dict_file`` is set to ``True``.
         native_components : list, optional
-            List of native_components names to export. The default is all native_components. This argument is relevant
-            only if ``auxiliary_dict_file`` is not set to ``False``.
+            List of native_components names to export. The default is all
+            native_components. This argument is relevant only if ``auxiliary_dict_file``
+            is set to ``True``.
 
         Returns
         -------
@@ -228,7 +231,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         arg.append("ReferenceCS:="), arg.append(reference_cs)
         par_description = []
         variables = []
-        if variables_to_include:
+        if variables_to_include is not None:
             dependent_variables = []
 
             ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
