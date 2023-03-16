@@ -1597,8 +1597,8 @@ class Settings(object):
         return self._lsf_aedt_command
 
     @lsf_aedt_command.setter
-    def lsf_aedt_command(self, val):
-        self._lsf_aedt_command = val
+    def lsf_aedt_command(self, value):
+        self._lsf_aedt_command = value
 
     @property
     def lsf_num_cores(self):
