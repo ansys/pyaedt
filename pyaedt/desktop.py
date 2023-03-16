@@ -72,7 +72,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         "-n",
         str(settings.lsf_num_cores),
         "-R",
-        f"rusage[mem={settings.lsf_ram}]",
+        '"rusage[mem={}]"'.format(settings.lsf_ram),
         "-Is",
         settings.lsf_aedt_command,
         "-grpcsrv",
