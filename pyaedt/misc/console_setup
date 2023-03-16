@@ -14,7 +14,6 @@ import atexit
 try:
    from pyaedt import *
 except ImportError:
-   import os
    # debug only
    console_path = os.path.dirname(__file__)
    if "PersonalLib" in console_path:
