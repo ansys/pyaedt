@@ -137,11 +137,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
             is not set to ``False``.
         datasets : list, optional
             List of dataset names to export. The default is all datasets. This argument
-             is relevant only if ``auxiliary_dict_file`` is not set to ``False``.
+             is relevant only if ``auxiliary_dict_file`` is set to ``True``.
         native_components : list, optional
             List of native_components names to export. The default is all
             native_components. This argument is relevant only if ``auxiliary_dict_file``
-            is not set to ``False``.
+            is set to ``True``.
 
         Returns
         -------
