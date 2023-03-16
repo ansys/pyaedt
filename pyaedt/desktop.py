@@ -67,18 +67,22 @@ else:
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in Lsf in GRPC mode."""
-    command = 'bsub -n {} -R "rusage[mem={}]" -Is {} -grpcsrv {}'.format(
+    command = 'bsub -n {} -R "rusage[mem={}]" {} -grpcsrv {}'.format(
         settings.lsf_num_cores, settings.lsf_ram, settings.lsf_aedt_command, port
     )
     if non_graphical:
         command += " -ng"
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    p.wait()
-    res = p.stdout.read().strip().decode("utf-8", "replace")
-    err = p.stderr.read().strip().decode("utf-8", "replace")
-    m = re.search(r"<<Starting on (.+?)>>", res)
-    if m:
-        return True, m.group(1)
+    timeout = 3600
+    i = 0
+    while i < timeout:
+        res = p.stdout.read().strip().decode("utf-8", "replace")
+        err = p.stderr.read().strip().decode("utf-8", "replace")
+        m = re.search(r"<<Starting on (.+?)>>", res)
+        if m:
+            return True, m.group(1)
+        i += 1
+        time.sleep(1)
     return False, err
 
 
