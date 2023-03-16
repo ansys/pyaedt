@@ -192,7 +192,7 @@ class TestClass(BasisTest, object):
         assert bad_units == power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
+        config["desktopVersion"] <= "2023.2" or is_ironpython, reason="Skipped on versions earlier than 2023 R2."
     )
     def test_units_getters(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
