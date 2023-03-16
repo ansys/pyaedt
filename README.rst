@@ -82,7 +82,7 @@ to allow reuse of existing code, sharing of best practices, and increased
 collaboration.
 
 
-Aboyt AEDT
+About AEDT
 ----------
 
 The Ansys Electronics Desktop (AEDT) is a platform that enables true electronics system design.
