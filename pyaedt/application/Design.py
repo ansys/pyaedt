@@ -3290,6 +3290,7 @@ class Design(AedtObjects):
         if refresh_obj_ids_after_save:
             self.modeler.refresh_all_ids()
             self.modeler._refresh_all_ids_from_aedt_file()
+            self.mesh._refresh_mesh_operations()
         msg_text = "Project {0} Saved correctly".format(self.project_name)
         self.logger.info(msg_text)
         return True

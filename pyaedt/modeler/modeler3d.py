@@ -152,6 +152,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         >>> oEditor.Create3DComponent
         """
+        if not variables_to_include:
+            variables_to_include = []
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
@@ -289,7 +291,13 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
-                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                mesh_comp = []
+                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                    if isinstance(item, str):
+                        mesh_comp.append(item)
+                    else:
+                        mesh_comp.append(self.modeler.objects[item].name)
+                if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
         else:
@@ -388,8 +396,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+            User-defined component object.
 
         References
         ----------
@@ -399,7 +407,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if not variables_to_include:
             variables_to_include = []
         if not component_name:
-            component_name = self._app.design_name
+            component_name = generate_unique_name(self._app.design_name)
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
@@ -455,8 +463,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         variables = []
         if variables_to_include:
             dependent_variables = []
-            ind_variables = self._app._variable_manager.independent_variable_names
-            dep_variables = self._app._variable_manager.dependent_variable_names
+            ind_variables = [i for i in self._app._variable_manager.independent_variable_names]
+            dep_variables = [i for i in self._app._variable_manager.dependent_variable_names]
             for param in variables_to_include:
                 if self._app[param] in ind_variables:
                     variables.append(self._app[param])
@@ -510,13 +518,20 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if meshops:
             used_mesh_ops = []
             for mesh in range(0, len(meshops)):
-                if all(item in object_list for item in self._app.mesh.meshoperations[mesh].props["Objects"]):
+                mesh_comp = []
+                for item in self._app.mesh.meshoperations[mesh].props["Objects"]:
+                    if isinstance(item, str):
+                        mesh_comp.append(item)
+                    else:
+                        mesh_comp.append(self.modeler.objects[item].name)
+                if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
             arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        return _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        return self._create_user_defined_component(component_name)
 
     @pyaedt_function_handler()
     def create_coaxial(

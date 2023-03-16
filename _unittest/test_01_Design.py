@@ -139,7 +139,7 @@ class TestClass(BasisTest, object):
         destin = os.path.join(self.local_scratch.path, "destin.aedt")
         self.aedtapp.save_project(project_file=origin)
         self.aedtapp.duplicate_design("myduplicateddesign")
-        self.aedtapp.save_project(project_file=origin)
+        self.aedtapp.save_project(project_file=origin, refresh_obj_ids_after_save=True)
 
         self.aedtapp.save_project(project_file=destin)
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
