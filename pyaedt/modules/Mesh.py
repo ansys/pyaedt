@@ -281,8 +281,8 @@ class Mesh(object):
         >>> mr2 = aedtapp.mesh[mr1.name]
         """
 
-        if partId in self.meshoperation_names:
-            mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == partId]
+        if part_id in self.meshoperation_names:
+            mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == part_id]
             return mesh_op_selected[0]
         return None
 
