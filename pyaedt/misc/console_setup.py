@@ -23,6 +23,7 @@ except ImportError:
 
 
 pyaedt.settings.use_grpc_api = False
+from pyaedt import Desktop
 from pyaedt.generic.general_methods import active_sessions
 
 aedt_process_id = int(sys.argv[1])
@@ -94,8 +95,8 @@ if not error:
     print("*  ElectronicsDesktop {} Process ID {}".format(version, aedt_process_id))
     print("*  CPython {}".format(sys.version.split(" ")[0]))
     print("*---------------------------------------------------------------")
-    print("*  Example: \033[94m hfss = Hfss() \033[92m")
-    print("*  Example: \033[94m m2d = Maxwell2d() \033[92m")
+    print("*  Example: \033[94m hfss = pyaedt.Hfss() \033[92m")
+    print("*  Example: \033[94m m2d = pyaedt.Maxwell2d() \033[92m")
     print("*  \033[31mType exit() to close the console and release the desktop.  \033[92m ")
     print("*  desktop object is initialized and available. Example: ")
     print("*  \033[94mdesktop.logger.info('Hello world')\033[92m")
