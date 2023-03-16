@@ -1,5 +1,6 @@
 from pyaedt.emit_core import EMIT_MODULE
-
+import os
+import sys
 
 def result_type():
     """
@@ -94,12 +95,14 @@ EMIT_VALID_UNITS = {
 }
 """Valid units for each unit type."""
 
-EMIT_UNIT_TYPE_STRING_TO_ENUM = {
-    "Power": unit_type().power,
-    "Frequency": unit_type().frequency,
-    "Length": unit_type().length,
-    "Time": unit_type().time,
-    "Voltage": unit_type().voltage,
-    "Data Rate": unit_type().dataRate,
-    "Resistance": unit_type().resistance,
-}
+desktop_path = os.environ.get("ANSYSEM_ROOT232")
+if desktop_path and sys.version_info < (3, 8):
+    EMIT_UNIT_TYPE_STRING_TO_ENUM = {
+        "Power": unit_type().power,
+        "Frequency": unit_type().frequency,
+        "Length": unit_type().length,
+        "Time": unit_type().time,
+        "Voltage": unit_type().voltage,
+        "Data Rate": unit_type().dataRate,
+        "Resistance": unit_type().resistance,
+    }
