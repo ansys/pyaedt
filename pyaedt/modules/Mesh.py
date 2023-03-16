@@ -243,8 +243,8 @@ class Mesh(object):
 
     >>> from pyaedt import Hfss
     >>> aedtapp = Hfss()
-    >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
-    >>> mr1 = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+    >>> cylinder = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+    >>> model_resolution = aedtapp.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
     """
 
     def __init__(self, app):
