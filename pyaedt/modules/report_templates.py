@@ -205,9 +205,43 @@ class Trace(object):
     def __init__(self, report_setup, trace_name):
         self._oreport_setup = report_setup
         self.trace_name = trace_name
+        self._trace_name_real = None
         self.LINESTYLE = LineStyle()
         self.TRACETYPE = TraceType()
         self.SYMBOLSTYLE = SymbolStyle()
+
+    @property
+    def trace_name_real(self):
+        report_name = self.trace_name.split(":")[0]
+        traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
+        for trace in traces_in_report:
+            if trace + ":" in self.trace_name:
+                self._trace_name_real = trace
+        return self._trace_name_real
+
+    @trace_name_real.setter
+    def trace_name_real(self, value):
+        report_name = self.trace_name.split(":")[0]
+        prop_name = report_name + ":" + self.trace_name_real
+
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:Trace",
+                    ["NAME:PropServers", prop_name],
+                    ["NAME:ChangedProps", ["NAME:Specify Name", "Value:=", True]],
+                ],
+            ]
+        )
+        self._oreport_setup.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                ["NAME:Trace", ["NAME:PropServers", prop_name], ["NAME:ChangedProps", ["NAME:Name", "Value:=", value]]],
+            ]
+        )
+        self.trace_name.replace(self.trace_name_real, value)
+        self._trace_name_real = value
 
     @pyaedt_function_handler()
     def _change_property(self, props_value):
