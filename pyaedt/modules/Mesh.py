@@ -11,10 +11,13 @@ from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import MethodNotSupportedError
-from pyaedt.generic.general_methods import PropsManager
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
+from pyaedt.generic.general_methods import settings
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import VertexPrimitive
 
 meshers = {
     "HFSS": "MeshSetup",
@@ -48,13 +51,10 @@ mesh_props = {
     "NumMaxElem": "Max Elems",
     "Apply": "Apply Curvilinear Elements",
     "DisableForFacetedSurfaces": "Disable for Faceted Surface",
-    "Total Layer Thickness": "Total Layer Thickness",
-    "Number of Layers": "Number of Layers",
     "RestrictMaxElemLength": "Restrict Max Element Length",
     "MaxElemLength": "Max Element Length",
     "RestrictLayersNum": "Restrict Layers Number",
     "LayersNum": "Number of layers",
-    "Layer Thickness": "Layer Thickness",
 }
 
 
@@ -62,25 +62,14 @@ class MeshProps(OrderedDict):
     """AEDT Mesh Component Internal Parameters."""
 
     def __setitem__(self, key, value):
-        pyaedt_mesh_attr = list(self._pyaedt_mesh.__dict__.keys())
         OrderedDict.__setitem__(self, key, value)
-        if key in ["Edges", "Faces", "Objects"]:
-            if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
-                self._pyaedt_mesh.update_assignment()
+        if self._pyaedt_mesh.auto_update:
+            if key in ["Edges", "Faces", "Objects"]:
+                res = self._pyaedt_mesh.update_assignment()
             else:
-                self._pyaedt_mesh._mesh.omeshmodule.ReassignOp(self._pyaedt_mesh.name, ["{}:=".format(key), value])
-        else:
-            if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
-                self._pyaedt_mesh.update()
-            else:
-                mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
-                    self._pyaedt_mesh.name
-                )
-                if key in mesh_props.keys():
-                    if key == "SurfaceRepPriority":
-                        value = "Normal" if value == 0 else "High"
-
-                    mesh_obj.SetPropValue(mesh_props[key], value)
+                res = self._pyaedt_mesh.update(key, value)
+            if not res:
+                self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, mesh_object, props):
         OrderedDict.__init__(self)
@@ -96,7 +85,7 @@ class MeshProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class MeshOperation(PropsManager, object):
+class MeshOperation(object):
     """MeshOperation class.
 
     Parameters
@@ -107,9 +96,11 @@ class MeshOperation(PropsManager, object):
 
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
+        self._app = self._mesh._app
         self.props = MeshProps(self, props)
         self.type = meshoptype
         self._name = name
+        self.auto_update = True
 
     @pyaedt_function_handler()
     def _get_args(self):
@@ -175,6 +166,103 @@ class MeshOperation(PropsManager, object):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
+        return True
+
+    @pyaedt_function_handler()
+    def update(self, key_name=None, value=None):
+        """Update the mesh.
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        References
+        ----------
+        >>> oModule.EditTrueSurfOp
+        >>> oModule.EditModelResolutionOp
+        >>> oModule.EditSurfPriorityForTauOp
+        >>> oModule.EditLengthOp
+        >>> oModule.EditApplyCurvlinearElementsOp
+        >>> oModule.EditRotationalLayerOp
+        >>> oModule.EditDensityControlOp
+        >>> oModule.EditMeshOperation
+        >>> oModule.EditSBRCurvatureExtractionOp
+        """
+        if key_name and settings.aedt_version > "2022.2":
+            mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
+            if key_name in mesh_props.keys():
+                if key_name == "SurfaceRepPriority":
+                    value = "Normal" if value == 0 else "High"
+                key_name = mesh_props[key_name]
+            mesh_obj.SetPropValue(key_name, value)
+            return True
+
+        if self.type == "SurfApproxBased":
+            self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
+        elif self.type == "DefeatureBased":
+            self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
+        elif self.type == "SurfaceRepPriority":
+            self._mesh.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args())
+        elif self.type == "LengthBased":
+            self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args())
+        elif self.type == "SkinDepthBased":
+            self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args())
+        elif self.type == "Curvilinear":
+            self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args())
+        elif self.type == "RotationalLayerMesh":
+            self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args())
+        elif self.type == "DensityControlBased":
+            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+        elif self.type == "Icepak":
+            self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args())
+        elif self.type == "CurvatureExtraction":
+            self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
+        elif self.type == "InitialMeshSettings":
+            self._mesh.omeshmodule.InitialMeshSettings(self._get_args())
+        elif self.type == "CylindricalGap":
+            self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
+        else:
+            return False
+        return True
+
+    @pyaedt_function_handler()
+    def update_assignment(self):
+        """Update the boundary assignment.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        out = []
+
+        if "Faces" in self.props:
+            faces = self.props["Faces"]
+            faces_out = []
+            if type(faces) is not list:
+                faces = [faces]
+            for f in faces:
+                if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
+                    faces_out.append(f.id)
+                else:
+                    faces_out.append(f)
+            out += ["Faces:=", faces_out]
+
+        if "Objects" in self.props:
+            pr = []
+            for el in self.props["Objects"]:
+                try:
+                    pr.append(self._app.modeler[el].name)
+                except (KeyError, AttributeError):
+                    pass
+            out += ["Objects:=", pr]
+
+        if len(out) == 1:
+            return False
+
+        self._app.omeshmodule.ReassignOp(self.name, out)
+
         return True
 
     @pyaedt_function_handler()

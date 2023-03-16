@@ -28,15 +28,22 @@ class TestClass(BasisTest, object):
         assert "resolution_test" in self.aedtapp.mesh.meshoperations[0].name
         mr1.name = "resolution_test"
         assert self.aedtapp.odesign.GetChildObject("Mesh")
+        mr1.auto_update = False
         mr1.props["DefeatureLength"] = "0.1mm"
+        assert not (
+            self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
+            == "0.1mm"
+        )
+        mr1.update()
         assert (
             self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Model Resolution Length")
             == "0.1mm"
         )
+        mr1.auto_update = True
         mr1.props["UseAutoLength"] = True
         assert self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Use Auto Simplify")
         o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
-        mr1.props["Objects"] = [o2.name, o.name]
+        mr1.props["Objects"] = [o2.name, o]
         if desktop_version >= "2023.1":
             assert len(self.aedtapp.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
         mr2 = self.aedtapp.mesh.assign_model_resolution(o.faces[0], 1e-4, "ModelRes2")
@@ -58,7 +65,7 @@ class TestClass(BasisTest, object):
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, meshop_name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] == 1e-6
-        surface["SurfDev"] = 1e-05
+        surface.props["SurfDev"] = 1e-05
         assert (
             self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(surface.name).GetPropValue("Surface Deviation")
             == "1e-05"
