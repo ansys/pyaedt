@@ -1,6 +1,8 @@
-from pyaedt.emit_core import EMIT_MODULE
 import os
 import sys
+
+from pyaedt.emit_core import EMIT_MODULE
+
 
 def result_type():
     """
