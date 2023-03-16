@@ -24,6 +24,7 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
+        # Linking pyaedt in PersonalLib for IronPython compatibility.
         if os.path.exists(pers1):
             d.logger.info("PersonalLib already mapped")
         else:
