@@ -1621,7 +1621,7 @@ class Settings(object):
 
     @property
     def lsf_timeout(self):
-        """Get or set the Timeout for Interactive Session startup. Default is ``3600`` seconds."""
+        """Get or set the timeout for starting the interactive session. The default is ``3600`` seconds."""
         return self._lsf_timeout
 
     @lsf_timeout.setter
