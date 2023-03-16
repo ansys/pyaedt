@@ -66,7 +66,7 @@ else:
 
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
-    """Launch AEDT in Lsf in GRPC mode."""
+    """Launch AEDT in LSF in GRPC mode."""
     command = [
         "bsub",
         "-n",
