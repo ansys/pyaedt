@@ -61,7 +61,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         self,
         component_file,
         component_name=None,
-        variables_to_include=[],
+        variables_to_include=None,
         object_list=None,
         boundaries_list=None,
         excitation_list=None,
@@ -90,7 +90,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         component_name : str, optional
             Name of the component. The default is ``None``.
         variables_to_include : list, optional
-            List of variables to include. The default is ``[]``.
+            List of variables to include. The default is ``None``.
         object_list : list, optional
             List of object names to export. The default is all object names.
         boundaries_list : list, optional
@@ -149,6 +149,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         ----------
         >>> oEditor.Create3DComponent
         """
+        if not variables_to_include:
+            variables_to_include = []
         if not component_name:
             component_name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
@@ -391,8 +393,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`pyaedt.modeler.components_3d.UserDefinedComponent`
+            User defined component object.
 
         References
         ----------
@@ -402,7 +404,7 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         if not variables_to_include:
             variables_to_include = []
         if not component_name:
-            component_name = self._app.design_name
+            component_name = generate_unique_name(self._app.design_name)
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         arg = [
             "NAME:CreateData",
@@ -525,7 +527,8 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
-        return _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
+        return self._create_user_defined_component(component_name)
 
     @pyaedt_function_handler()
     def create_coaxial(

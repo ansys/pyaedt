@@ -63,35 +63,27 @@ class MeshProps(OrderedDict):
 
     def __setitem__(self, key, value):
         pyaedt_mesh_attr = list(self._pyaedt_mesh.__dict__.keys())
-        if key in list(self._pyaedt_mesh.props.keys()):
-            OrderedDict.__setitem__(self, key, value)
-            if key in ["Edges", "Faces", "Objects"]:
-                if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
-                    self._pyaedt_mesh.update_assignment()
-                else:
-                    self._pyaedt_mesh._mesh.omeshmodule.ReassignOp(self._pyaedt_mesh.name, ["{}:=".format(key), value])
+        OrderedDict.__setitem__(self, key, value)
+        if key in ["Edges", "Faces", "Objects"]:
+            if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
+                self._pyaedt_mesh.update_assignment()
             else:
-                if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
-                    self._pyaedt_mesh.update()
-                else:
-                    mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
-                        self._pyaedt_mesh.name
-                    )
-                    if key in mesh_props.keys():
-                        if key == "SurfaceRepPriority":
-                            if value == 0:
-                                value = "Normal"
-                            else:
-                                value = "High"
-
-                        mesh_obj.SetPropValue(mesh_props[key], value)
+                self._pyaedt_mesh._mesh.omeshmodule.ReassignOp(self._pyaedt_mesh.name, ["{}:=".format(key), value])
         else:
-            if not "_meshicepak" in pyaedt_mesh_attr or not "_mesh3dlayout" in pyaedt_mesh_attr:
+            if "_meshicepak" in pyaedt_mesh_attr or "_mesh3dlayout" in pyaedt_mesh_attr:
+                self._pyaedt_mesh.update()
+            else:
                 mesh_obj = self._pyaedt_mesh._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(
                     self._pyaedt_mesh.name
                 )
-                if key in mesh_obj.GetPropNames() or key.replace(" ", "_") in mesh_obj.GetPropNames():
-                    OrderedDict.__setitem__(self, key, value)
+                if key in mesh_props.keys():
+                    if key == "SurfaceRepPriority":
+                        if value == 0:
+                            value = "Normal"
+                        else:
+                            value = "High"
+
+                    mesh_obj.SetPropValue(mesh_props[key], value)
 
     def __init__(self, mesh_object, props):
         OrderedDict.__init__(self)

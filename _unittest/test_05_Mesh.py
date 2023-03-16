@@ -89,6 +89,14 @@ class TestClass(BasisTest, object):
             == "Normal"
         )
 
+        surface.props["SurfaceRepPriority"] = 1
+        assert (
+            self.aedtapp.odesign.GetChildObject("Mesh")
+            .GetChildObject(surface.name)
+            .GetPropValue("Surface Representation Priority for TAU")
+            == "High"
+        )
+
     def test_05_delete_mesh_ops(self):
         assert self.aedtapp.mesh.delete_mesh_operations("surface")
         assert len(self.aedtapp.mesh.meshoperation_names) == 2
