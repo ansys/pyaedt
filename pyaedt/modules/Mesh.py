@@ -910,6 +910,10 @@ class Mesh(object):
 
         mop = MeshOperation(self, meshop_name, props, "LengthBased")
         mop.create()
+        for meshop in self.meshoperations[:]:
+            if meshop.name == mop.name:
+                meshop.delete()
+                break
         self.meshoperations.append(mop)
         return mop
 
