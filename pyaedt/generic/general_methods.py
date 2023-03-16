@@ -1575,10 +1575,11 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
-        self._lsf_num_cores = 8
-        self._lsf_ram = 32000
+        self._lsf_num_cores = 2
+        self._lsf_ram = 1000
         self._use_lsf_scheduler = False
         self._lsf_aedt_command = "ansysedt"
+        self._lsf_timeout = 3600
 
     @property
     def use_lsf_scheduler(self):
@@ -1616,6 +1617,15 @@ class Settings(object):
     @lsf_ram.setter
     def lsf_ram(self, val):
         self._lsf_ram = int(val)
+
+    @property
+    def lsf_timeout(self):
+        """Get or set the Timeout for Interactive Session startup. Default is ``3600`` seconds."""
+        return self._lsf_timeout
+
+    @lsf_timeout.setter
+    def lsf_timeout(self, val):
+        self._lsf_timeout = int(val)
 
     @property
     def aedt_version(self):

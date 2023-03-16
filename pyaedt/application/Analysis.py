@@ -1876,13 +1876,16 @@ class Analysis(Design, object):
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
 
-        options = [
-            "-ng",
-            "-BatchSolve",
-            "-machinelist",
-            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
-            "-Monitor",
-        ]
+        if os.name == "posix" and settings.use_lsf_scheduler:
+            options = ["-ng", "-BatchSolve", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
+        else:
+            options = [
+                "-ng",
+                "-BatchSolve",
+                "-machinelist",
+                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+                "-Monitor",
+            ]
         if setup_name and design_name:
             options.append(
                 "{}:{}:{}".format(

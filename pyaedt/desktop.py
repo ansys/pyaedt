@@ -67,19 +67,34 @@ else:
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in Lsf in GRPC mode."""
-    command = 'bsub -n {} -R "rusage[mem={}]" {} -grpcsrv {}'.format(
-        settings.lsf_num_cores, settings.lsf_ram, settings.lsf_aedt_command, port
-    )
+    command = [
+        "bsub",
+        "-n",
+        str(settings.lsf_num_cores),
+        "-R",
+        f"rusage[mem={settings.lsf_ram}]",
+        "-Is",
+        settings.lsf_aedt_command,
+        "-grpcsrv",
+        str(port),
+    ]
     if non_graphical:
-        command += " -ng"
-    p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    timeout = 3600
+        command.append("-ng")
+    print(command)
+    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    timeout = settings.lsf_timeout
     i = 0
     while i < timeout:
-        res = p.stdout.read().strip().decode("utf-8", "replace")
-        err = p.stderr.read().strip().decode("utf-8", "replace")
-        m = re.search(r"<<Starting on (.+?)>>", res)
+        err = p.stderr.readline().strip().decode("utf-8", "replace")
+        m = re.search(r"<<Starting on (.+?)>>", err)
         if m:
+            aedt_startup_timeout = 120
+            k = 0
+            while not _check_grpc_port(port, machine_name=m.group(1)):
+                if k > aedt_startup_timeout:
+                    return False, err
+                time.sleep(1)
+                k += 1
             return True, m.group(1)
         i += 1
         time.sleep(1)
