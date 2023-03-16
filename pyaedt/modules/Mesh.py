@@ -262,7 +262,7 @@ class Mesh(object):
 
         Parameters
         ----------
-        partId : str
+        part_id : str
             Mesh operation name.
 
         Returns
