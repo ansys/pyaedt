@@ -877,8 +877,7 @@ class Desktop(object):
             if out:
                 ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
             else:
-                self.logger.error("Failed to start LSF job.")
-                self.logger.error(self.machine)
+                self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
                 return
         else:
             ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
