@@ -215,7 +215,7 @@ class Trace(object):
         report_name = self.trace_name.split(":")[0]
         traces_in_report = self._oreport_setup.GetReportTraceNames(report_name)
         for trace in traces_in_report:
-            if trace in self.trace_name:
+            if trace + ":" in self.trace_name:
                 self._trace_name_real = trace
         return self._trace_name_real
 
