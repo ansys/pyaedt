@@ -1583,7 +1583,8 @@ class Settings(object):
 
     @property
     def use_lsf_scheduler(self):
-        """Either to use or not LSF Scheduler. Valid only on linux systems running LSF Scheduler."""
+        """Whether to use LSF Scheduler. This attribute is valid only on Linux
+        systems running LSF Scheduler."""
         return self._use_lsf_scheduler
 
     @use_lsf_scheduler.setter
