@@ -1587,8 +1587,8 @@ class Settings(object):
         return self._use_lsf_scheduler
 
     @use_lsf_scheduler.setter
-    def use_lsf_scheduler(self, val):
-        self._use_lsf_scheduler = val
+    def use_lsf_scheduler(self, value):
+        self._use_lsf_scheduler = value
 
     @property
     def lsf_aedt_command(self):
