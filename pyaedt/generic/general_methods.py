@@ -1593,8 +1593,8 @@ class Settings(object):
 
     @property
     def lsf_aedt_command(self):
-        """Get or set the ansysedt command to launch. Default is ``"ansysedt"``.
-        Valid only on linux systems running LSF Scheduler."""
+        """Get or set the ``ansysedt`` command to launch. The default is ``"ansysedt"``.
+        This attribute is valid only on Linux systems running LSF Scheduler."""
         return self._lsf_aedt_command
 
     @lsf_aedt_command.setter
