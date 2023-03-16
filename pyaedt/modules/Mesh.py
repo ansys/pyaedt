@@ -78,10 +78,7 @@ class MeshProps(OrderedDict):
                 )
                 if key in mesh_props.keys():
                     if key == "SurfaceRepPriority":
-                        if value == 0:
-                            value = "Normal"
-                        else:
-                            value = "High"
+                        value = "Normal" if value == 0 else "High"
 
                     mesh_obj.SetPropValue(mesh_props[key], value)
 
