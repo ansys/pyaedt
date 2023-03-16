@@ -3,7 +3,9 @@ This module contains the ``EdbHfss`` class.
 """
 import math
 
+from pyaedt.edb_core.edb_data.primitives_data import EDBPrimitives
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
+from pyaedt.edb_core.edb_data.sources import ExcitationBundle
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.edb_core.general import convert_pytuple_to_nettuple
@@ -470,13 +472,13 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        positive_primitive_id : int
+        positive_primitive_id : int, EDBPrimitives
             Primitive ID of the positive terminal.
         positive_points_on_edge : list
             Coordinate of the point to define the edge terminal.
             The point must be close to the target edge but not on the two
             ends of the edge.
-        negative_primitive_id : int
+        negative_primitive_id : int, EDBPrimitives
             Primitive ID of the negative terminal.
         negative_points_on_edge : list
             Coordinate of the point to define the edge terminal.
@@ -503,6 +505,12 @@ class EdbHfss(object):
         if not port_name:
             port_name = generate_unique_name("diff")
 
+        if isinstance(positive_primitive_id, EDBPrimitives):
+            positive_primitive_id = positive_primitive_id.id
+
+        if isinstance(negative_primitive_id, EDBPrimitives):
+            negative_primitive_id = negative_primitive_id.id
+
         _, pos_term = self.create_wave_port(
             positive_primitive_id,
             positive_points_on_edge,
@@ -511,7 +519,7 @@ class EdbHfss(object):
             vertical_extent_factor=vertical_extent_factor,
             pec_launch_width=pec_launch_width,
         )
-        _, neg_term = self.create_edge_port_vertical(
+        _, neg_term = self.create_wave_port(
             negative_primitive_id,
             negative_points_on_edge,
             horizontal_extent_factor=horizontal_extent_factor,
@@ -523,6 +531,68 @@ class EdbHfss(object):
         )
         _edb_boundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
         return port_name, ExcitationDifferential(self._pedb, _edb_boundle_terminal)
+
+    @pyaedt_function_handler
+    def create_bundle_wave_port(
+        self,
+        primitives_id,
+        points_on_edge,
+        port_name=None,
+        horizontal_extent_factor=5,
+        vertical_extent_factor=3,
+        pec_launch_width="0.01mm",
+    ):
+        """Create a bundle wave port.
+
+        Parameters
+        ----------
+        primitives_id : list
+            Primitive ID of the positive terminal.
+        points_on_edge : list
+            Coordinate of the point to define the edge terminal.
+            The point must be close to the target edge but not on the two
+            ends of the edge.
+        port_name : str, optional
+            Name of the port. The default is ``None``.
+        horizontal_extent_factor : int, float, optional
+            Horizontal extent factor. The default value is ``5``.
+        vertical_extent_factor : int, float, optional
+            Vertical extent factor. The default value is ``3``.
+        pec_launch_width : str, optional
+            Launch Width of PEC. The default value is ``"0.01mm"``.
+
+        Returns
+        -------
+        tuple
+            The tuple contains: (port_name, pyaedt.edb_core.edb_data.sources.ExcitationDifferential).
+
+        Examples
+        --------
+        >>> edb.core_hfss.create_bundle_wave_port(0, ["-50mm", "-0mm"], 1, ["-50mm", "-0.2mm"])
+        """
+        if not port_name:
+            port_name = generate_unique_name("bundle_port")
+
+        if isinstance(primitives_id[0], EDBPrimitives):
+            primitives_id = [i.id for i in primitives_id]
+
+        terminals = []
+        _port_name = port_name
+        for p_id, loc in list(zip(primitives_id, points_on_edge)):
+            _, term = self.create_wave_port(
+                p_id,
+                loc,
+                port_name=_port_name,
+                horizontal_extent_factor=horizontal_extent_factor,
+                vertical_extent_factor=vertical_extent_factor,
+                pec_launch_width=pec_launch_width,
+            )
+            _port_name = None
+            terminals.append(term)
+
+        edb_list = convert_py_list_to_net_list([i._edb_terminal for i in terminals], self._edb.Cell.Terminal.Terminal)
+        _edb_bundle_terminal = self._edb.Cell.Terminal.BundleTerminal.Create(edb_list)
+        return port_name, ExcitationBundle(self._pedb, _edb_bundle_terminal)
 
     @pyaedt_function_handler()
     def create_hfss_ports_on_padstack(self, pinpos, portname=None):
@@ -672,7 +742,7 @@ class EdbHfss(object):
 
         Parameters
         ----------
-        prim_id : int
+        prim_id : int, EDBPrimitives
             Primitive ID.
         point_on_edge : list
             Coordinate of the point to define the edge terminal.
@@ -700,6 +770,10 @@ class EdbHfss(object):
         """
         if not port_name:
             port_name = generate_unique_name("Terminal_")
+
+        if isinstance(prim_id, EDBPrimitives):
+            prim_id = prim_id.id
+
         pos_edge_term = self._create_edge_terminal(prim_id, point_on_edge, port_name)
         pos_edge_term.SetImpedance(self._pedb.edb_value(impedance))
 
