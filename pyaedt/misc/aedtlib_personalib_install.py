@@ -99,7 +99,7 @@ def install_toolkit(toolkit_dir, product, aedt_version):
                 if not version_agnostic:
                     build_file_data = build_file_data.replace(" % version", "")
                 out_file.write(build_file_data)
-    shutil.copyfile(os.path.join(current_dir, "console_setup"), os.path.join(lib_dir, "console_setup.py"))
+    shutil.copyfile(os.path.join(current_dir, "console_setup.py"), os.path.join(lib_dir, "console_setup.py"))
     shutil.copyfile(
         os.path.join(current_dir, "jupyter_template.ipynb"),
         os.path.join(lib_dir, "jupyter_template.ipynb"),
