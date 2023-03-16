@@ -1575,6 +1575,47 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
+        self._lsf_num_cores = 8
+        self._lsf_ram = 32000
+        self._use_lsf_scheduler = False
+        self._lsf_aedt_command = "ansysedt"
+
+    @property
+    def use_lsf_scheduler(self):
+        """Either to use or not LSF Scheduler. Valid only on linux systems running LSF Scheduler."""
+        return self._use_lsf_scheduler
+
+    @use_lsf_scheduler.setter
+    def use_lsf_scheduler(self, val):
+        self._use_lsf_scheduler = val
+
+    @property
+    def lsf_aedt_command(self):
+        """Get or set the ansysedt command to launch. Default is ``"ansysedt"``.
+        Valid only on linux systems running LSF Scheduler."""
+        return self._lsf_aedt_command
+
+    @lsf_aedt_command.setter
+    def lsf_aedt_command(self, val):
+        self._lsf_aedt_command = val
+
+    @property
+    def lsf_num_cores(self):
+        """Get or set the number of LSF cores. Valid only on linux systems running LSF Scheduler."""
+        return self._lsf_num_cores
+
+    @lsf_num_cores.setter
+    def lsf_num_cores(self, val):
+        self._lsf_num_cores = int(val)
+
+    @property
+    def lsf_ram(self):
+        """Get or set the RAM allocated of LSF Job. Valid only on linux systems running LSF Scheduler."""
+        return self._lsf_ram
+
+    @lsf_ram.setter
+    def lsf_ram(self, val):
+        self._lsf_ram = int(val)
 
     @property
     def aedt_version(self):
