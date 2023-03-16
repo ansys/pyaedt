@@ -257,7 +257,7 @@ class Mesh(object):
         self._globalmesh = None
 
     @pyaedt_function_handler()
-    def __getitem__(self, partId):
+    def __getitem__(self, part_id):
         """Get the object ``Mesh`` for a given mesh operation name.
 
         Parameters
