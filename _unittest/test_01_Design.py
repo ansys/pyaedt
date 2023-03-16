@@ -15,6 +15,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_ironpython
@@ -346,3 +347,12 @@ class TestClass(BasisTest, object):
         self.aedtapp.create_new_project("Test")
         assert d[[1, 0]]
         assert "Test" in d[[1, 0]].project_name
+
+    def test_36_test_load(self):
+        hfss = Hfss(os.path.join(self.aedtapp.project_path, self.aedtapp.project_name + ".aedt"))
+        assert hfss
+        h3d = Hfss3dLayout(os.path.join(self.aedtapp.project_path, self.aedtapp.project_name + ".aedt"))
+        assert h3d
+        h3d.save_project()
+        h3d = Hfss3dLayout(os.path.join(self.aedtapp.project_path, self.aedtapp.project_name + ".aedt"))
+        assert h3d
