@@ -357,3 +357,21 @@ class TestClass(BasisTest, object):
         assert h3d
         h3d = Hfss3dLayout(file_name)
         assert h3d
+        file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
+        file_name2_lock = os.path.join(self.local_scratch.path, "test_36_2.aedt.lock")
+        with open(file_name2, "w") as f:
+            f.write(" ")
+        with open(file_name2_lock, "w") as f:
+            f.write(" ")
+        try:
+            hfss = Hfss(projectname=file_name2)
+        except:
+            assert True
+        try:
+            os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
+            file_name3 = os.path.join(self.local_scratch.path, "test_36_2.aedb", "edb.def")
+            with open(file_name3, "w") as f:
+                f.write(" ")
+            hfss = Hfss3dLayout(projectname=file_name3)
+        except:
+            assert True
