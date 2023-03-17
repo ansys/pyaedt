@@ -70,9 +70,9 @@ class CommonSetup(PropsManager, object):
     @pyaedt_function_handler()
     def analyze(
         self,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -85,11 +85,11 @@ class CommonSetup(PropsManager, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
