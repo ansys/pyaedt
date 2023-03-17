@@ -667,7 +667,7 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    return check_if_path_exists(project_path[:-4] + "lock")
+    return check_if_path_exists(project_path + ".lock")
 
 
 @pyaedt_function_handler()

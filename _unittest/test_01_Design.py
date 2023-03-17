@@ -15,6 +15,7 @@ except ImportError:
     import _unittest_ironpython.conf_unittest as pytest  # noqa: F401
 
 from pyaedt import Hfss
+from pyaedt import Hfss3dLayout
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.general_methods import is_ironpython
@@ -346,3 +347,31 @@ class TestClass(BasisTest, object):
         self.aedtapp.create_new_project("Test")
         assert d[[1, 0]]
         assert "Test" in d[[1, 0]].project_name
+
+    def test_36_test_load(self):
+        file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
+        hfss = Hfss(projectname=file_name)
+        hfss.save_project()
+        assert hfss
+        h3d = Hfss3dLayout(file_name)
+        assert h3d
+        h3d = Hfss3dLayout(file_name)
+        assert h3d
+        file_name2 = os.path.join(self.local_scratch.path, "test_36_2.aedt")
+        file_name2_lock = os.path.join(self.local_scratch.path, "test_36_2.aedt.lock")
+        with open(file_name2, "w") as f:
+            f.write(" ")
+        with open(file_name2_lock, "w") as f:
+            f.write(" ")
+        try:
+            hfss = Hfss(projectname=file_name2)
+        except:
+            assert True
+        try:
+            os.makedirs(os.path.join(self.local_scratch.path, "test_36_2.aedb"))
+            file_name3 = os.path.join(self.local_scratch.path, "test_36_2.aedb", "edb.def")
+            with open(file_name3, "w") as f:
+                f.write(" ")
+            hfss = Hfss3dLayout(projectname=file_name3)
+        except:
+            assert True

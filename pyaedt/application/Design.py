@@ -925,17 +925,41 @@ class Design(AedtObjects):
                         "Archive {} has been restored to project {}".format(proj_name, self._oproject.GetName())
                     )
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
-                    oTool = self.odesktop.GetTool("ImportExport")
                     if ".def" in proj_name:
-                        oTool.ImportEDB(proj_name)
+                        project = os.path.dirname(proj_name)[:-5] + ".aedt"
                     else:
-                        oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
-                    self._oproject = self.odesktop.GetActiveProject()
-                    self._oproject.Save()
+                        project = proj_name[:-5] + ".aedt"
+                    if os.path.exists(project) and self.check_if_project_is_loaded(project):
+                        pname = self.check_if_project_is_loaded(project)
+                        self._oproject = self.odesktop.SetActiveProject(pname)
+                        self._add_handler()
+                        self.logger.info("Project %s set to active.", pname)
+                    elif os.path.exists(project):
+                        assert not is_project_locked(
+                            project
+                        ), "Project is locked. Close or remove the lock before proceeding."
+                        self.logger.info("aedt project found. Loading it.")
+                        self._oproject = self.odesktop.OpenProject(project)
+                        self._add_handler()
+                        self.logger.info("Project %s has been opened.", self._oproject.GetName())
+                        time.sleep(0.5)
+                    else:
+                        oTool = self.odesktop.GetTool("ImportExport")
+                        if ".def" in proj_name:
+                            oTool.ImportEDB(proj_name)
+                        else:
+                            oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
+                        self._oproject = self.odesktop.GetActiveProject()
+                        self._oproject.Save()
+                        self._add_handler()
+                        self.logger.info(
+                            "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
+                        )
+                elif self.check_if_project_is_loaded(proj_name):
+                    pname = self.check_if_project_is_loaded(proj_name)
+                    self._oproject = self.odesktop.SetActiveProject(pname)
                     self._add_handler()
-                    self.logger.info(
-                        "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
-                    )
+                    self.logger.info("Project %s set to active.", pname)
                 else:
                     assert not is_project_locked(
                         proj_name
@@ -3629,3 +3653,17 @@ class Design(AedtObjects):
             app.model_hfss()
             app.setup_hfss()
         return app
+
+    @pyaedt_function_handler()
+    def check_if_project_is_loaded(self, project_path):
+        """Check if a project path is already loaded in active Desktop.
+
+        Returns
+        -------
+        str
+            Project name if loaded in Desktop.
+        """
+        for p in self.odesktop.GetProjects():
+            if os.path.normpath(os.path.join(p.GetPath(), p.GetName()) + ".aedt") == os.path.normpath(project_path):
+                return p.GetName()
+        return False
