@@ -1559,7 +1559,7 @@ class Analysis(Design, object):
         self.analyze(self.active_setup)
 
     @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+    def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
         .. deprecated:: 0.6.52
@@ -1568,11 +1568,11 @@ class Analysis(Design, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1596,9 +1596,9 @@ class Analysis(Design, object):
     def analyze(
         self,
         setup_name=None,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=1,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -1613,11 +1613,11 @@ class Analysis(Design, object):
         setup_name : str, optional
             Setup to analyze. Default is ``None`` which solves all the setups.
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1668,9 +1668,9 @@ class Analysis(Design, object):
     def analyze_setup(
         self,
         name,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
         acf_file=None,
         use_auto_settings=True,
         num_variations_to_distribute=None,
@@ -1685,11 +1685,11 @@ class Analysis(Design, object):
             Name of the setup, which can be an optimetric setup or a simple setup.
             If ``None`` all setups will be solved.
         num_cores : int, optional
-            Number of simulation cores. The default is ``None.``
+            Number of simulation cores.  Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks. The default is ``None.``
+            Number of simulation tasks.  Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphics processing units. The default is ``None.``
+            Number of simulation graphics processing units.  Default is ``0``.
         acf_file : str, optional
             Full path to custom ACF file. The default is ``None.``
         use_auto_settings : bool, optional
