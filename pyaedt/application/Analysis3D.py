@@ -1039,4 +1039,7 @@ class FieldAnalysis3D(Analysis, object):
                         ):  # pragma: no cover
                             return False
             app.oproject.Close()
+
+        if not self.design_type == "Icepak":
+            self.mesh._refresh_mesh_operations()
         return True

@@ -667,7 +667,7 @@ def is_project_locked(project_path):
     bool
         ``True`` when successful, ``False`` when failed.
     """
-    return check_if_path_exists(project_path[:-4] + "lock")
+    return check_if_path_exists(project_path + ".lock")
 
 
 @pyaedt_function_handler()
@@ -1575,6 +1575,60 @@ class Settings(object):
         self._enable_local_log_file = False
         self._global_log_file_size = 10
         self._edb_dll_path = None
+        self._lsf_num_cores = 2
+        self._lsf_ram = 1000
+        self._use_lsf_scheduler = False
+        self._lsf_aedt_command = "ansysedt"
+        self._lsf_timeout = 3600
+
+    @property
+    def use_lsf_scheduler(self):
+        """Whether to use LSF Scheduler. This attribute is valid only on Linux
+        systems running LSF Scheduler."""
+        return self._use_lsf_scheduler
+
+    @use_lsf_scheduler.setter
+    def use_lsf_scheduler(self, value):
+        self._use_lsf_scheduler = value
+
+    @property
+    def lsf_aedt_command(self):
+        """Get or set the ``ansysedt`` command to launch. The default is ``"ansysedt"``.
+        This attribute is valid only on Linux systems running LSF Scheduler."""
+        return self._lsf_aedt_command
+
+    @lsf_aedt_command.setter
+    def lsf_aedt_command(self, value):
+        self._lsf_aedt_command = value
+
+    @property
+    def lsf_num_cores(self):
+        """Get or set the number of LSF cores. This attribute is valid only
+        on Linux systems running LSF Scheduler."""
+        return self._lsf_num_cores
+
+    @lsf_num_cores.setter
+    def lsf_num_cores(self, value):
+        self._lsf_num_cores = int(value)
+
+    @property
+    def lsf_ram(self):
+        """Get or set the RAM allocated for the LSF job. This attribute is valid
+        only on Linux systems running LSF Scheduler."""
+        return self._lsf_ram
+
+    @lsf_ram.setter
+    def lsf_ram(self, value):
+        self._lsf_ram = int(value)
+
+    @property
+    def lsf_timeout(self):
+        """Get or set the timeout for starting the interactive session. The default is ``3600`` seconds."""
+        return self._lsf_timeout
+
+    @lsf_timeout.setter
+    def lsf_timeout(self, value):
+        self._lsf_timeout = int(value)
 
     @property
     def aedt_version(self):

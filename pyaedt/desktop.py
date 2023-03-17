@@ -65,6 +65,42 @@ else:
     settings.use_grpc_api = True
 
 
+def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
+    """Launch AEDT in LSF in GRPC mode."""
+    command = [
+        "bsub",
+        "-n",
+        str(settings.lsf_num_cores),
+        "-R",
+        '"rusage[mem={}]"'.format(settings.lsf_ram),
+        "-Is",
+        settings.lsf_aedt_command,
+        "-grpcsrv",
+        str(port),
+    ]
+    if non_graphical:
+        command.append("-ng")
+    print(command)
+    p = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    timeout = settings.lsf_timeout
+    i = 0
+    while i < timeout:
+        err = p.stderr.readline().strip().decode("utf-8", "replace")
+        m = re.search(r"<<Starting on (.+?)>>", err)
+        if m:
+            aedt_startup_timeout = 120
+            k = 0
+            while not _check_grpc_port(port, machine_name=m.group(1)):
+                if k > aedt_startup_timeout:
+                    return False, err
+                time.sleep(1)
+                k += 1
+            return True, m.group(1)
+        i += 1
+        time.sleep(1)
+    return False, err
+
+
 def _check_grpc_port(port, machine_name=""):
     s = socket.socket()
     try:
@@ -836,7 +872,15 @@ class Desktop(object):
             self.logger.info("AEDT session is starting on gRPC port %s", self.port)
             new_aedt_session = True
 
-        ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
+        if new_aedt_session and settings.use_lsf_scheduler and os.name == "posix":  # pragma: no cover
+            out, self.machine = launch_aedt_in_lsf(non_graphical, self.port)
+            if out:
+                ScriptEnv._doInitialize(version, None, False, non_graphical, self.machine, self.port)
+            else:
+                self.logger.error("Failed to start LSF job on machine: %s.", self.machine)
+                return
+        else:
+            ScriptEnv._doInitialize(version, None, new_aedt_session, non_graphical, self.machine, self.port)
 
         if "oAnsoftApplication" in dir(self._main):
             self._main.isoutsideDesktop = True
