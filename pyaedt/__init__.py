@@ -9,7 +9,7 @@ os.environ["ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE"] = "1"
 os.environ["ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE"] = "1"
 pyaedt_path = os.path.dirname(__file__)
 
-__version__ = "0.7.dev0"
+__version__ = "0.6.56"
 
 version = __version__
 import pyaedt.downloads as downloads
