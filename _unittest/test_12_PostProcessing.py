@@ -463,8 +463,7 @@ class TestClass(BasisTest, object):
 
     def test_09d_delete_traces_from_report(self):
         new_report = self.aedtapp.create_scattering("delete_traces_test")
-        traces_to_delete = []
-        traces_to_delete.append(new_report.expressions[0])
+        traces_to_delete = [new_report.expressions[0]]
         plot_name = new_report.plot_name
         assert new_report.delete_traces(plot_name, traces_to_delete)
         if not is_ironpython:
@@ -487,11 +486,11 @@ class TestClass(BasisTest, object):
 
     def test_09f_update_trace_name(self):
         report = [plot for plot in self.aedtapp.post.plots if plot.plot_name == "add_traces_test"][0]
-        old_trace_name = report.traces[0].trace_name_real
-        assert old_trace_name in report.traces[0].trace_name
+        old_trace_name = report.traces[0].name
+        assert old_trace_name in report.traces[0].aedt_name
         new_name = "update_trace_name_test"
-        report.traces[0].trace_name_real = new_name
-        assert new_name in report.traces[0].trace_name
+        report.traces[0].name = new_name
+        assert new_name in report.traces[0].aedt_name
 
     def test_09g_update_traces_in_report(self):
         new_report = self.aedtapp.create_scattering("update_traces_test")
