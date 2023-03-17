@@ -530,8 +530,11 @@ class Modeler3D(GeometryModeler, Primitives3D, object):
         else:
             arg2.append("MeshOperations:="), arg2.append(meshops)
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
+        old_components = self.user_defined_component_names
         _retry_ntimes(3, self.oeditor.ReplaceWith3DComponent, arg, arg2, arg3)
-        return self._create_user_defined_component(component_name)
+        self.refresh_all_ids()
+        new_name = list(set(self.user_defined_component_names) - set(old_components))
+        return self.user_defined_components[new_name[0]]
 
     @pyaedt_function_handler()
     def create_coaxial(
