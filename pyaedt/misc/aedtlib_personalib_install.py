@@ -24,26 +24,13 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
+        # Linking pyaedt in PersonalLib for IronPython compatibility.
         if os.path.exists(pers1):
             d.logger.info("PersonalLib already mapped")
         else:
             os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
 
-        toolkits = [
-            "Project",
-            # "2DExtractor",
-            # "CircuitDesign",
-            # "Emit",
-            # "HFSS",
-            # "HFSS-IE",
-            # "HFSS3DLayoutDesign",
-            # "Icepak",
-            # "Maxwell2D",
-            # "Maxwell3D",
-            # "Q3DExtractor",
-            # "TwinBuilder",
-            # "Mechanical",
-        ]
+        toolkits = ["Project"]
 
         for product in toolkits:
             if use_sys_lib:
@@ -68,9 +55,8 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
 
 
 def install_toolkit(toolkit_dir, product, aedt_version):
-    toolkit_rel_lib_dir = os.path.join("Lib", "PyAEDT")
-    lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
     tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
+    lib_dir = os.path.join(tool_dir, "Lib")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
@@ -91,7 +77,7 @@ def install_toolkit(toolkit_dir, product, aedt_version):
                 print("Building to " + os.path.join(tool_dir, file_name_dest))
                 build_file_data = build_file.read()
                 build_file_data = (
-                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", os.path.relpath(lib_dir, tool_dir))
                     .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
