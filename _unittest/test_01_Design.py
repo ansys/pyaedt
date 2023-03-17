@@ -349,10 +349,11 @@ class TestClass(BasisTest, object):
         assert "Test" in d[[1, 0]].project_name
 
     def test_36_test_load(self):
-        hfss = Hfss(os.path.join(self.aedtapp.project_path, self.aedtapp.project_name + ".aedt"))
+        file_name = os.path.join(self.local_scratch.path, "test_36.aedt")
+        hfss = Hfss(projectname=file_name)
+        hfss.save_project()
         assert hfss
-        h3d = Hfss3dLayout(os.path.join(self.aedtapp.project_path, self.aedtapp.project_name + ".aedt"))
+        h3d = Hfss3dLayout(file_name)
         assert h3d
-        h3d.save_project()
-        h3d = Hfss3dLayout(os.path.join(self.aedtapp.project_path, self.aedtapp.project_name + ".aedt"))
+        h3d = Hfss3dLayout(file_name)
         assert h3d
