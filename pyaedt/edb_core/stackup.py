@@ -5,12 +5,12 @@ This module contains the `EdbStackup` class.
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import json
 import logging
 import math
 import os.path
 import warnings
-from collections import OrderedDict
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass

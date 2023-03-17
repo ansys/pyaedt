@@ -1,13 +1,14 @@
 #!/ekm/software/anaconda3/bin/python
 # Standard imports
+from collections import OrderedDict
 import filecmp
 import os
 import shutil
-from collections import OrderedDict
 
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+
 from pyaedt import Maxwell2d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name

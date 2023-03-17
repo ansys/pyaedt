@@ -18,6 +18,7 @@ from _unittest.conftest import desktop_version
 from _unittest.conftest import is_ironpython
 from _unittest.conftest import local_path
 from _unittest.conftest import settings
+
 from pyaedt.generic.constants import SolverType
 from pyaedt.generic.constants import SourceType
 
@@ -1531,33 +1532,74 @@ class TestClass(BasisTest, object):
         assert isinstance(port_ver.horizontal_extent_factor, float)
         assert isinstance(port_ver.vertical_extent_factor, float)
         assert port_ver.pec_launch_width
-        p = edb.core_primitives.create_trace(
-            path_list=[["-40mm", "-10mm"], ["-30mm", "-10mm"]],
-            layer_name="TOP",
-            net_name="SIGP",
-            width="0.1mm",
-            start_cap_style="Flat",
-            end_cap_style="Flat",
-        )
+        args = {
+            "layer_name": "TOP",
+            "net_name": "SIGP",
+            "width": "0.1mm",
+            "start_cap_style": "Flat",
+            "end_cap_style": "Flat",
+        }
+        traces = []
+        trace_paths = [
+            [["-40mm", "-10mm"], ["-30mm", "-10mm"]],
+            [["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
+            [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
+        ]
+        for p in trace_paths:
+            t = edb.core_primitives.create_trace(path_list=p, **args)
+            traces.append(t)
 
-        n = edb.core_primitives.create_trace(
-            path_list=[["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
-            layer_name="TOP",
-            net_name="SIGN",
-            width="0.1mm",
-            start_cap_style="Flat",
-            end_cap_style="Flat",
-        )
-        assert edb.core_hfss.create_wave_port(p.id, ["-30mm", "-10mm"], "p_port")
+        assert edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
 
         assert edb.core_hfss.create_differential_wave_port(
-            p.id,
-            ["-40mm", "-10mm"],
-            n.id,
-            ["-40mm", "-10.2mm"],
+            traces[0].id,
+            trace_paths[0][0],
+            traces[1].id,
+            trace_paths[1][0],
             horizontal_extent_factor=8,
         )
         assert not edb.are_port_reference_terminals_connected()
+
+        traces_id = [i.id for i in traces]
+        paths = [i[1] for i in trace_paths]
+        assert edb.core_hfss.create_bundle_wave_port(traces_id, paths)
+        edb.close_edb()
+
+    def test_120b_edb_create_port(self):
+        edb = Edb(
+            edbpath=os.path.join(local_path, "example_models", "edb_edge_ports.aedb"),
+            edbversion=desktop_version,
+        )
+        args = {
+            "layer_name": "TOP",
+            "net_name": "SIGP",
+            "width": "0.1mm",
+            "start_cap_style": "Flat",
+            "end_cap_style": "Flat",
+        }
+        traces = []
+        trace_pathes = [
+            [["-40mm", "-10mm"], ["-30mm", "-10mm"]],
+            [["-40mm", "-10.2mm"], ["-30mm", "-10.2mm"]],
+            [["-40mm", "-10.4mm"], ["-30mm", "-10.4mm"]],
+        ]
+        for p in trace_pathes:
+            t = edb.core_primitives.create_trace(path_list=p, **args)
+            traces.append(t)
+
+        assert edb.core_hfss.create_wave_port(traces[0], trace_pathes[0][0], "wave_port")
+
+        assert edb.core_hfss.create_differential_wave_port(
+            traces[0],
+            trace_pathes[0][0],
+            traces[1],
+            trace_pathes[1][0],
+            horizontal_extent_factor=8,
+        )
+        assert not edb.are_port_reference_terminals_connected()
+
+        paths = [i[1] for i in trace_pathes]
+        assert edb.core_hfss.create_bundle_wave_port(traces, paths)
         edb.close_edb()
 
     def test_121_insert_layer(self):

@@ -8,6 +8,7 @@ These classes are inherited in the main tool class.
 
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import gc
 import json
 import os
@@ -19,9 +20,11 @@ import sys
 import threading
 import time
 import warnings
-from collections import OrderedDict
 
 from pyaedt import pyaedt_logger
+from pyaedt.application.Variables import DataSet
+from pyaedt.application.Variables import VariableManager
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.application.aedt_objects import AedtObjects
 from pyaedt.application.design_solutions import DesignSolution
 from pyaedt.application.design_solutions import HFSSDesignSolution
@@ -30,16 +33,14 @@ from pyaedt.application.design_solutions import Maxwell2DDesignSolution
 from pyaedt.application.design_solutions import RmXprtDesignSolution
 from pyaedt.application.design_solutions import model_names
 from pyaedt.application.design_solutions import solutions_defaults
-from pyaedt.application.Variables import DataSet
-from pyaedt.application.Variables import VariableManager
-from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.desktop import Desktop
 from pyaedt.desktop import exception_to_desktop
 from pyaedt.desktop import get_version_env_variable
 from pyaedt.desktop import release_desktop
+from pyaedt.generic.DataHandlers import variation_string_to_dict
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.constants import unit_system
-from pyaedt.generic.DataHandlers import variation_string_to_dict
 from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
@@ -52,7 +53,6 @@ from pyaedt.generic.general_methods import read_tab
 from pyaedt.generic.general_methods import read_xlsx
 from pyaedt.generic.general_methods import settings
 from pyaedt.generic.general_methods import write_csv
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.modules.Boundary import BoundaryObject
 from pyaedt.modules.Boundary import MaxwellParameters
 
@@ -925,17 +925,41 @@ class Design(AedtObjects):
                         "Archive {} has been restored to project {}".format(proj_name, self._oproject.GetName())
                     )
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
-                    oTool = self.odesktop.GetTool("ImportExport")
                     if ".def" in proj_name:
-                        oTool.ImportEDB(proj_name)
+                        project = os.path.dirname(proj_name)[:-5] + ".aedt"
                     else:
-                        oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
-                    self._oproject = self.odesktop.GetActiveProject()
-                    self._oproject.Save()
+                        project = proj_name[:-5] + ".aedt"
+                    if os.path.exists(project) and self.check_if_project_is_loaded(project):
+                        pname = self.check_if_project_is_loaded(project)
+                        self._oproject = self.odesktop.SetActiveProject(pname)
+                        self._add_handler()
+                        self.logger.info("Project %s set to active.", pname)
+                    elif os.path.exists(project):
+                        assert not is_project_locked(
+                            project
+                        ), "Project is locked. Close or remove the lock before proceeding."
+                        self.logger.info("aedt project found. Loading it.")
+                        self._oproject = self.odesktop.OpenProject(project)
+                        self._add_handler()
+                        self.logger.info("Project %s has been opened.", self._oproject.GetName())
+                        time.sleep(0.5)
+                    else:
+                        oTool = self.odesktop.GetTool("ImportExport")
+                        if ".def" in proj_name:
+                            oTool.ImportEDB(proj_name)
+                        else:
+                            oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
+                        self._oproject = self.odesktop.GetActiveProject()
+                        self._oproject.Save()
+                        self._add_handler()
+                        self.logger.info(
+                            "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
+                        )
+                elif self.check_if_project_is_loaded(proj_name):
+                    pname = self.check_if_project_is_loaded(proj_name)
+                    self._oproject = self.odesktop.SetActiveProject(pname)
                     self._add_handler()
-                    self.logger.info(
-                        "EDB folder %s has been imported to project %s", proj_name, self._oproject.GetName()
-                    )
+                    self.logger.info("Project %s set to active.", pname)
                 else:
                     assert not is_project_locked(
                         proj_name
@@ -1097,12 +1121,15 @@ class Design(AedtObjects):
         """
 
         if not file_path:
-            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prop")
+            file_path = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation_string:
             val_str = []
             for el, val in self.available_variations.nominal_w_values_dict.items():
                 val_str.append("{}={}".format(el, val))
-            variation_string = ",".join(val_str)
+            if self.design_type == "HFSS 3D Layout Design":
+                variation_string = " ".join(val_str)
+            else:
+                variation_string = ",".join(val_str)
         if self.design_type == "2D Extractor":
             for setup in self.setups:
                 if setup.name == setup_name:
@@ -3287,6 +3314,7 @@ class Design(AedtObjects):
         if refresh_obj_ids_after_save:
             self.modeler.refresh_all_ids()
             self.modeler._refresh_all_ids_from_aedt_file()
+            self.mesh._refresh_mesh_operations()
         msg_text = "Project {0} Saved correctly".format(self.project_name)
         self.logger.info(msg_text)
         return True
@@ -3625,3 +3653,17 @@ class Design(AedtObjects):
             app.model_hfss()
             app.setup_hfss()
         return app
+
+    @pyaedt_function_handler()
+    def check_if_project_is_loaded(self, project_path):
+        """Check if a project path is already loaded in active Desktop.
+
+        Returns
+        -------
+        str
+            Project name if loaded in Desktop.
+        """
+        for p in self.odesktop.GetProjects():
+            if os.path.normpath(os.path.join(p.GetPath(), p.GetName()) + ".aedt") == os.path.normpath(project_path):
+                return p.GetName()
+        return False

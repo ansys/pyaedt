@@ -7,6 +7,7 @@ from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import desktop_version
 from _unittest.conftest import local_path
+
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -186,11 +187,13 @@ class TestClass(BasisTest, object):
         count = 1
         assert Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, count, clear=True)
         assert isinstance(Setup.props["SweepRanges"]["Subrange"], dict)
+        assert Setup.props["SaveAllFields"]
         assert Setup.add_eddy_current_sweep("LinearCount", dc_freq, stop_freq, count, clear=False)
         assert isinstance(Setup.props["SweepRanges"]["Subrange"], list)
 
         assert Setup.update()
         assert Setup.enable_expression_cache(["CoreLoss"], "Fields", "Phase='0deg' ", True)
+        assert Setup.props["UseCacheFor"] == ["Pass", "Freq"]
         assert Setup.disable()
         assert Setup.enable()
         assert self.aedtapp.setup_ctrlprog(Setup.name)

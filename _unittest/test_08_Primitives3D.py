@@ -12,12 +12,13 @@ except ImportError:
 from _unittest.conftest import BasisTest
 from _unittest.conftest import config
 from _unittest.conftest import local_path
+
 from pyaedt.generic.constants import AXIS
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.cad.components_3d import UserDefinedComponent
 from pyaedt.modeler.cad.object3d import Object3d
 from pyaedt.modeler.cad.polylines import Polyline
-from pyaedt.modeler.cad.Primitives import PolylineSegment
 from pyaedt.modeler.geometry_operators import GeometryOperators
 
 test = sys.modules.keys()
@@ -454,6 +455,9 @@ class TestClass(BasisTest, object):
         assert len(listsobj) > 0
         listsobj = self.aedtapp.modeler.get_objects_by_material("FR4")
         assert len(listsobj) == 0
+        listsobj = self.aedtapp.modeler.get_objects_by_material()
+        assert set(self.aedtapp.materials.conductors).issubset([mat for sublist in listsobj for mat in sublist])
+        assert set(self.aedtapp.materials.dielectrics).issubset([mat for sublist in listsobj for mat in sublist])
 
     def test_28_get_object_faces(self):
         self.create_rectangle()
@@ -840,12 +844,17 @@ class TestClass(BasisTest, object):
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
         exc = self.aedtapp.create_wave_port_from_sheet(obj1.faces[0])
+        self.aedtapp["test_variable"] = "20mm"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 100, 30])
+        mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
-            object_list=["Solid", new_obj[1][0]],
+            object_list=["Solid", new_obj[1][0], box1.name, box2.name],
             boundaries_list=[rad.name],
             excitation_list=[exc.name],
             included_cs="Global",
+            variables_to_include=["test_variable"],
         )
         assert os.path.exists(self.component3d_file)
 
@@ -1462,3 +1471,20 @@ class TestClass(BasisTest, object):
     def test_83_cover_face(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.cover_faces(o1)
+
+    def test_84_replace_3dcomponent(self):
+        self.aedtapp["test_variable"] = "20mm"
+        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
+        box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
+        mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
+        obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
+            object_list=[box1.name],
+            variables_to_include=["test_variable"],
+        )
+        assert isinstance(obj_3dcomp, UserDefinedComponent)
+
+        self.aedtapp.modeler.replace_3dcomponent(
+            component_name="new_comp",
+            object_list=[box2.name],
+        )
+        assert len(self.aedtapp.modeler.user_defined_components) == 2

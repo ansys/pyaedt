@@ -195,7 +195,7 @@ def check_port(port):
     check = False
     while not check:
         try:
-            s.bind((socket.getfqdn(), port))
+            s.bind(("127.0.0.1", port))
             check = True
         except socket.error:
             port += 1
@@ -860,7 +860,6 @@ class GlobalService(rpyc.Service):
             gRPC port on which the AEDT session has started.
         """
         from pyaedt.generic.general_methods import grpc_active_sessions
-
         sessions = grpc_active_sessions()
         if not port:
             port = check_port(random.randint(18500, 20000))
@@ -905,7 +904,7 @@ class GlobalService(rpyc.Service):
         subprocess.Popen(command)
         timeout = 60
         s = socket.socket()
-        machine_name = socket.getfqdn()
+        machine_name = "127.0.0.1"
         while timeout > 0:
             try:
                 s.connect((machine_name, port))

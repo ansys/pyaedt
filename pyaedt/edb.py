@@ -25,12 +25,8 @@ from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveDCSimulationSetup,
-)
-from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import (
-    SiwaveSYZSimulationSetup,
-)
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveDCSimulationSetup
+from pyaedt.edb_core.edb_data.siwave_simulation_setup_data import SiwaveSYZSimulationSetup
 from pyaedt.edb_core.edb_data.sources import ExcitationDifferential
 from pyaedt.edb_core.edb_data.sources import ExcitationPorts
 from pyaedt.edb_core.edb_data.sources import ExcitationProbes
@@ -2228,7 +2224,7 @@ class Edb(object):
             "Terminal reference primitive IDs total intersections = {}\n\n".format(len(iDintersection))
         )
 
-        # If the intersections are non-zero, the termimal references are connected.
+        # If the intersections are non-zero, the terminal references are connected.
         return True if len(iDintersection) > 0 else False
 
     @pyaedt_function_handler()

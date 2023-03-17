@@ -3,17 +3,21 @@ This module contains the `Mesh` class.
 """
 from __future__ import absolute_import  # noreorder
 
+from collections import OrderedDict
 import os
 import shutil
-from collections import OrderedDict
 
 from pyaedt.application.design_solutions import model_names
 from pyaedt.generic.DataHandlers import _dict2arg
+from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.general_methods import MethodNotSupportedError
-from pyaedt.generic.general_methods import PropsManager
+from pyaedt.generic.general_methods import _retry_ntimes
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import pyaedt_function_handler
-from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
+from pyaedt.generic.general_methods import settings
+from pyaedt.modeler.cad.elements3d import EdgePrimitive
+from pyaedt.modeler.cad.elements3d import FacePrimitive
+from pyaedt.modeler.cad.elements3d import VertexPrimitive
 
 meshers = {
     "HFSS": "MeshSetup",
@@ -26,18 +30,46 @@ meshers = {
     "2D Extractor": "MeshSetup",
 }
 
+mesh_props = {
+    "CurvedSurfaceApproxChoice": "Curved Mesh Approximation Type",
+    "SliderMeshSettings": "Curved Surface Mesh Resolution",
+    "SurfDevChoice": "Surface Deviation Choice",
+    "SurfDev": "Surface Deviation",
+    "NormalDevChoice": "Normal Deviation Choice",
+    "NormalDev": "Normal Deviation",
+    "AspectRatioChoice": "Aspect Ratio Choice",
+    "AspectRatio": "Aspect Ratio",
+    "UseAutoLength": "Use Auto Simplify",
+    "DefeatureLength": "Model Resolution Length",
+    "SurfaceRepPriority": "Surface Representation Priority for TAU",
+    "RestrictLength": "Restrict Length",
+    "MaxLength": "Max Length",
+    "RestrictElem": "Restrict Max Elems",
+    "SkinDepth": "Skin Depth",
+    "NumLayers": "Num Layers",
+    "SurfTriMaxLength": "Max Elem Length",
+    "NumMaxElem": "Max Elems",
+    "Apply": "Apply Curvilinear Elements",
+    "DisableForFacetedSurfaces": "Disable for Faceted Surface",
+    "RestrictMaxElemLength": "Restrict Max Element Length",
+    "MaxElemLength": "Max Element Length",
+    "RestrictLayersNum": "Restrict Layers Number",
+    "LayersNum": "Number of layers",
+}
+
 
 class MeshProps(OrderedDict):
     """AEDT Mesh Component Internal Parameters."""
 
     def __setitem__(self, key, value):
         OrderedDict.__setitem__(self, key, value)
-        if key in ["Edges", "Faces", "Objects"]:
-            res = self._pyaedt_mesh.update_assignment()
-        else:
-            res = self._pyaedt_mesh.update()
-        if not res:
-            self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
+        if self._pyaedt_mesh.auto_update:
+            if key in ["Edges", "Faces", "Objects"]:
+                res = self._pyaedt_mesh.update_assignment()
+            else:
+                res = self._pyaedt_mesh.update(key, value)
+            if not res:
+                self._pyaedt_mesh._app.logger.warning("Update of %s Failed. Check needed arguments", key)
 
     def __init__(self, mesh_object, props):
         OrderedDict.__init__(self)
@@ -53,26 +85,22 @@ class MeshProps(OrderedDict):
         OrderedDict.__setitem__(self, key, value)
 
 
-class MeshOperation(PropsManager, object):
+class MeshOperation(object):
     """MeshOperation class.
 
     Parameters
     ----------
-    meshicepak : :class:`pyaedt.modules.MeshIcepak.MeshIcepak`
-
-    name:
-
-    props :
-
-    meshoptpe :
+    mesh : class:`pyaedt.modules.Mesh.Mesh or :class:`pyaedt.modules.MeshIcepak.MeshIcepak`
 
     """
 
-    def __init__(self, meshicepak, name, props, meshoptype):
-        self._meshicepak = meshicepak
-        self.name = name
+    def __init__(self, mesh, name, props, meshoptype):
+        self._mesh = mesh
+        self._app = self._mesh._app
         self.props = MeshProps(self, props)
         self.type = meshoptype
+        self._name = name
+        self.auto_update = True
 
     @pyaedt_function_handler()
     def _get_args(self):
@@ -81,6 +109,26 @@ class MeshOperation(PropsManager, object):
         arg = ["NAME:" + self.name]
         _dict2arg(props, arg)
         return arg
+
+    @property
+    def name(self):
+        """Name of the mesh operation.
+
+        Returns
+        -------
+        str
+           Name of the mesh operation.
+
+        """
+        return self._name
+
+    @name.setter
+    def name(self, meshop_name):
+        if meshop_name not in self._mesh._app.odesign.GetChildObject("Mesh").GetChildNames():
+            self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).SetPropValue("Name", meshop_name)
+            self._name = meshop_name
+        else:
+            self._mesh.logger.warning("Name %s already assigned in the design", meshop_name)
 
     @pyaedt_function_handler()
     def create(self):
@@ -93,43 +141,42 @@ class MeshOperation(PropsManager, object):
 
         """
         if self.type == "SurfApproxBased":
-            self._meshicepak.omeshmodule.AssignTrueSurfOp(self._get_args())
+            self._mesh.omeshmodule.AssignTrueSurfOp(self._get_args())
         elif self.type == "DefeatureBased":
-            self._meshicepak.omeshmodule.AssignModelResolutionOp(self._get_args())
+            self._mesh.omeshmodule.AssignModelResolutionOp(self._get_args())
         elif self.type == "SurfaceRepPriority":
-            self._meshicepak.omeshmodule.AssignSurfPriorityForTauOp(self._get_args())
+            self._mesh.omeshmodule.AssignSurfPriorityForTauOp(self._get_args())
         elif self.type == "LengthBased":
-            self._meshicepak.omeshmodule.AssignLengthOp(self._get_args())
+            self._mesh.omeshmodule.AssignLengthOp(self._get_args())
         elif self.type == "SkinDepthBased":
-            self._meshicepak.omeshmodule.AssignSkinDepthOp(self._get_args())
+            self._mesh.omeshmodule.AssignSkinDepthOp(self._get_args())
         elif self.type == "Curvilinear":
-            self._meshicepak.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
+            self._mesh.omeshmodule.AssignApplyCurvlinearElementsOp(self._get_args())
         elif self.type == "RotationalLayerMesh":
-            self._meshicepak.omeshmodule.AssignRotationalLayerOp(self._get_args())
+            self._mesh.omeshmodule.AssignRotationalLayerOp(self._get_args())
+        elif self.type == "EdgeCutLayerMesh":
+            self._mesh.omeshmodule.AssignEdgeCutLayerOp(self._get_args())
         elif self.type == "DensityControlBased":
-            self._meshicepak.omeshmodule.AssignDensityControlOp(self._get_args())
+            self._mesh.omeshmodule.AssignDensityControlOp(self._get_args())
         elif self.type == "Icepak":
-            self._meshicepak.omeshmodule.AssignMeshOperation(self._get_args())
+            self._mesh.omeshmodule.AssignMeshOperation(self._get_args())
         elif self.type == "CurvatureExtraction":
-            self._meshicepak.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
+            self._mesh.omeshmodule.AssignCurvatureExtractionOp(self._get_args())
         elif self.type == "CylindricalGap":
-            self._meshicepak.omeshmodule.AssignCylindricalGapOp(self._get_args())
+            self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
         return True
 
     @pyaedt_function_handler()
-    def update(self):
+    def update(self, key_name=None, value=None):
         """Update the mesh.
-
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
-
         References
         ----------
-
         >>> oModule.EditTrueSurfOp
         >>> oModule.EditModelResolutionOp
         >>> oModule.EditSurfPriorityForTauOp
@@ -140,33 +187,104 @@ class MeshOperation(PropsManager, object):
         >>> oModule.EditMeshOperation
         >>> oModule.EditSBRCurvatureExtractionOp
         """
+        if key_name and settings.aedt_version > "2022.2":
+            mesh_obj = self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name)
+            if key_name in mesh_props.keys():
+                if key_name == "SurfaceRepPriority":
+                    value = "Normal" if value == 0 else "High"
+                key_name = mesh_props[key_name]
+            mesh_obj.SetPropValue(key_name, value)
+            return True
+
         if self.type == "SurfApproxBased":
-            self._meshicepak.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditTrueSurfOp(self.name, self._get_args())
         elif self.type == "DefeatureBased":
-            self._meshicepak.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditModelResolutionOp(self.name, self._get_args())
         elif self.type == "SurfaceRepPriority":
-            self._meshicepak.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditSurfPriorityForTauOp(self.name, self._get_args())
         elif self.type == "LengthBased":
-            self._meshicepak.omeshmodule.EditLengthOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditLengthOp(self.name, self._get_args())
         elif self.type == "SkinDepthBased":
-            self._meshicepak.omeshmodule.EditSkinDepthOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditSkinDepthOp(self.name, self._get_args())
         elif self.type == "Curvilinear":
-            self._meshicepak.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditApplyCurvlinearElementsOp(self.name, self._get_args())
         elif self.type == "RotationalLayerMesh":
-            self._meshicepak.omeshmodule.EditRotationalLayerOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditRotationalLayerOp(self.name, self._get_args())
         elif self.type == "DensityControlBased":
-            self._meshicepak.omeshmodule.EditDensityControlOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditDensityControlOp(self.name, self._get_args())
         elif self.type == "Icepak":
-            self._meshicepak.omeshmodule.EditMeshOperation(self.name, self._get_args())
+            self._mesh.omeshmodule.EditMeshOperation(self.name, self._get_args())
         elif self.type == "CurvatureExtraction":
-            self._meshicepak.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditSBRCurvatureExtractionOp(self.name, self._get_args())
         elif self.type == "InitialMeshSettings":
-            self._meshicepak.omeshmodule.InitialMeshSettings(self._get_args())
+            self._mesh.omeshmodule.InitialMeshSettings(self._get_args())
         elif self.type == "CylindricalGap":
-            self._meshicepak.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
+            self._mesh.omeshmodule.EditCylindricalGapOp(self.name, self._get_args())
         else:
             return False
         return True
+
+    @pyaedt_function_handler()
+    def update_assignment(self):
+        """Update the boundary assignment.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        out = []
+
+        if "Faces" in self.props:
+            faces = self.props["Faces"]
+            faces_out = []
+            if type(faces) is not list:
+                faces = [faces]
+            for f in faces:
+                if type(f) is EdgePrimitive or type(f) is FacePrimitive or type(f) is VertexPrimitive:
+                    faces_out.append(f.id)
+                else:
+                    faces_out.append(f)
+            out += ["Faces:=", faces_out]
+
+        if "Objects" in self.props:
+            pr = []
+            for el in self.props["Objects"]:
+                try:
+                    pr.append(self._app.modeler[el].name)
+                except (KeyError, AttributeError):
+                    pass
+            out += ["Objects:=", pr]
+
+        if len(out) == 1:
+            return False
+
+        self._app.omeshmodule.ReassignOp(self.name, out)
+
+        return True
+
+    @pyaedt_function_handler()
+    def _change_property(self, name, arg):
+        """Update properties of the mesh operation.
+
+        Parameters
+        ----------
+        name : str
+            Name of the mesh operation.
+        arg : list
+            List of the properties to update. For example,
+            ``["NAME:ChangedProps", ["NAME:Max Length", "Value:=", "2mm"]]``.
+
+        Returns
+        -------
+        list
+            List of changed properties of the mesh operation.
+
+        """
+        arguments = ["NAME:AllTabs", ["NAME:MeshSetupTab", ["NAME:PropServers", "MeshSetup:{}".format(name)], arg]]
+        _retry_ntimes(5, self._mesh._app.odesign.ChangeProperty, arguments)
 
     @pyaedt_function_handler()
     def delete(self):
@@ -182,10 +300,10 @@ class MeshOperation(PropsManager, object):
 
         >>> oModule.DeleteOp
         """
-        self._meshicepak.omeshmodule.DeleteOp([self.name])
-        for el in self._meshicepak.meshoperations:
+        self._mesh.omeshmodule.DeleteOp([self.name])
+        for el in self._mesh.meshoperations[:]:
             if el.name == self.name:
-                self._meshicepak.meshoperations.remove(el)
+                self._mesh.meshoperations.remove(el)
         return True
 
 
@@ -195,17 +313,110 @@ class Mesh(object):
     Parameters
     ----------
     app : :class:`pyaedt.application.Analysis3D.FieldAnalysis3D`
+
+    Examples
+    --------
+    Basic usage demonstrated with an HFSS design:
+
+    >>> from pyaedt import Hfss
+    >>> aedtapp = Hfss()
+    >>> cylinder = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+    >>> model_resolution = aedtapp.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
     """
 
     def __init__(self, app):
         self._app = app
-
         self._odesign = self._app.odesign
         self.modeler = self._app.modeler
         self.logger = self._app.logger
         self.id = 0
-        self.meshoperations = self._get_design_mesh_operations()
+        self._meshoperations = None
         self._globalmesh = None
+
+    @pyaedt_function_handler()
+    def __getitem__(self, part_id):
+        """Get the object ``Mesh`` for a given mesh operation name.
+
+        Parameters
+        ----------
+        part_id : str
+            Mesh operation name.
+
+        Returns
+        -------
+        :class:`pyaedt.mesh.meshoperations`
+            Returns None if the part ID or the object name is not found.
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> cylinder = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = aedtapp.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
+        >>> mr2 = aedtapp.mesh[mr1.name]
+        """
+
+        if part_id in self.meshoperation_names:
+            mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == part_id]
+            return mesh_op_selected[0]
+        return None
+
+    @property
+    def meshoperations(self):
+        """Return the available mesh operations.
+
+        Returns
+        ----------
+        List
+            List of :class:`pyaedt.modules.Mesh.MeshOperation`
+                        List of mesh operation object.
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mesh_operations_list = aedtapp.mesh.meshoperations
+        """
+        if self._meshoperations is None:
+            self._meshoperations = self._get_design_mesh_operations()
+        return self._meshoperations
+
+    @pyaedt_function_handler()
+    def _refresh_mesh_operations(self):
+        """Refresh all mesh operations."""
+
+        self._meshoperations = self._get_design_mesh_operations()
+        return len(self.meshoperations)
+
+    @property
+    def meshoperation_names(self):
+        """Return the available mesh operation names.
+
+        Returns
+        ----------
+        List
+            List of mesh operation names.
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> mr1 = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
+        >>> mr2 = aedtapp.mesh.assign_model_resolution(o, 1e-2, "ModelRes2")
+        >>> mesh_operations_names = aedtapp.mesh.meshoperation_names
+        """
+        if self._app._is_object_oriented_enabled():
+            return list(self._app.odesign.GetChildObject("Mesh").GetChildNames())
+        return []
 
     @property
     def initial_mesh_settings(self):
@@ -276,16 +487,44 @@ class Mesh(object):
         """ """
         meshops = []
         try:
-            for ds in self._app.design_properties["MeshSetup"]["MeshOperations"]:
-                if isinstance(self._app.design_properties["MeshSetup"]["MeshOperations"][ds], (OrderedDict, dict)):
-                    meshops.append(
-                        MeshOperation(
-                            self,
-                            ds,
-                            self._app.design_properties["MeshSetup"]["MeshOperations"][ds],
-                            self._app.design_properties["MeshSetup"]["MeshOperations"][ds]["Type"],
-                        )
-                    )
+            for ds in self.meshoperation_names:
+                props = {}
+                design_mesh = self._app.odesign.GetChildObject("Mesh")
+                for i in design_mesh.GetChildObject(ds).GetPropNames():
+                    props[i] = design_mesh.GetChildObject(ds).GetPropValue(i)
+                if self._app._desktop.GetVersion()[0:6] < "2023.1":
+                    if self._app.design_properties:
+                        props_parsed = self._app.design_properties["MeshSetup"]["MeshOperations"][ds]
+                        if "Edges" in props_parsed.keys():
+                            props["Edges"] = props_parsed["Edges"]
+                        if "Faces" in props_parsed.keys():
+                            props["Faces"] = props_parsed["Faces"]
+                        if "Objects" in props_parsed.keys():
+                            props["Objects"] = []
+                            for comp in props_parsed["Objects"]:
+                                props["Objects"].append(comp)
+                else:
+                    props["Objects"] = []
+                    props["Faces"] = []
+                    props["Edges"] = []
+                    assigned_id = self.omeshmodule.GetMeshOpAssignment(ds)
+                    for comp_id in assigned_id:
+                        if int(comp_id) in self._app.modeler.objects.keys():
+                            props["Objects"].append(self._app.modeler.oeditor.GetObjectNameByID(comp_id))
+                            continue
+                        for comp in self._app.modeler.object_list:
+                            faces = comp.faces
+                            face_ids = [face.id for face in faces]
+                            if int(comp_id) in face_ids:
+                                props["Faces"].append(int(comp_id))
+                                continue
+                            edges = comp.edges
+                            edge_ids = [edge.id for edge in edges]
+                            if int(comp_id) in edge_ids:
+                                props["Edges"].append(int(comp_id))
+                                continue
+
+                meshops.append(MeshOperation(self, ds, props, props["Type"]))
         except:
             pass
         return meshops
@@ -312,6 +551,15 @@ class Mesh(object):
         ----------
 
         >>> oModule.AssignTrueSurfOp
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -366,6 +614,16 @@ class Mesh(object):
         ----------
 
         >>> oModule.AssignTrueSurfOp
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3,
+        ... meshop_name="Surface_Manual")
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -434,6 +692,15 @@ class Mesh(object):
         ----------
 
         >>> oModule.AssignModelResolutionOp
+
+        Examples
+        --------
+        Basic usage demonstrated with an HFSS design:
+
+        >>> from pyaedt import Hfss
+        >>> aedtapp = Hfss()
+        >>> o = aedtapp.modeler.create_cylinder(0, [0, 0, 0], 3, 20, 0)
+        >>> surface = aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         """
         names = self.modeler.convert_to_selections(names, True)
         if meshop_name:
@@ -459,7 +726,6 @@ class Mesh(object):
             )
 
         mop = MeshOperation(self, meshop_name, props, "DefeatureBased")
-
         mop.create()
         self.meshoperations.append(mop)
         return mop
@@ -626,9 +892,7 @@ class Mesh(object):
 
         >>> oModule.DeleteOp
         """
-        # Type "Area Based" not included since the delete command causes
-        # desktop to crash
-        # https://tfs.ansys.com:8443/tfs/ANSYS_Development/Portfolio/ACE%20Team/_queries?id=150923
+
         mesh_op_types = ["Length Based", "Surface Approximation Based"]
 
         if mesh_type:
@@ -639,8 +903,8 @@ class Mesh(object):
             opnames = self.omeshmodule.GetOperationNames(mesh_op_type)
             if opnames:
                 self.omeshmodule.DeleteOp(opnames)
-            for el in self.meshoperations:
-                if el.name == opnames:
+            for el in self.meshoperations[:]:
+                if el.name in opnames:
                     self.meshoperations.remove(el)
 
         return True
@@ -722,6 +986,10 @@ class Mesh(object):
         )
 
         mop = MeshOperation(self, meshop_name, props, "LengthBased")
+        for meshop in self.meshoperations[:]:
+            if meshop.name == mop.name:
+                meshop.delete()
+                break
         mop.create()
         self.meshoperations.append(mop)
         return mop
@@ -947,12 +1215,13 @@ class Mesh(object):
                 "Type": "RotationalLayerMesh",
                 seltype: names,
                 "Number of Layers": str(num_layers),
-                "Total Layer Thickenss": total_thickness,
+                "Total Layer Thickness": total_thickness,
             }
         )
 
         mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
         mop.create()
+        mop.props["Total Layer Thickness"] = total_thickness
         self.meshoperations.append(mop)
         return mop
 
@@ -990,10 +1259,11 @@ class Mesh(object):
         else:
             meshop_name = generate_unique_name("EdgeCut")
         seltype = "Objects"
-        props = OrderedDict({"Type": "RotationalLayerMesh", seltype: names, "Layer Thickenss": layer_thickness})
+        props = OrderedDict({"Type": "EdgeCutLayerMesh", seltype: names, "Layer Thickness": layer_thickness})
 
-        mop = MeshOperation(self, meshop_name, props, "RotationalLayerMesh")
+        mop = MeshOperation(self, meshop_name, props, "EdgeCutLayerMesh")
         mop.create()
+        mop.props["Layer Thickness"] = layer_thickness
         self.meshoperations.append(mop)
         return mop
 
@@ -1062,6 +1332,5 @@ class Mesh(object):
         )
         mop = MeshOperation(self, meshop_name, props, "DensityControlBased")
         mop.create()
-
         self.meshoperations.append(mop)
         return mop

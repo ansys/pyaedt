@@ -1,7 +1,7 @@
+from collections import OrderedDict
 import copy
 import os
 import re
-from collections import OrderedDict
 
 from pyaedt.generic.constants import LineStyle
 from pyaedt.generic.constants import SymbolStyle
