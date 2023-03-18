@@ -323,6 +323,8 @@ class TestClass(BasisTest, object):
         sweep = setup2.add_sweep()
         sweep1 = setup2.get_sweep(sweep.name)
         assert sweep1 == sweep
+        sweep2 = setup2.get_sweep()
+        assert sweep2 == sweep1
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
             "AdaptiveFrequency"
         ] = "1GHz"

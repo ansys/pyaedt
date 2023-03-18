@@ -2041,6 +2041,7 @@ class SetupHFSS(Setup, object):
         Returns
         -------
         :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
+
         Examples
         --------
         >>> hfss = Hfss()

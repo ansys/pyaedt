@@ -319,6 +319,8 @@ class TestClass(BasisTest, object):
         sweep = setup.add_sweep()
         sweep1 = setup.get_sweep(sweep.name)
         assert sweep1 == sweep
+        sweep2 = setup.get_sweep()
+        assert sweep2 == sweep1
         assert sweep.add_subrange("LinearCount", 1, 3, 10, "GHz")
         assert sweep.add_subrange("LinearCount", 2, 4, 10, "GHz")
         assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz")
