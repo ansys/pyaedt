@@ -316,6 +316,7 @@ class TestClass(BasisTest, object):
             "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        assert not setup.get_sweep()
         sweep = setup.add_sweep()
         sweep1 = setup.get_sweep(sweep.name)
         assert sweep1 == sweep
