@@ -317,6 +317,8 @@ class TestClass(BasisTest, object):
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
         sweep = setup.add_sweep()
+        sweep1 = setup.get_sweep(sweep.name)
+        assert sweep1 == sweep
         assert sweep.add_subrange("LinearCount", 1, 3, 10, "GHz")
         assert sweep.add_subrange("LinearCount", 2, 4, 10, "GHz")
         assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz")

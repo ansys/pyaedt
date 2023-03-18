@@ -320,6 +320,9 @@ class TestClass(BasisTest, object):
     def test_15_edit_setup(self):
         setup_name = "RFBoardSetup2"
         setup2 = self.aedtapp.create_setup(setupname=setup_name)
+        sweep = setup2.add_sweep()
+        sweep1 = setup2.get_sweep(sweep.name)
+        assert sweep1 == sweep
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
             "AdaptiveFrequency"
         ] = "1GHz"
