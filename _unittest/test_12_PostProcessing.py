@@ -463,8 +463,7 @@ class TestClass(BasisTest, object):
 
     def test_09d_delete_traces_from_report(self):
         new_report = self.aedtapp.create_scattering("delete_traces_test")
-        traces_to_delete = []
-        traces_to_delete.append(new_report.expressions[0])
+        traces_to_delete = [new_report.expressions[0]]
         plot_name = new_report.plot_name
         assert new_report.delete_traces(plot_name, traces_to_delete)
         if not is_ironpython:
@@ -485,7 +484,15 @@ class TestClass(BasisTest, object):
         setup = "Transient"
         assert not new_report.add_trace_to_report(traces, setup, variations)
 
-    def test_09f_update_traces_in_report(self):
+    def test_09f_update_trace_name(self):
+        report = [plot for plot in self.aedtapp.post.plots if plot.plot_name == "add_traces_test"][0]
+        old_trace_name = report.traces[0].name
+        assert old_trace_name in report.traces[0].aedt_name
+        new_name = "update_trace_name_test"
+        report.traces[0].name = new_name
+        assert new_name in report.traces[0].aedt_name
+
+    def test_09g_update_traces_in_report(self):
         new_report = self.aedtapp.create_scattering("update_traces_test")
         traces = new_report.get_solution_data().expressions
         assert new_report.update_trace_in_report(traces)
@@ -498,7 +505,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09d_create_monitor(self):  # pragma: no cover
+    def test_09h_create_monitor(self):  # pragma: no cover
         assert self.aedtapp.post.create_report("dB(S(1,1))")
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
@@ -510,7 +517,7 @@ class TestClass(BasisTest, object):
         config["desktopVersion"] < "2022.2",
         reason="Skipped because it cannot run on build machine in non-graphical mode",
     )
-    def test_09e_add_line_from_point(self):  # pragma: no cover
+    def test_09i_add_line_from_point(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
@@ -518,7 +525,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09f_add_line_from_equation(self):
+    def test_09l_add_line_from_equation(self):
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         assert new_report.create()
         assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
@@ -526,7 +533,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09g_edit_properties(self):
+    def test_09m_edit_properties(self):
         report = self.aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_grid()
         assert report.edit_grid(minor_x=False)
@@ -579,7 +586,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09h_add_line_from_point(self):  # pragma: no cover
+    def test_09n_add_line_from_point(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
         style = new_report.traces[0].LINESTYLE
@@ -601,7 +608,7 @@ class TestClass(BasisTest, object):
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09l_add_note(self):  # pragma: no cover
+    def test_09o_add_note(self):  # pragma: no cover
         new_report = self.aedtapp.post.reports_by_category.modal_solution()
         new_report.create()
 
