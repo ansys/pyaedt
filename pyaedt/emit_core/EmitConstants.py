@@ -67,7 +67,7 @@ def interferer_type():
 
 
 def unit_type():
-    """Get an ``unit_type`` object.
+    """Get a ``unit_type`` object.
 
     Returns
     -------
