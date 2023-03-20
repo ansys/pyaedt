@@ -6060,3 +6060,37 @@ class Hfss(FieldAnalysis3D, object):
             sol_data.set_active_variation(i)
             s_parameters.append(TouchstoneData(solution_data=sol_data))
         return s_parameters
+
+    @pyaedt_function_handler()
+    def parse_hdm_file(self, filename):
+        """Parse an HFSS SBR+ or Creeping Waves ``hdm`` file.
+
+        Parameters
+        ----------
+        filename : str
+            File to parse.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.hdm_parser.Parser`
+        """
+
+        from pyaedt.sbrplus.hdm_parser import Parser
+
+        if os.path.exists(filename):
+            return Parser(filename).parse_message()
+        return False
+
+    @pyaedt_function_handler()
+    def get_hdm_plotter(self, filename=None):
+        from pyaedt.sbrplus.plot import HDMPlotter
+
+        hdm = HDMPlotter()
+        files = self.post.export_model_obj(
+            export_as_single_objects=False,
+            air_objects=False,
+        )
+        for file in files:
+            hdm.add_cad_model(file)
+        hdm.add_hdm_bundle_from_file(filename)
+        return hdm

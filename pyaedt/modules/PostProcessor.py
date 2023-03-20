@@ -26,6 +26,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+from pyaedt.modules.solutions import VRTFieldPlot
 
 if not is_ironpython:
     try:
@@ -37,7 +38,6 @@ if not is_ironpython:
         Enum = None
 else:
     Enum = object
-
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -3861,6 +3861,122 @@ class PostProcessor(PostProcessorCommon, object):
 
         self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
         return power_dict, sum(power_dict.values())
+
+    def create_creeping_wave_planar_visual_ray_tracing(
+        self,
+        intrinsics={},
+        max_frequency="1GHz",
+        sample_density=10,
+        ray_cutoff=40,
+        irregular_surface_tolerance=50,
+        incident_theta=0,
+        incident_phi=0,
+        is_vertical_polarization=False,
+        ray_density=1,
+    ):
+        vrt = VRTFieldPlot(self, is_creeping_wave=True, intrinsincList=intrinsics)
+        vrt.intrinsicVar = intrinsics
+        vrt.max_frequency = max_frequency
+        vrt.sample_density = sample_density
+        vrt.ray_density = ray_density
+        vrt.ray_cutoff = ray_cutoff
+        vrt.irregular_surface_tolerance = irregular_surface_tolerance
+        vrt.is_plane_wave = True
+        vrt.incident_theta = incident_theta
+        vrt.incident_phi = incident_phi
+        vrt.vertical_polarization = is_vertical_polarization
+        vrt.create()
+        return vrt
+
+    def create_creeping_wave_point_visual_ray_tracing(
+        self,
+        intrinsics={},
+        max_frequency="1GHz",
+        sample_density=10,
+        ray_cutoff=40,
+        irregular_surface_tolerance=50,
+        ray_density=1,
+        custom_location=[0, 0, 0],
+    ):
+        vrt = VRTFieldPlot(self, is_creeping_wave=True, intrinsincList=intrinsics)
+        vrt.intrinsicVar = intrinsics
+        vrt.max_frequency = max_frequency
+        vrt.sample_density = sample_density
+        vrt.ray_density = ray_density
+        vrt.ray_cutoff = ray_cutoff
+        vrt.irregular_surface_tolerance = irregular_surface_tolerance
+        vrt.is_plane_wave = False
+        vrt.customlocation = custom_location
+        vrt.create()
+        return vrt
+
+    def create_sbr_plane_visual_ray_tracing(
+        self,
+        intrinsics={},
+        max_frequency="1GHz",
+        ray_density=2,
+        number_of_bounces=5,
+        multi_bounce=False,
+        mbrd_max_sub_division=2,
+        shoot_utd=False,
+        incident_theta=0,
+        incident_phi=0,
+        is_vertical_polarization=False,
+        shoot_filter_type="All Rays",
+        ray_index_start=0,
+        ray_index_stop=1,
+        ray_index_step=1,
+    ):
+        vrt = VRTFieldPlot(self, is_creeping_wave=False, intrinsincList=intrinsics)
+        vrt.max_frequency = max_frequency
+        vrt.ray_density = ray_density
+        vrt.number_of_bounces = number_of_bounces
+        vrt.multi_bounce_ray_density_control = multi_bounce
+        vrt.mbrd_max_subdivision = mbrd_max_sub_division
+        vrt.shoot_utd_rays = shoot_utd
+        vrt.shoot_type = shoot_filter_type
+        vrt.is_plane_wave = True
+        vrt.incident_theta = incident_theta
+        vrt.incident_phi = incident_phi
+        vrt.vertical_polarization = is_vertical_polarization
+        vrt.start_index = ray_index_start
+        vrt.stop_index = ray_index_stop
+        vrt.step_index = ray_index_step
+        vrt.create()
+        return vrt
+
+    def create_sbr_point_visual_ray_tracing(
+        self,
+        intrinsics={},
+        max_frequency="1GHz",
+        ray_density=2,
+        number_of_bounces=5,
+        multi_bounce=False,
+        mbrd_max_sub_division=2,
+        shoot_utd=False,
+        custom_location=[0, 0, 0],
+        shoot_filter_type="All Rays",
+        ray_index_start=0,
+        ray_index_stop=1,
+        ray_index_step=1,
+        ray_box=None,
+    ):
+        vrt = VRTFieldPlot(self, is_creeping_wave=False, intrinsincList=intrinsics)
+        vrt.max_frequency = max_frequency
+        vrt.ray_density = ray_density
+        vrt.number_of_bounces = number_of_bounces
+        vrt.multi_bounce_ray_density_control = multi_bounce
+        vrt.mbrd_max_subdivision = mbrd_max_sub_division
+        vrt.shoot_utd_rays = shoot_utd
+        vrt.shoot_type = shoot_filter_type
+        vrt.is_plane_wave = False
+        vrt.customlocation = custom_location
+        vrt.start_index = ray_index_start
+        vrt.stop_index = ray_index_stop
+        vrt.step_index = ray_index_step
+        vrt.ray_box = ray_box
+        vrt.create()
+        return vrt
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):

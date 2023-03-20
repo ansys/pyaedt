@@ -665,34 +665,7 @@ class FieldClass(object):
         self.vector_scale = 1.0
 
 
-class ModelPlotter(object):
-    """Manages the data to be plotted with ``pyvista``.
-
-    Examples
-    --------
-    This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
-    and standalone).
-    Here an example of standalone project
-
-    >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
-    >>> model.background_color = (0,0,0)
-    >>> model.plot()
-
-    And here an example of animation:
-
-    >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
-    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
-    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
-    ...           r'D:\Simulation\helic_antenna_40.fld']
-    >>> model.gif_file = r"D:\Simulation\animation.gif"
-    >>> model.animate()
-    """
-
+class CommonPlotter(object):
     def __init__(self):
         self._objects = []
         self._fields = []
@@ -1029,6 +1002,38 @@ class ModelPlotter(object):
     def background_image(self, value):
         if os.path.exists(value):
             self._background_image = value
+
+
+class ModelPlotter(CommonPlotter):
+    """Manages the data to be plotted with ``pyvista``.
+
+    Examples
+    --------
+    This Class can be instantiated within Pyaedt (with plot_model_object or different field plots
+    and standalone).
+    Here an example of standalone project
+
+    >>> model = ModelPlotter()
+    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
+    >>> model.add_field_from_file(r'D:\Simulation\helic_antenna.csv', True, "meter", 1)
+    >>> model.background_color = (0,0,0)
+    >>> model.plot()
+
+    And here an example of animation:
+
+    >>> model = ModelPlotter()
+    >>> model.add_object(r'D:\Simulation\antenna.obj', (200,20,255), 0.6, "in")
+    >>> model.add_object(r'D:\Simulation\helix.obj', (0,255,0), 0.5, "in")
+    >>> frames = [r'D:\Simulation\helic_antenna.csv', r'D:\Simulation\helic_antenna_10.fld',
+    ...           r'D:\Simulation\helic_antenna_20.fld', r'D:\Simulation\helic_antenna_30.fld',
+    ...           r'D:\Simulation\helic_antenna_40.fld']
+    >>> model.gif_file = r"D:\Simulation\animation.gif"
+    >>> model.animate()
+    """
+
+    def __init__(self):
+        CommonPlotter.__init__(self)
 
     @property
     def fields(self):
