@@ -1492,7 +1492,7 @@ class Edb(object):
         Parameters
         ----------
         value : float, int, str
-            Input  number or string.
+            Input number or string.
         units : optional
             Units for formatting. The default is ``None`` which uses ``"meter"``.
 
