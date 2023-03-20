@@ -6,7 +6,9 @@ import numpy as np
 import pyvista as pv
 
 from pyaedt import pyaedt_function_handler
+from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.plot import CommonPlotter
+from pyaedt.generic.plot import ObjClass
 
 
 class HDMPlotter(CommonPlotter):
@@ -16,9 +18,10 @@ class HDMPlotter(CommonPlotter):
         CommonPlotter.__init__(self)
         self._bundle = None
         self.show_as_standalone = True
+        self.units = "meter"
 
     @pyaedt_function_handler()
-    def add_cad_model(self, filename):
+    def add_cad_model(self, filename, cad_color="dodgerblue", opacity=1, units="mm"):
         """Add a ``stl`` file to the scenario.
 
         Parameters
@@ -32,7 +35,8 @@ class HDMPlotter(CommonPlotter):
             ``True`` if imported.
         """
         if os.path.exists(filename):
-            self._objects.append(filename)
+            self._objects.append(ObjClass(filename, cad_color, opacity, units=units))
+            self.units = units
             return True
         return False
 
@@ -85,12 +89,13 @@ class HDMPlotter(CommonPlotter):
     def plot_rays(self, snapshot_path=None):
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
 
-        if self._objects:
-            for obj in self._objects:
-                model = pv.read(obj)
-                mesh_actor = self.pv.add_mesh(model)
-
+        self._add_objects()
         points, lines, depths = self._add_rays()
+        try:
+            conv = 1 / AEDT_UNITS["Length"][self.units]
+        except:
+            conv = 1
+        points = [i * conv for i in points]
         depth1 = pv.PolyData(points, lines=lines)
         annotations = {i: str(i) for i in range(1, 7)}
         raysActor = self.pv.add_mesh(
@@ -134,14 +139,26 @@ class HDMPlotter(CommonPlotter):
 
             colors.append(10 * math.log10(np.linalg.norm(value)))
         self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
-
-        if self._objects:
-            for obj in self._objects:
-                model = pv.read(obj)
-                mesh_actor = self.pv.add_mesh(model)
+        self._add_objects()
+        try:
+            conv = 1 / AEDT_UNITS["Length"][self.units]
+        except:
+            conv = 1
+        points = [i * conv for i in points]
+        depth1 = pv.PolyData(points, lines=lines)
         fb = pv.PolyData(points, faces=faces)
         fbActor = self.pv.add_mesh(fb, scalars=colors)
         if snapshot_path:
             self.pv.show(screenshot=snapshot_path, full_screen=True)
         else:
             self.pv.show()
+
+    @pyaedt_function_handler()
+    def _add_objects(self):
+        if self._objects:
+            for cad in self._objects:
+                if not cad._cached_polydata:
+                    filedata = pv.read(cad.path)
+                    cad._cached_polydata = filedata
+                color_cad = [i / 255 for i in cad.color]
+                cad._cached_mesh = self.pv.add_mesh(cad._cached_polydata, color=color_cad, opacity=cad.opacity)
