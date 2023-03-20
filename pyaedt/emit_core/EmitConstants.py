@@ -72,7 +72,8 @@ def unit_type():
     Returns
     -------
     :class:`EmitConstants.unit_type`
-        Type of unit: Power, Frequency, Length, Time, Voltage, DataRate, Resistance.
+        Type of unit. Options are ``"Power"``, ``"Frequency"``, ``"Length"``,
+        ``"Time"``, ``"Voltage"``, ``"DataRate"``, and ``"Resistance"``.
 
     Examples
     >>> unit_type = EmitConstants.unit_type()
