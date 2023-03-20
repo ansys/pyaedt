@@ -647,56 +647,101 @@ class Edb(object):
 
     @property
     def stackup(self):
-        """Stackup."""
+        """Stackup manager.
+
+        Returns
+        -------
+        Instance of :class: 'pyaedt.edb_core.Stackup`
+        """
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
 
     @property
     def materials(self):
-        """Material Database."""
+        """Material Database.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.Materials`
+        """
+
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
 
     @property
     def core_padstack(self):
-        """Core padstack."""
+        """Core padstack.
+
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+        """
+
         if not self._padstack and self.builder:
             self._padstack = EdbPadstacks(self)
         return self._padstack
 
     @property
     def core_siwave(self):
-        """Core SI Wave."""
+        """Core SI Wave.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+        """
+
         if not self._siwave and self.builder:
             self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property
     def core_hfss(self):
-        """Core HFSS."""
+        """Core HFSS.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+        """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
         return self._hfss
 
     @property
     def core_nets(self):
-        """Core nets."""
+        """Core nets.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.nets.EdbNets`
+        """
+
         if not self._nets and self.builder:
             self._nets = EdbNets(self)
         return self._nets
 
     @property
     def core_primitives(self):
-        """Core primitives."""
+        """Core primitives.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+        """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
         return self._core_primitives
 
     @property
     def active_layout(self):
-        """Active layout."""
+        """Active layout.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.`
+        """
         self._active_layout = None
         if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
