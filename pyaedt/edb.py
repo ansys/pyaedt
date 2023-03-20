@@ -22,6 +22,7 @@ from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
@@ -195,6 +196,29 @@ class Edb(object):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             self.edb_exception(ex_value, ex_traceback)
+
+    @pyaedt_function_handler()
+    def __getitem__(self, variable_name):
+        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or design variable.
+
+        Parameters
+        ----------
+        variable_name
+
+        Returns
+        -------
+
+        """
+        if self.variable_exists(variable_name)[0]:
+            return self.get_variable(variable_name)
+        return
+
+    @pyaedt_function_handler()
+    def __setitem__(self, variable_name, variable_value):
+        if self.variable_exists(variable_name)[0]:
+            self.change_design_variable_value(variable_name, variable_value)
+        else:
+            self.add_design_variable(variable_name, variable_value)
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
@@ -1914,6 +1938,50 @@ class Edb(object):
         )
 
     @pyaedt_function_handler()
+    def variable_exists(self, variable_name):
+        """Check if a variable exists or not.
+
+        Returns
+        -------
+        tuple of bool and VaribleServer
+            It returns a booleand to check if the variable exists and the variable
+            server that should contain the variable.
+        """
+        if "$" in variable_name:
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+
+            else:
+                var_server = self.active_cell.GetVariableServer()
+
+        else:
+            var_server = self.active_cell.GetVariableServer()
+
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            return True, var_server
+        return False, var_server
+
+    @pyaedt_function_handler()
+    def get_variable(self, variable_name):
+        """Return Variable Value if variable exists.
+
+        Parameters
+        ----------
+        variable_name
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.edbvalue.EdbValue`
+        """
+        var_server = self.variable_exists(variable_name)
+        if var_server[0]:
+            tuple_value = var_server[1].GetVariableValue(variable_name)
+            return EdbValue(tuple_value[1])
+        self.logger.info("Variable %s doesn't exists.", variable_name)
+        return None
+
+    @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
         """Add a design variable.
 
@@ -1944,37 +2012,12 @@ class Edb(object):
 
 
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-                is_parameter = False
-                string_message = [
-                    "Creating project variable %s.",
-                    "Project variable %s already exists. You can use it.",
-                ]
-            else:
-                var_server = self.active_cell.GetVariableServer()
-                self.logger.warning(
-                    "The character ``$`` must be placed at the beginning of your variable name,"
-                    " to make it a project variable."
-                )
-
-                string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
-        else:
-            var_server = self.active_cell.GetVariableServer()
-            string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            if var_server.IsVariableParameter(variable_name):
-                string_message[1] = "Parameter default %s already exists. You can use it."
-            self.logger.warning(string_message[1], variable_name)
-            return False, var_server
-        else:
-            if is_parameter:
-                string_message[0] = "Creating parameter default %s"
-            self.logger.info(string_message[0], variable_name)
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
-            return True, var_server
+        var_server = self.variable_exists(variable_name)
+        if not var_server[0]:
+            var_server[1].AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            return True, var_server[1]
+        self.logger.error("Variable %s already exists.", variable_name)
+        return False, var_server[1]
 
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
@@ -2001,42 +2044,12 @@ class Edb(object):
         >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
 
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-                string_message = [
-                    "Value of the project variable %s has been changed from %s to %s.",
-                    "Project variable %s doesn't exist. You can create it using the method add_design_variable.",
-                ]
-            else:
-                var_server = self.active_cell.GetVariableServer()
-                string_message = [
-                    "Value of the local variable %s has been changed from %s to %s.",
-                    "Local variable or parameter default %s doesn't exist."
-                    " You can create it using method add_design_variable.",
-                ]
-        else:
-            var_server = self.active_cell.GetVariableServer()
-            string_message = [
-                "Value of the local variable %s has been changed from %s to %s.",
-                "Local variable or parameter default %s doesn't exist."
-                " You can create it using the method add_design_variable.",
-            ]
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            if is_ironpython:
-                tuple_value = var_server.GetVariableValue(variable_name)
-            else:
-                out_value = self.edb.Utility.Value("")
-                tuple_value = var_server.GetVariableValue(variable_name, out_value)
-            var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
-            if var_server.IsVariableParameter(variable_name):
-                string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
-            self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
-            return True, var_server
-        else:
-            self.logger.error(string_message[1], variable_name)
-            return False
+        var_server = self.variable_exists(variable_name)
+        if var_server[0]:
+            var_server[1].SetVariableValue(variable_name, self.edb_value(variable_value))
+            return True, var_server[1]
+        self.logger.error("Variable %s does not exists.", variable_name)
+        return False, var_server[1]
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
