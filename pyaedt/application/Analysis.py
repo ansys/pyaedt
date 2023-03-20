@@ -2358,3 +2358,22 @@ class Analysis(Design, object):
             return False
         self.logger.info("Property {} Changed correctly.".format(property_name))
         return True
+
+    @pyaedt_function_handler()
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string it's returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Input  number or string.
+        units : optional
+            Units for formatting. The default is ``None`` which uses modeler units.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        return self.modeler._arg_with_dim(value, units)

@@ -142,7 +142,7 @@ class NexximComponents(CircuitComponents):
                         i / AEDT_UNITS["Length"][self.schematic_units] for i in self._get_location(location)
                     ]
                 if angle is not None:
-                    self.components[el].angle = self.arg_with_dim(angle, "°")
+                    self.components[el].angle = self.number_with_units(angle, "°")
                 return self.components[el]
         return False
 
@@ -1479,9 +1479,9 @@ class NexximComponents(CircuitComponents):
         for el in self.components:
             if comp_name in self.components[el].composed_name:
                 if extrusion_length:
-                    self.components[el].set_property("Length", self.arg_with_dim(extrusion_length))
+                    self.components[el].set_property("Length", self.number_with_units(extrusion_length))
                 if tline_port and extrusion_length:
-                    self.components[el].set_property("TLineLength", self.arg_with_dim(extrusion_length))
+                    self.components[el].set_property("TLineLength", self.number_with_units(extrusion_length))
                 return self.components[el]
         return False
 
@@ -1740,7 +1740,7 @@ class NexximComponents(CircuitComponents):
         ]
         if owner == "2DExtractor":
             variable_args.append("VariableProp:=")
-            variable_args.append(["Length", "D", "", self.arg_with_dim(extrusion_length_q2d)])
+            variable_args.append(["Length", "D", "", self.number_with_units(extrusion_length_q2d)])
         if variables:
             for k, v in variables.items():
                 variable_args.append("VariableProp:=")
