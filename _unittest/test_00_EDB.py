@@ -1021,7 +1021,7 @@ class TestClass(BasisTest, object):
             assert changed_variable_4
         changed_variable_5 = self.edbapp.change_design_variable_value("$my_parameter", "1m")
         if isinstance(changed_variable_5, tuple):
-            changed_variable_done, my_project_variable_value = changed_variable_4
+            changed_variable_done, my_project_variable_value = changed_variable_5
             assert not changed_variable_done
         else:
             assert not changed_variable_5
