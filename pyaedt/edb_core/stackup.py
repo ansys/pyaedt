@@ -526,65 +526,6 @@ class Stackup(object):
         return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
     @pyaedt_function_handler
-    def import_stackup(self, fpath):
-        """Import stackup defnition from csv file.
-
-        Parameters
-        ----------
-        fpath : str
-            File path to csv or json file.
-        """
-        if not pd:
-            self._pedb.logger.error("Pandas is needed. Please, install it first.")
-            return False
-        if os.path.splitext(fpath)[1] == ".json":
-            return self._import_layer_stackup(fpath)
-        if is_ironpython:
-            self._pedb.logger.error("Method working on CPython only.")
-            return False
-        df = pd.read_csv(fpath, index_col=0)
-        prev_layer = None
-        for row, val in df[::-1].iterrows():
-            if not self.stackup_layers:
-                self.add_layer(
-                    row,
-                    None,
-                    "add_on_top",
-                    val.Type,
-                    val.Material,
-                    val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
-                    val.Thickness,
-                )
-            else:
-                if row in self.stackup_layers.keys():
-                    lyr = self.stackup_layers[row]
-                    lyr.type = val.Type
-                    lyr.material = val.Material
-                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
-                    lyr.thickness = val.Thickness
-                    if prev_layer:
-                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
-                else:
-                    if prev_layer and prev_layer in self.stackup_layers:
-                        layer_name = prev_layer
-                    else:
-                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
-                    self.add_layer(
-                        row,
-                        layer_name,
-                        "insert_above",
-                        val.Type,
-                        val.Material,
-                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
-                        val.Thickness,
-                    )
-                prev_layer = row
-        for name in self.stackup_layers:
-            if name not in df.index:
-                self.remove_layer(name)
-        return True
-
-    @pyaedt_function_handler
     def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
         """Export stackup definition to a CSV or JSON file.
 
@@ -1270,6 +1211,282 @@ class Stackup(object):
                 pass
         temp_data = {name: area / outline_area * 100 for name, area in temp_data.items()}
         return temp_data
+
+    def _import_json(self, file_path):
+        if file_path:
+            f = open(file_path)
+            json_dict = json.load(f)  # pragma: no cover
+            for k, v in json_dict.items():
+                if k == "materials":
+                    for material in v.values():
+                        self._pedb.materials._load_materials(material)
+                if k == "layers":
+                    if len(list(v.values())) == len(list(self.stackup_layers.values())):
+                        imported_layers_list = [l_dict["name"] for l_dict in list(v.values())]
+                        layout_layer_list = list(self.stackup_layers.keys())
+                        for layer_name in imported_layers_list:
+                            layer_index = imported_layers_list.index(layer_name)
+                            if layout_layer_list[layer_index] != layer_name:
+                                self.stackup_layers[layout_layer_list[layer_index]].name = layer_name
+                    prev_layer = None
+                    for layer_name, layer in v.items():
+                        if layer["name"] not in self.stackup_layers:
+                            if not prev_layer:
+                                self.add_layer(
+                                    layer_name,
+                                    method="add_on_top",
+                                    layer_type=layer["type"],
+                                    material=layer["material"],
+                                    fillMaterial=layer["dielectric_fill"],
+                                    thickness=layer["thickness"],
+                                )
+                                prev_layer = layer_name
+                            else:
+                                self.add_layer(
+                                    layer_name,
+                                    base_layer=layer_name,
+                                    method="insert_below",
+                                    layer_type=layer["type"],
+                                    material=layer["material"],
+                                    fillMaterial=layer["dielectric_fill"],
+                                    thickness=layer["thickness"],
+                                )
+                                prev_layer = layer_name
+                        if layer_name in self.stackup_layers:
+                            self.stackup_layers[layer["name"]]._load_layer(layer)
+            return True
+
+    def _import_csv(self, file_path):
+        """Import stackup defnition from csv file.
+
+                Parameters
+                ----------
+                fpath : str
+                    File path to csv or json file.
+                """
+        if not pd:
+            self._pedb.logger.error("Pandas is needed. Please, install it first.")
+            return False
+        if os.path.splitext(file_path)[1] == ".json":
+            return self._import_layer_stackup(file_path)
+        if is_ironpython:
+            self._pedb.logger.error("Method working on CPython only.")
+            return False
+        df = pd.read_csv(file_path, index_col=0)
+        prev_layer = None
+        for row, val in df[::-1].iterrows():
+            if not self.stackup_layers:
+                self.add_layer(
+                    row,
+                    None,
+                    "add_on_top",
+                    val.Type,
+                    val.Material,
+                    val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
+                    val.Thickness,
+                )
+            else:
+                if row in self.stackup_layers.keys():
+                    lyr = self.stackup_layers[row]
+                    lyr.type = val.Type
+                    lyr.material = val.Material
+                    lyr.dielectric_fill = val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else ""
+                    lyr.thickness = val.Thickness
+                    if prev_layer:
+                        self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
+                else:
+                    if prev_layer and prev_layer in self.stackup_layers:
+                        layer_name = prev_layer
+                    else:
+                        layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+                    self.add_layer(
+                        row,
+                        layer_name,
+                        "insert_above",
+                        val.Type,
+                        val.Material,
+                        val.Dielectric_Fill if not pd.isnull(val.Dielectric_Fill) else "",
+                        val.Thickness,
+                    )
+                prev_layer = row
+        for name in self.stackup_layers:
+            if name not in df.index:
+                self.remove_layer(name)
+        return True
+
+    def _set(self, layers=None, materials=None, roughness=None):
+        if layers:
+            prev_layer = None
+            for name, val in layers.items():
+                if not self.stackup_layers:
+                    self.add_layer(
+                        name,
+                        None,
+                        "add_on_top",
+                        val["Type"],
+                        val["Material"],
+                        val["FillMaterial"] if val["type"] == "signal" else "",
+                        val["Thickness"],
+                    )
+                else:
+                    if name in self.stackup_layers.keys():
+                        lyr = self.stackup_layers[name]
+                        lyr.type = val["Type"]
+                        lyr.material = val["Material"]
+                        lyr.dielectric_fill = val["FillMaterial"] if val["Type"] == "signal" else ""
+                        lyr.thickness = val["Thickness"]
+                        if prev_layer:
+                            self._set_layout_stackup(lyr._edb_layer, "change_position", prev_layer)
+                    else:
+                        if prev_layer and prev_layer in self.stackup_layers:
+                            layer_name = prev_layer
+                        else:
+                            layer_name = list(self.stackup_layers.keys())[-1] if self.stackup_layers else None
+                        self.add_layer(
+                            name,
+                            layer_name,
+                            "insert_above",
+                            val["Type"],
+                            val["Material"],
+                            val["FillMaterial"] if val["Type"] == "signal" else "",
+                            val["Thickness"],
+                        )
+                    prev_layer = name
+            for name in self.stackup_layers:
+                if name not in layers:
+                    self.remove_layer(name)
+
+        if materials:
+            mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
+            mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
+            for name, attr in materials.items():
+                if not name.lower() in mat_keys:
+                    if "Conductivity" in attr:
+                        self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
+                    else:
+                        self._pedb.materials.add_dielectric_material(
+                            name,
+                            attr["Permittivity"],
+                            attr["DielectricLossTangent"],
+                        )
+                else:
+                    local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
+                    if "Conductivity" in attr:
+                        local_material.conductivity = attr["Conductivity"]
+                    else:
+                        local_material.permittivity = attr["Permittivity"]
+                        local_material.loss_tanget = attr["DielectricLossTangent"]
+
+        if roughness:
+            for name, attr in roughness.items():
+                layer = self.signal_layers[name]
+                layer.roughness_enabled = True
+
+                attr_name = "HuraySurfaceRoughness"
+                if attr_name in attr:
+                    on_surface = "top"
+                    layer.assign_roughness_model(
+                        "huray",
+                        attr[attr_name]["NoduleRadius"],
+                        attr[attr_name]["HallHuraySurfaceRatio"],
+                        apply_on_surface=on_surface
+                    )
+
+                attr_name = "HurayBottomSurfaceRoughness"
+                if attr_name in attr:
+                    on_surface = "bottom"
+                    layer.assign_roughness_model(
+                        "huray",
+                        attr[attr_name]["NoduleRadius"],
+                        attr[attr_name]["HallHuraySurfaceRatio"],
+                        apply_on_surface=on_surface
+                    )
+                attr_name = "HuraySideSurfaceRoughness"
+                if attr_name in attr:
+                    on_surface = "side"
+                    layer.assign_roughness_model(
+                        "huray",
+                        attr[attr_name]["NoduleRadius"],
+                        attr[attr_name]["HallHuraySurfaceRatio"],
+                        apply_on_surface=on_surface
+                    )
+
+                attr_name = "GroissSurfaceRoughness"
+                if attr_name in attr:
+                    on_surface = "top"
+                    layer.assign_roughness_model(
+                        "groisse",
+                        groisse_roughness=attr[attr_name]["Roughness"],
+                        apply_on_surface=on_surface
+                    )
+
+                attr_name = "GroissBottomSurfaceRoughness"
+                if attr_name in attr:
+                    on_surface = "bottom"
+                    layer.assign_roughness_model(
+                        "groisse",
+                        groisse_roughness=attr[attr_name]["Roughness"],
+                        apply_on_surface=on_surface
+                    )
+
+                attr_name = "GroissSideSurfaceRoughness"
+                if attr_name in attr:
+                    on_surface = "side"
+                    layer.assign_roughness_model(
+                        "groisse",
+                        groisse_roughness=attr[attr_name]["Roughness"],
+                        apply_on_surface=on_surface
+                    )
+
+    def _import_xml(self, file_path):
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(file_path)
+        material_dict = {}
+        layer_dict = {}
+        roughness_dict = {}
+
+        root = tree.getroot()
+        stackup = root.find("Stackup")
+        for m in stackup.find("Materials").findall("Material"):
+            material = {}
+            for i in list(m):
+                material[i.tag] = list(i)[0].text
+            material_dict[m.attrib["Name"]] = material
+
+        layers = stackup.find("Layers")
+        unit = layers.attrib["LengthUnit"]
+        for l in layers.findall("Layer"):
+            name = l.attrib["Name"]
+            if name == "Outline":
+                continue
+            layer_dict[name] = l.attrib
+            layer_dict[name]["Thickness"] = layer_dict[name]["Thickness"] + unit
+            if layer_dict[name]["Type"] == "conductor":
+                layer_dict[name]["Type"] = "signal"
+
+            if list(l):
+                roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
+
+        self._set(layer_dict, material_dict, roughness_dict)
+
+    @pyaedt_function_handler
+    def import_stackup(self, file_path):
+        """Import stackup from file.
+
+        Parameters
+        ----------
+        file_path : str
+            File path to stackup file.
+        """
+
+        if file_path.endswith(".csv"):
+            return self._import_csv(file_path)
+        elif file_path.endswith(".json"):
+            return self._import_json(file_path)
+        elif file_path.endswith(".xml"):
+            return self._import_xml(file_path)
+        else:
+            return False
 
 
 class EdbStackup(object):
