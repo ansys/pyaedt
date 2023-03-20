@@ -93,6 +93,11 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
+    Add a new variable named "s1" to the ``Edb`` instance.
+    >>> app['s1'] = "0.25 mm"
+    >>> app['s1'].tofloat
+    >>>
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
@@ -101,6 +106,7 @@ class Edb(object):
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
     >>> app = Edb("/path/to/file/myfile.gds")
+
     """
 
     def __init__(
