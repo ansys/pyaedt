@@ -1983,7 +1983,10 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
-        """Add a design variable.
+        """Add a variable to edb. The variable can be a design one or a project variable (using ``$`` prefix).
+
+        ..note::
+            User can use also the setitem to create or assign a variable. See example below.
 
         Parameters
         ----------
@@ -2007,6 +2010,8 @@ class Edb(object):
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
         >>> boolean_1, ant_length = edb_app.add_design_variable("my_local_variable", "1cm")
+        >>> print(edb_app["my_local_variable"])    #using getitem
+        >>> edb_app["my_local_variable"] = "1cm"   #using setitem
         >>> boolean_2, para_length = edb_app.change_design_variable_value("my_parameter", "1m", is_parameter=True
         >>> boolean_3, project_length = edb_app.change_design_variable_value("$my_project_variable", "1m")
 
@@ -2022,6 +2027,8 @@ class Edb(object):
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
         """Change a variable value.
+        ..note::
+            User can use also the getitem to read the variable value. See example below.
 
         Parameters
         ----------
@@ -2042,7 +2049,7 @@ class Edb(object):
         >>> edb_app = Edb()
         >>> boolean, ant_length = edb_app.add_design_variable("ant_length", "1cm")
         >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
-
+        >>> print(edb_app["ant_length"])    #using getitem
         """
         var_server = self.variable_exists(variable_name)
         if var_server[0]:
