@@ -431,7 +431,8 @@ M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_di
 # Save the project and solve it.
 
 M3D.save_project()
-M3D.analyze()
+
+M3D.analyze(num_cores=4, num_tasks=2)
 
 ####################################################################################################
 # Release AEDT from PyAEDT scripting
