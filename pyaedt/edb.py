@@ -97,7 +97,7 @@ class Edb(object):
     Add a new variable named "s1" to the ``Edb`` instance.
     >>> app['s1'] = "0.25 mm"
     >>> app['s1'].tofloat
-    >>>
+    >>> 0.00025
 
     Create an ``Edb`` object and open the specified project.
 
