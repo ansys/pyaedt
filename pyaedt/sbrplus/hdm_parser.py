@@ -98,7 +98,7 @@ class Parser:
             args = bt["args"]
             final_type = args["final_type"] if "final_type" in args else None
             res = self._parse_simple_base_type(
-                format=args["format"], size=args["size"], how_many=size * args["how_many"], final_type=final_type
+                format_i=args["format"], size=args["size"], how_many=size * args["how_many"], final_type=final_type
             )
             if not isinstance(res, tuple) and not isinstance(res, list):
                 res = [
@@ -139,9 +139,9 @@ class Parser:
                 elif type_to_parse in ("vector", "list"):
                     # Parse explicit vectors or lists in the layout and convert the size to a number if it's a string
                     if isinstance(l["size"], str):
-                        namesdict[field] = self._parse_list(type=l["type"], base=l["base"], size=namesdict[l["size"]])
+                        namesdict[field] = self._parse_list(type_i=l["type"], base=l["base"], size=namesdict[l["size"]])
                     else:
-                        namesdict[field] = self._parse_list(type=l["type"], base=l["base"], size=l["size"])
+                        namesdict[field] = self._parse_list(type_i=l["type"], base=l["base"], size=l["size"])
                 else:
                     # Parse anything else that is not explicitly a list or a vector. In this case, the field type
                     # could be a custom type referring indirectly to a list or vector, so handle that directly for
@@ -152,7 +152,7 @@ class Parser:
                         arrsize = self.parser_types[type_to_parse]["size"]
                         if isinstance(arrsize, str):
                             arrsize = namesdict[self.parser_types[type_to_parse]["size"]]
-                        namesdict[field] = self._parse_list(type=arrtype, base=arrbase, size=arrsize)
+                        namesdict[field] = self._parse_list(type_i=arrtype, base=arrbase, size=arrsize)
                     elif type_to_parse in self.parser_flags:
                         flag_value = self._parse(type_to_parse)
                         flag_type = self.parser_flags[type_to_parse]
