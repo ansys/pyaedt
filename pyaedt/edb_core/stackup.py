@@ -1281,7 +1281,7 @@ class Stackup(object):
             File path to the CSV or JSON file.
         """
         if not pd:
-            self._pedb.logger.error("Pandas is needed. Please, install it first.")
+            self._pedb.logger.error("Pandas is needed. You must install it first.")
             return False
         if os.path.splitext(file_path)[1] == ".json":
             return self._import_layer_stackup(file_path)
