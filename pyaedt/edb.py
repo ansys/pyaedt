@@ -12,6 +12,7 @@ import time
 import traceback
 import warnings
 
+import pyaedt
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -2338,6 +2339,33 @@ class Edb(object):
 
         """
         return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
+
+    def hfss(self, hfss3d=False, non_graphical=False, close_edb=True):
+        """Create and instantiate an instance of pyaedt.Hfss3dLayout for the current Edb.
+
+        Parameters
+        ----------
+        hfss3d : Boolean, optional
+            Create an HFSS 3D Model. Default is False.
+        non_graphical : Boolean, optional
+            Open Electronics Desktop in non-graphical mode. Default is False, an
+            interactive AEDT instance will be launched.
+
+        Returns
+        -------
+        pyaedt.Hfss3dLayout or pyaedt.Hfss
+
+        Examples
+        --------
+        >>> edb = Edb(edbpath=aedb_name, edbversion="2023.1")
+        >>> edb.import.stackup("stackup_filename.json")
+        >>> app = edb.hfss()
+
+        """
+
+        self.save_edb()
+        project_filename = os.path.join(self.edbpath, "edb.def")
+        return pyaedt.Hfss3dLayout(project_filename, non_graphical=non_graphical)
 
     @property
     def siwave_dc_setups(self):
