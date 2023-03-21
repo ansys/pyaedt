@@ -158,7 +158,7 @@ param["SolveWithCopiedMeshOnly"] = True
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Solve the parametric sweep directly so that results of all variations are available.
 
-M3D.analyze_setup(sweepname, num_cores=4, num_tasks=2)
+M3D.analyze(sweepname, num_cores=4, num_tasks=2)
 
 ###############################################################################
 # Create expression for Bz
