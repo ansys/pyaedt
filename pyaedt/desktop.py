@@ -67,17 +67,31 @@ else:
 
 def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
     """Launch AEDT in LSF in GRPC mode."""
-    command = [
-        "bsub",
-        "-n",
-        str(settings.lsf_num_cores),
-        "-R",
-        '"rusage[mem={}]"'.format(settings.lsf_ram),
-        "-Is",
-        settings.lsf_aedt_command,
-        "-grpcsrv",
-        str(port),
-    ]
+    if settings.lsf_queue:
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            '"rusage[mem={}]"'.format(settings.lsf_ram),
+            "-queue {}".format(settings.lsf_queue),
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
+    else:
+        command = [
+            "bsub",
+            "-n",
+            str(settings.lsf_num_cores),
+            "-R",
+            '"rusage[mem={}]"'.format(settings.lsf_ram),
+            "-Is",
+            settings.lsf_aedt_command,
+            "-grpcsrv",
+            str(port),
+        ]
     if non_graphical:
         command.append("-ng")
     print(command)

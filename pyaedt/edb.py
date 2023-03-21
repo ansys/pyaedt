@@ -1521,14 +1521,14 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def number_with_units(self, value, units=None):
-        """Convert a number to a string with units. If value is a string it's returned as is.
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         Parameters
         ----------
         value : float, int, str
             Input number or string.
         units : optional
-            Units for formatting. The default is ``None`` which uses ``"meter"``.
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
 
         Returns
         -------
@@ -1545,7 +1545,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def arg_with_dim(self, Value, sUnits):
-        """Convert a number to a string with units. If value is a string it's returned as is.
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         .. deprecated:: 0.6.56
            Use :func:`number_with_units` property instead.
@@ -1555,7 +1555,7 @@ class Edb(object):
         Value : float, int, str
             Input  number or string.
         sUnits : optional
-            Units for formatting. The default is ``None`` which uses ``"meter"``.
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
 
         Returns
         -------
