@@ -131,6 +131,7 @@ M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
+Setup.props["MaximumPasses"] = 2
 Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
 
 ################################################################################
