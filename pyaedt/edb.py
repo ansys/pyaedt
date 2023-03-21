@@ -95,6 +95,13 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
+    Add a new variable named "s1" to the ``Edb`` instance.
+    >>> app['s1'] = "0.25 mm"
+    >>> app['s1'].tofloat
+    >>> 0.00025
+    >>> app['s1'].tostring
+    >>> "0.25mm"
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
@@ -103,6 +110,7 @@ class Edb(object):
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
     >>> app = Edb("/path/to/file/myfile.gds")
+
     """
 
     def __init__(
@@ -200,11 +208,12 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
-        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or design variable.
+        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or
+        it can be a design variable, in which case the ``$`` is omitted.
 
         Parameters
         ----------
-        variable_name
+        variable_name : str
 
         Returns
         -------
@@ -1511,26 +1520,51 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def arg_with_dim(self, Value, sUnits):
-        """Format arguments with dimensions.
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string it's returned as is.
 
         Parameters
         ----------
-        Value :
-
-        sUnits :
+        value : float, int, str
+            Input number or string.
+        units : optional
+            Units for formatting. The default is ``None`` which uses ``"meter"``.
 
         Returns
         -------
         str
-            String containing the value or the value and units if ``sUnits`` is not ``None``.
-        """
-        if type(Value) is str:
-            val = Value
-        else:
-            val = "{0}{1}".format(Value, sUnits)
+           String concatenating the value and unit.
 
-        return val
+        """
+        if units is None:
+            units = "meter"
+        if isinstance(value, str):
+            return value
+        else:
+            return "{0}{1}".format(value, units)
+
+    @pyaedt_function_handler()
+    def arg_with_dim(self, Value, sUnits):
+        """Convert a number to a string with units. If value is a string it's returned as is.
+
+        .. deprecated:: 0.6.56
+           Use :func:`number_with_units` property instead.
+
+        Parameters
+        ----------
+        Value : float, int, str
+            Input  number or string.
+        sUnits : optional
+            Units for formatting. The default is ``None`` which uses ``"meter"``.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
+        return self.number_with_units(Value, sUnits)
 
     @pyaedt_function_handler()
     def create_cutout_on_point_list(
@@ -1575,7 +1609,7 @@ class Edb(object):
 
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
-        point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
+        point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
         _ref_nets = []
@@ -2269,6 +2303,17 @@ class Edb(object):
         -------
         bool
             Either if the ports are connected to reference_name or not.
+
+        Examples
+        --------
+        >>>edb = Edb()
+        >>> edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        >>> edb.core_hfss.create_edge_port_horizontal(
+        >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
+        >>> ... )
+        >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        >>> edb.create_cutout(["Net1"])
+        >>> assert edb.are_port_reference_terminals_connected()
         """
         self.logger.reset_timer()
         if not common_reference:

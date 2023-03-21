@@ -263,8 +263,11 @@ class Objec3DLayout(object):
         for layername in drawings:
             rect = self._primitives.create_rectangle(
                 layername,
-                [self._primitives.arg_with_dim(start_points[0]), self._primitives.arg_with_dim(start_points[1])],
-                [self._primitives.arg_with_dim(dims[0]), self._primitives.arg_with_dim(dims[1])],
+                [
+                    self._primitives.number_with_units(start_points[0]),
+                    self._primitives.number_with_units(start_points[1]),
+                ],
+                [self._primitives.number_with_units(dims[0]), self._primitives.number_with_units(dims[1])],
             )
             self._primitives.rectangles[rect.name].negative = True
         return True
@@ -335,9 +338,9 @@ class Objec3DLayout(object):
             props = [
                 "NAME:Location",
                 "X:=",
-                self._primitives.arg_with_dim(position[0]),
+                self._primitives.number_with_units(position[0]),
                 "Y:=",
-                self._primitives.arg_with_dim(position[1]),
+                self._primitives.number_with_units(position[1]),
             ]
             self.change_property(props)
 
