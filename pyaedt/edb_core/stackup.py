@@ -1226,6 +1226,7 @@ class Stackup(object):
         temp_data = {name: area / outline_area * 100 for name, area in temp_data.items()}
         return temp_data
 
+    @pyaedt_function_handler
     def _import_json(self, file_path):
         if file_path:
             f = open(file_path)
@@ -1270,6 +1271,7 @@ class Stackup(object):
                             self.stackup_layers[layer["name"]]._load_layer(layer)
             return True
 
+    @pyaedt_function_handler
     def _import_csv(self, file_path):
         """Import stackup defnition from csv file.
 
@@ -1328,6 +1330,7 @@ class Stackup(object):
                 self.remove_layer(name)
         return True
 
+    @pyaedt_function_handler
     def _set(self, layers=None, materials=None, roughness=None):
         """Update stackup information.
 
@@ -1343,9 +1346,32 @@ class Stackup(object):
         -------
 
         """
+        if materials:
+            mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
+            mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
+            for name, attr in materials.items():
+                if not name.lower() in mat_keys:
+                    if "Conductivity" in attr:
+                        self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
+                    else:
+                        self._pedb.materials.add_dielectric_material(
+                            name,
+                            attr["Permittivity"],
+                            attr["DielectricLossTangent"],
+                        )
+                else:
+                    local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
+                    if "Conductivity" in attr:
+                        local_material.conductivity = attr["Conductivity"]
+                    else:
+                        local_material.permittivity = attr["Permittivity"]
+                        local_material.loss_tanget = attr["DielectricLossTangent"]
+
         if layers:
             prev_layer = None
             for name, val in layers.items():
+                etching_factor = float(val["EtchFactor"]) if "EtchFactor" in val else None
+
                 if not self.stackup_layers:
                     self.add_layer(
                         name,
@@ -1353,8 +1379,9 @@ class Stackup(object):
                         "add_on_top",
                         val["Type"],
                         val["Material"],
-                        val["FillMaterial"] if val["type"] == "signal" else "",
+                        val["FillMaterial"] if val["Type"] == "signal" else "",
                         val["Thickness"],
+                        etching_factor,
                     )
                 else:
                     if name in self.stackup_layers.keys():
@@ -1378,32 +1405,12 @@ class Stackup(object):
                             val["Material"],
                             val["FillMaterial"] if val["Type"] == "signal" else "",
                             val["Thickness"],
+                            etching_factor,
                         )
                     prev_layer = name
             for name in self.stackup_layers:
                 if name not in layers:
                     self.remove_layer(name)
-
-        if materials:
-            mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
-            mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
-            for name, attr in materials.items():
-                if not name.lower() in mat_keys:
-                    if "Conductivity" in attr:
-                        self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
-                    else:
-                        self._pedb.materials.add_dielectric_material(
-                            name,
-                            attr["Permittivity"],
-                            attr["DielectricLossTangent"],
-                        )
-                else:
-                    local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
-                    if "Conductivity" in attr:
-                        local_material.conductivity = attr["Conductivity"]
-                    else:
-                        local_material.permittivity = attr["Permittivity"]
-                        local_material.loss_tanget = attr["DielectricLossTangent"]
 
         if roughness:
             for name, attr in roughness.items():
@@ -1461,6 +1468,7 @@ class Stackup(object):
                     )
         return True
 
+    @pyaedt_function_handler
     def _get(self):
         """Get stackup information from layout.
 
@@ -1478,6 +1486,7 @@ class Stackup(object):
             layer["Type"] = val.type
             if not val.type == "dielectric":
                 layer["FillMaterial"] = val.dielectric_fill
+                layer["EtchFactor"] = val.etch_factor
             layers[name] = layer
 
             if val.roughness_enabled:
@@ -1524,6 +1533,7 @@ class Stackup(object):
 
         return layers, materials, roughness_models
 
+    @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
 
@@ -1563,8 +1573,10 @@ class Stackup(object):
             if list(l):
                 roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
 
+        layer_dict = OrderedDict(reversed(list(layer_dict.items())))
         return self._set(layer_dict, material_dict, roughness_dict)
 
+    @pyaedt_function_handler
     def _export_xml(self, file_path):
         """Export stackup information to an external xml file.
 
@@ -1592,7 +1604,7 @@ class Stackup(object):
                 value = ET.SubElement(mat_prop, "Double")
                 value.text = str(pval)
 
-        el_layers = ET.SubElement(el_stackup, "Layers")
+        el_layers = ET.SubElement(el_stackup, "Layers", {"LengthUnit": "meter"})
         for lyr, val in layers.items():
             layer = ET.SubElement(el_layers, "Layer")
             val = {i: str(j) for i, j in val.items()}
