@@ -61,7 +61,6 @@ class HDMPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def _add_rays(self):
-        warnings.warn("This method is intended to be an example of the usage that can be made of hdm file.")
         from itertools import chain
 
         if not self._bundle:
@@ -142,7 +141,6 @@ class HDMPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def _first_bounce_currents(self):
-        warnings.warn("This method is intended to be an example of the usage that can be made of hdm file.")
         bounces = defaultdict(lambda: np.ndarray(3, np.complex128))
         for track in self._bundle.ray_tracks:
             bounce = track.first_bounce
