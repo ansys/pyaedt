@@ -116,7 +116,7 @@ if desktop_version > "2023.1":
     tx_bands = rev.get_band_names(rad2.name, modeTx) 
     domain = aedtapp.results.interaction_domain()
     domain.set_receiver(rad1.name, rx_bands[0], -1)
-    domain.set_interferer(rad2.name,tx_bands[0], -1)
+    domain.set_interferer([rad2.name],[tx_bands[0]],[-1])
     interaction = rev.run(domain)
     worst = interaction.get_worst_instance(modeEmi)
     if worst.has_valid_values():

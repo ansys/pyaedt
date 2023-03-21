@@ -1138,6 +1138,9 @@ class CircuitComponents(object):
     def arg_with_dim(self, Value, sUnits=None):
         """Format an argument with dimensions.
 
+        .. deprecated:: 0.6.56
+           Use :func:`number_with_units` instead.
+
         Parameters
         ----------
         Value : str
@@ -1151,14 +1154,26 @@ class CircuitComponents(object):
 
 
         """
-        if isinstance(Value, str):
-            val = Value
-        else:
-            if sUnits is None:
-                sUnits = self.schematic_units
-            val = "{0}{1}".format(Value, sUnits)
+        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
+        return self._app.number_with_units(Value, sUnits)
 
-        return val
+    @pyaedt_function_handler()
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string it's returned as is.
+
+        Parameters
+        ----------
+        value : float, int, str
+            Input  number or string.
+        units : optional
+            Units for formatting. The default is ``None`` which uses ``"meter"``.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+        """
+        return self._app.number_with_units(value, units)
 
     @pyaedt_function_handler()
     def create_line(self, points_array, color=0, line_width=0):
