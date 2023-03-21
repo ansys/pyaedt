@@ -1473,8 +1473,8 @@ class Stackup(object):
         """Get stackup information from layout.
 
         Returns:
-        dict, dict, dict
-
+        tuple: (dict, dict, dict)
+            layers, materials, roughness_models
         """
         layers = OrderedDict()
         roughness_models = OrderedDict()
