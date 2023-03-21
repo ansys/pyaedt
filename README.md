@@ -204,3 +204,9 @@ On any Windows client machine:
 `PyAEDT` is licensed under the `MIT` license.
 
 This module makes no commercial claim over Ansys whatsoever. `PyAEDT` extends the functionality of `AEDT` by adding an additional Python interface to `AEDT` without changing the core behavior or license of the original software. The use of the interactive control of `PyAEDT` requires a legally licensed local copy of `AEDT`. For more information about `AEDT`, visit the [AEDT page](https://www.ansys.com/products/electronics) on the `Ansys` website.
+
+## Indices and tables
+
+-  [Index](https://aedt.docs.pyansys.com/release/0.6/genindex.html)
+-  [Module Index](https://aedt.docs.pyansys.com/release/0.6/py-modindex.html)
+-  [Search Page](https://aedt.docs.pyansys.com/release/0.6/search.html)
