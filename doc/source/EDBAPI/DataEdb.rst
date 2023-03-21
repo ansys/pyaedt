@@ -29,3 +29,4 @@ Primitives are planes, lines, rectangles, and circles.
    nets_data.EDBNetsData
    primitives_data.EDBPrimitives
    primitives_data.EDBArcs
+   edbvalue.EdbValue

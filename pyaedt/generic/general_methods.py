@@ -1580,6 +1580,17 @@ class Settings(object):
         self._use_lsf_scheduler = False
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
+        self._lsf_queue = None
+
+    @property
+    def lsf_queue(self):
+        """LSF queue name. This attribute is valid only on Linux
+        systems running LSF Scheduler."""
+        return self._lsf_queue
+
+    @lsf_queue.setter
+    def lsf_queue(self, value):
+        self._lsf_queue = value
 
     @property
     def use_lsf_scheduler(self):
