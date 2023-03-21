@@ -1995,7 +1995,7 @@ class Edb(object):
         Returns
         -------
         tuple of bool and VaribleServer
-            It returns a booleand to check if the variable exists and the variable
+            It returns a boolean to check if the variable exists and the variable
             server that should contain the variable.
         """
         if "$" in variable_name:
