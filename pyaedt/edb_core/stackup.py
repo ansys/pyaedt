@@ -1286,7 +1286,7 @@ class Stackup(object):
         if os.path.splitext(file_path)[1] == ".json":
             return self._import_layer_stackup(file_path)
         if is_ironpython:
-            self._pedb.logger.error("Method working on CPython only.")
+            self._pedb.logger.error("Method works on CPython only.")
             return False
         df = pd.read_csv(file_path, index_col=0)
         prev_layer = None
