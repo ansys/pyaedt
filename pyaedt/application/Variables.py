@@ -407,6 +407,40 @@ class VariableManager(object):
         """
         return self._variable_dict([self._odesign, self._oproject])
 
+    @pyaedt_function_handler()
+    def decompose(self, variable_value):
+        """Decompose a variable string to a floating with its unit.
+
+        Parameters
+        ----------
+        variable_value : str
+
+
+        Returns
+        -------
+        tuples
+            tuples made of the float value of the variable and the units exposed as a string.
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> print(hfss.variable_manager.decompose("5mm"))
+        >>> (5.0, 'mm')
+        >>> hfss["v1"] = "3N"
+        >>> print(hfss.variable_manager.decompose("v1"))
+        >>> (3.0, 'N')
+        >>> hfss["v2"] = "2*v1"
+        >>> print(hfss.variable_manager.decompose("v2"))
+        >>> (6.0, 'N')
+        """
+        if variable_value in self.independent_variable_names:
+            val, unit = decompose_variable_value(self[variable_value].expression)
+        elif variable_value in self.dependent_variable_names:
+            val, unit = decompose_variable_value(self[variable_value].evaluated_value)
+        else:
+            val, unit = decompose_variable_value(variable_value)
+        return val, unit
+
     @property
     def design_variables(self):
         """Design variables.
@@ -1492,6 +1526,26 @@ class Variable(object):
 
         """
         return ("{}{}").format(self.numeric_value, self._units)
+
+    @pyaedt_function_handler()
+    def decompose(self):
+        """Decompose variable value to a floating with its unit.
+
+
+        Returns
+        -------
+        tuples
+            tuples made of the float value of the variable and the units exposed as a string.
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> hfss["v1"] = "3N"
+        >>> print(hfss.variable_manager["v1"].decompose("v1"))
+        >>> (3.0, 'N')
+
+        """
+        return decompose_variable_value(self.evaluated_value)
 
     @pyaedt_function_handler()
     def rescale_to(self, units):

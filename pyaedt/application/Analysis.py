@@ -2377,37 +2377,3 @@ class Analysis(Design, object):
 
         """
         return self.modeler._arg_with_dim(value, units)
-
-    @pyaedt_function_handler
-    def decompose_number_with_units(self, variable_value):
-        """Decompose a variable string to a floating with its unit.
-
-        Parameters
-        ----------
-        variable_value : str
-
-
-        Returns
-        -------
-        tuples
-            tuples made of the float value of the variable and the units exposed as a string.
-
-        Examples
-        --------
-        >>> hfss = Hfss()
-        >>> print(hfss.decompose_number_with_units("5mm"))
-        >>> (5.0, 'mm')
-        >>> hfss["v1"] = "3N"
-        >>> print(hfss.decompose_number_with_units("v1"))
-        >>> (3.0, 'N')
-        >>> hfss["v2"] = "2*v1"
-        >>> print(hfss.decompose_number_with_units("v2"))
-        >>> (6.0, 'N')
-        """
-        if variable_value in self.variable_manager.independent_variable_names:
-            val, unit = decompose_variable_value(self.variable_manager[variable_value].expression)
-        elif variable_value in self.variable_manager.dependent_variable_names:
-            val, unit = decompose_variable_value(self.variable_manager[variable_value].evaluated_value)
-        else:
-            val, unit = decompose_variable_value(variable_value)
-        return val, unit
