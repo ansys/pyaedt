@@ -1592,7 +1592,7 @@ class Stackup(object):
                 value = ET.SubElement(mat_prop, "Double")
                 value.text = str(pval)
 
-        el_layers = ET.SubElement(el_stackup, "Layers")
+        el_layers = ET.SubElement(el_stackup, "Layers", {"LengthUnit": "meter"})
         for lyr, val in layers.items():
             layer = ET.SubElement(el_layers, "Layer")
             val = {i: str(j) for i, j in val.items()}
