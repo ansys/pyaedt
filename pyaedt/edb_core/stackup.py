@@ -1273,7 +1273,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def _import_csv(self, file_path):
-        """Import stackup defnition from csv file.
+        """Import stackup defnition from a CSV file.
 
         Parameters
         ----------
