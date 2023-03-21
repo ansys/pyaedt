@@ -54,7 +54,7 @@ class Parser:
         else:
             return self._parse_list(**self.parser_types[type_name])
 
-    def _parse_simple_base_type(self, format_i="i", size=4, how_many=1, final_type=None):
+    def _parse_simple_base_type(self, format="i", size=4, how_many=1, final_type=None):
         """
         Parser for int, float, complex, enum or flag.
         Can also parse a list of base types and convert them to another type if possible.
@@ -63,7 +63,7 @@ class Parser:
         if how_many == 1:
             res = [
                 x[0]
-                for x in struct.iter_unpack("".join(["<", str(how_many), format_i]), self.binarycontent[self.idx : end])
+                for x in struct.iter_unpack("".join(["<", str(how_many), format]), self.binarycontent[self.idx : end])
             ]
             res = res[0]
             if final_type:
@@ -71,7 +71,7 @@ class Parser:
         else:
             res = [
                 x[0:how_many]
-                for x in struct.iter_unpack("".join(["<", str(how_many), format_i]), self.binarycontent[self.idx : end])
+                for x in struct.iter_unpack("".join(["<", str(how_many), format]), self.binarycontent[self.idx : end])
             ]
             res = res[0]
             if final_type:
@@ -98,7 +98,7 @@ class Parser:
             args = bt["args"]
             final_type = args["final_type"] if "final_type" in args else None
             res = self._parse_simple_base_type(
-                format_i=args["format"], size=args["size"], how_many=size * args["how_many"], final_type=final_type
+                format=args["format"], size=args["size"], how_many=size * args["how_many"], final_type=final_type
             )
             if not isinstance(res, tuple) and not isinstance(res, list):
                 res = [
