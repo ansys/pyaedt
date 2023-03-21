@@ -4,6 +4,7 @@ import random
 import re
 import warnings
 
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -142,7 +143,7 @@ class NexximComponents(CircuitComponents):
                         i / AEDT_UNITS["Length"][self.schematic_units] for i in self._get_location(location)
                     ]
                 if angle is not None:
-                    self.components[el].angle = self.arg_with_dim(angle, "°")
+                    self.components[el].angle = self.number_with_units(angle, "°")
                 return self.components[el]
         return False
 
@@ -1416,55 +1417,8 @@ class NexximComponents(CircuitComponents):
             comp_name = generate_unique_name(pyaedt_app.design_name)
         source_project_path = pyaedt_app.project_file
         source_design_name = pyaedt_app.design_name
-        # matrix = None
-        # if pyaedt_app.design_type == "HFSS":
-        #     pin_names = pyaedt_app.get_excitations_name()
-        # elif pyaedt_app.design_type == "Q3D Extractor":
-        #     excts = list(pyaedt_app.oboundary.GetExcitations())
-        #     i = 0
-        #     sources = []
-        #     sinks = []
-        #     while i < len(excts):
-        #         if excts[i + 1] == "Source":
-        #             sources.append(excts[i])
-        #         elif excts[i + 1] == "Sink":
-        #             sinks.append(excts[i])
-        #         i += 2
-        #     pin_names = sources + sinks
-        #     matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
-        # elif pyaedt_app.design_type == "2D Extractor":
-        #     excts = list(pyaedt_app.oboundary.GetExcitations())
-        #     pins = []
-        #     i = 0
-        #     while i < len(excts):
-        #         if excts[i + 1] != "ReferenceGround":
-        #             pins.append(excts[i])
-        #         i += 2
-        #     pin_names = [i + "_in" for i in pins]
-        #     pin_names.append("Input_ref")
-        #     pin_names.extend([i + "_out" for i in pins])
-        #     pin_names.append("Output_ref")
-        #     matrix = ["NAME:Reduce Matrix Choices"] + list(pyaedt_app.omatrix.ListReduceMatrixes())
-        # variables = {}
-        # for k, v in pyaedt_app.variable_manager.variables.items():
-        #     variables[k] = v.evaluated_value
         if not solution_name:
             solution_name = pyaedt_app.nominal_sweep
-        # comp = self._add_subcircuit_link(
-        #     comp_name=comp_name,
-        #     pin_names=pin_names,
-        #     source_project_path=source_project_path,
-        #     source_design_name=source_design_name,
-        #     solution_name=solution_name,
-        #     image_subcircuit_path="",
-        #     model_type=pyaedt_app.design_type,
-        #     variables=variables,
-        #     extrusion_length_q2d=extrusion_length,
-        #     matrix=matrix,
-        #     enable_cable_modeling=enable_cable_modeling,
-        #     default_matrix=default_matrix,
-        # )
-
         self._app.odesign.AddDynamicLink(
             source_design_name,
             source_project_path,
@@ -1479,9 +1433,11 @@ class NexximComponents(CircuitComponents):
         for el in self.components:
             if comp_name in self.components[el].composed_name:
                 if extrusion_length:
-                    self.components[el].set_property("Length", self.arg_with_dim(extrusion_length))
+                    _, units = decompose_variable_value(self.components[el].parameters["Length"])
+                    self.components[el].set_property("Length", self.number_with_units(extrusion_length, units))
                 if tline_port and extrusion_length:
-                    self.components[el].set_property("TLineLength", self.arg_with_dim(extrusion_length))
+                    _, units = decompose_variable_value(self.components[el].parameters["TLineLength"])
+                    self.components[el].set_property("TLineLength", self.number_with_units(extrusion_length, units))
                 return self.components[el]
         return False
 
@@ -1740,7 +1696,7 @@ class NexximComponents(CircuitComponents):
         ]
         if owner == "2DExtractor":
             variable_args.append("VariableProp:=")
-            variable_args.append(["Length", "D", "", self.arg_with_dim(extrusion_length_q2d)])
+            variable_args.append(["Length", "D", "", self.number_with_units(extrusion_length_q2d)])
         if variables:
             for k, v in variables.items():
                 variable_args.append("VariableProp:=")

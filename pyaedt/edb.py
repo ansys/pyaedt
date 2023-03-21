@@ -22,6 +22,7 @@ from pyaedt.edb_core import EdbSiwave
 from pyaedt.edb_core import EdbStackup
 from pyaedt.edb_core.edb_data.design_options import EdbDesignOptions
 from pyaedt.edb_core.edb_data.edb_builder import EdbBuilder
+from pyaedt.edb_core.edb_data.edbvalue import EdbValue
 from pyaedt.edb_core.edb_data.hfss_simulation_setup_data import HfssSimulationSetup
 from pyaedt.edb_core.edb_data.padstacks_data import EDBPadstackInstance
 from pyaedt.edb_core.edb_data.simulation_configuration import SimulationConfiguration
@@ -93,6 +94,13 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
+    Add a new variable named "s1" to the ``Edb`` instance.
+    >>> app['s1'] = "0.25 mm"
+    >>> app['s1'].tofloat
+    >>> 0.00025
+    >>> app['s1'].tostring
+    >>> "0.25mm"
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
@@ -101,6 +109,7 @@ class Edb(object):
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
     >>> app = Edb("/path/to/file/myfile.gds")
+
     """
 
     def __init__(
@@ -195,6 +204,30 @@ class Edb(object):
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type:
             self.edb_exception(ex_value, ex_traceback)
+
+    @pyaedt_function_handler()
+    def __getitem__(self, variable_name):
+        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or
+        it can be a design variable, in which case the ``$`` is omitted.
+
+        Parameters
+        ----------
+        variable_name : str
+
+        Returns
+        -------
+
+        """
+        if self.variable_exists(variable_name)[0]:
+            return self.get_variable(variable_name)
+        return
+
+    @pyaedt_function_handler()
+    def __setitem__(self, variable_name, variable_value):
+        if self.variable_exists(variable_name)[0]:
+            self.change_design_variable_value(variable_name, variable_value)
+        else:
+            self.add_design_variable(variable_name, variable_value)
 
     def _clean_variables(self):
         """Initialize internal variables and perform garbage collection."""
@@ -647,56 +680,101 @@ class Edb(object):
 
     @property
     def stackup(self):
-        """Stackup."""
+        """Stackup manager.
+
+        Returns
+        -------
+        Instance of :class: 'pyaedt.edb_core.Stackup`
+        """
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
         return self._stackup2
 
     @property
     def materials(self):
-        """Material Database."""
+        """Material Database.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.Materials`
+        """
+
         if not self._materials and self.builder:
             self._materials = Materials(self)
         return self._materials
 
     @property
     def core_padstack(self):
-        """Core padstack."""
+        """Core padstack.
+
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+        """
+
         if not self._padstack and self.builder:
             self._padstack = EdbPadstacks(self)
         return self._padstack
 
     @property
     def core_siwave(self):
-        """Core SI Wave."""
+        """Core SI Wave.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+        """
+
         if not self._siwave and self.builder:
             self._siwave = EdbSiwave(self)
         return self._siwave
 
     @property
     def core_hfss(self):
-        """Core HFSS."""
+        """Core HFSS.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+        """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
         return self._hfss
 
     @property
     def core_nets(self):
-        """Core nets."""
+        """Core nets.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.nets.EdbNets`
+        """
+
         if not self._nets and self.builder:
             self._nets = EdbNets(self)
         return self._nets
 
     @property
     def core_primitives(self):
-        """Core primitives."""
+        """Core primitives.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+        """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
         return self._core_primitives
 
     @property
     def active_layout(self):
-        """Active layout."""
+        """Active layout.
+
+        Returns
+        -------
+        Instance of :class: `pyaedt.`
+        """
         self._active_layout = None
         if self._active_cell:
             self._active_layout = self.active_cell.GetLayout()
@@ -1441,26 +1519,51 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def arg_with_dim(self, Value, sUnits):
-        """Format arguments with dimensions.
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         Parameters
         ----------
-        Value :
-
-        sUnits :
+        value : float, int, str
+            Input number or string.
+        units : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
 
         Returns
         -------
         str
-            String containing the value or the value and units if ``sUnits`` is not ``None``.
-        """
-        if type(Value) is str:
-            val = Value
-        else:
-            val = "{0}{1}".format(Value, sUnits)
+           String concatenating the value and unit.
 
-        return val
+        """
+        if units is None:
+            units = "meter"
+        if isinstance(value, str):
+            return value
+        else:
+            return "{0}{1}".format(value, units)
+
+    @pyaedt_function_handler()
+    def arg_with_dim(self, Value, sUnits):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        .. deprecated:: 0.6.56
+           Use :func:`number_with_units` property instead.
+
+        Parameters
+        ----------
+        Value : float, int, str
+            Input  number or string.
+        sUnits : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
+        return self.number_with_units(Value, sUnits)
 
     @pyaedt_function_handler()
     def create_cutout_on_point_list(
@@ -1505,7 +1608,7 @@ class Edb(object):
 
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
-        point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
+        point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
         _ref_nets = []
@@ -1914,8 +2017,55 @@ class Edb(object):
         )
 
     @pyaedt_function_handler()
+    def variable_exists(self, variable_name):
+        """Check if a variable exists or not.
+
+        Returns
+        -------
+        tuple of bool and VaribleServer
+            It returns a booleand to check if the variable exists and the variable
+            server that should contain the variable.
+        """
+        if "$" in variable_name:
+            if variable_name.index("$") == 0:
+                var_server = self.db.GetVariableServer()
+
+            else:
+                var_server = self.active_cell.GetVariableServer()
+
+        else:
+            var_server = self.active_cell.GetVariableServer()
+
+        variables = var_server.GetAllVariableNames()
+        if variable_name in list(variables):
+            return True, var_server
+        return False, var_server
+
+    @pyaedt_function_handler()
+    def get_variable(self, variable_name):
+        """Return Variable Value if variable exists.
+
+        Parameters
+        ----------
+        variable_name
+
+        Returns
+        -------
+        :class:`pyaedt.edb_core.edb_data.edbvalue.EdbValue`
+        """
+        var_server = self.variable_exists(variable_name)
+        if var_server[0]:
+            tuple_value = var_server[1].GetVariableValue(variable_name)
+            return EdbValue(tuple_value[1])
+        self.logger.info("Variable %s doesn't exists.", variable_name)
+        return None
+
+    @pyaedt_function_handler()
     def add_design_variable(self, variable_name, variable_value, is_parameter=False):
-        """Add a design variable.
+        """Add a variable to edb. The variable can be a design one or a project variable (using ``$`` prefix).
+
+        ..note::
+            User can use also the setitem to create or assign a variable. See example below.
 
         Parameters
         ----------
@@ -1939,46 +2089,25 @@ class Edb(object):
         >>> from pyaedt import Edb
         >>> edb_app = Edb()
         >>> boolean_1, ant_length = edb_app.add_design_variable("my_local_variable", "1cm")
+        >>> print(edb_app["my_local_variable"])    #using getitem
+        >>> edb_app["my_local_variable"] = "1cm"   #using setitem
         >>> boolean_2, para_length = edb_app.change_design_variable_value("my_parameter", "1m", is_parameter=True
         >>> boolean_3, project_length = edb_app.change_design_variable_value("$my_project_variable", "1m")
 
 
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-                is_parameter = False
-                string_message = [
-                    "Creating project variable %s.",
-                    "Project variable %s already exists. You can use it.",
-                ]
-            else:
-                var_server = self.active_cell.GetVariableServer()
-                self.logger.warning(
-                    "The character ``$`` must be placed at the beginning of your variable name,"
-                    " to make it a project variable."
-                )
-
-                string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
-        else:
-            var_server = self.active_cell.GetVariableServer()
-            string_message = ["Creating local variable %s.", "Local variable %s already exists. You can use it."]
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            if var_server.IsVariableParameter(variable_name):
-                string_message[1] = "Parameter default %s already exists. You can use it."
-            self.logger.warning(string_message[1], variable_name)
-            return False, var_server
-        else:
-            if is_parameter:
-                string_message[0] = "Creating parameter default %s"
-            self.logger.info(string_message[0], variable_name)
-            var_server.AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
-            return True, var_server
+        var_server = self.variable_exists(variable_name)
+        if not var_server[0]:
+            var_server[1].AddVariable(variable_name, self.edb_value(variable_value), is_parameter)
+            return True, var_server[1]
+        self.logger.error("Variable %s already exists.", variable_name)
+        return False, var_server[1]
 
     @pyaedt_function_handler()
     def change_design_variable_value(self, variable_name, variable_value):
         """Change a variable value.
+        ..note::
+            User can use also the getitem to read the variable value. See example below.
 
         Parameters
         ----------
@@ -1999,44 +2128,14 @@ class Edb(object):
         >>> edb_app = Edb()
         >>> boolean, ant_length = edb_app.add_design_variable("ant_length", "1cm")
         >>> boolean, ant_length = edb_app.change_design_variable_value("ant_length", "1m")
-
+        >>> print(edb_app["ant_length"])    #using getitem
         """
-        if "$" in variable_name:
-            if variable_name.index("$") == 0:
-                var_server = self.db.GetVariableServer()
-                string_message = [
-                    "Value of the project variable %s has been changed from %s to %s.",
-                    "Project variable %s doesn't exist. You can create it using the method add_design_variable.",
-                ]
-            else:
-                var_server = self.active_cell.GetVariableServer()
-                string_message = [
-                    "Value of the local variable %s has been changed from %s to %s.",
-                    "Local variable or parameter default %s doesn't exist."
-                    " You can create it using method add_design_variable.",
-                ]
-        else:
-            var_server = self.active_cell.GetVariableServer()
-            string_message = [
-                "Value of the local variable %s has been changed from %s to %s.",
-                "Local variable or parameter default %s doesn't exist."
-                " You can create it using the method add_design_variable.",
-            ]
-        variables = var_server.GetAllVariableNames()
-        if variable_name in list(variables):
-            if is_ironpython:
-                tuple_value = var_server.GetVariableValue(variable_name)
-            else:
-                out_value = self.edb.Utility.Value("")
-                tuple_value = var_server.GetVariableValue(variable_name, out_value)
-            var_server.SetVariableValue(variable_name, self.edb_value(variable_value))
-            if var_server.IsVariableParameter(variable_name):
-                string_message[0] = "Value of the parameter default %s has been changed from %s to %s."
-            self.logger.info(string_message[0], variable_name, tuple_value[1], variable_value)
-            return True, var_server
-        else:
-            self.logger.error(string_message[1], variable_name)
-            return False
+        var_server = self.variable_exists(variable_name)
+        if var_server[0]:
+            var_server[1].SetVariableValue(variable_name, self.edb_value(variable_value))
+            return True, var_server[1]
+        self.logger.error("Variable %s does not exists.", variable_name)
+        return False, var_server[1]
 
     @pyaedt_function_handler()
     def get_bounding_box(self):
@@ -2203,6 +2302,17 @@ class Edb(object):
         -------
         bool
             Either if the ports are connected to reference_name or not.
+
+        Examples
+        --------
+        >>>edb = Edb()
+        >>> edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        >>> edb.core_hfss.create_edge_port_horizontal(
+        >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
+        >>> ... )
+        >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        >>> edb.create_cutout(["Net1"])
+        >>> assert edb.are_port_reference_terminals_connected()
         """
         self.logger.reset_timer()
         if not common_reference:

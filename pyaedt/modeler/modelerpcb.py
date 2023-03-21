@@ -389,7 +389,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
                 "Type:=",
                 "Colinear",
                 "Tol:=",
-                self.arg_with_dim(tolerance),
+                self.number_with_units(tolerance),
             ]
         )
 
@@ -441,7 +441,9 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         poly = self.oeditor.GetPolygonDef(object_to_expand).GetPoints()
         pos = [poly[0].GetX(), poly[0].GetY()]
         geom_names = self.oeditor.FindObjectsByPoint(self.oeditor.Point().Set(pos[0], pos[1]), layer)
-        self.oeditor.Expand(self.arg_with_dim(size), expand_type, replace_original, ["NAME:elements", object_to_expand])
+        self.oeditor.Expand(
+            self.number_with_units(size), expand_type, replace_original, ["NAME:elements", object_to_expand]
+        )
         self.cleanup_objects()
         if not replace_original:
             new_geom_names = [

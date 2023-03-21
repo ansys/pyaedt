@@ -1273,20 +1273,20 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def _import_csv(self, file_path):
-        """Import stackup defnition from csv file.
+        """Import stackup defnition from a CSV file.
 
         Parameters
         ----------
         fpath : str
-            File path to csv or json file.
+            File path to the CSV or JSON file.
         """
         if not pd:
-            self._pedb.logger.error("Pandas is needed. Please, install it first.")
+            self._pedb.logger.error("Pandas is needed. You must install it first.")
             return False
         if os.path.splitext(file_path)[1] == ".json":
             return self._import_layer_stackup(file_path)
         if is_ironpython:
-            self._pedb.logger.error("Method working on CPython only.")
+            self._pedb.logger.error("Method works on CPython only.")
             return False
         df = pd.read_csv(file_path, index_col=0)
         prev_layer = None
@@ -1337,11 +1337,11 @@ class Stackup(object):
         Parameters
         ----------
         layers: dict
-            Dictionary contains layer information.
+            Dictionary containing layer information.
         materials: dict
-            Dictionary contains material information.
+            Dictionary containing material information.
         roughness: dict
-            Dictionary contains roughness information.
+            Dictionary containing roughness information.
         Returns
         -------
 
@@ -1473,8 +1473,8 @@ class Stackup(object):
         """Get stackup information from layout.
 
         Returns:
-        dict, dict, dict
-
+        tuple: (dict, dict, dict)
+            layers, materials, roughness_models
         """
         layers = OrderedDict()
         roughness_models = OrderedDict()
@@ -1540,11 +1540,11 @@ class Stackup(object):
         Parameters
         ----------
         file_path: str
-            Path to external xml file.
+            Path to external XML file.
         Returns
         -------
         bool
-            ``True`` when succeed ``False`` if not.
+            ``True`` when successful, ``False`` when failed.
         """
         tree = ET.parse(file_path)
         material_dict = {}
@@ -1578,16 +1578,16 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
-        """Export stackup information to an external xml file.
+        """Export stackup information to an external XMLfile.
 
         Parameters
         ----------
         file_path: str
-            Path to external xml file.
+            Path to external XML file.
         Returns
         -------
         bool
-            ``True`` when succeed ``False`` if not.
+            ``True`` when successful, ``False`` when failed.
         """
         layers, materials, roughness = self._get()
 
@@ -1623,15 +1623,16 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def import_stackup(self, file_path):
-        """Import stackup from file. File format can be xml, csv, json.
+        """Import stackup from a file. The file format can be XML, CSV, or JSON.
 
         Parameters
         ----------
         file_path : str
-            File path to stackup file.
+            Path to stackup file.
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
