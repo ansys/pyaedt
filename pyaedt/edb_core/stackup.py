@@ -11,6 +11,7 @@ import logging
 import math
 import os.path
 import warnings
+import xml.dom.minidom as md
 import xml.etree.ElementTree as ET
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
@@ -509,7 +510,6 @@ class Stackup(object):
 
         return self.layers[layer_name]
 
-    @pyaedt_function_handler
     def remove_layer(self, name):
         """Remove a layer from stackup.
 
@@ -545,23 +545,14 @@ class Stackup(object):
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
         """
-        if len(fpath.split(".")) == 1:
-            if file_format == "csv":
-                return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-            elif file_format == "xlsx":
-                return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-            elif file_format == "json":
-                return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
-            elif file_format == "xml":
-                return self._export_xml(fpath)
-        elif fpath.endswith(".csv"):
+        if fpath.endswith(".csv"):
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
         elif fpath.endswith(".xlsx"):
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
         elif fpath.endswith(".json"):
-            return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+            self._export_layer_stackup_to_json(fpath, include_material_with_layer)
         elif fpath.endswith(".xml"):
-            return self._export_xml(fpath)
+            self._export_xml(fpath)
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
@@ -1228,7 +1219,6 @@ class Stackup(object):
         temp_data = {name: area / outline_area * 100 for name, area in temp_data.items()}
         return temp_data
 
-    @pyaedt_function_handler
     def _import_json(self, file_path):
         if file_path:
             f = open(file_path)
@@ -1273,7 +1263,6 @@ class Stackup(object):
                             self.stackup_layers[layer["name"]]._load_layer(layer)
             return True
 
-    @pyaedt_function_handler
     def _import_csv(self, file_path):
         """Import stackup defnition from csv file.
 
@@ -1332,7 +1321,6 @@ class Stackup(object):
                 self.remove_layer(name)
         return True
 
-    @pyaedt_function_handler
     def _set(self, layers=None, materials=None, roughness=None):
         """Update stackup information.
 
@@ -1466,7 +1454,6 @@ class Stackup(object):
                     )
         return True
 
-    @pyaedt_function_handler
     def _get(self):
         """Get stackup information from layout.
 
@@ -1530,7 +1517,6 @@ class Stackup(object):
 
         return layers, materials, roughness_models
 
-    @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
 
@@ -1572,7 +1558,6 @@ class Stackup(object):
 
         return self._set(layer_dict, material_dict, roughness_dict)
 
-    @pyaedt_function_handler
     def _export_xml(self, file_path):
         """Export stackup information to an external xml file.
 
@@ -1600,6 +1585,7 @@ class Stackup(object):
                 value = ET.SubElement(mat_prop, "Double")
                 value.text = str(pval)
 
+        layers = OrderedDict(reversed(list(layers.items())))
         el_layers = ET.SubElement(el_stackup, "Layers")
         for lyr, val in layers.items():
             layer = ET.SubElement(el_layers, "Layer")
@@ -1609,12 +1595,17 @@ class Stackup(object):
             layer.attrib.update(val)
 
         for lyr, val in roughness.items():
-            el = el_layers.find("./Layer[@Name='{}']".format(lyr))
+            el = el_layers.find(f"./Layer[@Name='{lyr}']")
             for pname, pval in val.items():
                 pval = {i: str(j) for i, j in pval.items()}
                 ET.SubElement(el, pname, pval)
 
-        write_pretty_xml(root, file_path)
+        xml_string = ET.tostring(root, encoding="utf8", method="xml").decode()
+        xml_dom = md.parseString(xml_string)
+        pretty_xml_string = xml_dom.toprettyxml(indent="  ").replace("ns0", "c")
+
+        with open(file_path, "w") as f:
+            f.write(pretty_xml_string)
         return True
 
     @pyaedt_function_handler
