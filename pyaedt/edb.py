@@ -2352,6 +2352,7 @@ class Edb(object):
         """
         return SimulationConfiguration(filename, self)
 
+    @pyaedt_function_handler()
     @property
     def setups(self):
         """Get the dictionary of all EDB HFSS and SIwave setups.
@@ -2373,6 +2374,7 @@ class Edb(object):
                     self._setups[i.GetName()] = SiwaveDCSimulationSetup(self, i.GetName(), i)
         return self._setups
 
+    @pyaedt_function_handler()
     @property
     def hfss_setups(self):
         """Active HFSS setup in EDB.
@@ -2384,6 +2386,7 @@ class Edb(object):
         """
         return {i.name: i for i in self.setups if i.setup_type == "kHFSS"}
 
+    @pyaedt_function_handler()
     @property
     def siwave_dc_setups(self):
         """Active Siwave DC IR Setups.
@@ -2394,6 +2397,7 @@ class Edb(object):
         """
         return {i.name: i for i in self.setups if i.setup_type == "kSIWave"}
 
+    @pyaedt_function_handler()
     @property
     def siwave_ac_setups(self):
         """Active Siwave SYZ setups.
@@ -2404,6 +2408,7 @@ class Edb(object):
         """
         return {i.name: i for i in self.setups if i.setup_type == "kSIWaveDCIR"}
 
+    @pyaedt_function_handler()
     def create_hfss_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2427,6 +2432,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_syz_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2456,6 +2462,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2481,3 +2488,8 @@ class Edb(object):
         setup = SiwaveDCSimulationSetup(self, name)
         self._setups[name] = setup
         return setup
+
+    def create_soldermask_opening(self, component_refdes=None):
+        if isinstance(component_refdes, list):
+            pass
+        #self.core_components.components[]
