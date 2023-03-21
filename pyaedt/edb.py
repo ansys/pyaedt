@@ -2019,7 +2019,7 @@ class Edb(object):
 
         Parameters
         ----------
-        variable_name
+        variable_name : str
 
         Returns
         -------
