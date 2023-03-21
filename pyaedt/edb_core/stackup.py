@@ -1266,11 +1266,11 @@ class Stackup(object):
     def _import_csv(self, file_path):
         """Import stackup defnition from csv file.
 
-                Parameters
-                ----------
-                fpath : str
-                    File path to csv or json file.
-                """
+        Parameters
+        ----------
+        fpath : str
+            File path to csv or json file.
+        """
         if not pd:
             self._pedb.logger.error("Pandas is needed. Please, install it first.")
             return False
@@ -1410,7 +1410,7 @@ class Stackup(object):
                         "huray",
                         attr[attr_name]["NoduleRadius"],
                         attr[attr_name]["HallHuraySurfaceRatio"],
-                        apply_on_surface=on_surface
+                        apply_on_surface=on_surface,
                     )
 
                 attr_name = "HurayBottomSurfaceRoughness"
@@ -1420,7 +1420,7 @@ class Stackup(object):
                         "huray",
                         attr[attr_name]["NoduleRadius"],
                         attr[attr_name]["HallHuraySurfaceRatio"],
-                        apply_on_surface=on_surface
+                        apply_on_surface=on_surface,
                     )
                 attr_name = "HuraySideSurfaceRoughness"
                 if attr_name in attr:
@@ -1429,34 +1429,28 @@ class Stackup(object):
                         "huray",
                         attr[attr_name]["NoduleRadius"],
                         attr[attr_name]["HallHuraySurfaceRatio"],
-                        apply_on_surface=on_surface
+                        apply_on_surface=on_surface,
                     )
 
                 attr_name = "GroissSurfaceRoughness"
                 if attr_name in attr:
                     on_surface = "top"
                     layer.assign_roughness_model(
-                        "groisse",
-                        groisse_roughness=attr[attr_name]["Roughness"],
-                        apply_on_surface=on_surface
+                        "groisse", groisse_roughness=attr[attr_name]["Roughness"], apply_on_surface=on_surface
                     )
 
                 attr_name = "GroissBottomSurfaceRoughness"
                 if attr_name in attr:
                     on_surface = "bottom"
                     layer.assign_roughness_model(
-                        "groisse",
-                        groisse_roughness=attr[attr_name]["Roughness"],
-                        apply_on_surface=on_surface
+                        "groisse", groisse_roughness=attr[attr_name]["Roughness"], apply_on_surface=on_surface
                     )
 
                 attr_name = "GroissSideSurfaceRoughness"
                 if attr_name in attr:
                     on_surface = "side"
                     layer.assign_roughness_model(
-                        "groisse",
-                        groisse_roughness=attr[attr_name]["Roughness"],
-                        apply_on_surface=on_surface
+                        "groisse", groisse_roughness=attr[attr_name]["Roughness"], apply_on_surface=on_surface
                     )
         return True
 
@@ -1483,9 +1477,7 @@ class Stackup(object):
                 roughness_models[name] = {}
                 model = val.get_roughness_model("top")
                 if model.ToString().endswith("GroissRoughnessModel"):
-                    roughness_models[name]["GroissSurfaceRoughness"] = {
-                        "Roughness": model.get_Roughness().ToDouble()
-                    }
+                    roughness_models[name]["GroissSurfaceRoughness"] = {"Roughness": model.get_Roughness().ToDouble()}
                 else:
                     roughness_models[name]["HuraySurfaceRoughness"] = {
                         "HallHuraySurfaceRatio": model.get_NoduleRadius().ToDouble(),
@@ -1580,7 +1572,7 @@ class Stackup(object):
         """
         layers, materials, roughness = self._get()
 
-        root = ET.Element('{http://www.ansys.com/control}Control', attrib={'schemaVersion': '1.0'})
+        root = ET.Element("{http://www.ansys.com/control}Control", attrib={"schemaVersion": "1.0"})
 
         el_stackup = ET.SubElement(root, "Stackup", {"schemaVersion": "1.0"})
 
@@ -1608,11 +1600,11 @@ class Stackup(object):
                 pval = {i: str(j) for i, j in pval.items()}
                 ET.SubElement(el, pname, pval)
 
-        xml_string = ET.tostring(root, encoding='utf8', method='xml').decode()
+        xml_string = ET.tostring(root, encoding="utf8", method="xml").decode()
         xml_dom = md.parseString(xml_string)
-        pretty_xml_string = xml_dom.toprettyxml(indent='  ').replace("ns0", "c")
+        pretty_xml_string = xml_dom.toprettyxml(indent="  ").replace("ns0", "c")
 
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             f.write(pretty_xml_string)
         return True
 
