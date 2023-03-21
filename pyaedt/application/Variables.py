@@ -1535,7 +1535,7 @@ class Variable(object):
         Returns
         -------
         tuples
-            tuples made of the float value of the variable and the units exposed as a string.
+            The float value of the variable and the units exposed as a string.
 
         Examples
         --------
