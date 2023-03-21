@@ -41,11 +41,12 @@ class HDMPlotter(CommonPlotter):
         return False
 
     @pyaedt_function_handler()
-    def add_hdm_bundle_from_file(self, filename):
+    def add_hdm_bundle_from_file(self, filename, units=None):
         from pyaedt.sbrplus.hdm_parser import Parser
 
         if os.path.exists(filename):
             self._bundle = Parser(filename=filename).parse_message()
+            self._bundle_units = units
             print("File Letto")
 
     @pyaedt_function_handler()
@@ -87,7 +88,21 @@ class HDMPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def plot_rays(self, snapshot_path=None):
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        """Plot Rays read from an ``hdm`` file.
+
+        Parameters
+        ----------
+        snapshot_path : str, optional
+            Full path to exported image file. If ``None`` the plot will be shown.
+
+        Returns
+        -------
+        :class:`pyvista.Plotter`
+        """
+        if snapshot_path:
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
+        else:
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
 
         self._add_objects()
         points, lines, depths = self._add_rays()
@@ -128,6 +143,17 @@ class HDMPlotter(CommonPlotter):
 
     @pyaedt_function_handler()
     def plot_first_bounce_currents(self, snapshot_path=None):
+        """Plot First bounce of currents read from an ``hdm`` file.
+
+        Parameters
+        ----------
+        snapshot_path : str, optional
+            Full path to exported image file. If ``None`` the plot will be shown.
+
+        Returns
+        -------
+        :class:`pyvista.Plotter`
+        """
         currents = self._first_bounce_currents()
         points = []
         faces = []
@@ -138,14 +164,17 @@ class HDMPlotter(CommonPlotter):
                 points.extend([np.frombuffer(thisfpt) for thisfpt in fpt])
 
             colors.append(10 * math.log10(np.linalg.norm(value)))
-        self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+        if snapshot_path:
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
+        else:
+            self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=self.off_screen, window_size=self.windows_size)
+
         self._add_objects()
         try:
             conv = 1 / AEDT_UNITS["Length"][self.units]
         except:
             conv = 1
         points = [i * conv for i in points]
-        depth1 = pv.PolyData(points, lines=lines)
         fb = pv.PolyData(points, faces=faces)
         fbActor = self.pv.add_mesh(fb, scalars=colors)
         if snapshot_path:

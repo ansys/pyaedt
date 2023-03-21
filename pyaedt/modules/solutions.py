@@ -3204,7 +3204,7 @@ class VRTFieldPlot:
         self.incident_theta = "0deg"
         self.incident_phi = "0deg"
         self.vertical_polarization = False
-        self.customlocation = [0, 0, 0]
+        self.custom_location = [0, 0, 0]
         self.ray_box = None
         self.ray_elevation = "0deg"
         self.ray_azimuth = "0deg"
@@ -3304,7 +3304,7 @@ class VRTFieldPlot:
             args.append("CustomLocationCoordSystem:=")
             args.append(self.custom_coordinatesystem)
             args.append("CustomLocation:=")
-            args.append(self.customlocation)
+            args.append(self.custom_location)
         return args
 
     @pyaedt_function_handler()
@@ -3326,7 +3326,7 @@ class VRTFieldPlot:
             "SampleDensity:=",
             self.sample_density,
             "RayCutOff:=",
-            self.RayCutOff,
+            self.ray_cutoff,
             "Irregular Surface Tolerance:=",
             self.irregular_surface_tolerance,
             "LaunchFrom:=",
@@ -3346,9 +3346,9 @@ class VRTFieldPlot:
             args.append("CustomLocationCoordSystem:=")
             args.append(self.custom_coordinatesystem)
             args.append("CustomLocation:=")
-            args.append(self.customlocation)
-        self.args.append("SBRRayDensity:=")
-        self.args.append(self.ray_density)
+            args.append(self.custom_location)
+        args.append("SBRRayDensity:=")
+        args.append(self.ray_density)
         return args
 
     @pyaedt_function_handler()
@@ -3394,7 +3394,7 @@ class VRTFieldPlot:
     def delete(self):
         """Delete the field plot."""
         self._ofield.DeleteFieldPlot([self.name])
-        self._postprocessor.field_plots.pop(self.name, None)
+        return True
 
     @pyaedt_function_handler()
     def export(self, path_to_hdm_file=None):
@@ -3414,106 +3414,3 @@ class VRTFieldPlot:
             path_to_hdm_file = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")
         self._ofield.ExportFieldPlot(self.name, False, path_to_hdm_file)
         return path_to_hdm_file
-
-    @pyaedt_function_handler()
-    def export_image(self, full_path=None, width=1920, height=1080, orientation="isometric", display_wireframe=True):
-        """Export the active plot to an image file.
-
-        .. note::
-           There are some limitations on HFSS 3D Layout plots.
-
-        full_path : str, optional
-            Path for saving the image file. PNG and GIF formats are supported.
-            The default is ``None`` which export file in working_directory.
-        width : int, optional
-            Plot Width.
-        height : int, optional
-            Plot height.
-        orientation : str, optional
-            View of the exported plot. Options are ``isometric``,
-            ``top``, ``bottom``, ``right``, ``left``, ``front``,
-            ``back``, and any custom orientation.
-        display_wireframe : bool, optional
-            Set to ``True`` if the objects has to be put in wireframe mode.
-
-        Returns
-        -------
-        str
-            Full path to exported file if successful.
-
-        References
-        ----------
-
-        >>> oModule.ExportPlotImageToFile
-        >>> oModule.ExportModelImageToFile
-        >>> oModule.ExportPlotImageWithViewToFile
-        """
-        self._ofield.UpdateQuantityFieldsPlots(self.plot_folder)
-        if not full_path:
-            full_path = os.path.join(self._postprocessor._app.working_directory, self.name + ".png")
-        status = self._postprocessor.export_field_jpg(
-            full_path,
-            self.name,
-            self.plot_folder,
-            orientation=orientation,
-            width=width,
-            height=height,
-            display_wireframe=display_wireframe,
-        )
-        if status:
-            return full_path
-        else:
-            return False
-
-    @pyaedt_function_handler()
-    def export_image_from_aedtplt(
-        self, export_path=None, view="isometric", plot_mesh=False, scale_min=None, scale_max=None
-    ):
-        """Save an image of the active plot using PyVista.
-
-        .. note::
-            This method only works if the CPython with PyVista module is installed.
-
-        Parameters
-        ----------
-        export_path : str, optional
-            Path where image will be saved.
-            The default is ``None`` which export file in working_directory.
-        view : str, optional
-           View to export. Options are ``"isometric"``, ``"xy"``, ``"xz"``, ``"yz"``.
-        plot_mesh : bool, optional
-            Plot mesh.
-        scale_min : float, optional
-            Scale output min.
-        scale_max : float, optional
-            Scale output max.
-
-        Returns
-        -------
-        str
-            Full path to exported file if successful.
-
-        References
-        ----------
-
-        >>> oModule.UpdateAllFieldsPlots
-        >>> oModule.UpdateQuantityFieldsPlots
-        >>> oModule.ExportFieldPlot
-        """
-        if not export_path:
-            export_path = self._postprocessor._app.working_directory
-        if sys.version_info.major > 2:
-            return self._postprocessor.plot_field_from_fieldplot(
-                self.name,
-                project_path=export_path,
-                meshplot=plot_mesh,
-                imageformat="jpg",
-                view=view,
-                plot_label=self.quantity_name,
-                show=False,
-                scale_min=scale_min,
-                scale_max=scale_max,
-            )
-        else:
-            self._postprocessor.logger.info("This method works only on CPython with PyVista")
-            return False

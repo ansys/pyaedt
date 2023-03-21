@@ -6083,6 +6083,18 @@ class Hfss(FieldAnalysis3D, object):
 
     @pyaedt_function_handler()
     def get_hdm_plotter(self, filename=None):
+        """Get the ``HDMPlotter``.
+
+        Parameters
+        ----------
+        filename : str, optional
+
+
+        Returns
+        -------
+        :class:`pyaedt.sbrplus.plot.HDMPlotter`
+
+        """
         from pyaedt.sbrplus.plot import HDMPlotter
 
         hdm = HDMPlotter()

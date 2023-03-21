@@ -214,3 +214,47 @@ class TestClass(BasisTest, object):
             export_image_path=os.path.join(self.local_scratch.path, "3d2_array.jpg"),
         )
         assert os.path.exists(os.path.join(self.local_scratch.path, "3d2_array.jpg"))
+
+    def test_14_create_vrt(self):
+        self.aedtapp.insert_design("vtr")
+        self.aedtapp.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        vrt = self.aedtapp.post.create_sbr_plane_visual_ray_tracing(max_frequency="10GHz", incident_theta="40deg")
+        assert vrt
+        vrt.incident_phi = "30deg"
+        assert vrt.update()
+        assert vrt.delete()
+        vrt = self.aedtapp.post.create_sbr_point_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.custom_location = [10, 10, 0]
+        assert vrt.update()
+        assert vrt.delete()
+
+    def test_15_create_vrt_creeping(self):
+        self.aedtapp.insert_design("vtr_creeping")
+        self.aedtapp.modeler.create_sphere([10, 10, 10], 5, matname="copper")
+        vrt = self.aedtapp.post.create_creeping_wave_planar_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.incident_phi = "30deg"
+        assert vrt.update()
+        assert vrt.delete()
+        vrt = self.aedtapp.post.create_creeping_wave_point_visual_ray_tracing(max_frequency="10GHz")
+        assert vrt
+        vrt.custom_location = [10, 10, 0]
+        assert vrt.update()
+        assert vrt.delete()
+
+    @pytest.mark.skipif(is_ironpython, reason="feature supported in Cpython")
+    def test_16_read_hdm(self):
+        self.aedtapp.insert_design("hdm")
+        hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")
+        stl_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_ship.stl")
+        self.aedtapp.modeler.model_units = "meter"
+        self.aedtapp.modeler.import_3d_cad(stl_path)
+        assert self.aedtapp.parse_hdm_file(hdm_path)
+        plotter = self.aedtapp.get_hdm_plotter(hdm_path)
+        assert plotter
+        plotter.plot_first_bounce_currents(os.path.join(self.local_scratch.path, "bounce1.jpg"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "bounce1.jpg"))
+        assert plotter
+        plotter.plot_rays(os.path.join(self.local_scratch.path, "bounce2.jpg"))
+        assert os.path.exists(os.path.join(self.local_scratch.path, "bounce2.jpg"))
