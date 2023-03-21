@@ -1,13 +1,13 @@
 classdef HdmObject < handle
 % HDMOBJECT is a generic handle container for the contents of an 'object'
-% within a Heterogenous Data Message (HDM).
+% within a Heterogeneous Data Message (HDM).
 %
 % HDMOBJECT contains a single property, hdmObj, a public structure. The
 % structure fields of hdmObj are not predefined and are determined entirely
 % by the requirements of the HDM object that HDMOBJECT mirrors. Since a
 % given HDM builds up data types and then objects from the fundamental types
 % of 'int', 'float', 'complex', 'enum', and 'flag', the fields of the hdmObj
-% can thus also be intergers, real floats, complex floats, and logicals,
+% can thus also be integers, real floats, complex floats, and logicals,
 % though details of this can vary, depending upon how the mirroring is
 % implemented outside of HDMOBJECT. HDMOBJECT was originally built to support
 % ld_sbrplushdm().

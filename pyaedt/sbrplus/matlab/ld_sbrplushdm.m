@@ -199,9 +199,9 @@ function matlab_data = pydict2struct_recursive(python_data)
   if isequal(python_data, py.dict)
     matlab_data = struct(python_data);
     fields = fieldnames(matlab_data);
-    for iif = 1:length(fields)
-      matlab_data.(fields{iif}) = ...
-        pydict2struct_recursive(matlab_data.(fields{iif}));
+    for ifld = 1:length(fields)
+      matlab_data.(fields{ifld}) = ...
+        pydict2struct_recursive(matlab_data.(fields{ifld}));
     end
     if isfield(matlab_data, 'field_names') && ~isfield(matlab_data, 'optional')
       matlab_data.optional = [];
@@ -359,7 +359,7 @@ function content = parse_array(fid, grammar, typename, base, size)
     % underlying type
     content = transpose(parse_basic(fid, grammar, base, size));
   else % list
-    % returns a matrix if the base type is a vector, a colum vector
+    % returns a matrix if the base type is a vector, a column vector
     % if the base type is a basic type or struct
     if strcmp(grammar.header.types.(base).type, 'vector')
         % each vector instance corresponds to a row
@@ -443,7 +443,7 @@ function start_prog_monitor(showProg,fname,progPeriod,minFileSize)
 % launch the load progress monitor
 %
 % Creates a timer that calls a callback function at regular time intervals
-% to report file load progress. Supports either a grapical progress bar
+% to report file load progress. Supports either a graphical progress bar
 % or text output to console.
 %
 % Input Params:

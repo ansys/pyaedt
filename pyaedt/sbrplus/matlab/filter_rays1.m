@@ -282,7 +282,7 @@ end
   %
   % If rb is not a leaf bounce, does nothing. Assumes draw-branch flag
   % of rb was initialized to false. If the conditions for drawing the
-  % branch are not satisified by leaf-bounce rb, then this method makes
+  % branch are not satisfied by leaf-bounce rb, then this method makes
   % no change to its draw-branch flag or that of its ancestors.
   %
   % Serves as push or pop function callable from recurse_track.
@@ -501,7 +501,7 @@ end
 bundle = rayhdm.hdm;  % HdmObject
 Ntrack = length(bundle.hdmObj.ray_tracks);
 
-% build the (parital) structure of a bounce object to serve as the source
+% build the (partial) structure of a bounce object to serve as the source
 % "bounce" parent of each first_bounce HdmObject among the ray tracks
 %
 % Introducing a source "bounce" this way simplifies the code logic of other
@@ -543,7 +543,7 @@ for itrack = 1:Ntrack
   % - the ray bundle has not already been filtered by filter_rays1(),
   %   which will often be the case
   %
-  % - inspite of the ray bundle already having been filtered by filter_rays1(),
+  % - in spite of the ray bundle already having been filtered by filter_rays1(),
   %   the ray track somehow does not have a .source_bounce field, which is
   %   not expected
   addSrcBnc = ~alreadyFiltered || ...

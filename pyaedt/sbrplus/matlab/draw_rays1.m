@@ -336,7 +336,7 @@ if doFldClr
   end
 end
 
-% define the ray color pallette, an ordered list of colors
+% define the ray color palette, an ordered list of colors
 %
 % When accessing rayClrs, the first color in the list should correspond
 % to index = 0, so we need to make an index adjustment for MATLAB
@@ -756,7 +756,7 @@ segsY = [];   % 2xN Y-values ...
 segsZ = [];   % 2xN Z-values ...
 segClrs = []; % Nx3 RGB colors of ray track segments
 fptVrts = []; % 3Nx3 footprint vertices, 3 rows per footprint
-fptClrs = []; % Nx3 footprint RGB colors or Nx1 fpt color data
+fptClrs = []; % Nx3 footprint RGB colors or Nx1 footprint color data
 bncFld = [];  % temp var shared by functions called by fld_clrdat
 
 % assign the color function that is called during ray track tree recursion
@@ -854,11 +854,11 @@ end  % doFldClr
 figure;
 for itrack = idxTrack
   % Descend the ray-track tree, starting from the "source bounce", an
-  % artifical bounce introduced by filter_rays1() to simplify post-proc code
+  % artificial bounce introduced by filter_rays1() to simplify post-proc code
   % logic. The first bounce is encoded as a originating from a REFLECTION
   % off the "source bounce", which is an entirely arbitrary and ad hoc
   % crow-barring into the existing ray-track framework. If ray track
-  % is UTD, then filter_rays1() introduces an artifical bounce for the
+  % is UTD, then filter_rays1() introduces an artificial bounce for the
   % UTD diffraction point, and it goes between the source bounce and the
   % first bounce.
   %
