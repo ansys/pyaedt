@@ -1,6 +1,7 @@
 from collections import defaultdict
 import math
 import os
+import warnings
 
 import numpy as np
 import pyvista as pv
@@ -12,7 +13,12 @@ from pyaedt.generic.plot import ObjClass
 
 
 class HDMPlotter(CommonPlotter):
-    """Manages Hdm data to be plotted with ``pyvista``."""
+    """
+    Manages Hdm data to be plotted with ``pyvista``.
+
+    Note: the methods in this class are just examples and subject
+    to improvement and changes.
+    """
 
     def __init__(self):
         CommonPlotter.__init__(self)
@@ -52,7 +58,6 @@ class HDMPlotter(CommonPlotter):
         if os.path.exists(filename):
             self._bundle = Parser(filename=filename).parse_message()
             self._bundle_units = units
-            print("File Letto")
 
     @pyaedt_function_handler()
     def _add_rays(self):
@@ -166,6 +171,7 @@ class HDMPlotter(CommonPlotter):
         -------
         :class:`pyvista.Plotter`
         """
+        warnings.warn("This method is intended to be an example of the usage that can be made of hdm file.")
         currents = self._first_bounce_currents()
         points = []
         faces = []
