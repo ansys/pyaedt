@@ -22,7 +22,25 @@ pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_
 python_exe = r"##IPYTHON_EXE##" % version
 pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
 if os.name =="posix":
+    terminals = ['x-terminal-emulator', 'xterm', 'gnome-terminal', 'konsole', 'lxterminal', 'mlterm']
+    term = None
+    for terminal in terminals:
+        p = subprocess.Popen(['which',terminal], stdout=subprocess.PIPE)
+        output = p.stdout.readlines()
+        if "which: no" in output or output == []:
+            continue
+        else:
+            term = terminal
+            break
+    if not term:
+        oDesktop.AddMessage("", "", 2, "No Terminals found.")
+        sys.exit()
+    em_var = "ANSYSEM_ROOT{}".format(version)
+    os.environ[em_var]= oDesktop.GetExeDir()
+
     command = [
+            term,
+            "-e",
             '{}'.format(python_exe),
             "-i",
             '{}'.format(pyaedt_script),
