@@ -1322,6 +1322,20 @@ class Stackup(object):
         return True
 
     def _set(self, layers=None, materials=None, roughness=None):
+        """Update stackup information.
+
+        Parameters
+        ----------
+        layers: dict
+            Dictionary contains layer information.
+        materials: dict
+            Dictionary contains material information.
+        roughness: dict
+            Dictionary contains roughness information.
+        Returns
+        -------
+
+        """
         if layers:
             prev_layer = None
             for name, val in layers.items():
@@ -1447,22 +1461,11 @@ class Stackup(object):
         return True
 
     def _get(self):
-        """
-
+        """Get stackup information from layout.
 
         Returns:
-        layers = {"TOP":
-        {'Material': 'COPPER', 'Name': 'TOP', 'Thickness': 4.826e-05, 'Type': 'signal', 'FillMaterial': 'TOP_FILL'}}
+        dict, dict, dict
 
-        materials = {
-        "copper": {'Conductivity': 59590000.0},
-        "FR-4", {'Permittivity': 3.86, 'DielectricLossTangent': 0.024}
-        }
-
-        roughness_models = {"TOP":
-        {'HuraySurfaceRoughness': {'HallHuraySurfaceRatio': 5e-07, 'NoduleRadius': 2.9},
-        'HurayBottomSurfaceRoughness': {'HallHuraySurfaceRatio': 5e-07, 'NoduleRadius': 2.9},
-        'HuraySideSurfaceRoughness': {'HallHuraySurfaceRatio': 5e-07, 'NoduleRadius': 2.9}}}
         """
         layers = OrderedDict()
         roughness_models = OrderedDict()
@@ -1523,6 +1526,17 @@ class Stackup(object):
         return layers, materials, roughness_models
 
     def _import_xml(self, file_path):
+        """Read external xml file and update stackup.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to external xml file.
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` if not.
+        """
         tree = ET.parse(file_path)
         material_dict = {}
         layer_dict = {}
@@ -1553,6 +1567,17 @@ class Stackup(object):
         return self._set(layer_dict, material_dict, roughness_dict)
 
     def _export_xml(self, file_path):
+        """Export stackup information to an external xml file.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to external xml file.
+        Returns
+        -------
+        bool
+            ``True`` when succeed ``False`` if not.
+        """
         layers, materials, roughness = self._get()
 
         root = ET.Element('{http://www.ansys.com/control}Control', attrib={'schemaVersion': '1.0'})
@@ -1593,7 +1618,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def import_stackup(self, file_path):
-        """Import stackup from file.
+        """Import stackup from file. File format can be xml, csv, json.
 
         Parameters
         ----------
