@@ -205,7 +205,8 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
-        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or design variable.
+        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or
+        it can be a design variable, in which case the ``$`` is omitted.
 
         Parameters
         ----------
@@ -1995,7 +1996,7 @@ class Edb(object):
         Returns
         -------
         tuple of bool and VaribleServer
-            It returns a booleand to check if the variable exists and the variable
+            It returns a Boolean to check if the variable exists and the variable
             server that should contain the variable.
         """
         if "$" in variable_name:
@@ -2019,7 +2020,7 @@ class Edb(object):
 
         Parameters
         ----------
-        variable_name
+        variable_name : str
 
         Returns
         -------
