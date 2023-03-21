@@ -163,10 +163,10 @@ class HDMPlotter(CommonPlotter):
         points = []
         faces = []
         colors = []
-        for fpt, value in currents.items():
+        for f, value in currents.items():
             faces.extend([3, *(len(points) + i for i in range(3))])
             for _ in range(3):
-                points.extend([np.frombuffer(thisfpt) for thisfpt in fpt])
+                points.extend([np.frombuffer(thisfpt) for thisfpt in f])
 
             colors.append(10 * math.log10(np.linalg.norm(value)))
         if snapshot_path:
