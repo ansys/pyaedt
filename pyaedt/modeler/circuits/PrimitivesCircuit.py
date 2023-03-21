@@ -1155,7 +1155,7 @@ class CircuitComponents(object):
             val = Value
         else:
             if sUnits is None:
-                sUnits = self.model_units
+                sUnits = self.schematic_units
             val = "{0}{1}".format(Value, sUnits)
 
         return val
