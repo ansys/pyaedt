@@ -1691,6 +1691,12 @@ class TestClass(BasisTest, object):
         export_stackup_path = os.path.join(self.local_scratch.path, "export_galileo_stackup.csv")
         assert edbapp.stackup.export_stackup(export_stackup_path)
         assert os.path.exists(export_stackup_path)
+
+        assert edbapp.stackup.import_stackup(
+            os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml")
+        )
+        xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
+        assert edbapp.stackup._export_xml(xml_export)
         edbapp.close_edb()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")

@@ -11,12 +11,15 @@ import logging
 import math
 import os.path
 import warnings
+import xml.dom.minidom as md
+import xml.etree.ElementTree as ET
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
 from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
+
 
 pd = None
 np = None
@@ -542,10 +545,14 @@ class Stackup(object):
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
         """
-        if file_format.lower() in ["csv", "xlsx"]:
+        if fpath.endswith(".csv"):
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-        elif file_format.lower() == "json":
+        elif fpath.endswith(".xlsx"):
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+        elif fpath.endswith(".json"):
             self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+        elif fpath.endswith(".xml"):
+            self._export_xml(fpath)
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
@@ -1437,9 +1444,85 @@ class Stackup(object):
                         groisse_roughness=attr[attr_name]["Roughness"],
                         apply_on_surface=on_surface
                     )
+        return True
+
+    def _get(self):
+        """
+
+
+        Returns:
+        layers = {"TOP":
+        {'Material': 'COPPER', 'Name': 'TOP', 'Thickness': 4.826e-05, 'Type': 'signal', 'FillMaterial': 'TOP_FILL'}}
+
+        materials = {
+        "copper": {'Conductivity': 59590000.0},
+        "FR-4", {'Permittivity': 3.86, 'DielectricLossTangent': 0.024}
+        }
+
+        roughness_models = {"TOP":
+        {'HuraySurfaceRoughness': {'HallHuraySurfaceRatio': 5e-07, 'NoduleRadius': 2.9},
+        'HurayBottomSurfaceRoughness': {'HallHuraySurfaceRatio': 5e-07, 'NoduleRadius': 2.9},
+        'HuraySideSurfaceRoughness': {'HallHuraySurfaceRatio': 5e-07, 'NoduleRadius': 2.9}}}
+        """
+        layers = OrderedDict()
+        roughness_models = OrderedDict()
+        for name, val in self.stackup_layers.items():
+            layer = {}
+            layer["Material"] = val.material
+            layer["Name"] = val.name
+            layer["Thickness"] = val.thickness
+            layer["Type"] = val.type
+            if not val.type == "dielectric":
+                layer["FillMaterial"] = val.dielectric_fill
+            layers[name] = layer
+
+            if val.roughness_enabled:
+                roughness_models[name] = {}
+                model = val.get_roughness_model("top")
+                if model.ToString().endswith("GroissRoughnessModel"):
+                    roughness_models[name]["GroissSurfaceRoughness"] = {
+                        "Roughness": model.get_Roughness().ToDouble()
+                    }
+                else:
+                    roughness_models[name]["HuraySurfaceRoughness"] = {
+                        "HallHuraySurfaceRatio": model.get_NoduleRadius().ToDouble(),
+                        "NoduleRadius": model.get_SurfaceRatio().ToDouble(),
+                    }
+                model = val.get_roughness_model("bottom")
+                if model.ToString().endswith("GroissRoughnessModel"):
+                    roughness_models[name]["GroissBottomSurfaceRoughness"] = {
+                        "Roughness": model.get_Roughness().ToDouble()
+                    }
+                else:
+                    roughness_models[name]["HurayBottomSurfaceRoughness"] = {
+                        "HallHuraySurfaceRatio": model.get_NoduleRadius().ToDouble(),
+                        "NoduleRadius": model.get_SurfaceRatio().ToDouble(),
+                    }
+                model = val.get_roughness_model("side")
+                if model.ToString().endswith("GroissRoughnessModel"):
+                    roughness_models[name]["GroissSideSurfaceRoughness"] = {
+                        "Roughness": model.get_Roughness().ToDouble()
+                    }
+                else:
+                    roughness_models[name]["HuraySideSurfaceRoughness"] = {
+                        "HallHuraySurfaceRatio": model.get_NoduleRadius().ToDouble(),
+                        "NoduleRadius": model.get_SurfaceRatio().ToDouble(),
+                    }
+
+        materials = {}
+        for name, val in self._pedb.materials.materials.items():
+            material = {}
+            if val.conductivity:
+                if val.conductivity > 4e7:
+                    material["Conductivity"] = val.conductivity
+            else:
+                material["Permittivity"] = val.permittivity
+                material["DielectricLossTangent"] = val.loss_tangent
+            materials[name] = material
+
+        return layers, materials, roughness_models
 
     def _import_xml(self, file_path):
-        import xml.etree.ElementTree as ET
         tree = ET.parse(file_path)
         material_dict = {}
         layer_dict = {}
@@ -1467,7 +1550,46 @@ class Stackup(object):
             if list(l):
                 roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
 
-        self._set(layer_dict, material_dict, roughness_dict)
+        return self._set(layer_dict, material_dict, roughness_dict)
+
+    def _export_xml(self, file_path):
+        layers, materials, roughness = self._get()
+
+        root = ET.Element('{http://www.ansys.com/control}Control', attrib={'schemaVersion': '1.0'})
+
+        el_stackup = ET.SubElement(root, "Stackup", {"schemaVersion": "1.0"})
+
+        el_materials = ET.SubElement(el_stackup, "Materials")
+        for mat, val in materials.items():
+            material = ET.SubElement(el_materials, "Material")
+            material.set("Name", mat)
+            for pname, pval in val.items():
+                mat_prop = ET.SubElement(material, pname)
+                value = ET.SubElement(mat_prop, "Double")
+                value.text = str(pval)
+
+        layers = OrderedDict(reversed(list(layers.items())))
+        el_layers = ET.SubElement(el_stackup, "Layers")
+        for lyr, val in layers.items():
+            layer = ET.SubElement(el_layers, "Layer")
+            val = {i: str(j) for i, j in val.items()}
+            if val["Type"] == "signal":
+                val["Type"] = "conductor"
+            layer.attrib.update(val)
+
+        for lyr, val in roughness.items():
+            el = el_layers.find(f"./Layer[@Name='{lyr}']")
+            for pname, pval in val.items():
+                pval = {i: str(j) for i, j in pval.items()}
+                ET.SubElement(el, pname, pval)
+
+        xml_string = ET.tostring(root, encoding='utf8', method='xml').decode()
+        xml_dom = md.parseString(xml_string)
+        pretty_xml_string = xml_dom.toprettyxml(indent='  ').replace("ns0", "c")
+
+        with open(file_path, 'w') as f:
+            f.write(pretty_xml_string)
+        return True
 
     @pyaedt_function_handler
     def import_stackup(self, file_path):
