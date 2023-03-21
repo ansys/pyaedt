@@ -1337,11 +1337,11 @@ class Stackup(object):
         Parameters
         ----------
         layers: dict
-            Dictionary contains layer information.
+            Dictionary containing layer information.
         materials: dict
-            Dictionary contains material information.
+            Dictionary containing material information.
         roughness: dict
-            Dictionary contains roughness information.
+            Dictionary containing roughness information.
         Returns
         -------
 
