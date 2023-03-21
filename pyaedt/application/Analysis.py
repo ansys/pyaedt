@@ -1616,6 +1616,7 @@ class Analysis(Design, object):
             Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
             Number of simulation tasks. Default is ``1``.
+            In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
         num_gpu : int, optional
             Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
@@ -1825,7 +1826,7 @@ class Analysis(Design, object):
         num_tasks=1,
         setup_name=None,
         revert_to_initial_mesh=False,
-    ):
+    ):  # pragma: no cover
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1844,7 +1845,7 @@ class Analysis(Design, object):
         num_cores : int, optional
             Number of cores to use in simulation.
         num_tasks : int, optional
-            Number of tasks to use in simulation.
+            Number of tasks to use in simulation. Set num_tasks to ``-1`` to apply auto settings and distributed mode.
         setup_name : str
             Name of the setup, which can be an optimetric setup or a simple setup. If ``None`` all setup will be solved.
         revert_to_initial_mesh : bool, optional
@@ -1877,7 +1878,16 @@ class Analysis(Design, object):
             os.unlink(queue_file_completed)
 
         if os.name == "posix" and settings.use_lsf_scheduler:
-            options = ["-ng", "-BatchSolve", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
+            options = ["-ng", "-BatchSolve", "-distributed", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
+        elif num_tasks == -1:
+            options = [
+                "-ng",
+                "-BatchSolve",
+                "-ditributed",
+                "-machinelist",
+                '"numcores={}"'.format(num_cores),
+                "-auto" "-Monitor",
+            ]
         else:
             options = [
                 "-ng",
