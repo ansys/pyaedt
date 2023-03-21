@@ -1563,7 +1563,7 @@ class Stackup(object):
         unit = layers.attrib["LengthUnit"]
         for l in layers.findall("Layer"):
             name = l.attrib["Name"]
-            if name == "Outline":
+            if name in ["Outline", "SIwave Regions", "spt", "smt", "smb"]:
                 continue
             layer_dict[name] = l.attrib
             layer_dict[name]["Thickness"] = layer_dict[name]["Thickness"] + unit
