@@ -1578,7 +1578,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def _export_xml(self, file_path):
-        """Export stackup information to an external xml file.
+        """Export stackup information to an external XMLfile.
 
         Parameters
         ----------
