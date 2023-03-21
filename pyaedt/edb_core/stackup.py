@@ -529,7 +529,7 @@ class Stackup(object):
         return self._pedb._active_layout.SetLayerCollection(new_layer_collection)
 
     @pyaedt_function_handler
-    def export_stackup(self, fpath, file_format="csv", include_material_with_layer=False):
+    def export_stackup(self, fpath, file_format="xml", include_material_with_layer=False):
         """Export stackup definition to a CSV or JSON file.
 
         Parameters
@@ -544,15 +544,23 @@ class Stackup(object):
             when a JSON file is exported. The default is ``False``, which keeps the material definition
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.export_stackup("stackup.xml")
         """
+        if len(fpath.split(".")) == 1:
+            fpath = "{}.{}".format(fpath, file_format)
+
         if fpath.endswith(".csv"):
-            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format="csv")
         elif fpath.endswith(".xlsx"):
-            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+            return self._export_layer_stackup_to_csv_xlsx(fpath, file_format="xlsx")
         elif fpath.endswith(".json"):
-            self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+            return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
         elif fpath.endswith(".xml"):
-            self._export_xml(fpath)
+            return self._export_xml(fpath)
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
@@ -1585,7 +1593,6 @@ class Stackup(object):
                 value = ET.SubElement(mat_prop, "Double")
                 value.text = str(pval)
 
-        layers = OrderedDict(reversed(list(layers.items())))
         el_layers = ET.SubElement(el_stackup, "Layers")
         for lyr, val in layers.items():
             layer = ET.SubElement(el_layers, "Layer")
@@ -1600,12 +1607,7 @@ class Stackup(object):
                 pval = {i: str(j) for i, j in pval.items()}
                 ET.SubElement(el, pname, pval)
 
-        xml_string = ET.tostring(root, encoding="utf8", method="xml").decode()
-        xml_dom = md.parseString(xml_string)
-        pretty_xml_string = xml_dom.toprettyxml(indent="  ").replace("ns0", "c")
-
-        with open(file_path, "w") as f:
-            f.write(pretty_xml_string)
+        write_pretty_xml(root, file_path)
         return True
 
     @pyaedt_function_handler
@@ -1616,6 +1618,15 @@ class Stackup(object):
         ----------
         file_path : str
             File path to stackup file.
+        Returns
+        -------
+        bool
+
+        Examples
+        --------
+        >>> from pyaedt import Edb
+        >>> edb = Edb()
+        >>> edb.stackup.import_stackup("stackup.xml")
         """
 
         if file_path.endswith(".csv"):
