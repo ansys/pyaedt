@@ -1623,7 +1623,7 @@ class Stackup(object):
 
     @pyaedt_function_handler
     def import_stackup(self, file_path):
-        """Import stackup from file. File format can be xml, csv, json.
+        """Import stackup from a file. The file format can be XML, CSV, or JSON.
 
         Parameters
         ----------
