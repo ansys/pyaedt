@@ -98,6 +98,8 @@ class Edb(object):
     >>> app['s1'] = "0.25 mm"
     >>> app['s1'].tofloat
     >>> 0.00025
+    >>> app['s1'].tostring
+    >>> "0.25mm"
 
     Create an ``Edb`` object and open the specified project.
 
