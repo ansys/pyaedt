@@ -1696,7 +1696,7 @@ class TestClass(BasisTest, object):
             os.path.join(local_path, "example_models", test_subfolder, "stackup_laminate.xml")
         )
         xml_export = os.path.join(self.local_scratch.path, "stackup.xml")
-        assert edbapp.stackup._export_xml(xml_export)
+        assert edbapp.stackup.export_stackup(xml_export)
         edbapp.close_edb()
 
     @pytest.mark.skipif(is_ironpython, reason="Requires Numpy")

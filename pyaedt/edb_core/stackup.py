@@ -510,6 +510,7 @@ class Stackup(object):
 
         return self.layers[layer_name]
 
+    @pyaedt_function_handler
     def remove_layer(self, name):
         """Remove a layer from stackup.
 
@@ -545,13 +546,13 @@ class Stackup(object):
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
         """
-        if fpath.endswith(".csv"):
+        if fpath.endswith(".csv") or file_format == "csv":
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-        elif fpath.endswith(".xlsx"):
+        elif fpath.endswith(".xlsx") or file_format == "xlsx":
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-        elif fpath.endswith(".json"):
+        elif fpath.endswith(".json") or file_format == "json":
             self._export_layer_stackup_to_json(fpath, include_material_with_layer)
-        elif fpath.endswith(".xml"):
+        elif fpath.endswith(".xml") or file_format == "xml":
             self._export_xml(fpath)
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
@@ -1219,6 +1220,7 @@ class Stackup(object):
         temp_data = {name: area / outline_area * 100 for name, area in temp_data.items()}
         return temp_data
 
+    @pyaedt_function_handler
     def _import_json(self, file_path):
         if file_path:
             f = open(file_path)
@@ -1263,6 +1265,7 @@ class Stackup(object):
                             self.stackup_layers[layer["name"]]._load_layer(layer)
             return True
 
+    @pyaedt_function_handler
     def _import_csv(self, file_path):
         """Import stackup defnition from csv file.
 
@@ -1321,6 +1324,7 @@ class Stackup(object):
                 self.remove_layer(name)
         return True
 
+    @pyaedt_function_handler
     def _set(self, layers=None, materials=None, roughness=None):
         """Update stackup information.
 
@@ -1454,6 +1458,7 @@ class Stackup(object):
                     )
         return True
 
+    @pyaedt_function_handler
     def _get(self):
         """Get stackup information from layout.
 
@@ -1517,6 +1522,7 @@ class Stackup(object):
 
         return layers, materials, roughness_models
 
+    @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
 
@@ -1558,6 +1564,7 @@ class Stackup(object):
 
         return self._set(layer_dict, material_dict, roughness_dict)
 
+    @pyaedt_function_handler
     def _export_xml(self, file_path):
         """Export stackup information to an external xml file.
 
