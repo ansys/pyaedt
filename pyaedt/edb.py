@@ -210,7 +210,7 @@ class Edb(object):
 
         Parameters
         ----------
-        variable_name
+        variable_name : str
 
         Returns
         -------
@@ -1996,7 +1996,7 @@ class Edb(object):
         Returns
         -------
         tuple of bool and VaribleServer
-            It returns a Boolean to check if the variable exists and the variable
+            It returns a booleand to check if the variable exists and the variable
             server that should contain the variable.
         """
         if "$" in variable_name:
@@ -2020,7 +2020,7 @@ class Edb(object):
 
         Parameters
         ----------
-        variable_name : str
+        variable_name
 
         Returns
         -------
