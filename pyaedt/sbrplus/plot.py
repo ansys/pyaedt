@@ -118,7 +118,7 @@ class HDMPlotter(CommonPlotter):
         points = [i * conv for i in points]
         depth1 = pv.PolyData(points, lines=lines)
         annotations = {i: str(i) for i in range(1, 7)}
-        raysActor = self.pv.add_mesh(
+        self.pv.add_mesh(
             depth1,
             scalars=depths,
             annotations=annotations,
@@ -165,7 +165,7 @@ class HDMPlotter(CommonPlotter):
         colors = []
         for fpt, value in currents.items():
             faces.extend([3, *(len(points) + i for i in range(3))])
-            for i in range(3):
+            for _ in range(3):
                 points.extend([np.frombuffer(thisfpt) for thisfpt in fpt])
 
             colors.append(10 * math.log10(np.linalg.norm(value)))
@@ -181,7 +181,7 @@ class HDMPlotter(CommonPlotter):
             conv = 1
         points = [i * conv for i in points]
         fb = pv.PolyData(points, faces=faces)
-        fbActor = self.pv.add_mesh(fb, scalars=colors)
+        self.pv.add_mesh(fb, scalars=colors)
         if snapshot_path:
             self.pv.show(screenshot=snapshot_path, full_screen=True)
         else:

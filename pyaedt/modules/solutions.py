@@ -3223,7 +3223,7 @@ class VRTFieldPlot:
             List or dictionary of the variables for the field plot.
         """
         var = ""
-        if type(self.intrinsics) is list:
+        if isinstance(self.intrinsics, list):
             l = 0
             while l < len(self.intrinsics):
                 val = self.intrinsics[l + 1]
@@ -3279,7 +3279,7 @@ class VRTFieldPlot:
             )
         elif self.shoot_type == "Rays in box":
             box_id = None
-            if isintance(self.ray_box, int):
+            if isinstance(self.ray_box, int):
                 box_id = self.ray_box
             elif isinstance(self.ray_box, str):
                 box_id = self._postprocessor._primitives.object_id_dict[self.ray_box]

@@ -54,7 +54,7 @@ class Parser:
         else:
             return self._parse_list(**self.parser_types[type_name])
 
-    def _parse_simple_base_type(self, format="i", size=4, how_many=1, final_type=None):
+    def _parse_simple_base_type(self, format_i="i", size=4, how_many=1, final_type=None):
         """
         Parser for int, float, complex, enum or flag.
         Can also parse a list of base types and convert them to another type if possible.
@@ -63,7 +63,7 @@ class Parser:
         if how_many == 1:
             res = [
                 x[0]
-                for x in struct.iter_unpack("".join(["<", str(how_many), format]), self.binarycontent[self.idx : end])
+                for x in struct.iter_unpack("".join(["<", str(how_many), format_i]), self.binarycontent[self.idx : end])
             ]
             res = res[0]
             if final_type:
@@ -71,7 +71,7 @@ class Parser:
         else:
             res = [
                 x[0:how_many]
-                for x in struct.iter_unpack("".join(["<", str(how_many), format]), self.binarycontent[self.idx : end])
+                for x in struct.iter_unpack("".join(["<", str(how_many), format_i]), self.binarycontent[self.idx : end])
             ]
             res = res[0]
             if final_type:
@@ -84,7 +84,7 @@ class Parser:
         self.idx = end
         return res
 
-    def _parse_list(self, type=None, base=None, size=1):
+    def _parse_list(self, type_i=None, base=None, size=1):
         """
         Parser for vector or list. 'vector's are to be interpreted in the linear algebra sense,
         and converted to numpy.array. 'list's are python lists. Only simple base types can be
@@ -104,7 +104,7 @@ class Parser:
                 res = [
                     res,
                 ]
-            if type == "vector":
+            if type_i == "vector":
                 res = np.array(res)
         else:
             res = [self._parse(base) for iel in range(size)]
@@ -166,46 +166,46 @@ class Parser:
         """Parses the header and prepares all data structures to interpret the binary content"""
 
         def build_type(self, key, val):
-            type = val["type"]
+            type_i = val["type"]
             result = {}
-            if type == "int" or type == "flag" or type == "enum":
+            if type_i in ["int", "flag", "enum"]:
                 final_type = None
-                if type == "flag":
+                if type_i == "flag":
                     self.parser_flags[key] = dict([(k, 1 << v) for k, v in val["values"].items()])
                     # final_type = self.parser_flags[key]
-                elif type == "enum":
+                elif type_i == "enum":
                     self.parser_enums[key] = Enum(key, val["values"], start=val["start"])
                     final_type = self.parser_enums[key]
-                format = {1: "B", 2: "h", 4: "i"}
+                format_i = {1: "B", 2: "h", 4: "i"}
                 result = {
                     "type": "internal",
                     "args": {
-                        "format": format[val["size"]],
+                        "format": format_i[val["size"]],
                         "how_many": 1,
                         "size": val["size"],
                         "final_type": final_type,
                     },
                 }
-            elif type == "float":
-                format = {4: "f", 8: "d"}
+            elif type_i == "float":
+                format_i = {4: "f", 8: "d"}
                 result = {
                     "type": "internal",
-                    "args": {"format": format[val["size"]], "how_many": 1, "size": val["size"]},
+                    "args": {"format": format_i[val["size"]], "how_many": 1, "size": val["size"]},
                 }
-            elif type == "complex":
-                format = {8: "f", 16: "d"}
+            elif type_i == "complex":
+                format_i = {8: "f", 16: "d"}
                 result = {
                     "type": "internal",
                     "args": {
-                        "format": format[val["size"]],
+                        "format": format_i[val["size"]],
                         "how_many": 2,
                         "size": val["size"] // 2,
                         "final_type": complex,
                     },
                 }
-            elif type == "vector" or type == "list":
+            elif type_i == "vector" or type_i == "list":
                 result = val
-            elif type == "object":
+            elif type_i == "object":
                 result = val
 
                 class NewClass:
