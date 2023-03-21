@@ -1,3 +1,6 @@
+import os
+import sys
+
 from pyaedt.emit_core import EMIT_MODULE
 
 
@@ -63,6 +66,25 @@ def interferer_type():
     return inter_type
 
 
+def unit_type():
+    """Get a ``unit_type`` object.
+
+    Returns
+    -------
+    :class:`EmitConstants.unit_type`
+        Type of unit. Options are ``"Power"``, ``"Frequency"``, ``"Length"``,
+        ``"Time"``, ``"Voltage"``, ``"DataRate"``, and ``"Resistance"``.
+
+    Examples
+    >>> unit_type = EmitConstants.unit_type()
+    """
+    try:
+        unit_type = EMIT_MODULE.unit_type()
+    except NameError:
+        raise ValueError("An Emit object must be initialized before any static member of EmitConstants is accessed.")
+    return unit_type
+
+
 EMIT_UNIT_TYPE = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
 """Valid unit type."""
 
@@ -76,3 +98,15 @@ EMIT_VALID_UNITS = {
     "Resistance": ["uOhm", "mOhm", "Ohm", "kOhm", "megOhm", "GOhm"],
 }
 """Valid units for each unit type."""
+
+desktop_path = os.environ.get("ANSYSEM_ROOT232")
+if desktop_path and sys.version_info < (3, 8):
+    EMIT_UNIT_TYPE_STRING_TO_ENUM = {
+        "Power": unit_type().power,
+        "Frequency": unit_type().frequency,
+        "Length": unit_type().length,
+        "Time": unit_type().time,
+        "Voltage": unit_type().voltage,
+        "Data Rate": unit_type().dataRate,
+        "Resistance": unit_type().resistance,
+    }

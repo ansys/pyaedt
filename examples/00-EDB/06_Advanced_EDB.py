@@ -60,15 +60,6 @@ edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thick
                                      soldermask_thickness=soldermask_thickness, dielectric_thickness=diel_thickness,
                                      dielectric_material=diel_material_name)
 
-# StackupSimple(
-#     edb,
-#     layer_count=layout_count,
-#     diel_material_name=diel_material_name,
-#     diel_thickness=diel_thickness,
-#     cond_thickness_outer=cond_thickness_outer,
-#     cond_thickness_inner=cond_thickness_inner,
-#     soldermask_thickness=soldermask_thickness,
-# ).create_stackup()
 
 ##################################################################################
 # Create variables
@@ -78,9 +69,9 @@ edb.stackup.create_symmetric_stackup(layer_count=layout_count, inner_layer_thick
 
 giva_angle_rad = gvia_angle / 180 * np.pi
 
-edb.add_design_variable("$via_hole_size", "0.3mm")
-edb.add_design_variable("$antipaddiam", "0.7mm")
-edb.add_design_variable("$paddiam", "0.5mm")
+edb["$via_hole_size"] = "0.3mm"
+edb["$antipaddiam"] = "0.7mm"
+edb["$paddiam"] = "0.5mm"
 edb.add_design_variable("via_pitch", "1mm", is_parameter=True)
 edb.add_design_variable("trace_in_width", "0.2mm", is_parameter=True)
 edb.add_design_variable("trace_out_width", "0.1mm", is_parameter=True)
@@ -163,6 +154,14 @@ ground_layers = [i for i in edb.stackup.signal_layers.keys()]
 ground_layers.remove(trace_in_layer)
 ground_layers.remove(trace_out_layer)
 _create_ground_planes(edb=edb, layers=ground_layers)
+
+##################################################################################
+# Plot Layout
+# ~~~~~~~~~~~
+# Generate and plot the layout.
+
+edb.core_nets.plot(layers=["TOP", "L10"])
+
 
 ##################################################################################
 # Save EDB and close
