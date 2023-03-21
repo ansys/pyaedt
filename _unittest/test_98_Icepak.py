@@ -386,7 +386,7 @@ class TestClass(BasisTest, object):
         dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
         dest.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])
         dest.delete_design("IcepakDesign1")
-        dest = Icepak(designname="IcepakDesign1", specified_version=desktop_version)
+        dest = Icepak(designname="IcepakDesign2", specified_version=desktop_version)
         dest.copy_solid_bodies_from(self.aedtapp)
         dest2 = Hfss(designname="uUSB", specified_version=desktop_version)
         dest2.copy_solid_bodies_from(self.aedtapp, [obj_udm.name, obj_3dcomp.name])

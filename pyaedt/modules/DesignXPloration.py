@@ -396,7 +396,7 @@ class CommonOptimetrics(PropsManager, object):
         goal_value : optional
             Value for the optimization goal. The default is ``1``.
         goal_weight : optional
-            Weight for the optimzation goal. The default is ``1``.
+            Weight for the optimization goal. The default is ``1``.
         goal_name : str, optional
             Name of the goal. The default is ``None``.
 
@@ -487,9 +487,9 @@ class CommonOptimetrics(PropsManager, object):
     @pyaedt_function_handler()
     def analyze(
         self,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -502,11 +502,11 @@ class CommonOptimetrics(PropsManager, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional

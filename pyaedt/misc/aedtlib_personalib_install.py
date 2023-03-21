@@ -13,59 +13,39 @@ pyaedt_path = os.path.join(
 )
 sys.path.append(os.path.join(pyaedt_path, ".."))
 
-if len(sys.argv) < 2:
-    version = "2022.2"
-else:
-    v = sys.argv[1]
-    version = "20" + v[-3:-1] + "." + v[-1:]
-sys_lib = True
-if len(sys.argv) == 3:
-    sys_lib = True if sys.argv[2] == "1" else False
 
 pid = 0
 
 
-def main():
+def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False):
     from pyaedt import Desktop
 
-    with Desktop(version, True, new_desktop_session=True) as d:
+    with Desktop(aedt_version, True, new_desktop_session=True, student_version=is_student_version) as d:
         desktop = sys.modules["__main__"].oDesktop
         pers1 = os.path.join(desktop.GetPersonalLibDirectory(), "pyaedt")
         pid = desktop.GetProcessID()
+        # Linking pyaedt in PersonalLib for IronPython compatibility.
         if os.path.exists(pers1):
             d.logger.info("PersonalLib already mapped")
         else:
             os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
 
-        toolkits = [
-            "2DExtractor",
-            "CircuitDesign",
-            "Emit",
-            "HFSS",
-            "HFSS-IE",
-            "HFSS3DLayoutDesign",
-            "Icepak",
-            "Maxwell2D",
-            "Maxwell3D",
-            "Q3DExtractor",
-            "TwinBuilder",
-            "Mechanical",
-        ]
+        toolkits = ["Project"]
 
         for product in toolkits:
-            if sys_lib:
+            if use_sys_lib:
                 try:
                     sys_dir = os.path.join(d.syslib, "Toolkits")
-                    install_toolkit(sys_dir, product)
+                    install_toolkit(sys_dir, product, aedt_version)
                     d.logger.info("Installed toolkit for {} in sys lib".format(product))
 
                 except IOError:
                     pers_dir = os.path.join(d.personallib, "Toolkits")
-                    install_toolkit(pers_dir, product)
+                    install_toolkit(pers_dir, product, aedt_version)
                     d.logger.info("Installed toolkit for {} in personal lib".format(product))
             else:
                 pers_dir = os.path.join(d.personallib, "Toolkits")
-                install_toolkit(pers_dir, product)
+                install_toolkit(pers_dir, product, aedt_version)
                 d.logger.info("Installed toolkit for {} in personal lib".format(product))
     if pid:
         try:
@@ -74,16 +54,20 @@ def main():
             pass
 
 
-def install_toolkit(toolkit_dir, product):
-    toolkit_rel_lib_dir = os.path.join("Lib", "PyAEDT")
-    lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
+def install_toolkit(toolkit_dir, product, aedt_version):
     tool_dir = os.path.join(toolkit_dir, product, "PyAEDT")
+    lib_dir = os.path.join(tool_dir, "Lib")
     os.makedirs(lib_dir, exist_ok=True)
     os.makedirs(tool_dir, exist_ok=True)
     files_to_copy = ["Console", "Run_PyAEDT_Script", "Jupyter"]
     # Remove hard-coded version number from Python virtual environment path, and replace it with the corresponding AEDT
     # version's Python virtual environment.
-    executable_version_agnostic = sys.executable.replace(version[2:6].replace(".", ""), "%s")
+    version_agnostic = False
+    if aedt_version[2:6].replace(".", "") in sys.executable:
+        executable_version_agnostic = sys.executable.replace(aedt_version[2:6].replace(".", ""), "%s")
+        version_agnostic = True
+    else:
+        executable_version_agnostic = sys.executable
     jupyter_executable = executable_version_agnostic.replace("python.exe", "jupyter.exe")
     ipython_executable = executable_version_agnostic.replace("python.exe", "ipython.exe")
     for file_name in files_to_copy:
@@ -93,18 +77,20 @@ def install_toolkit(toolkit_dir, product):
                 print("Building to " + os.path.join(tool_dir, file_name_dest))
                 build_file_data = build_file.read()
                 build_file_data = (
-                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
+                    build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", os.path.relpath(lib_dir, tool_dir))
                     .replace("##PYTHON_EXE##", executable_version_agnostic)
                     .replace("##IPYTHON_EXE##", ipython_executable)
                     .replace("##JUPYTER_EXE##", jupyter_executable)
                 )
+                if not version_agnostic:
+                    build_file_data = build_file_data.replace(" % version", "")
                 out_file.write(build_file_data)
-    shutil.copyfile(os.path.join(current_dir, "console_setup"), os.path.join(lib_dir, "console_setup.py"))
+    shutil.copyfile(os.path.join(current_dir, "console_setup.py"), os.path.join(lib_dir, "console_setup.py"))
     shutil.copyfile(
         os.path.join(current_dir, "jupyter_template.ipynb"),
         os.path.join(lib_dir, "jupyter_template.ipynb"),
     )
-    if version >= "2023.2":
+    if aedt_version >= "2023.2":
         write_tab_config(os.path.join(toolkit_dir, product), lib_dir)
 
 
@@ -166,4 +152,17 @@ def write_pretty_xml(root, file_path):
 
 
 if __name__ == "__main__":
-    main()
+    student_version = False
+    if len(sys.argv) < 2:
+        version = "2022.2"
+    elif sys.argv[1].endswith("sv"):
+        v = sys.argv[1][:-2]
+        version = "20" + v[-3:-1] + "." + v[-1:]
+        student_version = True
+    else:
+        v = sys.argv[1]
+        version = "20" + v[-3:-1] + "." + v[-1:]
+    sys_lib = True
+    if len(sys.argv) == 3:
+        sys_lib = True if sys.argv[2] == "1" else False
+    add_pyaedt_to_aedt(version, student_version, sys_lib)

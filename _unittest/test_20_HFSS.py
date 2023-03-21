@@ -316,7 +316,12 @@ class TestClass(BasisTest, object):
             "box_sweep", "box_sweep2", self.aedtapp.AxisDir.XNeg, 75, 1, "WaveForSweep", False
         )
         setup = self.aedtapp.create_setup(setupname="MySetupForSweep")
+        assert not setup.get_sweep()
         sweep = setup.add_sweep()
+        sweep1 = setup.get_sweep(sweep.name)
+        assert sweep1 == sweep
+        sweep2 = setup.get_sweep()
+        assert sweep2 == sweep1
         assert sweep.add_subrange("LinearCount", 1, 3, 10, "GHz")
         assert sweep.add_subrange("LinearCount", 2, 4, 10, "GHz")
         assert sweep.add_subrange("LinearStep", 1.1, 2.1, 0.4, "GHz")
@@ -637,21 +642,28 @@ class TestClass(BasisTest, object):
     def test_22_create_length_mesh(self):
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
         assert mesh
-        mesh.props["NumMaxElem"] = "10000"
-        assert mesh.update()
+        mesh.props["NumMaxElem"] = "100"
+        assert mesh.props["NumMaxElem"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+            mesh.name
+        ).GetPropValue("Max Elems")
 
     def test_23_create_skin_depth(self):
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
         assert mesh
         mesh.props["SkinDepth"] = "3mm"
-        assert mesh.update()
+        assert mesh.props["SkinDepth"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+            mesh.name
+        ).GetPropValue("Skin Depth")
 
     def test_24_create_curvilinear(self):
         mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit2"])
         assert mesh
         mesh.props["Apply"] = False
-        assert mesh.update()
-        assert mesh.delete()
+        assert mesh.props["Apply"] == self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(
+            mesh.name
+        ).GetPropValue("Apply Curvilinear Elements")
+        mesh.delete()
+        assert len(self.aedtapp.mesh.meshoperations) == 2
         pass
 
     def test_25a_create_parametrics(self):

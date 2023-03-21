@@ -70,9 +70,9 @@ class CommonSetup(PropsManager, object):
     @pyaedt_function_handler()
     def analyze(
         self,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -85,11 +85,11 @@ class CommonSetup(PropsManager, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -425,6 +425,8 @@ class Setup(CommonSetup):
         isconvergence=True,
         isrelativeconvergence=True,
         conv_criteria=1,
+        use_cache_for_pass=True,
+        use_cache_for_freq=True,
     ):
         """Enable an expression cache.
 
@@ -446,6 +448,12 @@ class Setup(CommonSetup):
             The default is ``True``.
         conv_criteria :
             The default is ``1``.
+        use_cache_for_pass : bool, optional
+            Use cache for pass.
+            Default value is ``True``.
+        use_cache_for_freq : bool, optional
+            Use cache for frequency.
+            Default value is ``True``.
 
         Returns
         -------
@@ -458,6 +466,11 @@ class Setup(CommonSetup):
         >>> oModule.EditSetup
         """
         arg = ["NAME:" + self.name]
+        self.props["UseCacheFor"] = []
+        if use_cache_for_pass:
+            self.props["UseCacheFor"].append("Pass")
+        if use_cache_for_freq:
+            self.props["UseCacheFor"].append("Freq")
         _dict2arg(self.props, arg)
         expression_cache = self._expression_cache(
             expressions, report_type, intrinsics, isconvergence, isrelativeconvergence, conv_criteria
@@ -1541,6 +1554,37 @@ class Setup3DLayout(CommonSetup):
             return sweep_n
         return False
 
+    @pyaedt_function_handler()
+    def get_sweep(self, sweepname=None):
+        """Return frequency sweep object of a given sweep.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. the default is ``None`` which returns the first sweep.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS3DLayout`
+
+        Examples
+        --------
+        >>> h3d = Hfss3dLayout()
+        >>> setup = h3d.get_setup('Pyaedt_setup')
+        >>> sweep = setup.get_sweep('Sweep1')
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        """
+        if sweepname:
+            for sweep in self.sweeps:
+                if sweepname == sweep.name:
+                    return sweep
+        else:
+            if self.sweeps:
+                return self.sweeps[0]
+        return False
+
+    @pyaedt_function_handler()
     def import_from_json(self, file_path):
         """Import setup properties from a json file.
 
@@ -1984,6 +2028,36 @@ class SetupHFSS(Setup, object):
         sweep_n.create()
         self.sweeps.append(sweep_n)
         return sweep_n
+
+    @pyaedt_function_handler()
+    def get_sweep(self, sweepname=None):
+        """Return frequency sweep object of a given sweep.
+
+        Parameters
+        ----------
+        sweepname : str, optional
+            Name of the sweep. the default is ``None`` which returns the first sweep.
+
+        Returns
+        -------
+        :class:`pyaedt.modules.SolveSweeps.SweepHFSS` or :class:`pyaedt.modules.SolveSweeps.SweepMatrix`
+
+        Examples
+        --------
+        >>> hfss = Hfss()
+        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> sweep = setup.get_sweep('Sweep1')
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1E8, 100, "Hz")
+        """
+        if sweepname:
+            for sweep in self.sweeps:
+                if sweepname == sweep.name:
+                    return sweep
+        else:
+            if self.sweeps:
+                return self.sweeps[0]
+        return False
 
     @pyaedt_function_handler()
     def enable_adaptive_setup_single(self, freq=None, max_passes=None, max_delta_s=None):
@@ -2436,7 +2510,9 @@ class SetupMaxwell(Setup, object):
         Setup.__init__(self, app, solutiontype, setupname, isnewsetup)
 
     @pyaedt_function_handler()
-    def add_eddy_current_sweep(self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True):
+    def add_eddy_current_sweep(
+        self, range_type="LinearStep", start=0.1, end=100, count=0.1, units="Hz", clear=True, save_all_fields=True
+    ):
         """Create a Maxwell Eddy Current Sweep.
 
         Parameters
@@ -2452,14 +2528,18 @@ class SetupMaxwell(Setup, object):
             Frequency count or frequency step. Required for ``rangetype="LinearCount"|"LinearStep"|"LogScale"``.
         units : str, optional
             Unit of the frequency. For example, ``"MHz`` or ``"GHz"``. The default is ``"Hz"``.
-
-        clear : boolean, optional
+        clear : bool, optional
             If set to ``True``, all other subranges will be suppressed except the current one under creation.
             Default value is ``False``.
+        save_all_fields : bool, optional
+            Save fields at all frequency points to save fields for the entire set of sweep ranges.
+            Default is ``True``.
+
 
         Returns
         -------
         bool
+            ``True`` if successful, ``False`` if it fails.
         """
 
         if self.setuptype != 7:
@@ -2487,6 +2567,7 @@ class SetupMaxwell(Setup, object):
             self.props["SweepRanges"]["Subrange"].append(props)
         else:
             self.props["SweepRanges"]["Subrange"] = [self.props["SweepRanges"]["Subrange"], props]
+        self.props["SaveAllFields"] = save_all_fields
         self.update()
         self.auto_update = legacy_update
         return True

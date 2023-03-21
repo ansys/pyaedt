@@ -17,7 +17,12 @@ def Circuit(
     port=0,
     aedt_process_id=None,
 ):
-    """Circuit Class."""
+    """Circuit Class.
+
+    Returns
+    -------
+    :class:`pyaedt.circuit.Circuit`
+    """
     from pyaedt.circuit import Circuit as app
 
     return app(
@@ -50,7 +55,12 @@ def Hfss(
     port=0,
     aedt_process_id=None,
 ):
-    """Return an instance of the Hfss Class."""
+    """Return an instance of the Hfss Class.
+
+    Returns
+    -------
+    :class:`pyaedt.hfss.Hfss`
+    """
     from pyaedt.hfss import Hfss as app
 
     return app(
@@ -83,7 +93,11 @@ def Icepak(
     port=0,
     aedt_process_id=None,
 ):
-    """Icepak Class."""
+    """Icepak Class.
+
+    Returns
+    -------
+    :class:`pyaedt.icepak.Icepak`"""
     from pyaedt.icepak import Icepak as app
 
     return app(
@@ -116,7 +130,11 @@ def Emit(
     port=0,
     aedt_process_id=None,
 ):
-    """Emit Class."""
+    """Emit Class.
+
+    Returns
+    -------
+    :class:`pyaedt.emit.Emit`"""
     from pyaedt.emit import Emit as app
 
     return app(
@@ -149,7 +167,11 @@ def Hfss3dLayout(
     port=0,
     aedt_process_id=None,
 ):
-    """Hfss3dLayout Class."""
+    """Hfss3dLayout Class.
+
+    Returns
+    -------
+    :class:`pyaedt.hfss3dlayout.Hfss3dLayout`"""
     from pyaedt.hfss3dlayout import Hfss3dLayout as app
 
     return app(
@@ -182,7 +204,11 @@ def Maxwell2d(
     port=0,
     aedt_process_id=None,
 ):
-    """Maxwell2d Class."""
+    """Maxwell2d Class.
+
+    Returns
+    -------
+    :class:`pyaedt.maxwell.Maxwell2d`"""
     from pyaedt.maxwell import Maxwell2d as app
 
     return app(
@@ -215,7 +241,11 @@ def Maxwell3d(
     port=0,
     aedt_process_id=None,
 ):
-    """Maxwell3d Class."""
+    """Maxwell3d Class.
+
+    Returns
+    -------
+    :class:`pyaedt.maxwell.Maxwell3d`"""
     from pyaedt.maxwell import Maxwell3d as app
 
     return app(
@@ -247,7 +277,11 @@ def MaxwellCircuit(
     port=0,
     aedt_process_id=None,
 ):
-    """MaxwellCircuit Class."""
+    """MaxwellCircuit Class.
+
+    Returns
+    -------
+    :class:`pyaedt.maxwellcircuit.MaxwellCircuit`"""
     from pyaedt.maxwellcircuit import MaxwellCircuit as app
 
     return app(
@@ -279,7 +313,11 @@ def Mechanical(
     port=0,
     aedt_process_id=None,
 ):
-    """Mechanical Class."""
+    """Mechanical Class.
+
+    Returns
+    -------
+    :class:`pyaedt.mechanical.Mechanical`"""
     from pyaedt.mechanical import Mechanical as app
 
     return app(
@@ -312,7 +350,11 @@ def Q2d(
     port=0,
     aedt_process_id=None,
 ):
-    """Q2D Class."""
+    """Q2D Class.
+
+    Returns
+    -------
+    :class:`pyaedt.q3d.Q2d`"""
     from pyaedt.q3d import Q2d as app
 
     return app(
@@ -345,7 +387,11 @@ def Q3d(
     port=0,
     aedt_process_id=None,
 ):
-    """Q3D Class."""
+    """Q3D Class.
+
+    Returns
+    -------
+    :class:`pyaedt.q3d.Q3d`"""
     from pyaedt.q3d import Q3d as app
 
     return app(
@@ -378,7 +424,11 @@ def Rmxprt(
     port=0,
     aedt_process_id=None,
 ):
-    """Rmxprt Class."""
+    """Rmxprt Class.
+
+    Returns
+    -------
+    :class:`pyaedt.rmxprt.Rmxprt`"""
     from pyaedt.rmxprt import Rmxprt as app
 
     return app(
@@ -411,7 +461,11 @@ def TwinBuilder(
     port=0,
     aedt_process_id=None,
 ):
-    """TwinBuilder Class."""
+    """TwinBuilder Class.
+
+    Returns
+    -------
+    :class:`pyaedt.twinbuilder.TwinBuilder`"""
     from pyaedt.twinbuilder import TwinBuilder as app
 
     return app(
@@ -444,7 +498,11 @@ def Simplorer(
     port=0,
     aedt_process_id=None,
 ):
-    """Simplorer Class."""
+    """Simplorer Class.
+
+    Returns
+    -------
+    :class:`pyaedt.twinbuilder.TwinBuilder`"""
     from pyaedt.twinbuilder import TwinBuilder as app
 
     return app(
@@ -473,7 +531,11 @@ def Desktop(
     port=0,
     aedt_process_id=None,
 ):
-    """Desktop Class."""
+    """Desktop Class.
+
+    Returns
+    -------
+    :class:`pyaedt.desktop.Desktop`"""
     from pyaedt.desktop import Desktop as app
 
     return app(

@@ -1559,7 +1559,7 @@ class Analysis(Design, object):
         self.analyze(self.active_setup)
 
     @pyaedt_function_handler()
-    def analyze_nominal(self, num_cores=None, num_tasks=None, num_gpu=None, acf_file=None, use_auto_settings=True):
+    def analyze_nominal(self, num_cores=1, num_tasks=1, num_gpu=0, acf_file=None, use_auto_settings=True):
         """Solve the nominal design.
 
         .. deprecated:: 0.6.52
@@ -1568,11 +1568,11 @@ class Analysis(Design, object):
         Parameters
         ----------
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1596,9 +1596,9 @@ class Analysis(Design, object):
     def analyze(
         self,
         setup_name=None,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=1,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -1613,11 +1613,12 @@ class Analysis(Design, object):
         setup_name : str, optional
             Setup to analyze. Default is ``None`` which solves all the setups.
         num_cores : int, optional
-            Number of simulation cores.
+            Number of simulation cores. Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks.
+            Number of simulation tasks. Default is ``1``.
+            In bach solve, set num_tasks to ``-1`` to apply auto settings and distributed mode.
         num_gpu : int, optional
-            Number of simulation graphic processing units to use.
+            Number of simulation graphic processing units to use. Default is ``0``.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1668,9 +1669,9 @@ class Analysis(Design, object):
     def analyze_setup(
         self,
         name,
-        num_cores=None,
-        num_tasks=None,
-        num_gpu=None,
+        num_cores=1,
+        num_tasks=1,
+        num_gpu=0,
         acf_file=None,
         use_auto_settings=True,
         num_variations_to_distribute=None,
@@ -1685,11 +1686,11 @@ class Analysis(Design, object):
             Name of the setup, which can be an optimetric setup or a simple setup.
             If ``None`` all setups will be solved.
         num_cores : int, optional
-            Number of simulation cores. The default is ``None.``
+            Number of simulation cores.  Default is ``1``.
         num_tasks : int, optional
-            Number of simulation tasks. The default is ``None.``
+            Number of simulation tasks.  Default is ``1``.
         num_gpu : int, optional
-            Number of simulation graphics processing units. The default is ``None.``
+            Number of simulation graphics processing units.  Default is ``0``.
         acf_file : str, optional
             Full path to custom ACF file. The default is ``None.``
         use_auto_settings : bool, optional
@@ -1825,7 +1826,7 @@ class Analysis(Design, object):
         num_tasks=1,
         setup_name=None,
         revert_to_initial_mesh=False,
-    ):
+    ):  # pragma: no cover
         """Analyze a design setup in batch mode.
 
         .. note::
@@ -1844,7 +1845,7 @@ class Analysis(Design, object):
         num_cores : int, optional
             Number of cores to use in simulation.
         num_tasks : int, optional
-            Number of tasks to use in simulation.
+            Number of tasks to use in simulation. Set num_tasks to ``-1`` to apply auto settings and distributed mode.
         setup_name : str
             Name of the setup, which can be an optimetric setup or a simple setup. If ``None`` all setup will be solved.
         revert_to_initial_mesh : bool, optional
@@ -1876,22 +1877,42 @@ class Analysis(Design, object):
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
 
-        options = [
-            "-ng",
-            "-BatchSolve",
-            "-machinelist",
-            "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
-            "-Monitor",
-        ]
+        if os.name == "posix" and settings.use_lsf_scheduler:
+            options = ["-ng", "-BatchSolve", "-distributed", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
+        elif num_tasks == -1:
+            options = [
+                "-ng",
+                "-BatchSolve",
+                "-ditributed",
+                "-machinelist",
+                '"numcores={}"'.format(num_cores),
+                "-auto" "-Monitor",
+            ]
+        else:
+            options = [
+                "-ng",
+                "-BatchSolve",
+                "-machinelist",
+                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+                "-Monitor",
+            ]
         if setup_name and design_name:
             options.append(
                 "{}:{}:{}".format(
                     design_name, "Nominal" if setup_name in self.setup_names else "Optimetrics", setup_name
                 )
             )
-        if os.name == "posix":
+        if os.name == "posix" and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
-
+        elif os.name == "posix" and settings.use_lsf_scheduler:  # pragma: no cover
+            batch_run = [
+                "bsub",
+                "-n",
+                num_tasks * num_cores,
+                "-R",
+                "rusage[mem={}]".format(settings.lsf_ram),
+                settings.lsf_aedt_command,
+            ]
         else:
             batch_run = [inst_dir + "/ansysedt.exe"]
         batch_run.extend(options)
@@ -1902,7 +1923,7 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
         self.logger.info("Solving model in batch mode on " + machine)
-        if run_in_thread:
+        if run_in_thread or settings.use_lsf_scheduler:
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
             self.logger.info("Batch job launched.")
