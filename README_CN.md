@@ -26,9 +26,7 @@
 
 ## PyAEDT 简介
 
-`PyAEDT` 是一个直接与 `AEDT API` 交互的 `Python` 库。
-使最终用户的脚本编写更简易。它的框架可重复使用，适用于所有 AEDT 3D 产品（`HFSS`、`Icepak`、`Maxwell 3D` 和
-`Q3D Extractor`）、`2D tools` 和 `Ansys Mechanical`。它支持像 `Nexxim` 这样的电路工具和 `Twin Builder` 这样的系统模拟工具。最后它为 `HFSS 3D Layout` 和 `EDB` 等 `Ansys` 布局工具提供脚本功能。它的类方法结构简化了最终用户的操作，同时尽可能在整个 API 中复用信息。
+`PyAEDT` 是一个直接与 `AEDT API` 交互的 `Python` 库。使最终用户的脚本编写更简易。它的框架可重复使用，适用于所有 AEDT 3D 产品（`HFSS`、`Icepak`、`Maxwell 3D` 和 `Q3D Extractor`）、`2D tools` 和 `Ansys Mechanical`。它支持像 `Nexxim` 这样的电路工具和 `Twin Builder` 这样的系统模拟工具。最后它为 `HFSS 3D Layout` 和 `EDB` 等 `Ansys` 布局工具提供脚本功能。它的类方法结构简化了最终用户的操作，同时尽可能在整个 API 中复用信息。
 
 ## 使用PyPI在CPython上安装
 
@@ -57,10 +55,9 @@
 
 ## 关于PyAEDT
 
-`PyAEDT` 是 [PyAnsys](https://docs.pyansys.com "PyAnsys") 的一部分，后者更庞大。
-努力促进直接从 `Python` 使用 `Ansys` 技术。
+`PyAEDT` 是 [PyAnsys](https://docs.pyansys.com "PyAnsys") 的一部分，后者更庞大。努力促进直接从 `Python` 使用 `Ansys` 技术。
 
- `PyAEDT` 旨在整合和扩展 `Ansys Electronics Desktop (AEDT)` 脚本的所有现有功能，以允许重用现有代码、共享最佳实践并加强协作。
+`PyAEDT` 旨在整合和扩展 `Ansys Electronics Desktop (AEDT)` 脚本的所有现有功能，以允许重用现有代码、共享最佳实践并加强协作。
 
  ## 关于AEDT
 
@@ -73,19 +70,18 @@
 
 `PyAEDT` 遵循 [MIT](https://github.com/pyansys/PyAEDT/blob/main/LICENSE "MIT") 许可证，并包括与 `AEDT tools` 和 `Ansys products` 交互的功能：
 
-- HFSS and HFSS 3D Layout
-- Icepak
-- Maxwell 2D, Maxwell 3D, and RMXprt
-- 2D Extractor and Q3D Extractor
-- Mechanical
-- Nexxim
-- EDB
-- Twin Builder
+  - HFSS and HFSS 3D Layout
+  - Icepak
+  - Maxwell 2D, Maxwell 3D, and RMXprt
+  - 2D Extractor and Q3D Extractor
+  - Mechanical
+  - Nexxim
+  - EDB
+  - Twin Builder
 
 ## 文档与反馈
 
-除了安装和使用信息外，`PyAEDT` 文档还提供了 [参考API](https://aedt.docs.pyansys.com/release/0.6/API/index.html "API reference")，
-[示例](https://aedt.docs.pyansys.com/release/0.6/examples/index.html "Examples")，和 [贡献](https://aedt.docs.pyansys.com/release/0.6/Contributing.html "Contribute") 。
+除了安装和使用信息外，`PyAEDT` 文档还提供了 [参考API](https://aedt.docs.pyansys.com/release/0.6/API/index.html "API reference")，[示例](https://aedt.docs.pyansys.com/release/0.6/examples/index.html "Examples")，和 [贡献](https://aedt.docs.pyansys.com/release/0.6/Contributing.html "Contribute") 。
 
 
 在 [PyAEDT Issues](https://github.com/pyansys/PyAEDT/issues) 页面，您可以提交所遇到的问题、反馈 bug、为新功能贡献您的想法与思路。如联系项目支持团队，请点击后面的链接发送电子邮件 [pyansys.support@ansys.com](pyansys.support@ansys.com).
@@ -96,28 +92,27 @@
 
 `PyAEDT` 支持 `AEDT Student version 2022 R1` 或更高的版本。
 
-关于学生版本的更多信息请查阅
-[Student Version page](https://www.ansys.com/academic/students/ansys-electronics-desktop-student).
+关于学生版本的更多信息请查阅 [Student Version page](https://www.ansys.com/academic/students/ansys-electronics-desktop-student).
 
 ## 为什么选择 PyAEDT?
 
 在 AEDT UI 中使用记录和重用脚本自动执行是简化操作的一种快速又简便的办法。但是，此方法有以下缺陷：
 
-- 记录的代码比较混乱，难以阅读与理解。
-- 录制的脚本难以复用和二次编辑。
-- AEDT 多个全局用户会生成复杂庞大的代码。
+  - 记录的代码比较混乱，难以阅读与理解。
+  - 录制的脚本难以复用和二次编辑。
+  - AEDT 多个全局用户会生成复杂庞大的代码。
 
 `PyAEDT` 的主要优点是：
 
-- 自动初始化所有AEDT项目，例如desktop项目中的编辑器、边界等等
-- 清晰的错误管理
-- 详细的日志管理
-- 自由的变量管理
-- 兼容 IronPython 和 CPython
-- 使用数据对象简化复杂的 API 语法，同时保持 PEP8 合规性。
-- 在不同求解器之间的可复用代码
-- 在函数与API上拥有清晰的文档
-- 代码单元测试，以提高不同 AEDT 版本的质量
+  - 自动初始化所有AEDT项目，例如desktop项目中的编辑器、边界等等
+  - 清晰的错误管理
+  - 详细的日志管理
+  - 自由的变量管理
+  - 兼容 IronPython 和 CPython
+  - 使用数据对象简化复杂的 API 语法，同时保持 PEP8 合规性。
+  - 在不同求解器之间的可复用代码
+  - 在函数与API上拥有清晰的文档
+  - 代码单元测试，以提高不同 AEDT 版本的质量
 
 ## 工作流程示例
 
@@ -126,9 +121,7 @@
 
 ##  使用 Python IDE 连接 AEDT
 
-`PyAEDT` 既可以在AEDT内部工作，也可以作为独立应用程序使用。
-此 Python 库会自动检测它是否正在运行
-在 IronPython 或 CPython 环境中并相应地初始化 AEDT。
+`PyAEDT` 既可以在AEDT内部工作，也可以作为独立应用程序使用。此 Python 库会自动检测它是否正在运行在 IronPython 或 CPython 环境中并相应地初始化 AEDT。
 `PyAEDT` 还提供高级错误管理。使用示例如下:
 
 ### 明确 AEDT 声明 [INFO] 并管理报错 [ERROR]
