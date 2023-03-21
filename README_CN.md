@@ -204,3 +204,8 @@ CPython 服务器：
 要运行`PyAEDT`，您必须拥有`AEDT`的本地许可证。
 `PyAEDT`在`MIT`许可下获得许可。这个模块对`Ansys`没有任何商业要求。`PyAEDT`通过向`AEDT`添加额外的Python接口扩展了`AEDT`的功能，而不改变原始软件的核心行为或许可。使用`PyAEDT`的交互式控件需要合法授权的`AEDT`本地license。有关`AEDT`的更多信息，请访问`Ansys`网站上的[AEDT页面](https://www.ansys.com/products/electronics)。
 
+## Indices and tables
+
+-  [Index](https://aedt.docs.pyansys.com/release/0.6/genindex.html)
+-  [Module Index](https://aedt.docs.pyansys.com/release/0.6/py-modindex.html)
+-  [Search Page](https://aedt.docs.pyansys.com/release/0.6/search.html)
