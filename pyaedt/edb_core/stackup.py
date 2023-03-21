@@ -1601,7 +1601,7 @@ class Stackup(object):
             layer.attrib.update(val)
 
         for lyr, val in roughness.items():
-            el = el_layers.find(f"./Layer[@Name='{lyr}']")
+            el = el_layers.find("./Layer[@Name='{}']".format(lyr))
             for pname, pval in val.items():
                 pval = {i: str(j) for i, j in pval.items()}
                 ET.SubElement(el, pname, pval)
