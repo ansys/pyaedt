@@ -131,6 +131,7 @@ M3D.plot(show=False, export_path=os.path.join(M3D.working_directory, "Image.jpg"
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
+Setup.props["MaximumPasses"] = 2
 Setup.add_eddy_current_sweep(range_type="LinearStep", start=50, end=200, count=150, clear=True)
 
 ################################################################################
@@ -157,7 +158,7 @@ param["SolveWithCopiedMeshOnly"] = True
 # ~~~~~~~~~~~~~~~~~~~~~~
 # Solve the parametric sweep directly so that results of all variations are available.
 
-M3D.analyze_setup(sweepname)
+M3D.analyze(sweepname, num_cores=4, num_tasks=2)
 
 ###############################################################################
 # Create expression for Bz

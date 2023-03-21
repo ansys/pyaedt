@@ -60,6 +60,7 @@ stop_freq = 50
 Setup = M3D.create_setup(setupname="Setup1")
 Setup.props["Frequency"] = "200Hz"
 Setup.props["HasSweepSetup"] = True
+Setup.props["MaximumPasses"] = 2
 Setup.add_eddy_current_sweep("LinearStep", dc_freq, stop_freq, stop_freq - dc_freq, clear=True)
 Setup.props["UseHighOrderShapeFunc"] = True
 Setup.props["PercentError"] = 0.4
@@ -431,7 +432,8 @@ M3D.post.create_fieldplot_surface(surflist, "Mag_B", intrinsincDict=intrinsic_di
 # Save the project and solve it.
 
 M3D.save_project()
-M3D.analyze()
+
+M3D.analyze(num_cores=4, num_tasks=2)
 
 ####################################################################################################
 # Release AEDT from PyAEDT scripting
