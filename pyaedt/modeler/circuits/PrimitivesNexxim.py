@@ -1433,10 +1433,10 @@ class NexximComponents(CircuitComponents):
         for el in self.components:
             if comp_name in self.components[el].composed_name:
                 if extrusion_length:
-                    val, units = decompose_variable_value(self.components[el].parameters["Length"])
+                    _, units = decompose_variable_value(self.components[el].parameters["Length"])
                     self.components[el].set_property("Length", self.arg_with_dim(extrusion_length, units))
                 if tline_port and extrusion_length:
-                    val, units = decompose_variable_value(self.components[el].parameters["TLineLength"])
+                    _, units = decompose_variable_value(self.components[el].parameters["TLineLength"])
                     self.components[el].set_property("TLineLength", self.arg_with_dim(extrusion_length, units))
                 return self.components[el]
         return False
