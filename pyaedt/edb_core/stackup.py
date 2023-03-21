@@ -1544,7 +1544,7 @@ class Stackup(object):
         Returns
         -------
         bool
-            ``True`` when succeed ``False`` if not.
+            ``True`` when successful, ``False`` when failed.
         """
         tree = ET.parse(file_path)
         material_dict = {}
