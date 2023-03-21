@@ -1632,6 +1632,7 @@ class Stackup(object):
         Returns
         -------
         bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
