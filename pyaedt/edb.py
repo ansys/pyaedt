@@ -94,6 +94,13 @@ class Edb(object):
     >>> from pyaedt import Edb
     >>> app = Edb()
 
+    Add a new variable named "s1" to the ``Edb`` instance.
+    >>> app['s1'] = "0.25 mm"
+    >>> app['s1'].tofloat
+    >>> 0.00025
+    >>> app['s1'].tostring
+    >>> "0.25mm"
+
     Create an ``Edb`` object and open the specified project.
 
     >>> app = Edb("myfile.aedb")
@@ -102,6 +109,7 @@ class Edb(object):
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
     >>> app = Edb("/path/to/file/myfile.gds")
+
     """
 
     def __init__(
@@ -199,11 +207,12 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def __getitem__(self, variable_name):
-        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or design variable.
+        """Get or Set a variable to the Edb project. The variable can be project using ``$`` prefix or
+        it can be a design variable, in which case the ``$`` is omitted.
 
         Parameters
         ----------
-        variable_name
+        variable_name : str
 
         Returns
         -------

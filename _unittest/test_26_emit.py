@@ -192,7 +192,7 @@ class TestClass(BasisTest, object):
         assert bad_units == power
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.2" or is_ironpython, reason="Skipped on versions earlier than 2023 R2."
+        config["desktopVersion"] <= "2022.1" or is_ironpython, reason="Skipped on versions earlier than 2022 R2."
     )
     def test_units_getters(self):
         self.aedtapp = BasisTest.add_app(self, application=Emit)
@@ -362,6 +362,11 @@ class TestClass(BasisTest, object):
         rx_frequencies = rev5.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
         assert len(rx_frequencies) == 79
 
+        # Test number of interferers
+        assert self.aedtapp.results.revisions[-1].get_max_simultaneous_interferers() == 1
+        self.aedtapp.results.revisions[-1].set_max_simultaneous_interferers(10)
+        assert self.aedtapp.results.revisions[-1].get_max_simultaneous_interferers() == 10
+
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1" or is_ironpython, reason="Skipped on versions earlier than 2023.2"
     )
@@ -394,7 +399,7 @@ class TestClass(BasisTest, object):
         assert bands == ["Band"]
 
         # Get the Freqs
-        freqs = rev.get_active_frequencies(radios[0], bands[0], econsts.tx_rx_mode().rx, "MHz")
+        freqs = rev.get_active_frequencies(radios[0], bands[0], econsts.tx_rx_mode().rx)
         assert freqs == [100.0]
 
         # Add an emitter
@@ -610,7 +615,9 @@ class TestClass(BasisTest, object):
         bandsRX = rev.get_band_names(radiosRX[0], econsts.tx_rx_mode().rx)
         domain = self.aedtapp.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
+        self.aedtapp.results.revisions[-1].set_max_simultaneous_interferers(2)
         interaction = self.aedtapp.results.revisions[-1].run(domain)
+        assert self.aedtapp.results.revisions[-1].get_max_simultaneous_interferers() == 2
         instance = interaction.get_worst_instance(econsts.result_type().sensitivity)
         assert instance.get_value(econsts.result_type().emi) == 82.04
         assert instance.get_value(econsts.result_type().desense) == 13.42
@@ -619,11 +626,11 @@ class TestClass(BasisTest, object):
         assert instance.get_largest_problem_type(econsts.result_type().emi) == "Out-of-Channel: Tx Fundamental"
         domain2 = self.aedtapp.results.interaction_domain()
         rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], econsts.tx_rx_mode().rx, "Hz")
-        domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0], "Hz")
+        domain2.set_receiver(radiosRX[0], bandsRX[0], rx_frequencies[0])
         radiosTX = rev.get_interferer_names(econsts.interferer_type().transmitters)
         bandsTX = rev.get_band_names(radiosTX[0], econsts.tx_rx_mode().tx)
         tx_frequencies = rev.get_active_frequencies(radiosTX[0], bandsTX[0], econsts.tx_rx_mode().tx, "Hz")
-        domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0], "Hz")
+        domain2.set_interferer(radiosTX[0], bandsTX[0], tx_frequencies[0])
         exception_raised = False
         try:
             instance = interaction.get_instance(domain2)

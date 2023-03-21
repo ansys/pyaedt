@@ -246,8 +246,6 @@ class Emit(Design, object):
                 if v not in valid_units[t]:
                     warnings.warn("[{}] are not supported by EMIT. The options are: {}: ".format(v, valid_units[t]))
                     return False
-                ut = EmitConstants.EMIT_UNIT_TYPE_STRING_TO_ENUM[t]
-                self._emit_api.set_units(ut, v)
                 self._units[t] = v
         else:
             if unit_type not in valid_type:
@@ -260,9 +258,6 @@ class Emit(Design, object):
                     "[{}] are not supported by EMIT. The options are: {}: ".format(unit_value, valid_units[unit_type])
                 )
                 return False
-            # keep the backend global units synced
-            ut = EmitConstants.EMIT_UNIT_TYPE_STRING_TO_ENUM[unit_type]
-            self._emit_api.set_units(ut, unit_value)
             self._units[unit_type] = unit_value
         return True
 
