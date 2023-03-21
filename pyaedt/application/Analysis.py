@@ -1905,16 +1905,29 @@ class Analysis(Design, object):
         if os.name == "posix" and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
         elif os.name == "posix" and settings.use_lsf_scheduler:  # pragma: no cover
-            batch_run = [
-                "bsub",
-                "-n",
-                str(num_cores),
-                "-R",
-                "span[ptile={}]".format(num_cores),
-                "-R",
-                "rusage[mem={}]".format(settings.lsf_ram),
-                settings.lsf_aedt_command,
-            ]
+            if settings.lsf_queue:
+                batch_run = [
+                    "bsub",
+                    "-n",
+                    str(num_cores),
+                    "-R",
+                    "span[ptile={}]".format(num_cores),
+                    "-R",
+                    "rusage[mem={}]".format(settings.lsf_ram),
+                    "-queue {}".format(settings.lsf_queue),
+                    settings.lsf_aedt_command,
+                ]
+            else:
+                batch_run = [
+                    "bsub",
+                    "-n",
+                    str(num_cores),
+                    "-R",
+                    "span[ptile={}]".format(num_cores),
+                    "-R",
+                    "rusage[mem={}]".format(settings.lsf_ram),
+                    settings.lsf_aedt_command,
+                ]
         else:
             batch_run = [inst_dir + "/ansysedt.exe"]
         batch_run.extend(options)
@@ -2373,7 +2386,7 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     def number_with_units(self, value, units=None):
-        """Convert a number to a string with units. If value is a string it's returned as is.
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         Parameters
         ----------

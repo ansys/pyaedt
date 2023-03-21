@@ -1318,14 +1318,14 @@ class Primitives3DLayout(object):
 
     @pyaedt_function_handler()
     def number_with_units(self, value, units=None):
-        """Convert a number to a string with units. If value is a string it's returned as is.
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         Parameters
         ----------
         value : float, int, str
             Input  number or string.
         units : optional
-            Units for formatting. The default is ``None`` which uses ``"meter"``.
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
 
         Returns
         -------
