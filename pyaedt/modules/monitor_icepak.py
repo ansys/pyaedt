@@ -707,7 +707,7 @@ class ObjectMonitor:
         for q in quantity:
             for i, monitor_result_obj in enumerate(
                 self._app.oreportsetup.GetSolutionDataPerVariation(
-                    "Monitor", setup_name, [], design_variation, f"{self.name}.{q}"
+                    "Monitor", setup_name, [], design_variation, "{}.{}".format(self.name, q)
                 )
             ):
                 variation_a = {
@@ -719,20 +719,20 @@ class ObjectMonitor:
                     for i in monitor_result_obj.GetSweepNames()
                 }
                 variation_a.update(variation_b)
-                unit = monitor_result_obj.GetDataUnits(f"{self.name}.{q}")
+                unit = monitor_result_obj.GetDataUnits("{}.{}".format(self.name, q))
                 if si_out and unit != "cel":
                     unit = SI_UNITS[unit_system(unit)]
                 if i in return_dict.keys():
                     return_dict[i][q] = {
                         "Unit": unit,
-                        "Value": list(monitor_result_obj.GetRealDataValues(f"{self.name}.{q}", si_out)),
+                        "Value": list(monitor_result_obj.GetRealDataValues("{}.{}".format(self.name, q), si_out)),
                     }
                 else:
                     return_dict[i] = {
                         "Variation": variation_a,
                         q: {
                             "Unit": unit,
-                            "Value": list(monitor_result_obj.GetRealDataValues(f"{self.name}.{q}", si_out)),
+                            "Value": list(monitor_result_obj.GetRealDataValues("{}.{}".format(self.name, q), si_out)),
                         },
                     }
         return return_dict
