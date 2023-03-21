@@ -84,7 +84,7 @@ class Parser:
         self.idx = end
         return res
 
-    def _parse_list(self, type_i=None, base=None, size=1):
+    def _parse_list(self, type=None, base=None, size=1):
         """
         Parser for vector or list. 'vector's are to be interpreted in the linear algebra sense,
         and converted to numpy.array. 'list's are python lists. Only simple base types can be
@@ -104,7 +104,7 @@ class Parser:
                 res = [
                     res,
                 ]
-            if type_i == "vector":
+            if type == "vector":
                 res = np.array(res)
         else:
             res = [self._parse(base) for iel in range(size)]
@@ -139,9 +139,9 @@ class Parser:
                 elif type_to_parse in ("vector", "list"):
                     # Parse explicit vectors or lists in the layout and convert the size to a number if it's a string
                     if isinstance(l["size"], str):
-                        namesdict[field] = self._parse_list(type_i=l["type"], base=l["base"], size=namesdict[l["size"]])
+                        namesdict[field] = self._parse_list(type=l["type"], base=l["base"], size=namesdict[l["size"]])
                     else:
-                        namesdict[field] = self._parse_list(type_i=l["type"], base=l["base"], size=l["size"])
+                        namesdict[field] = self._parse_list(type=l["type"], base=l["base"], size=l["size"])
                 else:
                     # Parse anything else that is not explicitly a list or a vector. In this case, the field type
                     # could be a custom type referring indirectly to a list or vector, so handle that directly for
@@ -152,7 +152,7 @@ class Parser:
                         arrsize = self.parser_types[type_to_parse]["size"]
                         if isinstance(arrsize, str):
                             arrsize = namesdict[self.parser_types[type_to_parse]["size"]]
-                        namesdict[field] = self._parse_list(type_i=arrtype, base=arrbase, size=arrsize)
+                        namesdict[field] = self._parse_list(type=arrtype, base=arrbase, size=arrsize)
                     elif type_to_parse in self.parser_flags:
                         flag_value = self._parse(type_to_parse)
                         flag_type = self.parser_flags[type_to_parse]

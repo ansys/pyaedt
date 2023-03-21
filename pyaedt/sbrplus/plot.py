@@ -103,7 +103,14 @@ class HDMPlotter(CommonPlotter):
         Returns
         -------
         :class:`pyvista.Plotter`
+
+
+        Notes
+        -----
+        This method is intended to be an example of the usage that can be made of hdm file.
+
         """
+        warnings.warn("This method is intended to be an example of the usage that can be made of hdm file.")
         if snapshot_path:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
