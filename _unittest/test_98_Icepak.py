@@ -275,6 +275,14 @@ class TestClass(BasisTest, object):
         self.aedtapp["Variable1"] = "0.5"
         assert self.aedtapp.create_output_variable("OutputVariable1", "abs(Variable1)")  # test creation
         assert self.aedtapp.create_output_variable("OutputVariable1", "asin(Variable1)")  # test update
+        self.aedtapp.monitor.assign_point_monitor_in_object(
+            "box", monitor_quantity="Temperature", monitor_name="test_monitor"
+        )
+        self.aedtapp.monitor.assign_face_monitor(
+            self.aedtapp.modeler.get_object_from_name("box").faces[0].id,
+            monitor_quantity=["Temperature", "HeatFlowRate"],
+            monitor_name="test_monitor2",
+        )
         self.aedtapp.analyze_setup("SetupIPK")
         self.aedtapp.save_project()
         self.aedtapp.export_summary(self.aedtapp.working_directory)
@@ -287,6 +295,14 @@ class TestClass(BasisTest, object):
         value = self.aedtapp.get_output_variable("OutputVariable1")
         tol = 1e-9
         assert abs(value - 0.5235987755982988) < tol
+
+    def test_19C_get_monitor_output(self):
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value()
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(quantity="Temperature")
+        assert self.aedtapp.monitor.all_monitors["test_monitor"].value(
+            setup_name=self.aedtapp.existing_analysis_sweeps[0]
+        )
+        assert self.aedtapp.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
     def test_20_eval_tempc(self):
         assert os.path.exists(
