@@ -1226,6 +1226,7 @@ class Stackup(object):
         temp_data = {name: area / outline_area * 100 for name, area in temp_data.items()}
         return temp_data
 
+    @pyaedt_function_handler
     def _import_json(self, file_path):
         if file_path:
             f = open(file_path)
@@ -1270,6 +1271,7 @@ class Stackup(object):
                             self.stackup_layers[layer["name"]]._load_layer(layer)
             return True
 
+    @pyaedt_function_handler
     def _import_csv(self, file_path):
         """Import stackup defnition from csv file.
 
@@ -1328,6 +1330,7 @@ class Stackup(object):
                 self.remove_layer(name)
         return True
 
+    @pyaedt_function_handler
     def _set(self, layers=None, materials=None, roughness=None):
         """Update stackup information.
 
@@ -1367,7 +1370,7 @@ class Stackup(object):
         if layers:
             prev_layer = None
             for name, val in layers.items():
-                etching_factor = val["EtchFactor"] if "EtchFactor" in val else None
+                etching_factor = float(val["EtchFactor"]) if "EtchFactor" in val else None
 
                 if not self.stackup_layers:
                     self.add_layer(
@@ -1402,6 +1405,7 @@ class Stackup(object):
                             val["Material"],
                             val["FillMaterial"] if val["Type"] == "signal" else "",
                             val["Thickness"],
+                            etching_factor,
                         )
                     prev_layer = name
             for name in self.stackup_layers:
@@ -1464,6 +1468,7 @@ class Stackup(object):
                     )
         return True
 
+    @pyaedt_function_handler
     def _get(self):
         """Get stackup information from layout.
 
@@ -1528,6 +1533,7 @@ class Stackup(object):
 
         return layers, materials, roughness_models
 
+    @pyaedt_function_handler
     def _import_xml(self, file_path):
         """Read external xml file and update stackup.
 
@@ -1567,8 +1573,10 @@ class Stackup(object):
             if list(l):
                 roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
 
+        layer_dict = OrderedDict(reversed(list(layer_dict.items())))
         return self._set(layer_dict, material_dict, roughness_dict)
 
+    @pyaedt_function_handler
     def _export_xml(self, file_path):
         """Export stackup information to an external xml file.
 

@@ -1627,6 +1627,7 @@ class LayerEdbClass(object):
         """
         if not self.is_stackup_layer:  # pragma: no cover
             return
+
         radius = self._pclass._edb_value(huray_radius)
         self._hurray_nodule_radius = huray_radius
         surface_ratio = self._pclass._edb_value(huray_surface_ratio)
