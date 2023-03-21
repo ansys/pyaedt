@@ -493,6 +493,6 @@ class TestClass(BasisTest, object):
         self.aedtapp["v1"] = "3mm"
         self.aedtapp["v2"] = "2*v1"
         assert self.aedtapp.decompose_number_with_units("v1") == (3.0, "mm")
-        assert self.aedtapp.decompose_number_with_units("v1") == (6.0, "mm")
+        assert self.aedtapp.decompose_number_with_units("v2") == (6.0, "mm")
         assert self.aedtapp.decompose_number_with_units("5mm") == (5.0, "mm")
         assert self.aedtapp.number_with_units(3.0, "mil") == "3.0mil"
