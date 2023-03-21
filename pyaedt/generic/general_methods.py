@@ -1584,7 +1584,7 @@ class Settings(object):
 
     @property
     def lsf_queue(self):
-        """LSF Queue name. This attribute is valid only on Linux
+        """LSF queue name. This attribute is valid only on Linux
         systems running LSF Scheduler."""
         return self._lsf_queue
 
