@@ -1878,16 +1878,16 @@ class Analysis(Design, object):
             os.unlink(queue_file_completed)
 
         if os.name == "posix" and settings.use_lsf_scheduler:
-            options = ["-ng", "-BatchSolve", "-distributed", "-machinelist", '"numcores={}"'.format(num_cores), "-auto"]
-        elif num_tasks == -1:
             options = [
                 "-ng",
                 "-BatchSolve",
-                "-ditributed",
                 "-machinelist",
-                '"numcores={}"'.format(num_cores),
-                "-auto" "-Monitor",
+                "list={}:{}:{}:90%:1".format(machine, num_tasks, num_cores),
+                "-Monitor",
             ]
+            if num_tasks == -1:
+                options.append("-distributed")
+                options.append("-auto")
         else:
             options = [
                 "-ng",
@@ -1908,7 +1908,9 @@ class Analysis(Design, object):
             batch_run = [
                 "bsub",
                 "-n",
-                num_tasks * num_cores,
+                str(num_cores),
+                "-R",
+                "span[ptile={}]".format(num_cores),
                 "-R",
                 "rusage[mem={}]".format(settings.lsf_ram),
                 settings.lsf_aedt_command,
