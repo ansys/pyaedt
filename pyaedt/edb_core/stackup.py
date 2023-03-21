@@ -1628,7 +1628,7 @@ class Stackup(object):
         Parameters
         ----------
         file_path : str
-            File path to stackup file.
+            Path to stackup file.
         Returns
         -------
         bool
