@@ -70,14 +70,14 @@
 
 `PyAEDT` 遵循 [MIT](https://github.com/pyansys/PyAEDT/blob/main/LICENSE "MIT") 许可证，并包括与 `AEDT tools` 和 `Ansys products` 交互的功能：
 
-  - HFSS and HFSS 3D Layout
-  - Icepak
-  - Maxwell 2D, Maxwell 3D, and RMXprt
-  - 2D Extractor and Q3D Extractor
-  - Mechanical
-  - Nexxim
-  - EDB
-  - Twin Builder
+-  HFSS and HFSS 3D Layout
+-  Icepak
+-  Maxwell 2D, Maxwell 3D, and RMXprt
+-  2D Extractor and Q3D Extractor
+-  Mechanical
+-  Nexxim
+-  EDB
+-  Twin Builder
 
 ## 文档与反馈
 
@@ -98,26 +98,26 @@
 
 在 AEDT UI 中使用记录和重用脚本自动执行是简化操作的一种快速又简便的办法。但是，此方法有以下缺陷：
 
-  - 记录的代码比较混乱，难以阅读与理解。
-  - 录制的脚本难以复用和二次编辑。
-  - AEDT 多个全局用户会生成复杂庞大的代码。
+-  记录的代码比较混乱，难以阅读与理解。
+-  录制的脚本难以复用和二次编辑。
+-  AEDT 多个全局用户会生成复杂庞大的代码。
 
 `PyAEDT` 的主要优点是：
 
-  - 自动初始化所有AEDT项目，例如desktop项目中的编辑器、边界等等
-  - 清晰的错误管理
-  - 详细的日志管理
-  - 自由的变量管理
-  - 兼容 IronPython 和 CPython
-  - 使用数据对象简化复杂的 API 语法，同时保持 PEP8 合规性。
-  - 在不同求解器之间的可复用代码
-  - 在函数与API上拥有清晰的文档
-  - 代码单元测试，以提高不同 AEDT 版本的质量
+-  自动初始化所有AEDT项目，例如desktop项目中的编辑器、边界等等
+-  清晰的错误管理
+-  详细的日志管理
+-  自由的变量管理
+-  兼容 IronPython 和 CPython
+-  使用数据对象简化复杂的 API 语法，同时保持 PEP8 合规性。
+-  在不同求解器之间的可复用代码
+-  在函数与API上拥有清晰的文档
+-  代码单元测试，以提高不同 AEDT 版本的质量
 
 ## 工作流程示例
 
-1. 在所需的`AEDT`版本中初始化`desktop`类。
-2. 并初始化`AEDT`中所要使用的应用程序。
+ 1. 在所需的`AEDT`版本中初始化`desktop`类。
+ 2. 并初始化`AEDT`中所要使用的应用程序。
 
 ##  使用 Python IDE 连接 AEDT
 
