@@ -3153,3 +3153,264 @@ class FieldPlot:
         else:
             self._postprocessor.logger.info("This method works only on CPython with PyVista")
             return False
+
+
+class VRTFieldPlot:
+    """Creates and edits VRT field plots for SBR+ and Creeping Waves.
+
+    Parameters
+    ----------
+    postprocessor : :class:`pyaedt.modules.PostProcessor.PostProcessor`
+
+    objlist : list
+        List of objects.
+    solutionName : str
+        Name of the solution.
+    quantity_name : str
+        Name of the plot or the name of the object.
+    intrinsincList : dict, optional
+        Name of the intrinsic dictionary. The default is ``{}``.
+
+    """
+
+    def __init__(
+        self,
+        postprocessor,
+        is_creeping_wave=False,
+        quantity_name="QuantityName_SBR",
+        max_frequency="1GHz",
+        ray_density=2,
+        bounces=5,
+        intrinsincList={},
+    ):
+        self.is_creeping_wave = is_creeping_wave
+        self._postprocessor = postprocessor
+        self._ofield = postprocessor.ofieldsreporter
+        self.quantity_name = quantity_name
+        self.intrinsics = intrinsincList
+        self.name = "Field_Plot"
+        self.plot_folder = "Field_Plot"
+        self.max_frequency = max_frequency
+        self.ray_density = ray_density
+        self.number_of_bounces = bounces
+        self.multi_bounce_ray_density_control = False
+        self.mbrd_max_subdivision = 2
+        self.shoot_utd_rays = False
+        self.shoot_type = "All Rays"
+        self.start_index = 0
+        self.stop_index = 1
+        self.step_index = 1
+        self.is_plane_wave = True
+        self.incident_theta = "0deg"
+        self.incident_phi = "0deg"
+        self.vertical_polarization = False
+        self.custom_location = [0, 0, 0]
+        self.ray_box = None
+        self.ray_elevation = "0deg"
+        self.ray_azimuth = "0deg"
+        self.custom_coordinatesystem = 1
+        self.ray_cutoff = 40
+        self.sample_density = 10
+        self.irregular_surface_tolerance = 50
+
+    @property
+    def intrinsicVar(self):
+        """Intrinsic variable.
+
+        Returns
+        -------
+        list or dict
+            List or dictionary of the variables for the field plot.
+        """
+        var = ""
+        if isinstance(self.intrinsics, list):
+            l = 0
+            while l < len(self.intrinsics):
+                val = self.intrinsics[l + 1]
+                if ":=" in self.intrinsics[l] and isinstance(self.intrinsics[l + 1], list):
+                    val = self.intrinsics[l + 1][0]
+                ll = self.intrinsics[l].split(":=")
+                var += ll[0] + "='" + str(val) + "' "
+                l += 2
+        else:
+            for a in self.intrinsics:
+                var += a + "='" + str(self.intrinsics[a]) + "' "
+        return var
+
+    @pyaedt_function_handler()
+    def _create_args(self):
+        args = [
+            "NAME:" + self.name,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            self.quantity_name,
+            "PlotFolder:=",
+            "Visual Ray Trace SBR",
+            "IntrinsicVar:=",
+            self.intrinsicVar,
+            "MaxFrequency:=",
+            self.max_frequency,
+            "RayDensity:=",
+            self.ray_density,
+            "NumberBounces:=",
+            self.number_of_bounces,
+            "Multi-Bounce Ray Density Control:=",
+            self.multi_bounce_ray_density_control,
+            "MBRD Max sub divisions:=",
+            self.mbrd_max_subdivision,
+            "Shoot UTD Rays:=",
+            self.shoot_utd_rays,
+            "ShootFilterType:=",
+            self.shoot_type,
+        ]
+        if self.shoot_type == "Rays by index":
+            args.extend(
+                [
+                    "start index:=",
+                    self.start_index,
+                    "stop index:=",
+                    self.stop_index,
+                    "index step:=",
+                    self.step_index,
+                ]
+            )
+        elif self.shoot_type == "Rays in box":
+            box_id = None
+            if isinstance(self.ray_box, int):
+                box_id = self.ray_box
+            elif isinstance(self.ray_box, str):
+                box_id = self._postprocessor._primitives.object_id_dict[self.ray_box]
+            else:
+                box_id = self.ray_box.id
+            args.extend("FilterBoxID:=", box_id)
+        elif self.shoot_type == "Single ray":
+            args.extend("Ray elevation:=", self.ray_elevation, "Ray azimuth:=", self.ray_azimuth)
+        args.append("LaunchFrom:=")
+        if self.is_plane_wave:
+            args.append("Launch from Plane-Wave")
+            args.append("Incident direction theta:=")
+            args.append(self.incident_theta)
+            args.append("Incident direction phi:=")
+            args.append(self.incident_phi)
+            args.append("Vertical Incident Polarization:=")
+            args.append(self.vertical_polarization)
+        else:
+            args.append("Launch from Custom")
+            args.append("LaunchFromPointID:=")
+            args.append(-1)
+            args.append("CustomLocationCoordSystem:=")
+            args.append(self.custom_coordinatesystem)
+            args.append("CustomLocation:=")
+            args.append(self.custom_location)
+        return args
+
+    @pyaedt_function_handler()
+    def _create_args_creeping(self):
+        args = [
+            "NAME:" + self.name,
+            "UserSpecifyName:=",
+            0,
+            "UserSpecifyFolder:=",
+            0,
+            "QuantityName:=",
+            self.quantity_name,
+            "PlotFolder:=",
+            "Visual Ray Trace CW",
+            "IntrinsicVar:=",
+            "",
+            "MaxFrequency:=",
+            self.max_frequency,
+            "SampleDensity:=",
+            self.sample_density,
+            "RayCutOff:=",
+            self.ray_cutoff,
+            "Irregular Surface Tolerance:=",
+            self.irregular_surface_tolerance,
+            "LaunchFrom:=",
+        ]
+        if self.is_plane_wave:
+            args.append("Launch from Plane-Wave")
+            args.append("Incident direction theta:=")
+            args.append(self.incident_theta)
+            args.append("Incident direction phi:=")
+            args.append(self.incident_phi)
+            args.append("Vertical Incident Polarization:=")
+            args.append(self.vertical_polarization)
+        else:
+            args.append("Launch from Custom")
+            args.append("LaunchFromPointID:=")
+            args.append(-1)
+            args.append("CustomLocationCoordSystem:=")
+            args.append(self.custom_coordinatesystem)
+            args.append("CustomLocation:=")
+            args.append(self.custom_location)
+        args.append("SBRRayDensity:=")
+        args.append(self.ray_density)
+        return args
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a field plot.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        try:
+            if self.is_creeping_wave:
+                self._ofield.CreateFieldPlot(self._create_args_creeping(), "CreepingWave_VRT")
+            else:
+                self._ofield.CreateFieldPlot(self._create_args(), "VRT")
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the field plot.
+
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            if self.is_creeping_wave:
+                self._ofield.ModifyFieldPlot(self.name, self._create_args_creeping())
+
+            else:
+                self._ofield.ModifyFieldPlot(self.name, self._create_args())
+            return True
+        except:
+            return False
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the field plot."""
+        self._ofield.DeleteFieldPlot([self.name])
+        return True
+
+    @pyaedt_function_handler()
+    def export(self, path_to_hdm_file=None):
+        """Export the Visual Ray Tracing to ``hdm`` file.
+
+        Parameters
+        ----------
+        path_to_hdm_file : str, optional
+            Full path to output file. If ``None``, the file will be exported in working directory.
+
+        Returns
+        -------
+        str
+            Path to the file.
+        """
+        if not path_to_hdm_file:
+            path_to_hdm_file = os.path.join(self._postprocessor._app.working_directory, self.name + ".hdm")
+        self._ofield.ExportFieldPlot(self.name, False, path_to_hdm_file)
+        return path_to_hdm_file

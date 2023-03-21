@@ -26,6 +26,7 @@ from pyaedt.generic.general_methods import pyaedt_function_handler
 import pyaedt.modules.report_templates as rt
 from pyaedt.modules.solutions import FieldPlot
 from pyaedt.modules.solutions import SolutionData
+from pyaedt.modules.solutions import VRTFieldPlot
 
 if not is_ironpython:
     try:
@@ -37,7 +38,6 @@ if not is_ironpython:
         Enum = None
 else:
     Enum = object
-
 
 TEMPLATES_BY_DESIGN = {
     "HFSS": [
@@ -3861,6 +3861,245 @@ class PostProcessor(PostProcessorCommon, object):
 
         self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
         return power_dict, sum(power_dict.values())
+
+    def create_creeping_plane_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=1,
+        sample_density=10,
+        ray_cutoff=40,
+        irregular_surface_tolerance=50,
+        incident_theta=0,
+        incident_phi=0,
+        is_vertical_polarization=False,
+    ):
+        """Create a Creeping Wave Plane Wave Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        sample_density : int, optional
+            Sample density. Default is ``10``.
+        ray_cutoff : int, optional
+            Ray Cutoff number. Default is ``40``.
+        irregular_surface_tolerance : int, optional
+            Irregular Surface Tolerance value. Default is ``50``.
+        incident_theta : str, optional
+            Incident plane wave theta. Default is ``"0deg"``.
+        incident_phi : str, optional
+            Incident plane wave phi. Default is ``"0deg"``.
+        is_vertical_polarization : bool, optional
+            Whether if enable or Vertical Polarization or not. Default is ``False``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        vrt = VRTFieldPlot(self, is_creeping_wave=True)
+        vrt.max_frequency = max_frequency
+        vrt.sample_density = sample_density
+        vrt.ray_density = ray_density
+        vrt.ray_cutoff = ray_cutoff
+        vrt.irregular_surface_tolerance = irregular_surface_tolerance
+        vrt.is_plane_wave = True
+        vrt.incident_theta = incident_theta
+        vrt.incident_phi = incident_phi
+        vrt.vertical_polarization = is_vertical_polarization
+        vrt.create()
+        return vrt
+
+    def create_creeping_point_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=1,
+        sample_density=10,
+        ray_cutoff=40,
+        irregular_surface_tolerance=50,
+        custom_location=None,
+    ):
+        """Create a Creeping Wave Point Source Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        sample_density : int, optional
+            Sample density. Default is ``10``.
+        ray_cutoff : int, optional
+            Ray Cutoff number. Default is ``40``.
+        irregular_surface_tolerance : int, optional
+            Irregular Surface Tolerance value. Default is ``50``.
+        custom_location : list, optional
+            List of x, y,z position of point source. Default is ``None``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        if custom_location is None:
+            custom_location = [0, 0, 0]
+        vrt = VRTFieldPlot(
+            self,
+            is_creeping_wave=True,
+        )
+        vrt.max_frequency = max_frequency
+        vrt.sample_density = sample_density
+        vrt.ray_density = ray_density
+        vrt.ray_cutoff = ray_cutoff
+        vrt.irregular_surface_tolerance = irregular_surface_tolerance
+        vrt.is_plane_wave = False
+        vrt.custom_location = custom_location
+        vrt.create()
+        return vrt
+
+    def create_sbr_plane_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=2,
+        number_of_bounces=5,
+        multi_bounce=False,
+        mbrd_max_sub_division=2,
+        shoot_utd=False,
+        incident_theta=0,
+        incident_phi=0,
+        is_vertical_polarization=False,
+        shoot_filter_type="All Rays",
+        ray_index_start=0,
+        ray_index_stop=1,
+        ray_index_step=1,
+        ray_box=None,
+    ):
+        """Create an SBR Plane Wave Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        number_of_bounces : int, optional
+            Maximum number of bounces. Default is ``5``.
+        multi_bounce : bool, optional
+            Whether if enable or not Multi-Bounce ray density control. Default is ``False``.
+        mbrd_max_sub_division : int, optional
+            Maximum number of MBRD subdivisions. Default is ``2``.
+        shoot_utd : bool, optional
+            Whether if enable or UTD Rays shooting or not. Default is ``False``.
+        incident_theta : str, optional
+            Incident plane wave theta. Default is ``"0deg"``.
+        incident_phi : str, optional
+            Incident plane wave phi. Default is ``"0deg"``.
+        is_vertical_polarization : bool, optional
+            Whether if enable or Vertical Polarization or not. Default is ``False``.
+        shoot_filter_type : str, optional
+            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+        ray_index_start : int, optional
+            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+        ray_index_stop : int, optional
+            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_index_step : int, optional
+            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_box : int or str optional
+            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        vrt = VRTFieldPlot(self, is_creeping_wave=False)
+        vrt.max_frequency = max_frequency
+        vrt.ray_density = ray_density
+        vrt.number_of_bounces = number_of_bounces
+        vrt.multi_bounce_ray_density_control = multi_bounce
+        vrt.mbrd_max_subdivision = mbrd_max_sub_division
+        vrt.shoot_utd_rays = shoot_utd
+        vrt.shoot_type = shoot_filter_type
+        vrt.is_plane_wave = True
+        vrt.incident_theta = incident_theta
+        vrt.incident_phi = incident_phi
+        vrt.vertical_polarization = is_vertical_polarization
+        vrt.start_index = ray_index_start
+        vrt.stop_index = ray_index_stop
+        vrt.step_index = ray_index_step
+        vrt.ray_box = ray_box
+        vrt.create()
+        return vrt
+
+    def create_sbr_point_visual_ray_tracing(
+        self,
+        max_frequency="1GHz",
+        ray_density=2,
+        number_of_bounces=5,
+        multi_bounce=False,
+        mbrd_max_sub_division=2,
+        shoot_utd=False,
+        custom_location=None,
+        shoot_filter_type="All Rays",
+        ray_index_start=0,
+        ray_index_stop=1,
+        ray_index_step=1,
+        ray_box=None,
+    ):
+        """Create an SBR Point Source Visual Ray Tracing and return the class object.
+
+        Parameters
+        ----------
+
+        max_frequency : str, optional
+            Maximum Frequency. Default is ``"1GHz"``.
+        ray_density : int, optional
+            Ray Density. Default is ``2``.
+        number_of_bounces : int, optional
+            Maximum number of bounces. Default is ``5``.
+        multi_bounce : bool, optional
+            Whether if enable or not Multi-Bounce ray density control. Default is ``False``.
+        mbrd_max_sub_division : int, optional
+            Maximum number of MBRD subdivisions. Default is ``2``.
+        shoot_utd : bool, optional
+            Whether if enable or UTD Rays shooting or not. Default is ``False``.
+        custom_location : list, optional
+            List of x, y,z position of point source. Default is ``None`.
+        shoot_filter_type : str, optional
+            Shooter Type. Default is ``"All Rays"``. Options are  ``"Rays by index"``,  ``"Rays in box"``.
+        ray_index_start : int, optional
+            Ray index start. Valid only if ``"Rays by index"`` is chosen.  Default is ``0``.
+        ray_index_stop : int, optional
+            Ray index stop. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_index_step : int, optional
+            Ray index step. Valid only if ``"Rays by index"`` is chosen.  Default is ``1``.
+        ray_box : int or str optional
+            Ray box name or id. Valid only if ``"Rays by box"`` is chosen.  Default is ``None``.
+
+        Returns
+        -------
+        :class:` pyaedt.modules.solutions.VRTFieldPlot`
+        """
+        if custom_location is None:
+            custom_location = [0, 0, 0]
+        vrt = VRTFieldPlot(self, is_creeping_wave=False)
+        vrt.max_frequency = max_frequency
+        vrt.ray_density = ray_density
+        vrt.number_of_bounces = number_of_bounces
+        vrt.multi_bounce_ray_density_control = multi_bounce
+        vrt.mbrd_max_subdivision = mbrd_max_sub_division
+        vrt.shoot_utd_rays = shoot_utd
+        vrt.shoot_type = shoot_filter_type
+        vrt.is_plane_wave = False
+        vrt.custom_location = custom_location
+        vrt.start_index = ray_index_start
+        vrt.stop_index = ray_index_stop
+        vrt.step_index = ray_index_step
+        vrt.ray_box = ray_box
+        vrt.create()
+        return vrt
 
 
 class CircuitPostProcessor(PostProcessorCommon, object):
