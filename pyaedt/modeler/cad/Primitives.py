@@ -2819,7 +2819,8 @@ class Primitives(object):
             self.planes[name] = o
         else:
             o = Object3d(self, name)
-            if o.history and o.history.command == "CreatePolyline":
+            history = o.history  # avoids creating the history twice
+            if history and history.command == "CreatePolyline":
                 new_id = o.id
                 o = self.get_existing_polyline(o)
             else:

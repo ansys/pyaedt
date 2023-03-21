@@ -374,9 +374,14 @@ class Polyline(Object3d):
 
         segments = []
         points = []
-        children = self.history.children
-        if children:
-            for i, c in enumerate(children.values()):
+        try:
+            history = self.history
+            h_segments = history.segments
+        except:  # pragma: no cover
+            history = None
+            h_segments = None
+        if h_segments:
+            for i, c in enumerate(h_segments.values()):
                 # evaluate the number of points in the segment
                 attrb = list(c.props.keys())
                 n_points = 0
@@ -413,8 +418,12 @@ class Polyline(Object3d):
                     points.extend(arc_seg.extra_points[:])
 
         # perform validation
-        nn_segments = int(self.history.props["Number of curves"])
-        nn_points = int(self.history.props["Number of points"])
+        if history:
+            nn_segments = int(history.props["Number of curves"])
+            nn_points = int(history.props["Number of points"])
+        else:
+            nn_segments = None
+            nn_points = None
         assert len(segments) == nn_segments, "Error getting the polyline segments from AEDT."
         assert len(points) == nn_points, "Error getting the polyline points from AEDT."
         # if succeeded save the result

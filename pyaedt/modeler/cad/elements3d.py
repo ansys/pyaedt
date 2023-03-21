@@ -1380,13 +1380,17 @@ class BinaryTreeNode:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:
                     self.children[name] = BinaryTreeNode(name, self.child_object.GetChildObject(i).GetChildObject(name))
-        self.props = {}
         if first_level:
             self.child_object = self.children[name].child_object
-            self.children = self.children[name].children
-        for i in self.child_object.GetPropNames():
-            self.props[i] = self.child_object.GetPropValue(i)
-        self.props = HistoryProps(self, self.props)
+            self.props = self.children[name].props
+            if name == "CreatePolyline:1":
+                self.segments = self.children[name].children
+            del self.children[name]
+        else:
+            self.props = {}
+            for i in self.child_object.GetPropNames():
+                self.props[i] = self.child_object.GetPropValue(i)
+            self.props = HistoryProps(self, self.props)
         self.command = self.props.get("Command", "")
 
     def update_property(self, prop_name, prop_value):
