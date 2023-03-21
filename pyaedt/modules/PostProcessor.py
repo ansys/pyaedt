@@ -3862,7 +3862,7 @@ class PostProcessor(PostProcessorCommon, object):
         self.logger.info("The total power is {} {}".format(str(sum(power_dict.values())), units))
         return power_dict, sum(power_dict.values())
 
-    def create_creeping_wave_planar_visual_ray_tracing(
+    def create_creeping_plane_visual_ray_tracing(
         self,
         max_frequency="1GHz",
         ray_density=1,
@@ -3912,7 +3912,7 @@ class PostProcessor(PostProcessorCommon, object):
         vrt.create()
         return vrt
 
-    def create_creeping_wave_point_visual_ray_tracing(
+    def create_creeping_point_visual_ray_tracing(
         self,
         max_frequency="1GHz",
         ray_density=1,

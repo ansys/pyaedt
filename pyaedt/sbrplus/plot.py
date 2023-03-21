@@ -20,6 +20,11 @@ class HDMPlotter(CommonPlotter):
         self.show_as_standalone = True
         self.units = "meter"
 
+    @property
+    def hdm_data(self):
+        """Return the ``hds`` Data parsed."""
+        return self._bundle
+
     @pyaedt_function_handler()
     def add_cad_model(self, filename, cad_color="dodgerblue", opacity=1, units="mm"):
         """Add a ``stl`` file to the scenario.

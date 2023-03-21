@@ -232,12 +232,12 @@ class TestClass(BasisTest, object):
     def test_15_create_vrt_creeping(self):
         self.aedtapp.insert_design("vtr_creeping")
         self.aedtapp.modeler.create_sphere([10, 10, 10], 5, matname="copper")
-        vrt = self.aedtapp.post.create_creeping_wave_planar_visual_ray_tracing(max_frequency="10GHz")
+        vrt = self.aedtapp.post.create_creeping_plane_visual_ray_tracing(max_frequency="10GHz")
         assert vrt
         vrt.incident_phi = "30deg"
         assert vrt.update()
         assert vrt.delete()
-        vrt = self.aedtapp.post.create_creeping_wave_point_visual_ray_tracing(max_frequency="10GHz")
+        vrt = self.aedtapp.post.create_creeping_point_visual_ray_tracing(max_frequency="10GHz")
         assert vrt
         vrt.custom_location = [10, 10, 0]
         assert vrt.update()
