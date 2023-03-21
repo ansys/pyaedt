@@ -7,11 +7,13 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import ParseError
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-pyaedt_path = os.path.join(
-    current_dir,
-    "..",
+pyaedt_path = os.path.normpath(
+    os.path.join(
+        current_dir,
+        "..",
+    )
 )
-sys.path.append(os.path.join(pyaedt_path, ".."))
+sys.path.append(os.path.normpath(os.path.join(pyaedt_path, "..")))
 
 
 pid = 0
@@ -28,7 +30,10 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
         if os.path.exists(pers1):
             d.logger.info("PersonalLib already mapped")
         else:
-            os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            if is_windows():
+                os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
+            else:
+                os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
 
         toolkits = ["Project"]
 
@@ -68,8 +73,8 @@ def install_toolkit(toolkit_dir, product, aedt_version):
         version_agnostic = True
     else:
         executable_version_agnostic = sys.executable
-    jupyter_executable = executable_version_agnostic.replace("python.exe", "jupyter.exe")
-    ipython_executable = executable_version_agnostic.replace("python.exe", "ipython.exe")
+    jupyter_executable = executable_version_agnostic.replace("python" + exe(), "jupyter" + exe())
+    ipython_executable = executable_version_agnostic.replace("python" + exe(), "ipython" + exe())
     for file_name in files_to_copy:
         with open(os.path.join(current_dir, file_name + ".py_build"), "r") as build_file:
             file_name_dest = file_name.replace("_", " ") + ".py"
@@ -149,6 +154,20 @@ def write_pretty_xml(root, file_path):
 
     with open(file_path, "w") as f:
         f.write(xml_str)
+
+
+def exe():
+    if is_windows():
+        return ".exe"
+    return ""
+
+
+def is_windows():
+    return not is_linux()
+
+
+def is_linux():
+    return os.name == "posix"
 
 
 if __name__ == "__main__":
