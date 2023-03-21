@@ -697,7 +697,7 @@ class VariableManager(object):
                             self._independent_variables[variable_name] = value
 
                         elif dependent and not is_number_flag:
-                            self._independent_variables[variable_name] = value
+                            self._dependent_variables[variable_name] = value
                 elif dependent and variable_name not in self._dependent_variables:
                     if self.get_expression(variable_name):
                         variable_expression = self.get_expression(variable_name)

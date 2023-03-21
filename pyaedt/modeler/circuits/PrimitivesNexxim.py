@@ -4,6 +4,7 @@ import random
 import re
 import warnings
 
+from pyaedt.application.Variables import decompose_variable_value
 from pyaedt.generic.LoadAEDTFile import load_entire_aedt_file
 from pyaedt.generic.constants import AEDT_UNITS
 from pyaedt.generic.general_methods import generate_unique_name
@@ -1433,10 +1434,10 @@ class NexximComponents(CircuitComponents):
             if comp_name in self.components[el].composed_name:
                 if extrusion_length:
                     val, units = decompose_variable_value(self.components[el].parameters["Length"])
-                    self.components[el].set_property("Length", self.arg_with_dim(extrusion_length, units))
+                    self.components[el].set_property("Length", self.number_with_units(extrusion_length, units))
                 if tline_port and extrusion_length:
                     val, units = decompose_variable_value(self.components[el].parameters["TLineLength"])
-                    self.components[el].set_property("TLineLength", self.arg_with_dim(extrusion_length, units))
+                    self.components[el].set_property("TLineLength", self.number_with_units(extrusion_length, units))
                 return self.components[el]
         return False
 
