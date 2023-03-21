@@ -1343,9 +1343,32 @@ class Stackup(object):
         -------
 
         """
+        if materials:
+            mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
+            mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
+            for name, attr in materials.items():
+                if not name.lower() in mat_keys:
+                    if "Conductivity" in attr:
+                        self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
+                    else:
+                        self._pedb.materials.add_dielectric_material(
+                            name,
+                            attr["Permittivity"],
+                            attr["DielectricLossTangent"],
+                        )
+                else:
+                    local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
+                    if "Conductivity" in attr:
+                        local_material.conductivity = attr["Conductivity"]
+                    else:
+                        local_material.permittivity = attr["Permittivity"]
+                        local_material.loss_tanget = attr["DielectricLossTangent"]
+
         if layers:
             prev_layer = None
             for name, val in layers.items():
+                etching_factor = val["EtchFactor"] if "EtchFactor" in val else None
+
                 if not self.stackup_layers:
                     self.add_layer(
                         name,
@@ -1353,8 +1376,9 @@ class Stackup(object):
                         "add_on_top",
                         val["Type"],
                         val["Material"],
-                        val["FillMaterial"] if val["type"] == "signal" else "",
+                        val["FillMaterial"] if val["Type"] == "signal" else "",
                         val["Thickness"],
+                        etching_factor
                     )
                 else:
                     if name in self.stackup_layers.keys():
@@ -1383,27 +1407,6 @@ class Stackup(object):
             for name in self.stackup_layers:
                 if name not in layers:
                     self.remove_layer(name)
-
-        if materials:
-            mat_keys = [i.lower() for i in self._pedb.materials.materials.keys()]
-            mat_keys_case = [i for i in self._pedb.materials.materials.keys()]
-            for name, attr in materials.items():
-                if not name.lower() in mat_keys:
-                    if "Conductivity" in attr:
-                        self._pedb.materials.add_conductor_material(name, attr["Conductivity"])
-                    else:
-                        self._pedb.materials.add_dielectric_material(
-                            name,
-                            attr["Permittivity"],
-                            attr["DielectricLossTangent"],
-                        )
-                else:
-                    local_material = self._pedb.materials[mat_keys_case[mat_keys.index(name.lower())]]
-                    if "Conductivity" in attr:
-                        local_material.conductivity = attr["Conductivity"]
-                    else:
-                        local_material.permittivity = attr["Permittivity"]
-                        local_material.loss_tanget = attr["DielectricLossTangent"]
 
         if roughness:
             for name, attr in roughness.items():
@@ -1478,6 +1481,7 @@ class Stackup(object):
             layer["Type"] = val.type
             if not val.type == "dielectric":
                 layer["FillMaterial"] = val.dielectric_fill
+                layer["EtchFactor"] = val.etch_factor
             layers[name] = layer
 
             if val.roughness_enabled:
