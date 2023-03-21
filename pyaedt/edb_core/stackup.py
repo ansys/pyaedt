@@ -1583,7 +1583,7 @@ class Stackup(object):
         Parameters
         ----------
         file_path: str
-            Path to external xml file.
+            Path to external XML file.
         Returns
         -------
         bool
