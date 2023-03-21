@@ -11,7 +11,6 @@ import logging
 import math
 import os.path
 import warnings
-import xml.dom.minidom as md
 import xml.etree.ElementTree as ET
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
@@ -19,7 +18,7 @@ from pyaedt.edb_core.edb_data.layer_data import LayerEdbClass
 from pyaedt.edb_core.general import convert_py_list_to_net_list
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import pyaedt_function_handler
-
+from pyaedt.misc.aedtlib_personalib_install import write_pretty_xml
 
 pd = None
 np = None
@@ -546,14 +545,23 @@ class Stackup(object):
             section in the JSON file. If ``True``, the material definition is included inside the layer ones.
 
         """
-        if fpath.endswith(".csv") or file_format == "csv":
+        if len(fpath.split(".")) == 1:
+            if file_format == "csv":
+                return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+            elif file_format == "xlsx":
+                return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
+            elif file_format == "json":
+                return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+            elif file_format == "xml":
+                return self._export_xml(fpath)
+        elif fpath.endswith(".csv"):
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-        elif fpath.endswith(".xlsx") or file_format == "xlsx":
+        elif fpath.endswith(".xlsx"):
             return self._export_layer_stackup_to_csv_xlsx(fpath, file_format)
-        elif fpath.endswith(".json") or file_format == "json":
-            self._export_layer_stackup_to_json(fpath, include_material_with_layer)
-        elif fpath.endswith(".xml") or file_format == "xml":
-            self._export_xml(fpath)
+        elif fpath.endswith(".json"):
+            return self._export_layer_stackup_to_json(fpath, include_material_with_layer)
+        elif fpath.endswith(".xml"):
+            return self._export_xml(fpath)
         else:
             self._logger.warning("Layer stackup format is not supported. Skipping import.")
             return False
@@ -1592,7 +1600,6 @@ class Stackup(object):
                 value = ET.SubElement(mat_prop, "Double")
                 value.text = str(pval)
 
-        layers = OrderedDict(reversed(list(layers.items())))
         el_layers = ET.SubElement(el_stackup, "Layers")
         for lyr, val in layers.items():
             layer = ET.SubElement(el_layers, "Layer")
@@ -1607,12 +1614,7 @@ class Stackup(object):
                 pval = {i: str(j) for i, j in pval.items()}
                 ET.SubElement(el, pname, pval)
 
-        xml_string = ET.tostring(root, encoding="utf8", method="xml").decode()
-        xml_dom = md.parseString(xml_string)
-        pretty_xml_string = xml_dom.toprettyxml(indent="  ").replace("ns0", "c")
-
-        with open(file_path, "w") as f:
-            f.write(pretty_xml_string)
+        write_pretty_xml(root, file_path)
         return True
 
     @pyaedt_function_handler
