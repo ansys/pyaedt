@@ -1378,7 +1378,7 @@ class Stackup(object):
                         val["Material"],
                         val["FillMaterial"] if val["Type"] == "signal" else "",
                         val["Thickness"],
-                        etching_factor
+                        etching_factor,
                     )
                 else:
                     if name in self.stackup_layers.keys():
