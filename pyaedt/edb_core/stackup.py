@@ -1278,7 +1278,7 @@ class Stackup(object):
         Parameters
         ----------
         fpath : str
-            File path to csv or json file.
+            File path to the CSV or JSON file.
         """
         if not pd:
             self._pedb.logger.error("Pandas is needed. Please, install it first.")
