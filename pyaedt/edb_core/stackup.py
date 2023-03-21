@@ -1587,7 +1587,7 @@ class Stackup(object):
         Returns
         -------
         bool
-            ``True`` when succeed ``False`` if not.
+            ``True`` when successful, ``False`` when failed.
         """
         layers, materials, roughness = self._get()
 
