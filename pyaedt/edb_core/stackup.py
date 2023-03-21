@@ -11,7 +11,6 @@ import logging
 import math
 import os.path
 import warnings
-import xml.dom.minidom as md
 import xml.etree.ElementTree as ET
 
 from pyaedt.edb_core.edb_data.layer_data import EDBLayers
