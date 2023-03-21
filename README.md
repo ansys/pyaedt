@@ -69,14 +69,14 @@ In addition, it includes direct links to the complete Ansys portfolio of thermal
 
 `PyAEDT` includes functionality for interacting with the following `AEDT tools` and `Ansys products`:
 
-  - HFSS and HFSS 3D Layout
-  - Icepak
-  - Maxwell 2D, Maxwell 3D, and RMXprt
-  - 2D Extractor and Q3D Extractor
-  - Mechanical
-  - Nexxim
-  - EDB
-  - Twin Builder
+-  HFSS and HFSS 3D Layout
+-  Icepak
+-  Maxwell 2D, Maxwell 3D, and RMXprt
+-  2D Extractor and Q3D Extractor
+-  Mechanical
+-  Nexxim
+-  EDB
+-  Twin Builder
 
 ## Documentation and issues
 
@@ -97,21 +97,21 @@ To run `PyAEDT`, you must have a local licenced copy of AEDT.
 
 A quick and easy approach for automating a simple operation in the AEDT UI is to record and reuse a script. However, disadvantages of this approach are:
 
-  - Recorded code is dirty and difficult to read and understand.
-  - Recorded scripts are difficult to reuse and adapt.
-  - Complex coding is required by many global users of `AEDT`.
+-  Recorded code is dirty and difficult to read and understand.
+-  Recorded scripts are difficult to reuse and adapt.
+-  Complex coding is required by many global users of `AEDT`.
 
 The main advantages of `PyAEDT` are:
 
-  - Automatic initialization of all `AEDT` objects, such as desktop objects like the editor, boundaries, and so on
-  - Error management
-  - Log management
-  - Variable management
-  - Compatibility with IronPython and CPython
-  - Simplification of complex API syntax using data objects while maintaining PEP8 compliance.
-  - Code reusability across different solvers
-  - Clear documentation on functions and API
-  - Unit tests of code to increase quality across different AEDT versions
+-  Automatic initialization of all `AEDT` objects, such as desktop objects like the editor, boundaries, and so on
+-  Error management
+-  Log management
+-  Variable management
+-  Compatibility with IronPython and CPython
+-  Simplification of complex API syntax using data objects while maintaining PEP8 compliance.
+-  Code reusability across different solvers
+-  Clear documentation on functions and API
+-  Unit tests of code to increase quality across different AEDT versions
 
 ## Example workflow
 
