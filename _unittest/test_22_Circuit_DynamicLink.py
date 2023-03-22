@@ -246,7 +246,9 @@ class TestClass(BasisTest, object):
         assert siw_comp
         assert len(siw_comp.pins) == 2
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(
+        config.get("skip_circuits", False) or os.name == "posix", reason="Skipped because Desktop is crashing"
+    )
     def test_12_create_interface_port(self):
         page_port = self.aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
         interface_port = self.aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
