@@ -918,3 +918,46 @@ class EDBComponent(object):
             rlc = self._edb.Utility.Rlc(res, True, ind, True, cap, True, is_parallel)
             model.SetPinPairRlc(pin_pair, rlc)
         return self._set_model(model)
+
+    @pyaedt_function_handler
+    def create_clearance_on_component(self, extra_soldermask_clearance=1e-4):
+        """Create a Clearance on Soldermask layer by drawing a rectangle.
+
+        Parameters
+        ----------
+        extra_soldermask_clearance : float, optional
+            Extra Soldermask value in model units to be applied on component bounding box.
+        Returns
+        -------
+            bool
+        """
+        bounding_box = self.bounding_box
+        opening = [bounding_box[0] - extra_soldermask_clearance]
+        opening.append(bounding_box[1] - extra_soldermask_clearance)
+        opening.append(bounding_box[2] + extra_soldermask_clearance)
+        opening.append(bounding_box[3] + extra_soldermask_clearance)
+
+        comp_layer = self.placement_layer
+        layer_names = list(self._pedb.stackup.stackup_layers.keys())
+        layer_index = layer_names.index(comp_layer)
+        if comp_layer in [layer_names[0] + layer_names[-1]]:
+            return False
+        elif layer_index < len(layer_names) / 2:
+            soldermask_layer = layer_names[layer_index - 1]
+        else:
+            soldermask_layer = layer_names[layer_index + 1]
+
+        if not self._pedb.core_primitives.get_primitives(layer_name=soldermask_layer):
+            all_nets = list(self._pedb.core_nets.nets.values())
+            poly = self._pedb._create_conformal(all_nets, 0, 1e-12, False, 0)
+            self._pedb.core_primitives.create_polygon(poly, soldermask_layer, [], "")
+
+        void = self._pedb.core_primitives.create_rectangle(
+            soldermask_layer,
+            "{}_opening".format(self.refdes),
+            lower_left_point=opening[:2],
+            upper_right_point=opening[2:],
+        )
+        void.is_negative = True
+        return True
+

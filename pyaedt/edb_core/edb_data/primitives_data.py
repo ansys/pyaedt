@@ -63,6 +63,20 @@ class EDBPrimitives(object):
         if not hasattr(self.primitive_object, "IsVoid"):
             return False
         return self.primitive_object.IsVoid()
+    @property
+    def is_negative(self):
+        """Determine whether this primitive is negative.
+
+        Returns
+        -------
+        bool
+            True if it is negative, False otherwise.
+        """
+        return self.primitive_object.GetIsNegative()
+
+    @is_negative.setter
+    def is_negative(self, value):
+        self.primitive_object.SetIsNegative(value)
 
     @property
     def id(self):

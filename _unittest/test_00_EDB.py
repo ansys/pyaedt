@@ -297,6 +297,10 @@ class TestClass(BasisTest, object):
         assert self.edbapp.core_components.components["R1"].pins["1"].position
         assert self.edbapp.core_components.components["R1"].pins["1"].rotation
 
+    def test_021b_components(self):
+        comp = self.edbapp.core_components.components["U1A1"]
+        comp.create_clearance_on_component()
+
     def test_021_components_from_net(self):
         assert self.edbapp.core_components.get_components_from_nets("A0_N")
 
@@ -923,7 +927,12 @@ class TestClass(BasisTest, object):
             app_edb.close_edb()
 
     def test_089_create_rectangle(self):
-        assert self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        rect = self.edbapp.core_primitives.create_rectangle("TOP", "SIG1", ["0", "0"], ["2mm", "3mm"])
+        assert rect
+        rect.is_negative = True
+        assert rect.is_negative
+        rect.is_negative = False
+        assert not rect.is_negative
         assert self.edbapp.core_primitives.create_rectangle(
             "TOP",
             "SIG2",
@@ -2262,8 +2271,3 @@ class TestClass(BasisTest, object):
 
     def test_138_pins(self):
         assert len(self.edbapp.pins) > 0
-
-    def test_139_layout_preprocessing(self):
-        assert self.edbapp.core_primitives.create_soldermask_opening("U1A1")
-        assert self.edbapp.core_primitives.create_soldermask_opening(["U1B5", "U2B1"])
-        assert self.edbapp.core_primitives.create_soldermask_opening()
