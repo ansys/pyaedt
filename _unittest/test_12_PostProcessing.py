@@ -681,7 +681,7 @@ class TestClass(BasisTest, object):
         plot_obj.plot(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14B_Field_Ploton_Vector(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]

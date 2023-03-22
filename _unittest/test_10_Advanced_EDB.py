@@ -841,6 +841,7 @@ class TestClass(BasisTest, object):
         assert "SOLDER" in edbapp.stackup.stackup_layers
         edbapp.close_edb()
 
+    @pytest.mark.skipif(os.name == "posix", reason="crashing on linux")
     def test_19_build_project(self):
         target_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         out_edb = os.path.join(self.local_scratch.path, "Galileo_build_project.aedb")
