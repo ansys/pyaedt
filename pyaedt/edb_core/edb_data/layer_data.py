@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from collections import OrderedDict
+import re
 import time
 
 from pyaedt import pyaedt_function_handler
@@ -1276,6 +1277,23 @@ class LayerEdbClass(object):
         return self._edb_layer.IsStackupLayer()
 
     @property
+    def is_negative(self):
+        """Determine whether this layer is a negative layer.
+
+        Returns
+        -------
+        bool
+            True if this layer is a negative layer, False otherwise.
+        """
+        return self._edb_layer.GetNegative()
+
+    @is_negative.setter
+    def is_negative(self, value):
+        layer_clone = self._edb_layer
+        layer_clone.SetNegative(value)
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @property
     def color(self):
         """Retrieve color of the layer.
 
@@ -1331,12 +1349,7 @@ class LayerEdbClass(object):
     @property
     def type(self):
         """Retrieve type of the layer."""
-        if self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.SignalLayer:
-            return "signal"
-        elif self._edb_layer.GetLayerType() == self._edb.Cell.LayerType.DielectricLayer:
-            return "dielectric"
-        else:
-            return
+        return re.sub(r"Layer$", "", self._edb_layer.GetLayerType().ToString()).lower()
 
     @type.setter
     def type(self, new_type):
@@ -1627,6 +1640,7 @@ class LayerEdbClass(object):
         """
         if not self.is_stackup_layer:  # pragma: no cover
             return
+
         radius = self._pclass._edb_value(huray_radius)
         self._hurray_nodule_radius = huray_radius
         surface_ratio = self._pclass._edb_value(huray_surface_ratio)
@@ -1651,6 +1665,7 @@ class LayerEdbClass(object):
             regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
 
         layer_clone = self._edb_layer
+        layer_clone.SetRoughnessEnabled(True)
         for r in regions:
             if model_type == "huray":
                 model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)

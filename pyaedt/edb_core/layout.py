@@ -726,11 +726,11 @@ class EdbLayout(object):
         Parameters
         ----------
         net_name : str, optional
-            Set filter on net_name. Default is `None"`.
+            Set filter on net_name. Default is `None`.
         layer_name : str, optional
-            Set filter on layer_name. Default is `None"`.
+            Set filter on layer_name. Default is `None`.
         prim_type :  str, optional
-            Set filter on primitive type. Default is `None"`.
+            Set filter on primitive type. Default is `None`.
         is_void : bool
             Set filter on is_void. Default is 'False'
         Returns

@@ -46,6 +46,7 @@ from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_project_locked
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
@@ -2829,6 +2830,8 @@ class Design(AedtObjects):
             return False
         if not name:
             name = self.project_name
+            if self.design_type == "HFSS 3D Layout Design":
+                self._close_edb()
         self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
@@ -2899,12 +2902,12 @@ class Design(AedtObjects):
             try:
                 self.set_active_design(fallback_design)
             except:
-                if os.name != "posix":
+                if is_windows:
                     self._init_variables()
                 self._odesign = None
                 return False
         else:
-            if os.name != "posix":
+            if is_windows:
                 self._init_variables()
             self._odesign = None
         return True
@@ -3539,7 +3542,9 @@ class Design(AedtObjects):
                 raise ("Invalid string expression {}".expression_string)
 
             # Extract the numeric value of the expression (in SI units!)
-            return self._variable_manager.variables["pyaedt_evaluator"].value
+            eval_value = self._variable_manager.variables["pyaedt_evaluator"].value
+            self._variable_manager.delete_variable("pyaedt_evaluator")
+            return eval_value
 
     @pyaedt_function_handler()
     def design_variation(self, variation_string=None):

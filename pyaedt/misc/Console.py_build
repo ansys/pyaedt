@@ -10,31 +10,83 @@ interactive Python session.
 
 """
 import os
-if os.name == "posix":
+import sys
+is_linux = os.name == "posix"
+if is_linux:
     import subprocessdotnet as subprocess
 else:
     import subprocess
 
-# Launch file
-version = oDesktop.GetVersion()[2:6].replace(".", "")
-current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
-pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
-python_exe = r"##IPYTHON_EXE##" % version
-pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
-if os.name =="posix":
-    command = [
-            '{}'.format(python_exe),
+
+def main():
+    # Launch file
+    version = oDesktop.GetVersion()[2:6].replace(".", "")
+    current_dir = os.path.dirname(os.path.abspath(os.path.realpath(__file__)))
+    pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
+    python_exe = r"##IPYTHON_EXE##" % version
+    pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
+    if is_linux:
+        term = get_linux_terminal()
+        if not term:
+            oDesktop.AddMessage("", "", 2, "No Terminals found.")
+            sys.exit()
+        edt_root = os.path.normpath(oDesktop.GetExeDir())
+        os.environ["ANSYSEM_ROOT{}".format(version)] = edt_root
+        ld_library_path_dirs_to_add = [
+            "{}/commonfiles/CPython/3_7/linx64/Release/python/lib".format(edt_root),
+            "{}/commonfiles/CPython/3_10/linx64/Release/python/lib".format(edt_root),
+            "{}/common/mono/Linux64/lib64".format(edt_root),
+            "{}/Delcross".format(edt_root),
+            "{}".format(edt_root),
+        ]
+        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
+        command = [
+                term,
+                "-e",
+                '{}'.format(python_exe),
+                "-i",
+                '{}'.format(pyaedt_script),
+                str(oDesktop.GetProcessID()),
+                str(oDesktop.GetVersion()[:6]),
+                       ]
+    else:
+        command = [
+            '"{}"'.format(python_exe),
             "-i",
-            '{}'.format(pyaedt_script),
+            '"{}"'.format(pyaedt_script),
             str(oDesktop.GetProcessID()),
             str(oDesktop.GetVersion()[:6]),
                    ]
-else:
-    command = [
-        '"{}"'.format(python_exe),
-        "-i",
-        '"{}"'.format(pyaedt_script),
-        str(oDesktop.GetProcessID()),
-        str(oDesktop.GetVersion()[:6]),
-               ]
-subprocess.Popen(" ".join(command))
+    subprocess.Popen(" ".join(command))
+
+
+def get_linux_terminal():
+    for terminal in ['x-terminal-emulator', 'konsole', 'xterm', 'gnome-terminal', 'lxterminal', 'mlterm']:
+        term = which(terminal)
+        if term:
+            return term
+    return None
+
+
+def which(program):
+    # http://stackoverflow.com/a/377028
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
+if __name__ == "__main__":
+    main()
