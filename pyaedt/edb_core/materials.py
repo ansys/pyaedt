@@ -60,7 +60,10 @@ class Material(object):
             return float(property_box)
         else:
             _, property_box = self._edb_material_def.GetProperty(property_name)
-            return property_box.ToDouble()
+            if isinstance(property_box, float):
+                return property_box
+            else:
+                return property_box.ToDouble()
 
     @property
     def conductivity(self):
@@ -780,5 +783,8 @@ class Materials(object):
                 _, property_box = original_material.GetProperty(
                     self.material_name_to_id(property_name), self._edb_value(0.0)
                 )
-                return property_box.ToDouble()
+                if isinstance(property_box, float):
+                    return property_box
+                else:
+                    return property_box.ToDouble()
         return False
