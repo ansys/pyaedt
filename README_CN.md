@@ -35,6 +35,20 @@
 
 `PyAEDT` 与 `Ironpython` 兼容，仍然可以在 `AEDT` 框架中使用。
 
+备注（2023年3月22日）：`PyAEDT`的主要贡献者决定减少默认包的内存占用。如果你运行 pip install pyaedt，以下安装是必须的(在拥有PyAEDT基础功能的情况下)：
+```
+"cffi == 1.15.0;platform_system=='Linux'",
+"pywin32 >= 303;platform_system=='Windows'",
+"pythonnet == 3.0.1",
+"rpyc==5.3.0",
+"psutil",
+"dotnetcore2 ==3.1.23;platform_system=='Linux'"
+```
+如果你需要其他库来做后期处理，可以使用以下方法来安装它们：
+``` python
+pip install .[full]
+```
+
 ## 关于PyAEDT
 
 `PyAEDT` 是 [PyAnsys](https://docs.pyansys.com "PyAnsys") 的一部分，后者更庞大。努力促进直接从 `Python` 使用 `Ansys` 技术。
