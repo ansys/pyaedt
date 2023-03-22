@@ -2829,6 +2829,8 @@ class Design(AedtObjects):
             return False
         if not name:
             name = self.project_name
+            if self.design_type == "HFSS 3D Layout Design":
+                self._close_edb()
         self.logger.info("Closing the AEDT Project {}".format(name))
         oproj = self.odesktop.SetActiveProject(name)
         proj_path = oproj.GetPath()
