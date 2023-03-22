@@ -52,7 +52,6 @@ jobs:
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
           python -c "import sys; print(sys.executable)"
           pip install .[test]
-          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements/requirements_test.txt
           pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pytest-azurepipelines
           mkdir tmp
           cd tmp
