@@ -2478,6 +2478,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_syz_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2507,6 +2508,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):
         """Create a setup from a template.
 

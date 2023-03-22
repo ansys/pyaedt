@@ -1277,6 +1277,23 @@ class LayerEdbClass(object):
         return self._edb_layer.IsStackupLayer()
 
     @property
+    def is_negative(self):
+        """Determine whether this layer is a negative layer.
+
+        Returns
+        -------
+        bool
+            True if this layer is a negative layer, False otherwise.
+        """
+        return self._edb_layer.GetNegative()
+
+    @is_negative.setter
+    def is_negative(self, value):
+        layer_clone = self._edb_layer
+        layer_clone.SetNegative(value)
+        self._pclass._set_layout_stackup(layer_clone, "change_attribute")
+
+    @property
     def color(self):
         """Retrieve color of the layer.
 
