@@ -78,6 +78,7 @@ from zipfile import ZipFile
 
 from pyaedt import is_ironpython
 from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt.desktop import Desktop
 import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt.generic.clr_module import _clr
@@ -1336,8 +1337,7 @@ class WPFToolkit(Window):
     @pyaedt_function_handler()
     def open_explorer(self, sender, e):
         """Opens a windows explorer window pointing to the selected path in the sender control."""
-        os_type = os.name
-        if os_type == "nt":
+        if is_windows:
             selected_path = os.path.normpath(sender.Text)
             if os.path.exists(selected_path):
                 os_command_string = r'explorer "{}"'.format(selected_path)
