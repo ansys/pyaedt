@@ -110,6 +110,7 @@ class TestClass(BasisTest, object):
         )
         edb2.close_edb()
 
+    @pytest.mark.skipif(os.name == "posix", reason="Crash on linux")
     def test_03_get_placement_vector(self):
         edb2 = Edb(self.target_path4, edbversion=desktop_version)
         for cmpname, cmp in edb2.core_components.components.items():

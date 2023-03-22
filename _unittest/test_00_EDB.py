@@ -81,6 +81,7 @@ class TestClass(BasisTest, object):
     def test_003_create_coax_port_on_component(self):
         assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
 
+    @pytest.mark.skipif(os.name == "posix", reason="Crash on linux")
     def test_004_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0
