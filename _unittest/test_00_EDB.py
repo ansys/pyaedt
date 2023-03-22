@@ -81,7 +81,6 @@ class TestClass(BasisTest, object):
     def test_003_create_coax_port_on_component(self):
         assert self.edbapp.core_hfss.create_coax_port_on_component("U1A1", "M_DQ<14>")
 
-    @pytest.mark.skipif(os.name == "posix", reason="Crash on linux")
     def test_004_get_properties(self):
         assert len(self.edbapp.core_components.components) > 0
         assert len(self.edbapp.core_components.inductors) > 0
@@ -612,7 +611,6 @@ class TestClass(BasisTest, object):
         assert component.GetName() == "newcomp"
         assert len(list(component.LayoutObjs)) == 2
 
-    @pytest.mark.skipif(os.name == "posix", reason="Failing on linux.")
     def test_062_create_cutout(self):
         source_path = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "Galileo_cutout_1.aedb")
