@@ -94,7 +94,9 @@ class TestClass(BasisTest, object):
         assert hfss_comp.id == 87
         assert hfss_comp.composed_name == "CompInst@uUSB;87;3"
 
-    @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
+    @pytest.mark.skipif(
+        config.get("skip_circuits", False) or os.name == "posix", reason="Skipped because Desktop is crashing"
+    )
     def test_04_refresh_dynamic_link(self):
         assert self.aedtapp.modeler.schematic.refresh_dynamic_link("uUSB")
 
@@ -207,6 +209,7 @@ class TestClass(BasisTest, object):
         LNA_setup.props["SweepDefinition"]["Data"] = " ".join(sweep_list)
         assert LNA_setup.update()
 
+    @pytest.mark.skipif(os.name == "posix", reason="Skipped because Desktop is crashing")
     def test_10_q3d_link(self):
         self.aedtapp.insert_design("test_link")
         q2d = Q2d(self.q3d, specified_version=desktop_version)
@@ -236,6 +239,7 @@ class TestClass(BasisTest, object):
             hfss, solution_name="Setup2 : Sweep", tline_port="1"
         )
 
+    @pytest.mark.skipif(os.name == "posix", reason="Skipped because Desktop is crashing")
     def test_11_siwave_link(self):
         model = os.path.join(local_path, "example_models", test_subfloder, "Galileo_um.siw")
         model_out = self.local_scratch.copyfile(model)
