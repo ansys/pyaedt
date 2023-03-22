@@ -124,11 +124,12 @@ class BasisTest(object):
                 proj_list = []
             if oDesktop and not settings.non_graphical:
                 oDesktop.ClearMessages("", "", 3)
-            for proj in proj_list:
-                try:
-                    oDesktop.CloseProject(proj)
-                except:
-                    pass
+            if proj_list:
+                for proj in proj_list:
+                    try:
+                        oDesktop.CloseProject(proj)
+                    except:
+                        pass
             # self.aedtapps[0].release_desktop(False)
 
         logger.remove_all_project_file_logger()
