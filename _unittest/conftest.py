@@ -217,10 +217,19 @@ def desktop_init():
     #         # release_desktop(close_projects=False, close_desktop=True)
     #     except:
     #         pass
-    desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
+    if os.name == "posix" and not is_ironpython:
+        desktop = Desktop(desktop_version, settings.non_graphical, new_thread)
     yield
-    desktop.release_desktop(True, True)
-    del desktop
+    if os.name == "posix" and not is_ironpython:
+        desktop.release_desktop(True, True)
+        del desktop
+
+    else:
+        _main = sys.modules["__main__"]
+        try:
+            os.kill(_main.desktop_pid, 9)
+        except:
+            pass
     gc.collect()
     if config["test_desktops"]:
         run_desktop_tests()
