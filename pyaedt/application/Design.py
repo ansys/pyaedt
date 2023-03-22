@@ -752,7 +752,7 @@ class Design(AedtObjects):
             toolkit_directory = self.results_directory
         elif not os.path.isdir(toolkit_directory):
             try:
-                os.mkdir(toolkit_directory)
+                os.makedirs(toolkit_directory)
             except FileNotFoundError:
                 toolkit_directory = self.results_directory
 
@@ -775,7 +775,7 @@ class Design(AedtObjects):
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
         elif not os.path.isdir(working_directory):
             try:
-                os.mkdir(working_directory)
+                os.makedirs(working_directory)
             except FileNotFoundError:
                 working_directory = os.path.join(self.toolkit_directory, self.design_name + ".results")
         return working_directory
@@ -2741,7 +2741,7 @@ class Design(AedtObjects):
         if os.path.exists(directory):
             shutil.rmtree(directory, True)
             if not os.path.exists(directory):
-                os.mkdir(directory)
+                os.makedirs(directory)
         self.logger.info("Project Directory cleaned")
         return True
 
