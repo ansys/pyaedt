@@ -1651,6 +1651,7 @@ class LayerEdbClass(object):
             regions = [self._pclass._pedb.edb.Cell.RoughnessModel.Region.Side]
 
         layer_clone = self._edb_layer
+        layer_clone.SetRoughnessEnabled(True)
         for r in regions:
             if model_type == "huray":
                 model = self._pclass._pedb.edb.Cell.HurrayRoughnessModel(radius, surface_ratio)
