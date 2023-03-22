@@ -15,7 +15,8 @@ pyaedt_path = os.path.normpath(
 )
 sys.path.append(os.path.normpath(os.path.join(pyaedt_path, "..")))
 
-
+is_linux = os.name == "posix"
+is_windows = not is_linux
 pid = 0
 
 
@@ -30,7 +31,7 @@ def add_pyaedt_to_aedt(aedt_version, is_student_version=False, use_sys_lib=False
         if os.path.exists(pers1):
             d.logger.info("PersonalLib already mapped")
         else:
-            if is_windows():
+            if is_windows:
                 os.system('mklink /D "{}" "{}"'.format(pers1, pyaedt_path))
             else:
                 os.system('ln -s "{}" "{}"'.format(pyaedt_path, pers1))
@@ -157,17 +158,9 @@ def write_pretty_xml(root, file_path):
 
 
 def exe():
-    if is_windows():
+    if is_windows:
         return ".exe"
     return ""
-
-
-def is_windows():
-    return not is_linux()
-
-
-def is_linux():
-    return os.name == "posix"
 
 
 if __name__ == "__main__":

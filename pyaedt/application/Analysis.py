@@ -15,6 +15,8 @@ import time
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
+from pyaedt import is_windows
 from pyaedt import settings
 from pyaedt.application.Design import Design
 from pyaedt.application.JobManager import update_hpc_option
@@ -45,7 +47,7 @@ from pyaedt.modules.SolveSetup import SetupMaxwell
 from pyaedt.modules.SolveSetup import SetupSBR
 from pyaedt.modules.SolveSweeps import SetupProps
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -1877,7 +1879,7 @@ class Analysis(Design, object):
         if os.path.exists(queue_file_completed):
             os.unlink(queue_file_completed)
 
-        if os.name == "posix" and settings.use_lsf_scheduler:
+        if is_linux and settings.use_lsf_scheduler:
             options = [
                 "-ng",
                 "-BatchSolve",
@@ -1902,9 +1904,9 @@ class Analysis(Design, object):
                     design_name, "Nominal" if setup_name in self.setup_names else "Optimetrics", setup_name
                 )
             )
-        if os.name == "posix" and not settings.use_lsf_scheduler:
+        if is_linux and not settings.use_lsf_scheduler:
             batch_run = [inst_dir + "/ansysedt"]
-        elif os.name == "posix" and settings.use_lsf_scheduler:  # pragma: no cover
+        elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
             if settings.lsf_queue:
                 batch_run = [
                     "bsub",
@@ -1938,7 +1940,7 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
         self.logger.info("Solving model in batch mode on " + machine)
-        if run_in_thread and os.name != "posix":
+        if run_in_thread and is_windows:
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
             self.logger.info("Batch job launched.")

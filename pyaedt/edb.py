@@ -50,11 +50,13 @@ from pyaedt.generic.general_methods import env_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -152,7 +154,7 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             if not edbpath:
-                if os.name != "posix":
+                if is_windows:
                     edbpath = os.getenv("USERPROFILE")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
@@ -293,7 +295,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
-        if os.name == "posix":
+        if is_linux:
             if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
                 if settings.edb_dll_path:
                     self.base_path = settings.edb_dll_path
@@ -549,7 +551,7 @@ class Edb(object):
             command = anstranslator_full_path
         else:
             command = os.path.join(self.base_path, "anstranslator")
-            if os.name != "posix":
+            if is_windows:
                 command += ".exe"
 
         if not working_dir:
@@ -563,7 +565,7 @@ class Edb(object):
         if not use_ppe:
             cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
-            if os.name == "posix":
+            if is_linux:
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
@@ -2478,6 +2480,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_syz_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2507,6 +2510,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):
         """Create a setup from a template.
 

@@ -18,8 +18,9 @@ if os.path.exists(os.path.join(tempfile.gettempdir(), "test.log")):
 settings.logger_file_path = log_path
 
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_windows
 
-if os.name != "posix":
+if is_windows:
     ansysem_install_dir = os.environ.get("ANSYSEM_INSTALL_DIR", "")
     if not ansysem_install_dir:
         ansysem_install_dir = os.environ["ANSYSEM_ROOT222"]

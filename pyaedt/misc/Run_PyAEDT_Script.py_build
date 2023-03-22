@@ -13,7 +13,8 @@ was launched as well as the AEDT instance that has them open.
 
 """
 import os
-if os.name == "posix":
+is_linux = os.name == "posix"
+if is_linux:
     import subprocessdotnet as subprocess
     import clr
     clr.AddReference("System.Windows.Forms")

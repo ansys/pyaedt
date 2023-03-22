@@ -46,6 +46,7 @@ from pyaedt.generic.general_methods import check_and_download_file
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import is_ironpython
 from pyaedt.generic.general_methods import is_project_locked
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import open_file
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.general_methods import read_csv
@@ -2901,12 +2902,12 @@ class Design(AedtObjects):
             try:
                 self.set_active_design(fallback_design)
             except:
-                if os.name != "posix":
+                if is_windows:
                     self._init_variables()
                 self._odesign = None
                 return False
         else:
-            if os.name != "posix":
+            if is_windows:
                 self._init_variables()
             self._odesign = None
         return True
