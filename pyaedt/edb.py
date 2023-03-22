@@ -2543,4 +2543,4 @@ class Edb(object):
     def create_soldermask_opening(self, component_refdes=None):
         if isinstance(component_refdes, list):
             pass
-        #self.core_components.components[]
+        # self.core_components.components[]
