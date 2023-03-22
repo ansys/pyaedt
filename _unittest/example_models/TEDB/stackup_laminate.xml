@@ -108,6 +108,10 @@
       <Layer Color="#1a291f" Material="FR-4" Name="UNNAMED_010" Thickness="2.65" Type="dielectric"/>
       <Layer Color="#5c4300" FillMaterial="BOTTOM_FILL" Material="COPPER" Name="BOTTOM" Thickness="1.9" Type="conductor"/>
       <Layer Color="#44614c" Material="AIR" Name="UNNAMED_012" Thickness="0" Type="dielectric"/>
+      <Layer Color="#7f7f7f" Name="SIwave Regions" Type="user"/>
+      <Layer Color="#6db148" Name="spt" Type="solderpaste"/>
+      <Layer Color="#d5503d" Name="smt" Type="soldermask"/>
+      <Layer Color="#529999" Name="smb" Type="soldermask"/>
       <Layer Color="#289889" Name="Outline" Type="outline"/>
     </Layers>
   </Stackup>
