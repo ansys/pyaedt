@@ -11,6 +11,7 @@ from _unittest.conftest import local_path
 from pyaedt import Maxwell3d
 from pyaedt.generic.constants import SOLUTIONS
 from pyaedt.generic.general_methods import generate_unique_name
+from pyaedt.generic.general_methods import is_linux
 
 try:
     import pytest
@@ -355,7 +356,7 @@ class TestClass(BasisTest, object):
         assert int(udp_from_python.bounding_dimension[0]) == 22.0
         assert int(udp_from_python.bounding_dimension[1]) == 22.0
 
-    @pytest.mark.skipif(os.name == "posix", reason="Feature not supported in Linux")
+    @pytest.mark.skipif(is_linux, reason="Feature not supported in Linux")
     def test_27_create_udm(self):
         my_udmPairs = []
         mypair = ["ILD Thickness (ILD)", "0.006mm"]

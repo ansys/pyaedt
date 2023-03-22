@@ -7,6 +7,7 @@ from _unittest.conftest import local_path
 
 from pyaedt import Circuit  # Setup paths for module imports
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 
 try:
     import pytest  # noqa: F401
@@ -231,7 +232,7 @@ class TestClass(BasisTest, object):
         ]
         assert LNA_setup.update()
 
-    @pytest.mark.skipif(os.name == "posix", reason="To be investigated on linux.")
+    @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_18_export_touchstone(self):
         assert self.aedtapp.analyze("Dom_LNA")
         time.sleep(30)

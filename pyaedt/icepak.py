@@ -9,9 +9,10 @@ import os
 import warnings
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 from pyaedt.modules.SetupTemplates import SetupKeys
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess

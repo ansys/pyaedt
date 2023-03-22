@@ -11,7 +11,8 @@ interactive Python session.
 """
 import os
 import sys
-if os.name == "posix":
+is_linux = os.name == "posix"
+if is_linux:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -24,7 +25,7 @@ def main():
     pyaedt_toolkit_dir = os.path.normpath(os.path.join(current_dir, r"##TOOLKIT_REL_LIB_DIR##"))
     python_exe = r"##IPYTHON_EXE##" % version
     pyaedt_script = os.path.join(pyaedt_toolkit_dir, "console_setup.py")
-    if os.name == "posix":
+    if is_linux:
         term = get_linux_terminal()
         if not term:
             oDesktop.AddMessage("", "", 2, "No Terminals found.")

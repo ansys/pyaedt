@@ -77,12 +77,13 @@ from zipfile import ZIP_DEFLATED
 from zipfile import ZipFile
 
 from pyaedt import is_ironpython
+from pyaedt import is_linux
 from pyaedt.desktop import Desktop
 import pyaedt.edb_core.edb_data.simulation_configuration
 from pyaedt.generic.clr_module import _clr
 from pyaedt.generic.general_methods import pyaedt_function_handler
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
