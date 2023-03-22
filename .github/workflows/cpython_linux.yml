@@ -29,12 +29,8 @@ jobs:
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          pip install .
-          pip install -r requirements/requirements_test.txt
+          pip install .[test]
           pip install pytest-azurepipelines
-          cp "C:\actions-runner\opengl32.dll" "testenv\Lib\site-packages\vtkmodules"
-          mkdir tmp
-          cd tmp
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
