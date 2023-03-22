@@ -1638,7 +1638,6 @@ class Stackup(object):
             val = {i: str(j) for i, j in val.items()}
             layer.attrib.update(val)
 
-
         for lyr, val in roughness.items():
             el = el_layers.find("./Layer[@Name='{}']".format(lyr))
             for pname, pval in val.items():
