@@ -402,11 +402,13 @@ class ModelerCircuit(Modeler):
         return sels
 
     @pyaedt_function_handler()
-    def _arg_with_dim(self, value):  # pragma: no cover
+    def _arg_with_dim(self, value, units=None):
+        if units is None:
+            units = self.schematic_units
         if isinstance(value, str):
             val = value
         else:
-            val = "{0}{1}".format(value, "mil")
+            val = "{0}{1}".format(value, units)
 
         return val
 

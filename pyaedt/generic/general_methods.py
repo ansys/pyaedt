@@ -26,6 +26,8 @@ import traceback
 from pyaedt.generic.constants import CSS4_COLORS
 
 is_ironpython = "IronPython" in sys.version or ".NETFramework" in sys.version
+is_linux = os.name == "posix"
+is_windows = not is_linux
 _pythonver = sys.version_info[0]
 inside_desktop = True if is_ironpython and "4.0.30319.42000" in sys.version else False
 
@@ -1580,6 +1582,17 @@ class Settings(object):
         self._use_lsf_scheduler = False
         self._lsf_aedt_command = "ansysedt"
         self._lsf_timeout = 3600
+        self._lsf_queue = None
+
+    @property
+    def lsf_queue(self):
+        """LSF queue name. This attribute is valid only on Linux
+        systems running LSF Scheduler."""
+        return self._lsf_queue
+
+    @lsf_queue.setter
+    def lsf_queue(self, value):
+        self._lsf_queue = value
 
     @property
     def use_lsf_scheduler(self):

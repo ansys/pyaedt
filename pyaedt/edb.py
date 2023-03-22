@@ -12,6 +12,7 @@ import time
 import traceback
 import warnings
 
+from pyaedt import __version__
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -49,11 +50,13 @@ from pyaedt.generic.general_methods import env_value
 from pyaedt.generic.general_methods import generate_unique_name
 from pyaedt.generic.general_methods import inside_desktop
 from pyaedt.generic.general_methods import is_ironpython
+from pyaedt.generic.general_methods import is_linux
+from pyaedt.generic.general_methods import is_windows
 from pyaedt.generic.general_methods import pyaedt_function_handler
 from pyaedt.generic.process import SiwaveSolve
 from pyaedt.misc.misc import list_installed_ansysem
 
-if os.name == "posix" and is_ironpython:
+if is_linux and is_ironpython:
     import subprocessdotnet as subprocess
 else:
     import subprocess
@@ -135,6 +138,8 @@ class Edb(object):
             self._logger = pyaedt_logger
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
+            self.logger.info("pyaedt v%s", __version__)
+            self.logger.info("Python version %s", sys.version)
             if not edbversion:
                 try:
                     edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
@@ -149,7 +154,7 @@ class Edb(object):
             self.isreadonly = isreadonly
             self.cellname = cellname
             if not edbpath:
-                if os.name != "posix":
+                if is_windows:
                     edbpath = os.getenv("USERPROFILE")
                     if not edbpath:
                         edbpath = os.path.expanduser("~")
@@ -290,7 +295,7 @@ class Edb(object):
     @pyaedt_function_handler()
     def _init_dlls(self):
         """Initialize DLLs."""
-        if os.name == "posix":
+        if is_linux:
             if env_value(self.edbversion) in os.environ or settings.edb_dll_path:
                 if settings.edb_dll_path:
                     self.base_path = settings.edb_dll_path
@@ -546,7 +551,7 @@ class Edb(object):
             command = anstranslator_full_path
         else:
             command = os.path.join(self.base_path, "anstranslator")
-            if os.name != "posix":
+            if is_windows:
                 command += ".exe"
 
         if not working_dir:
@@ -560,7 +565,7 @@ class Edb(object):
         if not use_ppe:
             cmd_translator.append("-ppe=false")
         if control_file and input_file[-3:] not in ["brd"]:
-            if os.name == "posix":
+            if is_linux:
                 cmd_translator.append("-c={}".format(control_file))
             else:
                 cmd_translator.append('-c="{}"'.format(control_file))
@@ -653,7 +658,17 @@ class Edb(object):
 
     @property
     def core_components(self):
-        """Core components."""
+        """Edb Components methods and properties.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.Components.Components`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> comp = self.edbapp.core_components.get_component_by_name("J1")
+        """
         if not self._components and self.builder:
             self._components = Components(self)
         return self._components
@@ -675,7 +690,12 @@ class Edb(object):
 
     @property
     def design_options(self):
-        """Design options."""
+        """Edb Design Settings and Options.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.edb_data.design_options.EdbDesignOptions`
+        """
         return EdbDesignOptions(self.active_cell)
 
     @property
@@ -685,6 +705,13 @@ class Edb(object):
         Returns
         -------
         Instance of :class: 'pyaedt.edb_core.Stackup`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.stackup.layers["TOP"].thickness = 4e-5
+        >>> edbapp.stackup.layers["TOP"].thickness == 4e-05
+        >>> edbapp.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
         """
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
@@ -697,6 +724,13 @@ class Edb(object):
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.Materials`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.materials["FR4_epoxy"].conductivity = 1
+        >>> edbapp.materials.add_debye_material("My_Debye2", 5, 3, 0.02, 0.05, 1e5, 1e9)
+        >>> edbapp.materials.add_djordjevicsarkar_material("MyDjord2", 3.3, 0.02, 3.3)
         """
 
         if not self._materials and self.builder:
@@ -711,6 +745,14 @@ class Edb(object):
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p = edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.core_padstack.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.core_padstack.pad_type.RegularPad
+        >>> ... )
         """
 
         if not self._padstack and self.builder:
@@ -719,11 +761,16 @@ class Edb(object):
 
     @property
     def core_siwave(self):
-        """Core SI Wave.
+        """Core SIWave methods and properties.
 
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p2 = edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         """
 
         if not self._siwave and self.builder:
@@ -732,11 +779,16 @@ class Edb(object):
 
     @property
     def core_hfss(self):
-        """Core HFSS.
+        """Core HFSS methods and properties.
 
         Returns
         -------
         Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.core_hfss.configure_hfss_analysis_setup(sim_config)
         """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
@@ -749,6 +801,12 @@ class Edb(object):
         Returns
         -------
         Instance of :class:`pyaedt.edb_core.nets.EdbNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.core_nets.find_or_create_net("GND")
+        >>> edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
         """
 
         if not self._nets and self.builder:
@@ -762,6 +820,11 @@ class Edb(object):
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_prims = edbapp.core_primitives.primitives_by_layer["TOP"]
         """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
@@ -795,6 +858,12 @@ class Edb(object):
         -------
         dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
+
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> pin_net_name = edbapp.pins[424968329].netname
         """
         pins = {}
         if self.core_components:
@@ -810,35 +879,18 @@ class Edb(object):
         return pins
 
     class Boundaries:
-        """Boundaries.
+        """Boundaries Enumerator.
 
-        Parameters
-        ----------
-        Port :
-
-        Pec :
-
-        RLC :
-
-        CurrentSource :
-
-        VoltageSource :
-
-        NexximGround :
-
-        NexximPort :
-
-        DcTerminal :
-
-        VoltageProbe :
-
+        Returns
+        -------
+        int
         """
 
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @pyaedt_function_handler()
     def edb_value(self, val):
-        """EDB value.
+        """Convert a value to an EDB value. Value can be a string, float or integer. Mainly used in internal calls.
 
         Parameters
         ----------
@@ -847,6 +899,7 @@ class Edb(object):
 
         Returns
         -------
+        Instance of `Edb.Utility.Value`
 
         """
         if isinstance(val, (int, float)):
@@ -919,7 +972,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def close_edb(self):
-        """Close EDB.
+        """Close EDB and cleanup variables.
 
         Returns
         -------
@@ -1311,7 +1364,7 @@ class Edb(object):
 
         Examples
         --------
-        >>> edb = Edb(r'C:.aedb', edbversion="2022.2")
+        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
         >>> edb.logger.info_timer("Edb Opening")
         >>> edb.logger.reset_timer()
         >>> start = time.time()
@@ -1519,26 +1572,51 @@ class Edb(object):
             return False
 
     @pyaedt_function_handler()
-    def arg_with_dim(self, Value, sUnits):
-        """Format arguments with dimensions.
+    def number_with_units(self, value, units=None):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
 
         Parameters
         ----------
-        Value :
-
-        sUnits :
+        value : float, int, str
+            Input number or string.
+        units : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
 
         Returns
         -------
         str
-            String containing the value or the value and units if ``sUnits`` is not ``None``.
-        """
-        if type(Value) is str:
-            val = Value
-        else:
-            val = "{0}{1}".format(Value, sUnits)
+           String concatenating the value and unit.
 
-        return val
+        """
+        if units is None:
+            units = "meter"
+        if isinstance(value, str):
+            return value
+        else:
+            return "{0}{1}".format(value, units)
+
+    @pyaedt_function_handler()
+    def arg_with_dim(self, Value, sUnits):
+        """Convert a number to a string with units. If value is a string, it's returned as is.
+
+        .. deprecated:: 0.6.56
+           Use :func:`number_with_units` property instead.
+
+        Parameters
+        ----------
+        Value : float, int, str
+            Input  number or string.
+        sUnits : optional
+            Units for formatting. The default is ``None``, which uses ``"meter"``.
+
+        Returns
+        -------
+        str
+           String concatenating the value and unit.
+
+        """
+        warnings.warn("Use :func:`number_with_units` instead.", DeprecationWarning)
+        return self.number_with_units(Value, sUnits)
 
     @pyaedt_function_handler()
     def create_cutout_on_point_list(
@@ -1583,7 +1661,7 @@ class Edb(object):
 
         if point_list[0] != point_list[-1]:
             point_list.append(point_list[0])
-        point_list = [[self.arg_with_dim(i[0], units), self.arg_with_dim(i[1], units)] for i in point_list]
+        point_list = [[self.number_with_units(i[0], units), self.number_with_units(i[1], units)] for i in point_list]
         plane = self.core_primitives.Shape("polygon", points=point_list)
         polygonData = self.core_primitives.shape_to_polygon_data(plane)
         _ref_nets = []
@@ -2277,6 +2355,17 @@ class Edb(object):
         -------
         bool
             Either if the ports are connected to reference_name or not.
+
+        Examples
+        --------
+        >>>edb = Edb()
+        >>> edb.core_hfss.create_edge_port_vertical(prim_1_id, ["-66mm", "-4mm"], "port_ver")
+        >>> edb.core_hfss.create_edge_port_horizontal(
+        >>> ... prim_1_id, ["-60mm", "-4mm"], prim_2_id, ["-59mm", "-4mm"], "port_hori", 30, "Lower"
+        >>> ... )
+        >>> edb.core_hfss.create_wave_port(traces[0].id, trace_paths[0][0], "wave_port")
+        >>> edb.create_cutout(["Net1"])
+        >>> assert edb.are_port_reference_terminals_connected()
         """
         self.logger.reset_timer()
         if not common_reference:
@@ -2391,6 +2480,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_syz_setup(self, name=None):
         """Create a setup from a template.
 
@@ -2420,6 +2510,7 @@ class Edb(object):
         self._setups[name] = setup
         return setup
 
+    @pyaedt_function_handler()
     def create_siwave_dc_setup(self, name=None):
         """Create a setup from a template.
 
