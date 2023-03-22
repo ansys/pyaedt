@@ -12,6 +12,7 @@ import time
 import traceback
 import warnings
 
+from pyaedt import __version__
 from pyaedt import pyaedt_logger
 from pyaedt import settings
 from pyaedt.edb_core import Components
@@ -135,6 +136,8 @@ class Edb(object):
             self._logger = pyaedt_logger
             self.student_version = student_version
             self.logger.info("Logger is initialized in EDB.")
+            self.logger.info("pyaedt v%s", __version__)
+            self.logger.info("Python version %s", sys.version)
             if not edbversion:
                 try:
                     edbversion = "20{}.{}".format(list_installed_ansysem()[0][-3:-1], list_installed_ansysem()[0][-1:])
@@ -653,7 +656,17 @@ class Edb(object):
 
     @property
     def core_components(self):
-        """Core components."""
+        """Edb Components methods and properties.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.Components.Components`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> comp = self.edbapp.core_components.get_component_by_name("J1")
+        """
         if not self._components and self.builder:
             self._components = Components(self)
         return self._components
@@ -675,7 +688,12 @@ class Edb(object):
 
     @property
     def design_options(self):
-        """Design options."""
+        """Edb Design Settings and Options.
+
+        Returns
+        -------
+        Instance of :class:`pyaedt.edb_core.edb_data.design_options.EdbDesignOptions`
+        """
         return EdbDesignOptions(self.active_cell)
 
     @property
@@ -685,6 +703,13 @@ class Edb(object):
         Returns
         -------
         Instance of :class: 'pyaedt.edb_core.Stackup`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.stackup.layers["TOP"].thickness = 4e-5
+        >>> edbapp.stackup.layers["TOP"].thickness == 4e-05
+        >>> edbapp.stackup.add_layer("Diel", "GND", layer_type="dielectric", thickness="0.1mm", material="FR4_epoxy")
         """
         if not self._stackup2 and self.builder:
             self._stackup2 = Stackup(self)
@@ -697,6 +722,13 @@ class Edb(object):
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.Materials`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.materials["FR4_epoxy"].conductivity = 1
+        >>> edbapp.materials.add_debye_material("My_Debye2", 5, 3, 0.02, 0.05, 1e5, 1e9)
+        >>> edbapp.materials.add_djordjevicsarkar_material("MyDjord2", 3.3, 0.02, 3.3)
         """
 
         if not self._materials and self.builder:
@@ -711,6 +743,14 @@ class Edb(object):
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.padstack.EdbPadstack`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p = edbapp.core_padstack.create_padstack(padstackname="myVia_bullet", antipad_shape="Bullet")
+        >>> edbapp.core_padstack.get_pad_parameters(
+        >>> ... p, "TOP", self.edbapp.core_padstack.pad_type.RegularPad
+        >>> ... )
         """
 
         if not self._padstack and self.builder:
@@ -719,11 +759,16 @@ class Edb(object):
 
     @property
     def core_siwave(self):
-        """Core SI Wave.
+        """Core SIWave methods and properties.
 
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.siwave.EdbSiwave`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> p2 = edbapp.core_siwave.create_circuit_port_on_net("U2A5", "V3P3_S0", "U2A5", "GND", 50, "test")
         """
 
         if not self._siwave and self.builder:
@@ -732,11 +777,16 @@ class Edb(object):
 
     @property
     def core_hfss(self):
-        """Core HFSS.
+        """Core HFSS methods and properties.
 
         Returns
         -------
         Instance of :class:`pyaedt.edb_core.hfss.EdbHfss`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.core_hfss.configure_hfss_analysis_setup(sim_config)
         """
         if not self._hfss and self.builder:
             self._hfss = EdbHfss(self)
@@ -749,6 +799,12 @@ class Edb(object):
         Returns
         -------
         Instance of :class:`pyaedt.edb_core.nets.EdbNets`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> edbapp.core_nets.find_or_create_net("GND")
+        >>> edbapp.core_nets.find_and_fix_disjoint_nets("GND", keep_only_main_net=True)
         """
 
         if not self._nets and self.builder:
@@ -762,6 +818,11 @@ class Edb(object):
         Returns
         -------
         Instance of :class: `pyaedt.edb_core.layout.EdbLayout`
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> top_prims = edbapp.core_primitives.primitives_by_layer["TOP"]
         """
         if not self._core_primitives and self.builder:
             self._core_primitives = EdbLayout(self)
@@ -795,6 +856,12 @@ class Edb(object):
         -------
         dic[str, :class:`pyaedt.edb_core.edb_data.padstacks.EDBPadstackInstance`]
             Dictionary of EDBPadstackInstance Components.
+
+
+        Examples
+        --------
+        >>> edbapp = pyaedt.Edb("myproject.aedb")
+        >>> pin_net_name = edbapp.pins[424968329].netname
         """
         pins = {}
         if self.core_components:
@@ -810,35 +877,18 @@ class Edb(object):
         return pins
 
     class Boundaries:
-        """Boundaries.
+        """Boundaries Enumerator.
 
-        Parameters
-        ----------
-        Port :
-
-        Pec :
-
-        RLC :
-
-        CurrentSource :
-
-        VoltageSource :
-
-        NexximGround :
-
-        NexximPort :
-
-        DcTerminal :
-
-        VoltageProbe :
-
+        Returns
+        -------
+        int
         """
 
         (Port, Pec, RLC, CurrentSource, VoltageSource, NexximGround, NexximPort, DcTerminal, VoltageProbe) = range(0, 9)
 
     @pyaedt_function_handler()
     def edb_value(self, val):
-        """EDB value.
+        """Convert a value to an EDB value. Value can be a string, float or integer. Mainly used in internal calls.
 
         Parameters
         ----------
@@ -847,6 +897,7 @@ class Edb(object):
 
         Returns
         -------
+        Instance of `Edb.Utility.Value`
 
         """
         if isinstance(val, (int, float)):
@@ -919,7 +970,7 @@ class Edb(object):
 
     @pyaedt_function_handler()
     def close_edb(self):
-        """Close EDB.
+        """Close EDB and cleanup variables.
 
         Returns
         -------
@@ -1311,7 +1362,7 @@ class Edb(object):
 
         Examples
         --------
-        >>> edb = Edb(r'C:.aedb', edbversion="2022.2")
+        >>> edb = Edb(r'C:\\test.aedb', edbversion="2022.2")
         >>> edb.logger.info_timer("Edb Opening")
         >>> edb.logger.reset_timer()
         >>> start = time.time()
