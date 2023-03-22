@@ -1563,15 +1563,18 @@ class Stackup(object):
         unit = layers.attrib["LengthUnit"]
         for l in layers.findall("Layer"):
             name = l.attrib["Name"]
-            if name in ["Outline", "SIwave Regions", "spt", "smt", "smb"]:
+            if "Type" not in l.attrib:
                 continue
-            layer_dict[name] = l.attrib
-            layer_dict[name]["Thickness"] = layer_dict[name]["Thickness"] + unit
-            if layer_dict[name]["Type"] == "conductor":
-                layer_dict[name]["Type"] = "signal"
+            elif l.attrib["Type"] not in ["conductor", "dielectric"]:
+                continue
+            else:
+                layer_dict[name] = l.attrib
+                layer_dict[name]["Thickness"] = layer_dict[name]["Thickness"] + unit
+                if layer_dict[name]["Type"] == "conductor":
+                    layer_dict[name]["Type"] = "signal"
 
-            if list(l):
-                roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
+                if list(l):
+                    roughness_dict[name] = {i.tag: i.attrib for i in list(l)}
 
         layer_dict = OrderedDict(reversed(list(layer_dict.items())))
         return self._set(layer_dict, material_dict, roughness_dict)
