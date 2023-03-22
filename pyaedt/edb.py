@@ -2534,8 +2534,3 @@ class Edb(object):
         setup = SiwaveDCSimulationSetup(self, name)
         self._setups[name] = setup
         return setup
-
-    def create_soldermask_opening(self, component_refdes=None):
-        if isinstance(component_refdes, list):
-            pass
-        # self.core_components.components[]
