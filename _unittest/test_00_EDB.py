@@ -2258,3 +2258,6 @@ class TestClass(BasisTest, object):
         assert not self.edbapp.design_options.suppress_pads
         self.edbapp.design_options.antipads_always_on = True
         assert self.edbapp.design_options.antipads_always_on
+
+    def test_138_pins(self):
+        assert len(self.edbapp.pins) > 0
