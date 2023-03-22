@@ -1938,7 +1938,7 @@ class Analysis(Design, object):
         dont have old .asol files etc
         """
         self.logger.info("Solving model in batch mode on " + machine)
-        if run_in_thread or settings.use_lsf_scheduler:
+        if run_in_thread and os.name != "posix":
             DETACHED_PROCESS = 0x00000008
             subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
             self.logger.info("Batch job launched.")
