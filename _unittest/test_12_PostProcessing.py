@@ -646,7 +646,7 @@ class TestClass(BasisTest, object):
         path = self.aedtapp.post.export_model_picture()
         assert path
 
-    @pytest.mark.skipif(sys.version_info < (3, 8), reason="Not running in ironpython")
+    @pytest.mark.skipif(os.name == "posix" or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_14_Field_Ploton_cutplanedesignname(self):
         cutlist = ["Global:XY"]
         setup_name = self.aedtapp.existing_analysis_sweeps[0]

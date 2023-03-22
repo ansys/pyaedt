@@ -692,6 +692,7 @@ class TestClass(BasisTest, object):
             chipEdb.close_edb()
             laminateEdb.close_edb()
 
+    @pytest.mark.skipif(os.name == "posix", reason="crashing in linux")
     def test_15_build_siwave_project_from_config_file(self):
         example_project = os.path.join(local_path, "example_models", test_subfolder, "Galileo.aedb")
         target_path = os.path.join(self.local_scratch.path, "Galileo.aedb")

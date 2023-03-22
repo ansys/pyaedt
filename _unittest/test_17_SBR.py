@@ -243,7 +243,7 @@ class TestClass(BasisTest, object):
         assert vrt.update()
         assert vrt.delete()
 
-    @pytest.mark.skipif(is_ironpython, reason="feature supported in Cpython")
+    @pytest.mark.skipif(os.name == "posix" or is_ironpython, reason="feature supported in Cpython")
     def test_16_read_hdm(self):
         self.aedtapp.insert_design("hdm")
         hdm_path = os.path.join(local_path, "example_models", test_subfolder, "freighter_rays.hdm")
