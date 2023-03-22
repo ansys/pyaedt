@@ -71,7 +71,7 @@ jobs:
         run: |
           testenv\Scripts\Activate.ps1
           Set-Item -Path env:PYTHONMALLOC -Value "malloc"
-          pytest -n 6 --dist loadfile -v --junitxml=junit/test-results.xml _unittest
+          pytest -n 4 --dist  --durations=50 loadfile -v --junitxml=junit/test-results.xml _unittest
 
       - uses: codecov/codecov-action@v3
         if: matrix.python-version == '3.8'
