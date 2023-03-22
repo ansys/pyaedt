@@ -10,14 +10,14 @@
 
 `PyAEDT` 是一个直接与 `AEDT API` 交互的 `Python` 库。使最终用户的脚本编写更简易。它的框架可重复使用，适用于所有 AEDT 3D 产品（`HFSS`、`Icepak`、`Maxwell 3D` 和 `Q3D Extractor`）、`2D tools` 和 `Ansys Mechanical`。它支持像 `Nexxim` 这样的电路工具和 `Twin Builder` 这样的系统模拟工具。最后它为 `HFSS 3D Layout` 和 `EDB` 等 `Ansys` 布局工具提供脚本功能。它的类方法结构简化了最终用户的操作，同时尽可能在整个 API 中复用信息。
 
-## 使用PyPI在CPython上安装
+## 关于 PyAEDT 的安装
 
-您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.7-3.10` 版本上:
+1. 您可以使用 `PyPI` 工具将 `PyAEDT` 安装在 `CPython 3.7-3.10` 版本上:
 ``` python
   pip install pyaedt
 ```
 
-安装 `PyAEDT` 和以下对应的库（`matplotlib`,  `numpy`, `pandas`, `pyvista`）：
+2. 当您同时需要其他数据处理时可以选择安装 `PyAEDT` 和以下对应的库（`matplotlib`,  `numpy`, `pandas`, `pyvista`）：
 
 ``` python
   pip install pyaedt[all]
@@ -27,7 +27,7 @@
   pip install pyvista
 ```
 
-您也可以从 `Conda-Forge` 安装 `PyAEDT` ：
+3. 您也可以从 `Conda-Forge` 安装 `PyAEDT` ：
 
 ``` python
   conda install -c conda-forge pyaedt
@@ -49,13 +49,13 @@
 pip install .[full]
 ```
 
-## 关于PyAEDT
+## 关于 PyAEDT
 
 `PyAEDT` 是 [PyAnsys](https://docs.pyansys.com "PyAnsys") 的一部分，后者更庞大。努力促进直接从 `Python` 使用 `Ansys` 技术。
 
 `PyAEDT` 旨在整合和扩展 `Ansys Electronics Desktop (AEDT)` 脚本的所有现有功能，以允许重用现有代码、共享最佳实践并加强协作。
 
- ## 关于AEDT
+ ## 关于 AEDT
 
 `Ansys Electronics Desktop (AEDT)` 是一个真正支持电子系统设计的平台。[AEDT](https://www.ansys.com/products/electronics) 使用 `电气CAD(ECAD)` 和 `机械CAD(MCAD)` 工作流程提供对 Ansys gold-standard electro-magnetics 仿真解决方案的访问，例如 `Ansys HFSS`、`Ansys Maxwell`、`Ansys Q3D Extractor`、`Ansys Siwave` 和 `Ansys Icepak`。此外，它还包括与完整的 `Ansys热求解器(Thermal)`、`流体求解器(Fluid)` 和 `机械求解器(Mechanical)` 产品组合的直接连接，用于全面的多物理场分析。这些解决方案之间的紧密集成提供了前所未有的设置易用性，并更快地解决了用于设计和优化的复杂仿真。
 
@@ -90,7 +90,7 @@ pip install .[full]
 
 关于学生版本的更多信息请查阅 [Student Version page](https://www.ansys.com/academic/students/ansys-electronics-desktop-student).
 
-## 为什么选择 PyAEDT?
+## 为什么选择 PyAEDT
 
 在 AEDT UI 中使用记录和重用脚本自动执行是简化操作的一种快速又简便的办法。但是，此方法有以下缺陷：
 
@@ -200,7 +200,7 @@ CPython 服务器：
 要运行`PyAEDT`，您必须拥有`AEDT`的本地许可证。
 `PyAEDT`在`MIT`许可下获得许可。这个模块对`Ansys`没有任何商业要求。`PyAEDT`通过向`AEDT`添加额外的Python接口扩展了`AEDT`的功能，而不改变原始软件的核心行为或许可。使用`PyAEDT`的交互式控件需要合法授权的`AEDT`本地license。有关`AEDT`的更多信息，请访问`Ansys`网站上的[AEDT页面](https://www.ansys.com/products/electronics)。
 
-## Indices and tables
+## 索引与目录
 
 -  [Index](https://aedt.docs.pyansys.com/release/0.6/genindex.html)
 -  [Module Index](https://aedt.docs.pyansys.com/release/0.6/py-modindex.html)
