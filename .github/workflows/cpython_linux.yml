@@ -36,8 +36,10 @@ jobs:
       - name: 'Unit testing'
         timeout-minutes: 30
         run: |
+          export ANSYSEM_ROOT222=/apps/AnsysEM/v222/Linux64
+          export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
-          pytest -n 6 --durations=50 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest
+          pytest -n 4 --dist loadfile -v --cov=pyaedt  --cov-report=xml --junitxml=junit/test-results.xml --cov-report=html _unittest -p no:faulthandler
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@v3
