@@ -926,7 +926,7 @@ class EDBComponent(object):
         Parameters
         ----------
         extra_soldermask_clearance : float, optional
-            Extra Soldermask value in model units to be applied on component bounding box.
+            Extra Soldermask value in meter to be applied on component bounding box.
         Returns
         -------
             bool
