@@ -1,5 +1,17 @@
 name: Linux_CPython_UnitTests
 
+env:
+  python.version: '3.10'
+  python.venv: 'testvenv'
+  # Following env vars when changed will "reset" the mentioned cache,
+  # by changing the cache file name. It is rendered as ...-v%RESET_XXX%-...
+  # You should go up in number, if you go down (or repeat a previous value)
+  # you might end up reusing a previous cache if it haven't been deleted already.
+  # It applies 7 days retention policy by default.
+  RESET_PIP_CACHE: 0
+  PACKAGE_NAME: PyAEDT
+
+
 on:
   workflow_dispatch:
     inputs:
@@ -19,18 +31,31 @@ concurrency:
 jobs:
   test:
     runs-on: [Linux, pyaedt]
+    strategy:
+      matrix:
+        python-version: [ '3.10' ]
     steps:
       - uses: actions/checkout@v3
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: 'Install pyaedt'
         run: |
-          /apps/actions-runner/_work/_tool/Python/3.10.2/x64/python -m venv .pyaedt_test_env
+          python -m venv .pyaedt_test_env
+          export ANSYSEM_ROOT222=/apps/AnsysEM/v222/Linux64
+          export LD_LIBRARY_PATH=$ANSYSEM_ROOT222/common/mono/Linux64/lib64:$ANSYSEM_ROOT222/Delcross:$LD_LIBRARY_PATH
           source .pyaedt_test_env/bin/activate
-          python -m pip install pip -U
-          python -m pip install wheel setuptools -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
+          python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
           python -c "import sys; print(sys.executable)"
           pip install .[test]
-          pip install pytest-azurepipelines
+          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r requirements/requirements_test.txt
+          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pytest-azurepipelines
+          mkdir tmp
+          cd tmp
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'
