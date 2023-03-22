@@ -1647,6 +1647,7 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup.add_layer("new_layer")
         new_layer = edbapp.stackup["new_layer"]
         assert new_layer.is_stackup_layer
+        assert new_layer.is_negative
         new_layer.name = "renamed_layer"
         assert new_layer.name == "renamed_layer"
         rename_layer = edbapp.stackup["renamed_layer"]
@@ -2261,3 +2262,8 @@ class TestClass(BasisTest, object):
 
     def test_138_pins(self):
         assert len(self.edbapp.pins) > 0
+
+    def test_139_layout_preprocessing(self):
+        assert self.edbapp.core_primitives.create_soldermask_opening("U1A1")
+        assert self.edbapp.core_primitives.create_soldermask_opening(["U1B5", "U2B1"])
+        assert self.edbapp.core_primitives.create_soldermask_opening()
