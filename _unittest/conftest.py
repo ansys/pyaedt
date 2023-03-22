@@ -46,6 +46,7 @@ from pyaedt import Desktop
 from pyaedt import Edb
 from pyaedt import Hfss
 from pyaedt.generic.filesystem import Scratch
+from pyaedt.misc.misc import list_installed_ansysem
 
 test_project_name = "test_primitives"
 
@@ -54,6 +55,8 @@ from _unittest.launch_desktop_tests import run_desktop_tests
 
 # Initialize default desktop configuration
 default_version = "2023.1"
+if "ANSYSEM_ROOT".format(default_version[2:].replace(".", "")) not in list_installed_ansysem():
+    default_version = list_installed_ansysem()[0][2:].replace(".", "")
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
     default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]

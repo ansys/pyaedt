@@ -51,10 +51,8 @@ jobs:
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pip -U
           python -m pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org wheel setuptools -U
           python -c "import sys; print(sys.executable)"
-          pip install .[test]
-          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pytest-xdist
-          mkdir tmp
-          cd tmp
+          pip install .[tests]
+          pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org pytest-azurepipelines
           python -c "import pyaedt; print('Imported pyaedt')"
 
       - name: 'Unit testing'

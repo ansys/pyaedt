@@ -55,9 +55,8 @@ jobs:
       - name: 'Install pyaedt'
         run: |
           testenv\Scripts\Activate.ps1
-          pip install .
-          pip install -r requirements/requirements_test.txt
-          pip install pytest-xdist
+          pip install .[tests]
+          pip install pytest-azurepipelines
           Copy-Item -Path "C:\actions-runner\opengl32.dll" -Destination "testenv\Lib\site-packages\vtkmodules" -Force
           Copy-Item -Path "C:\actions-runner\local_config.json" -Destination "_unittest" -Force
           mkdir tmp
