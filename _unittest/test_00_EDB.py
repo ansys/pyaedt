@@ -1656,7 +1656,7 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup.add_layer("new_layer")
         new_layer = edbapp.stackup["new_layer"]
         assert new_layer.is_stackup_layer
-        assert new_layer.is_negative
+        assert not new_layer.is_negative
         new_layer.name = "renamed_layer"
         assert new_layer.name == "renamed_layer"
         rename_layer = edbapp.stackup["renamed_layer"]
