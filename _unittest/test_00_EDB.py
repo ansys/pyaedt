@@ -1647,6 +1647,7 @@ class TestClass(BasisTest, object):
         assert edbapp.stackup.add_layer("new_layer")
         new_layer = edbapp.stackup["new_layer"]
         assert new_layer.is_stackup_layer
+        assert new_layer.is_negative
         new_layer.name = "renamed_layer"
         assert new_layer.name == "renamed_layer"
         rename_layer = edbapp.stackup["renamed_layer"]
@@ -2258,3 +2259,8 @@ class TestClass(BasisTest, object):
         assert not self.edbapp.design_options.suppress_pads
         self.edbapp.design_options.antipads_always_on = True
         assert self.edbapp.design_options.antipads_always_on
+
+    def test_140_layout_preprocessing(self):
+        assert self.edbapp.core_primitives.create_soldermask_opening("U1A1")
+        assert self.edbapp.core_primitives.create_soldermask_opening(["U1B5", "U2B1"])
+        assert self.edbapp.core_primitives.create_soldermask_opening()
